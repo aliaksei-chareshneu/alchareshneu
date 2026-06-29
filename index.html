@@ -231,6 +231,21 @@
   .event-card .ec-meta{font-size:12px;color:var(--ink-faint);font-family:var(--font-m);letter-spacing:.05em;margin-bottom:8px;}
   .event-card .ec-desc{font-size:13px;color:var(--ink-dim);line-height:1.5;}
 
+  /* MEDALS */
+  .medals-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-top:24px;}
+  .medal-card{
+    background:var(--bg-card);border:1px solid var(--rule);border-radius:6px;
+    padding:24px 20px;display:flex;flex-direction:column;gap:8px;
+    transition:border-color .15s;
+  }
+  .medal-card:hover{border-color:var(--r5);}
+  .medal-icon{font-size:36px;line-height:1;}
+  .medal-title{font-family:var(--font-d);font-size:18px;font-weight:700;color:var(--ink);}
+  .medal-req{font-family:var(--font-m);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--r5);margin-bottom:4px;}
+  .medal-perks{margin:0;padding:0 0 0 16px;color:var(--ink-dim);font-size:13.5px;line-height:1.6;}
+  .medal-perks li{margin-bottom:4px;}
+  .medals-ref-note{margin-top:20px;font-size:13px;color:var(--ink-faint);border-left:2px solid var(--rule);padding-left:12px;}
+
   /* FAQ ACCORDION */
   .faq-category{margin-bottom:10px;}
   .faq-category-label{
@@ -1405,6 +1420,12 @@ function renderMainTab(lang, t) {
         <div class="card-cta">
           <h3>${t.main.ctas[2][0]}</h3>
           <p>${t.main.ctas[2][1]}</p>
+          <p style="font-size:12px; color:var(--r5); margin-top:8px; font-family:var(--font-m);">
+            💰 ${lang==='ru'? 'Brno iD ваучеры покрывают до 80% стоимости (до 4 000 CZK/ребёнок). Найти нас: Aliaksei Chareshneu, IČO 23041625.' :
+               lang==='uk'? 'Brno iD ваучери покривають до 80% вартості (до 4 000 CZK/дитина). Знайти нас: Aliaksei Chareshneu, IČO 23041625.' :
+               lang==='cs'? 'Brno iD vouchery hradí až 80 % nákladů (až 4 000 CZK/dítě). Najít nás: Aliaksei Chareshneu, IČO 23041625.' :
+               'Brno iD vouchers cover up to 80% of costs (up to 4,000 CZK/child). Find us: Aliaksei Chareshneu, IČO 23041625.'}
+          </p>
           <div style="display:flex; gap:10px; flex-wrap:wrap;">
             <a class="btn solid" href="${PERSONAL_WA}" target="_blank" rel="noopener">${t.hero.cta1}</a>
             <a class="btn" href="${PERSONAL_TG}" target="_blank" rel="noopener">${t.hero.cta2}</a>
@@ -1550,6 +1571,118 @@ const FAQ = {
   ]
 };
 
+const MEDALS = {
+  eyebrow: {ru:'Звания & Медали', en:'Ranks & Medals', cs:'Hodnosti & Medaile', uk:'Звання & Медалі'},
+  title:   {ru:'Система наград BrnoWalkers', en:'BrnoWalkers Reward System', cs:'Systém odměn BrnoWalkers', uk:'Система нагород BrnoWalkers'},
+  refNote: {
+    ru:'1 реферал, пришедший на 2 платных мероприятия = 2 собственных мероприятия в зачёт. Доказательства предоставляет участник самостоятельно.',
+    en:'1 referral who attends 2 paid events = 2 events credited to your count. Participants provide proof themselves.',
+    cs:'1 doporučený, který přijde na 2 placené akce = 2 akce připsané na váš účet. Doklady předkládá účastník sám.',
+    uk:'1 реферал, що прийшов на 2 платних заходи = 2 заходи в залік. Докази надає учасник самостійно.'
+  },
+  levels: [
+    {
+      medal: '⚪',
+      color: '#ccc',
+      title: {ru:'Следопыт', en:'Scout', cs:'Průzkumník', uk:'Слідопит'},
+      req:   {ru:'5 платных мероприятий', en:'5 paid events', cs:'5 placených akcí', uk:'5 платних заходів'},
+      perks: {
+        ru:['Медаль Следопыта', 'Публичное признание в группе'],
+        en:['Scout medal', 'Public recognition in the group'],
+        cs:['Medaile Průzkumníka', 'Veřejné uznání ve skupině'],
+        uk:['Медаль Слідопита', 'Публічне визнання в групі']
+      }
+    },
+    {
+      medal: '⚫',
+      color: '#444',
+      title: {ru:'Ходок', en:'Walker', cs:'Chodec', uk:'Ходок'},
+      req:   {ru:'15 мероприятий (своих + зачётных)', en:'15 events (own + credited)', cs:'15 akcí (vlastní + připsané)', uk:'15 заходів (власних + зарахованих)'},
+      perks: {
+        ru:['Медаль Ходока', 'Приоритетная запись на лимитированные мероприятия за 48ч до открытия — каноэ, пещеры, выезды'],
+        en:['Walker medal', 'Priority registration for limited events 48h before public opening — canoe, caves, expeditions'],
+        cs:['Medaile Chodce', 'Přednostní přihlášení na limitované akce 48h před otevřením — kanoe, jeskyně, výjezdy'],
+        uk:['Медаль Ходока', 'Пріоритетний запис на лімітовані заходи за 48год до відкриття — каное, печери, виїзди']
+      }
+    },
+    {
+      medal: '🥈',
+      color: '#a0a0b0',
+      title: {ru:'Следопыт Моравии', en:'Moravia Scout', cs:'Průzkumník Moravy', uk:'Слідопит Моравії'},
+      req:   {ru:'30 мероприятий (своих + зачётных)', en:'30 events (own + credited)', cs:'30 akcí (vlastní + připsané)', uk:'30 заходів (власних + зарахованих)'},
+      perks: {
+        ru:['Серебряная медаль', 'Одно бесплатное мероприятие в год на выбор', 'Имя на сайте в разделе участников'],
+        en:['Silver medal', 'One free event per year of your choice', 'Name on the website in the members section'],
+        cs:['Stříbrná medaile', 'Jedna bezplatná akce ročně dle výběru', 'Jméno na webu v sekci členů'],
+        uk:['Срібна медаль', 'Один безкоштовний захід на рік на вибір', "Ім'я на сайті в розділі учасників"]
+      }
+    },
+    {
+      medal: '🥇',
+      color: '#c9a84c',
+      title: {ru:'Хранитель Моравии', en:'Guardian of Moravia', cs:'Strážce Moravy', uk:'Хранитель Моравії'},
+      req:   {ru:'60 мероприятий (своих + зачётных)', en:'60 events (own + credited)', cs:'60 akcí (vlastní + připsané)', uk:'60 заходів (власних + зарахованих)'},
+      perks: {
+        ru:[
+          'Золотая медаль',
+          'Место на любом лимитированном мероприятии зарезервировано автоматически — каноэ, пещеры, выезды',
+          'Одно бесплатное мероприятие каждый год',
+          'Право предложить маршрут или формат мероприятия раз в год — если набирается группа, проводим',
+          'Имя и фото на сайте в разделе «Хранители» — видны всем новым участникам',
+          'Роль старшего в группе по желанию с зачётом мероприятий'
+        ],
+        en:[
+          'Gold medal',
+          'A spot at any limited event reserved automatically — canoe, caves, expeditions',
+          'One free event every year',
+          'Right to propose a route or event format once a year — if a group forms, we run it',
+          'Name and photo on the website in the "Guardians" section — visible to all new members',
+          'Optional senior group role with event credits'
+        ],
+        cs:[
+          'Zlatá medaile',
+          'Místo na jakékoli limitované akci rezervováno automaticky — kanoe, jeskyně, výjezdy',
+          'Jedna bezplatná akce každý rok',
+          'Právo navrhnout trasu nebo formát akce jednou ročně — pokud se sestaví skupina, jedeme',
+          'Jméno a foto na webu v sekci „Strážci" — viditelné pro všechny nové účastníky',
+          'Volitelná role vedoucího skupiny se zápisem akcí'
+        ],
+        uk:[
+          'Золота медаль',
+          'Місце на будь-якому лімітованому заході зарезервоване автоматично — каное, печери, виїзди',
+          'Один безкоштовний захід щороку',
+          'Право запропонувати маршрут або формат заходу раз на рік — якщо набирається група, проводимо',
+          "Ім'я та фото на сайті в розділі «Хранителі» — видні всім новим учасникам",
+          'Роль старшого в групі за бажанням із зарахуванням заходів'
+        ]
+      }
+    }
+  ]
+};
+
+function renderMedals(lang) {
+  const d = MEDALS;
+  const cards = d.levels.map(lvl => `
+    <div class="medal-card">
+      <div class="medal-icon">${lvl.medal}</div>
+      <div class="medal-title">${lvl.title[lang]}</div>
+      <div class="medal-req">${lvl.req[lang]}</div>
+      <ul class="medal-perks">
+        ${lvl.perks[lang].map(p => `<li>${p}</li>`).join('')}
+      </ul>
+    </div>`).join('');
+
+  return `
+  <section id="medals">
+    <div class="wrap">
+      <div class="eyebrow-sm">${d.eyebrow[lang]}</div>
+      <h2 class="anchor-heading">${d.title[lang]}<a class="anchor-link" href="#medals">#</a></h2>
+      <div class="medals-grid">${cards}</div>
+      <p class="medals-ref-note">${d.refNote[lang]}</p>
+    </div>
+  </section>`;
+}
+
 const FAQ_LABELS = {
   ru: 'Частые вопросы',
   en: 'FAQ',
@@ -1664,6 +1797,8 @@ function renderWalkersTab(lang, t) {
   </div>
 
   ${renderEventTypes(lang)}
+
+  ${renderMedals(lang)}
 
   <section id="walkers-about">
     <div class="wrap clearfix">
