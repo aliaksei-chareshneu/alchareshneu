@@ -1284,17 +1284,60 @@ function renderTabsNav(lang){
   `).join('');
 
   document.querySelectorAll('#tabsNav button').forEach(b => {
-    b.onclick = () => {
-      switchTab(b.dataset.tab);
-    };
+    b.onclick = () => switchTab(b.dataset.tab);
   });
 }
 
-window.switchTab = function(tabId) {
+window.switchTab = function(tabId, sectionId) {
   currentTab = tabId;
+  // Build hash: #tab or #tab/section
+  const hash = sectionId ? `#${tabId}/${sectionId}` : `#${tabId}`;
+  history.pushState({tab: tabId, section: sectionId || null}, '', hash);
   render(currentLang);
-  window.scrollTo({top:0, behavior:'smooth'});
+  if(sectionId) {
+    setTimeout(() => {
+      const el = document.getElementById(sectionId);
+      if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+    }, 80);
+  } else {
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
 };
+
+// Parse hash into {tab, section}
+function parseHash() {
+  const raw = (location.hash || '').replace('#','');
+  if(!raw) return {tab:'main', section:null};
+  const parts = raw.split('/');
+  const tab = ['main','walkers','druzina'].includes(parts[0]) ? parts[0] : 'main';
+  const section = parts[1] || null;
+  return {tab, section};
+}
+
+// Handle browser back/forward
+window.addEventListener('popstate', () => {
+  const {tab, section} = parseHash();
+  currentTab = tab;
+  render(currentLang);
+  if(section) {
+    setTimeout(() => {
+      const el = document.getElementById(section);
+      if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+    }, 80);
+  }
+});
+
+// Intercept all anchor-link # clicks inside rendered content
+document.addEventListener('click', (e) => {
+  const a = e.target.closest('a.anchor-link');
+  if(!a) return;
+  e.preventDefault();
+  const sectionId = a.getAttribute('href').replace('#','');
+  const hash = `#${currentTab}/${sectionId}`;
+  history.pushState({tab: currentTab, section: sectionId}, '', hash);
+  const el = document.getElementById(sectionId);
+  if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+});
 
 function renderGlobalRulesText(lang) {
   return `
@@ -1943,7 +1986,16 @@ function detectLang(){
   return 'en';
 }
 
-render(detectLang());
+const initLang = detectLang();
+const initHash = parseHash();
+currentTab = initHash.tab;
+render(initLang);
+if(initHash.section) {
+  setTimeout(() => {
+    const el = document.getElementById(initHash.section);
+    if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+  }, 120);
+}
 </script>
 </body>
 </html>
