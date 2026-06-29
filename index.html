@@ -439,7 +439,7 @@ const T = {
 ru:{
   meta:{title:'Aliaksei Chareshneu, PhD | Алексей Черешнев, доктор наук — Брно'},
   nav:{brand:'Aliaksei Chareshneu, PhD | Алексей Черешнев, доктор наук', sub:'Экосистема проектов в Брно'},
-  tabs:{main:'Обо мне & Экосистема', walkers:'Брноходцы (Hiking & Boardgames & Fun)', druzina:'Дружина Моравы (Safe Swords, Bows & More)', boardgames:'Настолки (бесплатно)'},
+  tabs:{main:'Обо мне & Экосистема', walkers:'Брноходцы (Hiking & Boardgames & Fun)', druzina:'Дружина Моравы (Safe Swords, Bows & More)'},
   hero:{
     eyebrow:'Брно · Движение · Интеллект',
     cta1:'WhatsApp', cta2:'Telegram',
@@ -643,7 +643,7 @@ ru:{
 en:{
   meta:{title:'Aliaksei Chareshneu, PhD | Алексей Черешнев, доктор наук — Brno'},
   nav:{brand:'Aliaksei Chareshneu, PhD | Алексей Черешнев, доктор наук', sub:'Ecosystem of projects in Brno'},
-  tabs:{main:'About Me & Ecosystem', walkers:'BrnoWalkers (Hiking & Boardgames & Fun)', druzina:'Druzhina Moravy (Safe Swords, Bows & More)', boardgames:'Board Games (Free)'},
+  tabs:{main:'About Me & Ecosystem', walkers:'BrnoWalkers (Hiking & Boardgames & Fun)', druzina:'Druzhina Moravy (Safe Swords, Bows & More)'},
   hero:{
     eyebrow:'Brno · Movement · Mind',
     cta1:'WhatsApp', cta2:'Telegram',
@@ -847,7 +847,7 @@ en:{
 cs:{
   meta:{title:'Aliaksei Chareshneu, PhD | Алексей Черешнев, доктор наук — Brno'},
   nav:{brand:'Aliaksei Chareshneu, PhD | Алексей Черешнев, доктор наук', sub:'Ekosystém projektů v Brně'},
-  tabs:{main:'O mně & Ekosystém', walkers:'BrnoWalkers (Hiking & Boardgames & Fun)', druzina:'Družina Moravy (Safe Swords, Bows & More)', boardgames:'Deskové hry (zdarma)'},
+  tabs:{main:'O mně & Ekosystém', walkers:'BrnoWalkers (Hiking & Boardgames & Fun)', druzina:'Družina Moravy (Safe Swords, Bows & More)'},
   hero:{
     eyebrow:'Brno · Pohyb · Mysl',
     cta1:'WhatsApp', cta2:'Telegram',
@@ -1051,7 +1051,7 @@ cs:{
 uk:{
   meta:{title:'Aliaksei Chareshneu, PhD | Алексей Черешнев, доктор наук — Брно'},
   nav:{brand:'Aliaksei Chareshneu, PhD | Алексей Черешнев, доктор наук', sub:'Екосистема проєктів у Брно'},
-  tabs:{main:'Про мене & Екосистема', walkers:'Брнохідці (Hiking & Boardgames & Fun)', druzina:'Дружина Моравії (Safe Swords, Bows & More)', boardgames:'Настілки (безкоштовно)'},
+  tabs:{main:'Про мене & Екосистема', walkers:'Брнохідці (Hiking & Boardgames & Fun)', druzina:'Дружина Моравії (Safe Swords, Bows & More)'},
   hero:{
     eyebrow:'Брно · Рух · Інтелект',
     cta1:'WhatsApp', cta2:'Telegram',
@@ -1733,47 +1733,6 @@ function toggleFAQ(id) {
   ans.style.maxHeight = isOpen ? '0' : ans.scrollHeight + 'px';
 }
 
-function renderBoardgamesTab(lang) {
-  const d = BOARDGAMES;
-  const gamesText = lang==='en' ? d.gamesEn : lang==='cs' ? d.gamesCs : lang==='uk' ? d.gamesUk : d.games;
-  return `
-  <section class="hero">
-    <div class="wrap">
-      <div class="eyebrow">${d.eyebrow[lang]}</div>
-      <h1>${d.title[lang]}</h1>
-      <p class="tagline">${d.tagline[lang]}</p>
-      <div class="hero-ctas">
-        <a class="btn solid" href="${REGISTER_FORM}" target="_blank" rel="noopener">${d.registerBtn[lang]}</a>
-      </div>
-      <p class="free-note">${d.contactNote[lang]}</p>
-    </div>
-  </section>
-
-  <div class="wrap" style="padding-top:0;">
-    <div class="hero-img"><img src="${IMG_BOARDGAMES}" alt="Board game evening Scythe Brno" loading="lazy"></div>
-  </div>
-
-  <section id="bg-about">
-    <div class="wrap">
-      <h2 class="anchor-heading">${d.aboutH[lang]}<a class="anchor-link" href="#bg-about">#</a></h2>
-      <p class="lead">${d.aboutText[lang]}</p>
-    </div>
-  </section>
-
-  <section id="bg-games">
-    <div class="wrap">
-      <h2 class="anchor-heading">${d.gamesH[lang]}<a class="anchor-link" href="#bg-games">#</a></h2>
-      <p style="font-size:17px; line-height:1.8; color:var(--ink-dim);">${gamesText}</p>
-      <div class="callout" style="margin-top:28px;">
-        <p><strong>${d.bringH[lang]}</strong> ${d.bringText[lang]}</p>
-        <div style="margin-top:16px;">
-          <a class="btn solid" href="${REGISTER_FORM}" target="_blank" rel="noopener">${d.registerBtn[lang]}</a>
-        </div>
-      </div>
-    </div>
-  </section>
-  `;
-}
 
 function renderWalkersTab(lang, t) {
   const lnk = communityLinks(lang, 'walkers');
