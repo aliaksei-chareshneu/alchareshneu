@@ -1,0 +1,1949 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aliaksei Chareshneu, PhD | Алексей Черешнев, доктор наук — Брно</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:wght=500;600;700&family=Source+Sans+3:wght=400;500;600;700&family=JetBrains+Mono:wght=500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#16171a;
+    --bg-alt:#1d1f23;
+    --bg-card:#212328;
+    --ink:#ece7d8;
+    --ink-dim:#9b968b;
+    --ink-faint:#6b6862;
+    --rule:#34373d;
+    --r1:#ece7d8;
+    --r2:#b2433a;
+    --r3:#2e5c8a;
+    --r4:#43785a;
+    --r5:#c9a227;
+    --font-d:'Spectral',serif;
+    --font-b:'Source Sans 3',sans-serif;
+    --font-m:'JetBrains Mono',monospace;
+    --maxw:780px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--font-b);
+    font-size:16px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--r5);text-decoration:none;}
+  a:hover{text-decoration:underline;}
+  a:focus-visible,button:focus-visible,[tabindex]:focus-visible{
+    outline:2px solid var(--r5);outline-offset:3px;
+  }
+  h1,h2,h3{font-family:var(--font-d);font-weight:600;margin:0 0 .5em;letter-spacing:.01em;}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 22px;}
+  section{padding:56px 0;border-top:1px solid var(--rule);}
+  section:first-of-type{border-top:none;}
+
+  /* NAV */
+  .nav{
+    position:sticky;top:0;z-index:50;
+    background:rgba(22,23,26,.92);backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--rule);
+  }
+  .nav .wrap{display:flex;align-items:center;justify-content:space-between;padding:14px 22px;max-width:var(--maxw);}
+  .brand{font-family:var(--font-d);font-weight:600;font-size:16px;letter-spacing:.01em;color:var(--ink);line-height:1.2;}
+  .brand small{display:block;font-family:var(--font-b);font-weight:400;font-size:10px;letter-spacing:.14em;color:var(--ink-faint);text-transform:uppercase;margin-top:4px;}
+  .langs{display:flex;gap:4px;}
+  .langs button{
+    font-family:var(--font-m);font-size:12px;font-weight:700;letter-spacing:.05em;
+    background:none;border:1px solid var(--rule);color:var(--ink-dim);
+    padding:6px 9px;border-radius:3px;cursor:pointer;transition:all .15s;
+  }
+  .langs button:hover{border-color:var(--ink-dim);color:var(--ink);}
+  .langs button[aria-pressed="true"]{background:var(--r5);border-color:var(--r5);color:#16171a;}
+
+  /* TABS BAR */
+  .tabs-bar{
+    background:var(--bg-alt);
+    border-bottom:1px solid var(--rule);
+    position:sticky;top:55px;z-index:45;
+  }
+  .tabs-bar .wrap{display:flex;gap:6px;padding:8px 22px;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  .tabs-bar .wrap::-webkit-scrollbar{display:none;}
+  .tab-btn{
+    font-family:var(--font-b);font-size:13.5px;font-weight:600;
+    background:none;border:1px solid transparent;color:var(--ink-dim);
+    padding:8px 14px;border-radius:4px;cursor:pointer;white-space:nowrap;transition:all .15s;
+  }
+  .tab-btn:hover{color:var(--ink);background:rgba(255,255,255,0.04);}
+  .tab-btn.active{background:var(--rule);color:var(--r5);}
+
+  /* HERO */
+  .hero{padding:64px 0 48px;}
+  .hero .eyebrow{font-family:var(--font-m);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--r5);margin-bottom:14px;}
+  .hero h1{font-size:clamp(34px,7vw,52px);line-height:1.05;margin-bottom:14px;}
+  .hero .tagline{font-size:18px;color:var(--ink-dim);max-width:520px;margin-bottom:30px;}
+  .cord-strip{display:flex;height:10px;border-radius:5px;overflow:hidden;margin-bottom:30px;max-width:340px;}
+  .cord-strip span{flex:1;}
+  .hero-ctas{display:flex;gap:12px;flex-wrap:wrap;align-items:center;}
+  .btn{
+    display:inline-block;font-family:var(--font-b);font-weight:600;font-size:14px;
+    padding:13px 22px;border-radius:4px;border:1px solid var(--r5);color:var(--r5);
+    background:none;cursor:pointer;transition:all .15s;text-align:center;
+  }
+  .btn:hover{background:var(--r5);color:#16171a;text-decoration:none;}
+  .btn.solid{background:var(--r5);color:#16171a;}
+  .btn.solid:hover{background:transparent;color:var(--r5);}
+  .free-note{margin-top:18px;font-size:13px;color:var(--ink-faint);}
+
+  /* GENERIC */
+  .eyebrow-sm{font-family:var(--font-m);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:10px;}
+  h2{font-size:26px;}
+  p{margin:0 0 1em;color:var(--ink-dim);}
+  p:last-child{margin-bottom:0;}
+  strong{color:var(--ink);}
+  .lead{font-size:17px;color:var(--ink);margin-bottom:24px;}
+
+  .facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);margin-top:8px;}
+  .fact{background:var(--bg-card);padding:16px;}
+  .fact .v{font-family:var(--font-d);font-size:18px;color:var(--ink);}
+  .fact .l{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);margin-top:4px;}
+
+  table{width:100%;border-collapse:collapse;margin-top:8px;font-size:14.5px;}
+  th{font-family:var(--font-m);font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-faint);text-align:left;padding:10px 12px;border-bottom:1px solid var(--rule);font-weight:500;}
+  td{padding:13px 12px;border-bottom:1px solid var(--rule);color:var(--ink-dim);vertical-align:top;}
+  td strong{color:var(--ink);}
+  tr:last-child td{border-bottom:none;}
+  .tbl-wrap{overflow-x:auto;}
+
+  ul.plain{list-style:none;margin:0;padding:0;}
+  ul.plain li{padding:9px 0;border-bottom:1px solid var(--rule);color:var(--ink-dim);}
+  ul.plain li:last-child{border-bottom:none;}
+  ul.plain li strong{color:var(--ink);}
+
+  .note{font-size:13.5px;color:var(--ink-faint);font-style:italic;margin-top:14px;}
+
+  .callout{
+    margin:24px 0;padding:20px 22px;border:1px solid var(--r5);border-radius:4px;
+    background:linear-gradient(135deg,rgba(201,162,39,.08),rgba(201,162,39,.02));
+    text-align:center;
+  }
+  .callout .big{font-family:var(--font-d);font-size:22px;color:var(--r5);font-weight:700;}
+  .callout p{color:var(--ink);margin-top:6px;font-size:15px;}
+
+  /* ECOSYSTEM GRID LINKS */
+  .grid-ctas{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:24px;}
+  .card-cta{background:var(--bg-card);padding:24px;border-left:4px solid var(--r5);border-radius:0 4px 4px 0;}
+  .card-cta h3{font-size:19px;color:var(--ink);margin-bottom:8px;}
+  .card-cta p{font-size:14.5px;margin-bottom:18px;}
+
+  /* RANK LADDER */
+  .ladder{position:relative;margin-top:36px;padding-left:54px;}
+  .ladder::before{
+    content:"";position:absolute;left:14px;top:46px;bottom:0;width:5px;border-radius:3px;
+    background:linear-gradient(to bottom,
+      var(--r2) 0%, var(--r2) 24%,
+      var(--r3) 24%, var(--r3) 48%,
+      var(--r4) 48%, var(--r4) 72%,
+      var(--r5) 72%, var(--r5) 100%);
+    transform:scaleY(0);transform-origin:top;transition:transform 1.4s cubic-bezier(.2,.7,.2,1);
+  }
+  .ladder.revealed::before{transform:scaleY(1);}
+  @media (prefers-reduced-motion: reduce){.ladder::before{transition:none;transform:scaleY(1);}}
+  .rank-start{position:absolute;left:0;top:0;width:34px;height:34px;border:2px solid var(--ink-faint);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-m);font-size:11px;color:var(--ink-faint);background:var(--bg);}
+  .rank-row{position:relative;padding:22px 0 22px 6px;border-bottom:1px solid var(--rule);}
+  .rank-row:last-child{border-bottom:none;}
+  .rank-dot{position:absolute;left:-54px;top:24px;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-m);font-weight:700;font-size:12px;color:#16171a;}
+  .rank-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:4px;}
+  .rank-name{font-family:var(--font-d);font-size:21px;font-weight:600;color:var(--ink);}
+  .rank-sub{font-size:12.5px;color:var(--ink-faint);}
+  .rank-meta{display:flex;gap:18px;flex-wrap:wrap;margin:8px 0 10px;font-size:13px;}
+  .rank-meta .tag{font-family:var(--font-m);font-size:11px;letter-spacing:.04em;color:var(--ink-faint);text-transform:uppercase;}
+  .rank-meta .val{color:var(--ink);}
+  .rank-perk{font-size:14.5px;color:var(--ink-dim);}
+
+  /* RULES ACCORDION/BOX */
+  .rules-scrollbox {
+    background: var(--bg-alt);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 20px;
+    max-height: 450px;
+    overflow-y: auto;
+    font-size: 14px;
+    margin-top: 16px;
+  }
+  .rules-scrollbox h4 {
+    font-family: var(--font-m);
+    color: var(--r5);
+    margin: 18px 0 8px 0;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .rules-scrollbox h4:first-of-type { margin-top: 0; }
+  .rules-scrollbox p, .rules-scrollbox li { color: var(--ink-dim); line-height: 1.5; }
+
+  /* IMAGES */
+  .hero-img{
+    width:100%;max-width:var(--maxw);margin:0 auto 32px;
+    display:block;border-radius:6px;overflow:hidden;
+  }
+  .hero-img img{
+    width:100%;height:auto;display:block;
+    max-height:340px;object-fit:cover;object-position:center;
+    border-radius:6px;
+  }
+  .hero-img.wide img{max-height:260px;object-position:center 30%;}
+  .photo-float{
+    float:right;margin:0 0 18px 24px;
+    width:min(280px, 45%);border-radius:6px;overflow:hidden;
+  }
+  .photo-float img{width:100%;height:200px;object-fit:cover;display:block;border-radius:6px;}
+  .photo-full{margin:24px 0;border-radius:6px;overflow:hidden;}
+  .photo-full img{width:100%;max-height:300px;object-fit:cover;object-position:center 25%;display:block;border-radius:6px;}
+  @media(max-width:560px){.photo-float{float:none;width:100%;margin:0 0 16px;}.photo-float img{height:180px;}}
+  .clearfix::after{content:'';display:table;clear:both;}
+
+  /* ANCHOR HEADINGS */
+  .anchor-heading{position:relative;scroll-margin-top:110px;}
+  .anchor-heading .anchor-link{
+    position:absolute;left:-22px;top:50%;transform:translateY(-50%);
+    opacity:0;color:var(--ink-faint);font-size:14px;text-decoration:none;
+    transition:opacity .15s;
+  }
+  .anchor-heading:hover .anchor-link{opacity:1;}
+  h2.anchor-heading{scroll-margin-top:110px;}
+  section[id]{scroll-margin-top:100px;}
+
+  /* EVENT TYPE CARDS */
+  .event-types{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-top:20px;}
+  .event-card{
+    background:var(--bg-card);border:1px solid var(--rule);border-radius:6px;
+    padding:18px 16px;transition:border-color .15s;
+  }
+  .event-card:hover{border-color:var(--r5);}
+  .event-card .ec-icon{font-size:24px;margin-bottom:8px;}
+  .event-card .ec-title{font-family:var(--font-d);font-weight:600;font-size:15px;margin-bottom:6px;}
+  .event-card .ec-meta{font-size:12px;color:var(--ink-faint);font-family:var(--font-m);letter-spacing:.05em;margin-bottom:8px;}
+  .event-card .ec-desc{font-size:13px;color:var(--ink-dim);line-height:1.5;}
+
+  /* FAQ ACCORDION */
+  .faq-category{margin-bottom:10px;}
+  .faq-category-label{
+    font-family:var(--font-m);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--ink-faint);margin:28px 0 10px;
+  }
+  .faq-item{border:1px solid var(--rule);border-radius:4px;margin-bottom:6px;overflow:hidden;}
+  .faq-q{
+    width:100%;background:var(--bg-card);border:none;color:var(--ink);
+    font-family:var(--font-b);font-size:15px;font-weight:600;
+    text-align:left;padding:16px 18px;cursor:pointer;
+    display:flex;justify-content:space-between;align-items:center;gap:12px;
+    transition:background .15s;
+  }
+  .faq-q:hover{background:var(--bg-alt);}
+  .faq-q .faq-icon{
+    flex-shrink:0;width:20px;height:20px;border-radius:50%;
+    border:1.5px solid var(--ink-faint);color:var(--ink-faint);
+    display:flex;align-items:center;justify-content:center;
+    font-size:14px;line-height:1;transition:transform .2s,border-color .2s,color .2s;
+  }
+  .faq-item.open .faq-icon{transform:rotate(45deg);border-color:var(--r5);color:var(--r5);}
+  .faq-a{
+    max-height:0;overflow:hidden;transition:max-height .3s ease;
+    background:var(--bg-alt);
+  }
+  .faq-a-inner{padding:14px 18px 18px;color:var(--ink-dim);font-size:14.5px;line-height:1.65;}
+  .faq-a-inner strong{color:var(--ink);}
+  .faq-a-inner ul{margin:8px 0 0 18px;padding:0;}
+  .faq-a-inner li{margin-bottom:4px;}
+
+  footer{padding:48px 0 64px;text-align:center;border-top:1px solid var(--rule);}
+  footer h2{font-size:24px;}
+  .footer-contacts{margin:18px 0;font-size:15px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+  .footer-fine{font-size:12px;color:var(--ink-faint);margin-top:36px;}
+
+  @media (max-width:560px){
+    section{padding:42px 0;}
+    .nav .wrap{padding:12px 18px;}
+    .ladder{padding-left:46px;}
+    .rank-dot{left:-46px;width:26px;height:26px;}
+  }
+</style>
+</head>
+<body>
+<nav class="nav">
+  <div class="wrap">
+    <div class="brand" id="navBrand">Aliaksei Chareshneu, PhD | Алексей Черешнев, доктор наук<small id="navSub">Экосистема проектов в Брно</small></div>
+    <div class="langs" id="langSwitch" role="group" aria-label="Language">
+      <button data-lang="ru">RU</button>
+      <button data-lang="uk">UK</button>
+      <button data-lang="cs">CZ</button>
+      <button data-lang="en">EN</button>
+    </div>
+  </div>
+</nav>
+
+<div class="tabs-bar">
+  <div class="wrap" id="tabsNav"></div>
+</div>
+
+<div id="app"></div>
+
+<script>
+// IMAGE PATHS
+const IMG_MAIN_HERO    = 'images/main_hero.png';
+const IMG_BOARDGAMES   = 'images/boardgames.jpg';
+const IMG_DRUZINA_TRAIN= 'images/druzina_train.jpg';
+const IMG_DRUZINA_LARP = 'images/druzina_larp.jpg';
+const IMG_WALKERS_CAVE = 'images/walkers_cave.jpg';
+const IMG_WALKERS_GROUP= 'images/walkers_group.jpg';
+const RANKS = [
+  { roman:'I',  color:'var(--r1)', dot:'#3a3c41', dotText:'var(--ink-dim)',
+    name:{ru:'Отрок',en:'Recruit',cs:'Otrok',uk:'Отрок'},
+    alt:{ru:['Otrok','Recruit'],en:['Otrok','Отрок'],cs:['Recruit','Отрок'],uk:['Otrok','Recruit']},
+    bracelet:{ru:'без браслета',en:'no bracelet',cs:'bez náramku',uk:'без браслета'},
+    threshold:{ru:'пришёл на тренировку',en:'showed up to a training',cs:'přišel na trénink',uk:'прийшов на тренування'},
+    perk:{ru:'Базовый доступ. На первой тренировке можно попробовать любое оружие клуба.',
+          en:'Basic access. At your very first training you can try any weapon in the club.',
+          cs:'Základní přístup. Na první trénink si můžeš vyzkoušet jakoukoli zbraň klubu.',
+          uk:'Базовий доступ. На першому тренуванні можна спробувати будь-яку зброю клубу.'}},
+  { roman:'II', dotColor:'var(--r2)',
+    name:{ru:'Ратник',en:'Warrior',cs:'Ratník',uk:'Ратник'},
+    alt:{ru:['Ratník','Warrior'],en:['Ratník','Ратник'],cs:['Warrior','Ратник'],uk:['Ratník','Warrior']},
+    bracelet:{ru:'красный',en:'red',cs:'červený',uk:'червоний'},
+    threshold:{ru:'8 сессий',en:'8 sessions',cs:'8 sezení',uk:'8 сесій'},
+    perk:{ru:'Приоритет записи на выезды + скидка 5% на личный крафт/ремонт.',
+          en:'Priority booking on club trips + 5% discount on custom craft/repair.',
+          cs:'Priorita při zápisu na výjezdy + 5% sleva na zakázkovou výrobu/opravu.',
+          uk:'Пріоритет запису на выїзди + знижка 5% на особистий крафт/ремонт.'}},
+  { roman:'III', dotColor:'var(--r3)',
+    name:{ru:'Ветеран',en:'Veteran',cs:'Veterán',uk:'Ветеран'},
+    alt:{ru:['Veterán','Veteran'],en:['Veterán','Ветеран'],cs:['Veteran','Ветеран'],uk:['Veterán','Veteran']},
+    bracelet:{ru:'синий',en:'blue',cs:'modrý',uk:'синій'},
+    threshold:{ru:'20 сессий + 2 битвы',en:'20 sessions + 2 battles',cs:'20 sezení + 2 bitvy',uk:'20 сесій + 2 битви'},
+    perk:{ru:'Значок на булавке · приоритет выбора партнёра в свободных раундах спарринга · доступ к особому выезду «Битва под горой» + скидка 10%.',
+          en:'A pin badge · priority choice of sparring partner in free rounds · access to the special trip "Battle Under the Mountain" + 10% discount.',
+          cs:'Odznak na špendlíku · priorita výběru partnera ve volných kolech sparingu · přístup na speciální výjezd „Bitva pod horou“ + 10% sleva.',
+          uk:'Значок на булавці · пріоритет вибору партнера у вільних раундах спарингу · доступ до особливого виїзду «Битва під горою» + знижка 10%.'}},
+  { roman:'IV', dotColor:'var(--r4)',
+    name:{ru:'Витязь',en:'Champion',cs:'Vítěz',uk:'Витязь'},
+    alt:{ru:['Vítěz','Champion'],en:['Vítěz','Витязь'],cs:['Champion','Витязь'],uk:['Vítěz','Champion']},
+    bracelet:{ru:'зелёный',en:'green',cs:'zelený',uk:'зелений'},
+    threshold:{ru:'40 сессий + 5 битв',en:'40 sessions + 5 battles',cs:'40 sezení + 5 bitev',uk:'40 сесій + 5 битв'},
+    perk:{ru:'Приоритетный доступ к лучшему/новому снаряжению клуба + скидка 15%.',
+          en:'Priority access to the club\'s best/newest gear + 15% discount.',
+          cs:'Prioritní přístup k nejlepší/nové výbavě klubu + 15% sleva.',
+          uk:'Пріоритетний доступ до найкращого/нового спорядження клубу + знижка 15%.'}},
+  { roman:'V', dotColor:'var(--r5)', dotText:'#16171a',
+    name:{ru:'Тысяцкий',en:'Warlord',cs:'Tisícník',uk:'Тисяцький'},
+    alt:{ru:['Tisícník','Warlord'],en:['Tisícník','Тысяцкий'],cs:['Warlord','Тисяцький'],uk:['Tisícník','Warlord']},
+    bracelet:{ru:'чёрный с золотой нитью',en:'black with a gold thread',cs:'černý se zlatou nití',uk:'чорний із золотою ниткою'},
+    threshold:{ru:'100 сессий, стаж 1+ год, 10 битв',en:'100 sessions, 1+ year tenure, 10 battles',cs:'100 sezení, 1+ rok praxe, 10 bitev',uk:'100 сесій, стаж 1+ рік, 10 битв'},
+    perk:{ru:'Ведёт тренировки самостоятельно в отсутствие главного тренера + скидка 20%.',
+          en:'Runs trainings independently when the head trainer is away + 20% discount.',
+          cs:'Vede tréninky samostatně v nepřítomnosti hlavního trenéra + 20% sleva.',
+          uk:'Веде тренування самостійно за відсутності головного тренера + знижка 20%.'}},
+];
+
+const ROLES = [
+  { role:{ru:'Рекрутер',en:'Recruiter',cs:'Náborář',uk:'Рекрутер'},
+    what:{ru:'Привлекает новых участников',en:'Brings in new members',cs:'Přivádí nové členy',uk:'Залучає нових учасників'},
+    reward:{ru:'Статус и видимость в клубе + бонус +5 сессий к рангу за каждого удержанного',
+            en:'Status and visibility in the club + a +5-session rank bonus for every retained referral',
+            cs:'Status a viditelnost v klubu + bonus +5 sezení k hodnosti za každého udrženého nováčka',
+            uk:'Статус і видимість у клубі + бонус +5 сесій до рангу за кожного утриманого'}},
+  { role:{ru:'Турнирник',en:'Tournament fighter',cs:'Turnajový bojovník',uk:'Турнірник'},
+    what:{ru:'Представляет клуб на турнирах и баттлах как боец',en:'Represents the club at tournaments and battles as a fighter',cs:'Reprezentuje klub na turnajích a bitvách jako bojovník',uk:'Представляє клуб на турнірах і баттлах как бійець'},
+    reward:{ru:'Статус «лицо клуба»: приоритет в фото/видео для соцсетей',
+            en:'"Face of the club" status: priority placement in photos/videos for social media',
+            cs:'Status „tvář klubu“: priorita ve fotkách/videích pro sociální sítě',
+            uk:'Статус «обличчя клубу»: пріоритет у фото/відео для соцмереж'}},
+  { role:{ru:'Помощник командира-тренера',en:'Assistant commander-trainer',cs:'Asistent velitele-trenéra',uk:'Помічник командира-тренера'},
+    what:{ru:'Помогает вести часть тренировки',en:'Helps lead part of a training session',cs:'Pomáhá vést část tréninku',uk:'Допомагає вести частину тренування'},
+    reward:{ru:'Титул + ускоренный путь к статусу кандидата в заместители',
+            en:'Title + a faster track toward becoming a candidate deputy',
+            cs:'Titul + zrychlená cesta ke statusu kandidáta na zástupce',
+            uk:'Титул + прискорений шлях до статусу кандидата в заступники'}},
+  { role:{ru:'Ремесленник',en:'Craftsman',cs:'Řemeslník',uk:'Ремісник'},
+    what:{ru:'Ремонт и обслуживание общего снаряжения клуба',en:'Repairs and maintains the club\'s shared gear',cs:'Opravuje a udržuje společnou výbavu klubu',uk:'Ремонт і обслуговування спільного спорядження клубу'},
+    reward:{ru:'Бартер: часы работы по ремонту обмениваются на бесплатные тренировки',
+            en:'Barter: repair hours are exchanged for free training sessions',
+            cs:'Barter: hodiny opravářské práce se vyměňují za bezplatné tréninky',
+            uk:'Бартер: години ремонтної роботи обмінюються на безкоштовні тренування'}},
+  { role:{ru:'Логист',en:'Logistics',cs:'Logistik',uk:'Логіст'},
+    what:{ru:'Транспорт, маршруты, распределение снаряжения/еды/палаток на выезды',en:'Transport, routes, distributing gear/food/tents for trips',cs:'Doprava, trasy, rozdělení výbavy/jídla/stanů na výjezdy',uk:'Транспорт, маршрути, розподіл спорядження/їжі/наметів на виїзди'},
+    reward:{ru:'Статус + приоритетное место в машине/палатке на выезде',
+            en:'Status + priority spot in the car/tent on trips',
+            cs:'Status + prioritní místo v autě/stanu na výjezdu',
+            uk:'Статус + пріоритетне місце в машині/наметі на виїзді'}},
+];
+
+const REGISTER_FORM = 'https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog';
+
+const BOARDGAMES = {
+  title:   {ru:'Настолки',        en:'Board Games',    cs:'Deskové hry',    uk:'Настілки'},
+  eyebrow: {ru:'Бесплатно',       en:'Free',           cs:'Zdarma',         uk:'Безкоштовно'},
+  tagline: {ru:'Вторник · 18:00 · Утопия Центр Коближна',
+            en:'Tuesday · 18:00 · Utopia Centre Koblizna',
+            cs:'Úterý · 18:00 · Utopia Centre Koblizna',
+            uk:'Вівторок · 18:00 · Utopia Центр Коближна'},
+  aboutH:  {ru:'Вечер настольных игр', en:'Board Game Evening', cs:'Večer deskových her', uk:'Вечір настільних ігор'},
+  aboutText:{
+    ru:'Каждый вторник (практически регулярно — точное расписание уточняй в контактах) собираемся в <strong>Utopia Centre Koblizna</strong> в 18:00. Вход свободный.<br><br>Есть два стола: <strong>русскоязычный</strong> и <strong>англоязычный</strong>. Хочешь стол на другом языке — пиши в контакты, создадим.',
+    en:'Every Tuesday (almost weekly — confirm current schedule via contacts) we meet at <strong>Utopia Centre Koblizna</strong> at 18:00. Free entry.<br><br>We run two tables: one in <strong>Russian</strong>, one in <strong>English</strong>. Want a table in another language? Write to us — we\'ll set it up.',
+    cs:'Každé úterý (téměř pravidelně — aktuální termíny ověř v kontaktech) se scházíme v <strong>Utopia Centre Koblizna</strong> v 18:00. Vstup zdarma.<br><br>Máme dva stoly: jeden v <strong>ruštině</strong>, jeden v <strong>angličtině</strong>. Chceš stůl v jiném jazyce? Napiš nám — zorganizujeme.',
+    uk:'Кожен вівторок (майже регулярно — точний розклад уточнюй у контактах) збираємось у <strong>Utopia Centre Koblizna</strong> о 18:00. Вхід вільний.<br><br>Є два столи: <strong>російськомовний</strong> та <strong>англомовний</strong>. Хочеш стіл іншою мовою — пиши в контакти, організуємо.'
+  },
+  gamesH:  {ru:'Во что играем', en:'What we play', cs:'Co hrajeme', uk:'У що граємо'},
+  games:   'Avalon · Серп / Scythe · Мафия · Uno · Цитадель · Brass · Манчкин · …и многое другое',
+  gamesEn: 'Avalon · Scythe · Mafia · Uno · Citadels · Brass · Munchkin · …and much more',
+  gamesCs: 'Avalon · Scythe · Mafia · Uno · Citadely · Brass · Munchkin · …a spousta dalšího',
+  gamesUk: 'Avalon · Серп · Мафія · Uno · Цитаделі · Brass · Манчкін · …і багато іншого',
+  bringH:  {ru:'Приноси свои игры!', en:'Bring your own games!', cs:'Přines vlastní hry!', uk:'Приноси свої ігри!'},
+  bringText:{
+    ru:'Мы приветствуем, когда участники приносят собственные настолки — чем разнообразнее, тем веселее.',
+    en:'We love it when players bring their own games — the more variety, the better.',
+    cs:'Vítáme, když hráči přinesou vlastní hry — čím větší výběr, tím lépe.',
+    uk:'Ми вітаємо, коли учасники приносять власні настілки — чим різноманітніше, тим веселіше.'
+  },
+  registerBtn:{ru:'Зарегистрироваться на вечер', en:'Register for the evening', cs:'Zaregistrovat se na večer', uk:'Зареєструватися на вечір'},
+  contactNote:{
+    ru:'Уточнить актуальное расписание или предложить новый языковой стол — через контакты.',
+    en:'To confirm the current schedule or propose a new language table — reach us via contacts.',
+    cs:'Pro potvrzení aktuálního rozvrhu nebo návrh nového jazykového stolu — kontaktujte nás.',
+    uk:'Уточнити актуальний розклад або запропонувати новий мовний стіл — через контакти.'
+  }
+};
+
+const T = {
+ru:{
+  meta:{title:'Aliaksei Chareshneu, PhD | Алексей Черешнев, доктор наук — Брно'},
+  nav:{brand:'Aliaksei Chareshneu, PhD | Алексей Черешнев, доктор наук', sub:'Экосистема проектов в Брно'},
+  tabs:{main:'Обо мне & Экосистема', walkers:'Брноходцы (Hiking & Boardgames & Fun)', druzina:'Дружина Моравы (Safe Swords, Bows & More)', boardgames:'Настолки (бесплатно)'},
+  hero:{
+    eyebrow:'Брно · Движение · Интеллект',
+    cta1:'WhatsApp', cta2:'Telegram',
+  },
+  main:{
+    title:'Твой проводник в Брно',
+    tagline:'Развиваем тело, навыки и интеллект. Полный диапазон школьных и нешкольных предметов (точные науки, биохимия, IT, языки, музыка), а также походы, фехтование и кастомный крафт.',
+    aboutH:'Кто такой Алексей Черешнев?',
+    aboutText:'Я создаю и развиваю живые сообщества в Брно, координирую проекты и обучаю людей. Моя цель — вытащить участников из рутины, предоставив комплексное пространство для физического роста (хайкинг, спорт), творческо-прикладного развития (крафт) и глубокого интеллектуального буста (премиум-репетиторство по широкому спектру предметов). Без нудной зубрёжки — только интерактив, индивидуальные цели и практический результат.',
+    matrixH:'Шкала наших мероприятий и цен',
+    matrixIntro:'Мы построили экосистему так, чтобы вход был доступен абсолютно любому человеку (есть бесплатные уровни), но при этом существовали глубокие премиум-форматы для индивидуальной прокачки.',
+    headers:['Направление','Доступный / Бесплатный уровень','Регулярный / Премиум уровень'],
+    rows:[
+      ['Физическая активность (Спорт & Туризм)','<strong>Брноходцы:</strong> Походы выходного дня, скалы, замки Моравии (платно, цена в анонсе)<br><br><strong>Дружина Моравы:</strong> Первая ознакомительная тренировка (0 Kč)','<strong>Дружина Моравы:</strong> Регулярные тренировки HEMA/LARP (100–200 Kč за сессию или Berserk Pass)<br><br><strong>Moravian Squad:</strong> Спорт и выезды для детей 5–15 лет'],
+      ['Интеллектуальная активность (Разум & Дисциплины)','Исторические лекции, разборы LARP-лора, тактические брифинги внутри клубов','<strong>Групповые лекции:</strong> Тематические лекции и семинары по истории, HEMA, естественным наукам для малых групп.<br><br><strong>Репетиторство премиум-класса:</strong> Индивидуальные занятия один на один по полному диапазону школьных и нешкольных предметов (Биохимия, Молекулярная биология, программирование на Python, ОС UNIX, Английский, Чешский, Русский языки, Ораторское мастерство, Музыка: гитара, пианино, вокал)'],
+      ['Индивидуальный подход','Открытые консультации по подбору снаряжения, базовый онбординг новичков','Персональные тренировки по фехтованию и стрельбе из лука (от 400 Kč)<br><br>Индивидуальное изготовление и ремонт оружия/доспехов на заказ (LARP & HEMA снаряжение)']
+    ],
+    ctaH:'С чего начать прямо сейчас?',
+    ctaText:'Наша экосистема создана, чтобы удерживать интерес и давать результат. Выберите любое комфортное действие ниже, чтобы сделать первый шаг:',
+    ctas:[
+      ['Попробовать HEMA фехтование','Первая тренировка в Дружине Моравы бесплатна. Выдадим снаряжение, дадим протестировать любое оружие от меча до арбалета.'],
+      ['Сходить в поход с Брноходцами','Ближайшие выходные, свежий воздух, природа и новые знакомства в Брно. Цена и детали — в анонсе каждого события.'],
+      ['Индивидуальная прокачка предметов','Премиум-репетиторство под ключ по любым школьным, университетским или прикладным предметам (наука, IT, языки, музыка, публичные выступления). Разбор целей, гибкий график.']
+    ]
+  },
+  walkers:{
+    eyebrow:'Сообщество активных людей',
+    title:'Брноходцы',
+    tagline:'Пешеходный туризм, хайкинг, скалы и исследование красивейших локаций Моравии в отличной компании.',
+    aboutH:'О Брноходцах',
+    aboutText:'Брноходцы — это открытое сообщество для тех, кто любит движение. Мы регулярно организуем пешие вылазки вокруг Брно и по всей Чехии (Babi Lom, Praděd, Moravský Kras, пещеры, сплавы на каноэ). Это идеальный способ перезагрузить голову после рабочей недели, размять тело на свежем воздухе и сразу найти друзей в эмиграции.',
+    facts:[
+      {v:'Брно & Моравия',l:'Локация'},
+      {v:'Регулярно',l:'Частота'},
+      {v:'Платно / донаты',l:'Стоимость'},
+      {v:'Для всех',l:'Уровень подготовки'}
+    ],
+    rulesH:'Официальный регламент и правила',
+    rules:[
+      'Мероприятия платные. Цена каждого выезда объявляется заранее в анонсе в чатах. Донаты также приветствуются.',
+      'Транспорт до места проведения и обратно, а также дополнительные услуги (питание, вода, снаряжение) в стоимость не включены и оплачиваются участником самостоятельно — если иное явно не указано в анонсе конкретного мероприятия.',
+      'Маршруты, километраж и сложность всегда анонсируются заранее в чатах.',
+      'Обязательное условие: удобная спортивная/трекинговая обувь и одежда по погоде.',
+      'Можно приходить одному, с друзьями, с семьей или с собакой — комьюнити принимает всех.'
+    ],
+    ctaBox:'Вступай в чаты Брноходцев, чтобы не пропустить следующий анонс выезда!',
+    scheduleEyebrow:'Расписание',
+    scheduleH:'Ближайшие события',
+    scheduleText:'Актуальные анонсы выездов и мероприятий публикуются в Facebook Events. В каждом анонсе — маршрут, цена, условия участия и время сбора.',
+    scheduleBtn:'Смотреть события на Facebook →',
+    schedulePlaceholder:'Встроенный календарь — в разработке',
+  },
+  about:{
+    eyebrow:'I · О клубе', h:'Меч, копьё, лук, арбалет и многое другое!',
+    body:'Мы объединяем людей, которым интересен средневековый бой во всех его формах, а также история вооружения и воинская культура Европы.',
+    facts:[{v:'Brno, CZ',l:'Город'},{v:'3× в неделю',l:'Тренировки, на улице'},{v:'~12 / ~45',l:'Активных / всего'},{v:'Бесплатно',l:'Первая тренировка'}]
+  },
+  tariff:{
+    eyebrow:'II · Участие и оплата', h:'Тариф — это не ранг', intro:'Это вопрос способа оплаты, он не связан с прогрессией по рангу.',
+    headers:['Параметр','Младшая дружина','Старшая дружина'],
+    rows:[
+      ['Кто','Разовые гости, нерегулярные','Те, кто ходит регулярно'],
+      ['Оплата','200 Kč / сессия','100 Kč / сессия или Berserk Pass'],
+      ['Условие','Минимум 1 сессия в месяц','4+ сессии каждый месяц'],
+      ['Berserk Pass','—','2 500 Kč — годовой пропуск на 48 сессий (~52 Kč/сессия), только для Старшей дружины'],
+    ],
+    rollbackB:'Старшая дружина — статус, который подтверждается каждый месяц, не разовый порог.',
+    rollback:'Если регулярность 4+ сессий в месяц не сохраняется, участник автоматически возвращается в Младшую дружину и тариф 200 Kč/сессия — до тех пор, пока темп не восстановится. Ранг при этом не сбрасывается: он считает накопленный путь и не уменьшается.',
+    free:'Первая тренировка — бесплатно для всех, независимо от тарифа и ранга.'
+  },
+  ranks:{
+    eyebrow:'III · Ранг', h:'Путь участника',
+    intro:'Ранг — отдельная шкала, не связанная с тарифом. Растёт от посещаемости и от привода новых людей. Каждый ранг даёт браслет своего цвета, выдаётся лично и объявляется вслух на тренировке.',
+    startLabel:'старт', bracelet:'Браслет', threshold:'Порог',
+    sparringNote:'Приоритет выбора партнёра (III ранг) действует только в свободных раундах спарринга.',
+    weaponH:'Доступ к оружию по рангу',
+    weapon:[
+      ['Первая тренировка (разово)','Можно попробовать любое оружие клуба — двуручный меч, копьё, лук, арбалет — под руководством тренера.'],
+      ['Регулярные тренировки','Одноручные мечи, лук и арбалет — без ограничений, на любом ранге.'],
+      ['С III ранга (Ветеран)','Открывается обучение длинному/двуручному оружию (от 140 см), копью, пике.'],
+    ],
+    rentalH:'Аренда продвинутого снаряжения',
+    rentalText:'В клубе доступна аренда продвинутого исторического оружия и доспехов. Цены за 24 часа разные для Старшей и Младшей дружины.',
+    rentalLink:'Полный список и цены →',
+    rentalNote:'Аренда не отменяет ограничения по рангу: тренироваться с длинным оружием допускается только с III ранга.',
+    craftH:'Скидка на крафт и ремонт',
+    craftText:'Скидка из таблицы выше действует только на индивидуальное изготовление снаряжения на заказ.',
+    extraH:'Привилегии IV и V рангов',
+    extra:[
+      ['Индивидуальная тренировка','от 400 Kč, с IV ранга: первая в месяце — бесплатно, вторая — 200 Kč.'],
+      ['Совет дружины','С IV ранга: узкий состав, обсуждает направления развития клуба.'],
+      ['Особый выезд «Битва под горой»','С III ранга: редкий формат повышенной опасности.'],
+      ['Именное оружие','V ранг: при первом достижении Тысяцкого — личное оружие (оплата только материалов).'],
+    ],
+    referralB:'Привёл человека, который остался на 4+ тренировки?',
+    referral:'+5 сессий засчитывается к твоему счёту ранга — только статус и время.',
+    boardH:'Лидерборд', boardText:'Видимый список в зале или закреп в чате: Имя · Ранг · Тренировок всего · Битв. Участники обновляют сами.',
+    recogH:'Момент признания', recogText:'Переход на новый ранг объявляется вслух при всех в конце тренировки, и в этот же момент выдаётся браслет.',
+    recogText2:'На III ранге (Ветеран) — личное признание человека частью основы клуба.'
+  },
+  roles:{
+    eyebrow:'IV · Роли в Старшей дружине', h:'Выбери минимум одну',
+    intro:'Каждый участник Старшей дружины выбирает минимум одну роль ниже — независимо от ранга, с первого дня.',
+    headers:['Роль','Что делает','Награда']
+  },
+  rules:{
+    eyebrow:'V · Правила и кодекс участников', h:'Официальный регламент',
+    conductH:'Поведение', conduct:['Без экстремизма — немедленное исключение.','Уважение к участникам, снаряжению, месту.','Кодекс чести — честное признание попаданий.','Конфликты решаются через главного тренера, не публично.','Алкоголь и наркотики строго запрещены.'],
+    safetyH:'Безопасность', safety:['Право отказаться от боя — без объяснений.','Проверка снаряжения обязательна перед использованием.','Новички проходят инструктаж перед первым боем.','Дети — с 7 лет, письменное согласие родителей.'],
+    liabH:'Ответственность', liabB:'Страхование клубом не предоставляется.', liab:'Все тренировки, спарринги и выезды участники проходят на собственную ответственность.',
+    payH:'Оплата', pay:['Регистрация и оплата — не позднее чем за 48 часов до начала тренировки.','Оплата позже 48 часов или в день тренировки — штраф 25% от стоимости сессии.','Неоплаченный штраф — недопуск на следующую тренировку до погашения.','Тренировка состоится только при наличии хотя бы одного участника с оплаченной сессией, действующим Berserk Pass или записавшегося на первую бесплатную тренировку. Если таких нет — тренировка отменяется.'],
+    discH:'Дисциплина', discHeaders:['Нарушение','Последствие'],
+    disc:[['1-е нарушение','Страйк (письменное предупреждение)'],['2-е нарушение','Исключение (восстановление через 3 мес.)'],['Повторное','Финальное исключение'],['Грубое','Немедленное исключение']]
+  },
+  schedule:{
+    eyebrow:'VI · Расписание и база', h:'Когда и где',
+    venue:'База: Dukelská třída 157/44, Brno. Тренировки на улице. Длительность: 1 час 30 минут. По прибытии — звонить тренеру.',
+    headers:['День','Время','Формат'],
+    rows:[['Понедельник','18:00','Тренировка'],['Четверг','18:00','Тренировка'],['Суббота','18:00','Тренировка']],
+    larp:'LARP — отдельно от расписания. Проводится нерегулярно, анонсируется в Telegram и WhatsApp. Тренировка не проводится, если ни один участник не зарегистрировался (оплата, первая бесплатная или Berserk Pass).'
+  },
+  onboarding:{
+    eyebrow:'VII · Онбординг новичка', h:'Первый раз здесь',
+    rows:[
+      ['Одежда','Удобная спортивная, закрытая обувь. Снаряжение выдаём.'],
+      ['Взять с собой','Бутылку воды. Первая тренировка бесплатна.'],
+      ['Структура','Инструктаж → стойки → знакомство с оружием → лёгкий спарринг.'],
+      ['Ответственность','Подписание соглашения. Страхование не предусмотрено.'],
+      ['Следующий шаг','После 4 тренировок в месяц — переход к статусу Старшей дружины.'],
+    ]
+  },
+  ecosystem:{
+    eyebrow:'VIII · Экосистема проектов', h:'Другие проекты',
+    rows:[
+      ['<span style="color:var(--r5);cursor:pointer;font-weight:600;" onclick="switchTab(\'walkers\')">BrnoWalkers ➔</span>','Пешеходный туризм и хайкинг (Перейти в раздел)'],
+      ['<span style="color:var(--r5);cursor:pointer;font-weight:600;" onclick="switchTab(\'main\')">Репетиторство ➔</span>','Индивидуальные занятия по всем предметам (На главную)'],
+      ['<span style="color:var(--r5);cursor:pointer;font-weight:600;" onclick="switchTab(\'main\')">Moravian Squad ➔</span>','Активности для детей 5–15 лет']
+    ]
+  },
+  contacts:{
+    eyebrow:'IX · Контакты', h:'Где нас найти', headers:['Канал / Платформа','Ссылка / Назначение'],
+    rows:[
+      ['Email','<a href="mailto:chereshnev.biochem@gmail.com">chereshnev.biochem@gmail.com</a> (Официальная почта)'],
+      ['Телефон / Phone','<a href="tel:+420702914842">+420 702 914 842</a>'],
+      ['WhatsApp (Личный)','<a href="https://wa.me/420702914842" target="_blank" rel="noopener">wa.me/420702914842</a> — Алексей Черешнев'],
+      ['Telegram (Личный)','<a href="https://t.me/Chareshneu" target="_blank" rel="noopener">t.me/Chareshneu</a> — Алексей Черешнев'],
+      ['── Дружина Моравы ──','──────────────────'],
+      ['TG Чат · RU/UA/BY','<a href="https://t.me/druzinamoravy" target="_blank" rel="noopener">t.me/druzinamoravy</a> — основной чат'],
+      ['TG Канал · RU/UA/BY','<a href="https://t.me/druzinamoravy_news" target="_blank" rel="noopener">t.me/druzinamoravy_news</a> — анонсы, без флуда'],
+      ['WA Чат · EN/CS','<a href="https://chat.whatsapp.com/JzeXAQF8I2XE3zQ2OqWsPz" target="_blank" rel="noopener">chat.whatsapp.com/JzeXAQ...</a> — основной чат'],
+      ['WA Канал · EN/CS','<a href="https://chat.whatsapp.com/DuTpgF22mxMFy6L1Cfrcvu" target="_blank" rel="noopener">chat.whatsapp.com/DuTpgF...</a> — анонсы, без флуда'],
+      ['── Брноходцы ──','──────────────────'],
+      ['TG Чат · RU/UA/BY','<a href="https://t.me/pochody_brno" target="_blank" rel="noopener">t.me/pochody_brno</a> — основной чат'],
+      ['TG Канал · RU/UA/BY','<a href="https://t.me/pochody_brno_new" target="_blank" rel="noopener">t.me/pochody_brno_new</a> — анонсы, без флуда'],
+      ['WA Чат · EN/CS','<a href="https://chat.whatsapp.com/JCyEJNm746nBXNll3VzzX3" target="_blank" rel="noopener">chat.whatsapp.com/JCyEJN...</a> — основной чат'],
+      ['WA Канал · EN/CS','<a href="https://chat.whatsapp.com/BSlQetCjMoL8IO45c6VnH0" target="_blank" rel="noopener">chat.whatsapp.com/BSlQet...</a> — анонсы, без флуда'],
+    ]
+  },
+  footer:{h:'Готов сделать первый шаг?',free:'Сначала зарегистрируйся по форме выше. Если прочитал всё и остались вопросы — пиши напрямую.'},
+  ui:{
+    mainFounder:'Основа',
+    mainActivities:'Активности & Спектр цен',
+    openDruzina:'Открыть Дружину Моравы',
+    openWalkers:'Открыть Брноходцев',
+    alsoFencing:'А также: Фехтование & LARP',
+    info:'Инфо',
+    globalRulesH:'Общий кодекс ответственности участников',
+    joinWA:'Вступить в WhatsApp',
+    joinTG:'Вступить в Telegram',
+    joinChat:'Чат сообщества · Telegram',
+    joinChannel:'Канал анонсов · Telegram',
+    druzinaRulesH:'Общие правила участия & Официальный регламент',
+    druzinaName:'Дружина Моравы',
+    druzinaTagline:'Клуб исторического средневекового боя, фехтования (HEMA), стрельбы и LARP-реконструкции в Брно.',
+    druzinaBtn:'Меч, копьё, лук, арбалет и многое другое! Перейти к Брноходцам',
+    globalRules:`<h4>1. ОБЛАСТЬ ПРИМЕНЕНИЯ И СОГЛАСИЕ</h4>
+    <p><strong>1.1</strong> Настоящие правила распространяются на все мероприятия, занятия, туры и активности, организуемые Алексеем Черешневым (OSVČ, IČO: 23041625) под брендами BrnoWalkers, Дружина Моравы (Družina Moravy), а также индивидуальные услуги.</p>
+    <p><strong>1.2</strong> Оплата или бронь участия означает безоговорочное согласие со всеми действующими правилами.</p>
+    <p><strong>1.3 Участники до 18 лет</strong> допускаются исключительно при наличии письменного согласия законного представителя и физического сопровождения совершеннолетним лицом (18+), несущим за них полную ответственность.</p>
+    <h4>2. РЕГИСТРАЦИЯ, ОПЛАТА И ДЕДЛАЙНЫ</h4>
+    <p><strong>2.1</strong> Место участника подтверждается исключительно после поступления полной оплаты. Ранняя цена действует строго до указанного в анонсах дедлайна.</p>
+    <h4>3. ОТМЕНА И ВОЗВРАТ СРЕДСТВ</h4>
+    <p><strong>3.1 Отмена участником:</strong> за 14 и более дней до начала мероприятия — возвращается 50% суммы. Менее чем за 14 дней — оплата не возвращается и удерживается в качестве оргсбора. Неявка не является основанием для возврата.</p>
+    <p><strong>3.2 Перенос оплаты:</strong> возможен однократно при запросе не позднее чем за 7 дней до начала, на событие в течение 30 календарных дней.</p>
+    <p><strong>3.3 Отмена организатором или форс-мажор:</strong> производится полный 100% возврат средств участников. Компенсация сторонних расходов (билеты, брони участников) не осуществляется.</p>
+    <h4>4. ИЗМЕНЕНИЕ ПРОГРАММЫ</h4>
+    <p><strong>4.1</strong> Организатор имеет право менять маршруты, тайминг или локации из соображений безопасности (погода, логистика). Изменение считается несущественным, если программа выполнена на 70% и более.</p>
+    <h4>5. ПОВЕДЕНИЕ, ЭТИКА И ДИСЦИПЛИНА</h4>
+    <p><strong>5.1</strong> Запрещены любые формы дискриминации, агрессии, харассмента. Инструкции организатора обязательны к исполнению.</p>
+    <p><strong>5.2 Немедленное отстранение (без возврата средств)</strong> грозит за явку в состоянии опьянения, умышленное нарушение ТБ, отказ следовать командам организатора, агрессивное поведение или порчу имущества.</p>
+    <h4>6. ЗДОРОВЬЕ, ОТВЕТСТВЕННОСТЬ И СТРАХОВАНИЕ</h4>
+    <p><strong>6.1</strong> Участники подтверждают отсутствие медицинских противопоказаний. Участие осуществляется на собственный риск. Организатор не предоставляет страховое покрытие, участникам настоятельно рекомендуется оформить личную спортивную/туристическую страховку.</p>
+    <p><strong>6.2 Имущество:</strong> Организатор не несет ответственности за кражу или повреждение личных вещей участников в ходе мероприятий.</p>
+    <h4>7. АРЕНДА СНАРЯЖЕНИЯ</h4>
+    <p><strong>7.1</strong> Любое снаряжение, арендованное у организатора напрямую или через организатора у третьих сторон (каноэ, весла, защитное снаряжение, исторические доспехи, оружие и иной инвентарь), подлежит обязательному возврату в том же состоянии, в котором оно было получено.</p>
+    <p><strong>7.2</strong> В случае повреждения, утраты или невозврата арендованного снаряжения участник обязан оплатить компенсацию в размере, установленном владельцем снаряжения. Размер компенсации определяется исключительно владельцем и не подлежит оспариванию через организатора.</p>
+    <p><strong>7.3</strong> Принятие снаряжения в аренду означает полное согласие с данным условием.</p>`
+  }
+},
+
+en:{
+  meta:{title:'Aliaksei Chareshneu, PhD | Алексей Черешнев, доктор наук — Brno'},
+  nav:{brand:'Aliaksei Chareshneu, PhD | Алексей Черешнев, доктор наук', sub:'Ecosystem of projects in Brno'},
+  tabs:{main:'About Me & Ecosystem', walkers:'BrnoWalkers (Hiking & Boardgames & Fun)', druzina:'Druzhina Moravy (Safe Swords, Bows & More)', boardgames:'Board Games (Free)'},
+  hero:{
+    eyebrow:'Brno · Movement · Mind',
+    cta1:'WhatsApp', cta2:'Telegram',
+  },
+  main:{
+    title:'Your Guide in Brno',
+    tagline:'Developing body and intellect. Full spectrum of academic & non-academic tutoring (sciences, IT, languages, music), weekend hikes, fencing and custom crafts.',
+    aboutH:'Who is Aliaksei Chareshneu?',
+    aboutText:'I build and nurture active communities in Brno, coordinate projects, and teach. My goal is to pull people out of their daily routines, providing space for physical growth (hiking, sports), craft development, and top-end targeted academic mentoring. No boring memorization — just real results based on your individual objectives.',
+    matrixH:'Our Activity & Price Spectrum',
+    matrixIntro:'We designed our ecosystem to be accessible to absolutely everyone (featuring free tiers), while offering top-end premium formats for targeted individual growth.',
+    headers:['Direction','Accessible / Free Level','Regular / Premium Level'],
+    rows:[
+      ['Physical Activity (Sport & Tourism)','<strong>BrnoWalkers:</strong> Weekend hikes, cliffs, castles of Moravia (paid, price per event)<br><br><strong>Druzhina Moravy:</strong> First introductory session (0 Kč)','<strong>Druzhina Moravy:</strong> Regular HEMA/LARP training (100–200 Kč per session or Berserk Pass)<br><br><strong>Moravian Squad:</strong> Sports and trips for children aged 5–15'],
+      ['Intellectual Activity (Mind & Subjects)','Historical lectures, LARP lore breakdowns, tactical briefings before club battles','<strong>Group Lectures:</strong> Themed lectures and seminars on history, HEMA, and natural sciences for small groups.<br><br><strong>Premium Tutoring:</strong> One-on-one tailored mentoring in Biochem, Molecular biology, Python programming, UNIX OS, English, Czech, Russian, Public speaking, and Music (guitar, piano, vocals)'],
+      ['Individual Focus','Open gear consultations, basic onboarding for newcomers','Private fencing/combat lessons (from 400 Kč)<br><br>Custom HEMA/LARP gear crafting and repairs']
+    ],
+    ctaH:'Where to start right now?',
+    ctaText:'Our ecosystem is built to maintain your interest and deliver results. Choose any option below to make your first move:',
+    ctas:[
+      ['Try HEMA Fencing','The first training session in Druzhina Moravy is free. We provide all the gear and let you test any weapon from longswords to crossbows.'],
+      ['Go on a Hike with BrnoWalkers','Fresh air, beautiful Moravian nature, and great company in Brno this upcoming weekend. Price and details in each event announcement.'],
+      ['Boost Academic & Practical Skills','Premium one-on-one tutoring. Custom path for sciences, IT, languages, music, and leadership. Efficient results tailored to your requirements.']
+    ]
+  },
+  walkers:{
+    eyebrow:'A community of active people',
+    title:'BrnoWalkers',
+    tagline:'Pedestrian tourism, hiking, rock climbing, and exploring the best spots in Moravia with great company.',
+    aboutH:'About BrnoWalkers',
+    aboutText:'BrnoWalkers is an open community for people who love movement. We regularly organize walking trips around Brno and across the Czech Republic (Babi Lom, Praděd, Moravian Karst, caves, canoe river trips). It\'s the perfect way to reset your brain and find active friends.',
+    facts:[
+      {v:'Brno & Moravia',l:'Location'},
+      {v:'Regular',l:'Frequency'},
+      {v:'Paid / donations',l:'Cost'},
+      {v:'For everyone',l:'Fitness level'}
+    ],
+    rulesH:'Official Regulations & Rules',
+    rules:[
+      'Activities are paid. The price of each event is announced in advance in the chats. Donations are also welcome.',
+      'Transport to and from the venue, as well as additional services (food, water, equipment), are not included in the price and are the participant\'s own responsibility — unless explicitly stated otherwise in the event announcement.',
+      'Routes, distance, and difficulty levels are always announced in advance in our chats.',
+      'Mandatory requirement: comfortable sports/hiking shoes and weather-appropriate clothing.',
+      'You can join solo, bring friends, family, or your dog — our community welcomes everyone.'
+    ],
+    ctaBox:'Join the BrnoWalkers chats to never miss the next trip announcement!',
+    scheduleEyebrow:'Schedule',
+    scheduleH:'Upcoming Events',
+    scheduleText:'Up-to-date trip and event announcements are published on Facebook Events. Each post includes the route, price, participation terms, and meeting time.',
+    scheduleBtn:'View events on Facebook →',
+    schedulePlaceholder:'Embedded calendar — coming soon',
+  },
+  about:{
+    eyebrow:'I · About', h:'Sword, spear, bow, crossbow and more!',
+    body:'We bring together people interested in medieval combat in all its forms, along with the history of arms and the warrior culture of Europe.',
+    facts:[{v:'Brno, CZ',l:'City'},{v:'3× a week',l:'Training, outdoors'},{v:'~12 / ~45',l:'Active / total'},{v:'Free',l:'First training'}]
+  },
+  tariff:{
+    eyebrow:'II · Membership & payment', h:'Tariff is not rank', intro:'This is about how you pay — it has nothing to do with rank progression.',
+    headers:['Parameter','Junior tier','Senior tier'],
+    rows:[
+      ['Who','Occasional, irregular guests','Those training regularly'],
+      ['Payment','200 Kč / session','100 Kč / session or the Berserk Pass'],
+      ['Condition','At least 1 session a month','4+ sessions every month'],
+      ['Berserk Pass','—','2,500 Kč — a year-long pass for 48 sessions (~52 Kč/session), Senior tier only'],
+    ],
+    rollbackB:'Senior tier is a status you reconfirm every month, not a one-time threshold.',
+    rollback:'If you stop keeping up 4+ sessions a month, you automatically drop back to Junior tier and the 200 Kč/session rate. Rank doesn\'t reset.',
+    free:'The first training is free for everyone, regardless of tariff or rank.'
+  },
+  ranks:{
+    eyebrow:'III · Rank', h:'The member\'s path',
+    intro:'Rank tracks accumulated progress based on attendance and bringing people in. Each rank grants a specific colored bracelet.',
+    startLabel:'start', bracelet:'Bracelet', threshold:'Threshold',
+    sparringNote:'The sparring-partner priority (Rank III) only applies in free rounds.',
+    weaponH:'Weapon access by rank',
+    weapon:[
+      ['First training (once)','You can try any weapon in the club — a two-handed sword, spear, bow, crossbow — under the trainer\'s guidance.'],
+      ['Regular training','One-handed swords, bow and crossbow — unrestricted, at any rank.'],
+      ['From Rank III (Veteran)','Training opens up for long/two-handed weapons (140cm+), spear, and the pike.'],
+    ],
+    rentalH:'Renting advanced gear',
+    rentalText:'The club offers rental of advanced historical weapons and armor.',
+    rentalLink:'Full list and prices →',
+    rentalNote:'Rental doesn\'t override rank restrictions.',
+    craftH:'Craft & repair discount',
+    craftText:'The discount in the table above applies only to custom-made gear and repairs.',
+    extraH:'Rank IV & V privileges',
+    extra:[
+      ['Private lesson','from 400 Kč; from Rank IV: first one each month is free, the second is 200 Kč.'],
+      ['Council of the Druzhina','From Rank IV: a small group discussing the club\'s direction.'],
+      ['Special trip "Battle Under the Mountain"','From Rank III: higher-risk format.'],
+      ['A named weapon','Rank V: on first reaching Warlord — a personal weapon (materials cost only).'],
+    ],
+    referralB:'Brought in someone who stayed for 4+ trainings?',
+    referral:'+5 sessions are credited to your rank count.',
+    boardH:'Leaderboard', boardText:'Visible list or pinned chat: Name · Rank · Total sessions · Battles.',
+    recogH:'The moment of recognition', recogText:'Rank upgrades are announced out loud at the end of training with bracelet delivery.',
+    recogText2:'Rank III (Veteran) marks your acceptance into the core foundation of the club.'
+  },
+  roles:{
+    eyebrow:'IV · Roles in the Senior tier', h:'Pick at least one',
+    intro:'Every Senior-tier member picks at least one role below from day one.',
+    headers:['Role','What it does','Reward']
+  },
+  rules:{
+    eyebrow:'V · Rules & Club Guidelines', h:'Official Framework',
+    conductH:'Conduct', conduct:['No extremism — immediate removal.','Respect for members, gear, and the venue.','Honor code — honestly acknowledge hits taken in sparring.','Conflicts are resolved through the head trainer, not in public.','Alcohol and drugs are strictly forbidden.'],
+    safetyH:'Safety', safety:['The right to refuse a bout — no explanation needed.','Gear check is mandatory before use.','Newcomers get a briefing before their first bout.','Children from age 7, with written parental consent.'],
+    liabH:'Liability', liabB:'The club does not provide insurance.', liab:'All training, sparring, and trips are undertaken at the member\'s own risk.',
+    payH:'Payment', pay:['Registration and payment must be completed at least 48 hours before the start of training.','Payment later than 48 hours before, or on the day — a 25% surcharge on the session price.','An unpaid surcharge blocks attendance at the next training until settled.','Training takes place only if at least one participant has a paid session, a valid Berserk Pass, or has registered for a free first session. If no one qualifies — the session is cancelled.'],
+    discH:'Discipline', discHeaders:['Violation','Consequence'],
+    disc:[['1st violation','A strike (written warning)'],['2nd violation','Removal (can rejoin after 3 months)'],['Repeated','Final removal'],['Severe','Immediate removal']]
+  },
+  schedule:{
+    eyebrow:'VI · Schedule & venue', h:'When & where',
+    venue:'Venue: Dukelská třída 157/44, Brno. Training outdoors. Duration: 1h 30m. Call the trainer upon arrival.',
+    headers:['Day','Time','Format'],
+    rows:[['Monday','18:00','Training'],['Thursday','18:00','Training'],['Saturday','18:00','Training']],
+    larp:'LARP events happen irregularly, announced separately on Telegram and WhatsApp. Training is cancelled if no participant has registered (paid session, free first training, or Berserk Pass).'
+  },
+  onboarding:{
+    eyebrow:'VII · Newcomer onboarding', h:'First time here',
+    rows:[
+      ['Clothing','Comfortable sportswear, closed shoes. Gear provided.'],
+      ['Bring','A bottle of water. First training is free.'],
+      ['Structure','Briefing → stances → weapons testing → light sparring.'],
+      ['Liability','Waiver signing. No insurance provided.'],
+      ['Next step','After 4 sessions/month, move to Senior tier.'],
+    ]
+  },
+  ecosystem:{
+    eyebrow:'VIII · Ecosystem of projects', h:'Other projects',
+    rows:[
+      ['<span style="color:var(--r5);cursor:pointer;font-weight:600;" onclick="switchTab(\'walkers\')">BrnoWalkers ➔</span>','Hiking and walking community'],
+      ['<span style="color:var(--r5);cursor:pointer;font-weight:600;" onclick="switchTab(\'main\')">Tutoring ➔</span>','All-subject premium mentoring'],
+      ['<span style="color:var(--r5);cursor:pointer;font-weight:600;" onclick="switchTab(\'main\')">Moravian Squad ➔</span>','Activities for children 5–15']
+    ]
+  },
+  contacts:{
+    eyebrow:'IX · Contacts', h:'Find us', headers:['Channel','Link / Purpose'],
+    rows:[
+      ['Email','<a href="mailto:chereshnev.biochem@gmail.com">chereshnev.biochem@gmail.com</a>'],
+      ['Phone','<a href="tel:+420702914842">+420 702 914 842</a>'],
+      ['WhatsApp (Personal)','<a href="https://wa.me/420702914842" target="_blank" rel="noopener">wa.me/420702914842</a> — Aliaksei Chareshneu'],
+      ['Telegram (Personal)','<a href="https://t.me/Chareshneu" target="_blank" rel="noopener">t.me/Chareshneu</a> — Aliaksei Chareshneu'],
+      ['── Druzhina Moravy ──','──────────────────'],
+      ['WA Chat · EN/CS','<a href="https://chat.whatsapp.com/JzeXAQF8I2XE3zQ2OqWsPz" target="_blank" rel="noopener">chat.whatsapp.com/JzeXAQ...</a> — main chat'],
+      ['WA Channel · EN/CS','<a href="https://chat.whatsapp.com/DuTpgF22mxMFy6L1Cfrcvu" target="_blank" rel="noopener">chat.whatsapp.com/DuTpgF...</a> — announcements, no spam'],
+      ['TG Chat · RU/UA/BY','<a href="https://t.me/druzinamoravy" target="_blank" rel="noopener">t.me/druzinamoravy</a> — main chat'],
+      ['TG Channel · RU/UA/BY','<a href="https://t.me/druzinamoravy_news" target="_blank" rel="noopener">t.me/druzinamoravy_news</a> — announcements, no spam'],
+      ['── BrnoWalkers ──','──────────────────'],
+      ['WA Chat · EN/CS','<a href="https://chat.whatsapp.com/JCyEJNm746nBXNll3VzzX3" target="_blank" rel="noopener">chat.whatsapp.com/JCyEJN...</a> — main chat'],
+      ['WA Channel · EN/CS','<a href="https://chat.whatsapp.com/BSlQetCjMoL8IO45c6VnH0" target="_blank" rel="noopener">chat.whatsapp.com/BSlQet...</a> — announcements, no spam'],
+      ['TG Chat · RU/UA/BY','<a href="https://t.me/pochody_brno" target="_blank" rel="noopener">t.me/pochody_brno</a> — main chat'],
+      ['TG Channel · RU/UA/BY','<a href="https://t.me/pochody_brno_new" target="_blank" rel="noopener">t.me/pochody_brno_new</a> — announcements, no spam'],
+    ]
+  },
+  footer:{h:'Ready to make your first move?',free:'Start by registering via the form above. If you\'ve read everything and still have questions — reach out directly.'},
+  ui:{
+    mainFounder:'Foundation',
+    mainActivities:'Activities & Price Range',
+    openDruzina:'Open Druzhina Moravy',
+    openWalkers:'Open BrnoWalkers',
+    alsoFencing:'Also: Fencing & LARP',
+    info:'Info',
+    globalRulesH:'General Participant Code of Conduct',
+    joinWA:'Join WhatsApp',
+    joinTG:'Join Telegram',
+    joinChat:'Community Chat · WhatsApp',
+    joinChannel:'Announcements Channel · WhatsApp',
+    druzinaRulesH:'General Rules & Official Regulations',
+    druzinaName:'Druzhina Moravy',
+    druzinaTagline:'A club for historical medieval combat, fencing (HEMA), archery, and LARP re-enactment in Brno.',
+    druzinaBtn:'Sword, spear, bow, crossbow and more! Go to BrnoWalkers',
+    globalRules:`<h4>1. SCOPE AND CONSENT</h4>
+    <p><strong>1.1</strong> These rules apply to all events, sessions, tours and activities organized by Aliaksei Chareshneu (OSVČ, IČO: 23041625) under the brands BrnoWalkers, Druzhina Moravy, and individual services.</p>
+    <p><strong>1.2</strong> Payment or registration for participation constitutes unconditional acceptance of all applicable rules.</p>
+    <p><strong>1.3 Participants under 18</strong> are only permitted with written consent of a legal guardian and physical accompaniment by an adult (18+) who bears full responsibility for them.</p>
+    <h4>2. REGISTRATION, PAYMENT AND DEADLINES</h4>
+    <p><strong>2.1</strong> A participant's place is confirmed only after full payment is received. Early-bird prices are valid strictly until the deadline stated in the announcements.</p>
+    <h4>3. CANCELLATION AND REFUNDS</h4>
+    <p><strong>3.1 Cancellation by the participant:</strong> 14 or more days before the event — 50% refund. Less than 14 days — no refund; the amount is retained as an organizational fee. No-shows are not eligible for a refund.</p>
+    <p><strong>3.2 Payment transfer:</strong> may be done once, provided the request is made at least 7 days before the event, to an event within 30 calendar days.</p>
+    <p><strong>3.3 Cancellation by the organizer or force majeure:</strong> a full 100% refund is issued to participants. Third-party expenses (tickets, accommodation booked by participants) are not compensated.</p>
+    <h4>4. PROGRAM CHANGES</h4>
+    <p><strong>4.1</strong> The organizer reserves the right to change routes, timing or locations for safety reasons (weather, logistics). A change is considered non-material if at least 70% of the program is completed.</p>
+    <h4>5. CONDUCT, ETHICS AND DISCIPLINE</h4>
+    <p><strong>5.1</strong> Any form of discrimination, aggression or harassment is prohibited. The organizer's instructions are mandatory.</p>
+    <p><strong>5.2 Immediate removal (without refund)</strong> applies to: arriving intoxicated, deliberate safety violations, refusing to follow the organizer's commands, aggressive behavior or property damage.</p>
+    <h4>6. HEALTH, LIABILITY AND INSURANCE</h4>
+    <p><strong>6.1</strong> Participants confirm they have no medical contraindications. Participation is at the participant's own risk. The organizer does not provide insurance coverage; participants are strongly advised to obtain personal sports/travel insurance.</p>
+    <p><strong>6.2 Property:</strong> The organizer is not liable for theft or damage to participants' personal belongings during events.</p>
+    <h4>7. EQUIPMENT RENTAL</h4>
+    <p><strong>7.1</strong> Any equipment rented directly from the organizer or through the organizer from third parties (canoes, paddles, protective gear, historical armour, weapons, or any other inventory) must be returned in the same condition in which it was received.</p>
+    <p><strong>7.2</strong> In the event of damage, loss, or non-return of rented equipment, the participant is obligated to pay compensation in the amount set by the equipment owner. The amount of compensation is determined solely by the owner and is not subject to dispute through the organizer.</p>
+    <p><strong>7.3</strong> Accepting equipment for rental constitutes full agreement with this condition.</p>`
+  }
+},
+
+cs:{
+  meta:{title:'Aliaksei Chareshneu, PhD | Алексей Черешнев, доктор наук — Brno'},
+  nav:{brand:'Aliaksei Chareshneu, PhD | Алексей Черешнев, доктор наук', sub:'Ekosystém projektů v Brně'},
+  tabs:{main:'O mně & Ekosystém', walkers:'BrnoWalkers (Hiking & Boardgames & Fun)', druzina:'Družina Moravy (Safe Swords, Bows & More)', boardgames:'Deskové hry (zdarma)'},
+  hero:{
+    eyebrow:'Brno · Pohyb · Mysl',
+    cta1:'WhatsApp', cta2:'Telegram',
+  },
+  main:{
+    title:'Tvůj průvodce v Brně',
+    tagline:'Rozvíjíme tělo, dovednosti i intelekt. Kompletní nabídka školního i mimoškolního doučování (vědy, IT, jazyky, hudba), víkendové výšlapy, historický šerm a zakázkové řemeslo.',
+    aboutH:'Kdo je Aliaksei Chareshneu?',
+    aboutText:'Vytvářím a rozvíjím živé komunity v Brně, koordinuji projekty a školím lidi. Mým cílem je vytáhnout účastníky z každodenní rutiny díky vyváženému mixu fyzických aktivit (turistika, sport), kreativního řemesla a prémiového doučování na klíč. Žádné nudné memorování — jdeme po individuálních cílech a reálných výsledcích.',
+    matrixH:'Škála našich akcí a cen',
+    matrixIntro:'Náš ekosystém jsme navrhli tak, aby byl přístupný naprosto každému (včetně bezplatných úrovní), ale zároveň nabízel špičkové prémiové formáty pro individuální rozvoj.',
+    headers:['Směr','Dostupná / Bezplatná úroveň','Pravidelná / Prémiová úroveň'],
+    rows:[
+      ['Fyzická aktivita (Sport a turistika)','<strong>BrnoWalkers:</strong> Víkendové výšlapy, skály, hrady Moravy (platí se, cena v anonce)<br><br><strong>Družina Moravy:</strong> První seznamovací trénink (0 Kč)','<strong>Družina Moravy:</strong> Pravidelné tréninky HEMA/LARP (100–200 Kč za trénink nebo Berserk Pass)<br><br><strong>Moravian Squad:</strong> Sport a výlety pro děti od 5 do 15 let'],
+      ['Intelektuální aktivita (Mysl a rozvoj)','Historické přednášky, rozbory LARP lore, taktické brífinky před bitvami v rámci klubů','<strong>Skupinové přednášky:</strong> Tematické přednášky a semináře z historie, HEMA a přírodních věd pro malé skupiny.<br><br><strong>Prémiové doučování:</strong> Individuální lekce 1-na-1 pro kompletní škálu předmětů (Biochemie, Molekulární biologie, programování Python, UNIX OS, Angličtina, Čeština, Ruština, Rétorika/Veřejné vystupování, Hudba: kytara, klavír, zpěv)'],
+      ['Individuální přístup','Otevřené konzultace k výběru výbavy, základní onboarding pro nováčky','Individuální tréninky šermu a lukostřelby (od 400 Kč)<br><br>Zakázková výroba a oprava LARP & HEMA výbavy / zbraní na zakázku']
+    ],
+    ctaH:'Čím začít právě teď?',
+    ctaText:'Náš ekosystém je vytvořen tak, aby vás bavil a přinášel výsledky. Vyberte si jakoukoli možnost níže a udělejte první krok:',
+    ctas:[
+      ['Vyzkoušet HEMA šerm','První trénink v Družině Moravy je zdarma. Zapůjčíme vám veškerou výbavu a necháme vás otestovat jakoukoli zbraň od dlouhého meče po kuši.'],
+      ['Vyrazit na výšlap s BrnoWalkers','Čerstvý vzduch, krásná moravská příroda a skvělá parta v Brně již tento víkend. Cena a detaily vždy v anonce akce.'],
+      ['Individuální doučování na míru','Prémiové lekce z vědeckých, technických, jazykových i uměleckých předmětů. Analýza cílů, flexibilní rozvrh a efektivní výsledky.']
+    ]
+  },
+  walkers:{
+    eyebrow:'Komunita aktivních lidí',
+    title:'BrnoWalkers',
+    tagline:'Pěší turistika, hiking, skalní lezení a objevování nejkrásnějších míst Moravy ve skvělé společnosti.',
+    aboutH:'O BrnoWalkers',
+    aboutText:'BrnoWalkers je otevřená komunita pro všechny, kteří milují pohyb. Pravidelně pořádáme pěší výlety v okolí Brna i po celé České republice (Babi Lom, Praděd, Moravský kras, jeskyně, vodácké výlety). Ideální způsob resetu hlavy.',
+    facts:[
+      {v:'Brno a Morava',l:'Lokalita'},
+      {v:'Pravidelně',l:'Četnost'},
+      {v:'Platí se / příspěvky',l:'Cena'},
+      {v:'Pro všechny',l:'Náročnost'}
+    ],
+    rulesH:'Oficiální pravidla a řád akcí',
+    rules:[
+      'Aktivity jsou placené. Cena každé akce je oznámena předem v chatech. Příspěvky jsou také vítány.',
+      'Doprava na místo konání a zpět, jakož i doplňkové služby (jídlo, voda, vybavení), nejsou zahrnuty v ceně a hradí je účastník sám — pokud není v anonce konkrétní akce výslovně uvedeno jinak.',
+      'Trasy, kilometry a náročnost jsou vždy oznámeny předem v chatech.',
+      'Povinná podmínka: pohodlná sportovní/turistická obuv a oblečení podle počasí.',
+      'Můžete se připojit sami, vzít přátele, rodinu nebo psa — naše komunita přivítá každého.'
+    ],
+    ctaBox:'Připojte se k chatům BrnoWalkers, ať nezmeškáte další oznámení o výletu!',
+    scheduleEyebrow:'Plán akcí',
+    scheduleH:'Nadcházející události',
+    scheduleText:'Aktuální oznámení výletů a akcí jsou zveřejňována na Facebook Events. V každém příspěvku najdete trasu, cenu, podmínky účasti a čas srazu.',
+    scheduleBtn:'Zobrazit události na Facebooku →',
+    schedulePlaceholder:'Vložený kalendář — připravujeme',
+  },
+  about:{
+    eyebrow:'I · O klubu', h:'Meč, kopí, luk, kuše a mnoho dalšího!',
+    body:'Sdružujeme lidi, které zajímá středověký boj ve všech jeho formách, a také historie zbraní a válečnická kultura Evropy.',
+    facts:[{v:'Brno, CZ',l:'Město'},{v:'3× týdně',l:'Trénink, venku'},{v:'~12 / ~45',l:'Aktivních / celkem'},{v:'Zdarma',l:'První trénink'}]
+  },
+  tariff:{
+    eyebrow:'II · Účast a platby', h:'Tarif není hodnost', intro:'Tohle je otázka způsobu platby, nesouvisí to s postupem v hodnostech.',
+    headers:['Parametr','Mladší družina','Starší družina'],
+    rows:[
+      ['Kdo','Příležitostní, nepravidelní hosté','Ti, kdo chodí pravidelně'],
+      ['Platba','200 Kč / trénink','100 Kč / trénink nebo Berserk Pass'],
+      ['Podmínka','Alespoň 1 trénink za měsíc','4+ tréninky každý měsíc'],
+      ['Berserk Pass','—','2 500 Kč — roční permanentka na 48 tréninků (~52 Kč/trénink), pouze pro Starší družinu'],
+    ],
+    rollbackB:'Starší družina je status, který se potvrzuje každý měsíc, ne jednorázová hranice.',
+    rollback:'Pokud se pravidelnost 4+ tréninků měsíčně nedrží, člen automaticky spadá zpět do Mladší družiny. Hodnost se přitom nikdy neresetuje.',
+    free:'První trénink je zdarma pro všechny, bez ohledu na tarif a hodnost.'
+  },
+  ranks:{
+    eyebrow:'III · Hodnost', h:'Cesta člena',
+    intro:'Hodnost roste z docházky a z přivedení nových lidí. Každá hodnost dává náramek vlastní barvy.',
+    startLabel:'start', bracelet:'Náramek', threshold:'Hranice',
+    sparringNote:'Priorita výběru partnera (III. hodnost) platí jen ve volných kolech sparingu.',
+    weaponH:'Přístup ke zbraním podle hodnosti',
+    weapon:[
+      ['První trénink','Můžeš si vyzkoušet jakoukoli zbraň klubu pod vedením trenéra.'],
+      ['Běžné tréninky','Jednoruční meče, luk a kuše — bez omezení, v jakékoli hodnosti.'],
+      ['Od III. hodnosti','Otevírá se výuka dlouhých/dvouručních zbraní (od 140 cm), kopí a píky.'],
+    ],
+    rentalH:'Půjčování pokročilé výbavy',
+    rentalText:'V klubu je k dispozici půjčování pokročilých historických zbraní a zbroje.',
+    rentalLink:'Celý ceník →',
+    rentalNote:'Půjčování neruší omezení podle hodnosti.',
+    craftH:'Sleva na výrobu a opravy',
+    craftText:'Sleva platí jen na individuální výrobu výbavy na zakázku.',
+    extraH:'Výhody IV. a V. hodnosti',
+    extra:[
+      ['Individuální trénink','od 400 Kč, od IV. hodnosti: první v měsíci zdarma.'],
+      ['Rada družiny','Od IV. hodnosti: úzký okruh řešící směřování klubu.'],
+      ['Speciální výjezd','Od III. hodnosti: vzácný formát se zvýšeným rizikem.'],
+      ['Jmenná zbraň','V. hodnost: osobní zbraň za cenu materiálu.'],
+    ],
+    referralB:'Přivedl jsi člověka, který zůstal na 4+ tréninky?',
+    referral:'+5 sezení se připočte k tvému počtu pro hodnost.',
+    boardH:'Žebříček', boardText:'Viditelný seznam: Jméno · Hodnost · Tréninků celkem · Bitev.',
+    recogH:'Okamžik uznání', recogText:'Na konci tréninku se hodnost ohlásí nahlas a předá náramek nové barvy.',
+    recogText2:'III. hodnost (Veterán) znamená osobní uznání, že se stáváš pilířem klubu.'
+  },
+  roles:{
+    eyebrow:'IV · Role ve Starší družině', h:'Vyber si alespoň jednu',
+    intro:'Každý člen Starší družiny si vybere alespoň jednu z rolí od prvního dne.',
+    headers:['Role','Co dělá','Odměna']
+  },
+  rules:{
+    eyebrow:'V · Pravidla a kodex', h:'Oficiální řád',
+    conductH:'Chování', conduct:['Bez extremismu — okamžité vyloučení.','Respekt k členům, výbavě, místu.','Kodex cti — čestné uznání zásahů.','Konflikty přes hlavního trenéra, ne veřejně.','Alkohol a drogy jsou striktně zakázány.'],
+    safetyH:'Bezpečnost', safety:['Právo odmítnout boj — bez vysvětlení.','Kontrola výbavy povinná před použitím.','Nováčci procházejí instruktáží.','Děti od 7 let, s písemným souhlasem rodičů.'],
+    liabH:'Odpovědnost', liabB:'Klub neposkytuje pojištění.', liab:'Všechny tréninky a výjezdy probíhají na vlastní odpovědnost účastníka.',
+    payH:'Platby', pay:['Registrace a platba musí proběhnout nejpozději 48 hodin před začátkem tréninku.','Platba později než 48 hodin před začátkem nebo v den tréninku — příplatek 25 % z ceny sezení.','Nezaplacený příplatek blokuje účast na dalším tréninku až do jeho úhrady.','Trénink se koná pouze v případě, že alespoň jeden účastník má zaplacené sezení, platný Berserk Pass nebo se přihlásil na první trénink zdarma. Pokud nikdo takový není — trénink je zrušen.'],
+    discH:'Disciplína', discHeaders:['Porušení','Důsledek'],
+    disc:[['1. porušení','Strike (písemné varování)'],['2. porušení','Vyloučení (návrat možný po 3 měsících)'],['Opakované','Konečné vyloučení'],['Hrubé','Okamžité vyloučení']]
+  },
+  schedule:{
+    eyebrow:'VI · Rozvrh a základna', h:'Kdy a kde',
+    venue:'Základna: Dukelská třída 157/44, Brno. Venku. Délka: 1h 30m. Po příjezdu zavolej trenérovi.',
+    headers:['Den','Čas','Formát'],
+    rows:[['Pondělí','18:00','Trénink'],['Čtvrtek','18:00','Trénink'],['Sobota','18:00','Trénink']],
+    larp:'LARP akce probíhají nepravidelně, oznamují se zvlášť. Trénink se nekoná, pokud se žádný účastník nepřihlásil (placené sezení, první trénink zdarma nebo Berserk Pass).'
+  },
+  onboarding:{
+    eyebrow:'VII · Onboarding nováčka', h:'Poprvé tady',
+    rows:[
+      ['Oblečení','Pohodlné sportovní oblečení, uzavřená obuv. Výbavu zapůjčíme.'],
+      ['Vezmi si','Láhev vody. První trénink zdarma.'],
+      ['Struktura','Instruktáž → postoje → zbraně → lehký šerm.'],
+      ['Odpovědnost','Podpis dohody. Pojištění není zajištěno.'],
+      ['Další krok','Po 4 trénincích/měsíc — přechod na Starší družinu.'],
+    ]
+  },
+  ecosystem:{
+    eyebrow:'VIII · Ekosystém projektů', h:'Další projekty',
+    rows:[
+      ['<span style="color:var(--r5);cursor:pointer;font-weight:600;" onclick="switchTab(\'walkers\')">BrnoWalkers ➔</span>','Pěší turistika a hiking'],
+      ['<span style="color:var(--r5);cursor:pointer;font-weight:600;" onclick="switchTab(\'main\')">Doučování ➔</span>','Prémiové doučování předmětů'],
+      ['<span style="color:var(--r5);cursor:pointer;font-weight:600;" onclick="switchTab(\'main\')">Moravian Squad ➔</span>','Aktivity pro děti 5–15 let']
+    ]
+  },
+  contacts:{
+    eyebrow:'IX · Kontakty', h:'Kde nás najdete', headers:['Kanál','Odkaz / Účel'],
+    rows:[
+      ['Email','<a href="mailto:chereshnev.biochem@gmail.com">chereshnev.biochem@gmail.com</a>'],
+      ['Telefon','<a href="tel:+420702914842">+420 702 914 842</a>'],
+      ['WhatsApp (Osobní)','<a href="https://wa.me/420702914842" target="_blank" rel="noopener">wa.me/420702914842</a> — Aliaksei Chareshneu'],
+      ['Telegram (Osobní)','<a href="https://t.me/Chareshneu" target="_blank" rel="noopener">t.me/Chareshneu</a> — Aliaksei Chareshneu'],
+      ['── Družina Moravy ──','──────────────────'],
+      ['WA Chat · EN/CS','<a href="https://chat.whatsapp.com/JzeXAQF8I2XE3zQ2OqWsPz" target="_blank" rel="noopener">chat.whatsapp.com/JzeXAQ...</a> — hlavní chat'],
+      ['WA Kanál · EN/CS','<a href="https://chat.whatsapp.com/DuTpgF22mxMFy6L1Cfrcvu" target="_blank" rel="noopener">chat.whatsapp.com/DuTpgF...</a> — oznámení, bez spamu'],
+      ['TG Chat · RU/UA/BY','<a href="https://t.me/druzinamoravy" target="_blank" rel="noopener">t.me/druzinamoravy</a> — hlavní chat'],
+      ['TG Kanál · RU/UA/BY','<a href="https://t.me/druzinamoravy_news" target="_blank" rel="noopener">t.me/druzinamoravy_news</a> — oznámení, bez spamu'],
+      ['── BrnoWalkers ──','──────────────────'],
+      ['WA Chat · EN/CS','<a href="https://chat.whatsapp.com/JCyEJNm746nBXNll3VzzX3" target="_blank" rel="noopener">chat.whatsapp.com/JCyEJN...</a> — hlavní chat'],
+      ['WA Kanál · EN/CS','<a href="https://chat.whatsapp.com/BSlQetCjMoL8IO45c6VnH0" target="_blank" rel="noopener">chat.whatsapp.com/BSlQet...</a> — oznámení, bez spamu'],
+      ['TG Chat · RU/UA/BY','<a href="https://t.me/pochody_brno" target="_blank" rel="noopener">t.me/pochody_brno</a> — hlavní chat'],
+      ['TG Kanál · RU/UA/BY','<a href="https://t.me/pochody_brno_new" target="_blank" rel="noopener">t.me/pochody_brno_new</a> — oznámení, bez spamu'],
+    ]
+  },
+  footer:{h:'Chceš udělat první krok?',free:'Nejdřív se zaregistruj přes formulář výše. Pokud jsi vše přečetl a máš otázky — napiš mi přímo.'},
+  ui:{
+    mainFounder:'Základ',
+    mainActivities:'Aktivity & Spektrum cen',
+    openDruzina:'Otevřít Družinu Moravy',
+    openWalkers:'Otevřít BrnoWalkers',
+    alsoFencing:'Také: Šerm & LARP',
+    info:'Info',
+    globalRulesH:'Obecný kodex odpovědnosti účastníků',
+    joinWA:'Vstoupit na WhatsApp',
+    joinTG:'Vstoupit na Telegram',
+    joinChat:'Komunitní chat · WhatsApp',
+    joinChannel:'Kanál oznámení · WhatsApp',
+    druzinaRulesH:'Obecná pravidla účasti & Officiální řád',
+    druzinaName:'Družina Moravy',
+    druzinaTagline:'Klub historického středověkého boje, šermu (HEMA), střelby a LARP rekonstrukce v Brně.',
+    druzinaBtn:'Meč, kopí, luk, kuše a mnoho dalšího! Přejít k BrnoWalkers',
+    globalRules:`<h4>1. ROZSAH A SOUHLAS</h4>
+    <p><strong>1.1</strong> Tato pravidla se vztahují na všechny akce, tréninky, prohlídky a aktivity organizované Aliakseim Charesneuem (OSVČ, IČO: 23041625) pod značkami BrnoWalkers, Družina Moravy a individuální služby.</p>
+    <p><strong>1.2</strong> Zaplacení nebo rezervace účasti znamená bezpodmínečný souhlas se všemi platnými pravidly.</p>
+    <p><strong>1.3 Účastníci do 18 let</strong> jsou přijímáni výhradně s písemným souhlasem zákonného zástupce a fyzickým doprovodem zletilé osoby (18+), která za ně nese plnou odpovědnost.</p>
+    <h4>2. REGISTRACE, PLATBA A TERMÍNY</h4>
+    <p><strong>2.1</strong> Místo účastníka je potvrzeno výhradně po přijetí plné platby. Zvýhodněná cena platí přísně do termínu uvedeného v oznámeních.</p>
+    <h4>3. ZRUŠENÍ A VRÁCENÍ PENĚZ</h4>
+    <p><strong>3.1 Zrušení účastníkem:</strong> 14 a více dní před akcí — vrácení 50 % částky. Méně než 14 dní — platba se nevrací a je zadržena jako organizační poplatek. Nedostavení se není důvodem k vrácení peněz.</p>
+    <p><strong>3.2 Přesunutí platby:</strong> možné jednou při žádosti nejpozději 7 dní před akcí, na akci do 30 kalendářních dní.</p>
+    <p><strong>3.3 Zrušení organizátorem nebo vyšší moc:</strong> provede se plné 100% vrácení peněz účastníkům. Náhrada výdajů třetích stran (jízdenky, rezervace účastníků) se neprovádí.</p>
+    <h4>4. ZMĚNA PROGRAMU</h4>
+    <p><strong>4.1</strong> Organizátor má právo měnit trasy, časování nebo místa z bezpečnostních důvodů (počasí, logistika). Změna se považuje za nepodstatnou, pokud byl program splněn na 70 % a více.</p>
+    <h4>5. CHOVÁNÍ, ETIKA A DISCIPLÍNA</h4>
+    <p><strong>5.1</strong> Jsou zakázány jakékoli formy diskriminace, agrese a obtěžování. Pokyny organizátora jsou závazné.</p>
+    <p><strong>5.2 Okamžité vyloučení (bez vrácení peněz)</strong> hrozí za: příchod pod vlivem alkoholu, úmyslné porušení bezpečnosti, odmítnutí řídit se pokyny organizátora, agresivní chování nebo poškozování majetku.</p>
+    <h4>6. ZDRAVÍ, ODPOVĚDNOST A POJIŠTĚNÍ</h4>
+    <p><strong>6.1</strong> Účastníci potvrzují, že nemají žádné zdravotní kontraindikace. Účast probíhá na vlastní riziko. Organizátor neposkytuje pojistné krytí; účastníkům je důrazně doporučeno sjednat si osobní sportovní/cestovní pojištění.</p>
+    <p><strong>6.2 Majetek:</strong> Organizátor nenese odpovědnost za krádež nebo poškození osobních věcí účastníků při akcích.</p>
+    <h4>7. PŮJČOVÁNÍ VYBAVENÍ</h4>
+    <p><strong>7.1</strong> Veškeré vybavení zapůjčené přímo od organizátora nebo prostřednictvím organizátora od třetích stran (kanoe, pádla, ochranné vybavení, historická zbroj, zbraně nebo jiný inventář) musí být vráceno ve stejném stavu, v jakém bylo převzato.</p>
+    <p><strong>7.2</strong> V případě poškození, ztráty nebo nevrácení zapůjčeného vybavení je účastník povinen uhradit náhradu ve výši stanovené vlastníkem vybavení. Výši náhrady určuje výhradně vlastník a nelze ji rozporovat prostřednictvím organizátora.</p>
+    <p><strong>7.3</strong> Převzetí vybavení k zapůjčení znamená úplný souhlas s touto podmínkou.</p>`
+  }
+},
+
+uk:{
+  meta:{title:'Aliaksei Chareshneu, PhD | Алексей Черешнев, доктор наук — Брно'},
+  nav:{brand:'Aliaksei Chareshneu, PhD | Алексей Черешнев, доктор наук', sub:'Екосистема проєктів у Брно'},
+  tabs:{main:'Про мене & Екосистема', walkers:'Брнохідці (Hiking & Boardgames & Fun)', druzina:'Дружина Моравії (Safe Swords, Bows & More)', boardgames:'Настілки (безкоштовно)'},
+  hero:{
+    eyebrow:'Брно · Рух · Інтелект',
+    cta1:'WhatsApp', cta2:'Telegram',
+  },
+  main:{
+    title:'Твой провідник у Брно',
+    tagline:'Розвиваємо тіло, навички та інтелект. Повний спектр шкільних та позашкільних дисциплін (науки, IT, мови, музика), походи, фехтування та крафт.',
+    aboutH:'Хто такий Олексій Черешньов?',
+    aboutText:'Я створюю та розвиваю живі спільноти в Брно, координую проєкти та навчаю. Моя мета — надати простір для всебічного фізичного (хайкінг, спорт) та інтелектуального розвитку (преміум-репетиторство). Забудьте про нудне зазубрювання — ми працюємо на практичний результат та індивідуальні цілі.',
+    matrixH:'Шкала наших заходів та цін',
+    matrixIntro:'Ми побудували екосистему так, щоб вхід був доступний абсолютно кожній людині (є безкоштовні рівні), але при цьому існували глибокі преміум-формати для індивідуального прокачування.',
+    headers:['Напрямок','Доступний / Безкоштовний рівень','Регулярний / Премиум рівень'],
+    rows:[
+      ['Фізична активність (Спорт & Туризм)','<strong>Брнохідці:</strong> Походи вихідного дня, скелі, замки Моравії (платно, ціна в анонсі)<br><br><strong>Дружина Моравії:</strong> Перше ознайомче тренування (0 Kč)','<strong>Дружина Моравії:</strong> Регулярні тренування HEMA/LARP (100–200 Kč за сесію або Berserk Pass)<br><br><strong>Moravian Squad:</strong> Спорт та виїзди для дітей 5–15 років'],
+      ['Інтелектуальна активність (Розум & Предмети)','Історичні лекції, розбори LARP-лору, тактичні брифінги всередині клубів','<strong>Групові лекції:</strong> Тематичні лекції та семінари з історії, HEMA та природничих наук для малих груп.<br><br><strong>Індивідуальне репетиторство преміум-класу:</strong> Заняття 1-на-1 з біохімії, молекулярної біології, Python, UNIX, англійської, чеської, російської мов, риторики, музики (гітара, фортепіано, вокал)'],
+      ['Індивідуальний підхід','Відкриті консультації щодо підбору спорядження, базовий онбординг новачків','Персональні тренування з фехтування та стрільби з лука (від 400 Kč)<br><br>Індивідуальне виготовлення та ремонт HEMA/LARP спорядження на замовлення']
+    ],
+    ctaH:'З чого почати просто зараз?',
+    ctaText:'Наша екосистема створена, щоб утримувати інтерес та давати результат. Виберіть будь-яку комфортну дію нижче, щоб зробити перший крок:',
+    ctas:[
+      ['Спробувати HEMA фехтування','Перше тренування в Дружині Моравії безкоштовне. Видамо спорядження, дамо протестувати будь-яку зброю від меча до арбалета.'],
+      ['Піти в похід з Брнохідцями','Найближчі вихідні, свіже повітря, природа та нові знайомства в Брно. Ціна та деталі — в анонсі кожної події.'],
+      ['Преміум репетиторство на крок попереду','Індивідуальні заняття з повного спектра академічних та творчих дисциплін. Робота під ваші завдання, гнучкий графік.']
+    ]
+  },
+  walkers:{
+    eyebrow:'Спільнота активних людей',
+    title:'Брнохідці',
+    tagline:'Пішохідний туризм, хайкінг, скелі та дослідження найкрасивіших локацій Моравії у чудовій компанії.',
+    aboutH:'Про Брнохідців',
+    aboutText:'Брнохідці — це відкрита спільнота для тих, хто любить рух. Ми регулярно організуємо піші вилазки навколо Брно та по всій Чехії (Моравський крас, печери, сплави). Прекрасний спосіб перезавантажитись та знайти друзів.',
+    facts:[
+      {v:'Брно & Моравія',l:'Локація'},
+      {v:'Регулярно',l:'Частота'},
+      {v:'Платно / донати',l:'Вартість'},
+      {v:'Для всіх',l:'Рівень підготовки'}
+    ],
+    rulesH:'Офіційний регламент та правила',
+    rules:[
+      'Заходи платні. Вартість кожного виїзду оголошується заздалегідь в анонсі в чатах. Донати також вітаються.',
+      'Транспорт до місця проведення та назад, а також додаткові послуги (харчування, вода, спорядження) у вартість не включені та оплачуються учасником самостійно — якщо інше явно не зазначено в анонсі конкретного заходу.',
+      'Маршрути, кілометраж та складність завжди анонсуються заздалегідь у чатах.',
+      'Обов\'язкова умова: зручне спортивне/трекінгове взуття та одяг по погоді.',
+      'Можна приходити самому, з друзями, з родиною чи з собакою — ком\'юніті приймає всіх.'
+    ],
+    ctaBox:'Вступай у чати Брнохідців, щоб не пропустити наступний анонс виїзду!',
+    scheduleEyebrow:'Розклад',
+    scheduleH:'Найближчі події',
+    scheduleText:'Актуальні анонси виїздів та заходів публікуються у Facebook Events. У кожному анонсі — маршрут, ціна, умови участі та час збору.',
+    scheduleBtn:'Переглянути події у Facebook →',
+    schedulePlaceholder:'Вбудований календар — у розробці',
+  },
+  about:{
+    eyebrow:'I · Про клуб', h:'Меч, копʼя, лук, арбалет та багато іншого!',
+    body:'Ми об\'єднуємо людей, яким цікавий середньовічний бій у всіх його формах, а також історія озброєння та воїнська культура Європи.',
+    facts:[{v:'Brno, CZ',l:'Місто'},{v:'3× на тиждень',l:'Тренування, на вулиці'},{v:'~12 / ~45',l:'Активних / всього'},{v:'Безкоштовно',l:'Перше тренування'}]
+  },
+  tariff:{
+    eyebrow:'II · Участь та оплата', h:'Тариф — це не ранг', intro:'Це питання способу оплати, воно не пов\'язане з прогресією рангу.',
+    headers:['Параметр','Молодша дружина','Старша дружина'],
+    rows:[
+      ['Хто','Разові гості, нерегулярні','Ті, хто ходить регулярно'],
+      ['Оплата','200 Kč / сесія','100 Kč / сесія або Berserk Pass'],
+      ['Умова','Щонайменше 1 сесія на місяць','4+ сесії щомісяця'],
+      ['Berserk Pass','—','2 500 Kč — річний пропуск на 48 сесій (~52 Kč/сесія), лише для Старшої дружини'],
+    ],
+    rollbackB:'Старша дружина — статус, який підтверджується щомісяця.',
+    rollback:'Якщо регулярність 4+ сесій на місяць не зберігається, учасник автоматично повертається до Молодшої дружини. Ранг не скидається.',
+    free:'Перше тренування — безкоштовне для всіх, незалежно від тарифу та рангу.'
+  },
+  ranks:{
+    eyebrow:'III · Ранг', h:'Шлях учасника',
+    intro:'Ранг зростає від відвідуваності та залучення нових людей. Кожен ранг дає браслет свого кольору.',
+    startLabel:'старт', bracelet:'Браслет', threshold:'Поріг',
+    sparringNote:'Пріоритет вибору партнера (III ранг) діє лише у вільних раундах спарингу.',
+    weaponH:'Доступ до зброї за рангом',
+    weapon:[
+      ['Перше тренування','Можна спробувати будь-якую зброю клубу під керівництвом тренера.'],
+      ['Регулярні тренування','Одноручні мечі, лук та арбалет — без обмежень.'],
+      ['З III рангу','Відкривається навчання довгій зброї (від 140 см), копʼю та піці.'],
+    ],
+    rentalH:'Оренда спорядження',
+    rentalText:'У клубі доступна оренда просунутої історичної зброї та обладунків.',
+    rentalLink:'Повний список і ціни →',
+    rentalNote:'Оренда не скасовує обмеження за рангом.',
+    craftH:'Знижка на крафт',
+    craftText:'Знижка діє лише на індивідуальне виготовлення спорядження на замовлення.',
+    extraH:'Привілеї IV та V рангів',
+    extra:[
+      ['Індивідуальне тренування','від 400 Kč, з IV рангу: перше на місяць — безкоштовно.'],
+      ['Рада дружини','З IV рангу: обговорення стратегічних питань розвитку клубу.'],
+      ['Особливий виїзд','З III рангу: формат підвищеної складності.'],
+      ['Іменна зброя','V ранг: особиста зброя за ціною матеріалів при досягненні рангу.'],
+    ],
+    referralB:'Привів людину, яка залишилася на 4+ тренування?',
+    referral:'+5 сесій зараховується до твого рахунку рангу.',
+    boardH:'Лідерборд', boardText:'Видимий список: Імʼя · Ранг · Тренувань загалом · Битв.',
+    recogH:'Момент визнання', recogText:'Перехід на новий ранг оголошується вголос при всіх із видачею браслета.',
+    recogText2:'III ранг (Ветеран) — офіційне визнання учасника частиною фундамента клубу.'
+  },
+  roles:{
+    eyebrow:'IV · Ролі у Старшій дружині', h:'Обери щонайменше одну',
+    intro:'Кожен учасник Старшої дружини обирає щонайменше одну роль із першого дня.',
+    headers:['Роль','Що робить','Винагорода']
+  },
+  rules:{
+    eyebrow:'V · Правила та кодекс', h:'Офіційний кодекс',
+    conductH:'Поведінка', conduct:['Без екстремізму — негайне виключення.','Повага до учасників, спорядження, місця.','Кодекс честі — чесне визнання попадань.','Конфлікти вирішуються через головного тренера, не публічно.','Алкоголь і наркотики суворо заборонені.'],
+    safetyH:'Безпека', safety:['Право відмовитися від бою — без пояснень.','Перевірка спорядження обов\'язкова.','Новачки проходять обов\'язковий інструктаж.','Діти — з 7 років, письмова згода батьків.'],
+    liabH:'Відповідальність', liabB:'Страхування клубом не надається.', liab:'Усі тренування та виїзди учасники проходять на власну відповідальність.',
+    payH:'Оплата', pay:['Реєстрація та оплата — не пізніше ніж за 48 годин до початку тренування.','Оплата пізніше 48 годин або в день тренування — штраф 25% від вартості сесії.','Несплачений штраф блокує участь у наступному тренуванні до його погашення.','Тренування відбувається лише за наявності хоча б одного учасника з оплаченою сесією, діючим Berserk Pass або записаного на перше безкоштовне тренування. Якщо таких немає — тренування скасовується.'],
+    discH:'Дисципліна', discHeaders:['Порушення','Наслідок'],
+    disc:[['1-е порушення','Страйк (письмове попередження)'],['2-е порушення','Виключення (відновлення через 3 міс.)'],['Повторне','Фінальне виключення'],['Грубе','Негайне виключення']]
+  },
+  schedule:{
+    eyebrow:'VI · Розклад і база', h:'Коли і де',
+    venue:'База: Dukelská třída 157/44, Brno. На вулиці. Тривалість: 1г 30хв. По прибуттю — зателефонуй тренеру.',
+    headers:['День','Час','Формат'],
+    rows:[['Понеділок','18:00','Тренування'],['Четвер','18:00','Тренування'],['Субота','18:00','Тренування']],
+    larp:'LARP заходи проводяться нерегулярно, анонсуються окремо. Тренування не відбувається, якщо жоден учасник не зареєструвався (оплачена сесія, перше безкоштовне або Berserk Pass).'
+  },
+  onboarding:{
+    eyebrow:'VII · Онбординг новачка', h:'Вперше тут',
+    rows:[
+      ['Одяг','Зручний спортивний одяг, закрите взуття. Спорядження видаємо.'],
+      ['Взяти з собою','Бутилку води. Перше тренування безкоштовне.'],
+      ['Структура','Інструктаж → стійки → знайомство зі зброєю → легкий спаринг.'],
+      ['Відповідальність','Підписання угоди. Страхування не передбачено.'],
+      ['Наступний крок','Після 4 тренувань на місяць — перехід до Старшої дружини.'],
+    ]
+  },
+  ecosystem:{
+    eyebrow:'VIII · Екосистема проєктів', h:'Інші проєкти',
+    rows:[
+      ['<span style="color:var(--r5);cursor:pointer;font-weight:600;" onclick="switchTab(\'walkers\')">BrnoWalkers ➔</span>','Пішохідний туризм і хайкінг'],
+      ['<span style="color:var(--r5);cursor:pointer;font-weight:600;" onclick="switchTab(\'main\')">Репетиторство ➔</span>','Преміум-заняття з усіх предметів'],
+      ['<span style="color:var(--r5);cursor:pointer;font-weight:600;" onclick="switchTab(\'main\')">Moravian Squad ➔</span>','Активності для дітей 5–15 років']
+    ]
+  },
+  contacts:{
+    eyebrow:'IX · Контактки', h:'Де нас знайти', headers:['Канал','Посилання / Призначення'],
+    rows:[
+      ['Email','<a href="mailto:chereshnev.biochem@gmail.com">chereshnev.biochem@gmail.com</a>'],
+      ['Телефон','<a href="tel:+420702914842">+420 702 914 842</a>'],
+      ['WhatsApp (Особистий)','<a href="https://wa.me/420702914842" target="_blank" rel="noopener">wa.me/420702914842</a> — Олексій Черешньов'],
+      ['Telegram (Особистий)','<a href="https://t.me/Chareshneu" target="_blank" rel="noopener">t.me/Chareshneu</a> — Олексій Черешньов'],
+      ['── Дружина Моравії ──','──────────────────'],
+      ['TG Чат · RU/UA/BY','<a href="https://t.me/druzinamoravy" target="_blank" rel="noopener">t.me/druzinamoravy</a> — основний чат'],
+      ['TG Канал · RU/UA/BY','<a href="https://t.me/druzinamoravy_news" target="_blank" rel="noopener">t.me/druzinamoravy_news</a> — анонси, без флуду'],
+      ['WA Чат · EN/CS','<a href="https://chat.whatsapp.com/JzeXAQF8I2XE3zQ2OqWsPz" target="_blank" rel="noopener">chat.whatsapp.com/JzeXAQ...</a> — основний чат'],
+      ['WA Канал · EN/CS','<a href="https://chat.whatsapp.com/DuTpgF22mxMFy6L1Cfrcvu" target="_blank" rel="noopener">chat.whatsapp.com/DuTpgF...</a> — анонси, без флуду'],
+      ['── Брнохідці ──','──────────────────'],
+      ['TG Чат · RU/UA/BY','<a href="https://t.me/pochody_brno" target="_blank" rel="noopener">t.me/pochody_brno</a> — основний чат'],
+      ['TG Канал · RU/UA/BY','<a href="https://t.me/pochody_brno_new" target="_blank" rel="noopener">t.me/pochody_brno_new</a> — анонси, без флуду'],
+      ['WA Чат · EN/CS','<a href="https://chat.whatsapp.com/JCyEJNm746nBXNll3VzzX3" target="_blank" rel="noopener">chat.whatsapp.com/JCyEJN...</a> — основний чат'],
+      ['WA Канал · EN/CS','<a href="https://chat.whatsapp.com/BSlQetCjMoL8IO45c6VnH0" target="_blank" rel="noopener">chat.whatsapp.com/BSlQet...</a> — анонси, без флуду'],
+    ]
+  },
+  footer:{h:'Готов зробити перший крок?',free:'Спочатку зареєструйся через форму вище. Якщо все прочитав і залишились питання — пиши напряму.'},
+  ui:{
+    mainFounder:'Основа',
+    mainActivities:'Активності & Спектр цін',
+    openDruzina:'Відкрити Дружину Моравії',
+    openWalkers:'Відкрити Брнохідців',
+    alsoFencing:'А також: Фехтування & LARP',
+    info:'Інфо',
+    globalRulesH:'Загальний кодекс відповідальності учасників',
+    joinWA:'Вступити в WhatsApp',
+    joinTG:'Вступити в Telegram',
+    joinChat:'Чат спільноти · Telegram',
+    joinChannel:'Канал анонсів · Telegram',
+    druzinaRulesH:'Загальні правила участі & Офіційний регламент',
+    druzinaName:'Дружина Моравії',
+    druzinaTagline:'Клуб історичного середньовічного бою, фехтування (HEMA), стрільби та LARP-реконструкції в Брно.',
+    druzinaBtn:'Меч, копʼє, лук, арбалет та багато іншого! Перейти до Брнохідців',
+    globalRules:`<h4>1. СФЕРА ДІЇ ТА ЗГОДА</h4>
+    <p><strong>1.1</strong> Ці правила поширюються на всі заходи, заняття, тури та активності, організовані Олексієм Черешньовим (OSVČ, IČO: 23041625) під брендами BrnoWalkers, Дружина Моравії, а також індивідуальні послуги.</p>
+    <p><strong>1.2</strong> Оплата або реєстрація участі означає безумовну згоду з усіма чинними правилами.</p>
+    <p><strong>1.3 Учасники до 18 років</strong> допускаються виключно за наявності письмової згоди законного представника та фізичного супроводу повнолітньою особою (18+), яка несе за них повну відповідальність.</p>
+    <h4>2. РЕЄСТРАЦІЯ, ОПЛАТА ТА ДЕДЛАЙНИ</h4>
+    <p><strong>2.1</strong> Місце учасника підтверджується виключно після надходження повної оплати. Рання ціна діє строго до зазначеного в анонсах дедлайну.</p>
+    <h4>3. СКАСУВАННЯ ТА ПОВЕРНЕННЯ КОШТІВ</h4>
+    <p><strong>3.1 Скасування учасником:</strong> за 14 і більше днів до початку заходу — повертається 50% суми. Менш ніж за 14 днів — оплата не повертається і утримується як організаційний збір. Неявка не є підставою для повернення коштів.</p>
+    <p><strong>3.2 Перенесення оплати:</strong> можливе одноразово при запиті не пізніше ніж за 7 днів до початку, на захід протягом 30 календарних днів.</p>
+    <p><strong>3.3 Скасування організатором або форс-мажор:</strong> здійснюється повне 100% повернення коштів учасникам. Компенсація сторонніх витрат (квитки, бронювання учасників) не здійснюється.</p>
+    <h4>4. ЗМІНА ПРОГРАМИ</h4>
+    <p><strong>4.1</strong> Організатор має право змінювати маршрути, тайминг або локації з міркувань безпеки (погода, логістика). Зміна вважається несуттєвою, якщо програму виконано на 70% і більше.</p>
+    <h4>5. ПОВЕДІНКА, ЕТИКА ТА ДИСЦИПЛІНА</h4>
+    <p><strong>5.1</strong> Забороняються будь-які форми дискримінації, агресії, харасменту. Інструкції організатора обов'язкові до виконання.</p>
+    <p><strong>5.2 Негайне відсторонення (без повернення коштів)</strong> загрожує за явку в стані сп'яніння, навмисне порушення ТБ, відмову виконувати команди організатора, агресивну поведінку або псування майна.</p>
+    <h4>6. ЗДОРОВ'Я, ВІДПОВІДАЛЬНІСТЬ ТА СТРАХУВАННЯ</h4>
+    <p><strong>6.1</strong> Учасники підтверджують відсутність медичних протипоказань. Участь здійснюється на власний ризик. Організатор не надає страхового покриття; учасникам настійно рекомендується оформити особисте спортивне/туристичне страхування.</p>
+    <p><strong>6.2 Майно:</strong> Організатор не несе відповідальності за крадіжку або пошкодження особистих речей учасників під час заходів.</p>
+    <h4>7. ОРЕНДА СПОРЯДЖЕННЯ</h4>
+    <p><strong>7.1</strong> Будь-яке спорядження, орендоване безпосередньо у організатора або через організатора у третіх сторін (каное, весла, захисне спорядження, історичні обладунки, зброя та інший інвентар), підлягає обов'язковому поверненню в тому самому стані, в якому воно було отримано.</p>
+    <p><strong>7.2</strong> У разі пошкодження, втрати або неповернення орендованого спорядження учасник зобов'язаний сплатити компенсацію в розмірі, встановленому власником спорядження. Розмір компенсації визначається виключно власником і не підлягає оскарженню через організатора.</p>
+    <p><strong>7.3</strong> Прийняття спорядження в оренду означає повну згоду з цією умовою.</p>`
+  }
+}
+};
+
+const RANK_DOT_COLORS = ['#3a3c41','var(--r2)','var(--r3)','var(--r4)','var(--r5)'];
+const RANK_DOT_TEXT = ['var(--ink-dim)','#fff','#fff','#fff','#16171a'];
+const RENTAL_LINK = 'https://docs.google.com/spreadsheets/d/11-XATZWWwX6YjltnxsNxqNGbrEt9e1WKpoDXlvc6LC4/edit?usp=drivesdk';
+const PERSONAL_WA = 'https://wa.me/420702914842';
+const PERSONAL_TG = 'https://t.me/Chareshneu';
+
+const WALKERS_TG_CHAT    = 'https://t.me/pochody_brno';
+const WALKERS_TG_CHANNEL = 'https://t.me/pochody_brno_new';
+const WALKERS_WA_CHAT    = 'https://chat.whatsapp.com/JCyEJNm746nBXNll3VzzX3';
+const WALKERS_WA_CHANNEL = 'https://chat.whatsapp.com/BSlQetCjMoL8IO45c6VnH0';
+
+const DRUZINA_TG_CHAT    = 'https://t.me/druzinamoravy';
+const DRUZINA_TG_CHANNEL = 'https://t.me/druzinamoravy_news';
+const DRUZINA_WA_CHAT    = 'https://chat.whatsapp.com/JzeXAQF8I2XE3zQ2OqWsPz';
+const DRUZINA_WA_CHANNEL = 'https://chat.whatsapp.com/DuTpgF22mxMFy6L1Cfrcvu';
+
+function communityLinks(lang, group) {
+  const tg = (lang === 'ru' || lang === 'uk');
+  return group === 'walkers'
+    ? { chat: tg ? WALKERS_TG_CHAT : WALKERS_WA_CHAT,
+        channel: tg ? WALKERS_TG_CHANNEL : WALKERS_WA_CHANNEL }
+    : { chat: tg ? DRUZINA_TG_CHAT : DRUZINA_WA_CHAT,
+        channel: tg ? DRUZINA_TG_CHANNEL : DRUZINA_WA_CHANNEL };
+}
+
+let currentLang = 'ru';
+let currentTab = 'main';
+
+function renderFacts(facts){
+  return `<div class="facts">${facts.map(f=>`<div class="fact"><div class="v">${f.v}</div><div class="l">${f.l}</div></div>`).join('')}</div>`;
+}
+
+function renderTable(headers, rows){
+  return `<div class="tbl-wrap"><table><thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>
+    ${rows.map(r=>`<tr>${r.map((c,i)=>`<td>${i===0?`<strong>${c}</strong>`:c}</td>`).join('')}</tr>`).join('')}
+  </tbody></table></div>`;
+}
+
+function renderTabsNav(lang){
+  const t = T[lang];
+  const tabs = ['main', 'walkers', 'druzina'];
+  document.getElementById('tabsNav').innerHTML = tabs.map(tabKey => `
+    <button class="tab-btn ${currentTab === tabKey ? 'active' : ''}" data-tab="${tabKey}">${t.tabs[tabKey]}</button>
+  `).join('');
+
+  document.querySelectorAll('#tabsNav button').forEach(b => {
+    b.onclick = () => {
+      switchTab(b.dataset.tab);
+    };
+  });
+}
+
+window.switchTab = function(tabId) {
+  currentTab = tabId;
+  render(currentLang);
+  window.scrollTo({top:0, behavior:'smooth'});
+};
+
+function renderGlobalRulesText(lang) {
+  return `
+  <div class="rules-scrollbox">
+    ${T[lang].ui.globalRules}
+  </div>`;
+}
+
+function renderMainTab(lang, t) {
+  return `
+  <section class="hero">
+    <div class="wrap">
+      <div class="eyebrow">${t.hero.eyebrow}</div>
+      <h1>${t.main.title}</h1>
+      <p class="tagline">${t.main.tagline}</p>
+      <div class="hero-ctas">
+        <button class="btn solid" onclick="switchTab('druzina')">${t.tabs.druzina}</button>
+        <button class="btn" onclick="switchTab('walkers')">${t.tabs.walkers}</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap" style="padding-top:0;">
+    <div class="hero-img wide"><img src="${IMG_MAIN_HERO}" alt="Morava v pohybu — hiking, fencing, archery, nature" loading="lazy"></div>
+  </div>
+
+  <section id="leader-about">
+    <div class="wrap">
+      <div class="eyebrow-sm">${t.ui.mainFounder}</div>
+      <h2 class="anchor-heading">${t.main.aboutH}<a class="anchor-link" href="#leader-about">#</a></h2>
+      <p class="lead">${t.main.aboutText}</p>
+    </div>
+  </section>
+
+  <section id="matrix-activities">
+    <div class="wrap">
+      <div class="eyebrow-sm">${t.ui.mainActivities}</div>
+      <h2 class="anchor-heading">${t.main.matrixH}<a class="anchor-link" href="#matrix-activities">#</a></h2>
+      <p class="lead">${t.main.matrixIntro}</p>
+      ${renderTable(t.main.headers, t.main.rows)}
+    </div>
+  </section>
+
+  <section id="conversion">
+    <div class="wrap">
+      <h2>${t.main.ctaH}</h2>
+      <p class="lead">${t.main.ctaText}</p>
+      <div class="grid-ctas">
+        <div class="card-cta">
+          <h3>${t.main.ctas[0][0]}</h3>
+          <p>${t.main.ctas[0][1]}</p>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <a class="btn solid" href="${REGISTER_FORM}" target="_blank" rel="noopener">${lang==='ru'?'Записаться':lang==='uk'?'Записатись':lang==='cs'?'Přihlásit se':'Register'}</a>
+            <button class="btn" onclick="switchTab('druzina')">${t.ui.openDruzina}</button>
+          </div>
+        </div>
+        <div class="card-cta">
+          <h3>${t.main.ctas[1][0]}</h3>
+          <p>${t.main.ctas[1][1]}</p>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <a class="btn solid" href="${REGISTER_FORM}" target="_blank" rel="noopener">${lang==='ru'?'Записаться':lang==='uk'?'Записатись':lang==='cs'?'Přihlásit se':'Register'}</a>
+            <button class="btn" onclick="switchTab('walkers')">${t.ui.openWalkers}</button>
+          </div>
+        </div>
+        <div class="card-cta">
+          <h3>${t.main.ctas[2][0]}</h3>
+          <p>${t.main.ctas[2][1]}</p>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <a class="btn solid" href="${PERSONAL_WA}" target="_blank" rel="noopener">${t.hero.cta1}</a>
+            <a class="btn" href="${PERSONAL_TG}" target="_blank" rel="noopener">${t.hero.cta2}</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  `;
+}
+
+const EVENT_TYPES = {
+  title: {ru:'Типы мероприятий', en:'Event Types', cs:'Typy akcí', uk:'Типи заходів'},
+  eyebrow: {ru:'Что бывает', en:'What we do', cs:'Co pořádáme', uk:'Що буває'},
+  types: [
+    {
+      icon: '🏔️',
+      title: {ru:'Горные походы', en:'Mountain Hikes', cs:'Horské výšlapy', uk:'Гірські походи'},
+      meta: {ru:'10–25 км · средний/сложный', en:'10–25 km · medium/hard', cs:'10–25 km · střední/těžká', uk:'10–25 км · середній/складний'},
+      desc: {ru:'Beśkaды, Есеники, Альпы — маршруты с набором высоты. Нужны трекинговые ботинки с фиксацией голеностопа. Еды по дороге нет — берите с собой.', en:'Beskydy, Jeseníky, Alps — routes with elevation gain. Ankle-support hiking boots required. No food on route — bring your own.', cs:'Beskydy, Jeseníky, Alpy — trasy s výškovým převýšením. Nutné trekingové boty s fixací kotníku. Jídlo na trase není — přines si vlastní.', uk:'Бескиди, Єсеніки, Альпи — маршрути з набором висоти. Потрібні трекінгові черевики з фіксацією. Їжі по дорозі немає — бери з собою.'}
+    },
+    {
+      icon: '🦇',
+      title: {ru:'Пещеры', en:'Caves', cs:'Jeskyně', uk:'Печери'},
+      meta: {ru:'2–6 км · лёгкий/средний', en:'2–6 km · easy/medium', cs:'2–6 km · lehká/střední', uk:'2–6 км · легкий/середній'},
+      desc: {ru:'Моравский Карст и другие пещеры. Фонарик — обязательно. Собаки не допускаются. Одежда, которую не жалко запачкать.', en:'Moravian Karst and other cave systems. Torch mandatory. Dogs not allowed. Wear clothes you don\'t mind getting dirty.', cs:'Moravský kras a jiné jeskyně. Baterka povinně. Psi nejsou povoleni. Oblečení, které nevadí zašpinit.', uk:'Моравський карст та інші печери. Ліхтарик — обов\'язково. Собаки не допускаються. Одяг, який не шкода забруднити.'}
+    },
+    {
+      icon: '🏙️',
+      title: {ru:'Городские выезды', en:'City Trips', cs:'Výlety do měst', uk:'Міські виїзди'},
+      meta: {ru:'5–12 км · лёгкий', en:'5–12 km · easy', cs:'5–12 km · lehká', uk:'5–12 км · легкий'},
+      desc: {ru:'История, архитектура, малые города Моравии. Подходит для всех, включая детей. Обычные кроссовки — достаточно.', en:'History, architecture, small Moravian towns. Suitable for everyone including children. Regular trainers are fine.', cs:'Historie, architektura, malá moravská města. Vhodné pro všechny včetně dětí. Běžné tenisky stačí.', uk:'Історія, архітектура, малі міста Моравії. Підходить для всіх, включаючи дітей. Звичайні кросівки — достатньо.'}
+    },
+    {
+      icon: '🚣',
+      title: {ru:'Сплав (каноэ)', en:'Canoe Trip', cs:'Vodácký výlet', uk:'Сплав (каное)'},
+      meta: {ru:'1–2 раза в год', en:'1–2 times a year', cs:'1–2× ročně', uk:'1–2 рази на рік'},
+      desc: {ru:'Река Морава или Дые. Снаряжение арендуется через организатора. Аренда каноэ и весел обязательно возвращается в целости — см. п.7 правил.', en:'Morava or Dyje river. Equipment rented through the organizer. Canoes and paddles must be returned undamaged — see rule 7.', cs:'Řeka Morava nebo Dyje. Vybavení se půjčuje přes organizátora. Kanoe a pádla je nutné vrátit nepoškozená — viz pravidlo 7.', uk:'Річка Морава або Дие. Спорядження орендується через організатора. Каное та весла обов\'язково повертаються в цілості — див. п.7 правил.'}
+    },
+    {
+      icon: '🔥',
+      title: {ru:'Гриловачки', en:'BBQ Outings', cs:'Grilování', uk:'Гриловачки'},
+      meta: {ru:'Брно и окрестности · лёгкий', en:'Brno area · easy', cs:'Brno a okolí · lehká', uk:'Брно та околиці · легкий'},
+      desc: {ru:'Пикник с грилем на природе под Брно. Расслабленный формат, подходит всем. Еду и напитки обычно берут с собой.', en:'BBQ picnic in nature near Brno. Relaxed format, suitable for everyone. Food and drinks usually brought by participants.', cs:'Grilovací piknik v přírodě u Brna. Uvolněný formát, vhodné pro všechny. Jídlo a pití si obvykle přinášejí účastníci.', uk:'Пікнік з грилем на природі під Брно. Розслаблений формат, підходить усім. Їжу та напої зазвичай беруть із собою.'}
+    },
+  ]
+};
+
+function renderEventTypes(lang) {
+  const d = EVENT_TYPES;
+  const cards = d.types.map(t => `
+    <div class="event-card">
+      <div class="ec-icon">${t.icon}</div>
+      <div class="ec-title">${t.title[lang]}</div>
+      <div class="ec-meta">${t.meta[lang]}</div>
+      <div class="ec-desc">${t.desc[lang]}</div>
+    </div>`).join('');
+  return `
+  <section id="event-types">
+    <div class="wrap">
+      <div class="eyebrow-sm">${d.eyebrow[lang]}</div>
+      <h2 class="anchor-heading">${d.title[lang]}<a class="anchor-link" href="#event-types">#</a></h2>
+      <div class="event-types">${cards}</div>
+    </div>
+  </section>`;
+}
+
+const FAQ = {
+  walkers: [
+    {
+      category: {ru:'📍 Место и время', en:'📍 Location & Time', cs:'📍 Místo a čas', uk:'📍 Місце та час'},
+      items: [
+        {
+          q: {ru:'Где и во сколько встречаемся?', en:'Where and when do we meet?', cs:'Kde a v kolik se setkáváme?', uk:'Де і о котрій зустрічаємось?'},
+          a: {ru:'Место и время встречи всегда указаны в анонсе конкретного мероприятия в чате. После оплаты я дублирую точку встречи отдельным сообщением. Если не можешь найти — напиши мне.', en:'The meeting point and time are always in the specific event announcement in the chat. After payment I send the meeting point again in a separate message. If you can\'t find it — just message me.', cs:'Místo a čas setkání jsou vždy uvedeny v oznámení konkrétní akce v chatu. Po zaplacení pošlu místo setkání znovu v samostatné zprávě. Pokud to nemůžeš najít — napiš mi.', uk:'Місце і час зустрічі завжди вказані в анонсі конкретного заходу в чаті. Після оплати я дублюю точку зустрічі окремим повідомленням. Якщо не можеш знайти — напиши мені.'}
+        },
+        {
+          q: {ru:'Как добраться до места старта?', en:'How do I get to the starting point?', cs:'Jak se dostanu na místo startu?', uk:'Як дістатися до місця старту?'},
+          a: {ru:'В анонсе всегда есть адрес или GPS-точка. Обычно это остановка общественного транспорта или парковка. Мы не организуем общий транспорт — каждый добирается самостоятельно.', en:'The announcement always includes an address or GPS point. Usually it\'s a public transport stop or a parking spot. We don\'t organise shared transport — everyone gets there on their own.', cs:'V oznámení je vždy adresa nebo GPS bod. Obvykle je to zastávka MHD nebo parkoviště. Společnou dopravu neorganizujeme — každý se dopraví sám.', uk:'В анонсі завжди є адреса або GPS-точка. Зазвичай це зупинка громадського транспорту або парковка. Спільний транспорт ми не організовуємо — кожен добирається самостійно.'}
+        }
+      ]
+    },
+    {
+      category: {ru:'🎒 Снаряжение и одяг', en:'🎒 Gear & Clothing', cs:'🎒 Výbava a oblečení', uk:'🎒 Спорядження та одяг'},
+      items: [
+        {
+          q: {ru:'Какая обувь нужна?', en:'What footwear do I need?', cs:'Jakou obuv potřebuji?', uk:'Яке взуття потрібне?'},
+          a: {ru:'<strong>Обязательно:</strong> закрытая спортивная или трекинговая обувь. Кроссовки подходят для большинства маршрутов. Для горных и пещерных выходов нужны ботинки с жёсткой подошвой и фиксацией голеностопа. Сандалии, шлёпки и туфли — нельзя.', en:'<strong>Required:</strong> closed sports or hiking shoes. Trainers work for most routes. For mountain and cave trips you\'ll need boots with a rigid sole and ankle support. Sandals, flip-flops, and dress shoes — not allowed.', cs:'<strong>Povinné:</strong> uzavřená sportovní nebo trekingová obuv. Tenisky jsou vhodné pro většinu tras. Na horské a jeskyní výpravy jsou potřeba boty s pevnou podrážkou a fixací kotníku. Sandály, žabky a lodičky — zakázány.', uk:'<strong>Обов\'язково:</strong> закрите спортивне або трекінгове взуття. Кросівки підходять для більшості маршрутів. Для гірських і печерних виходів потрібні черевики з жорсткою підошвою та фіксацією гомілкостопа. Сандалі, шльопки і туфлі — не можна.'}
+        },
+        {
+          q: {ru:'Что взять с собой?', en:'What should I bring?', cs:'Co si vzít s sebou?', uk:'Що взяти з собою?'},
+          a: {ru:'<strong>Всегда:</strong><ul><li>Вода — минимум 1.5 л на человека</li><li>Перекус / бутерброды (кафе по дороге нет почти никогда)</li><li>Дождевик или ветровка (погода меняется)</li><li>Заряженный телефон</li><li>Наличные или карта — иногда нужны для транспорта</li></ul><strong>Для горных и пещерных маршрутов дополнительно:</strong><ul><li>Трекинговые палки (по желанию)</li><li>Фонарик (для пещер — обязательно)</li><li>Смена носков</li></ul>', en:'<strong>Always:</strong><ul><li>Water — at least 1.5 L per person</li><li>Snacks / sandwiches (cafés on the route are rare)</li><li>Rain jacket or windbreaker (weather changes)</li><li>Charged phone</li><li>Cash or card — sometimes needed for transport</li></ul><strong>For mountain and cave routes also:</strong><ul><li>Trekking poles (optional)</li><li>Torch (for caves — mandatory)</li><li>Spare socks</li></ul>', cs:'<strong>Vždy:</strong><ul><li>Voda — minimálně 1,5 l na osobu</li><li>Svačina / sendviče (kavárny na trase jsou vzácné)</li><li>Pláštěnka nebo větrovka (počasí se mění)</li><li>Nabitý telefon</li><li>Hotovost nebo karta — občas potřeba na dopravu</li></ul><strong>Na horské a jeskyní trasy navíc:</strong><ul><li>Trekingové hole (volitelně)</li><li>Baterka (pro jeskyně — povinně)</li><li>Náhradní ponožky</li></ul>', uk:'<strong>Завжди:</strong><ul><li>Вода — мінімум 1.5 л на людину</li><li>Перекус / бутерброди (кафе на маршруті майже не буває)</li><li>Дощовик або вітровка (погода змінюється)</li><li>Заряджений телефон</li><li>Готівка або картка — іноді потрібні для транспорту</li></ul><strong>Для гірських і печерних маршрутів додатково:</strong><ul><li>Трекінгові палиці (за бажанням)</li><li>Ліхтарик (для печер — обов\'язково)</li><li>Змінні шкарпетки</li></ul>'}
+        },
+        {
+          q: {ru:'Будет ли еда и вода по дороге?', en:'Is food and water available along the route?', cs:'Je po cestě jídlo a voda?', uk:'Чи буде їжа та вода по дорозі?'},
+          a: {ru:'Рассчитывать на это не стоит. Магазины и кафе по маршруту — редкость. Берите еду и воду с собой. Если на маршруте есть точка питания — это будет отдельно отмечено в анонсе.', en:'Don\'t count on it. Shops and cafés on the route are rare. Bring your own food and water. If there\'s a food stop on the route, it will be specifically mentioned in the announcement.', cs:'Na to nespoléhejte. Obchody a kavárny na trase jsou vzácné. Přineste si vlastní jídlo a vodu. Pokud je na trase občerstvení, bude to výslovně zmíněno v oznámení.', uk:'Розраховувати на це не варто. Магазини і кафе по маршруту — рідкість. Беріть їжу та воду з собою. Якщо на маршруті є точка харчування — це буде окремо відмічено в анонсі.'}
+        }
+      ]
+    },
+    {
+      category: {ru:'🏃 Физподготовка и сложность', en:'🏃 Fitness & Difficulty', cs:'🏃 Fyzická kondice a náročnost', uk:'🏃 Фізпідготовка і складність'},
+      items: [
+        {
+          q: {ru:'Нужна ли физическая подготовка?', en:'Do I need to be physically fit?', cs:'Je potřeba fyzická kondice?', uk:'Чи потрібна фізична підготовка?'},
+          a: {ru:'Зависит от конкретного маршрута. Уровень сложности всегда указан в анонсе: лёгкий (для всех, включая детей), средний (нужна базовая выносливость), сложный (горный рельеф, 15+ км). Если сомневаешься — спроси меня перед записью.', en:'It depends on the specific route. The difficulty level is always in the announcement: easy (for everyone including children), medium (basic fitness needed), hard (mountain terrain, 15+ km). If in doubt — ask me before signing up.', cs:'Záleží na konkrétní trase. Úroveň obtížnosti je vždy uvedena v oznámení: lehká (pro všechny včetně dětí), střední (potřeba základní kondice), těžká (horský terén, 15+ km). Pokud si nejsi jistý — zeptej se mě před přihlášením.', uk:'Залежить від конкретного маршруту. Рівень складності завжди вказаний в анонсі: легкий (для всіх, включаючи дітей), середній (потрібна базова витривалість), складний (гірський рельєф, 15+ км). Якщо сумніваєшся — запитай мене перед записом.'}
+        },
+        {
+          q: {ru:'Можно ли идти с детьми или собакой?', en:'Can I come with children or a dog?', cs:'Mohu přijít s dětmi nebo psem?', uk:'Чи можна йти з дітьми або собакою?'},
+          a: {ru:'Собаки — добро пожаловать на большинство маршрутов (кроме пещер). Дети — зависит от сложности маршрута. Если в анонсе не указано иное, уточняй у меня. Ответственность за детей и животных остаётся на родителях/хозяевах.', en:'Dogs — welcome on most routes (except caves). Children — depends on the route difficulty. If the announcement doesn\'t say otherwise, check with me. Parents and owners remain responsible for children and animals.', cs:'Psi — vítáni na většině tras (kromě jeskyní). Děti — záleží na obtížnosti trasy. Pokud oznámení neurčuje jinak, ověř to se mnou. Odpovědnost za děti a zvířata zůstává na rodičích/majitelích.', uk:'Собаки — ласкаво просимо на більшість маршрутів (крім печер). Діти — залежить від складності маршруту. Якщо в анонсі не вказано інше — уточнюй у мене. Відповідальність за дітей і тварин залишається на батьках/господарях.'}
+        }
+      ]
+    },
+    {
+      category: {ru:'💳 Оплата и отмена', en:'💳 Payment & Cancellation', cs:'💳 Platba a zrušení', uk:'💳 Оплата та скасування'},
+      items: [
+        {
+          q: {ru:'Как оплатить участие?', en:'How do I pay?', cs:'Jak zaplatit za účast?', uk:'Як оплатити участь?'},
+          a: {ru:'Способ оплаты указывается в анонсе мероприятия. Обычно это банковский перевод или Revolut. Оплата подтверждает твоё место — без оплаты место не бронируется.', en:'The payment method is specified in the event announcement. Usually it\'s a bank transfer or Revolut. Payment confirms your spot — without payment your place is not reserved.', cs:'Způsob platby je uveden v oznámení akce. Obvykle jde o bankovní převod nebo Revolut. Platba potvrzuje tvoje místo — bez platby místo není rezervováno.', uk:'Спосіб оплати вказується в анонсі заходу. Зазвичай це банківський переказ або Revolut. Оплата підтверджує твоє місце — без оплати місце не бронюється.'}
+        },
+        {
+          q: {ru:'Что если я опоздаю или не смогу прийти?', en:'What if I\'m late or can\'t make it?', cs:'Co když přijdu pozdě nebo nepřijdu?', uk:'Що якщо я запізнюся або не зможу прийти?'},
+          a: {ru:'<strong>Опоздание:</strong> группа ждёт максимум 10 минут от назначенного времени, после чего выходит. Если опаздываешь — предупреди заранее, возможно сможем скорректировать точку подключения по маршруту.<br><br><strong>Отмена до старта:</strong> напиши мне как можно раньше. Возврат — по договорённости, зависит от ситуации.<br><br><strong>Не предупредил — деньги не возвращаются.</strong>', en:'<strong>Late arrival:</strong> the group waits a maximum of 10 minutes from the set time, then departs. If you\'re running late — warn me in advance, we may be able to adjust a joining point along the route.<br><br><strong>Cancellation before start:</strong> message me as early as possible. Refunds are case-by-case.<br><br><strong>No notice given — no refund.</strong>', cs:'<strong>Zpoždění:</strong> skupina čeká maximálně 10 minut od stanoveného času, poté odchází. Pokud přicházíš pozdě — upozorni mě předem, možná se podaří upravit místo nástupu na trase.<br><br><strong>Zrušení před startem:</strong> napiš mi co nejdříve. Vrácení peněz je individuální.<br><br><strong>Bez upozornění — bez vrácení peněz.</strong>', uk:'<strong>Запізнення:</strong> група чекає максимум 10 хвилин від призначеного часу, після чого виходить. Якщо запізнюєшся — попередь заздалегідь, можливо зможемо скоригувати точку підключення по маршруту.<br><br><strong>Скасування до старту:</strong> напиши мені якомога раніше. Повернення — за домовленістю.<br><br><strong>Не попередив — гроші не повертаються.</strong>'}
+        },
+        {
+          q: {ru:'Может ли организатор отменить мероприятие?', en:'Can the organiser cancel an event?', cs:'Může organizátor zrušit akci?', uk:'Чи може організатор скасувати захід?'},
+          a: {ru:'Да, в случае экстремальной погоды или недостаточного количества участников. О переносе или отмене сообщаю в чате как минимум за сутки. В этом случае оплата возвращается полностью или переносится на следующее мероприятие.', en:'Yes, in case of extreme weather or insufficient participant numbers. I announce postponement or cancellation in the chat at least 24 hours in advance. In this case payment is fully refunded or transferred to the next event.', cs:'Ano, v případě extrémního počasí nebo nedostatečného počtu účastníků. O přeložení nebo zrušení informuji v chatu nejméně 24 hodin předem. V takovém případě se platba vrátí v plné výši nebo přenese na další akci.', uk:'Так, у разі екстремальної погоди або недостатньої кількості учасників. Про перенесення або скасування повідомляю в чаті мінімум за добу. У цьому випадку оплата повертається повністю або переноситься на наступний захід.'}
+        }
+      ]
+    },
+    {
+      category: {ru:'❓ Прочее', en:'❓ Other', cs:'❓ Ostatní', uk:'❓ Інше'},
+      items: [
+        {
+          q: {ru:'Я новичок, никого не знаю — это нормально прийти одному?', en:'I\'m new and don\'t know anyone — is it fine to come alone?', cs:'Jsem nováček a nikoho neznám — je v pořádku přijít sám?', uk:'Я новачок, нікого не знаю — нормально прийти одному?'},
+          a: {ru:'Абсолютно нормально и даже типично. Большинство участников пришли именно так. Группа дружелюбная, познакомишься по дороге.', en:'Absolutely normal and actually typical. Most participants joined exactly this way. The group is friendly — you\'ll get to know people along the route.', cs:'Absolutně normální a dokonce typické. Většina účastníků přišla přesně takto. Skupina je přátelská — po cestě se s někým spřátelíš.', uk:'Абсолютно нормально і навіть типово. Більшість учасників прийшли саме так. Група дружня, познайомишся по дорозі.'}
+        },
+        {
+          q: {ru:'Что делать в экстренной ситуации на маршруте?', en:'What to do in an emergency on the route?', cs:'Co dělat v nouzové situaci na trase?', uk:'Що робити в екстреній ситуації на маршруті?'},
+          a: {ru:'Немедленно сообщи организатору или любому участнику группы. Организатор всегда на связи и несёт ответственность за координацию. При необходимости — звони 112 (Чехия). Не уходи с маршрута самостоятельно без предупреждения группы.', en:'Immediately inform the organiser or any group member. The organiser is always reachable and responsible for coordination. If needed — call 112 (Czech Republic). Don\'t leave the route on your own without telling the group.', cs:'Okamžitě informuj organizátora nebo jakéhokoli člena skupiny. Organizátor je vždy dostupný a zodpovídá za koordinaci. V případě potřeby — volej 112 (Česká republika). Neopouštěj trasu samostatně bez upozornění skupiny.', uk:'Негайно повідом організатора або будь-якого учасника групи. Організатор завжди на зв\'язку і відповідає за координацію. За потреби — дзвони 112 (Чехія). Не йди з маршруту самостійно без попередження групи.'}
+        }
+      ]
+    }
+  ]
+};
+
+const FAQ_LABELS = {
+  ru: 'Частые вопросы',
+  en: 'FAQ',
+  cs: 'Časté dotazy',
+  uk: 'Часті запитання'
+};
+
+function renderFAQ(lang, faqKey) {
+  const items = FAQ[faqKey];
+  if (!items) return '';
+
+  const cats = items.map(cat => {
+    const questions = cat.items.map((item, i) => {
+      const id = `faq-${faqKey}-${Math.random().toString(36).slice(2,7)}`;
+      return `
+        <div class="faq-item" id="${id}">
+          <button class="faq-q" onclick="toggleFAQ('${id}')">
+            <span>${item.q[lang]}</span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a">
+            <div class="faq-a-inner">${item.a[lang]}</div>
+          </div>
+        </div>`;
+    }).join('');
+    return `<div class="faq-category">
+      <div class="faq-category-label">${cat.category[lang]}</div>
+      ${questions}
+    </div>`;
+  }).join('');
+
+  return `
+  <section id="faq">
+    <div class="wrap">
+      <div class="eyebrow-sm">FAQ</div>
+      <h2 class="anchor-heading">${FAQ_LABELS[lang]}<a class="anchor-link" href="#faq">#</a></h2>
+      ${cats}
+    </div>
+  </section>`;
+}
+
+function toggleFAQ(id) {
+  const item = document.getElementById(id);
+  if (!item) return;
+  const isOpen = item.classList.contains('open');
+  item.classList.toggle('open', !isOpen);
+  const ans = item.querySelector('.faq-a');
+  ans.style.maxHeight = isOpen ? '0' : ans.scrollHeight + 'px';
+}
+
+function renderBoardgamesTab(lang) {
+  const d = BOARDGAMES;
+  const gamesText = lang==='en' ? d.gamesEn : lang==='cs' ? d.gamesCs : lang==='uk' ? d.gamesUk : d.games;
+  return `
+  <section class="hero">
+    <div class="wrap">
+      <div class="eyebrow">${d.eyebrow[lang]}</div>
+      <h1>${d.title[lang]}</h1>
+      <p class="tagline">${d.tagline[lang]}</p>
+      <div class="hero-ctas">
+        <a class="btn solid" href="${REGISTER_FORM}" target="_blank" rel="noopener">${d.registerBtn[lang]}</a>
+      </div>
+      <p class="free-note">${d.contactNote[lang]}</p>
+    </div>
+  </section>
+
+  <div class="wrap" style="padding-top:0;">
+    <div class="hero-img"><img src="${IMG_BOARDGAMES}" alt="Board game evening Scythe Brno" loading="lazy"></div>
+  </div>
+
+  <section id="bg-about">
+    <div class="wrap">
+      <h2 class="anchor-heading">${d.aboutH[lang]}<a class="anchor-link" href="#bg-about">#</a></h2>
+      <p class="lead">${d.aboutText[lang]}</p>
+    </div>
+  </section>
+
+  <section id="bg-games">
+    <div class="wrap">
+      <h2 class="anchor-heading">${d.gamesH[lang]}<a class="anchor-link" href="#bg-games">#</a></h2>
+      <p style="font-size:17px; line-height:1.8; color:var(--ink-dim);">${gamesText}</p>
+      <div class="callout" style="margin-top:28px;">
+        <p><strong>${d.bringH[lang]}</strong> ${d.bringText[lang]}</p>
+        <div style="margin-top:16px;">
+          <a class="btn solid" href="${REGISTER_FORM}" target="_blank" rel="noopener">${d.registerBtn[lang]}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+  `;
+}
+
+function renderWalkersTab(lang, t) {
+  const lnk = communityLinks(lang, 'walkers');
+  const registerLabel = {ru:'Зарегистрироваться на мероприятие', en:'Register for an event', cs:'Zaregistrovat se na akci', uk:'Зареєструватися на захід'};
+  return `
+  <section class="hero">
+    <div class="wrap">
+      <div class="eyebrow">${t.walkers.eyebrow}</div>
+      <h1>${t.walkers.title}</h1>
+      <p class="tagline">${t.walkers.tagline}</p>
+      <div class="hero-ctas">
+        <a class="btn solid" href="${REGISTER_FORM}" target="_blank" rel="noopener">${registerLabel[lang]}</a>
+        <a class="btn" href="${lnk.chat}" target="_blank" rel="noopener">${t.ui.joinChat}</a>
+        <button class="btn" onclick="switchTab('druzina')" style="border-color:var(--rule); color:var(--ink-dim);">${t.ui.alsoFencing}</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap" style="padding-top:0;">
+    <div class="hero-img"><img src="${IMG_WALKERS_CAVE}" alt="BrnoWalkers cave hike group photo" loading="lazy"></div>
+  </div>
+
+  ${renderEventTypes(lang)}
+
+  <section id="walkers-about">
+    <div class="wrap clearfix">
+      <div class="eyebrow-sm">${t.ui.info}</div>
+      <h2 class="anchor-heading">${t.walkers.aboutH}<a class="anchor-link" href="#walkers-about">#</a></h2>
+      <div class="photo-float"><img src="${IMG_WALKERS_GROUP}" alt="BrnoWalkers community group outing" loading="lazy"></div>
+      <p class="lead">${t.walkers.aboutText}</p>
+      ${renderFacts(t.walkers.facts)}
+    </div>
+  </section>
+
+  <section id="walkers-schedule">
+    <div class="wrap">
+      <div class="eyebrow-sm">${t.walkers.scheduleEyebrow}</div>
+      <h2 class="anchor-heading">${t.walkers.scheduleH}<a class="anchor-link" href="#walkers-schedule">#</a></h2>
+      <p class="lead">${t.walkers.scheduleText}</p>
+      <div style="text-align:center; margin-top:20px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+        <a class="btn solid" href="${REGISTER_FORM}" target="_blank" rel="noopener">${registerLabel[lang]}</a>
+        <a class="btn" href="https://www.facebook.com/alexey.chereshnev.3/events" target="_blank" rel="noopener">${t.walkers.scheduleBtn}</a>
+      </div>
+      <div style="margin-top:28px; padding:48px 24px; border:2px dashed var(--rule); border-radius:6px; text-align:center; color:var(--ink-dim); font-size:14px; letter-spacing:.06em; text-transform:uppercase;">
+        ${t.walkers.schedulePlaceholder}
+      </div>
+    </div>
+  </section>
+
+  <section id="walkers-rules">
+    <div class="wrap">
+      <h2 class="anchor-heading">${t.walkers.rulesH}<a class="anchor-link" href="#walkers-rules">#</a></h2>
+      <ul class="plain">${t.walkers.rules.map(r=>`<li>${r}</li>`).join('')}</ul>
+
+      <h3 style="margin-top:32px; font-size:18px;">${t.ui.globalRulesH}</h3>
+      ${renderGlobalRulesText(lang)}
+
+      <div class="callout" style="margin-top:36px;">
+        <p><strong>${t.walkers.ctaBox}</strong></p>
+        <div style="margin-top:14px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+          <a class="btn solid" href="${REGISTER_FORM}" target="_blank" rel="noopener">${registerLabel[lang]}</a>
+          <a class="btn" href="${lnk.chat}" target="_blank" rel="noopener">${t.ui.joinChat}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  ${renderFAQ(lang, 'walkers')}
+
+  <section id="boardgames">
+    <div class="wrap">
+      <div class="eyebrow-sm">${BOARDGAMES.eyebrow[lang]}</div>
+      <h2 class="anchor-heading">${BOARDGAMES.aboutH[lang]}<a class="anchor-link" href="#boardgames">#</a></h2>
+      <div class="photo-float"><img src="${IMG_BOARDGAMES}" alt="Board game evening Scythe Brno" loading="lazy"></div>
+      <p class="lead">${BOARDGAMES.aboutText[lang]}</p>
+      <div style="clear:both; margin-top:20px;">
+        <p style="font-size:16px; color:var(--ink-dim); line-height:1.8;">${lang==='en' ? BOARDGAMES.gamesEn : lang==='cs' ? BOARDGAMES.gamesCs : lang==='uk' ? BOARDGAMES.gamesUk : BOARDGAMES.games}</p>
+      </div>
+      <div class="callout" style="margin-top:24px;">
+        <p><strong>${BOARDGAMES.bringH[lang]}</strong> ${BOARDGAMES.bringText[lang]}</p>
+        <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
+          <a class="btn solid" href="${REGISTER_FORM}" target="_blank" rel="noopener">${BOARDGAMES.registerBtn[lang]}</a>
+        </div>
+      </div>
+      <p style="margin-top:16px; font-size:13px; color:var(--ink-faint); text-align:center;">${BOARDGAMES.contactNote[lang]}</p>
+    </div>
+  </section>
+  `;
+}
+
+function renderRanksElement(lang, t) {
+  const rows = RANKS.map((r,i)=>{
+    if(i===0){
+      return `<div class="rank-row" style="padding-left:0">
+        <div class="rank-start">${t.ranks.startLabel}</div>
+        <div style="padding-left:54px">
+          <div class="rank-head"><span class="rank-name">${r.name[lang]}</span><span class="rank-sub">${r.alt[lang].join(' · ')}</span></div>
+          <div class="rank-meta"><span><span class="tag">${t.ranks.bracelet}</span> <span class="val">${r.bracelet[lang]}</span></span><span><span class="tag">${t.ranks.threshold}</span> <span class="val">${r.threshold[lang]}</span></span></div>
+          <div class="rank-perk">${r.perk[lang]}</div>
+        </div>
+      </div>`;
+    }
+    return `<div class="rank-row">
+      <div class="rank-dot" style="background:${RANK_DOT_COLORS[i]};color:${RANK_DOT_TEXT[i]}">${r.roman}</div>
+      <div class="rank-head"><span class="rank-name">${r.name[lang]}</span><span class="rank-sub">${r.alt[lang].join(' · ')}</span></div>
+      <div class="rank-meta"><span><span class="tag">${t.ranks.bracelet}</span> <span class="val">${r.bracelet[lang]}</span></span><span><span class="tag">${t.ranks.threshold}</span> <span class="val">${r.threshold[lang]}</span></span></div>
+      <div class="rank-perk">${r.perk[lang]}</div>
+    </div>`;
+  }).join('');
+
+  return `
+  <section id="ranks">
+    <div class="wrap clearfix">
+      <div class="eyebrow-sm">${t.ranks.eyebrow}</div>
+      <h2 class="anchor-heading">${t.ranks.h}<a class="anchor-link" href="#ranks">#</a></h2>
+      <div class="photo-float"><img src="${IMG_DRUZINA_LARP}" alt="Druzhina Moravy LARP mass battle" loading="lazy"></div>
+      <p class="lead">${t.ranks.intro}</p>
+      <div class="ladder" id="ladder">${rows}</div>
+      <p class="note">${t.ranks.sparringNote}</p>
+
+      <h3 style="margin-top:36px;font-size:18px">${t.ranks.weaponH}</h3>
+      <ul class="plain">${t.ranks.weapon.map(w=>`<li><strong>${w[0]}.</strong> ${w[1]}</li>`).join('')}</ul>
+
+      <h3 style="margin-top:32px;font-size:18px">${t.ranks.rentalH}</h3>
+      <p>${t.ranks.rentalText}</p>
+      <p><a href="${RENTAL_LINK}" target="_blank" rel="noopener">${t.ranks.rentalLink}</a></p>
+      <p class="note">${t.ranks.rentalNote}</p>
+
+      <h3 style="margin-top:32px;font-size:18px">${t.ranks.craftH}</h3>
+      <p>${t.ranks.craftText}</p>
+
+      <h3 style="margin-top:32px;font-size:18px">${t.ranks.extraH}</h3>
+      <ul class="plain">${t.ranks.extra.map(e=>`<li><strong>${e[0]}.</strong> ${e[1]}</li>`).join('')}</ul>
+
+      <div class="callout">
+        <div class="big">+5</div>
+        <p><strong>${t.ranks.referralB}</strong> ${t.ranks.referral}</p>
+      </div>
+
+      <h3 style="font-size:18px">${t.ranks.boardH}</h3>
+      <p>${t.ranks.boardText}</p>
+
+      <h3 style="margin-top:32px;font-size:18px">${t.ranks.recogH}</h3>
+      <p>${t.ranks.recogText}</p>
+      <p>${t.ranks.recogText2}</p>
+    </div>
+  </section>`;
+}
+
+function renderDruzinaTab(lang, t) {
+  const lnk = communityLinks(lang, 'druzina');
+  const cordColors = ['var(--r2)','var(--r3)','var(--r4)','var(--r5)'];
+  return `
+  <section class="hero">
+    <div class="wrap">
+      <div class="eyebrow">Brno · HEMA · LARP</div>
+      <h1>${t.ui.druzinaName}</h1>
+      <p class="tagline">${t.ui.druzinaTagline}</p>
+      <div class="cord-strip">${cordColors.map(c=>`<span style="background:${c}"></span>`).join('')}</div>
+      <div class="hero-ctas">
+        <a class="btn solid" href="${REGISTER_FORM}" target="_blank" rel="noopener">${lang==='ru'?'Записаться на тренировку':lang==='uk'?'Записатись на тренування':lang==='cs'?'Přihlásit se na trénink':'Register for Training'}</a>
+        <a class="btn" href="${lnk.chat}" target="_blank" rel="noopener">${t.ui.joinChat}</a>
+        <button class="btn" onclick="switchTab('walkers')" style="border-color:var(--r5); color:var(--r5); font-weight:600;">${t.ui.druzinaBtn}</button>
+      </div>
+      <div class="free-note">${t.tariff.free}</div>
+    </div>
+  </section>
+
+  <div class="wrap" style="padding-top:0;">
+    <div class="hero-img"><img src="${IMG_DRUZINA_TRAIN}" alt="Druzhina Moravy HEMA training session" loading="lazy"></div>
+  </div>
+
+  <section id="about">
+    <div class="wrap">
+      <div class="eyebrow-sm">${t.about.eyebrow}</div>
+      <h2 class="anchor-heading">${t.about.h}<a class="anchor-link" href="#about">#</a></h2>
+      <p class="lead">${t.about.body}</p>
+      ${renderFacts(t.about.facts)}
+    </div>
+  </section>
+
+  <section id="tariff">
+    <div class="wrap">
+      <div class="eyebrow-sm">${t.tariff.eyebrow}</div>
+      <h2 class="anchor-heading">${t.tariff.h}<a class="anchor-link" href="#tariff">#</a></h2>
+      <p class="lead">${t.tariff.intro}</p>
+      ${renderTable(t.tariff.headers, t.tariff.rows)}
+      <p style="margin-top:18px"><strong>${t.tariff.rollbackB}</strong> ${t.tariff.rollback}</p>
+      <p class="note">${t.tariff.free}</p>
+    </div>
+  </section>
+
+  ${renderRanksElement(lang, t)}
+
+  <section id="roles">
+    <div class="wrap">
+      <div class="eyebrow-sm">${t.roles.eyebrow}</div>
+      <h2 class="anchor-heading">${t.roles.h}<a class="anchor-link" href="#roles">#</a></h2>
+      <p class="lead">${t.roles.intro}</p>
+      ${renderTable(t.roles.headers, ROLES.map(r=>[r.role[lang], r.what[lang], r.reward[lang]]))}
+    </div>
+  </section>
+
+  <section id="rules">
+    <div class="wrap">
+      <div class="eyebrow-sm">${t.rules.eyebrow}</div>
+      <h2 class="anchor-heading">${t.rules.h}<a class="anchor-link" href="#rules">#</a></h2>
+
+      <h3 style="font-size:18px">${t.rules.conductH}</h3>
+      <ul class="plain">${t.rules.conduct.map(c=>`<li>${c}</li>`).join('')}</ul>
+
+      <h3 style="margin-top:28px;font-size:18px">${t.rules.safetyH}</h3>
+      <ul class="plain">${t.rules.safety.map(c=>`<li>${c}</li>`).join('')}</ul>
+
+      <h3 style="margin-top:28px;font-size:18px">${t.rules.liabH}</h3>
+      <p><strong>${t.rules.liabB}</strong> ${t.rules.liab}</p>
+
+      <h3 style="margin-top:28px;font-size:18px">${t.rules.payH}</h3>
+      <ul class="plain">${t.rules.pay.map(c=>`<li>${c}</li>`).join('')}</ul>
+
+      <h3 style="margin-top:28px;font-size:18px">${t.rules.discH}</h3>
+      ${renderTable(t.rules.discHeaders, t.rules.disc)}
+
+      <h3 style="margin-top:36px; font-size:18px;">${t.ui.druzinaRulesH}</h3>
+      ${renderGlobalRulesText(lang)}
+    </div>
+  </section>
+
+  <section id="schedule">
+    <div class="wrap">
+      <div class="eyebrow-sm">${t.schedule.eyebrow}</div>
+      <h2 class="anchor-heading">${t.schedule.h}<a class="anchor-link" href="#schedule">#</a></h2>
+      <p class="lead">${t.schedule.venue}</p>
+      ${renderTable(t.schedule.headers, t.schedule.rows)}
+      <p class="note">${t.schedule.larp}</p>
+    </div>
+  </section>
+
+  <section id="onboarding">
+    <div class="wrap">
+      <div class="eyebrow-sm">${t.onboarding.eyebrow}</div>
+      <h2 class="anchor-heading">${t.onboarding.h}<a class="anchor-link" href="#onboarding">#</a></h2>
+      ${renderTable([' ',' '], t.onboarding.rows)}
+    </div>
+  </section>
+
+  <section id="ecosystem">
+    <div class="wrap">
+      <div class="eyebrow-sm">${t.ecosystem.eyebrow}</div>
+      <h2 class="anchor-heading">${t.ecosystem.h}<a class="anchor-link" href="#ecosystem">#</a></h2>
+      ${renderTable([' ',' '], t.ecosystem.rows)}
+    </div>
+  </section>
+
+  <section id="contacts">
+    <div class="wrap">
+      <div class="eyebrow-sm">${t.contacts.eyebrow}</div>
+      <h2>${t.contacts.h}</h2>
+      ${renderTable(t.contacts.headers, t.contacts.rows)}
+      
+      <div style="margin-top:28px; text-align:center;">
+         <button class="btn" onclick="switchTab('walkers')" style="border-color:var(--r5); color:var(--r5); font-weight:700; padding:15px 25px; width:100%; max-width:600px;">
+           ${t.ui.druzinaBtn} ➔
+         </button>
+      </div>
+    </div>
+  </section>
+  `;
+}
+
+function render(lang){
+  currentLang = lang;
+  const t = T[lang];
+  document.documentElement.lang = lang;
+  document.title = t.meta.title;
+  document.getElementById('navBrand').innerHTML = t.nav.brand + `<small>${t.nav.sub}</small>`;
+
+  renderTabsNav(lang);
+
+  let htmlContent = '';
+  if(currentTab === 'main'){
+    htmlContent = renderMainTab(lang, t);
+  } else if(currentTab === 'walkers'){
+    htmlContent = renderWalkersTab(lang, t);
+  } else if(currentTab === 'druzina'){
+    htmlContent = renderDruzinaTab(lang, t);
+  }
+
+  // Common footer with clickable elements including Email and Phone
+  const registerLabelFooter = {ru:'Зарегистрироваться', en:'Register', cs:'Zaregistrovat se', uk:'Зареєструватися'};
+  htmlContent += `
+  <footer>
+    <div class="wrap">
+      <h2>${t.footer.h}</h2>
+      <div class="footer-contacts">
+        <a class="btn solid" href="${REGISTER_FORM}" target="_blank" rel="noopener">${registerLabelFooter[lang]}</a>
+        <a class="btn" href="${PERSONAL_WA}" target="_blank" rel="noopener">WhatsApp</a>
+        <a class="btn" href="${PERSONAL_TG}" target="_blank" rel="noopener">Telegram</a>
+        <a class="btn" href="mailto:chereshnev.biochem@gmail.com">Email</a>
+        <a class="btn" href="tel:+420702914842">+420 702 914 842</a>
+      </div>
+      <div class="free-note">${t.footer.free}</div>
+      <div class="footer-fine">Aliaksei Chareshneu, PhD | Алексей Черешнев, доктор наук · Брно, Чехия · OSVČ IČO: 23041625</div>
+    </div>
+  </footer>`;
+
+  document.getElementById('app').innerHTML = htmlContent;
+  bindLangButtons(lang);
+  
+  if(currentTab === 'druzina'){
+    observeLadder();
+  }
+}
+
+function bindLangButtons(active){
+  document.querySelectorAll('#langSwitch button').forEach(b=>{
+    b.setAttribute('aria-pressed', b.dataset.lang === active ? 'true' : 'false');
+    b.onclick = () => {
+      try{ localStorage.setItem('dm_lang', b.dataset.lang); }catch(e){}
+      render(b.dataset.lang);
+    };
+  });
+}
+
+function observeLadder(){
+  const el = document.getElementById('ladder');
+  if(!el) return;
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(en=>{ if(en.isIntersecting){ el.classList.add('revealed'); io.disconnect(); } });
+  }, {threshold:.2});
+  io.observe(el);
+}
+
+function detectLang(){
+  try{
+    const saved = localStorage.getItem('dm_lang');
+    if(saved && T[saved]) return saved;
+  }catch(e){}
+  const nav = (navigator.language || 'en').toLowerCase();
+  if(nav.startsWith('ru')) return 'ru';
+  if(nav.startsWith('uk')) return 'uk';
+  if(nav.startsWith('cs')||nav.startsWith('sk')) return 'cs';
+  return 'en';
+}
+
+render(detectLang());
+</script>
+</body>
+</html>
