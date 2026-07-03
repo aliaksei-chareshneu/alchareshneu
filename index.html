@@ -1,9 +1,69 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Aliaksei Chareshneu, PhD | Алексей Черешнев, доктор наук — Брно</title>
+<title>Aliaksei Chareshneu, PhD — Brno: Hiking, HEMA/LARP, Tutoring &amp; Eternal Learning</title>
+<meta name="description" content="Brno community hub: BrnoWalkers hiking tours, Družina Moravy HEMA/LARP club, and Eternal Learning — premium PhD-level tutoring in sciences, IT, Czech, English, native Russian &amp; Belarusian, plus fitness, nutrition and life coaching.">
+<link rel="canonical" href="https://aliaksei-chareshneu.github.io/alchareshneu/">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://aliaksei-chareshneu.github.io/alchareshneu/">
+<meta property="og:site_name" content="Aliaksei Chareshneu — Brno">
+<meta property="og:title" content="Aliaksei Chareshneu, PhD — Brno: Hiking, HEMA/LARP &amp; Eternal Learning">
+<meta property="og:description" content="BrnoWalkers hiking · Družina Moravy HEMA/LARP · Eternal Learning tutoring (sciences, IT, languages incl. native Russian &amp; Belarusian) · fitness &amp; coaching. Brno, Czech Republic.">
+<meta property="og:image" content="https://aliaksei-chareshneu.github.io/alchareshneu/images/og-cover.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Aliaksei Chareshneu — BrnoWalkers, Družina Moravy, Eternal Learning">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="ru_RU">
+<meta property="og:locale:alternate" content="cs_CZ">
+<meta property="og:locale:alternate" content="uk_UA">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Aliaksei Chareshneu, PhD — Brno Community &amp; Academy">
+<meta name="twitter:description" content="Hiking, HEMA/LARP, and Eternal Learning tutoring (sciences, IT, languages incl. native Russian &amp; Belarusian) in Brno.">
+<meta name="twitter:image" content="https://aliaksei-chareshneu.github.io/alchareshneu/images/og-cover.jpg">
+
+<!-- Favicon / App icons -->
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<meta name="theme-color" content="#16171a">
+
+<!-- Structured data: помогает поисковикам понять, что это за организация и чем она занимается -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Aliaksei Chareshneu",
+  "alternateName": ["BrnoWalkers", "Družina Moravy", "Eternal Learning"],
+  "url": "https://aliaksei-chareshneu.github.io/alchareshneu/",
+  "logo": "https://aliaksei-chareshneu.github.io/alchareshneu/icon-512.png",
+  "image": "https://aliaksei-chareshneu.github.io/alchareshneu/images/og-cover.jpg",
+  "description": "Community hub in Brno: guided hiking tours (BrnoWalkers), historical fencing and LARP club (Družina Moravy), and premium tutoring in sciences, IT and languages including native Russian and Belarusian (Eternal Learning).",
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Brno",
+    "addressCountry": "CZ"
+  },
+  "sameAs": [
+    "https://t.me/Chareshneu",
+    "https://t.me/eternallearning",
+    "https://t.me/druzinamoravy_news",
+    "https://t.me/pochody_brno_new",
+    "https://wa.me/420702914842"
+  ],
+  "knowsLanguage": ["en", "cs", "ru", "uk", "be"]
+}
+</script>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Spectral:wght=500;600;700&family=Source+Sans+3:wght=400;500;600;700&family=JetBrains+Mono:wght=500;700&display=swap" rel="stylesheet">
@@ -98,6 +158,13 @@
   .btn.solid{background:var(--r5);color:#16171a;}
   .btn.solid:hover{background:transparent;color:var(--r5);}
   .free-note{margin-top:18px;font-size:13px;color:var(--ink-faint);}
+  .reviews-badge{
+    display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;
+    color:var(--r5);text-decoration:none;margin-bottom:18px;
+    border:1px solid var(--rule);border-radius:20px;padding:6px 14px;
+    background:var(--bg-card);transition:border-color .15s;
+  }
+  .reviews-badge:hover{border-color:var(--r5);text-decoration:none;}
 
   /* GENERIC */
   .eyebrow-sm{font-family:var(--font-m);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:10px;}
@@ -231,6 +298,90 @@
   .event-card .ec-meta{font-size:12px;color:var(--ink-faint);font-family:var(--font-m);letter-spacing:.05em;margin-bottom:8px;}
   .event-card .ec-desc{font-size:13px;color:var(--ink-dim);line-height:1.5;}
 
+  /* UPCOMING EVENTS — CONVERSION CARDS */
+  .upcoming-grid{display:flex;flex-direction:column;gap:18px;margin-top:24px;}
+  .event-upcoming-card{
+    display:flex;background:var(--bg-card);border:1px solid var(--rule);border-radius:8px;
+    overflow:hidden;transition:border-color .15s;
+  }
+  .event-upcoming-card:hover{border-color:var(--r5);}
+  .eu-img{flex:0 0 180px;align-self:stretch;}
+  .eu-img img{width:100%;height:100%;object-fit:cover;display:block;min-height:160px;}
+  .eu-body{flex:1;padding:18px 20px;display:flex;flex-direction:column;gap:6px;}
+  .eu-tag{font-family:var(--font-m);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--r5);}
+  .eu-date{font-size:13px;color:var(--ink-dim);font-weight:600;}
+  .eu-title{font-family:var(--font-d);font-size:19px;margin:2px 0 4px;color:var(--ink);}
+  .eu-desc{font-size:13.5px;color:var(--ink-dim);line-height:1.55;margin:0 0 10px;}
+  .eu-price-row{display:flex;align-items:baseline;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+  .eu-price{font-family:var(--font-d);font-size:22px;font-weight:700;color:var(--r5);}
+  .eu-price-note{font-size:12px;color:var(--ink-faint);}
+  .eu-ctas{display:flex;gap:10px;flex-wrap:wrap;margin-top:auto;}
+  @media(max-width:560px){
+    .event-upcoming-card{flex-direction:column;}
+    .eu-img{flex:0 0 140px;}
+    .eu-img img{min-height:140px;}
+  }
+
+  /* CALENDAR EMBED — Google Calendar iframe всегда рендерится на белом фоне, поэтому
+     заворачиваем в скруглённую светлую карточку, чтобы это выглядело как осознанный
+     элемент дизайна, а не чужеродная вставка поверх тёмной темы сайта. */
+  .calendar-embed-card{
+    margin-top:28px;border-radius:8px;overflow:hidden;
+    border:1px solid var(--rule);background:#fff;
+  }
+  .calendar-embed-card iframe{display:block;width:100%;}
+
+  .events-status{
+    padding:48px 24px;border:2px dashed var(--rule);border-radius:6px;
+    text-align:center;color:var(--ink-dim);font-size:14px;
+  }
+  .eu-price.free { color: #2e9e5b; font-weight:700; }
+  .eu-price.donation { color: #c9a227; font-weight:700; }
+
+  /* UPCOMING EVENTS — CONVERSION CARDS END */
+  /* REVIEWS */
+  .review-rating-note{font-size:14px;color:var(--ink-dim);margin-bottom:20px;}
+  .reviews-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;}
+  .review-card{
+    display:block;background:var(--bg-card);border:1px solid var(--rule);border-radius:6px;
+    overflow:hidden;transition:border-color .15s, transform .15s;
+  }
+  .review-card:hover{border-color:var(--r5);transform:translateY(-2px);}
+  .review-card img{width:100%;height:auto;display:block;}
+
+  /* PORTRAIT */
+  .portrait-block{display:flex;gap:24px;align-items:center;margin:24px 0;}
+  .portrait-block img{width:120px;height:120px;border-radius:50%;object-fit:cover;border:2px solid var(--r5);flex-shrink:0;}
+  .portrait-block .portrait-text{flex:1;}
+  @media(max-width:520px){.portrait-block{flex-direction:column;text-align:center;}}
+
+  /* ACADEMY SUBJECT CARDS */
+  .academy-subjects{display:flex;flex-direction:column;gap:28px;margin-top:8px;}
+  .subj-group-title{font-family:var(--font-d);font-size:16px;font-weight:700;color:var(--ink);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--rule);}
+  .subj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:10px;}
+  .subj-card{background:var(--bg-alt);border:1px solid var(--rule);border-radius:6px;padding:14px 14px 12px;transition:border-color .15s;}
+  .subj-card:hover{border-color:var(--r5);}
+  .subj-icon{font-size:22px;margin-bottom:6px;}
+  .subj-name{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:6px;}
+  .subj-items{margin:0;padding:0 0 0 14px;font-size:12px;color:var(--ink-dim);line-height:1.6;}
+  .subj-items li{margin-bottom:2px;}
+
+  /* PRICING */
+  .price-global-note{background:var(--bg-card);border:1px solid var(--rule);border-left:3px solid var(--r5);border-radius:4px;padding:12px 16px;font-size:13.5px;color:var(--ink-dim);margin-bottom:28px;}
+  .price-cats{display:flex;flex-direction:column;gap:32px;}
+  .price-cat{border:1px solid var(--rule);border-radius:6px;padding:20px;}
+  .price-cat-title{font-size:17px;font-weight:700;margin:0 0 6px;color:var(--ink);}
+  .price-cat-sub{font-size:13px;color:var(--ink-faint);margin:0 0 14px;font-style:italic;}
+  .price-section-h{font-size:18px;margin:32px 0 8px;color:var(--ink);}
+  .combo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-top:16px;}
+  .combo-card{background:var(--bg-card);border:1px solid var(--rule);border-radius:6px;padding:18px 16px;display:flex;flex-direction:column;gap:4px;transition:border-color .15s;}
+  .combo-card:hover{border-color:var(--r5);}
+  .combo-id{font-family:var(--font-m);font-size:10px;letter-spacing:.12em;color:var(--ink-faint);text-transform:uppercase;}
+  .combo-name{font-size:18px;font-weight:700;color:var(--ink);}
+  .combo-desc{font-size:13px;color:var(--ink-dim);line-height:1.5;flex:1;margin:4px 0;}
+  .combo-price{font-size:20px;font-weight:700;color:var(--r5);margin-top:8px;}
+  .combo-save{font-size:12px;color:#4caf7d;font-family:var(--font-m);}
+
   /* MEDALS */
   .medals-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-top:24px;}
   .medal-card{
@@ -287,6 +438,19 @@
     .nav .wrap{padding:12px 18px;}
     .ladder{padding-left:46px;}
     .rank-dot{left:-46px;width:26px;height:26px;}
+    .medals-grid{grid-template-columns:1fr 1fr;}
+    .combo-grid{grid-template-columns:1fr 1fr;}
+    .subj-grid{grid-template-columns:1fr 1fr;}
+    .event-types{grid-template-columns:1fr 1fr;}
+    .reviews-grid{grid-template-columns:1fr;}
+    .hero h1{font-size:28px;}
+    .hero-ctas{flex-direction:column;align-items:stretch;}
+    .hero-ctas .btn{text-align:center;}
+    .grid-ctas{grid-template-columns:1fr;}
+    .facts{grid-template-columns:1fr 1fr;}
+  }
+  @media (max-width:380px){
+    .medals-grid,.combo-grid,.subj-grid,.event-types{grid-template-columns:1fr;}
   }
 </style>
 </head>
@@ -317,6 +481,8 @@ const IMG_DRUZINA_TRAIN= 'images/druzina_train.jpg';
 const IMG_DRUZINA_LARP = 'images/druzina_larp.jpg';
 const IMG_WALKERS_CAVE = 'images/walkers_cave.jpg';
 const IMG_WALKERS_GROUP= 'images/walkers_group.jpg';
+const IMG_PORTRAIT_FACE = 'images/portrait_face.jpg';
+const IMG_PORTRAIT_CAVE = 'images/portrait_cave.jpg';
 const RANKS = [
   { roman:'I',  color:'var(--r1)', dot:'#3a3c41', dotText:'var(--ink-dim)',
     name:{ru:'Отрок',en:'Recruit',cs:'Otrok',uk:'Отрок'},
@@ -402,17 +568,17 @@ const REGISTER_FORM = 'https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpP
 
 const BOARDGAMES = {
   title:   {ru:'Настолки',        en:'Board Games',    cs:'Deskové hry',    uk:'Настілки'},
-  eyebrow: {ru:'Бесплатно',       en:'Free',           cs:'Zdarma',         uk:'Безкоштовно'},
+  eyebrow: {ru:'Добровольный взнос', en:'Voluntary contribution', cs:'Dobrovolný příspěvek', uk:'Добровільний внесок'},
   tagline: {ru:'Вторник · 18:00 · Утопия Центр Коближна',
             en:'Tuesday · 18:00 · Utopia Centre Koblizna',
             cs:'Úterý · 18:00 · Utopia Centre Koblizna',
             uk:'Вівторок · 18:00 · Utopia Центр Коближна'},
   aboutH:  {ru:'Вечер настольных игр', en:'Board Game Evening', cs:'Večer deskových her', uk:'Вечір настільних ігор'},
   aboutText:{
-    ru:'Каждый вторник (практически регулярно — точное расписание уточняй в контактах) собираемся в <strong>Utopia Centre Koblizna</strong> в 18:00. Вход свободный.<br><br>Есть два стола: <strong>русскоязычный</strong> и <strong>англоязычный</strong>. Хочешь стол на другом языке — пиши в контакты, создадим.',
-    en:'Every Tuesday (almost weekly — confirm current schedule via contacts) we meet at <strong>Utopia Centre Koblizna</strong> at 18:00. Free entry.<br><br>We run two tables: one in <strong>Russian</strong>, one in <strong>English</strong>. Want a table in another language? Write to us — we\'ll set it up.',
-    cs:'Každé úterý (téměř pravidelně — aktuální termíny ověř v kontaktech) se scházíme v <strong>Utopia Centre Koblizna</strong> v 18:00. Vstup zdarma.<br><br>Máme dva stoly: jeden v <strong>ruštině</strong>, jeden v <strong>angličtině</strong>. Chceš stůl v jiném jazyce? Napiš nám — zorganizujeme.',
-    uk:'Кожен вівторок (майже регулярно — точний розклад уточнюй у контактах) збираємось у <strong>Utopia Centre Koblizna</strong> о 18:00. Вхід вільний.<br><br>Є два столи: <strong>російськомовний</strong> та <strong>англомовний</strong>. Хочеш стіл іншою мовою — пиши в контакти, організуємо.'
+    ru:'Каждый вторник (практически регулярно — точное расписание уточняй в контактах) собираемся в <strong>Utopia Centre Koblizna</strong> в 18:00. Вход по добровольному взносу — заплати, сколько считаешь честным, через Revolut: revolut.me/aliaksj5pq. Это помогает окупать аренду места.<br><br>Есть два стола: <strong>русскоязычный</strong> и <strong>англоязычный</strong>. Хочешь стол на другом языке — пиши в контакты, создадим.',
+    en:'Every Tuesday (almost weekly — confirm current schedule via contacts) we meet at <strong>Utopia Centre Koblizna</strong> at 18:00. Entry is by voluntary contribution — pay what you feel is fair via Revolut: revolut.me/aliaksj5pq. It helps cover the venue rent.<br><br>We run two tables: one in <strong>Russian</strong>, one in <strong>English</strong>. Want a table in another language? Write to us — we\'ll set it up.',
+    cs:'Každé úterý (téměř pravidelně — aktuální termíny ověř v kontaktech) se scházíme v <strong>Utopia Centre Koblizna</strong> v 18:00. Vstup je na dobrovolný příspěvek — zaplať, kolik uznáš za vhodné, přes Revolut: revolut.me/aliaksj5pq. Pomáhá to hradit nájem prostoru.<br><br>Máme dva stoly: jeden v <strong>ruštině</strong>, jeden v <strong>angličtině</strong>. Chceš stůl v jiném jazyce? Napiš nám — zorganizujeme.',
+    uk:'Кожен вівторок (майже регулярно — точний розклад уточнюй у контактах) збираємось у <strong>Utopia Centre Koblizna</strong> о 18:00. Вхід за добровільним внеском — заплати, скільки вважаєш чесним, через Revolut: revolut.me/aliaksj5pq. Це допомагає окупити оренду місця.<br><br>Є два столи: <strong>російськомовний</strong> та <strong>англомовний</strong>. Хочеш стіл іншою мовою — пиши в контакти, організуємо.'
   },
   gamesH:  {ru:'Во что играем', en:'What we play', cs:'Co hrajeme', uk:'У що граємо'},
   games:   'Avalon · Серп / Scythe · Мафия · Uno · Цитадель · Brass · Манчкин · …и многое другое',
@@ -454,13 +620,13 @@ ru:{
     headers:['Направление','Доступный / Бесплатный уровень','Регулярный / Премиум уровень'],
     rows:[
       ['Физическая активность (Спорт & Туризм)','<strong>Брноходцы:</strong> Походы выходного дня, скалы, замки Моравии (платно, цена в анонсе)<br><br><strong>Дружина Моравы:</strong> Первая ознакомительная тренировка (0 Kč)','<strong>Дружина Моравы:</strong> Регулярные тренировки HEMA/LARP (100–200 Kč за сессию или Berserk Pass)<br><br><strong>Moravian Squad:</strong> Спорт и выезды для детей 5–15 лет'],
-      ['Интеллектуальная активность (Разум & Дисциплины)','Исторические лекции, разборы LARP-лора, тактические брифинги внутри клубов','<strong>Групповые лекции:</strong> Тематические лекции и семинары по истории, HEMA, естественным наукам для малых групп.<br><br><strong>Репетиторство премиум-класса:</strong> Индивидуальные занятия один на один по полному диапазону школьных и нешкольных предметов (Биохимия, Молекулярная биология, программирование на Python, ОС UNIX, Английский, Чешский, Русский языки, Ораторское мастерство, Музыка: гитара, пианино, вокал)'],
+      ['Интеллектуальная активность (Разум & Дисциплины)','Исторические лекции, разборы LARP-лора, тактические брифинги внутри клубов','<strong>Групповые лекции:</strong> Тематические лекции и семинары по истории, HEMA, естественным наукам для малых групп.<br><br><strong>Репетиторство премиум-класса:</strong> Индивидуальные занятия один на один по полному диапазону школьных и нешкольных предметов (Биохимия, Молекулярная биология, программирование на Python, ОС UNIX, Английский, Чешский, Русский (родной) и Белорусский (родной) языки, Ораторское мастерство, Музыка: гитара, пианино, вокал)'],
       ['Индивидуальный подход','Открытые консультации по подбору снаряжения, базовый онбординг новичков','Персональные тренировки по фехтованию и стрельбе из лука (от 400 Kč)<br><br>Индивидуальное изготовление и ремонт оружия/доспехов на заказ (LARP & HEMA снаряжение)']
     ],
     ctaH:'С чего начать прямо сейчас?',
     ctaText:'Наша экосистема создана, чтобы удерживать интерес и давать результат. Выберите любое комфортное действие ниже, чтобы сделать первый шаг:',
     ctas:[
-      ['Попробовать HEMA фехтование','Первая тренировка в Дружине Моравы бесплатна. Выдадим снаряжение, дадим протестировать любое оружие от меча до арбалета.'],
+      ['Попробовать HEMA фехтование','Первая тренировка бесплатна — при записи просто скажи, планируешь продолжать за 100–200 Kč/сессия или хочешь попробовать разово. Выдадим снаряжение и дадим протестировать оружие от меча до арбалета.'],
       ['Сходить в поход с Брноходцами','Ближайшие выходные, свежий воздух, природа и новые знакомства в Брно. Цена и детали — в анонсе каждого события.'],
       ['Индивидуальная прокачка предметов','Премиум-репетиторство под ключ по любым школьным, университетским или прикладным предметам (наука, IT, языки, музыка, публичные выступления). Разбор целей, гибкий график.']
     ]
@@ -469,6 +635,7 @@ ru:{
     eyebrow:'Сообщество активных людей',
     title:'Брноходцы',
     tagline:'Пешеходный туризм, хайкинг, скалы и исследование красивейших локаций Моравии в отличной компании.',
+    guideIntro:'Меня зовут Алексей — я веду эти походы лично уже несколько лет. Знаю каждую тропу, каждую пещеру и за что зацепиться взглядом по дороге.',
     aboutH:'О Брноходцах',
     aboutText:'Брноходцы — это открытое сообщество для тех, кто любит движение. Мы регулярно организуем пешие вылазки вокруг Брно и по всей Чехии (Babi Lom, Praděd, Moravský Kras, пещеры, сплавы на каноэ). Это идеальный способ перезагрузить голову после рабочей недели, размять тело на свежем воздухе и сразу найти друзей в эмиграции.',
     facts:[
@@ -508,7 +675,7 @@ ru:{
     ],
     rollbackB:'Старшая дружина — статус, который подтверждается каждый месяц, не разовый порог.',
     rollback:'Если регулярность 4+ сессий в месяц не сохраняется, участник автоматически возвращается в Младшую дружину и тариф 200 Kč/сессия — до тех пор, пока темп не восстановится. Ранг при этом не сбрасывается: он считает накопленный путь и не уменьшается.',
-    free:'Первая тренировка — бесплатно для всех, независимо от тарифа и ранга.'
+    free:'Первая тренировка — бесплатно, чтобы познакомиться с клубом. Перед ней мы всегда спросим: планируешь заниматься дальше на регулярной основе (100–200 Kč/сессия или Berserk Pass), или это разовая проба ради интереса? Это не проверка — так тренер сразу выбирает правильный формат занятия, и никто не тратит время впустую.'
   },
   ranks:{
     eyebrow:'III · Ранг', h:'Путь участника',
@@ -550,7 +717,7 @@ ru:{
     conductH:'Поведение', conduct:['Без экстремизма — немедленное исключение.','Уважение к участникам, снаряжению, месту.','Кодекс чести — честное признание попаданий.','Конфликты решаются через главного тренера, не публично.','Алкоголь и наркотики строго запрещены.'],
     safetyH:'Безопасность', safety:['Право отказаться от боя — без объяснений.','Проверка снаряжения обязательна перед использованием.','Новички проходят инструктаж перед первым боем.','Дети — с 7 лет, письменное согласие родителей.'],
     liabH:'Ответственность', liabB:'Страхование клубом не предоставляется.', liab:'Все тренировки, спарринги и выезды участники проходят на собственную ответственность.',
-    payH:'Оплата', pay:['Регистрация и оплата — не позднее чем за 48 часов до начала тренировки.','Оплата позже 48 часов или в день тренировки — штраф 25% от стоимости сессии.','Неоплаченный штраф — недопуск на следующую тренировку до погашения.','Тренировка состоится только при наличии хотя бы одного участника с оплаченной сессией, действующим Berserk Pass или записавшегося на первую бесплатную тренировку. Если таких нет — тренировка отменяется.'],
+    payH:'Оплата', pay:['Регистрация и оплата — не позднее чем за 48 часов до начала тренировки, через Revolut: revolut.me/aliaksj5pq.','Оплата позже 48 часов или в день тренировки — штраф 25% от стоимости сессии.','Нужно взять/арендовать снаряжение клуба (оружие, доспехи) — сообщи об этом не позднее чем за 48 часов до тренировки, как и с оплатой. Позже — тот же штраф 25% от стоимости сессии.','Неоплаченный штраф — недопуск на следующую тренировку до погашения.','Тренировка состоится только при наличии хотя бы одного участника с оплаченной сессией, действующим Berserk Pass или записавшегося на первую бесплатную тренировку. Если таких нет — тренировка отменяется.'],
     discH:'Дисциплина', discHeaders:['Нарушение','Последствие'],
     disc:[['1-е нарушение','Страйк (письменное предупреждение)'],['2-е нарушение','Исключение (восстановление через 3 мес.)'],['Повторное','Финальное исключение'],['Грубое','Немедленное исключение']]
   },
@@ -586,6 +753,8 @@ ru:{
       ['Телефон / Phone','<a href="tel:+420702914842">+420 702 914 842</a>'],
       ['WhatsApp (Личный)','<a href="https://wa.me/420702914842" target="_blank" rel="noopener">wa.me/420702914842</a> — Алексей Черешнев'],
       ['Telegram (Личный)','<a href="https://t.me/Chareshneu" target="_blank" rel="noopener">t.me/Chareshneu</a> — Алексей Черешнев'],
+      ['── Eternal Learning (Академия) ──','──────────────────'],
+      ['TG Канал · Репетиторство, фитнес, коучинг','<a href="https://t.me/eternallearning" target="_blank" rel="noopener">t.me/eternallearning</a> — всё, кроме клубов ниже'],
       ['── Дружина Моравы ──','──────────────────'],
       ['TG Чат · RU/UA/BY','<a href="https://t.me/druzinamoravy" target="_blank" rel="noopener">t.me/druzinamoravy</a> — основной чат'],
       ['TG Канал · RU/UA/BY','<a href="https://t.me/druzinamoravy_news" target="_blank" rel="noopener">t.me/druzinamoravy_news</a> — анонсы, без флуда'],
@@ -658,13 +827,13 @@ en:{
     headers:['Direction','Accessible / Free Level','Regular / Premium Level'],
     rows:[
       ['Physical Activity (Sport & Tourism)','<strong>BrnoWalkers:</strong> Weekend hikes, cliffs, castles of Moravia (paid, price per event)<br><br><strong>Druzhina Moravy:</strong> First introductory session (0 Kč)','<strong>Druzhina Moravy:</strong> Regular HEMA/LARP training (100–200 Kč per session or Berserk Pass)<br><br><strong>Moravian Squad:</strong> Sports and trips for children aged 5–15'],
-      ['Intellectual Activity (Mind & Subjects)','Historical lectures, LARP lore breakdowns, tactical briefings before club battles','<strong>Group Lectures:</strong> Themed lectures and seminars on history, HEMA, and natural sciences for small groups.<br><br><strong>Premium Tutoring:</strong> One-on-one tailored mentoring in Biochem, Molecular biology, Python programming, UNIX OS, English, Czech, Russian, Public speaking, and Music (guitar, piano, vocals)'],
+      ['Intellectual Activity (Mind & Subjects)','Historical lectures, LARP lore breakdowns, tactical briefings before club battles','<strong>Group Lectures:</strong> Themed lectures and seminars on history, HEMA, and natural sciences for small groups.<br><br><strong>Premium Tutoring:</strong> One-on-one tailored mentoring in Biochem, Molecular biology, Python programming, UNIX OS, English, Czech, native-level Russian and Belarusian, Public speaking, and Music (guitar, piano, vocals)'],
       ['Individual Focus','Open gear consultations, basic onboarding for newcomers','Private fencing/combat lessons (from 400 Kč)<br><br>Custom HEMA/LARP gear crafting and repairs']
     ],
     ctaH:'Where to start right now?',
     ctaText:'Our ecosystem is built to maintain your interest and deliver results. Choose any option below to make your first move:',
     ctas:[
-      ['Try HEMA Fencing','The first training session in Druzhina Moravy is free. We provide all the gear and let you test any weapon from longswords to crossbows.'],
+      ['Try HEMA Fencing','The first training is free — when you sign up, just tell us if you\'re planning to continue at 100–200 Kč/session or just want a one-off try. We provide all the gear and let you test anything from longswords to crossbows.'],
       ['Go on a Hike with BrnoWalkers','Fresh air, beautiful Moravian nature, and great company in Brno this upcoming weekend. Price and details in each event announcement.'],
       ['Boost Academic & Practical Skills','Premium one-on-one tutoring. Custom path for sciences, IT, languages, music, and leadership. Efficient results tailored to your requirements.']
     ]
@@ -673,6 +842,7 @@ en:{
     eyebrow:'A community of active people',
     title:'BrnoWalkers',
     tagline:'Pedestrian tourism, hiking, rock climbing, and exploring the best spots in Moravia with great company.',
+    guideIntro:'I\'m Aliaksei — I\'ve been personally leading these hikes for several years. I know every trail, every cave, and exactly what\'s worth looking up at along the way.',
     aboutH:'About BrnoWalkers',
     aboutText:'BrnoWalkers is an open community for people who love movement. We regularly organize walking trips around Brno and across the Czech Republic (Babi Lom, Praděd, Moravian Karst, caves, canoe river trips). It\'s the perfect way to reset your brain and find active friends.',
     facts:[
@@ -712,7 +882,7 @@ en:{
     ],
     rollbackB:'Senior tier is a status you reconfirm every month, not a one-time threshold.',
     rollback:'If you stop keeping up 4+ sessions a month, you automatically drop back to Junior tier and the 200 Kč/session rate. Rank doesn\'t reset.',
-    free:'The first training is free for everyone, regardless of tariff or rank.'
+    free:'The first training is free — a chance to get to know the club. Before it, we\'ll always ask: are you planning to train regularly going forward (100–200 Kč/session or a Berserk Pass), or is this a one-off try out of curiosity? It\'s not a test — it just lets the coach pick the right format from the start, so nobody\'s time gets wasted.'
   },
   ranks:{
     eyebrow:'III · Rank', h:'The member\'s path',
@@ -754,7 +924,7 @@ en:{
     conductH:'Conduct', conduct:['No extremism — immediate removal.','Respect for members, gear, and the venue.','Honor code — honestly acknowledge hits taken in sparring.','Conflicts are resolved through the head trainer, not in public.','Alcohol and drugs are strictly forbidden.'],
     safetyH:'Safety', safety:['The right to refuse a bout — no explanation needed.','Gear check is mandatory before use.','Newcomers get a briefing before their first bout.','Children from age 7, with written parental consent.'],
     liabH:'Liability', liabB:'The club does not provide insurance.', liab:'All training, sparring, and trips are undertaken at the member\'s own risk.',
-    payH:'Payment', pay:['Registration and payment must be completed at least 48 hours before the start of training.','Payment later than 48 hours before, or on the day — a 25% surcharge on the session price.','An unpaid surcharge blocks attendance at the next training until settled.','Training takes place only if at least one participant has a paid session, a valid Berserk Pass, or has registered for a free first session. If no one qualifies — the session is cancelled.'],
+    payH:'Payment', pay:['Registration and payment must be completed at least 48 hours before the start of training, via Revolut: revolut.me/aliaksj5pq.','Payment later than 48 hours before, or on the day — a 25% surcharge on the session price.','Need to borrow/rent club gear (weapons, armour)? Tell us at least 48 hours before training, same as payment. Later — the same 25% surcharge on the session price.','An unpaid surcharge blocks attendance at the next training until settled.','Training takes place only if at least one participant has a paid session, a valid Berserk Pass, or has registered for a free first session. If no one qualifies — the session is cancelled.'],
     discH:'Discipline', discHeaders:['Violation','Consequence'],
     disc:[['1st violation','A strike (written warning)'],['2nd violation','Removal (can rejoin after 3 months)'],['Repeated','Final removal'],['Severe','Immediate removal']]
   },
@@ -790,6 +960,8 @@ en:{
       ['Phone','<a href="tel:+420702914842">+420 702 914 842</a>'],
       ['WhatsApp (Personal)','<a href="https://wa.me/420702914842" target="_blank" rel="noopener">wa.me/420702914842</a> — Aliaksei Chareshneu'],
       ['Telegram (Personal)','<a href="https://t.me/Chareshneu" target="_blank" rel="noopener">t.me/Chareshneu</a> — Aliaksei Chareshneu'],
+      ['── Eternal Learning (Academy) ──','──────────────────'],
+      ['TG Channel · Tutoring, fitness, coaching','<a href="https://t.me/eternallearning" target="_blank" rel="noopener">t.me/eternallearning</a> — everything except the clubs below'],
       ['── Druzhina Moravy ──','──────────────────'],
       ['WA Chat · EN/CS','<a href="https://chat.whatsapp.com/JzeXAQF8I2XE3zQ2OqWsPz" target="_blank" rel="noopener">chat.whatsapp.com/JzeXAQ...</a> — main chat'],
       ['WA Channel · EN/CS','<a href="https://chat.whatsapp.com/DuTpgF22mxMFy6L1Cfrcvu" target="_blank" rel="noopener">chat.whatsapp.com/DuTpgF...</a> — announcements, no spam'],
@@ -862,13 +1034,13 @@ cs:{
     headers:['Směr','Dostupná / Bezplatná úroveň','Pravidelná / Prémiová úroveň'],
     rows:[
       ['Fyzická aktivita (Sport a turistika)','<strong>BrnoWalkers:</strong> Víkendové výšlapy, skály, hrady Moravy (platí se, cena v anonce)<br><br><strong>Družina Moravy:</strong> První seznamovací trénink (0 Kč)','<strong>Družina Moravy:</strong> Pravidelné tréninky HEMA/LARP (100–200 Kč za trénink nebo Berserk Pass)<br><br><strong>Moravian Squad:</strong> Sport a výlety pro děti od 5 do 15 let'],
-      ['Intelektuální aktivita (Mysl a rozvoj)','Historické přednášky, rozbory LARP lore, taktické brífinky před bitvami v rámci klubů','<strong>Skupinové přednášky:</strong> Tematické přednášky a semináře z historie, HEMA a přírodních věd pro malé skupiny.<br><br><strong>Prémiové doučování:</strong> Individuální lekce 1-na-1 pro kompletní škálu předmětů (Biochemie, Molekulární biologie, programování Python, UNIX OS, Angličtina, Čeština, Ruština, Rétorika/Veřejné vystupování, Hudba: kytara, klavír, zpěv)'],
+      ['Intelektuální aktivita (Mysl a rozvoj)','Historické přednášky, rozbory LARP lore, taktické brífinky před bitvami v rámci klubů','<strong>Skupinové přednášky:</strong> Tematické přednášky a semináře z historie, HEMA a přírodních věd pro malé skupiny.<br><br><strong>Prémiové doučování:</strong> Individuální lekce 1-na-1 pro kompletní škálu předmětů (Biochemie, Molekulární biologie, programování Python, UNIX OS, Angličtina, Čeština, Ruština (rodilý mluvčí) a Běloruština (rodilý mluvčí), Rétorika/Veřejné vystupování, Hudba: kytara, klavír, zpěv)'],
       ['Individuální přístup','Otevřené konzultace k výběru výbavy, základní onboarding pro nováčky','Individuální tréninky šermu a lukostřelby (od 400 Kč)<br><br>Zakázková výroba a oprava LARP & HEMA výbavy / zbraní na zakázku']
     ],
     ctaH:'Čím začít právě teď?',
     ctaText:'Náš ekosystém je vytvořen tak, aby vás bavil a přinášel výsledky. Vyberte si jakoukoli možnost níže a udělejte první krok:',
     ctas:[
-      ['Vyzkoušet HEMA šerm','První trénink v Družině Moravy je zdarma. Zapůjčíme vám veškerou výbavu a necháme vás otestovat jakoukoli zbraň od dlouhého meče po kuši.'],
+      ['Vyzkoušet HEMA šerm','První trénink je zdarma — při přihlášení nám jen řekni, jestli plánuješ pokračovat za 100–200 Kč/sezení, nebo chceš jen jednorázovou zkoušku. Zapůjčíme veškerou výbavu a necháš si otestovat cokoli od mečů po kuše.'],
       ['Vyrazit na výšlap s BrnoWalkers','Čerstvý vzduch, krásná moravská příroda a skvělá parta v Brně již tento víkend. Cena a detaily vždy v anonce akce.'],
       ['Individuální doučování na míru','Prémiové lekce z vědeckých, technických, jazykových i uměleckých předmětů. Analýza cílů, flexibilní rozvrh a efektivní výsledky.']
     ]
@@ -877,6 +1049,7 @@ cs:{
     eyebrow:'Komunita aktivních lidí',
     title:'BrnoWalkers',
     tagline:'Pěší turistika, hiking, skalní lezení a objevování nejkrásnějších míst Moravy ve skvělé společnosti.',
+    guideIntro:'Jmenuji se Aliaksei — tyto výlety osobně vedu už několik let. Znám každou stezku, každou jeskyni a vím, na co se cestou stojí za to podívat.',
     aboutH:'O BrnoWalkers',
     aboutText:'BrnoWalkers je otevřená komunita pro všechny, kteří milují pohyb. Pravidelně pořádáme pěší výlety v okolí Brna i po celé České republice (Babi Lom, Praděd, Moravský kras, jeskyně, vodácké výlety). Ideální způsob resetu hlavy.',
     facts:[
@@ -916,7 +1089,7 @@ cs:{
     ],
     rollbackB:'Starší družina je status, který se potvrzuje každý měsíc, ne jednorázová hranice.',
     rollback:'Pokud se pravidelnost 4+ tréninků měsíčně nedrží, člen automaticky spadá zpět do Mladší družiny. Hodnost se přitom nikdy neresetuje.',
-    free:'První trénink je zdarma pro všechny, bez ohledu na tarif a hodnost.'
+    free:'První trénink je zdarma — jde o seznámení s klubem. Předtím se vždy zeptáme: plánuješ trénovat pravidelně dál (100–200 Kč/sezení nebo Berserk Pass), nebo je to jednorázová zkouška ze zvědavosti? Není to zkouška tebe — díky tomu trenér hned zvolí správný formát a nikdo neztrácí čas.'
   },
   ranks:{
     eyebrow:'III · Hodnost', h:'Cesta člena',
@@ -958,7 +1131,7 @@ cs:{
     conductH:'Chování', conduct:['Bez extremismu — okamžité vyloučení.','Respekt k členům, výbavě, místu.','Kodex cti — čestné uznání zásahů.','Konflikty přes hlavního trenéra, ne veřejně.','Alkohol a drogy jsou striktně zakázány.'],
     safetyH:'Bezpečnost', safety:['Právo odmítnout boj — bez vysvětlení.','Kontrola výbavy povinná před použitím.','Nováčci procházejí instruktáží.','Děti od 7 let, s písemným souhlasem rodičů.'],
     liabH:'Odpovědnost', liabB:'Klub neposkytuje pojištění.', liab:'Všechny tréninky a výjezdy probíhají na vlastní odpovědnost účastníka.',
-    payH:'Platby', pay:['Registrace a platba musí proběhnout nejpozději 48 hodin před začátkem tréninku.','Platba později než 48 hodin před začátkem nebo v den tréninku — příplatek 25 % z ceny sezení.','Nezaplacený příplatek blokuje účast na dalším tréninku až do jeho úhrady.','Trénink se koná pouze v případě, že alespoň jeden účastník má zaplacené sezení, platný Berserk Pass nebo se přihlásil na první trénink zdarma. Pokud nikdo takový není — trénink je zrušen.'],
+    payH:'Platby', pay:['Registrace a platba musí proběhnout nejpozději 48 hodin před začátkem tréninku, přes Revolut: revolut.me/aliaksj5pq.','Platba později než 48 hodin před začátkem nebo v den tréninku — příplatek 25 % z ceny sezení.','Potřebuješ půjčit/pronajmout výbavu klubu (zbraně, zbroj)? Řekni to nejpozději 48 hodin před tréninkem, stejně jako u platby. Později — stejný příplatek 25 % z ceny sezení.','Nezaplacený příplatek blokuje účast na dalším tréninku až do jeho úhrady.','Trénink se koná pouze v případě, že alespoň jeden účastník má zaplacené sezení, platný Berserk Pass nebo se přihlásil na první trénink zdarma. Pokud nikdo takový není — trénink je zrušen.'],
     discH:'Disciplína', discHeaders:['Porušení','Důsledek'],
     disc:[['1. porušení','Strike (písemné varování)'],['2. porušení','Vyloučení (návrat možný po 3 měsících)'],['Opakované','Konečné vyloučení'],['Hrubé','Okamžité vyloučení']]
   },
@@ -994,6 +1167,8 @@ cs:{
       ['Telefon','<a href="tel:+420702914842">+420 702 914 842</a>'],
       ['WhatsApp (Osobní)','<a href="https://wa.me/420702914842" target="_blank" rel="noopener">wa.me/420702914842</a> — Aliaksei Chareshneu'],
       ['Telegram (Osobní)','<a href="https://t.me/Chareshneu" target="_blank" rel="noopener">t.me/Chareshneu</a> — Aliaksei Chareshneu'],
+      ['── Eternal Learning (Akademie) ──','──────────────────'],
+      ['TG Kanál · Doučování, fitness, koučink','<a href="https://t.me/eternallearning" target="_blank" rel="noopener">t.me/eternallearning</a> — vše kromě klubů níže'],
       ['── Družina Moravy ──','──────────────────'],
       ['WA Chat · EN/CS','<a href="https://chat.whatsapp.com/JzeXAQF8I2XE3zQ2OqWsPz" target="_blank" rel="noopener">chat.whatsapp.com/JzeXAQ...</a> — hlavní chat'],
       ['WA Kanál · EN/CS','<a href="https://chat.whatsapp.com/DuTpgF22mxMFy6L1Cfrcvu" target="_blank" rel="noopener">chat.whatsapp.com/DuTpgF...</a> — oznámení, bez spamu'],
@@ -1066,13 +1241,13 @@ uk:{
     headers:['Напрямок','Доступний / Безкоштовний рівень','Регулярний / Премиум рівень'],
     rows:[
       ['Фізична активність (Спорт & Туризм)','<strong>Брнохідці:</strong> Походи вихідного дня, скелі, замки Моравії (платно, ціна в анонсі)<br><br><strong>Дружина Моравії:</strong> Перше ознайомче тренування (0 Kč)','<strong>Дружина Моравії:</strong> Регулярні тренування HEMA/LARP (100–200 Kč за сесію або Berserk Pass)<br><br><strong>Moravian Squad:</strong> Спорт та виїзди для дітей 5–15 років'],
-      ['Інтелектуальна активність (Розум & Предмети)','Історичні лекції, розбори LARP-лору, тактичні брифінги всередині клубів','<strong>Групові лекції:</strong> Тематичні лекції та семінари з історії, HEMA та природничих наук для малих груп.<br><br><strong>Індивідуальне репетиторство преміум-класу:</strong> Заняття 1-на-1 з біохімії, молекулярної біології, Python, UNIX, англійської, чеської, російської мов, риторики, музики (гітара, фортепіано, вокал)'],
+      ['Інтелектуальна активність (Розум & Предмети)','Історичні лекції, розбори LARP-лору, тактичні брифінги всередині клубів','<strong>Групові лекції:</strong> Тематичні лекції та семінари з історії, HEMA та природничих наук для малих груп.<br><br><strong>Індивідуальне репетиторство преміум-класу:</strong> Заняття 1-на-1 з біохімії, молекулярної біології, Python, UNIX, англійської, чеської, російської (рідна) та білоруської (рідна) мов, риторики, музики (гітара, фортепіано, вокал)'],
       ['Індивідуальний підхід','Відкриті консультації щодо підбору спорядження, базовий онбординг новачків','Персональні тренування з фехтування та стрільби з лука (від 400 Kč)<br><br>Індивідуальне виготовлення та ремонт HEMA/LARP спорядження на замовлення']
     ],
     ctaH:'З чого почати просто зараз?',
     ctaText:'Наша екосистема створена, щоб утримувати інтерес та давати результат. Виберіть будь-яку комфортну дію нижче, щоб зробити перший крок:',
     ctas:[
-      ['Спробувати HEMA фехтування','Перше тренування в Дружині Моравії безкоштовне. Видамо спорядження, дамо протестувати будь-яку зброю від меча до арбалета.'],
+      ['Спробувати HEMA фехтування','Перше тренування безкоштовне — при записі просто скажи, чи плануєш продовжувати за 100–200 Kč/сесія, чи хочеш спробувати один раз. Видамо спорядження і дамо протестувати зброю від меча до арбалета.'],
       ['Піти в похід з Брнохідцями','Найближчі вихідні, свіже повітря, природа та нові знайомства в Брно. Ціна та деталі — в анонсі кожної події.'],
       ['Преміум репетиторство на крок попереду','Індивідуальні заняття з повного спектра академічних та творчих дисциплін. Робота під ваші завдання, гнучкий графік.']
     ]
@@ -1081,6 +1256,7 @@ uk:{
     eyebrow:'Спільнота активних людей',
     title:'Брнохідці',
     tagline:'Пішохідний туризм, хайкінг, скелі та дослідження найкрасивіших локацій Моравії у чудовій компанії.',
+    guideIntro:'Мене звуть Алексій — я особисто веду ці походи вже кілька років. Знаю кожну стежку, кожну печеру і за що зачепитись поглядом по дорозі.',
     aboutH:'Про Брнохідців',
     aboutText:'Брнохідці — це відкрита спільнота для тих, хто любить рух. Ми регулярно організуємо піші вилазки навколо Брно та по всій Чехії (Моравський крас, печери, сплави). Прекрасний спосіб перезавантажитись та знайти друзів.',
     facts:[
@@ -1120,7 +1296,7 @@ uk:{
     ],
     rollbackB:'Старша дружина — статус, який підтверджується щомісяця.',
     rollback:'Якщо регулярність 4+ сесій на місяць не зберігається, учасник автоматично повертається до Молодшої дружини. Ранг не скидається.',
-    free:'Перше тренування — безкоштовне для всіх, незалежно від тарифу та рангу.'
+    free:'Перше тренування — безкоштовне, щоб познайомитися з клубом. Перед ним ми завжди запитаємо: чи плануєш тренуватися далі на регулярній основі (100–200 Kč/сесія або Berserk Pass), чи це одноразова спроба з цікавості? Це не перевірка — так тренер одразу обере правильний формат, і ніхто не витрачає час даремно.'
   },
   ranks:{
     eyebrow:'III · Ранг', h:'Шлях учасника',
@@ -1162,7 +1338,7 @@ uk:{
     conductH:'Поведінка', conduct:['Без екстремізму — негайне виключення.','Повага до учасників, спорядження, місця.','Кодекс честі — чесне визнання попадань.','Конфлікти вирішуються через головного тренера, не публічно.','Алкоголь і наркотики суворо заборонені.'],
     safetyH:'Безпека', safety:['Право відмовитися від бою — без пояснень.','Перевірка спорядження обов\'язкова.','Новачки проходять обов\'язковий інструктаж.','Діти — з 7 років, письмова згода батьків.'],
     liabH:'Відповідальність', liabB:'Страхування клубом не надається.', liab:'Усі тренування та виїзди учасники проходять на власну відповідальність.',
-    payH:'Оплата', pay:['Реєстрація та оплата — не пізніше ніж за 48 годин до початку тренування.','Оплата пізніше 48 годин або в день тренування — штраф 25% від вартості сесії.','Несплачений штраф блокує участь у наступному тренуванні до його погашення.','Тренування відбувається лише за наявності хоча б одного учасника з оплаченою сесією, діючим Berserk Pass або записаного на перше безкоштовне тренування. Якщо таких немає — тренування скасовується.'],
+    payH:'Оплата', pay:['Реєстрація та оплата — не пізніше ніж за 48 годин до початку тренування, через Revolut: revolut.me/aliaksj5pq.','Оплата пізніше 48 годин або в день тренування — штраф 25% від вартості сесії.','Потрібно взяти/орендувати спорядження клубу (зброю, обладунки)? Повідом не пізніше ніж за 48 годин до тренування, як і з оплатою. Пізніше — той самий штраф 25% від вартості сесії.','Несплачений штраф блокує участь у наступному тренуванні до його погашення.','Тренування відбувається лише за наявності хоча б одного учасника з оплаченою сесією, діючим Berserk Pass або записаного на перше безкоштовне тренування. Якщо таких немає — тренування скасовується.'],
     discH:'Дисципліна', discHeaders:['Порушення','Наслідок'],
     disc:[['1-е порушення','Страйк (письмове попередження)'],['2-е порушення','Виключення (відновлення через 3 міс.)'],['Повторне','Фінальне виключення'],['Грубе','Негайне виключення']]
   },
@@ -1198,6 +1374,8 @@ uk:{
       ['Телефон','<a href="tel:+420702914842">+420 702 914 842</a>'],
       ['WhatsApp (Особистий)','<a href="https://wa.me/420702914842" target="_blank" rel="noopener">wa.me/420702914842</a> — Олексій Черешньов'],
       ['Telegram (Особистий)','<a href="https://t.me/Chareshneu" target="_blank" rel="noopener">t.me/Chareshneu</a> — Олексій Черешньов'],
+      ['── Eternal Learning (Академія) ──','──────────────────'],
+      ['TG Канал · Репетиторство, фітнес, коучинг','<a href="https://t.me/eternallearning" target="_blank" rel="noopener">t.me/eternallearning</a> — усе, крім клубів нижче'],
       ['── Дружина Моравії ──','──────────────────'],
       ['TG Чат · RU/UA/BY','<a href="https://t.me/druzinamoravy" target="_blank" rel="noopener">t.me/druzinamoravy</a> — основний чат'],
       ['TG Канал · RU/UA/BY','<a href="https://t.me/druzinamoravy_news" target="_blank" rel="noopener">t.me/druzinamoravy_news</a> — анонси, без флуду'],
@@ -1258,6 +1436,7 @@ const RANK_DOT_TEXT = ['var(--ink-dim)','#fff','#fff','#fff','#16171a'];
 const RENTAL_LINK = 'https://docs.google.com/spreadsheets/d/11-XATZWWwX6YjltnxsNxqNGbrEt9e1WKpoDXlvc6LC4/edit?usp=drivesdk';
 const PERSONAL_WA = 'https://wa.me/420702914842';
 const PERSONAL_TG = 'https://t.me/Chareshneu';
+const ACADEMY_TG = 'https://t.me/eternallearning'; // Eternal Learning — репетиторство, фитнес, коучинг и прочие услуги "академии" (всё, что не BrnoWalkers/Družina)
 
 const WALKERS_TG_CHAT    = 'https://t.me/pochody_brno';
 const WALKERS_TG_CHANNEL = 'https://t.me/pochody_brno_new';
@@ -1280,6 +1459,7 @@ function communityLinks(lang, group) {
 
 let currentLang = 'ru';
 let currentTab = 'main';
+let LIVE_EVENTS = null; // null = ещё грузится, [] = загружено и пусто, [...] = есть события
 
 function renderFacts(facts){
   return `<div class="facts">${facts.map(f=>`<div class="fact"><div class="v">${f.v}</div><div class="l">${f.l}</div></div>`).join('')}</div>`;
@@ -1361,6 +1541,13 @@ function renderGlobalRulesText(lang) {
   </div>`;
 }
 
+const REVIEWS_BADGE_TEXT = {
+  ru:'30+ отзывов на Google · 5.0',
+  en:'30+ Google reviews · 5.0',
+  cs:'30+ recenzí na Google · 5.0',
+  uk:'30+ відгуків на Google · 5.0'
+};
+
 function renderMainTab(lang, t) {
   return `
   <section class="hero">
@@ -1368,6 +1555,7 @@ function renderMainTab(lang, t) {
       <div class="eyebrow">${t.hero.eyebrow}</div>
       <h1>${t.main.title}</h1>
       <p class="tagline">${t.main.tagline}</p>
+      <a href="${GOOGLE_REVIEWS_LINK}" target="_blank" rel="noopener" class="reviews-badge">⭐ ${REVIEWS_BADGE_TEXT[lang]}</a>
       <div class="hero-ctas">
         <button class="btn solid" onclick="switchTab('druzina')">${t.tabs.druzina}</button>
         <button class="btn" onclick="switchTab('walkers')">${t.tabs.walkers}</button>
@@ -1379,13 +1567,20 @@ function renderMainTab(lang, t) {
     <div class="hero-img wide"><img src="${IMG_MAIN_HERO}" alt="Morava v pohybu — hiking, fencing, archery, nature" loading="lazy"></div>
   </div>
 
+  ${renderUpcomingEvents(lang)}
+
   <section id="leader-about">
     <div class="wrap">
       <div class="eyebrow-sm">${t.ui.mainFounder}</div>
       <h2 class="anchor-heading">${t.main.aboutH}<a class="anchor-link" href="#leader-about">#</a></h2>
-      <p class="lead">${t.main.aboutText}</p>
+      <div class="portrait-block">
+        <img src="${IMG_PORTRAIT_FACE}" alt="Aliaksei Chareshneu, PhD" loading="lazy">
+        <p class="lead" style="margin:0;">${t.main.aboutText}</p>
+      </div>
     </div>
   </section>
+
+  ${renderReviews(lang)}
 
   <section id="matrix-activities">
     <div class="wrap">
@@ -1396,12 +1591,13 @@ function renderMainTab(lang, t) {
     </div>
   </section>
 
+  ${renderPricing(lang)}
+
   <section id="conversion">
     <div class="wrap">
       <h2>${t.main.ctaH}</h2>
       <p class="lead">${t.main.ctaText}</p>
-      <div class="grid-ctas">
-        <div class="card-cta">
+      <div class="grid-ctas">        <div class="card-cta">
           <h3>${t.main.ctas[0][0]}</h3>
           <p>${t.main.ctas[0][1]}</p>
           <div style="display:flex; gap:8px; flex-wrap:wrap;">
@@ -1435,6 +1631,512 @@ function renderMainTab(lang, t) {
     </div>
   </section>
   `;
+}
+
+const ACADEMY_SUBJECTS = {
+  groupTitle: {
+    school:   {ru:'🏫 Школьникам', en:'🏫 School Students', cs:'🏫 Pro školáky', uk:'🏫 Школярам'},
+    uni:      {ru:'🎓 Студентам & Абитуриентам', en:'🎓 University & Applicants', cs:'🎓 Studenti & Uchazeči', uk:'🎓 Студентам & Абітурієнтам'},
+    adult:    {ru:'🌍 Взрослым & Экспатам', en:'🌍 Adults & Expats', cs:'🌍 Dospělí & Expati', uk:'🌍 Дорослим & Експатам'},
+    creative: {ru:'🎨 Творческое & Прикладное', en:'🎨 Creative & Applied', cs:'🎨 Kreativní & Aplikované', uk:'🎨 Творче & Прикладне'},
+  },
+  groups: [
+    {
+      key: 'school',
+      subjects: [
+        {icon:'⚗️', name:{ru:'Химия',en:'Chemistry',cs:'Chemie',uk:'Хімія'},
+         items:{ru:['Школьная программа 7–11 класс','Подготовка к ЕГЭ / Maturita','Органическая и неорганическая химия','Биохимия (углублённо)'],en:['School curriculum grades 7–11','Exam prep: Maturita / A-levels','Organic & inorganic chemistry','Biochemistry (advanced)'],cs:['Školní program 7.–11. třída','Příprava na Maturitu','Organická a anorganická chemie','Biochemie (pokročilá)'],uk:['Шкільна програма 7–11 клас','Підготовка до ЗНО / Maturita','Органічна та неорганічна хімія','Біохімія (поглиблено)']}},
+        {icon:'🔬', name:{ru:'Биология',en:'Biology',cs:'Biologie',uk:'Біологія'},
+         items:{ru:['Общая биология 7–11 класс','Молекулярная биология и генетика','Анатомия и физиология','Подготовка к Maturita'],en:['General biology grades 7–11','Molecular biology & genetics','Anatomy & physiology','Maturita preparation'],cs:['Obecná biologie 7.–11. třída','Molekulární biologie a genetika','Anatomie a fyziologie','Příprava na Maturitu'],uk:['Загальна біологія 7–11 клас','Молекулярна біологія та генетика','Анатомія та фізіологія','Підготовка до Maturita']}},
+        {icon:'⚡', name:{ru:'Физика',en:'Physics',cs:'Fyzika',uk:'Фізика'},
+         items:{ru:['Школьная программа 7–11 класс','Механика, электричество, оптика','Подготовка к экзаменам','Решение олимпиадных задач'],en:['School curriculum grades 7–11','Mechanics, electricity, optics','Exam preparation','Olympiad problem solving'],cs:['Školní program 7.–11. třída','Mechanika, elektřina, optika','Příprava na zkoušky','Olympijské úlohy'],uk:['Шкільна програма 7–11 клас','Механіка, електрика, оптика','Підготовка до іспитів','Олімпіадні задачі']}},
+        {icon:'📐', name:{ru:'Математика',en:'Maths',cs:'Matematika',uk:'Математика'},
+         items:{ru:['Алгебра и геометрия','Тригонометрия, функции','Подготовка к Maturita','Статистика и вероятность'],en:['Algebra & geometry','Trigonometry, functions','Maturita preparation','Statistics & probability'],cs:['Algebra a geometrie','Trigonometrie, funkce','Příprava na Maturitu','Statistika a pravděpodobnost'],uk:['Алгебра та геометрія','Тригонометрія, функції','Підготовка до Maturita','Статистика та імовірність']}},
+        {icon:'♟️', name:{ru:'Шахматы',en:'Chess',cs:'Šachy',uk:'Шахи'},
+         items:{ru:['Для начинающих с нуля','Тактика и стратегия','Разбор партий','Дебютная теория'],en:['Complete beginners welcome','Tactics & strategy','Game analysis','Opening theory'],cs:['Pro úplné začátečníky','Taktika a strategie','Rozbor partií','Teorie zahájení'],uk:['Для початківців з нуля','Тактика та стратегія','Розбір партій','Теорія дебютів']}},
+      ]
+    },
+    {
+      key: 'uni',
+      subjects: [
+        {icon:'🧬', name:{ru:'Биохимия & Молбиология',en:'Biochemistry & Mol. Biology',cs:'Biochemie & Mol. biologie',uk:'Біохімія & Молбіологія'},
+         items:{ru:['Университетский курс биохимии','Молекулярная биология (PhD уровень)','Подготовка к вступительным экзаменам','Помощь с курсовыми и дипломными'],en:['University biochemistry course','Molecular biology (PhD level)','University entrance exam prep','Coursework & thesis support'],cs:['Univerzitní kurz biochemie','Molekulární biologie (PhD úroveň)','Příprava na přijímací zkoušky','Pomoc s pracemi a diplomkami'],uk:['Університетський курс біохімії','Молекулярна біологія (PhD рівень)','Підготовка до вступних іспитів','Допомога з курсовими та дипломними']}},
+        {icon:'💻', name:{ru:'IT & Программирование',en:'IT & Programming',cs:'IT & Programování',uk:'IT & Програмування'},
+         items:{ru:['Python (с нуля до проектов)','ОС UNIX / Linux командная строка','Алгоритмы и структуры данных','Введение в data science'],en:['Python (zero to projects)','UNIX / Linux command line','Algorithms & data structures','Intro to data science'],cs:['Python (od nuly k projektům)','UNIX / Linux příkazový řádek','Algoritmy a datové struktury','Úvod do datové vědy'],uk:['Python (з нуля до проектів)','ОС UNIX / Linux командний рядок','Алгоритми та структури даних','Вступ до data science']}},
+        {icon:'🏛️', name:{ru:'История',en:'History',cs:'Dějepis',uk:'Історія'},
+         items:{ru:['Мировая и европейская история','История Чехии и Моравии','Средневековье и HEMA-контекст','Подготовка к экзаменам'],en:['World & European history','Czech & Moravian history','Middle Ages & HEMA context','Exam preparation'],cs:['Světové a evropské dějiny','Dějiny Čech a Moravy','Středověk a HEMA kontext','Příprava na zkoušky'],uk:['Всесвітня та європейська історія','Історія Чехії та Моравії','Середньовіччя та HEMA-контекст','Підготовка до іспитів']}},
+      ]
+    },
+    {
+      key: 'adult',
+      subjects: [
+        {icon:'🇨🇿', name:{ru:'Чешский язык',en:'Czech Language',cs:'Český jazyk',uk:'Чеська мова'},
+         items:{ru:['Чешский для начинающих (A1–A2)','Чешский для ПМЖ (B1–B2)','Подготовка к языковому экзамену','Разговорная практика'],en:['Czech for beginners (A1–A2)','Czech for permanent residency (B1–B2)','Language exam preparation','Conversational practice'],cs:['Čeština pro začátečníky (A1–A2)','Čeština pro trvalý pobyt (B1–B2)','Příprava na jazykovou zkoušku','Konverzační praxe'],uk:['Чеська для початківців (A1–A2)','Чеська для ПМП (B1–B2)','Підготовка до мовного іспиту','Розмовна практика']}},
+        {icon:'🇬🇧', name:{ru:'Английский язык',en:'English Language',cs:'Anglický jazyk',uk:'Англійська мова'},
+         items:{ru:['Бизнес-английский','Подготовка к IELTS / Cambridge','Разговорная практика','Английский для детей'],en:['Business English','IELTS / Cambridge exam prep','Conversational practice','English for children'],cs:['Obchodní angličtina','Příprava na IELTS / Cambridge','Konverzační praxe','Angličtina pro děti'],uk:['Бізнес-англійська','Підготовка до IELTS / Cambridge','Розмовна практика','Англійська для дітей']}},
+        {icon:'🩺', name:{ru:'Медицинская поддержка',en:'Medical Support',cs:'Zdravotní podpora',uk:'Медична підтримка'},
+         items:{ru:['Анализ диагноза и плана лечения','Помощь в общении с врачом','Медицинский перевод (онлайн/офлайн)','Нострификация медицинских документов'],en:['Diagnosis & treatment analysis','Support communicating with doctors','Medical interpreting (online/in-person)','Medical document nostrification'],cs:['Analýza diagnózy a léčby','Pomoc v komunikaci s lékařem','Zdravotní tlumočení (online/osobně)','Nostrifikace zdravotních dokumentů'],uk:['Аналіз діагнозу та плану лікування','Допомога у спілкуванні з лікарем','Медичний переклад (онлайн/офлайн)','Нострифікація медичних документів']}},
+      ]
+    },
+    {
+      key: 'creative',
+      subjects: [
+        {icon:'🎸', name:{ru:'Музыка',en:'Music',cs:'Hudba',uk:'Музика'},
+         items:{ru:['Гитара (классика / рок / акустика)','Фортепиано','Вокал и постановка голоса','Теория музыки'],en:['Guitar (classical / rock / acoustic)','Piano','Vocals & voice coaching','Music theory'],cs:['Kytara (klasická / rock / akustická)','Klavír','Zpěv a hlasová průprava','Hudební teorie'],uk:['Гітара (класика / рок / акустика)','Фортепіано','Вокал та постановка голосу','Теорія музики']}},
+        {icon:'🎤', name:{ru:'Ораторское мастерство',en:'Public Speaking',cs:'Rétorika',uk:'Ораторське мистецтво'},
+         items:{ru:['Преодоление страха сцены','Структура речи и аргументация','Работа с голосом и телом','Подготовка к презентациям'],en:['Overcoming stage fright','Speech structure & argumentation','Voice & body language','Presentation preparation'],cs:['Překonání trémy','Struktura řeči a argumentace','Práce s hlasem a tělem','Příprava na prezentace'],uk:['Подолання страху сцени','Структура мови та аргументація','Робота з голосом та тілом','Підготовка до презентацій']}},
+      ]
+    }
+  ]
+};
+
+function renderAcademySubjects(lang) {
+  const d = ACADEMY_SUBJECTS;
+  const groups = d.groups.map(group => {
+    const cards = group.subjects.map(subj => `
+      <div class="subj-card">
+        <div class="subj-icon">${subj.icon}</div>
+        <div class="subj-name">${subj.name[lang]}</div>
+        <ul class="subj-items">
+          ${subj.items[lang].map(i=>`<li>${i}</li>`).join('')}
+        </ul>
+      </div>`).join('');
+    return `
+      <div class="subj-group">
+        <div class="subj-group-title">${d.groupTitle[group.key][lang]}</div>
+        <div class="subj-grid">${cards}</div>
+      </div>`;
+  }).join('');
+  return `<div class="academy-subjects">${groups}</div>`;
+}
+
+const PRICING = {
+  eyebrow: {ru:'Услуги & Цены', en:'Services & Pricing', cs:'Služby & Ceník', uk:'Послуги & Ціни'},
+  title:   {ru:'Академия — полный прайс-лист', en:'Academy — Full Price List', cs:'Akademie — kompletní ceník', uk:'Академія — повний прейскурант'},
+
+  globalNote: {
+    ru:'💡 Первая сессия в любой категории — скидка 100 Kč. Онлайн всегда на 100 Kč/час дешевле офлайн. Срочный запрос (менее 48ч) — наценка +50%.',
+    en:'💡 First session in any category — 100 Kč discount. Online is always 100 Kč/hr cheaper than in-person. Urgent request (under 48h) — +50% surcharge.',
+    cs:'💡 První sezení v jakékoli kategorii — sleva 100 Kč. Online je vždy o 100 Kč/hod levnější než osobní. Urgentní požadavek (méně než 48h) — příplatek +50 %.',
+    uk:'💡 Перша сесія в будь-якій категорії — знижка 100 Kč. Онлайн завжди на 100 Kč/год дешевше ніж офлайн. Терміновий запит (менше 48год) — надбавка +50%.'
+  },
+
+  cancelPolicy: {
+    title: {ru:'Политика отмен', en:'Cancellation Policy', cs:'Storno podmínky', uk:'Політика скасувань'},
+    rows: {
+      ru:[['Более 48 часов до занятия','Полный возврат'],['24–48 часов','Возврат 50%'],['Менее 24 часов / неявка','Без возврата'],['Опоздание до 10 мин','Занятие полностью'],['Опоздание 10–20 мин','Укороченное занятие'],['Опоздание более 20 мин','Отмена, без возврата']],
+      en:[['More than 48h before','Full refund'],['24–48 hours','50% refund'],['Less than 24h / no-show','No refund'],['Late up to 10 min','Full session'],['Late 10–20 min','Shortened session'],['Late more than 20 min','Cancelled, no refund']],
+      cs:[['Více než 48h předem','Plná náhrada'],['24–48 hodin','Náhrada 50 %'],['Méně než 24h / neúčast','Bez náhrady'],['Zpoždění do 10 min','Plné sezení'],['Zpoždění 10–20 min','Zkrácené sezení'],['Zpoždění více než 20 min','Zrušeno, bez náhrady']],
+      uk:[['Більше 48год до заняття','Повне повернення'],['24–48 годин','Повернення 50%'],['Менше 24год / неявка','Без повернення'],['Запізнення до 10 хв','Повне заняття'],['Запізнення 10–20 хв','Скорочене заняття'],['Запізнення більше 20 хв','Скасовано, без повернення']]
+    }
+  },
+
+  categories: [
+    {
+      id:'EDU',
+      icon:'📚',
+      title:{ru:'Репетиторство & Образование', en:'Tutoring & Education', cs:'Doučování & Vzdělávání', uk:'Репетиторство & Освіта'},
+      subjects:{ru:'Математика, Физика, Химия, Биология, История, Языки, Шахматы и другое', en:'Maths, Physics, Chemistry, Biology, History, Languages, Chess and more', cs:'Matematika, Fyzika, Chemie, Biologie, Dějepis, Jazyky, Šachy a další', uk:'Математика, Фізика, Хімія, Біологія, Історія, Мови, Шахи та інше'},
+      rows:{
+        ru:[['Индивидуально онлайн (1 час)','400 Kč'],['Индивидуально офлайн (1 час)','500 Kč'],['Группа 2–4 чел. онлайн (1 час/чел.)','250 Kč'],['Группа 2–4 чел. офлайн (1 час/чел.)','300 Kč'],
+          ['📚 Пакеты — Индивидуально онлайн','—'],['5 занятий (−5%)','1 900 Kč'],['10 занятий (−10%)','3 600 Kč'],['20 занятий (−15%)','6 800 Kč'],
+          ['📚 Пакеты — Индивидуально офлайн','—'],['5 занятий (−5%)','2 375 Kč'],['10 занятий (−10%)','4 500 Kč'],['20 занятий (−15%)','8 500 Kč'],
+          ['📚 Пакеты — Группа онлайн (за чел.)','—'],['5 занятий (−5%)','1 188 Kč'],['10 занятий (−10%)','2 250 Kč'],['20 занятий (−15%)','4 250 Kč'],
+          ['📚 Пакеты — Группа офлайн (за чел.)','—'],['5 занятий (−5%)','1 425 Kč'],['10 занятий (−10%)','2 700 Kč'],['20 занятий (−15%)','5 100 Kč'],
+          ['Подготовка к Maturita (15 уроков + тесты)','5 000 Kč'],['Чешский для ПМЖ (18 уроков)','6 000 Kč (−1 200 Kč)'],['Полный пакет ПМЖ (20 ч + помощь с документами)','7 000 Kč']],
+        en:[['Individual online (1 hour)','400 Kč'],['Individual in-person (1 hour)','500 Kč'],['Group 2–4 online (1 hr/person)','250 Kč'],['Group 2–4 in-person (1 hr/person)','300 Kč'],
+          ['📚 Packages — Individual online','—'],['5 lessons (−5%)','1,900 Kč'],['10 lessons (−10%)','3,600 Kč'],['20 lessons (−15%)','6,800 Kč'],
+          ['📚 Packages — Individual in-person','—'],['5 lessons (−5%)','2,375 Kč'],['10 lessons (−10%)','4,500 Kč'],['20 lessons (−15%)','8,500 Kč'],
+          ['📚 Packages — Group online (per person)','—'],['5 lessons (−5%)','1,188 Kč'],['10 lessons (−10%)','2,250 Kč'],['20 lessons (−15%)','4,250 Kč'],
+          ['📚 Packages — Group in-person (per person)','—'],['5 lessons (−5%)','1,425 Kč'],['10 lessons (−10%)','2,700 Kč'],['20 lessons (−15%)','5,100 Kč'],
+          ['Maturita prep (15 lessons + tests)','5,000 Kč'],['Czech for residency (18 lessons)','6,000 Kč (−1,200 Kč)'],['Full residency pack (20h + document help)','7,000 Kč']],
+        cs:[['Individuálně online (1 hodina)','400 Kč'],['Individuálně osobně (1 hodina)','500 Kč'],['Skupina 2–4 online (1 hod/os.)','250 Kč'],['Skupina 2–4 osobně (1 hod/os.)','300 Kč'],
+          ['📚 Balíčky — Individuálně online','—'],['5 lekcí (−5 %)','1 900 Kč'],['10 lekcí (−10 %)','3 600 Kč'],['20 lekcí (−15 %)','6 800 Kč'],
+          ['📚 Balíčky — Individuálně osobně','—'],['5 lekcí (−5 %)','2 375 Kč'],['10 lekcí (−10 %)','4 500 Kč'],['20 lekcí (−15 %)','8 500 Kč'],
+          ['📚 Balíčky — Skupina online (za osobu)','—'],['5 lekcí (−5 %)','1 188 Kč'],['10 lekcí (−10 %)','2 250 Kč'],['20 lekcí (−15 %)','4 250 Kč'],
+          ['📚 Balíčky — Skupina osobně (za osobu)','—'],['5 lekcí (−5 %)','1 425 Kč'],['10 lekcí (−10 %)','2 700 Kč'],['20 lekcí (−15 %)','5 100 Kč'],
+          ['Příprava na Maturitu (15 lekcí + testy)','5 000 Kč'],['Čeština pro trvalý pobyt (18 lekcí)','6 000 Kč (−1 200 Kč)'],['Kompletní balíček TP (20 hod + pomoc s dokumenty)','7 000 Kč']],
+        uk:[['Індивідуально онлайн (1 година)','400 Kč'],['Індивідуально офлайн (1 година)','500 Kč'],['Група 2–4 онлайн (1 год/особа)','250 Kč'],['Група 2–4 офлайн (1 год/особа)','300 Kč'],
+          ['📚 Пакети — Індивідуально онлайн','—'],['5 занять (−5%)','1 900 Kč'],['10 занять (−10%)','3 600 Kč'],['20 занять (−15%)','6 800 Kč'],
+          ['📚 Пакети — Індивідуально офлайн','—'],['5 занять (−5%)','2 375 Kč'],['10 занять (−10%)','4 500 Kč'],['20 занять (−15%)','8 500 Kč'],
+          ['📚 Пакети — Група онлайн (за особу)','—'],['5 занять (−5%)','1 188 Kč'],['10 занять (−10%)','2 250 Kč'],['20 занять (−15%)','4 250 Kč'],
+          ['📚 Пакети — Група офлайн (за особу)','—'],['5 занять (−5%)','1 425 Kč'],['10 занять (−10%)','2 700 Kč'],['20 занять (−15%)','5 100 Kč'],
+          ['Підготовка до Maturita (15 уроків + тести)','5 000 Kč'],['Чеська для ПМП (18 уроків)','6 000 Kč (−1 200 Kč)'],['Повний пакет ПМП (20 год + допомога з документами)','7 000 Kč']]
+      }
+    },
+    {
+      id:'FIT',
+      icon:'💪',
+      title:{ru:'Фитнес & Персональные тренировки', en:'Fitness & Personal Training', cs:'Fitness & Osobní trénink', uk:'Фітнес & Персональні тренування'},
+      subjects:{ru:'На открытом воздухе или локации клиента. Опыт: 100+ клиентов.', en:'Outdoors or at client\'s location. Experience: 100+ trained clients.', cs:'Venku nebo v místě klienta. Zkušenosti: 100+ klientů.', uk:'На вулиці або у клієнта. Досвід: 100+ клієнтів.'},
+      rows:{
+        ru:[['Персонально офлайн (1 час)','500 Kč'],['Персонально онлайн (1 час)','300 Kč'],['Групповая тренировка (разово)','200 Kč'],['Абонемент 4 групп. тренировки','600 Kč (150 Kč/сессия)'],['Абонемент 8 групп. тренировок','1 000 Kč (125 Kč/сессия)'],['Пакет 5 персон. офлайн','2 000 Kč (−500 Kč)'],['Пакет 10 персон. офлайн','3 350 Kč (−1 650 Kč)'],['Онлайн-программа 1 мес. (план+питание)','2 000 Kč/мес.'],['Программа похудения (8 недель)','4 000 Kč'],['3-месячная трансформация тела','5 000 Kč']],
+        en:[['Personal in-person (1 hour)','500 Kč'],['Personal online (1 hour)','300 Kč'],['Group training (single)','200 Kč'],['4-session group pass','600 Kč (150 Kč/session)'],['8-session group pass','1,000 Kč (125 Kč/session)'],['5-session personal in-person pack','2,000 Kč (−500 Kč)'],['10-session personal in-person pack','3,350 Kč (−1,650 Kč)'],['1-month online programme (plan+nutrition)','2,000 Kč/mo'],['Weight-loss programme (8 weeks)','4,000 Kč'],['3-month body transformation','5,000 Kč']],
+        cs:[['Osobně individuálně (1 hodina)','500 Kč'],['Online individuálně (1 hodina)','300 Kč'],['Skupinový trénink (jednorázově)','200 Kč'],['Permanentka 4 skupinové tréninky','600 Kč (150 Kč/sezení)'],['Permanentka 8 skupinových tréninků','1 000 Kč (125 Kč/sezení)'],['Balíček 5 osobních tréninků','2 000 Kč (−500 Kč)'],['Balíček 10 osobních tréninků','3 350 Kč (−1 650 Kč)'],['Online program 1 měsíc (plán+výživa)','2 000 Kč/měs.'],['Program hubnutí (8 týdnů)','4 000 Kč'],['3měsíční proměna těla','5 000 Kč']],
+        uk:[['Персонально офлайн (1 година)','500 Kč'],['Персонально онлайн (1 година)','300 Kč'],['Групове тренування (разово)','200 Kč'],['Абонемент 4 групп. тренування','600 Kč (150 Kč/сесія)'],['Абонемент 8 групп. тренувань','1 000 Kč (125 Kč/сесія)'],['Пакет 5 персон. офлайн','2 000 Kč (−500 Kč)'],['Пакет 10 персон. офлайн','3 350 Kč (−1 650 Kč)'],['Онлайн-програма 1 міс. (план+харчування)','2 000 Kč/міс.'],['Програма схуднення (8 тижнів)','4 000 Kč'],['3-місячна трансформація тіла','5 000 Kč']]
+      }
+    },
+    {
+      id:'NUTR',
+      icon:'🥗',
+      title:{ru:'Нутрициология', en:'Nutrition Consulting', cs:'Nutriční poradenství', uk:'Нутриціологія'},
+      subjects:{ru:'Персональные планы питания, сопровождение, коррекция.', en:'Personal nutrition plans, ongoing support, adjustments.', cs:'Osobní plány výživy, průběžná podpora, korekce.', uk:'Персональні плани харчування, супровід, корекція.'},
+      rows:{
+        ru:[['Первичная консультация (90 мин)','600 Kč'],['Персональный план питания','600 Kč'],['Ежемесячное сопровождение','2 000 Kč/мес.'],['Разовая корректирующая сессия (60 мин)','700 Kč']],
+        en:[['Initial consultation (90 min)','600 Kč'],['Personal nutrition plan','600 Kč'],['Monthly support','2,000 Kč/mo'],['Single correction session (60 min)','700 Kč']],
+        cs:[['Vstupní konzultace (90 min)','600 Kč'],['Osobní plán výživy','600 Kč'],['Měsíční doprovázení','2 000 Kč/měs.'],['Jednorázová korekční sezení (60 min)','700 Kč']],
+        uk:[['Первинна консультація (90 хв)','600 Kč'],['Персональний план харчування','600 Kč'],['Щомісячний супровід','2 000 Kč/міс.'],['Разова коригуюча сесія (60 хв)','700 Kč']]
+      }
+    },
+    {
+      id:'SUPP',
+      icon:'🌍',
+      title:{ru:'Поддержка экспатов', en:'Expat Support', cs:'Podpora expatů', uk:'Підтримка експатів'},
+      subjects:{ru:'Работа, жильё, медицина, документы, юридические вопросы, нострификация.', en:'Work, housing, medicine, documents, legal issues, nostrification.', cs:'Práce, bydlení, medicína, dokumenty, právní otázky, nostrifikace.', uk:'Робота, житло, медицина, документи, юридичні питання, нострифікація.'},
+      rows:{
+        ru:[['Общая консультация (1-й час)','300 Kč'],['Каждый последующий час','400 Kč'],['Поиск врача','800 Kč'],['Поиск адвоката','1 000 Kč'],['Консультация по поступлению в вуз (1ч)','600 Kč'],['Анализ медицинского диагноза и лечения','1 500 Kč'],['Помощь с нострификацией','от 3 500 Kč'],['Юридическое представительство','от 2 000 Kč'],['Медицинское сопровождение','от 2 500 Kč'],['Устный перевод онлайн (юристы/медицина)','700 Kč/час'],['Устный перевод на встречах лично','1 000 Kč/час']],
+        en:[['General consultation (1st hour)','300 Kč'],['Each additional hour','400 Kč'],['Doctor search','800 Kč'],['Lawyer search','1,000 Kč'],['University admission consultation (1h)','600 Kč'],['Medical diagnosis & treatment analysis','1,500 Kč'],['Nostrification assistance','from 3,500 Kč'],['Legal representation (advocacy)','from 2,000 Kč'],['Medical advocacy','from 2,500 Kč'],['Interpreting online (legal/medical)','700 Kč/hr'],['In-person interpreting at meetings','1,000 Kč/hr']],
+        cs:[['Obecná konzultace (1. hodina)','300 Kč'],['Každá další hodina','400 Kč'],['Hledání lékaře','800 Kč'],['Hledání právníka','1 000 Kč'],['Konzultace k přijímání na VŠ (1h)','600 Kč'],['Analýza lékařské diagnózy a léčby','1 500 Kč'],['Pomoc s nostrifikací','od 3 500 Kč'],['Právní zastoupení','od 2 000 Kč'],['Zdravotní doprovod','od 2 500 Kč'],['Tlumočení online (právní/medicinské)','700 Kč/hod'],['Osobní tlumočení na schůzkách','1 000 Kč/hod']],
+        uk:[['Загальна консультація (1-й час)','300 Kč'],['Кожна наступна година','400 Kč'],['Пошук лікаря','800 Kč'],['Пошук адвоката','1 000 Kč'],['Консультація щодо вступу до вузу (1год)','600 Kč'],['Аналіз медичного діагнозу та лікування','1 500 Kč'],['Допомога з нострифікацією','від 3 500 Kč'],['Юридичне представництво','від 2 000 Kč'],['Медичний супровід','від 2 500 Kč'],['Усний переклад онлайн (юристи/медицина)','700 Kč/год'],['Усний переклад на зустрічах особисто','1 000 Kč/год']]
+      }
+    },
+    {
+      id:'HEMA',
+      icon:'⚔️',
+      title:{ru:'Персональное фехтование & Стрельба из лука', en:'Personal Fencing & Archery', cs:'Osobní šerm & Lukostřelba', uk:'Персональне фехтування & Стрільба з лука'},
+      subjects:{ru:'Индивидуальные занятия вне клуба. Групповые тренировки Дружины — см. вкладку Дружина.', en:'Individual sessions outside the club. Group Druzhina training — see Druzhina tab.', cs:'Individuální sezení mimo klub. Skupinové tréninky Družiny — viz záložka Družina.', uk:'Індивідуальні заняття поза клубом. Групові тренування Дружини — див. вкладку Дружина.'},
+      rows:{
+        ru:[['Персональное фехтование (1 час)','600 Kč'],['Групповое фехтование (1.5 ч/чел.)','400 Kč'],['Персональная стрельба из лука (1 час)','700 Kč'],['Групповая стрельба из лука (1 ч/чел.)','450 Kč']],
+        en:[['Personal fencing (1 hour)','600 Kč'],['Group fencing (1.5 hr/person)','400 Kč'],['Personal archery (1 hour)','700 Kč'],['Group archery (1 hr/person)','450 Kč']],
+        cs:[['Osobní šerm (1 hodina)','600 Kč'],['Skupinový šerm (1,5 hod/os.)','400 Kč'],['Osobní lukostřelba (1 hodina)','700 Kč'],['Skupinová lukostřelba (1 hod/os.)','450 Kč']],
+        uk:[['Персональне фехтування (1 година)','600 Kč'],['Групове фехтування (1.5 год/особа)','400 Kč'],['Персональна стрільба з лука (1 година)','700 Kč'],['Групова стрільба з лука (1 год/особа)','450 Kč']]
+      }
+    },
+    {
+      id:'COACH',
+      icon:'🧠',
+      title:{ru:'Лайф-коучинг', en:'Life Coaching', cs:'Life Coaching', uk:'Лайф-коучинг'},
+      subjects:{ru:'⚠️ Не является медицинской или психологической помощью. При наличии заболеваний необходим врач.', en:'⚠️ Not a medical or psychological service. A doctor is required for medical conditions.', cs:'⚠️ Nejde o lékařskou ani psychologickou pomoc. Při zdravotních potížích je nutný lékař.', uk:'⚠️ Не є медичною або психологічною допомогою. При захворюваннях необхідний лікар.'},
+      rows:{
+        ru:[['Сессия по изменению привычек (1 час)','600 Kč'],['Консультация для родителей (1 час)','700 Kč'],['Борьба с экранной/игровой зависимостью (4 сессии)','2 000 Kč'],['Ежемесячное ведение (еженедельные сессии)','3 500 Kč/мес.']],
+        en:[['Habit change session (1 hour)','600 Kč'],['Parent consultation (1 hour)','700 Kč'],['Screen/gaming addiction (4 sessions)','2,000 Kč'],['Monthly coaching (weekly sessions)','3,500 Kč/mo']],
+        cs:[['Sezení ke změně návyků (1 hodina)','600 Kč'],['Konzultace pro rodiče (1 hodina)','700 Kč'],['Závislost na obrazovce/hrách (4 sezení)','2 000 Kč'],['Měsíční vedení (týdenní sezení)','3 500 Kč/měs.']],
+        uk:[['Сесія зі зміни звичок (1 година)','600 Kč'],['Консультація для батьків (1 година)','700 Kč'],['Боротьба з екранною/ігровою залежністю (4 сесії)','2 000 Kč'],['Щомісячне ведення (щотижневі сесії)','3 500 Kč/міс.']]
+      }
+    },
+    {
+      id:'WEB',
+      icon:'💻',
+      title:{ru:'Веб-дизайн & Продвижение', en:'Web Design & Media', cs:'Webdesign & Propagace', uk:'Веб-дизайн & Просування'},
+      subjects:{ru:'Сайты, соцсети, контент, фотосъёмка.', en:'Websites, social media, content, photography.', cs:'Weby, sociální sítě, obsah, fotografie.', uk:'Сайти, соцмережі, контент, фотозйомка.'},
+      rows:{
+        ru:[['Одностраничный сайт-визитка','3 000 Kč'],['Многостраничный сайт (3–5 стр.)','6 000 Kč'],['Настройка соцсетей (FB + IG)','1 500 Kč'],['Создание контента (5 постов)','1 000 Kč'],['Бизнес-фотосессия (2 часа)','2 000 Kč'],['Пакет Starter (Сайт + Facebook)','3 500 Kč'],['Пакет Pro (Сайт + FB + IG + обучение)','5 500 Kč'],['Пакет VIP (Всё + фотосессия + поддержка)','8 000 Kč']],
+        en:[['Single-page website','3,000 Kč'],['Multi-page website (3–5 pages)','6,000 Kč'],['Social media setup (FB + IG)','1,500 Kč'],['Content creation (5 posts)','1,000 Kč'],['Business photoshoot (2 hours)','2,000 Kč'],['Starter pack (Website + Facebook)','3,500 Kč'],['Pro pack (Website + FB + IG + training)','5,500 Kč'],['VIP pack (Everything + photoshoot + support)','8,000 Kč']],
+        cs:[['Jednostránkový web-vizitka','3 000 Kč'],['Vícestránkový web (3–5 str.)','6 000 Kč'],['Nastavení soc. sítí (FB + IG)','1 500 Kč'],['Tvorba obsahu (5 příspěvků)','1 000 Kč'],['Firemní focení (2 hodiny)','2 000 Kč'],['Balíček Starter (Web + Facebook)','3 500 Kč'],['Balíček Pro (Web + FB + IG + školení)','5 500 Kč'],['Balíček VIP (Vše + focení + podpora)','8 000 Kč']],
+        uk:[['Односторінковий сайт-візитка','3 000 Kč'],['Багатосторінковий сайт (3–5 стор.)','6 000 Kč'],['Налаштування соцмереж (FB + IG)','1 500 Kč'],['Створення контенту (5 постів)','1 000 Kč'],['Бізнес-фотосесія (2 години)','2 000 Kč'],['Пакет Starter (Сайт + Facebook)','3 500 Kč'],['Пакет Pro (Сайт + FB + IG + навчання)','5 500 Kč'],['Пакет VIP (Все + фотосесія + підтримка)','8 000 Kč']]
+      }
+    },
+    {
+      id:'TREK',
+      icon:'🗺️',
+      title:{ru:'Авторские гид-туры', en:'Guided Tours', cs:'Autorské průvodcovské výlety', uk:'Авторські гід-тури'},
+      subjects:{ru:'Включено: гид, маршрут, карты, планирование. Не включено: транспорт, еда, билеты.', en:'Included: guide, route, maps, planning. Not included: transport, food, entry tickets.', cs:'Zahrnuto: průvodce, trasa, mapy, plánování. Nezahrnuto: doprava, jídlo, vstupenky.', uk:'Включено: гід, маршрут, карти, планування. Не включено: транспорт, їжа, квитки.'},
+      rows:{
+        ru:[['Индивидуальный тур (1 день)','от 3 000 Kč'],['Групповой тур (1 день, от 4 чел.)','от 1 500 Kč/чел.']],
+        en:[['Individual tour (1 day)','from 3,000 Kč'],['Group tour (1 day, 4+ people)','from 1,500 Kč/person']],
+        cs:[['Individuální výlet (1 den)','od 3 000 Kč'],['Skupinový výlet (1 den, 4+ os.)','od 1 500 Kč/os.']],
+        uk:[['Індивідуальний тур (1 день)','від 3 000 Kč'],['Груповий тур (1 день, від 4 осіб)','від 1 500 Kč/особа']]
+      }
+    }
+  ],
+
+  combos: {
+    title:{ru:'Комбо-пакеты', en:'Combo Packages', cs:'Kombinované balíčky', uk:'Комбо-пакети'},
+    note:{ru:'Срок действия всех пакетов — 6 месяцев с момента покупки.', en:'All packages valid for 6 months from purchase.', cs:'Platnost všech balíčků — 6 měsíců od zakoupení.', uk:'Термін дії всіх пакетів — 6 місяців з моменту купівлі.'},
+    items:[
+      {
+        id:'PKG-BASE', name:'Base',
+        desc:{ru:'5 онлайн-тренировок + консультация по питанию', en:'5 online training sessions + nutrition consultation', cs:'5 online tréninků + nutriční konzultace', uk:'5 онлайн-тренувань + консультація з харчування'},
+        price:'1 500 Kč', save:{ru:'−500 Kč', en:'−500 Kč', cs:'−500 Kč', uk:'−500 Kč'}
+      },
+      {
+        id:'PKG-PRO', name:'Pro',
+        desc:{ru:'10 тренировок (5+5) + план питания', en:'10 training sessions (5+5) + nutrition plan', cs:'10 tréninků (5+5) + plán výživy', uk:'10 тренувань (5+5) + план харчування'},
+        price:'4 000 Kč', save:{ru:'−1 750 Kč', en:'−1,750 Kč', cs:'−1 750 Kč', uk:'−1 750 Kč'}
+      },
+      {
+        id:'PKG-ALL', name:'All-in',
+        desc:{ru:'3-месячная трансформация + 1 мес. питания', en:'3-month body transformation + 1 month nutrition', cs:'3měsíční proměna + 1 měsíc výživy', uk:'3-місячна трансформація + 1 міс. харчування'},
+        price:'6 500 Kč', save:{ru:'−500 Kč', en:'−500 Kč', cs:'−500 Kč', uk:'−500 Kč'}
+      },
+      {
+        id:'PKG-EDU', name:'Education',
+        desc:{ru:'10 часов онлайн-обучения + учебные материалы', en:'10 hours online tutoring + study materials', cs:'10 hodin online výuky + studijní materiály', uk:'10 годин онлайн-навчання + навчальні матеріали'},
+        price:'3 000 Kč', save:{ru:'−1 000 Kč', en:'−1,000 Kč', cs:'−1 000 Kč', uk:'−1 000 Kč'}
+      },
+      {
+        id:'PKG-WAR', name:'Warrior',
+        desc:{ru:'10 фитнес-тренировок + 4 фехтования + 1 поход', en:'10 fitness sessions + 4 fencing + 1 day hike', cs:'10 fitness tréninků + 4 šermy + 1 túra', uk:'10 фітнес-тренувань + 4 фехтування + 1 похід'},
+        price:'4 000 Kč', save:{ru:'−1 300 Kč', en:'−1,300 Kč', cs:'−1 300 Kč', uk:'−1 300 Kč'}
+      }
+    ]
+  },
+
+  loyalty: {
+    title:{ru:'Программа лояльности', en:'Loyalty Programme', cs:'Věrnostní program', uk:'Програма лояльності'},
+    items:{
+      ru:[
+        ['Первая сессия (любая категория)','Скидка 100 Kč'],
+        ['Постоянные клиенты (3+ сессии без нарушений)','Оплата после занятия'],
+        ['Накопленные покупки от 20 000 Kč','Скидка 5% навсегда'],
+        ['Накопленные покупки от 50 000 Kč','Скидка 10% навсегда'],
+        ['Пожизненный статус (начали до 10.02.2026)','Постоянная скидка 10%'],
+        ['Реферал: приведи друга','Другу −10% на первую услугу, вам −10% на следующую']
+      ],
+      en:[
+        ['First session (any category)','100 Kč discount'],
+        ['Regular clients (3+ sessions, no violations)','Pay after the session'],
+        ['Cumulative purchases from 20,000 Kč','5% discount forever'],
+        ['Cumulative purchases from 50,000 Kč','10% discount forever'],
+        ['Lifetime status (started before 10.02.2026)','Permanent 10% discount'],
+        ['Referral: bring a friend','Friend gets −10% on first service, you get −10% on next']
+      ],
+      cs:[
+        ['První sezení (jakákoli kategorie)','Sleva 100 Kč'],
+        ['Stálí klienti (3+ sezení bez porušení)','Platba po sezení'],
+        ['Kumulativní nákupy od 20 000 Kč','Sleva 5 % navždy'],
+        ['Kumulativní nákupy od 50 000 Kč','Sleva 10 % navždy'],
+        ['Doživotní status (začali před 10.02.2026)','Trvalá sleva 10 %'],
+        ['Doporučení: přiveď přítele','Příteli −10 % na první službu, vám −10 % na další']
+      ],
+      uk:[
+        ['Перша сесія (будь-яка категорія)','Знижка 100 Kč'],
+        ['Постійні клієнти (3+ сесії без порушень)','Оплата після заняття'],
+        ['Накопичені покупки від 20 000 Kč','Знижка 5% назавжди'],
+        ['Накопичені покупки від 50 000 Kč','Знижка 10% назавжди'],
+        ['Довічний статус (почали до 10.02.2026)','Постійна знижка 10%'],
+        ['Реферал: приведи друга','Другу −10% на першу послугу, вам −10% на наступну']
+      ]
+    }
+  },
+
+  payment: {
+    title:{ru:'Оплата', en:'Payment', cs:'Platba', uk:'Оплата'},
+    items:{
+      ru:[['💳 Revolut (основной способ)','<a href="https://revolut.me/aliaksj5pq" target="_blank" rel="noopener">revolut.me/aliaksj5pq</a> — оплата сразу закрепляет время'],['Новые клиенты','Предоплата 50% онлайн или 100% офлайн'],['Постоянные клиенты','Оплата после занятия'],['Банковский перевод / Наличные','По запросу']],
+      en:[['💳 Revolut (main method)','<a href="https://revolut.me/aliaksj5pq" target="_blank" rel="noopener">revolut.me/aliaksj5pq</a> — payment locks in your slot'],['New clients','50% prepayment online or 100% in-person'],['Regular clients','Pay after the session'],['Bank transfer / Cash','On request']],
+      cs:[['💳 Revolut (hlavní způsob)','<a href="https://revolut.me/aliaksj5pq" target="_blank" rel="noopener">revolut.me/aliaksj5pq</a> — platba hned rezervuje čas'],['Noví klienti','Záloha 50 % online nebo 100 % osobně'],['Stálí klienti','Platba po sezení'],['Bankovní převod / Hotovost','Na požádání']],
+      uk:[['💳 Revolut (основний спосіб)','<a href="https://revolut.me/aliaksj5pq" target="_blank" rel="noopener">revolut.me/aliaksj5pq</a> — оплата одразу закріплює час'],['Нові клієнти','Передоплата 50% онлайн або 100% офлайн'],['Постійні клієнти','Оплата після заняття'],['Банківський переказ / Готівка','За запитом']]
+    }
+  },
+
+  gearRental: {
+    title:{ru:'Аренда снаряжения (Брноходцы)', en:'Gear Rental (BrnoWalkers)', cs:'Půjčovna vybavení (BrnoWalkers)', uk:'Оренда спорядження (Брнохідці)'},
+    note:{ru:'Активным членам клуба — скидка 50%. Бронирование: t.me/chareshneu', en:'Active club members — 50% discount. Booking: t.me/chareshneu', cs:'Aktivním členům klubu — sleva 50 %. Rezervace: t.me/chareshneu', uk:'Активним членам клубу — знижка 50%. Бронювання: t.me/chareshneu'},
+    rows:{
+      ru:[['Лыжи','100 Kč/день'],['Альпинистские верёвки','100 Kč/день'],['Ботинки / Шлем','50 Kč/день за позицию'],['Котелки','50 Kč/день'],['Термос','30 Kč/день']],
+      en:[['Skis','100 Kč/day'],['Climbing ropes','100 Kč/day'],['Boots / Helmet','50 Kč/day per item'],['Cooking pots','50 Kč/day'],['Thermos','30 Kč/day']],
+      cs:[['Lyže','100 Kč/den'],['Horolezecká lana','100 Kč/den'],['Boty / Helma','50 Kč/den za kus'],['Kotlíky','50 Kč/den'],['Termoska','30 Kč/den']],
+      uk:[['Лижі','100 Kč/день'],['Альпіністські мотузки','100 Kč/день'],['Черевики / Шолом','50 Kč/день за позицію'],['Казанки','50 Kč/день'],['Термос','30 Kč/день']]
+    }
+  }
+};
+
+function renderPricing(lang) {
+  const d = PRICING;
+
+  // Category tables
+  const cats = d.categories.map(cat => `
+    <div class="price-cat" id="price-${cat.id.toLowerCase()}">
+      <h3 class="price-cat-title">${cat.icon} ${cat.title[lang]}</h3>
+      ${cat.id === 'EDU'
+        ? renderAcademySubjects(lang)
+        : `<p class="price-cat-sub">${cat.subjects[lang]}</p>`}
+      ${renderTable(['',''], cat.rows[lang])}
+    </div>`).join('');
+
+  // Combo cards
+  const combos = d.combos.items.map(pkg => `
+    <div class="combo-card">
+      <div class="combo-id">${pkg.id}</div>
+      <div class="combo-name">${pkg.name}</div>
+      <div class="combo-desc">${pkg.desc[lang]}</div>
+      <div class="combo-price">${pkg.price}</div>
+      <div class="combo-save">${pkg.save[lang]}</div>
+    </div>`).join('');
+
+  return `
+  <section id="pricing">
+    <div class="wrap">
+      <div class="eyebrow-sm">${d.eyebrow[lang]}</div>
+      <h2 class="anchor-heading">${d.title[lang]}<a class="anchor-link" href="#pricing">#</a></h2>
+      <p class="price-global-note">${d.globalNote[lang]}</p>
+
+      <div class="price-cats">${cats}</div>
+
+      <h3 class="anchor-heading price-section-h" id="pricing-combos">${d.combos.title[lang]}<a class="anchor-link" href="#pricing-combos">#</a></h3>
+      <p class="price-cat-sub">${d.combos.note[lang]}</p>
+      <div class="combo-grid">${combos}</div>
+
+      <h3 class="anchor-heading price-section-h" id="pricing-loyalty">${d.loyalty.title[lang]}<a class="anchor-link" href="#pricing-loyalty">#</a></h3>
+      ${renderTable(['',''], d.loyalty.items[lang])}
+
+      <h3 class="anchor-heading price-section-h" id="pricing-gear">${d.gearRental.title[lang]}<a class="anchor-link" href="#pricing-gear">#</a></h3>
+      <p class="price-cat-sub">${d.gearRental.note[lang]}</p>
+      ${renderTable(['',''], d.gearRental.rows[lang])}
+
+      <h3 class="anchor-heading price-section-h" id="pricing-cancel">${d.cancelPolicy.title[lang]}<a class="anchor-link" href="#pricing-cancel">#</a></h3>
+      ${renderTable(['',''], d.cancelPolicy.rows[lang])}
+
+      <h3 class="anchor-heading price-section-h" id="pricing-payment">${d.payment.title[lang]}<a class="anchor-link" href="#pricing-payment">#</a></h3>
+      ${renderTable(['',''], d.payment.items[lang])}
+
+      <div style="margin-top:24px; text-align:center;">
+        <a class="btn solid" href="${REGISTER_FORM}" target="_blank" rel="noopener">${lang==='ru'?'Записаться':lang==='uk'?'Записатись':lang==='cs'?'Přihlásit se':'Register'}</a>
+      </div>
+    </div>
+  </section>`;
+}
+
+const GOOGLE_REVIEWS_LINK = 'https://maps.app.goo.gl/fEbnJHxiVoAx1v498';
+
+const UPCOMING_SECTION_UI = {
+  eyebrow: {ru:'Ближайшие события', en:'Upcoming Events', cs:'Nejbližší akce', uk:'Найближчі події'},
+  title:   {ru:'Запишись прямо сейчас', en:'Register right now', cs:'Přihlas se hned teď', uk:'Запишись прямо зараз'},
+  subtitle:{
+    ru:'События, на которые можно записаться сегодня. Места ограничены — чем раньше пишешь, тем выше шанс попасть.',
+    en:'Events you can register for today. Spots are limited — the earlier you message, the better your chance.',
+    cs:'Akce, na které se můžeš přihlásit ještě dnes. Míst je omezený počet — čím dřív napíšeš, tím vyšší šance.',
+    uk:'Події, на які можна записатись сьогодні. Місць обмаль — чим раніше пишеш, тим вищий шанс потрапити.'
+  }
+};
+
+// Картинка по умолчанию для категории события — это знание о файлах сайта,
+// поэтому живёт здесь, а не в Apps Script (который ничего не знает о images/).
+const CATEGORY_IMAGE = {
+  'City Walk':        'images/walkers_group.jpg',
+  'Hike':             'images/walkers_cave.jpg',
+  'Cave Tour':        'images/portrait_cave.jpg',
+  'HEMA Training':    'images/druzina_train.jpg',
+  'LARP Battle':      'images/druzina_larp.jpg',
+  'Board Games':      'images/boardgames.jpg',
+  'Crafting':         'images/druzina_larp.jpg',
+  "Children's Quest": 'images/druzina_larp.jpg',
+  'Corporate':        'images/walkers_group.jpg',
+  'Free Event':       'images/main_hero.png',
+};
+const DEFAULT_EVENT_IMAGE = 'images/main_hero.png';
+
+const COMMUNITY_TAG = {
+  'Brnowalkers': {ru:'🥾 Брноходцы', en:'🥾 BrnoWalkers', cs:'🥾 BrnoWalkers', uk:'🥾 Брнохідці'},
+  'Družina Moravy': {ru:'⚔️ Дружина', en:'⚔️ Družina', cs:'⚔️ Družina', uk:'⚔️ Дружина'},
+  'Shared': {ru:'🤝 Совместно', en:'🤝 Joint event', cs:'🤝 Společná akce', uk:'🤝 Спільно'}
+};
+
+function formatEventDate(iso, lang) {
+  const localeMap = {ru:'ru-RU', en:'en-GB', cs:'cs-CZ', uk:'uk-UA'};
+  try {
+    return new Intl.DateTimeFormat(localeMap[lang] || 'en-GB', {
+      weekday:'short', day:'numeric', month:'long',
+      timeZone: 'Europe/Prague' // даты событий всегда в Праге, независимо от timezone браузера
+    }).format(new Date(iso));
+  } catch (e) { return iso; }
+}
+
+function renderUpcomingEvents(lang) {
+  const d = UPCOMING_SECTION_UI;
+  const regLabel = {ru:'Зарегистрироваться', en:'Register', cs:'Zaregistrovat se', uk:'Зареєструватися'};
+  const loadingText = {ru:'Загружаем ближайшие события…', en:'Loading upcoming events…', cs:'Načítáme nejbližší akce…', uk:'Завантажуємо найближчі події…'};
+  const emptyText = {ru:'Сейчас нет открытой регистрации — следи за Telegram-каналом или напиши напрямую.', en:'No open registrations right now — watch the Telegram channel or message directly.', cs:'Momentálně není otevřená žádná registrace — sleduj Telegram kanál nebo napiš přímo.', uk:'Зараз немає відкритої реєстрації — стеж за Telegram-каналом або напиши напряму.'};
+
+  let body;
+  if (LIVE_EVENTS === null) {
+    body = `<div class="events-status">${loadingText[lang]}</div>`;
+  } else if (LIVE_EVENTS.length === 0) {
+    body = `<div class="events-status">${emptyText[lang]}</div>`;
+  } else {
+    const cards = LIVE_EVENTS.map(ev => {
+      const img = ev.imageOverride ? `images/${ev.imageOverride}` : (CATEGORY_IMAGE[ev.category] || DEFAULT_EVENT_IMAGE);
+      const tag = (COMMUNITY_TAG[ev.community] || COMMUNITY_TAG['Shared'])[lang];
+      const dateStr = formatEventDate(ev.startISO, lang);
+      const freeLabel = {ru:'🆓 Бесплатно', en:'🆓 Free entry', cs:'🆓 Vstup zdarma', uk:'🆓 Безкоштовно'};
+      const donationLabel = {ru:'🤝 Добровольный взнос', en:'🤝 Voluntary contribution', cs:'🤝 Dobrovolný příspěvek', uk:'🤝 Добровільний внесок'};
+      const priceBlock = ev.category === 'Board Games'
+        ? `<span class="eu-price donation">${donationLabel[lang]}${ev.priceCzk > 0 ? ' (~' + ev.priceCzk + ' Kč)' : ''}</span>`
+        : ev.isFree
+        ? `<span class="eu-price free">${freeLabel[lang]}</span>`
+        : `<span class="eu-price">${ev.priceCzk} Kč</span>`;
+      return `
+      <div class="event-upcoming-card">
+        <div class="eu-img"><img src="${img}" alt="${ev.title}" loading="lazy"></div>
+        <div class="eu-body">
+          <div class="eu-tag">${tag}</div>
+          <div class="eu-date">${dateStr}</div>
+          <h3 class="eu-title">${ev.title}</h3>
+          <p class="eu-desc">${ev.description}</p>
+          <div class="eu-price-row">
+            ${priceBlock}
+            ${ev.locationName ? `<span class="eu-price-note">${ev.locationName}</span>` : ''}
+          </div>
+          <div class="eu-ctas">
+            <a class="btn solid" href="${ev.registerUrl}" target="_blank" rel="noopener">${regLabel[lang]}</a>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+    body = `<div class="upcoming-grid">${cards}</div>`;
+  }
+
+  return `
+  <section id="upcoming-events">
+    <div class="wrap">
+      <div class="eyebrow-sm">${d.eyebrow[lang]}</div>
+      <h2 class="anchor-heading">${d.title[lang]}<a class="anchor-link" href="#upcoming-events">#</a></h2>
+      <p class="lead">${d.subtitle[lang]}</p>
+      ${body}
+    </div>
+  </section>`;
+}
+
+const REVIEWS = {
+  eyebrow: {ru:'Отзывы', en:'Reviews', cs:'Recenze', uk:'Відгуки'},
+  title:   {ru:'Что говорят участники', en:'What participants say', cs:'Co říkají účastníci', uk:'Що кажуть учасники'},
+  ratingNote: {
+    ru:'30+ отзывов на Google Картах · 5.0 ★',
+    en:'30+ reviews on Google Maps · 5.0 ★',
+    cs:'30+ recenzí na Google Mapách · 5.0 ★',
+    uk:'30+ відгуків на Google Картах · 5.0 ★'
+  },
+  seeAll: {ru:'Все отзывы на Google →', en:'All reviews on Google →', cs:'Všechny recenze na Google →', uk:'Усі відгуки на Google →'},
+  items: [
+    {img:'images/reviews/review_viktoria.png',  author:'Виктория Михайлюк'},
+    {img:'images/reviews/review_elmusso.png',    author:'elmuSSo M'},
+    {img:'images/reviews/review_nejc.png',       author:'Nejc Trnovsek'},
+    {img:'images/reviews/review_samsung.png',    author:'Samsung Samsung'},
+    {img:'images/reviews/review_ekaterina.png',  author:'Екатерина Гринюк'},
+    {img:'images/reviews/review_olga.png',       author:'Ольга Оника'},
+  ]
+};
+
+function renderReviews(lang) {
+  const d = REVIEWS;
+  const cards = d.items.map(r => `
+    <a class="review-card" href="${GOOGLE_REVIEWS_LINK}" target="_blank" rel="noopener">
+      <img src="${r.img}" alt="Google review from ${r.author}" loading="lazy">
+    </a>`).join('');
+
+  return `
+  <section id="reviews">
+    <div class="wrap">
+      <div class="eyebrow-sm">${d.eyebrow[lang]}</div>
+      <h2 class="anchor-heading">${d.title[lang]}<a class="anchor-link" href="#reviews">#</a></h2>
+      <p class="review-rating-note">⭐ ${d.ratingNote[lang]}</p>
+      <div class="reviews-grid">${cards}</div>
+      <div style="text-align:center; margin-top:24px;">
+        <a class="btn solid" href="${GOOGLE_REVIEWS_LINK}" target="_blank" rel="noopener">${d.seeAll[lang]}</a>
+      </div>
+    </div>
+  </section>`;
 }
 
 const EVENT_TYPES = {
@@ -1720,6 +2422,9 @@ function renderFAQ(lang, faqKey) {
       <div class="eyebrow-sm">FAQ</div>
       <h2 class="anchor-heading">${FAQ_LABELS[lang]}<a class="anchor-link" href="#faq">#</a></h2>
       ${cats}
+      <div style="text-align:center; margin-top:28px;">
+        <a class="btn" href="${GOOGLE_REVIEWS_LINK}" target="_blank" rel="noopener">⭐ ${REVIEWS_BADGE_TEXT[lang]} →</a>
+      </div>
     </div>
   </section>`;
 }
@@ -1743,6 +2448,7 @@ function renderWalkersTab(lang, t) {
       <div class="eyebrow">${t.walkers.eyebrow}</div>
       <h1>${t.walkers.title}</h1>
       <p class="tagline">${t.walkers.tagline}</p>
+      <a href="${GOOGLE_REVIEWS_LINK}" target="_blank" rel="noopener" class="reviews-badge">⭐ ${REVIEWS_BADGE_TEXT[lang]}</a>
       <div class="hero-ctas">
         <a class="btn solid" href="${REGISTER_FORM}" target="_blank" rel="noopener">${registerLabel[lang]}</a>
         <a class="btn" href="${lnk.chat}" target="_blank" rel="noopener">${t.ui.joinChat}</a>
@@ -1750,6 +2456,13 @@ function renderWalkersTab(lang, t) {
       </div>
     </div>
   </section>
+
+  <div class="wrap" style="padding-top:0;">
+    <div class="portrait-block">
+      <img src="${IMG_PORTRAIT_CAVE}" alt="Aliaksei — your hiking guide" loading="lazy">
+      <p class="lead" style="margin:0;">${t.walkers.guideIntro}</p>
+    </div>
+  </div>
 
   <div class="wrap" style="padding-top:0;">
     <div class="hero-img"><img src="${IMG_WALKERS_CAVE}" alt="BrnoWalkers cave hike group photo" loading="lazy"></div>
@@ -1778,8 +2491,11 @@ function renderWalkersTab(lang, t) {
         <a class="btn solid" href="${REGISTER_FORM}" target="_blank" rel="noopener">${registerLabel[lang]}</a>
         <a class="btn" href="https://www.facebook.com/alexey.chereshnev.3/events" target="_blank" rel="noopener">${t.walkers.scheduleBtn}</a>
       </div>
-      <div style="margin-top:28px; padding:48px 24px; border:2px dashed var(--rule); border-radius:6px; text-align:center; color:var(--ink-dim); font-size:14px; letter-spacing:.06em; text-transform:uppercase;">
-        ${t.walkers.schedulePlaceholder}
+      <div class="calendar-embed-card">
+        <iframe
+          src="https://calendar.google.com/calendar/embed?src=2b87a4e595671b05f82867969757d6c8500733a05a7ebcc77a3c6102b1644757%40group.calendar.google.com&amp;ctz=Europe%2FPrague&amp;mode=AGENDA&amp;showTitle=0&amp;showNav=1&amp;showDate=1&amp;showPrint=0&amp;showTabs=0&amp;showCalendars=0&amp;showTz=0&amp;wkst=2"
+          style="border:0" width="100%" height="520" frameborder="0" scrolling="no" loading="lazy"
+          title="Brnowalkers & Družina Moravy schedule"></iframe>
       </div>
     </div>
   </section>
@@ -1893,6 +2609,7 @@ function renderDruzinaTab(lang, t) {
       <div class="eyebrow">Brno · HEMA · LARP</div>
       <h1>${t.ui.druzinaName}</h1>
       <p class="tagline">${t.ui.druzinaTagline}</p>
+      <a href="${GOOGLE_REVIEWS_LINK}" target="_blank" rel="noopener" class="reviews-badge">⭐ ${REVIEWS_BADGE_TEXT[lang]}</a>
       <div class="cord-strip">${cordColors.map(c=>`<span style="background:${c}"></span>`).join('')}</div>
       <div class="hero-ctas">
         <a class="btn solid" href="${REGISTER_FORM}" target="_blank" rel="noopener">${lang==='ru'?'Записаться на тренировку':lang==='uk'?'Записатись на тренування':lang==='cs'?'Přihlásit se na trénink':'Register for Training'}</a>
@@ -2025,10 +2742,30 @@ function render(lang){
 
   // Common footer with clickable elements including Email and Phone
   const registerLabelFooter = {ru:'Зарегистрироваться', en:'Register', cs:'Zaregistrovat se', uk:'Зареєструватися'};
+  const socialProof = {
+    ru:'Суммарная аудитория более 12 000 подписчиков: Facebook 6.5k · TikTok BrnoWalkers 1.3k · Instagram Druzhina 1.2k · Instagram BrnoWalkers 850 · TikTok Druzhina 1k',
+    en:'Combined audience of 12,000+ followers: Facebook 6.5k · TikTok BrnoWalkers 1.3k · Instagram Druzhina 1.2k · Instagram BrnoWalkers 850 · TikTok Druzhina 1k',
+    cs:'Celkové publikum přes 12 000 sledujících: Facebook 6,5k · TikTok BrnoWalkers 1,3k · Instagram Druzhina 1,2k · Instagram BrnoWalkers 850 · TikTok Druzhina 1k',
+    uk:'Сумарна аудиторія понад 12 000 підписників: Facebook 6.5k · TikTok BrnoWalkers 1.3k · Instagram Druzhina 1.2k · Instagram BrnoWalkers 850 · TikTok Druzhina 1k'
+  };
+  const firstMsgRule = {
+    ru:'📋 При первом обращении укажи: 1) услугу/направление 2) конкретную цель 3) предпочитаемые дни и время.',
+    en:'📋 First message must include: 1) service/subject 2) specific goal 3) preferred days and times.',
+    cs:'📋 První zpráva musí obsahovat: 1) službu/předmět 2) konkrétní cíl 3) preferované dny a čas.',
+    uk:'📋 При першому зверненні вкажи: 1) послугу/напрям 2) конкретну мету 3) бажані дні та час.'
+  };
+  const oneStrike = {
+    ru:'⚡ One Strike Rule: первое нарушение — предупреждение. Второе — постоянный бан (форс-мажор с доказательствами — исключение).',
+    en:'⚡ One Strike Rule: first violation — warning. Second — permanent ban (force majeure with proof — exception).',
+    cs:'⚡ One Strike Rule: první porušení — varování. Druhé — trvalý ban (vyšší moc s důkazy — výjimka).',
+    uk:'⚡ One Strike Rule: перше порушення — попередження. Друге — постійний бан (форс-мажор з доказами — виняток).'
+  };
   htmlContent += `
   <footer>
     <div class="wrap">
       <h2>${t.footer.h}</h2>
+      <p style="font-size:13px;color:var(--ink-faint);margin-bottom:6px;">${firstMsgRule[lang]}</p>
+      <p style="font-size:13px;color:var(--ink-faint);margin-bottom:20px;">${oneStrike[lang]}</p>
       <div class="footer-contacts">
         <a class="btn solid" href="${REGISTER_FORM}" target="_blank" rel="noopener">${registerLabelFooter[lang]}</a>
         <a class="btn" href="${PERSONAL_WA}" target="_blank" rel="noopener">WhatsApp</a>
@@ -2036,7 +2773,16 @@ function render(lang){
         <a class="btn" href="mailto:chereshnev.biochem@gmail.com">Email</a>
         <a class="btn" href="tel:+420702914842">+420 702 914 842</a>
       </div>
-      <div class="free-note">${t.footer.free}</div>
+      <div style="margin-top:16px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+        <a href="${GOOGLE_REVIEWS_LINK}" target="_blank" rel="noopener" style="font-size:13px;color:var(--r5);font-weight:600;">⭐ Google Reviews</a>
+        <a href="https://www.facebook.com/alexey.chereshnev.3" target="_blank" rel="noopener" style="font-size:13px;color:var(--ink-faint);">Facebook</a>
+        <a href="https://www.instagram.com/druzhina_moravy/" target="_blank" rel="noopener" style="font-size:13px;color:var(--ink-faint);">Instagram Druzhina</a>
+        <a href="https://www.instagram.com/brnowalkers/" target="_blank" rel="noopener" style="font-size:13px;color:var(--ink-faint);">Instagram BrnoWalkers</a>
+        <a href="https://t.me/pochody_brno_news" target="_blank" rel="noopener" style="font-size:13px;color:var(--ink-faint);">TG BrnoWalkers</a>
+        <a href="https://t.me/druzinamoravy_news" target="_blank" rel="noopener" style="font-size:13px;color:var(--ink-faint);">TG Druzhina</a>
+      </div>
+      <div class="free-note" style="margin-top:16px;">${t.footer.free}</div>
+      <div style="margin-top:12px;font-size:12px;color:var(--ink-faint);text-align:center;">${socialProof[lang]}</div>
       <div class="footer-fine">Aliaksei Chareshneu, PhD | Алексей Черешнев, доктор наук · Брно, Чехия · OSVČ IČO: 23041625</div>
     </div>
   </footer>`;
@@ -2090,6 +2836,40 @@ if(initHash.section) {
     if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
   }, 120);
 }
+
+// Тот же /exec URL, что и для приёма вебхука Tally (см. Шаг 8 гайда) —
+// один Web App, doGet() отдаёт публичные данные о событиях, doPost() принимает регистрации.
+// Используем JSONP (<script src=...>), а не fetch(), потому что Apps Script Web App
+// отвечает внутренним редиректом на script.googleusercontent.com, и CORS-заголовок
+// не всегда переживает этот редирект. JSONP не подчиняется CORS в принципе.
+const EVENTS_API_URL = 'ВСТАВЬ_СЮДА_URL_ВЕБ_ПРИЛОЖЕНИЯ/exec';
+
+(function loadEvents() {
+  var cbName = '_evCb_' + Date.now();
+  var timeout = setTimeout(function () {
+    // Если скрипт не ответил за 8 секунд — показываем состояние "пусто", не вешаем страницу
+    window[cbName] = null;
+    LIVE_EVENTS = [];
+    render(currentLang);
+  }, 8000);
+
+  window[cbName] = function (data) {
+    clearTimeout(timeout);
+    window[cbName] = null;
+    LIVE_EVENTS = Array.isArray(data && data.events) ? data.events : [];
+    render(currentLang);
+  };
+
+  var s = document.createElement('script');
+  s.src = EVENTS_API_URL + '?callback=' + cbName;
+  s.onerror = function () {
+    clearTimeout(timeout);
+    window[cbName] = null;
+    LIVE_EVENTS = [];
+    render(currentLang);
+  };
+  document.head.appendChild(s);
+})();
 </script>
 </body>
 </html>

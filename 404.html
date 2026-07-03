@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Страница не найдена · Aliaksei Chareshneu</title>
+<meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=Spectral:wght=600;700&family=Source+Sans+3:wght=400;600&family=JetBrains+Mono:wght=500;700&display=swap" rel="stylesheet">
+<script>
+  // Preserve any hash/path the user tried to hit, then redirect into the SPA router.
+  // GitHub Pages serves this file for any unknown path under the project.
+  var target = '/alchareshneu/';
+  var hash = window.location.hash;
+  window.location.replace(target + (hash || '#main'));
+</script>
+<style>
+  :root{
+    --bg:#16171a; --bg-card:#212328; --ink:#ece7d8; --ink-dim:#9b968b; --rule:#34373d; --r5:#c9a227;
+    --font-d:'Spectral',serif; --font-b:'Source Sans 3',sans-serif; --font-m:'JetBrains Mono',monospace;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
+    background:var(--bg); color:var(--ink); font-family:var(--font-b); text-align:center; padding:24px;
+  }
+  .card{max-width:440px;}
+  .code{font-family:var(--font-m); font-size:13px; letter-spacing:.2em; color:var(--r5); margin-bottom:18px;}
+  h1{font-family:var(--font-d); font-size:clamp(32px,8vw,46px); margin:0 0 14px;}
+  p{color:var(--ink-dim); font-size:16px; line-height:1.6; margin:0 0 28px;}
+  a.btn{
+    display:inline-block; font-family:var(--font-b); font-weight:600; font-size:14px;
+    padding:13px 24px; border-radius:4px; background:var(--r5); color:#16171a; text-decoration:none;
+  }
+  noscript p{margin-top:18px;}
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="code">404 · СТРАНИЦА НЕ НАЙДЕНА</div>
+    <h1>⚔️ Карта не туда привела</h1>
+    <p>Перенаправляем тебя на главную страницу автоматически…</p>
+    <a class="btn" href="/alchareshneu/#main">Перейти на главную</a>
+    <noscript><p>JavaScript отключён — нажми на кнопку выше, чтобы продолжить.</p></noscript>
+  </div>
+</body>
+</html>
