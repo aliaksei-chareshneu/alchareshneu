@@ -166,6 +166,22 @@
   }
   .reviews-badge:hover{border-color:var(--r5);text-decoration:none;}
 
+  .contacts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-top:8px;}
+  .contacts-section{
+    grid-column:1/-1;font-family:var(--font-m);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--r5);margin:18px 0 2px;padding-top:14px;border-top:1px solid var(--rule);
+  }
+  .contacts-section:first-child{margin-top:0;padding-top:0;border-top:none;}
+  .contact-card{
+    display:flex;align-items:flex-start;gap:12px;padding:14px 16px;border-radius:6px;
+    border:1px solid var(--rule);background:var(--bg-card);text-decoration:none;transition:border-color .15s;
+  }
+  .contact-card:hover{border-color:var(--r5);text-decoration:none;}
+  .contact-card-icon{flex:0 0 auto;color:var(--r5);margin-top:1px;}
+  .contact-card-body{display:flex;flex-direction:column;gap:2px;min-width:0;}
+  .contact-card-label{font-size:14px;font-weight:600;color:var(--ink);}
+  .contact-card-desc{font-size:12.5px;color:var(--ink-dim);word-break:break-word;}
+
   /* GENERIC */
   .eyebrow-sm{font-family:var(--font-m);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:10px;}
   h2{font-size:26px;}
@@ -619,7 +635,7 @@ ru:{
     matrixIntro:'Мы построили экосистему так, чтобы вход был доступен абсолютно любому человеку (есть бесплатные уровни), но при этом существовали глубокие премиум-форматы для индивидуальной прокачки.',
     headers:['Направление','Доступный / Бесплатный уровень','Регулярный / Премиум уровень'],
     rows:[
-      ['Физическая активность (Спорт & Туризм)','<strong>Брноходцы:</strong> Походы выходного дня, скалы, замки Моравии (платно, цена в анонсе)<br><br><strong>Дружина Моравы:</strong> Первая ознакомительная тренировка (0 Kč)','<strong>Дружина Моравы:</strong> Регулярные тренировки HEMA/LARP (100–200 Kč за сессию или Berserk Pass)<br><br><strong>Moravian Squad:</strong> Спорт и выезды для детей 5–15 лет'],
+      ['Физическая активность (Спорт & Туризм)','<strong>Брноходцы:</strong> Походы выходного дня, скалы, замки Моравии (платно, цена в анонсе)<br><br><strong>Дружина Моравы:</strong> Первая ознакомительная тренировка (0 Kč)','<strong>Дружина Моравы:</strong> Регулярные тренировки HEMA/LARP (100–200 Kč разово или абонемент от 350 Kč/мес)<br><br><strong>Moravian Squad:</strong> Спорт и выезды для детей 5–15 лет'],
       ['Интеллектуальная активность (Разум & Дисциплины)','Исторические лекции, разборы LARP-лора, тактические брифинги внутри клубов','<strong>Групповые лекции:</strong> Тематические лекции и семинары по истории, HEMA, естественным наукам для малых групп.<br><br><strong>Репетиторство премиум-класса:</strong> Индивидуальные занятия один на один по полному диапазону школьных и нешкольных предметов (Биохимия, Молекулярная биология, программирование на Python, ОС UNIX, Английский, Чешский, Русский (родной) и Белорусский (родной) языки, Ораторское мастерство, Музыка: гитара, пианино, вокал)'],
       ['Индивидуальный подход','Открытые консультации по подбору снаряжения, базовый онбординг новичков','Персональные тренировки по фехтованию и стрельбе из лука (от 400 Kč)<br><br>Индивидуальное изготовление и ремонт оружия/доспехов на заказ (LARP & HEMA снаряжение)']
     ],
@@ -669,13 +685,16 @@ ru:{
     headers:['Параметр','Младшая дружина','Старшая дружина'],
     rows:[
       ['Кто','Разовые гости, нерегулярные','Те, кто ходит регулярно'],
-      ['Оплата','200 Kč / сессия','100 Kč / сессия или Berserk Pass'],
+      ['Оплата (разово)','200 Kč / сессия','100 Kč / сессия'],
       ['Условие','Минимум 1 сессия в месяц','4+ сессии каждый месяц'],
-      ['Berserk Pass','—','2 500 Kč — годовой пропуск на 48 сессий (~52 Kč/сессия), только для Старшей дружины'],
+      ['Абонемент Стандарт (до 4 трен./мес)','700 Kč','350 Kč'],
+      ['Абонемент Безлимит (от 3 трен./нед)','2 000 Kč','1 000 Kč'],
+      ['Абонемент на 3 месяца (90 дней)','6 000 Kč','3 000 Kč'],
     ],
+    subsNote:'Абонементы включают бесплатную аренду оружия (мечи, топоры, копья, луки). Доспехи (кираса, шлем) — аренда отдельно. Действуют 30 дней с оплаты (квартальный — 90 дней), возврат только до активации. Первому, кто оформит квартальный абонемент в текущем цикле — авторское оружие ручной работы в подарок.',
     rollbackB:'Старшая дружина — статус, который подтверждается каждый месяц, не разовый порог.',
     rollback:'Если регулярность 4+ сессий в месяц не сохраняется, участник автоматически возвращается в Младшую дружину и тариф 200 Kč/сессия — до тех пор, пока темп не восстановится. Ранг при этом не сбрасывается: он считает накопленный путь и не уменьшается.',
-    free:'Первая тренировка — бесплатно, чтобы познакомиться с клубом. Перед ней мы всегда спросим: планируешь заниматься дальше на регулярной основе (100–200 Kč/сессия или Berserk Pass), или это разовая проба ради интереса? Это не проверка — так тренер сразу выбирает правильный формат занятия, и никто не тратит время впустую.'
+    free:'Первая тренировка — бесплатно, чтобы познакомиться с клубом. Перед ней мы всегда спросим: планируешь заниматься дальше на регулярной основе (абонемент от 350 Kč/мес или 100–200 Kč за разовое посещение), или это разовая проба ради интереса? Это не проверка — так тренер сразу выбирает правильный формат занятия, и никто не тратит время впустую.'
   },
   ranks:{
     eyebrow:'III · Ранг', h:'Путь участника',
@@ -717,7 +736,7 @@ ru:{
     conductH:'Поведение', conduct:['Без экстремизма — немедленное исключение.','Уважение к участникам, снаряжению, месту.','Кодекс чести — честное признание попаданий.','Конфликты решаются через главного тренера, не публично.','Алкоголь и наркотики строго запрещены.'],
     safetyH:'Безопасность', safety:['Право отказаться от боя — без объяснений.','Проверка снаряжения обязательна перед использованием.','Новички проходят инструктаж перед первым боем.','Дети — с 7 лет, письменное согласие родителей.'],
     liabH:'Ответственность', liabB:'Страхование клубом не предоставляется.', liab:'Все тренировки, спарринги и выезды участники проходят на собственную ответственность.',
-    payH:'Оплата', pay:['Регистрация и оплата — не позднее чем за 48 часов до начала тренировки, через Revolut: revolut.me/aliaksj5pq.','Оплата позже 48 часов или в день тренировки — штраф 25% от стоимости сессии.','Нужно взять/арендовать снаряжение клуба (оружие, доспехи) — сообщи об этом не позднее чем за 48 часов до тренировки, как и с оплатой. Позже — тот же штраф 25% от стоимости сессии.','Неоплаченный штраф — недопуск на следующую тренировку до погашения.','Тренировка состоится только при наличии хотя бы одного участника с оплаченной сессией, действующим Berserk Pass или записавшегося на первую бесплатную тренировку. Если таких нет — тренировка отменяется.'],
+    payH:'Оплата', pay:['Регистрация и оплата — не позднее чем за 48 часов до начала тренировки, через Revolut: revolut.me/aliaksj5pq.','Оплата позже 48 часов или в день тренировки — штраф 25% от стоимости сессии.','Нужно взять/арендовать снаряжение клуба (оружие, доспехи) — сообщи об этом не позднее чем за 48 часов до тренировки, как и с оплатой. Позже — тот же штраф 25% от стоимости сессии.','Неоплаченный штраф — недопуск на следующую тренировку до погашения.','Тренировка состоится только при наличии хотя бы одного участника с оплаченной сессией, действующим абонементом или записавшегося на первую бесплатную тренировку. Если таких нет — тренировка отменяется.'],
     discH:'Дисциплина', discHeaders:['Нарушение','Последствие'],
     disc:[['1-е нарушение','Страйк (письменное предупреждение)'],['2-е нарушение','Исключение (восстановление через 3 мес.)'],['Повторное','Финальное исключение'],['Грубое','Немедленное исключение']]
   },
@@ -726,7 +745,7 @@ ru:{
     venue:'База: Dukelská třída 157/44, Brno. Тренировки на улице. Длительность: 1 час 30 минут. По прибытии — звонить тренеру.',
     headers:['День','Время','Формат'],
     rows:[['Понедельник','18:00','Тренировка'],['Четверг','18:00','Тренировка'],['Суббота','18:00','Тренировка']],
-    larp:'LARP — отдельно от расписания. Проводится нерегулярно, анонсируется в Telegram и WhatsApp. Тренировка не проводится, если ни один участник не зарегистрировался (оплата, первая бесплатная или Berserk Pass).'
+    larp:'LARP — отдельно от расписания. Проводится нерегулярно, анонсируется в Telegram и WhatsApp. Тренировка не проводится, если ни один участник не зарегистрировался (оплата, первая бесплатная или действующий абонемент).'
   },
   onboarding:{
     eyebrow:'VII · Онбординг новичка', h:'Первый раз здесь',
@@ -826,7 +845,7 @@ en:{
     matrixIntro:'We designed our ecosystem to be accessible to absolutely everyone (featuring free tiers), while offering top-end premium formats for targeted individual growth.',
     headers:['Direction','Accessible / Free Level','Regular / Premium Level'],
     rows:[
-      ['Physical Activity (Sport & Tourism)','<strong>BrnoWalkers:</strong> Weekend hikes, cliffs, castles of Moravia (paid, price per event)<br><br><strong>Druzhina Moravy:</strong> First introductory session (0 Kč)','<strong>Druzhina Moravy:</strong> Regular HEMA/LARP training (100–200 Kč per session or Berserk Pass)<br><br><strong>Moravian Squad:</strong> Sports and trips for children aged 5–15'],
+      ['Physical Activity (Sport & Tourism)','<strong>BrnoWalkers:</strong> Weekend hikes, cliffs, castles of Moravia (paid, price per event)<br><br><strong>Druzhina Moravy:</strong> First introductory session (0 Kč)','<strong>Druzhina Moravy:</strong> Regular HEMA/LARP training (100–200 Kč per visit or a subscription from 350 Kč/month)<br><br><strong>Moravian Squad:</strong> Sports and trips for children aged 5–15'],
       ['Intellectual Activity (Mind & Subjects)','Historical lectures, LARP lore breakdowns, tactical briefings before club battles','<strong>Group Lectures:</strong> Themed lectures and seminars on history, HEMA, and natural sciences for small groups.<br><br><strong>Premium Tutoring:</strong> One-on-one tailored mentoring in Biochem, Molecular biology, Python programming, UNIX OS, English, Czech, native-level Russian and Belarusian, Public speaking, and Music (guitar, piano, vocals)'],
       ['Individual Focus','Open gear consultations, basic onboarding for newcomers','Private fencing/combat lessons (from 400 Kč)<br><br>Custom HEMA/LARP gear crafting and repairs']
     ],
@@ -876,13 +895,16 @@ en:{
     headers:['Parameter','Junior tier','Senior tier'],
     rows:[
       ['Who','Occasional, irregular guests','Those training regularly'],
-      ['Payment','200 Kč / session','100 Kč / session or the Berserk Pass'],
+      ['Payment (single visit)','200 Kč / session','100 Kč / session'],
       ['Condition','At least 1 session a month','4+ sessions every month'],
-      ['Berserk Pass','—','2,500 Kč — a year-long pass for 48 sessions (~52 Kč/session), Senior tier only'],
+      ['Standard subscription (up to 4/month)','700 Kč','350 Kč'],
+      ['Unlimited subscription (3+/week)','2,000 Kč','1,000 Kč'],
+      ['3-month subscription (90 days)','6,000 Kč','3,000 Kč'],
     ],
+    subsNote:'Subscriptions include free weapon rental (swords, axes, spears, bows). Armour (cuirass, helmet) rents separately. Valid 30 days from payment (quarterly — 90 days), refund only before activation. First person to buy the quarterly subscription in the current cycle gets a handmade weapon as a gift.',
     rollbackB:'Senior tier is a status you reconfirm every month, not a one-time threshold.',
     rollback:'If you stop keeping up 4+ sessions a month, you automatically drop back to Junior tier and the 200 Kč/session rate. Rank doesn\'t reset.',
-    free:'The first training is free — a chance to get to know the club. Before it, we\'ll always ask: are you planning to train regularly going forward (100–200 Kč/session or a Berserk Pass), or is this a one-off try out of curiosity? It\'s not a test — it just lets the coach pick the right format from the start, so nobody\'s time gets wasted.'
+    free:'The first training is free — a chance to get to know the club. Before it, we\'ll always ask: are you planning to train regularly going forward (a subscription from 350 Kč/month, or 100–200 Kč per visit), or is this a one-off try out of curiosity? It\'s not a test — it just lets the coach pick the right format from the start, so nobody\'s time gets wasted.'
   },
   ranks:{
     eyebrow:'III · Rank', h:'The member\'s path',
@@ -924,7 +946,7 @@ en:{
     conductH:'Conduct', conduct:['No extremism — immediate removal.','Respect for members, gear, and the venue.','Honor code — honestly acknowledge hits taken in sparring.','Conflicts are resolved through the head trainer, not in public.','Alcohol and drugs are strictly forbidden.'],
     safetyH:'Safety', safety:['The right to refuse a bout — no explanation needed.','Gear check is mandatory before use.','Newcomers get a briefing before their first bout.','Children from age 7, with written parental consent.'],
     liabH:'Liability', liabB:'The club does not provide insurance.', liab:'All training, sparring, and trips are undertaken at the member\'s own risk.',
-    payH:'Payment', pay:['Registration and payment must be completed at least 48 hours before the start of training, via Revolut: revolut.me/aliaksj5pq.','Payment later than 48 hours before, or on the day — a 25% surcharge on the session price.','Need to borrow/rent club gear (weapons, armour)? Tell us at least 48 hours before training, same as payment. Later — the same 25% surcharge on the session price.','An unpaid surcharge blocks attendance at the next training until settled.','Training takes place only if at least one participant has a paid session, a valid Berserk Pass, or has registered for a free first session. If no one qualifies — the session is cancelled.'],
+    payH:'Payment', pay:['Registration and payment must be completed at least 48 hours before the start of training, via Revolut: revolut.me/aliaksj5pq.','Payment later than 48 hours before, or on the day — a 25% surcharge on the session price.','Need to borrow/rent club gear (weapons, armour)? Tell us at least 48 hours before training, same as payment. Later — the same 25% surcharge on the session price.','An unpaid surcharge blocks attendance at the next training until settled.','Training takes place only if at least one participant has a paid session, an active subscription, or has registered for a free first session. If no one qualifies — the session is cancelled.'],
     discH:'Discipline', discHeaders:['Violation','Consequence'],
     disc:[['1st violation','A strike (written warning)'],['2nd violation','Removal (can rejoin after 3 months)'],['Repeated','Final removal'],['Severe','Immediate removal']]
   },
@@ -933,7 +955,7 @@ en:{
     venue:'Venue: Dukelská třída 157/44, Brno. Training outdoors. Duration: 1h 30m. Call the trainer upon arrival.',
     headers:['Day','Time','Format'],
     rows:[['Monday','18:00','Training'],['Thursday','18:00','Training'],['Saturday','18:00','Training']],
-    larp:'LARP events happen irregularly, announced separately on Telegram and WhatsApp. Training is cancelled if no participant has registered (paid session, free first training, or Berserk Pass).'
+    larp:'LARP events happen irregularly, announced separately on Telegram and WhatsApp. Training is cancelled if no participant has registered (paid session, free first training, or an active subscription).'
   },
   onboarding:{
     eyebrow:'VII · Newcomer onboarding', h:'First time here',
@@ -1033,7 +1055,7 @@ cs:{
     matrixIntro:'Náš ekosystém jsme navrhli tak, aby byl přístupný naprosto každému (včetně bezplatných úrovní), ale zároveň nabízel špičkové prémiové formáty pro individuální rozvoj.',
     headers:['Směr','Dostupná / Bezplatná úroveň','Pravidelná / Prémiová úroveň'],
     rows:[
-      ['Fyzická aktivita (Sport a turistika)','<strong>BrnoWalkers:</strong> Víkendové výšlapy, skály, hrady Moravy (platí se, cena v anonce)<br><br><strong>Družina Moravy:</strong> První seznamovací trénink (0 Kč)','<strong>Družina Moravy:</strong> Pravidelné tréninky HEMA/LARP (100–200 Kč za trénink nebo Berserk Pass)<br><br><strong>Moravian Squad:</strong> Sport a výlety pro děti od 5 do 15 let'],
+      ['Fyzická aktivita (Sport a turistika)','<strong>BrnoWalkers:</strong> Víkendové výšlapy, skály, hrady Moravy (platí se, cena v anonce)<br><br><strong>Družina Moravy:</strong> První seznamovací trénink (0 Kč)','<strong>Družina Moravy:</strong> Pravidelné tréninky HEMA/LARP (100–200 Kč jednorázově nebo předplatné od 350 Kč/měsíc)<br><br><strong>Moravian Squad:</strong> Sport a výlety pro děti od 5 do 15 let'],
       ['Intelektuální aktivita (Mysl a rozvoj)','Historické přednášky, rozbory LARP lore, taktické brífinky před bitvami v rámci klubů','<strong>Skupinové přednášky:</strong> Tematické přednášky a semináře z historie, HEMA a přírodních věd pro malé skupiny.<br><br><strong>Prémiové doučování:</strong> Individuální lekce 1-na-1 pro kompletní škálu předmětů (Biochemie, Molekulární biologie, programování Python, UNIX OS, Angličtina, Čeština, Ruština (rodilý mluvčí) a Běloruština (rodilý mluvčí), Rétorika/Veřejné vystupování, Hudba: kytara, klavír, zpěv)'],
       ['Individuální přístup','Otevřené konzultace k výběru výbavy, základní onboarding pro nováčky','Individuální tréninky šermu a lukostřelby (od 400 Kč)<br><br>Zakázková výroba a oprava LARP & HEMA výbavy / zbraní na zakázku']
     ],
@@ -1083,13 +1105,16 @@ cs:{
     headers:['Parametr','Mladší družina','Starší družina'],
     rows:[
       ['Kdo','Příležitostní, nepravidelní hosté','Ti, kdo chodí pravidelně'],
-      ['Platba','200 Kč / trénink','100 Kč / trénink nebo Berserk Pass'],
+      ['Platba (jednorázově)','200 Kč / trénink','100 Kč / trénink'],
       ['Podmínka','Alespoň 1 trénink za měsíc','4+ tréninky každý měsíc'],
-      ['Berserk Pass','—','2 500 Kč — roční permanentka na 48 tréninků (~52 Kč/trénink), pouze pro Starší družinu'],
+      ['Předplatné Standard (do 4 tréninků/měsíc)','700 Kč','350 Kč'],
+      ['Předplatné Neomezené (3+/týden)','2 000 Kč','1 000 Kč'],
+      ['Předplatné na 3 měsíce (90 dní)','6 000 Kč','3 000 Kč'],
     ],
+    subsNote:'Předplatné zahrnuje bezplatné zapůjčení zbraní (meče, sekery, kopí, luky). Zbroj (kyrys, přilba) — zapůjčení zvlášť. Platnost 30 dní od platby (čtvrtletní — 90 dní), vrácení peněz jen před aktivací. První, kdo si v aktuálním cyklu pořídí čtvrtletní předplatné, dostane darem ručně vyrobenou zbraň.',
     rollbackB:'Starší družina je status, který se potvrzuje každý měsíc, ne jednorázová hranice.',
     rollback:'Pokud se pravidelnost 4+ tréninků měsíčně nedrží, člen automaticky spadá zpět do Mladší družiny. Hodnost se přitom nikdy neresetuje.',
-    free:'První trénink je zdarma — jde o seznámení s klubem. Předtím se vždy zeptáme: plánuješ trénovat pravidelně dál (100–200 Kč/sezení nebo Berserk Pass), nebo je to jednorázová zkouška ze zvědavosti? Není to zkouška tebe — díky tomu trenér hned zvolí správný formát a nikdo neztrácí čas.'
+    free:'První trénink je zdarma — jde o seznámení s klubem. Předtím se vždy zeptáme: plánuješ trénovat pravidelně dál (předplatné od 350 Kč/měsíc, nebo 100–200 Kč jednorázově), nebo je to jednorázová zkouška ze zvědavosti? Není to zkouška tebe — díky tomu trenér hned zvolí správný formát a nikdo neztrácí čas.'
   },
   ranks:{
     eyebrow:'III · Hodnost', h:'Cesta člena',
@@ -1131,7 +1156,7 @@ cs:{
     conductH:'Chování', conduct:['Bez extremismu — okamžité vyloučení.','Respekt k členům, výbavě, místu.','Kodex cti — čestné uznání zásahů.','Konflikty přes hlavního trenéra, ne veřejně.','Alkohol a drogy jsou striktně zakázány.'],
     safetyH:'Bezpečnost', safety:['Právo odmítnout boj — bez vysvětlení.','Kontrola výbavy povinná před použitím.','Nováčci procházejí instruktáží.','Děti od 7 let, s písemným souhlasem rodičů.'],
     liabH:'Odpovědnost', liabB:'Klub neposkytuje pojištění.', liab:'Všechny tréninky a výjezdy probíhají na vlastní odpovědnost účastníka.',
-    payH:'Platby', pay:['Registrace a platba musí proběhnout nejpozději 48 hodin před začátkem tréninku, přes Revolut: revolut.me/aliaksj5pq.','Platba později než 48 hodin před začátkem nebo v den tréninku — příplatek 25 % z ceny sezení.','Potřebuješ půjčit/pronajmout výbavu klubu (zbraně, zbroj)? Řekni to nejpozději 48 hodin před tréninkem, stejně jako u platby. Později — stejný příplatek 25 % z ceny sezení.','Nezaplacený příplatek blokuje účast na dalším tréninku až do jeho úhrady.','Trénink se koná pouze v případě, že alespoň jeden účastník má zaplacené sezení, platný Berserk Pass nebo se přihlásil na první trénink zdarma. Pokud nikdo takový není — trénink je zrušen.'],
+    payH:'Platby', pay:['Registrace a platba musí proběhnout nejpozději 48 hodin před začátkem tréninku, přes Revolut: revolut.me/aliaksj5pq.','Platba později než 48 hodin před začátkem nebo v den tréninku — příplatek 25 % z ceny sezení.','Potřebuješ půjčit/pronajmout výbavu klubu (zbraně, zbroj)? Řekni to nejpozději 48 hodin před tréninkem, stejně jako u platby. Později — stejný příplatek 25 % z ceny sezení.','Nezaplacený příplatek blokuje účast na dalším tréninku až do jeho úhrady.','Trénink se koná pouze v případě, že alespoň jeden účastník má zaplacené sezení, aktivní předplatné nebo se přihlásil na první trénink zdarma. Pokud nikdo takový není — trénink je zrušen.'],
     discH:'Disciplína', discHeaders:['Porušení','Důsledek'],
     disc:[['1. porušení','Strike (písemné varování)'],['2. porušení','Vyloučení (návrat možný po 3 měsících)'],['Opakované','Konečné vyloučení'],['Hrubé','Okamžité vyloučení']]
   },
@@ -1140,7 +1165,7 @@ cs:{
     venue:'Základna: Dukelská třída 157/44, Brno. Venku. Délka: 1h 30m. Po příjezdu zavolej trenérovi.',
     headers:['Den','Čas','Formát'],
     rows:[['Pondělí','18:00','Trénink'],['Čtvrtek','18:00','Trénink'],['Sobota','18:00','Trénink']],
-    larp:'LARP akce probíhají nepravidelně, oznamují se zvlášť. Trénink se nekoná, pokud se žádný účastník nepřihlásil (placené sezení, první trénink zdarma nebo Berserk Pass).'
+    larp:'LARP akce probíhají nepravidelně, oznamují se zvlášť. Trénink se nekoná, pokud se žádný účastník nepřihlásil (placené sezení, první trénink zdarma nebo aktivní předplatné).'
   },
   onboarding:{
     eyebrow:'VII · Onboarding nováčka', h:'Poprvé tady',
@@ -1240,7 +1265,7 @@ uk:{
     matrixIntro:'Ми побудували екосистему так, щоб вхід був доступний абсолютно кожній людині (є безкоштовні рівні), але при цьому існували глибокі преміум-формати для індивідуального прокачування.',
     headers:['Напрямок','Доступний / Безкоштовний рівень','Регулярний / Премиум рівень'],
     rows:[
-      ['Фізична активність (Спорт & Туризм)','<strong>Брнохідці:</strong> Походи вихідного дня, скелі, замки Моравії (платно, ціна в анонсі)<br><br><strong>Дружина Моравії:</strong> Перше ознайомче тренування (0 Kč)','<strong>Дружина Моравії:</strong> Регулярні тренування HEMA/LARP (100–200 Kč за сесію або Berserk Pass)<br><br><strong>Moravian Squad:</strong> Спорт та виїзди для дітей 5–15 років'],
+      ['Фізична активність (Спорт & Туризм)','<strong>Брнохідці:</strong> Походи вихідного дня, скелі, замки Моравії (платно, ціна в анонсі)<br><br><strong>Дружина Моравії:</strong> Перше ознайомче тренування (0 Kč)','<strong>Дружина Моравії:</strong> Регулярні тренування HEMA/LARP (100–200 Kč разово або абонемент від 350 Kč/міс)<br><br><strong>Moravian Squad:</strong> Спорт та виїзди для дітей 5–15 років'],
       ['Інтелектуальна активність (Розум & Предмети)','Історичні лекції, розбори LARP-лору, тактичні брифінги всередині клубів','<strong>Групові лекції:</strong> Тематичні лекції та семінари з історії, HEMA та природничих наук для малих груп.<br><br><strong>Індивідуальне репетиторство преміум-класу:</strong> Заняття 1-на-1 з біохімії, молекулярної біології, Python, UNIX, англійської, чеської, російської (рідна) та білоруської (рідна) мов, риторики, музики (гітара, фортепіано, вокал)'],
       ['Індивідуальний підхід','Відкриті консультації щодо підбору спорядження, базовий онбординг новачків','Персональні тренування з фехтування та стрільби з лука (від 400 Kč)<br><br>Індивідуальне виготовлення та ремонт HEMA/LARP спорядження на замовлення']
     ],
@@ -1290,13 +1315,16 @@ uk:{
     headers:['Параметр','Молодша дружина','Старша дружина'],
     rows:[
       ['Хто','Разові гості, нерегулярні','Ті, хто ходить регулярно'],
-      ['Оплата','200 Kč / сесія','100 Kč / сесія або Berserk Pass'],
+      ['Оплата (разово)','200 Kč / сесія','100 Kč / сесія'],
       ['Умова','Щонайменше 1 сесія на місяць','4+ сесії щомісяця'],
-      ['Berserk Pass','—','2 500 Kč — річний пропуск на 48 сесій (~52 Kč/сесія), лише для Старшої дружини'],
+      ['Абонемент Стандарт (до 4 трен./міс)','700 Kč','350 Kč'],
+      ['Абонемент Безліміт (від 3 трен./тиж)','2 000 Kč','1 000 Kč'],
+      ['Абонемент на 3 місяці (90 днів)','6 000 Kč','3 000 Kč'],
     ],
+    subsNote:'Абонементи включають безкоштовну оренду зброї (мечі, сокири, списи, луки). Обладунки (кіраса, шолом) — оренда окремо. Діють 30 днів з оплати (квартальний — 90 днів), повернення лише до активації. Першому, хто оформить квартальний абонемент у поточному циклі — авторська зброя ручної роботи в подарунок.',
     rollbackB:'Старша дружина — статус, який підтверджується щомісяця.',
     rollback:'Якщо регулярність 4+ сесій на місяць не зберігається, учасник автоматично повертається до Молодшої дружини. Ранг не скидається.',
-    free:'Перше тренування — безкоштовне, щоб познайомитися з клубом. Перед ним ми завжди запитаємо: чи плануєш тренуватися далі на регулярній основі (100–200 Kč/сесія або Berserk Pass), чи це одноразова спроба з цікавості? Це не перевірка — так тренер одразу обере правильний формат, і ніхто не витрачає час даремно.'
+    free:'Перше тренування — безкоштовне, щоб познайомитися з клубом. Перед ним ми завжди запитаємо: чи плануєш тренуватися далі на регулярній основі (абонемент від 350 Kč/міс або 100–200 Kč за разовий візит), чи це одноразова спроба з цікавості? Це не перевірка — так тренер одразу обере правильний формат, і ніхто не витрачає час даремно.'
   },
   ranks:{
     eyebrow:'III · Ранг', h:'Шлях учасника',
@@ -1338,7 +1366,7 @@ uk:{
     conductH:'Поведінка', conduct:['Без екстремізму — негайне виключення.','Повага до учасників, спорядження, місця.','Кодекс честі — чесне визнання попадань.','Конфлікти вирішуються через головного тренера, не публічно.','Алкоголь і наркотики суворо заборонені.'],
     safetyH:'Безпека', safety:['Право відмовитися від бою — без пояснень.','Перевірка спорядження обов\'язкова.','Новачки проходять обов\'язковий інструктаж.','Діти — з 7 років, письмова згода батьків.'],
     liabH:'Відповідальність', liabB:'Страхування клубом не надається.', liab:'Усі тренування та виїзди учасники проходять на власну відповідальність.',
-    payH:'Оплата', pay:['Реєстрація та оплата — не пізніше ніж за 48 годин до початку тренування, через Revolut: revolut.me/aliaksj5pq.','Оплата пізніше 48 годин або в день тренування — штраф 25% від вартості сесії.','Потрібно взяти/орендувати спорядження клубу (зброю, обладунки)? Повідом не пізніше ніж за 48 годин до тренування, як і з оплатою. Пізніше — той самий штраф 25% від вартості сесії.','Несплачений штраф блокує участь у наступному тренуванні до його погашення.','Тренування відбувається лише за наявності хоча б одного учасника з оплаченою сесією, діючим Berserk Pass або записаного на перше безкоштовне тренування. Якщо таких немає — тренування скасовується.'],
+    payH:'Оплата', pay:['Реєстрація та оплата — не пізніше ніж за 48 годин до початку тренування, через Revolut: revolut.me/aliaksj5pq.','Оплата пізніше 48 годин або в день тренування — штраф 25% від вартості сесії.','Потрібно взяти/орендувати спорядження клубу (зброю, обладунки)? Повідом не пізніше ніж за 48 годин до тренування, як і з оплатою. Пізніше — той самий штраф 25% від вартості сесії.','Несплачений штраф блокує участь у наступному тренуванні до його погашення.','Тренування відбувається лише за наявності хоча б одного учасника з оплаченою сесією, діючим абонементом або записаного на перше безкоштовне тренування. Якщо таких немає — тренування скасовується.'],
     discH:'Дисципліна', discHeaders:['Порушення','Наслідок'],
     disc:[['1-е порушення','Страйк (письмове попередження)'],['2-е порушення','Виключення (відновлення через 3 міс.)'],['Повторне','Фінальне виключення'],['Грубе','Негайне виключення']]
   },
@@ -1347,7 +1375,7 @@ uk:{
     venue:'База: Dukelská třída 157/44, Brno. На вулиці. Тривалість: 1г 30хв. По прибуттю — зателефонуй тренеру.',
     headers:['День','Час','Формат'],
     rows:[['Понеділок','18:00','Тренування'],['Четвер','18:00','Тренування'],['Субота','18:00','Тренування']],
-    larp:'LARP заходи проводяться нерегулярно, анонсуються окремо. Тренування не відбувається, якщо жоден учасник не зареєструвався (оплачена сесія, перше безкоштовне або Berserk Pass).'
+    larp:'LARP заходи проводяться нерегулярно, анонсуються окремо. Тренування не відбувається, якщо жоден учасник не зареєструвався (оплачена сесія, перше безкоштовне або діючий абонемент).'
   },
   onboarding:{
     eyebrow:'VII · Онбординг новачка', h:'Вперше тут',
@@ -1471,6 +1499,47 @@ function renderTable(headers, rows){
   </tbody></table></div>`;
 }
 
+// Тонкие monoline-иконки в акцентном золоте — той же визуальной весовой категории, что остальной сайт,
+// не цветные брендовые логотипы (те будут спорить с тёмной редакторской эстетикой).
+const CONTACT_ICONS = {
+  telegram:'<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 3 2 10.6l6.2 2.1M21 3l-4.4 17-4.9-7.3M21 3 8.2 12.7"/></svg>',
+  whatsapp:'<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l1.3-4.1A8 8 0 1 1 9 18.6z"/><path d="M9.2 10.3c0 3 2.4 5.4 5.4 5.4"/></svg>',
+  email:'<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="m3.5 7 8.5 6 8.5-6"/></svg>',
+  phone:'<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 4h3.3l1.6 4.3L8.6 10.6a10.8 10.8 0 0 0 4.8 4.8l2.3-1.8 4.3 1.6V18.7a1.7 1.7 0 0 1-1.9 1.7A15.6 15.6 0 0 1 4.8 6.9a1.7 1.7 0 0 1 .7-2.9Z"/></svg>'
+};
+function detectContactIcon(label, value){
+  const s = (label + ' ' + value).toLowerCase();
+  if (/telegram|t\.me\//.test(s)) return CONTACT_ICONS.telegram;
+  if (/whatsapp|wa\.me|chat\.whatsapp/.test(s)) return CONTACT_ICONS.whatsapp;
+  if (/email|mailto:/.test(s)) return CONTACT_ICONS.email;
+  if (/телефон|phone|tel:/.test(s)) return CONTACT_ICONS.phone;
+  return '';
+}
+// Секции ('── Название ──') рендерятся как визуальный разделитель, не строка таблицы.
+// Остальные строки — карточка с иконкой платформы вместо голой ссылки текстом.
+function renderContactsGrid(rows){
+  let html = '<div class="contacts-grid">';
+  rows.forEach(([label, value]) => {
+    if (/^──/.test(label)) {
+      html += `<div class="contacts-section">${label.replace(/─/g,'').trim()}</div>`;
+      return;
+    }
+    const hrefMatch = value.match(/href="([^"]+)"/);
+    const href = hrefMatch ? hrefMatch[1] : '#';
+    const bodyMatch = value.match(/>([^<]+)<\/a>\s*(?:—\s*)?(.*)$/);
+    const desc = bodyMatch ? bodyMatch[2] : '';
+    const icon = detectContactIcon(label, value);
+    html += `<a class="contact-card" href="${href}" target="_blank" rel="noopener">
+      <span class="contact-card-icon">${icon}</span>
+      <span class="contact-card-body">
+        <span class="contact-card-label">${label}</span>
+        ${desc ? `<span class="contact-card-desc">${desc}</span>` : ''}
+      </span>
+    </a>`;
+  });
+  return html + '</div>';
+}
+
 function renderTabsNav(lang){
   const t = T[lang];
   const tabs = ['main', 'walkers', 'druzina'];
@@ -1541,11 +1610,15 @@ function renderGlobalRulesText(lang) {
   </div>`;
 }
 
+// Единственное место для обновления счётчика отзывов (раз в 1-2 месяца, вручную).
+// Меняешь только эту цифру — она подтянется во все 8 мест на сайте, где упоминается счётчик.
+const GOOGLE_REVIEW_COUNT = 30;
+
 const REVIEWS_BADGE_TEXT = {
-  ru:'30+ отзывов на Google · 5.0',
-  en:'30+ Google reviews · 5.0',
-  cs:'30+ recenzí na Google · 5.0',
-  uk:'30+ відгуків на Google · 5.0'
+  ru:`${GOOGLE_REVIEW_COUNT}+ отзывов на Google · 5.0`,
+  en:`${GOOGLE_REVIEW_COUNT}+ Google reviews · 5.0`,
+  cs:`${GOOGLE_REVIEW_COUNT}+ recenzí na Google · 5.0`,
+  uk:`${GOOGLE_REVIEW_COUNT}+ відгуків на Google · 5.0`
 };
 
 function renderMainTab(lang, t) {
@@ -1738,29 +1811,29 @@ const PRICING = {
       title:{ru:'Репетиторство & Образование', en:'Tutoring & Education', cs:'Doučování & Vzdělávání', uk:'Репетиторство & Освіта'},
       subjects:{ru:'Математика, Физика, Химия, Биология, История, Языки, Шахматы и другое', en:'Maths, Physics, Chemistry, Biology, History, Languages, Chess and more', cs:'Matematika, Fyzika, Chemie, Biologie, Dějepis, Jazyky, Šachy a další', uk:'Математика, Фізика, Хімія, Біологія, Історія, Мови, Шахи та інше'},
       rows:{
-        ru:[['Индивидуально онлайн (1 час)','400 Kč'],['Индивидуально офлайн (1 час)','500 Kč'],['Группа 2–4 чел. онлайн (1 час/чел.)','250 Kč'],['Группа 2–4 чел. офлайн (1 час/чел.)','300 Kč'],
-          ['📚 Пакеты — Индивидуально онлайн','—'],['5 занятий (−5%)','1 900 Kč'],['10 занятий (−10%)','3 600 Kč'],['20 занятий (−15%)','6 800 Kč'],
-          ['📚 Пакеты — Индивидуально офлайн','—'],['5 занятий (−5%)','2 375 Kč'],['10 занятий (−10%)','4 500 Kč'],['20 занятий (−15%)','8 500 Kč'],
-          ['📚 Пакеты — Группа онлайн (за чел.)','—'],['5 занятий (−5%)','1 188 Kč'],['10 занятий (−10%)','2 250 Kč'],['20 занятий (−15%)','4 250 Kč'],
-          ['📚 Пакеты — Группа офлайн (за чел.)','—'],['5 занятий (−5%)','1 425 Kč'],['10 занятий (−10%)','2 700 Kč'],['20 занятий (−15%)','5 100 Kč'],
+        ru:[['Индивидуально онлайн (1 час)','500 Kč'],['Индивидуально офлайн (1 час)','600 Kč'],['Группа 2–4 чел. онлайн (1 час/чел.)','350 Kč'],['Группа 2–4 чел. офлайн (1 час/чел.)','400 Kč'],
+          ['📚 Пакеты — Индивидуально онлайн','—'],['5 занятий (−5%)','2 375 Kč'],['10 занятий (−10%)','4 500 Kč'],['20 занятий (−15%)','8 500 Kč'],
+          ['📚 Пакеты — Индивидуально офлайн','—'],['5 занятий (−5%)','2 850 Kč'],['10 занятий (−10%)','5 400 Kč'],['20 занятий (−15%)','10 200 Kč'],
+          ['📚 Пакеты — Группа онлайн (за чел.)','—'],['5 занятий (−5%)','1 663 Kč'],['10 занятий (−10%)','3 150 Kč'],['20 занятий (−15%)','5 950 Kč'],
+          ['📚 Пакеты — Группа офлайн (за чел.)','—'],['5 занятий (−5%)','1 900 Kč'],['10 занятий (−10%)','3 600 Kč'],['20 занятий (−15%)','6 800 Kč'],
           ['Подготовка к Maturita (15 уроков + тесты)','5 000 Kč'],['Чешский для ПМЖ (18 уроков)','6 000 Kč (−1 200 Kč)'],['Полный пакет ПМЖ (20 ч + помощь с документами)','7 000 Kč']],
-        en:[['Individual online (1 hour)','400 Kč'],['Individual in-person (1 hour)','500 Kč'],['Group 2–4 online (1 hr/person)','250 Kč'],['Group 2–4 in-person (1 hr/person)','300 Kč'],
-          ['📚 Packages — Individual online','—'],['5 lessons (−5%)','1,900 Kč'],['10 lessons (−10%)','3,600 Kč'],['20 lessons (−15%)','6,800 Kč'],
-          ['📚 Packages — Individual in-person','—'],['5 lessons (−5%)','2,375 Kč'],['10 lessons (−10%)','4,500 Kč'],['20 lessons (−15%)','8,500 Kč'],
-          ['📚 Packages — Group online (per person)','—'],['5 lessons (−5%)','1,188 Kč'],['10 lessons (−10%)','2,250 Kč'],['20 lessons (−15%)','4,250 Kč'],
-          ['📚 Packages — Group in-person (per person)','—'],['5 lessons (−5%)','1,425 Kč'],['10 lessons (−10%)','2,700 Kč'],['20 lessons (−15%)','5,100 Kč'],
+        en:[['Individual online (1 hour)','500 Kč'],['Individual in-person (1 hour)','600 Kč'],['Group 2–4 online (1 hr/person)','350 Kč'],['Group 2–4 in-person (1 hr/person)','400 Kč'],
+          ['📚 Packages — Individual online','—'],['5 lessons (−5%)','2,375 Kč'],['10 lessons (−10%)','4,500 Kč'],['20 lessons (−15%)','8,500 Kč'],
+          ['📚 Packages — Individual in-person','—'],['5 lessons (−5%)','2,850 Kč'],['10 lessons (−10%)','5,400 Kč'],['20 lessons (−15%)','10,200 Kč'],
+          ['📚 Packages — Group online (per person)','—'],['5 lessons (−5%)','1,663 Kč'],['10 lessons (−10%)','3,150 Kč'],['20 lessons (−15%)','5,950 Kč'],
+          ['📚 Packages — Group in-person (per person)','—'],['5 lessons (−5%)','1,900 Kč'],['10 lessons (−10%)','3,600 Kč'],['20 lessons (−15%)','6,800 Kč'],
           ['Maturita prep (15 lessons + tests)','5,000 Kč'],['Czech for residency (18 lessons)','6,000 Kč (−1,200 Kč)'],['Full residency pack (20h + document help)','7,000 Kč']],
-        cs:[['Individuálně online (1 hodina)','400 Kč'],['Individuálně osobně (1 hodina)','500 Kč'],['Skupina 2–4 online (1 hod/os.)','250 Kč'],['Skupina 2–4 osobně (1 hod/os.)','300 Kč'],
-          ['📚 Balíčky — Individuálně online','—'],['5 lekcí (−5 %)','1 900 Kč'],['10 lekcí (−10 %)','3 600 Kč'],['20 lekcí (−15 %)','6 800 Kč'],
-          ['📚 Balíčky — Individuálně osobně','—'],['5 lekcí (−5 %)','2 375 Kč'],['10 lekcí (−10 %)','4 500 Kč'],['20 lekcí (−15 %)','8 500 Kč'],
-          ['📚 Balíčky — Skupina online (za osobu)','—'],['5 lekcí (−5 %)','1 188 Kč'],['10 lekcí (−10 %)','2 250 Kč'],['20 lekcí (−15 %)','4 250 Kč'],
-          ['📚 Balíčky — Skupina osobně (za osobu)','—'],['5 lekcí (−5 %)','1 425 Kč'],['10 lekcí (−10 %)','2 700 Kč'],['20 lekcí (−15 %)','5 100 Kč'],
+        cs:[['Individuálně online (1 hodina)','500 Kč'],['Individuálně osobně (1 hodina)','600 Kč'],['Skupina 2–4 online (1 hod/os.)','350 Kč'],['Skupina 2–4 osobně (1 hod/os.)','400 Kč'],
+          ['📚 Balíčky — Individuálně online','—'],['5 lekcí (−5 %)','2 375 Kč'],['10 lekcí (−10 %)','4 500 Kč'],['20 lekcí (−15 %)','8 500 Kč'],
+          ['📚 Balíčky — Individuálně osobně','—'],['5 lekcí (−5 %)','2 850 Kč'],['10 lekcí (−10 %)','5 400 Kč'],['20 lekcí (−15 %)','10 200 Kč'],
+          ['📚 Balíčky — Skupina online (za osobu)','—'],['5 lekcí (−5 %)','1 663 Kč'],['10 lekcí (−10 %)','3 150 Kč'],['20 lekcí (−15 %)','5 950 Kč'],
+          ['📚 Balíčky — Skupina osobně (za osobu)','—'],['5 lekcí (−5 %)','1 900 Kč'],['10 lekcí (−10 %)','3 600 Kč'],['20 lekcí (−15 %)','6 800 Kč'],
           ['Příprava na Maturitu (15 lekcí + testy)','5 000 Kč'],['Čeština pro trvalý pobyt (18 lekcí)','6 000 Kč (−1 200 Kč)'],['Kompletní balíček TP (20 hod + pomoc s dokumenty)','7 000 Kč']],
-        uk:[['Індивідуально онлайн (1 година)','400 Kč'],['Індивідуально офлайн (1 година)','500 Kč'],['Група 2–4 онлайн (1 год/особа)','250 Kč'],['Група 2–4 офлайн (1 год/особа)','300 Kč'],
-          ['📚 Пакети — Індивідуально онлайн','—'],['5 занять (−5%)','1 900 Kč'],['10 занять (−10%)','3 600 Kč'],['20 занять (−15%)','6 800 Kč'],
-          ['📚 Пакети — Індивідуально офлайн','—'],['5 занять (−5%)','2 375 Kč'],['10 занять (−10%)','4 500 Kč'],['20 занять (−15%)','8 500 Kč'],
-          ['📚 Пакети — Група онлайн (за особу)','—'],['5 занять (−5%)','1 188 Kč'],['10 занять (−10%)','2 250 Kč'],['20 занять (−15%)','4 250 Kč'],
-          ['📚 Пакети — Група офлайн (за особу)','—'],['5 занять (−5%)','1 425 Kč'],['10 занять (−10%)','2 700 Kč'],['20 занять (−15%)','5 100 Kč'],
+        uk:[['Індивідуально онлайн (1 година)','500 Kč'],['Індивідуально офлайн (1 година)','600 Kč'],['Група 2–4 онлайн (1 год/особа)','350 Kč'],['Група 2–4 офлайн (1 год/особа)','400 Kč'],
+          ['📚 Пакети — Індивідуально онлайн','—'],['5 занять (−5%)','2 375 Kč'],['10 занять (−10%)','4 500 Kč'],['20 занять (−15%)','8 500 Kč'],
+          ['📚 Пакети — Індивідуально офлайн','—'],['5 занять (−5%)','2 850 Kč'],['10 занять (−10%)','5 400 Kč'],['20 занять (−15%)','10 200 Kč'],
+          ['📚 Пакети — Група онлайн (за особу)','—'],['5 занять (−5%)','1 663 Kč'],['10 занять (−10%)','3 150 Kč'],['20 занять (−15%)','5 950 Kč'],
+          ['📚 Пакети — Група офлайн (за особу)','—'],['5 занять (−5%)','1 900 Kč'],['10 занять (−10%)','3 600 Kč'],['20 занять (−15%)','6 800 Kč'],
           ['Підготовка до Maturita (15 уроків + тести)','5 000 Kč'],['Чеська для ПМП (18 уроків)','6 000 Kč (−1 200 Kč)'],['Повний пакет ПМП (20 год + допомога з документами)','7 000 Kč']]
       }
     },
@@ -1770,8 +1843,8 @@ const PRICING = {
       title:{ru:'Фитнес & Персональные тренировки', en:'Fitness & Personal Training', cs:'Fitness & Osobní trénink', uk:'Фітнес & Персональні тренування'},
       subjects:{ru:'На открытом воздухе или локации клиента. Опыт: 100+ клиентов.', en:'Outdoors or at client\'s location. Experience: 100+ trained clients.', cs:'Venku nebo v místě klienta. Zkušenosti: 100+ klientů.', uk:'На вулиці або у клієнта. Досвід: 100+ клієнтів.'},
       rows:{
-        ru:[['Персонально офлайн (1 час)','500 Kč'],['Персонально онлайн (1 час)','300 Kč'],['Групповая тренировка (разово)','200 Kč'],['Абонемент 4 групп. тренировки','600 Kč (150 Kč/сессия)'],['Абонемент 8 групп. тренировок','1 000 Kč (125 Kč/сессия)'],['Пакет 5 персон. офлайн','2 000 Kč (−500 Kč)'],['Пакет 10 персон. офлайн','3 350 Kč (−1 650 Kč)'],['Онлайн-программа 1 мес. (план+питание)','2 000 Kč/мес.'],['Программа похудения (8 недель)','4 000 Kč'],['3-месячная трансформация тела','5 000 Kč']],
-        en:[['Personal in-person (1 hour)','500 Kč'],['Personal online (1 hour)','300 Kč'],['Group training (single)','200 Kč'],['4-session group pass','600 Kč (150 Kč/session)'],['8-session group pass','1,000 Kč (125 Kč/session)'],['5-session personal in-person pack','2,000 Kč (−500 Kč)'],['10-session personal in-person pack','3,350 Kč (−1,650 Kč)'],['1-month online programme (plan+nutrition)','2,000 Kč/mo'],['Weight-loss programme (8 weeks)','4,000 Kč'],['3-month body transformation','5,000 Kč']],
+        ru:[['Персонально офлайн (1 час)','600 Kč'],['Персонально онлайн (1 час)','400 Kč'],['Групповая тренировка (разово)','300 Kč'],['Абонемент 4 групп. тренировки','600 Kč (150 Kč/сессия)'],['Абонемент 8 групп. тренировок','1 000 Kč (125 Kč/сессия)'],['Пакет 5 персон. офлайн','2 000 Kč (−500 Kč)'],['Пакет 10 персон. офлайн','3 350 Kč (−1 650 Kč)'],['Онлайн-программа 1 мес. (план+питание)','2 000 Kč/мес.'],['Программа похудения (8 недель)','4 000 Kč'],['3-месячная трансформация тела','5 000 Kč']],
+        en:[['Personal in-person (1 hour)','600 Kč'],['Personal online (1 hour)','400 Kč'],['Group training (single)','300 Kč'],['4-session group pass','600 Kč (150 Kč/session)'],['8-session group pass','1,000 Kč (125 Kč/session)'],['5-session personal in-person pack','2,000 Kč (−500 Kč)'],['10-session personal in-person pack','3,350 Kč (−1,650 Kč)'],['1-month online programme (plan+nutrition)','2,000 Kč/mo'],['Weight-loss programme (8 weeks)','4,000 Kč'],['3-month body transformation','5,000 Kč']],
         cs:[['Osobně individuálně (1 hodina)','500 Kč'],['Online individuálně (1 hodina)','300 Kč'],['Skupinový trénink (jednorázově)','200 Kč'],['Permanentka 4 skupinové tréninky','600 Kč (150 Kč/sezení)'],['Permanentka 8 skupinových tréninků','1 000 Kč (125 Kč/sezení)'],['Balíček 5 osobních tréninků','2 000 Kč (−500 Kč)'],['Balíček 10 osobních tréninků','3 350 Kč (−1 650 Kč)'],['Online program 1 měsíc (plán+výživa)','2 000 Kč/měs.'],['Program hubnutí (8 týdnů)','4 000 Kč'],['3měsíční proměna těla','5 000 Kč']],
         uk:[['Персонально офлайн (1 година)','500 Kč'],['Персонально онлайн (1 година)','300 Kč'],['Групове тренування (разово)','200 Kč'],['Абонемент 4 групп. тренування','600 Kč (150 Kč/сесія)'],['Абонемент 8 групп. тренувань','1 000 Kč (125 Kč/сесія)'],['Пакет 5 персон. офлайн','2 000 Kč (−500 Kč)'],['Пакет 10 персон. офлайн','3 350 Kč (−1 650 Kč)'],['Онлайн-програма 1 міс. (план+харчування)','2 000 Kč/міс.'],['Програма схуднення (8 тижнів)','4 000 Kč'],['3-місячна трансформація тіла','5 000 Kč']]
       }
@@ -2102,10 +2175,10 @@ const REVIEWS = {
   eyebrow: {ru:'Отзывы', en:'Reviews', cs:'Recenze', uk:'Відгуки'},
   title:   {ru:'Что говорят участники', en:'What participants say', cs:'Co říkají účastníci', uk:'Що кажуть учасники'},
   ratingNote: {
-    ru:'30+ отзывов на Google Картах · 5.0 ★',
-    en:'30+ reviews on Google Maps · 5.0 ★',
-    cs:'30+ recenzí na Google Mapách · 5.0 ★',
-    uk:'30+ відгуків на Google Картах · 5.0 ★'
+    ru:`${GOOGLE_REVIEW_COUNT}+ отзывов на Google Картах · 5.0 ★`,
+    en:`${GOOGLE_REVIEW_COUNT}+ reviews on Google Maps · 5.0 ★`,
+    cs:`${GOOGLE_REVIEW_COUNT}+ recenzí na Google Mapách · 5.0 ★`,
+    uk:`${GOOGLE_REVIEW_COUNT}+ відгуків на Google Картах · 5.0 ★`
   },
   seeAll: {ru:'Все отзывы на Google →', en:'All reviews on Google →', cs:'Všechny recenze na Google →', uk:'Усі відгуки на Google →'},
   items: [
@@ -2639,6 +2712,7 @@ function renderDruzinaTab(lang, t) {
       <h2 class="anchor-heading">${t.tariff.h}<a class="anchor-link" href="#tariff">#</a></h2>
       <p class="lead">${t.tariff.intro}</p>
       ${renderTable(t.tariff.headers, t.tariff.rows)}
+      <p class="note" style="margin-top:10px">${t.tariff.subsNote}</p>
       <p style="margin-top:18px"><strong>${t.tariff.rollbackB}</strong> ${t.tariff.rollback}</p>
       <p class="note">${t.tariff.free}</p>
     </div>
@@ -2710,7 +2784,7 @@ function renderDruzinaTab(lang, t) {
     <div class="wrap">
       <div class="eyebrow-sm">${t.contacts.eyebrow}</div>
       <h2>${t.contacts.h}</h2>
-      ${renderTable(t.contacts.headers, t.contacts.rows)}
+      ${renderContactsGrid(t.contacts.rows)}
       
       <div style="margin-top:28px; text-align:center;">
          <button class="btn" onclick="switchTab('walkers')" style="border-color:var(--r5); color:var(--r5); font-weight:700; padding:15px 25px; width:100%; max-width:600px;">
