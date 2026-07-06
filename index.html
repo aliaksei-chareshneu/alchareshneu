@@ -182,6 +182,9 @@
   .contact-card-label{font-size:14px;font-weight:600;color:var(--ink);}
   .contact-card-desc{font-size:12.5px;color:var(--ink-dim);word-break:break-word;}
 
+  .hero-icon-btn{display:inline-flex;align-items:center;gap:9px;}
+  .hero-icon-btn svg{width:22px;height:22px;flex:0 0 auto;}
+
   /* GENERIC */
   .eyebrow-sm{font-family:var(--font-m);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:10px;}
   h2{font-size:26px;}
@@ -353,6 +356,14 @@
   }
   .eu-price.free { color: #2e9e5b; font-weight:700; }
   .eu-price.donation { color: #c9a227; font-weight:700; }
+
+  .calendar-cta-empty{
+    padding:40px 24px;border:2px solid var(--r5);border-radius:8px;
+    text-align:center;background:var(--bg-card);
+  }
+  .calendar-cta-btn{font-size:17px;padding:16px 32px;font-weight:700;}
+  .calendar-cta-explain{margin-top:14px;color:var(--ink-dim);font-size:14px;max-width:480px;margin-left:auto;margin-right:auto;}
+  .calendar-embed-inline{margin-top:24px;text-align:left;}
 
   /* UPCOMING EVENTS — CONVERSION CARDS END */
   /* REVIEWS */
@@ -802,7 +813,7 @@ ru:{
     druzinaRulesH:'Общие правила участия & Официальный регламент',
     druzinaName:'Дружина Моравы',
     druzinaTagline:'Клуб исторического средневекового боя, фехтования (HEMA), стрельбы и LARP-реконструкции в Брно.',
-    druzinaBtn:'Меч, копьё, лук, арбалет и многое другое! Перейти к Брноходцам',
+    walkersTeaserBtn:'Походы, настолки, экскурсии, спорт и многое другое! Перейти к Брноходцам',
     globalRules:`<h4>1. ОБЛАСТЬ ПРИМЕНЕНИЯ И СОГЛАСИЕ</h4>
     <p><strong>1.1</strong> Настоящие правила распространяются на все мероприятия, занятия, туры и активности, организуемые Алексеем Черешневым (OSVČ, IČO: 23041625) под брендами BrnoWalkers, Дружина Моравы (Družina Moravy), а также индивидуальные услуги.</p>
     <p><strong>1.2</strong> Оплата или бронь участия означает безоговорочное согласие со всеми действующими правилами.</p>
@@ -1012,7 +1023,7 @@ en:{
     druzinaRulesH:'General Rules & Official Regulations',
     druzinaName:'Druzhina Moravy',
     druzinaTagline:'A club for historical medieval combat, fencing (HEMA), archery, and LARP re-enactment in Brno.',
-    druzinaBtn:'Sword, spear, bow, crossbow and more! Go to BrnoWalkers',
+    walkersTeaserBtn:'Hikes, board games, tours, sports and more! Go to BrnoWalkers',
     globalRules:`<h4>1. SCOPE AND CONSENT</h4>
     <p><strong>1.1</strong> These rules apply to all events, sessions, tours and activities organized by Aliaksei Chareshneu (OSVČ, IČO: 23041625) under the brands BrnoWalkers, Druzhina Moravy, and individual services.</p>
     <p><strong>1.2</strong> Payment or registration for participation constitutes unconditional acceptance of all applicable rules.</p>
@@ -1222,7 +1233,7 @@ cs:{
     druzinaRulesH:'Obecná pravidla účasti & Officiální řád',
     druzinaName:'Družina Moravy',
     druzinaTagline:'Klub historického středověkého boje, šermu (HEMA), střelby a LARP rekonstrukce v Brně.',
-    druzinaBtn:'Meč, kopí, luk, kuše a mnoho dalšího! Přejít k BrnoWalkers',
+    walkersTeaserBtn:'Výšlapy, deskovky, výlety, sport a mnoho dalšího! Přejít k BrnoWalkers',
     globalRules:`<h4>1. ROZSAH A SOUHLAS</h4>
     <p><strong>1.1</strong> Tato pravidla se vztahují na všechny akce, tréninky, prohlídky a aktivity organizované Aliakseim Charesneuem (OSVČ, IČO: 23041625) pod značkami BrnoWalkers, Družina Moravy a individuální služby.</p>
     <p><strong>1.2</strong> Zaplacení nebo rezervace účasti znamená bezpodmínečný souhlas se všemi platnými pravidly.</p>
@@ -1432,7 +1443,7 @@ uk:{
     druzinaRulesH:'Загальні правила участі & Офіційний регламент',
     druzinaName:'Дружина Моравії',
     druzinaTagline:'Клуб історичного середньовічного бою, фехтування (HEMA), стрільби та LARP-реконструкції в Брно.',
-    druzinaBtn:'Меч, копʼє, лук, арбалет та багато іншого! Перейти до Брнохідців',
+    walkersTeaserBtn:'Походи, настільні гри, екскурсії, спорт та багато іншого! Перейти до Брнохідців',
     globalRules:`<h4>1. СФЕРА ДІЇ ТА ЗГОДА</h4>
     <p><strong>1.1</strong> Ці правила поширюються на всі заходи, заняття, тури та активності, організовані Олексієм Черешньовим (OSVČ, IČO: 23041625) під брендами BrnoWalkers, Дружина Моравії, а також індивідуальні послуги.</p>
     <p><strong>1.2</strong> Оплата або реєстрація участі означає безумовну згоду з усіма чинними правилами.</p>
@@ -1465,6 +1476,9 @@ const RENTAL_LINK = 'https://docs.google.com/spreadsheets/d/11-XATZWWwX6YjltnxsN
 const PERSONAL_WA = 'https://wa.me/420702914842';
 const PERSONAL_TG = 'https://t.me/Chareshneu';
 const ACADEMY_TG = 'https://t.me/eternallearning'; // Eternal Learning — репетиторство, фитнес, коучинг и прочие услуги "академии" (всё, что не BrnoWalkers/Družina)
+// /newembed?src=... — это ссылка "подписаться на этот календарь" (Google предложит добавить его в свой аккаунт),
+// в отличие от обычной /calendar/embed?src=..., которая просто пассивно показывает iframe без подписки.
+const CALENDAR_SUBSCRIBE_LINK = 'https://calendar.google.com/calendar/u/0/newembed?src=2b87a4e595671b05f82867969757d6c8500733a05a7ebcc77a3c6102b1644757@group.calendar.google.com&ctz=Europe/Prague';
 
 const WALKERS_TG_CHAT    = 'https://t.me/pochody_brno';
 const WALKERS_TG_CHANNEL = 'https://t.me/pochody_brno_new';
@@ -1696,8 +1710,8 @@ function renderMainTab(lang, t) {
                'Brno iD vouchers cover up to 80% of costs (up to 4,000 CZK/child). Find us: Aliaksei Chareshneu, IČO 23041625.'}
           </p>
           <div style="display:flex; gap:10px; flex-wrap:wrap;">
-            <a class="btn solid" href="${PERSONAL_WA}" target="_blank" rel="noopener">${t.hero.cta1}</a>
-            <a class="btn" href="${PERSONAL_TG}" target="_blank" rel="noopener">${t.hero.cta2}</a>
+            <a class="btn solid hero-icon-btn" href="${PERSONAL_WA}" target="_blank" rel="noopener">${CONTACT_ICONS.whatsapp}<span>${t.hero.cta1}</span></a>
+            <a class="btn hero-icon-btn" href="${PERSONAL_TG}" target="_blank" rel="noopener">${CONTACT_ICONS.telegram}<span>${t.hero.cta2}</span></a>
           </div>
         </div>
       </div>
@@ -1797,10 +1811,10 @@ const PRICING = {
   cancelPolicy: {
     title: {ru:'Политика отмен', en:'Cancellation Policy', cs:'Storno podmínky', uk:'Політика скасувань'},
     rows: {
-      ru:[['Более 48 часов до занятия','Полный возврат'],['24–48 часов','Возврат 50%'],['Менее 24 часов / неявка','Без возврата'],['Опоздание до 10 мин','Занятие полностью'],['Опоздание 10–20 мин','Укороченное занятие'],['Опоздание более 20 мин','Отмена, без возврата']],
-      en:[['More than 48h before','Full refund'],['24–48 hours','50% refund'],['Less than 24h / no-show','No refund'],['Late up to 10 min','Full session'],['Late 10–20 min','Shortened session'],['Late more than 20 min','Cancelled, no refund']],
-      cs:[['Více než 48h předem','Plná náhrada'],['24–48 hodin','Náhrada 50 %'],['Méně než 24h / neúčast','Bez náhrady'],['Zpoždění do 10 min','Plné sezení'],['Zpoždění 10–20 min','Zkrácené sezení'],['Zpoždění více než 20 min','Zrušeno, bez náhrady']],
-      uk:[['Більше 48год до заняття','Повне повернення'],['24–48 годин','Повернення 50%'],['Менше 24год / неявка','Без повернення'],['Запізнення до 10 хв','Повне заняття'],['Запізнення 10–20 хв','Скорочене заняття'],['Запізнення більше 20 хв','Скасовано, без повернення']]
+      ru:[['Более 48 часов до занятия','Полный возврат'],['24–48 часов','Возврат 50%'],['Менее 24 часов / неявка','Без возврата'],['Опоздание','Занятие идёт до исходного времени окончания — оставшееся время не продлевается']],
+      en:[['More than 48h before','Full refund'],['24–48 hours','50% refund'],['Less than 24h / no-show','No refund'],['Late arrival','The session still ends at the original time — lost time is not added back']],
+      cs:[['Více než 48h předem','Plná náhrada'],['24–48 hodin','Náhrada 50 %'],['Méně než 24h / neúčast','Bez náhrady'],['Pozdní příchod','Sezení stále končí v původním čase — ztracený čas se nenahrazuje']],
+      uk:[['Більше 48год до заняття','Повне повернення'],['24–48 годин','Повернення 50%'],['Менше 24год / неявка','Без повернення'],['Запізнення','Заняття закінчується у початковий час — втрачений час не додається']]
     }
   },
 
@@ -1812,24 +1826,32 @@ const PRICING = {
       subjects:{ru:'Математика, Физика, Химия, Биология, История, Языки, Шахматы и другое', en:'Maths, Physics, Chemistry, Biology, History, Languages, Chess and more', cs:'Matematika, Fyzika, Chemie, Biologie, Dějepis, Jazyky, Šachy a další', uk:'Математика, Фізика, Хімія, Біологія, Історія, Мови, Шахи та інше'},
       rows:{
         ru:[['Индивидуально онлайн (1 час)','500 Kč'],['Индивидуально офлайн (1 час)','600 Kč'],['Группа 2–4 чел. онлайн (1 час/чел.)','350 Kč'],['Группа 2–4 чел. офлайн (1 час/чел.)','400 Kč'],
+          ['🎁 Первое занятие (любой формат)','300 Kč'],
+          ['📚 Пакеты выгоднее разовых занятий — экономия до 15%','—'],
           ['📚 Пакеты — Индивидуально онлайн','—'],['5 занятий (−5%)','2 375 Kč'],['10 занятий (−10%)','4 500 Kč'],['20 занятий (−15%)','8 500 Kč'],
           ['📚 Пакеты — Индивидуально офлайн','—'],['5 занятий (−5%)','2 850 Kč'],['10 занятий (−10%)','5 400 Kč'],['20 занятий (−15%)','10 200 Kč'],
           ['📚 Пакеты — Группа онлайн (за чел.)','—'],['5 занятий (−5%)','1 663 Kč'],['10 занятий (−10%)','3 150 Kč'],['20 занятий (−15%)','5 950 Kč'],
           ['📚 Пакеты — Группа офлайн (за чел.)','—'],['5 занятий (−5%)','1 900 Kč'],['10 занятий (−10%)','3 600 Kč'],['20 занятий (−15%)','6 800 Kč'],
           ['Подготовка к Maturita (15 уроков + тесты)','5 000 Kč'],['Чешский для ПМЖ (18 уроков)','6 000 Kč (−1 200 Kč)'],['Полный пакет ПМЖ (20 ч + помощь с документами)','7 000 Kč']],
         en:[['Individual online (1 hour)','500 Kč'],['Individual in-person (1 hour)','600 Kč'],['Group 2–4 online (1 hr/person)','350 Kč'],['Group 2–4 in-person (1 hr/person)','400 Kč'],
+          ['🎁 First lesson (any format)','300 Kč'],
+          ['📚 Packages cost less than single lessons — save up to 15%','—'],
           ['📚 Packages — Individual online','—'],['5 lessons (−5%)','2,375 Kč'],['10 lessons (−10%)','4,500 Kč'],['20 lessons (−15%)','8,500 Kč'],
           ['📚 Packages — Individual in-person','—'],['5 lessons (−5%)','2,850 Kč'],['10 lessons (−10%)','5,400 Kč'],['20 lessons (−15%)','10,200 Kč'],
           ['📚 Packages — Group online (per person)','—'],['5 lessons (−5%)','1,663 Kč'],['10 lessons (−10%)','3,150 Kč'],['20 lessons (−15%)','5,950 Kč'],
           ['📚 Packages — Group in-person (per person)','—'],['5 lessons (−5%)','1,900 Kč'],['10 lessons (−10%)','3,600 Kč'],['20 lessons (−15%)','6,800 Kč'],
           ['Maturita prep (15 lessons + tests)','5,000 Kč'],['Czech for residency (18 lessons)','6,000 Kč (−1,200 Kč)'],['Full residency pack (20h + document help)','7,000 Kč']],
         cs:[['Individuálně online (1 hodina)','500 Kč'],['Individuálně osobně (1 hodina)','600 Kč'],['Skupina 2–4 online (1 hod/os.)','350 Kč'],['Skupina 2–4 osobně (1 hod/os.)','400 Kč'],
+          ['🎁 První lekce (jakýkoli formát)','300 Kč'],
+          ['📚 Balíčky vyjdou levněji než jednotlivé lekce — ušetříš až 15 %','—'],
           ['📚 Balíčky — Individuálně online','—'],['5 lekcí (−5 %)','2 375 Kč'],['10 lekcí (−10 %)','4 500 Kč'],['20 lekcí (−15 %)','8 500 Kč'],
           ['📚 Balíčky — Individuálně osobně','—'],['5 lekcí (−5 %)','2 850 Kč'],['10 lekcí (−10 %)','5 400 Kč'],['20 lekcí (−15 %)','10 200 Kč'],
           ['📚 Balíčky — Skupina online (za osobu)','—'],['5 lekcí (−5 %)','1 663 Kč'],['10 lekcí (−10 %)','3 150 Kč'],['20 lekcí (−15 %)','5 950 Kč'],
           ['📚 Balíčky — Skupina osobně (za osobu)','—'],['5 lekcí (−5 %)','1 900 Kč'],['10 lekcí (−10 %)','3 600 Kč'],['20 lekcí (−15 %)','6 800 Kč'],
           ['Příprava na Maturitu (15 lekcí + testy)','5 000 Kč'],['Čeština pro trvalý pobyt (18 lekcí)','6 000 Kč (−1 200 Kč)'],['Kompletní balíček TP (20 hod + pomoc s dokumenty)','7 000 Kč']],
         uk:[['Індивідуально онлайн (1 година)','500 Kč'],['Індивідуально офлайн (1 година)','600 Kč'],['Група 2–4 онлайн (1 год/особа)','350 Kč'],['Група 2–4 офлайн (1 год/особа)','400 Kč'],
+          ['🎁 Перше заняття (будь-який формат)','300 Kč'],
+          ['📚 Пакети вигідніші за разові заняття — економія до 15%','—'],
           ['📚 Пакети — Індивідуально онлайн','—'],['5 занять (−5%)','2 375 Kč'],['10 занять (−10%)','4 500 Kč'],['20 занять (−15%)','8 500 Kč'],
           ['📚 Пакети — Індивідуально офлайн','—'],['5 занять (−5%)','2 850 Kč'],['10 занять (−10%)','5 400 Kč'],['20 занять (−15%)','10 200 Kč'],
           ['📚 Пакети — Група онлайн (за особу)','—'],['5 занять (−5%)','1 663 Kč'],['10 занять (−10%)','3 150 Kč'],['20 занять (−15%)','5 950 Kč'],
@@ -1843,10 +1865,22 @@ const PRICING = {
       title:{ru:'Фитнес & Персональные тренировки', en:'Fitness & Personal Training', cs:'Fitness & Osobní trénink', uk:'Фітнес & Персональні тренування'},
       subjects:{ru:'На открытом воздухе или локации клиента. Опыт: 100+ клиентов.', en:'Outdoors or at client\'s location. Experience: 100+ trained clients.', cs:'Venku nebo v místě klienta. Zkušenosti: 100+ klientů.', uk:'На вулиці або у клієнта. Досвід: 100+ клієнтів.'},
       rows:{
-        ru:[['Персонально офлайн (1 час)','600 Kč'],['Персонально онлайн (1 час)','400 Kč'],['Групповая тренировка (разово)','300 Kč'],['Абонемент 4 групп. тренировки','600 Kč (150 Kč/сессия)'],['Абонемент 8 групп. тренировок','1 000 Kč (125 Kč/сессия)'],['Пакет 5 персон. офлайн','2 000 Kč (−500 Kč)'],['Пакет 10 персон. офлайн','3 350 Kč (−1 650 Kč)'],['Онлайн-программа 1 мес. (план+питание)','2 000 Kč/мес.'],['Программа похудения (8 недель)','4 000 Kč'],['3-месячная трансформация тела','5 000 Kč']],
-        en:[['Personal in-person (1 hour)','600 Kč'],['Personal online (1 hour)','400 Kč'],['Group training (single)','300 Kč'],['4-session group pass','600 Kč (150 Kč/session)'],['8-session group pass','1,000 Kč (125 Kč/session)'],['5-session personal in-person pack','2,000 Kč (−500 Kč)'],['10-session personal in-person pack','3,350 Kč (−1,650 Kč)'],['1-month online programme (plan+nutrition)','2,000 Kč/mo'],['Weight-loss programme (8 weeks)','4,000 Kč'],['3-month body transformation','5,000 Kč']],
-        cs:[['Osobně individuálně (1 hodina)','500 Kč'],['Online individuálně (1 hodina)','300 Kč'],['Skupinový trénink (jednorázově)','200 Kč'],['Permanentka 4 skupinové tréninky','600 Kč (150 Kč/sezení)'],['Permanentka 8 skupinových tréninků','1 000 Kč (125 Kč/sezení)'],['Balíček 5 osobních tréninků','2 000 Kč (−500 Kč)'],['Balíček 10 osobních tréninků','3 350 Kč (−1 650 Kč)'],['Online program 1 měsíc (plán+výživa)','2 000 Kč/měs.'],['Program hubnutí (8 týdnů)','4 000 Kč'],['3měsíční proměna těla','5 000 Kč']],
-        uk:[['Персонально офлайн (1 година)','500 Kč'],['Персонально онлайн (1 година)','300 Kč'],['Групове тренування (разово)','200 Kč'],['Абонемент 4 групп. тренування','600 Kč (150 Kč/сесія)'],['Абонемент 8 групп. тренувань','1 000 Kč (125 Kč/сесія)'],['Пакет 5 персон. офлайн','2 000 Kč (−500 Kč)'],['Пакет 10 персон. офлайн','3 350 Kč (−1 650 Kč)'],['Онлайн-програма 1 міс. (план+харчування)','2 000 Kč/міс.'],['Програма схуднення (8 тижнів)','4 000 Kč'],['3-місячна трансформація тіла','5 000 Kč']]
+        ru:[['Персонально офлайн (1 час)','600 Kč'],['Персонально онлайн (1 час)','400 Kč'],['Групповая тренировка (разово)','300 Kč'],
+          ['🎁 Первое занятие офлайн','400 Kč'],['🎁 Первое занятие онлайн','300 Kč'],
+          ['📚 Пакеты и абонементы выгоднее — ниже цена за сессию','—'],
+          ['Абонемент 4 групп. тренировки','600 Kč (150 Kč/сессия)'],['Абонемент 8 групп. тренировок','1 000 Kč (125 Kč/сессия)'],['Пакет 5 персон. офлайн','2 000 Kč (−500 Kč)'],['Пакет 10 персон. офлайн','3 350 Kč (−1 650 Kč)'],['Онлайн-программа 1 мес. (план+питание)','2 000 Kč/мес.'],['Программа похудения (8 недель)','4 000 Kč'],['3-месячная трансформация тела','5 000 Kč']],
+        en:[['Personal in-person (1 hour)','600 Kč'],['Personal online (1 hour)','400 Kč'],['Group training (single)','300 Kč'],
+          ['🎁 First session in-person','400 Kč'],['🎁 First session online','300 Kč'],
+          ['📚 Packages & passes cost less per session','—'],
+          ['4-session group pass','600 Kč (150 Kč/session)'],['8-session group pass','1,000 Kč (125 Kč/session)'],['5-session personal in-person pack','2,000 Kč (−500 Kč)'],['10-session personal in-person pack','3,350 Kč (−1,650 Kč)'],['1-month online programme (plan+nutrition)','2,000 Kč/mo'],['Weight-loss programme (8 weeks)','4,000 Kč'],['3-month body transformation','5,000 Kč']],
+        cs:[['Osobně individuálně (1 hodina)','600 Kč'],['Online individuálně (1 hodina)','400 Kč'],['Skupinový trénink (jednorázově)','300 Kč'],
+          ['🎁 První lekce osobně','400 Kč'],['🎁 První lekce online','300 Kč'],
+          ['📚 Balíčky a permanentky vyjdou levněji za sezení','—'],
+          ['Permanentka 4 skupinové tréninky','600 Kč (150 Kč/sezení)'],['Permanentka 8 skupinových tréninků','1 000 Kč (125 Kč/sezení)'],['Balíček 5 osobních tréninků','2 000 Kč (−500 Kč)'],['Balíček 10 osobních tréninků','3 350 Kč (−1 650 Kč)'],['Online program 1 měsíc (plán+výživa)','2 000 Kč/měs.'],['Program hubnutí (8 týdnů)','4 000 Kč'],['3měsíční proměna těla','5 000 Kč']],
+        uk:[['Персонально офлайн (1 година)','600 Kč'],['Персонально онлайн (1 година)','400 Kč'],['Групове тренування (разово)','300 Kč'],
+          ['🎁 Перше заняття офлайн','400 Kč'],['🎁 Перше заняття онлайн','300 Kč'],
+          ['📚 Пакети та абонементи вигідніші за сесію','—'],
+          ['Абонемент 4 групп. тренування','600 Kč (150 Kč/сесія)'],['Абонемент 8 групп. тренувань','1 000 Kč (125 Kč/сесія)'],['Пакет 5 персон. офлайн','2 000 Kč (−500 Kč)'],['Пакет 10 персон. офлайн','3 350 Kč (−1 650 Kč)'],['Онлайн-програма 1 міс. (план+харчування)','2 000 Kč/міс.'],['Програма схуднення (8 тижнів)','4 000 Kč'],['3-місячна трансформація тіла','5 000 Kč']]
       }
     },
     {
@@ -1867,10 +1901,10 @@ const PRICING = {
       title:{ru:'Поддержка экспатов', en:'Expat Support', cs:'Podpora expatů', uk:'Підтримка експатів'},
       subjects:{ru:'Работа, жильё, медицина, документы, юридические вопросы, нострификация.', en:'Work, housing, medicine, documents, legal issues, nostrification.', cs:'Práce, bydlení, medicína, dokumenty, právní otázky, nostrifikace.', uk:'Робота, житло, медицина, документи, юридичні питання, нострифікація.'},
       rows:{
-        ru:[['Общая консультация (1-й час)','300 Kč'],['Каждый последующий час','400 Kč'],['Поиск врача','800 Kč'],['Поиск адвоката','1 000 Kč'],['Консультация по поступлению в вуз (1ч)','600 Kč'],['Анализ медицинского диагноза и лечения','1 500 Kč'],['Помощь с нострификацией','от 3 500 Kč'],['Юридическое представительство','от 2 000 Kč'],['Медицинское сопровождение','от 2 500 Kč'],['Устный перевод онлайн (юристы/медицина)','700 Kč/час'],['Устный перевод на встречах лично','1 000 Kč/час']],
-        en:[['General consultation (1st hour)','300 Kč'],['Each additional hour','400 Kč'],['Doctor search','800 Kč'],['Lawyer search','1,000 Kč'],['University admission consultation (1h)','600 Kč'],['Medical diagnosis & treatment analysis','1,500 Kč'],['Nostrification assistance','from 3,500 Kč'],['Legal representation (advocacy)','from 2,000 Kč'],['Medical advocacy','from 2,500 Kč'],['Interpreting online (legal/medical)','700 Kč/hr'],['In-person interpreting at meetings','1,000 Kč/hr']],
-        cs:[['Obecná konzultace (1. hodina)','300 Kč'],['Každá další hodina','400 Kč'],['Hledání lékaře','800 Kč'],['Hledání právníka','1 000 Kč'],['Konzultace k přijímání na VŠ (1h)','600 Kč'],['Analýza lékařské diagnózy a léčby','1 500 Kč'],['Pomoc s nostrifikací','od 3 500 Kč'],['Právní zastoupení','od 2 000 Kč'],['Zdravotní doprovod','od 2 500 Kč'],['Tlumočení online (právní/medicinské)','700 Kč/hod'],['Osobní tlumočení na schůzkách','1 000 Kč/hod']],
-        uk:[['Загальна консультація (1-й час)','300 Kč'],['Кожна наступна година','400 Kč'],['Пошук лікаря','800 Kč'],['Пошук адвоката','1 000 Kč'],['Консультація щодо вступу до вузу (1год)','600 Kč'],['Аналіз медичного діагнозу та лікування','1 500 Kč'],['Допомога з нострифікацією','від 3 500 Kč'],['Юридичне представництво','від 2 000 Kč'],['Медичний супровід','від 2 500 Kč'],['Усний переклад онлайн (юристи/медицина)','700 Kč/год'],['Усний переклад на зустрічах особисто','1 000 Kč/год']]
+        ru:[['Общая консультация (1-й час)','300 Kč'],['Каждый последующий час','400 Kč'],['Поиск врача','700 Kč'],['Поиск адвоката','900 Kč'],['Консультация по поступлению в вуз (1ч)','500 Kč'],['Анализ медицинского диагноза и лечения','1 000 Kč'],['Помощь с нострификацией','от 3 500 Kč'],['Юридическое представительство','от 1 500 Kč'],['Медицинское сопровождение','от 2 000 Kč'],['Устный перевод онлайн (юристы/медицина)','600 Kč/час'],['Устный перевод на встречах лично','900 Kč/час']],
+        en:[['General consultation (1st hour)','300 Kč'],['Each additional hour','400 Kč'],['Doctor search','700 Kč'],['Lawyer search','900 Kč'],['University admission consultation (1h)','500 Kč'],['Medical diagnosis & treatment analysis','1,000 Kč'],['Nostrification assistance','from 3,500 Kč'],['Legal representation (advocacy)','from 1,500 Kč'],['Medical advocacy','from 2,000 Kč'],['Interpreting online (legal/medical)','600 Kč/hr'],['In-person interpreting at meetings','900 Kč/hr']],
+        cs:[['Obecná konzultace (1. hodina)','300 Kč'],['Každá další hodina','400 Kč'],['Hledání lékaře','700 Kč'],['Hledání právníka','900 Kč'],['Konzultace k přijímání na VŠ (1h)','500 Kč'],['Analýza lékařské diagnózy a léčby','1 000 Kč'],['Pomoc s nostrifikací','od 3 500 Kč'],['Právní zastoupení','od 1 500 Kč'],['Zdravotní doprovod','od 2 000 Kč'],['Tlumočení online (právní/medicinské)','600 Kč/hod'],['Osobní tlumočení na schůzkách','900 Kč/hod']],
+        uk:[['Загальна консультація (1-й час)','300 Kč'],['Кожна наступна година','400 Kč'],['Пошук лікаря','700 Kč'],['Пошук адвоката','900 Kč'],['Консультація щодо вступу до вузу (1год)','500 Kč'],['Аналіз медичного діагнозу та лікування','1 000 Kč'],['Допомога з нострифікацією','від 3 500 Kč'],['Юридичне представництво','від 1 500 Kč'],['Медичний супровід','від 2 000 Kč'],['Усний переклад онлайн (юристи/медицина)','600 Kč/год'],['Усний переклад на зустрічах особисто','900 Kč/год']]
       }
     },
     {
@@ -1879,10 +1913,26 @@ const PRICING = {
       title:{ru:'Персональное фехтование & Стрельба из лука', en:'Personal Fencing & Archery', cs:'Osobní šerm & Lukostřelba', uk:'Персональне фехтування & Стрільба з лука'},
       subjects:{ru:'Индивидуальные занятия вне клуба. Групповые тренировки Дружины — см. вкладку Дружина.', en:'Individual sessions outside the club. Group Druzhina training — see Druzhina tab.', cs:'Individuální sezení mimo klub. Skupinové tréninky Družiny — viz záložka Družina.', uk:'Індивідуальні заняття поза клубом. Групові тренування Дружини — див. вкладку Дружина.'},
       rows:{
-        ru:[['Персональное фехтование (1 час)','600 Kč'],['Групповое фехтование (1.5 ч/чел.)','400 Kč'],['Персональная стрельба из лука (1 час)','700 Kč'],['Групповая стрельба из лука (1 ч/чел.)','450 Kč']],
-        en:[['Personal fencing (1 hour)','600 Kč'],['Group fencing (1.5 hr/person)','400 Kč'],['Personal archery (1 hour)','700 Kč'],['Group archery (1 hr/person)','450 Kč']],
-        cs:[['Osobní šerm (1 hodina)','600 Kč'],['Skupinový šerm (1,5 hod/os.)','400 Kč'],['Osobní lukostřelba (1 hodina)','700 Kč'],['Skupinová lukostřelba (1 hod/os.)','450 Kč']],
-        uk:[['Персональне фехтування (1 година)','600 Kč'],['Групове фехтування (1.5 год/особа)','400 Kč'],['Персональна стрільба з лука (1 година)','700 Kč'],['Групова стрільба з лука (1 год/особа)','450 Kč']]
+        ru:[['Персональное фехтование (1 час)','700 Kč'],['Групповое фехтование (1.5 ч/чел.)','500 Kč'],['Персональная стрельба из лука (1 час)','800 Kč'],['Групповая стрельба из лука (1 ч/чел.)','550 Kč'],
+          ['📚 Пакеты — Персональное фехтование','—'],['5 занятий (−5%)','3 325 Kč'],['10 занятий (−10%)','6 300 Kč'],['20 занятий (−15%)','11 900 Kč'],
+          ['📚 Пакеты — Групповое фехтование','—'],['5 занятий (−5%)','2 375 Kč'],['10 занятий (−10%)','4 500 Kč'],['20 занятий (−15%)','8 500 Kč'],
+          ['📚 Пакеты — Персональная стрельба из лука','—'],['5 занятий (−5%)','3 800 Kč'],['10 занятий (−10%)','7 200 Kč'],['20 занятий (−15%)','13 600 Kč'],
+          ['📚 Пакеты — Групповая стрельба из лука','—'],['5 занятий (−5%)','2 613 Kč'],['10 занятий (−10%)','4 950 Kč'],['20 занятий (−15%)','9 350 Kč']],
+        en:[['Personal fencing (1 hour)','700 Kč'],['Group fencing (1.5 hr/person)','500 Kč'],['Personal archery (1 hour)','800 Kč'],['Group archery (1 hr/person)','550 Kč'],
+          ['📚 Packages — Personal fencing','—'],['5 lessons (−5%)','3,325 Kč'],['10 lessons (−10%)','6,300 Kč'],['20 lessons (−15%)','11,900 Kč'],
+          ['📚 Packages — Group fencing','—'],['5 lessons (−5%)','2,375 Kč'],['10 lessons (−10%)','4,500 Kč'],['20 lessons (−15%)','8,500 Kč'],
+          ['📚 Packages — Personal archery','—'],['5 lessons (−5%)','3,800 Kč'],['10 lessons (−10%)','7,200 Kč'],['20 lessons (−15%)','13,600 Kč'],
+          ['📚 Packages — Group archery','—'],['5 lessons (−5%)','2,613 Kč'],['10 lessons (−10%)','4,950 Kč'],['20 lessons (−15%)','9,350 Kč']],
+        cs:[['Osobní šerm (1 hodina)','700 Kč'],['Skupinový šerm (1,5 hod/os.)','500 Kč'],['Osobní lukostřelba (1 hodina)','800 Kč'],['Skupinová lukostřelba (1 hod/os.)','550 Kč'],
+          ['📚 Balíčky — Osobní šerm','—'],['5 lekcí (−5 %)','3 325 Kč'],['10 lekcí (−10 %)','6 300 Kč'],['20 lekcí (−15 %)','11 900 Kč'],
+          ['📚 Balíčky — Skupinový šerm','—'],['5 lekcí (−5 %)','2 375 Kč'],['10 lekcí (−10 %)','4 500 Kč'],['20 lekcí (−15 %)','8 500 Kč'],
+          ['📚 Balíčky — Osobní lukostřelba','—'],['5 lekcí (−5 %)','3 800 Kč'],['10 lekcí (−10 %)','7 200 Kč'],['20 lekcí (−15 %)','13 600 Kč'],
+          ['📚 Balíčky — Skupinová lukostřelba','—'],['5 lekcí (−5 %)','2 613 Kč'],['10 lekcí (−10 %)','4 950 Kč'],['20 lekcí (−15 %)','9 350 Kč']],
+        uk:[['Персональне фехтування (1 година)','700 Kč'],['Групове фехтування (1.5 год/особа)','500 Kč'],['Персональна стрільба з лука (1 година)','800 Kč'],['Групова стрільба з лука (1 год/особа)','550 Kč'],
+          ['📚 Пакети — Персональне фехтування','—'],['5 занять (−5%)','3 325 Kč'],['10 занять (−10%)','6 300 Kč'],['20 занять (−15%)','11 900 Kč'],
+          ['📚 Пакети — Групове фехтування','—'],['5 занять (−5%)','2 375 Kč'],['10 занять (−10%)','4 500 Kč'],['20 занять (−15%)','8 500 Kč'],
+          ['📚 Пакети — Персональна стрільба з лука','—'],['5 занять (−5%)','3 800 Kč'],['10 занять (−10%)','7 200 Kč'],['20 занять (−15%)','13 600 Kč'],
+          ['📚 Пакети — Групова стрільба з лука','—'],['5 занять (−5%)','2 613 Kč'],['10 занять (−10%)','4 950 Kč'],['20 занять (−15%)','9 350 Kč']]
       }
     },
     {
@@ -1891,10 +1941,10 @@ const PRICING = {
       title:{ru:'Лайф-коучинг', en:'Life Coaching', cs:'Life Coaching', uk:'Лайф-коучинг'},
       subjects:{ru:'⚠️ Не является медицинской или психологической помощью. При наличии заболеваний необходим врач.', en:'⚠️ Not a medical or psychological service. A doctor is required for medical conditions.', cs:'⚠️ Nejde o lékařskou ani psychologickou pomoc. Při zdravotních potížích je nutný lékař.', uk:'⚠️ Не є медичною або психологічною допомогою. При захворюваннях необхідний лікар.'},
       rows:{
-        ru:[['Сессия по изменению привычек (1 час)','600 Kč'],['Консультация для родителей (1 час)','700 Kč'],['Борьба с экранной/игровой зависимостью (4 сессии)','2 000 Kč'],['Ежемесячное ведение (еженедельные сессии)','3 500 Kč/мес.']],
-        en:[['Habit change session (1 hour)','600 Kč'],['Parent consultation (1 hour)','700 Kč'],['Screen/gaming addiction (4 sessions)','2,000 Kč'],['Monthly coaching (weekly sessions)','3,500 Kč/mo']],
-        cs:[['Sezení ke změně návyků (1 hodina)','600 Kč'],['Konzultace pro rodiče (1 hodina)','700 Kč'],['Závislost na obrazovce/hrách (4 sezení)','2 000 Kč'],['Měsíční vedení (týdenní sezení)','3 500 Kč/měs.']],
-        uk:[['Сесія зі зміни звичок (1 година)','600 Kč'],['Консультація для батьків (1 година)','700 Kč'],['Боротьба з екранною/ігровою залежністю (4 сесії)','2 000 Kč'],['Щомісячне ведення (щотижневі сесії)','3 500 Kč/міс.']]
+        ru:[['Сессия по изменению привычек (1 час)','700 Kč'],['Консультация для родителей (1 час)','800 Kč'],['Борьба с экранной/игровой зависимостью (4 сессии)','2 000 Kč'],['Ежемесячное ведение (еженедельные сессии)','3 500 Kč/мес.']],
+        en:[['Habit change session (1 hour)','700 Kč'],['Parent consultation (1 hour)','800 Kč'],['Screen/gaming addiction (4 sessions)','2,000 Kč'],['Monthly coaching (weekly sessions)','3,500 Kč/mo']],
+        cs:[['Sezení ke změně návyků (1 hodina)','700 Kč'],['Konzultace pro rodiče (1 hodina)','800 Kč'],['Závislost na obrazovce/hrách (4 sezení)','2 000 Kč'],['Měsíční vedení (týdenní sezení)','3 500 Kč/měs.']],
+        uk:[['Сесія зі зміни звичок (1 година)','700 Kč'],['Консультація для батьків (1 година)','800 Kč'],['Боротьба з екранною/ігровою залежністю (4 сесії)','2 000 Kč'],['Щомісячне ведення (щотижневі сесії)','3 500 Kč/міс.']]
       }
     },
     {
@@ -1915,10 +1965,10 @@ const PRICING = {
       title:{ru:'Авторские гид-туры', en:'Guided Tours', cs:'Autorské průvodcovské výlety', uk:'Авторські гід-тури'},
       subjects:{ru:'Включено: гид, маршрут, карты, планирование. Не включено: транспорт, еда, билеты.', en:'Included: guide, route, maps, planning. Not included: transport, food, entry tickets.', cs:'Zahrnuto: průvodce, trasa, mapy, plánování. Nezahrnuto: doprava, jídlo, vstupenky.', uk:'Включено: гід, маршрут, карти, планування. Не включено: транспорт, їжа, квитки.'},
       rows:{
-        ru:[['Индивидуальный тур (1 день)','от 3 000 Kč'],['Групповой тур (1 день, от 4 чел.)','от 1 500 Kč/чел.']],
-        en:[['Individual tour (1 day)','from 3,000 Kč'],['Group tour (1 day, 4+ people)','from 1,500 Kč/person']],
-        cs:[['Individuální výlet (1 den)','od 3 000 Kč'],['Skupinový výlet (1 den, 4+ os.)','od 1 500 Kč/os.']],
-        uk:[['Індивідуальний тур (1 день)','від 3 000 Kč'],['Груповий тур (1 день, від 4 осіб)','від 1 500 Kč/особа']]
+        ru:[['Индивидуальный тур (1 день)','от 2 000 Kč'],['Групповой тур (1 день, от 4 чел.)','от 1 000 Kč/чел.']],
+        en:[['Individual tour (1 day)','from 2,000 Kč'],['Group tour (1 day, 4+ people)','from 1,000 Kč/person']],
+        cs:[['Individuální výlet (1 den)','od 2 000 Kč'],['Skupinový výlet (1 den, 4+ os.)','od 1 000 Kč/os.']],
+        uk:[['Індивідуальний тур (1 день)','від 2 000 Kč'],['Груповий тур (1 день, від 4 осіб)','від 1 000 Kč/особа']]
       }
     }
   ],
@@ -2118,15 +2168,32 @@ function formatEventDate(iso, lang) {
 
 function renderUpcomingEvents(lang) {
   const d = UPCOMING_SECTION_UI;
-  const regLabel = {ru:'Зарегистрироваться', en:'Register', cs:'Zaregistrovat se', uk:'Зареєструватися'};
+  const regLabel = {ru:'Записаться на мероприятие', en:'Register for the event', cs:'Přihlásit se na akci', uk:'Записатися на подію'};
+  const otherServicesLabel = {ru:'Другие услуги', en:'Other services', cs:'Další služby', uk:'Інші послуги'};
   const loadingText = {ru:'Загружаем ближайшие события…', en:'Loading upcoming events…', cs:'Načítáme nejbližší akce…', uk:'Завантажуємо найближчі події…'};
-  const emptyText = {ru:'Сейчас нет открытой регистрации — следи за Telegram-каналом или напиши напрямую.', en:'No open registrations right now — watch the Telegram channel or message directly.', cs:'Momentálně není otevřená žádná registrace — sleduj Telegram kanál nebo napiš přímo.', uk:'Зараз немає відкритої реєстрації — стеж за Telegram-каналом або напиши напряму.'};
+  const calSubBtn = {ru:'📅 Подписаться на календарь событий', en:'📅 Subscribe to the events calendar', cs:'📅 Přihlásit se k odběru kalendáře', uk:'📅 Підписатися на календар подій'};
+  const calExplain = {
+    ru:'Там — все актуальные мероприятия сразу, без ожидания. Нашёл нужное → пишешь или оплачиваешь, чтобы записаться.',
+    en:'Every current event is there right away, no waiting. Found what you want → message or pay to register.',
+    cs:'Jsou tam hned všechny aktuální akce, bez čekání. Našel jsi, co chceš → napiš nebo zaplať a přihlas se.',
+    uk:'Там одразу всі актуальні події, без очікування. Знайшов потрібне → пиши або сплачуй, щоб записатися.'
+  };
 
   let body;
   if (LIVE_EVENTS === null) {
     body = `<div class="events-status">${loadingText[lang]}</div>`;
   } else if (LIVE_EVENTS.length === 0) {
-    body = `<div class="events-status">${emptyText[lang]}</div>`;
+    body = `
+      <div class="calendar-cta-empty">
+        <a class="btn solid calendar-cta-btn" href="${CALENDAR_SUBSCRIBE_LINK}" target="_blank" rel="noopener">${calSubBtn[lang]}</a>
+        <p class="calendar-cta-explain">${calExplain[lang]}</p>
+        <div class="calendar-embed-card calendar-embed-inline">
+          <iframe
+            src="https://calendar.google.com/calendar/embed?src=2b87a4e595671b05f82867969757d6c8500733a05a7ebcc77a3c6102b1644757%40group.calendar.google.com&amp;ctz=Europe%2FPrague&amp;mode=AGENDA&amp;showTitle=0&amp;showNav=1&amp;showDate=1&amp;showPrint=0&amp;showTabs=0&amp;showCalendars=0&amp;showTz=0&amp;wkst=2"
+            style="border:0" width="100%" height="480" frameborder="0" scrolling="no" loading="lazy"
+            title="Brnowalkers & Družina Moravy schedule"></iframe>
+        </div>
+      </div>`;
   } else {
     const cards = LIVE_EVENTS.map(ev => {
       const img = ev.imageOverride ? `images/${ev.imageOverride}` : (CATEGORY_IMAGE[ev.category] || DEFAULT_EVENT_IMAGE);
@@ -2153,6 +2220,7 @@ function renderUpcomingEvents(lang) {
           </div>
           <div class="eu-ctas">
             <a class="btn solid" href="${ev.registerUrl}" target="_blank" rel="noopener">${regLabel[lang]}</a>
+            <a class="btn" href="https://revolut.me/aliaksj5pq" target="_blank" rel="noopener">${otherServicesLabel[lang]}</a>
           </div>
         </div>
       </div>`;
@@ -2687,7 +2755,7 @@ function renderDruzinaTab(lang, t) {
       <div class="hero-ctas">
         <a class="btn solid" href="${REGISTER_FORM}" target="_blank" rel="noopener">${lang==='ru'?'Записаться на тренировку':lang==='uk'?'Записатись на тренування':lang==='cs'?'Přihlásit se na trénink':'Register for Training'}</a>
         <a class="btn" href="${lnk.chat}" target="_blank" rel="noopener">${t.ui.joinChat}</a>
-        <button class="btn" onclick="switchTab('walkers')" style="border-color:var(--r5); color:var(--r5); font-weight:600;">${t.ui.druzinaBtn}</button>
+        <button class="btn" onclick="switchTab('walkers')" style="border-color:var(--r5); color:var(--r5); font-weight:600;">${t.ui.walkersTeaserBtn}</button>
       </div>
       <div class="free-note">${t.tariff.free}</div>
     </div>
@@ -2788,7 +2856,7 @@ function renderDruzinaTab(lang, t) {
       
       <div style="margin-top:28px; text-align:center;">
          <button class="btn" onclick="switchTab('walkers')" style="border-color:var(--r5); color:var(--r5); font-weight:700; padding:15px 25px; width:100%; max-width:600px;">
-           ${t.ui.druzinaBtn} ➔
+           ${t.ui.walkersTeaserBtn} ➔
          </button>
       </div>
     </div>
@@ -2815,7 +2883,14 @@ function render(lang){
   }
 
   // Common footer with clickable elements including Email and Phone
-  const registerLabelFooter = {ru:'Зарегистрироваться', en:'Register', cs:'Zaregistrovat se', uk:'Зареєструватися'};
+  const registerLabelFooter = {ru:'Зарегистрироваться на мероприятие', en:'Register for an event', cs:'Zaregistrovat se na akci', uk:'Зареєструватися на подію'};
+  const orderServiceLabel = {ru:'Заказать личную услугу', en:'Order a personal service', cs:'Objednat osobní službu', uk:'Замовити особисту послугу'};
+  const paymentCommentNote = {
+    ru:'В комментарии к платежу укажи: название услуги, дату и имя фамилию латиницей.',
+    en:'In the payment comment, include: service name, date, and your name in Latin letters.',
+    cs:'Do poznámky k platbě uveď: název služby, datum a jméno a příjmení latinkou.',
+    uk:'У коментарі до платежу вкажи: назву послуги, дату та ім\'я прізвище латиницею.'
+  };
   const socialProof = {
     ru:'Суммарная аудитория более 12 000 подписчиков: Facebook 6.5k · TikTok BrnoWalkers 1.3k · Instagram Druzhina 1.2k · Instagram BrnoWalkers 850 · TikTok Druzhina 1k',
     en:'Combined audience of 12,000+ followers: Facebook 6.5k · TikTok BrnoWalkers 1.3k · Instagram Druzhina 1.2k · Instagram BrnoWalkers 850 · TikTok Druzhina 1k',
@@ -2841,12 +2916,12 @@ function render(lang){
       <p style="font-size:13px;color:var(--ink-faint);margin-bottom:6px;">${firstMsgRule[lang]}</p>
       <p style="font-size:13px;color:var(--ink-faint);margin-bottom:20px;">${oneStrike[lang]}</p>
       <div class="footer-contacts">
+        <a class="btn solid" href="https://revolut.me/aliaksj5pq" target="_blank" rel="noopener">${orderServiceLabel[lang]}</a>
         <a class="btn solid" href="${REGISTER_FORM}" target="_blank" rel="noopener">${registerLabelFooter[lang]}</a>
-        <a class="btn" href="${PERSONAL_WA}" target="_blank" rel="noopener">WhatsApp</a>
-        <a class="btn" href="${PERSONAL_TG}" target="_blank" rel="noopener">Telegram</a>
         <a class="btn" href="mailto:chereshnev.biochem@gmail.com">Email</a>
         <a class="btn" href="tel:+420702914842">+420 702 914 842</a>
       </div>
+      <p style="font-size:12.5px;color:var(--ink-dim);text-align:center;margin-top:10px;">${paymentCommentNote[lang]}</p>
       <div style="margin-top:16px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
         <a href="${GOOGLE_REVIEWS_LINK}" target="_blank" rel="noopener" style="font-size:13px;color:var(--r5);font-weight:600;">⭐ Google Reviews</a>
         <a href="https://www.facebook.com/alexey.chereshnev.3" target="_blank" rel="noopener" style="font-size:13px;color:var(--ink-faint);">Facebook</a>
