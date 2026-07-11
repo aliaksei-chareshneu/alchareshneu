@@ -192,6 +192,52 @@
   .intro-video-wrap iframe{width:100%;height:100%;border:0;display:block;}
   @media(min-width:900px){ .intro-video-wrap{max-width:420px;} }
 
+  .acc{border:1px solid var(--rule);border-radius:6px;margin:10px 0;background:var(--bg-card);overflow:hidden;}
+  .acc-summary{
+    list-style:none;cursor:pointer;padding:14px 18px;font-weight:600;color:var(--ink);
+    display:flex;align-items:center;justify-content:space-between;user-select:none;
+  }
+  .acc-summary::-webkit-details-marker{display:none;}
+  .acc-summary::after{
+    content:'▾';color:var(--r5);flex:0 0 auto;margin-left:12px;
+    transition:transform .2s ease;font-size:13px;
+  }
+  .acc[open] .acc-summary::after{transform:rotate(-180deg);}
+  .acc-summary:hover{color:var(--r5);}
+  .acc-body{padding:0 18px 16px;color:var(--ink-dim);}
+  .acc-body .tbl-wrap{margin-top:4px;}
+
+  /* Scroll-reveal: секции проявляются при скролле, JS добавляет .is-visible через IntersectionObserver.
+     prefers-reduced-motion уважается — у людей с укачиванием/чувствительностью анимация отключается полностью. */
+  .reveal{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease;}
+  .reveal.is-visible{opacity:1;transform:translateY(0);}
+  @media(prefers-reduced-motion:reduce){
+    .reveal{opacity:1;transform:none;transition:none;}
+  }
+
+  /* Едва заметное дыхание hero-фото и карточек событий — глубина без отвлечения */
+  .contact-card, .event-upcoming-card, .fact, .combo-card{
+    transition:transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+  }
+  .contact-card:hover, .event-upcoming-card:hover, .combo-card:hover{
+    transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.35);
+  }
+
+  /* Тонкий движущийся градиент за hero — очень медленный, не отвлекает от текста */
+  .hero{position:relative;overflow:hidden;}
+  .hero::before{
+    content:'';position:absolute;inset:-20%;z-index:0;pointer-events:none;
+    background:radial-gradient(circle at 20% 30%, rgba(201,162,39,.10), transparent 45%),
+               radial-gradient(circle at 80% 70%, rgba(178,67,58,.10), transparent 45%);
+    animation:heroDrift 22s ease-in-out infinite alternate;
+  }
+  .hero .wrap{position:relative;z-index:1;}
+  @keyframes heroDrift{
+    0%{transform:translate(0,0) scale(1);}
+    100%{transform:translate(3%,-3%) scale(1.08);}
+  }
+  @media(prefers-reduced-motion:reduce){ .hero::before{animation:none;} }
+
   /* GENERIC */
   .eyebrow-sm{font-family:var(--font-m);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:10px;}
   h2{font-size:26px;}
@@ -1517,6 +1563,41 @@ function renderFacts(facts){
   return `<div class="facts">${facts.map(f=>`<div class="fact"><div class="v">${f.v}</div><div class="l">${f.l}</div></div>`).join('')}</div>`;
 }
 
+// Аккордеон на нативных <details>/<summary> — доступность и клавиатура работают из коробки,
+// стилизация полностью через CSS (см. .acc-*). openByDefault=true для первого/самого важного пункта.
+function accordion(title, bodyHtml, openByDefault) {
+  return `<details class="acc"${openByDefault ? ' open' : ''}>
+    <summary class="acc-summary">${title}</summary>
+    <div class="acc-body">${bodyHtml}</div>
+  </details>`;
+}
+
+// Обычная таблица, но строки-разделители вида ['Заголовок группы','—'] (уже используются
+// для пакетов EDU/Fitness/HEMA-personal) сворачивают всё до следующего разделителя за accordion —
+// не нужно переписывать сами данные, компонент распознаёт уже существующий паттерн.
+function renderTableWithPackages(headers, rows){
+  let baseRows = [];
+  let groups = []; // { title, rows: [...] }
+  let current = null;
+  rows.forEach(r => {
+    if (r[1] === '—') {
+      if (current) groups.push(current);
+      current = { title: r[0], rows: [] };
+    } else if (current) {
+      current.rows.push(r);
+    } else {
+      baseRows.push(r);
+    }
+  });
+  if (current) groups.push(current);
+
+  let html = renderTable(headers, baseRows);
+  groups.forEach(g => {
+    html += accordion(`📚 ${g.title.replace(/^📚\s*/, '')}`, renderTable(headers, g.rows), false);
+  });
+  return html;
+}
+
 function renderTable(headers, rows){
   return `<div class="tbl-wrap"><table><thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>
     ${rows.map(r=>`<tr>${r.map((c,i)=>`<td>${i===0?`<strong>${c}</strong>`:c}</td>`).join('')}</tr>`).join('')}
@@ -1628,10 +1709,8 @@ document.addEventListener('click', (e) => {
 });
 
 function renderGlobalRulesText(lang) {
-  return `
-  <div class="rules-scrollbox">
-    ${T[lang].ui.globalRules}
-  </div>`;
+  const summaryText = {ru:'📜 Полные юридические условия участия', en:'📜 Full legal terms of participation', cs:'📜 Úplné právní podmínky účasti', uk:'📜 Повні юридичні умови участі'};
+  return accordion(summaryText[lang], `<div class="rules-scrollbox">${T[lang].ui.globalRules}</div>`, false);
 }
 
 // Единственное место для обновления счётчика отзывов (раз в 1-2 месяца, вручную).
@@ -2091,7 +2170,7 @@ function renderPricing(lang) {
       ${cat.id === 'EDU'
         ? renderAcademySubjects(lang)
         : `<p class="price-cat-sub">${cat.subjects[lang]}</p>`}
-      ${renderTable(['',''], cat.rows[lang])}
+      ${renderTableWithPackages(['',''], cat.rows[lang])}
     </div>`).join('');
 
   // Combo cards
@@ -2818,20 +2897,14 @@ function renderDruzinaTab(lang, t) {
       <div class="eyebrow-sm">${t.rules.eyebrow}</div>
       <h2 class="anchor-heading">${t.rules.h}<a class="anchor-link" href="#rules">#</a></h2>
 
-      <h3 style="font-size:18px">${t.rules.conductH}</h3>
-      <ul class="plain">${t.rules.conduct.map(c=>`<li>${c}</li>`).join('')}</ul>
-
-      <h3 style="margin-top:28px;font-size:18px">${t.rules.safetyH}</h3>
-      <ul class="plain">${t.rules.safety.map(c=>`<li>${c}</li>`).join('')}</ul>
+      ${accordion(t.rules.conductH, `<ul class="plain">${t.rules.conduct.map(c=>`<li>${c}</li>`).join('')}</ul>`, true)}
+      ${accordion(t.rules.safetyH, `<ul class="plain">${t.rules.safety.map(c=>`<li>${c}</li>`).join('')}</ul>`, false)}
 
       <h3 style="margin-top:28px;font-size:18px">${t.rules.liabH}</h3>
       <p><strong>${t.rules.liabB}</strong> ${t.rules.liab}</p>
 
-      <h3 style="margin-top:28px;font-size:18px">${t.rules.payH}</h3>
-      <ul class="plain">${t.rules.pay.map(c=>`<li>${c}</li>`).join('')}</ul>
-
-      <h3 style="margin-top:28px;font-size:18px">${t.rules.discH}</h3>
-      ${renderTable(t.rules.discHeaders, t.rules.disc)}
+      ${accordion(t.rules.payH, `<ul class="plain">${t.rules.pay.map(c=>`<li>${c}</li>`).join('')}</ul>`, false)}
+      ${accordion(t.rules.discH, renderTable(t.rules.discHeaders, t.rules.disc), false)}
 
       <h3 style="margin-top:36px; font-size:18px;">${t.ui.druzinaRulesH}</h3>
       ${renderGlobalRulesText(lang)}
@@ -2954,10 +3027,30 @@ function render(lang){
 
   document.getElementById('app').innerHTML = htmlContent;
   bindLangButtons(lang);
-  
+  initScrollReveal();
+
   if(currentTab === 'druzina'){
     observeLadder();
   }
+}
+
+// Проявление секций при скролле — переустанавливается на каждом render(), поскольку
+// смена языка/вкладки полностью пересобирает DOM (старые observer-привязки теряются вместе со старыми узлами).
+function initScrollReveal(){
+  const els = document.querySelectorAll('#app section');
+  if (!('IntersectionObserver' in window)) {
+    els.forEach(el => el.classList.add('is-visible')); // старые браузеры — просто показываем сразу
+    return;
+  }
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+  els.forEach(el => { el.classList.add('reveal'); io.observe(el); });
 }
 
 function bindLangButtons(active){
