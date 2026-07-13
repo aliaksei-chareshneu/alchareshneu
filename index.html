@@ -3037,11 +3037,18 @@ function render(lang){
 // Проявление секций при скролле — переустанавливается на каждом render(), поскольку
 // смена языка/вкладки полностью пересобирает DOM (старые observer-привязки теряются вместе со старыми узлами).
 function initScrollReveal(){
-  const els = document.querySelectorAll('#app section');
+  const els = Array.from(document.querySelectorAll('#app section'));
+  if (els.length === 0) return;
+
   if (!('IntersectionObserver' in window)) {
-    els.forEach(el => el.classList.add('is-visible')); // старые браузеры — просто показываем сразу
+    els.forEach(el => el.classList.add('is-visible'));
     return;
   }
+
+  els.forEach(el => el.classList.add('reveal'));
+
+  // Основной механизм — IntersectionObserver с щадящими настройками (низкий threshold,
+  // положительный rootMargin: секция проявляется чуть ДО того, как реально войдёт в кадр).
   const io = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
@@ -3049,8 +3056,28 @@ function initScrollReveal(){
         io.unobserve(entry.target);
       }
     });
-  }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
-  els.forEach(el => { el.classList.add('reveal'); io.observe(el); });
+  }, { threshold: 0, rootMargin: '0px 0px 200px 0px' });
+  els.forEach(el => io.observe(el));
+
+  // Запасной контур: если по любой причине (баг браузера, смена zoom/масштаба, странная
+  // геометрия) observer не сработал — ручная проверка через getBoundingClientRect на scroll/resize
+  // подстраховывает и гарантирует, что контент не останется скрытым навсегда.
+  function revealVisible(){
+    const vh = window.innerHeight || document.documentElement.clientHeight;
+    els.forEach(el => {
+      if (el.classList.contains('is-visible')) return;
+      const rect = el.getBoundingClientRect();
+      if (rect.top < vh + 100 && rect.bottom > -100) {
+        el.classList.add('is-visible');
+      }
+    });
+  }
+  window.addEventListener('scroll', revealVisible, { passive: true });
+  window.addEventListener('resize', revealVisible);
+  revealVisible(); // сразу проверяем то, что уже видно при загрузке
+
+  // Аварийный предохранитель: что бы ни пошло не так выше — через 2.5с всё точно становится видимым.
+  setTimeout(() => els.forEach(el => el.classList.add('is-visible')), 2500);
 }
 
 function bindLangButtons(active){
