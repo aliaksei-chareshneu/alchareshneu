@@ -117,12 +117,16 @@
   .brand{font-family:var(--font-d);font-weight:600;font-size:16px;letter-spacing:.01em;color:var(--ink);line-height:1.2;}
   .brand small{display:block;font-family:var(--font-b);font-weight:400;font-size:10px;letter-spacing:.14em;color:var(--ink-faint);text-transform:uppercase;margin-top:4px;}
   .langs{display:flex;gap:4px;}
+  .nav-actions{display:flex;align-items:center;gap:6px;}
+  .audio-toggle,
   .langs button{
     font-family:var(--font-m);font-size:12px;font-weight:700;letter-spacing:.05em;
     background:none;border:1px solid var(--rule);color:var(--ink-dim);
     padding:6px 9px;border-radius:3px;cursor:pointer;transition:all .15s;
   }
+  .audio-toggle:hover,
   .langs button:hover{border-color:var(--ink-dim);color:var(--ink);}
+  .audio-toggle[aria-pressed="true"],
   .langs button[aria-pressed="true"]{background:var(--r5);border-color:var(--r5);color:#16171a;}
 
   /* TABS BAR */
@@ -231,12 +235,89 @@
                radial-gradient(circle at 80% 70%, rgba(178,67,58,.10), transparent 45%);
     animation:heroDrift 22s ease-in-out infinite alternate;
   }
-  .hero .wrap{position:relative;z-index:1;}
+  .hero-visuals{
+    position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden;
+  }
+  .hero-visuals svg{width:100%;height:100%;display:block;pointer-events:none;}
+
+  .hero-visuals-main svg{opacity:.92;}
+  .hero-visuals-main .main-notebook{opacity:.24;animation:mainFloat 12s ease-in-out infinite alternate;}
+  .hero-visuals-main .main-pencil{opacity:.18;animation:mainFloat 10s ease-in-out infinite alternate-reverse;}
+  .hero-visuals-main .main-pulse{opacity:.22;animation:pulseGlow 4.5s ease-in-out infinite;}
+  .hero-visuals-main .main-dumbbell{opacity:.15;animation:mainFloat 9s ease-in-out infinite alternate;}
+  .hero-visuals-main .main-page{transform-origin:70% 50%;animation:pageFlip 4.8s ease-in-out infinite alternate;}
+  .hero-visuals-main .main-wave{animation:energyWave 3.8s ease-in-out infinite alternate;}
+
+  .hero-visuals-walkers .walker-background{opacity:.72;animation:walkersDrift 40s linear infinite;}
+  .hero-visuals-walkers .walker-cloud{opacity:.18;animation:cloudDrift 16s linear infinite;}
+  .hero-visuals-walkers .walker-cloud:nth-child(2){animation-duration:18s;animation-direction:reverse;}
+  .hero-visuals-walkers .walker-cloud:nth-child(3){animation-duration:22s;}
+  .hero-visuals-walkers .walker-figure{transform-origin:50% 80%;animation:characterBreath 6.4s ease-in-out infinite alternate;}
+  .hero-visuals-walkers .walker-map{transform-origin:50% 50%;animation:mapFlutter 5.4s ease-in-out infinite alternate;}
+  .hero-visuals-walkers .walker-hair{transform-origin:18% 20%;animation:hairWind 5.2s ease-in-out infinite alternate;}
+
+  .hero-visuals-druzina{position:relative;}
+  .hero-visuals-druzina__scene,
+  .hero-visuals-druzina__canvas{position:absolute;inset:0;width:100%;height:100%;}
+  .hero-visuals-druzina__canvas{z-index:1;}
+  .hero-visuals-druzina__scene{z-index:0;}
+  .hero-visuals-druzina #footman,
+  .hero-visuals-druzina #paladin{animation:characterBreath 6.6s ease-in-out infinite alternate;transform-origin:50% 80%;}
+  .hero-visuals-druzina #paladin-weapon{animation:weaponSway 8s ease-in-out infinite alternate;transform-origin:10% 80%;}
+  .hero-visuals-druzina #campfire-flame{animation:flameFlicker 1.2s ease-in-out infinite alternate;transform-origin:50% 100%;}
+  .hero-visuals-druzina #campfire-glow{animation:glowPulse 3.6s ease-in-out infinite alternate;transform-origin:50% 100%;}
+  .hero-visuals-druzina #background-trees{opacity:.75;animation:backgroundDrift 28s linear infinite;}
+
   @keyframes heroDrift{
     0%{transform:translate(0,0) scale(1);}
     100%{transform:translate(3%,-3%) scale(1.08);}
   }
-  @media(prefers-reduced-motion:reduce){ .hero::before{animation:none;} }
+  @keyframes mainFloat{
+    0%{transform:translateY(0);}100%{transform:translateY(-10px);} 
+  }
+  @keyframes pulseGlow{
+    0%{transform:scale(1);opacity:.22;}50%{transform:scale(1.02);opacity:.28;}100%{transform:scale(1);opacity:.22;} 
+  }
+  @keyframes pageFlip{
+    0%{transform:rotateY(0deg);}100%{transform:rotateY(-12deg);} 
+  }
+  @keyframes energyWave{
+    0%{transform:translateY(0);}100%{transform:translateY(-6px);} 
+  }
+  @keyframes walkersDrift{
+    0%{transform:translateX(0);}100%{transform:translateX(-14px);} 
+  }
+  @keyframes characterBreath{
+    0%{transform:translateY(0);}100%{transform:translateY(-5px);} 
+  }
+  @keyframes mapFlutter{
+    0%{transform:rotate(0deg);}100%{transform:rotate(-2deg);} 
+  }
+  @keyframes hairWind{
+    0%{transform:translateX(0);}100%{transform:translateX(-5px);} 
+  }
+  @keyframes weaponSway{
+    0%{transform:rotate(0deg);}100%{transform:rotate(3deg);} 
+  }
+  @keyframes flameFlicker{
+    0%{transform:scaleY(1);opacity:1;}50%{transform:scaleY(1.08);opacity:.9;}100%{transform:scaleY(1);opacity:1;} 
+  }
+  @keyframes glowPulse{
+    0%{opacity:.18;}50%{opacity:.26;}100%{opacity:.18;} 
+  }
+  @keyframes backgroundDrift{
+    0%{transform:translateX(0);}100%{transform:translateX(-18px);} 
+  }
+
+  .hero .wrap{position:relative;z-index:1;}
+  @media (max-width:900px){ .hero-visuals{display:none;} }
+  @media(prefers-reduced-motion:reduce){
+    .hero::before,
+    .hero-visuals *,
+    .hero-visuals-druzina__canvas{
+      animation:none !important;
+    }
+  }
 
   /* GENERIC */
   .eyebrow-sm{font-family:var(--font-m);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:10px;}
@@ -535,14 +616,18 @@
 </style>
 </head>
 <body>
+<audio id="bgAudio" loop preload="none" src="media/ambient.mp3"></audio>
 <nav class="nav">
   <div class="wrap">
     <div class="brand" id="navBrand">Aliaksei Chareshneu, PhD | Алексей Черешнев, доктор наук<small id="navSub">Экосистема проектов в Брно</small></div>
-    <div class="langs" id="langSwitch" role="group" aria-label="Language">
-      <button data-lang="ru">RU</button>
-      <button data-lang="uk">UK</button>
-      <button data-lang="cs">CZ</button>
-      <button data-lang="en">EN</button>
+    <div class="nav-actions">
+      <button id="audioToggle" class="audio-toggle" aria-label="Toggle background music" aria-pressed="false">🔇</button>
+      <div class="langs" id="langSwitch" role="group" aria-label="Language">
+        <button data-lang="ru">RU</button>
+        <button data-lang="uk">UK</button>
+        <button data-lang="cs">CZ</button>
+        <button data-lang="en">EN</button>
+      </div>
     </div>
   </div>
 </nav>
@@ -1727,6 +1812,41 @@ const REVIEWS_BADGE_TEXT = {
 function renderMainTab(lang, t) {
   return `
   <section class="hero">
+    <div class="hero-visuals hero-visuals-main" aria-hidden="true">
+      <svg viewBox="0 0 950 420" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="notebookGradient" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#f4f1e8" stop-opacity=".9"/>
+            <stop offset="100%" stop-color="#c9a227" stop-opacity=".14"/>
+          </linearGradient>
+          <linearGradient id="pulseGradient" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#c9a227" stop-opacity=".7"/>
+            <stop offset="100%" stop-color="#ece7d8" stop-opacity=".2"/>
+          </linearGradient>
+        </defs>
+        <g class="main-notebook">
+          <path d="M180 122h194v196a14 14 0 0 1-14 14H194a14 14 0 0 1-14-14V136a14 14 0 0 1 14-14Z" fill="url(#notebookGradient)" stroke="#ece7d8" stroke-width="3"/>
+          <path d="M206 146h138v164H206z" fill="#1f2127" opacity=".88"/>
+          <path d="M218 166h118M218 190h118M218 214h118" fill="none" stroke="#c9a227" stroke-width="3" stroke-linecap="round" opacity=".8"/>
+          <path class="main-page" d="M188 138l22 12-22 12z" fill="#ece7d8" opacity=".92"/>
+        </g>
+        <g class="main-pencil">
+          <path d="M520 72l96 92-54 60-96-92z" fill="#ece7d8" stroke="#c9a227" stroke-width="4"/>
+          <path d="M558 110l30 28" fill="none" stroke="#1f2127" stroke-width="5" stroke-linecap="round"/>
+          <path d="M602 150l18 18" fill="none" stroke="#c9a227" stroke-width="4" stroke-linecap="round"/>
+        </g>
+        <g class="main-pulse">
+          <rect x="680" y="160" width="156" height="32" rx="16" fill="rgba(255,255,255,.06)"/>
+          <path d="M692 176l18 0 16-24 14 40 18-28 12 20 22-16 20 8 16-28 24 0" fill="none" stroke="url(#pulseGradient)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+        </g>
+        <g class="main-dumbbell">
+          <rect x="270" y="280" width="346" height="24" rx="12" fill="rgba(236,231,216,.12)"/>
+          <rect x="238" y="264" width="44" height="48" rx="12" fill="#ece7d8" opacity=".18"/>
+          <rect x="600" y="264" width="44" height="48" rx="12" fill="#ece7d8" opacity=".18"/>
+          <path class="main-wave" d="M299 294c22-20 78-24 116-12 26 8 46 22 86 16 22-4 46-18 60-24" fill="none" stroke="#c9a227" stroke-width="4" stroke-linecap="round"/>
+        </g>
+      </svg>
+    </div>
     <div class="wrap">
       <div class="eyebrow">${t.hero.eyebrow}</div>
       <h1>${t.main.title}</h1>
@@ -2399,6 +2519,7 @@ const EVENT_TYPES = {
     },
     {
       icon: '🚣',
+      safety: true,
       title: {ru:'Сплав (каноэ)', en:'Canoe Trip', cs:'Vodácký výlet', uk:'Сплав (каное)'},
       meta: {ru:'1–2 раза в год', en:'1–2 times a year', cs:'1–2× ročně', uk:'1–2 рази на рік'},
       desc: {ru:'Река Морава или Дые. Снаряжение арендуется через организатора. Аренда каноэ и весел обязательно возвращается в целости — см. п.7 правил.', en:'Morava or Dyje river. Equipment rented through the organizer. Canoes and paddles must be returned undamaged — see rule 7.', cs:'Řeka Morava nebo Dyje. Vybavení se půjčuje přes organizátora. Kanoe a pádla je nutné vrátit nepoškozená — viz pravidlo 7.', uk:'Річка Морава або Дие. Спорядження орендується через організатора. Каное та весла обов\'язково повертаються в цілості — див. п.7 правил.'}
@@ -2420,6 +2541,7 @@ function renderEventTypes(lang) {
       <div class="ec-title">${t.title[lang]}</div>
       <div class="ec-meta">${t.meta[lang]}</div>
       <div class="ec-desc">${t.desc[lang]}</div>
+      ${t.safety ? `<a href="#canoe-safety" style="display:inline-block;margin-top:10px;font-size:13px;font-weight:600;">${{ru:'Инструктаж по безопасности →',en:'Safety briefing →',cs:'Bezpečnostní poučení →',uk:'Інструктаж з безпеки →'}[lang]}</a>` : ''}
     </div>`).join('');
   return `
   <section id="event-types">
@@ -2427,6 +2549,67 @@ function renderEventTypes(lang) {
       <div class="eyebrow-sm">${d.eyebrow[lang]}</div>
       <h2 class="anchor-heading">${d.title[lang]}<a class="anchor-link" href="#event-types">#</a></h2>
       <div class="event-types">${cards}</div>
+    </div>
+  </section>`;
+}
+
+const CANOE_SAFETY = {
+  eyebrow: {ru:'Безопасность', en:'Safety', cs:'Bezpečnost', uk:'Безпека'},
+  title: {ru:'Инструктаж по безопасности — сплав на каноэ', en:'Safety Briefing — Canoe River Trips', cs:'Poučení o bezpečnosti — sjíždění řek na kánoi', uk:'Інструктаж з безпеки — сплав на каное'},
+  intro: {
+    ru:'Этот инструктаж — часть регистрации на мероприятие. Участвуя в мероприятии, участник подтверждает, что ознакомился с ним.',
+    en:'This briefing is part of event registration. By taking part in the event, the participant confirms they have read and understood it.',
+    cs:'Toto poučení je součástí registrace na akci. Účastí na akci účastník potvrzuje, že se s ním seznámil.',
+    uk:'Цей інструктаж є частиною реєстрації на захід. Беручи участь у заході, учасник підтверджує, що ознайомився з ним.'
+  },
+  risks: {
+    ru:['Риски, связанные с активностью','Сплав на каноэ — активность на открытом воздухе, связанная с естественными рисками: переворот лодки, падение в воду, переохлаждение, столкновение с препятствием, течение реки, разная глубина и температура воды. Эти риски невозможно полностью исключить даже при соблюдении всех правил.'],
+    en:['Risks involved','Canoeing on a river is an outdoor activity with inherent risks: the canoe capsizing, falling into the water, getting cold, hitting obstacles, currents, and varying water depth and temperature. These risks cannot be fully eliminated even when all rules are followed.'],
+    cs:['Rizika spojená s aktivitou','Sjíždění řek na kánoi je outdoorová aktivita spojená s přirozenými riziky: převrácení lodi, pád do vody, prochladnutí, náraz na překážku, proud řeky, kolísající hloubka a teplota vody. Tato rizika nelze zcela vyloučit ani při dodržení všech pravidel.'],
+    uk:['Ризики, пов’язані з активністю','Сплав на каное — це активність на відкритому повітрі, пов’язана з природними ризиками: перекидання човна, падіння у воду, переохолодження, зіткнення з перешкодою, течія річки, різна глибина та температура води. Ці ризики неможливо повністю виключити навіть при дотриманні всіх правил.']
+  },
+  rules: {
+    ru:['Обязательное снаряжение и правила',['Спасательный жилет обязателен на воде на протяжении всего мероприятия для всех участников; для детей до 15 лет это требование закона, а не рекомендация.','Следуйте указаниям инструктора — особенно при посадке/высадке из лодки, на более сложных участках и во время остановок.','В лодке нельзя вставать.','Не употребляйте алкоголь до и во время мероприятия.','Подходящая обувь (не шлёпанцы, не босиком).','Оставайтесь в поле зрения группы; о любой проблеме сразу сообщайте инструктору.']],
+    en:['Required equipment and rules',['A life vest is mandatory on the water at all times for every participant; for children under 15 this is a legal requirement, not just a recommendation.','Follow the guide’s instructions — especially when boarding/leaving the canoe, on more difficult sections, and during stops.','Do not stand up in the canoe.','No alcohol before or during the event.','Wear suitable footwear (no flip-flops, no bare feet).','Stay within sight of the group; report any problem to the guide immediately.']],
+    cs:['Povinná výbava a pravidla',['Plovací vesta je povinná po celou dobu na vodě pro všechny účastníky; pro děti do 15 let je nošení vesty zákonným požadavkem.','Řiďte se pokyny průvodce — zejména při nástupu/výstupu z lodi, na obtížnějších úsecích a při zastávkách.','Ve člunu se nestoupá.','Nekonzumujte alkohol před ani během akce.','Vhodná obuv (ne žabky, ne naboso).','Zůstávejte v dohledu skupiny; při jakémkoli problému okamžitě informujte průvodce.']],
+    uk:['Обов’язкове спорядження та правила',['Рятувальний жилет обов’язковий на воді протягом усього заходу для всіх учасників; для дітей до 15 років це законодавча вимога, а не рекомендація.','Дотримуйтесь вказівок інструктора — особливо під час посадки/висадки з човна, на складніших ділянках і під час зупинок.','У човні не можна вставати.','Не вживайте алкоголь до або під час заходу.','Відповідне взуття (без в’єтнамок, без босоніж).','Залишайтесь у полі зору групи; про будь-яку проблему одразу повідомляйте інструктора.']]
+  },
+  minors: {
+    ru:['Разграничение ответственности за несовершеннолетних','Сопровождающий родитель/законный представитель отвечает за непосредственный надзор за своим ребёнком на протяжении всего мероприятия — посадка и высадка из лодки, поведение в лодке, соблюдение инструкций. Оператор отвечает за техническое состояние и безопасность предоставленного снаряжения, за руководство группой и за проведение этого инструктажа.'],
+    en:['Responsibility for minors','The accompanying parent/legal guardian is responsible for direct supervision of their child throughout the event — boarding and leaving the canoe, behavior on board, and following instructions. The operator is responsible for the technical condition and safety of the rented equipment, for leading the group, and for providing this briefing.'],
+    cs:['Rozdělení odpovědnosti u nezletilých','Doprovázející rodič/zákonný zástupce odpovídá za bezprostřední dohled nad svým dítětem po celou dobu akce — nástup a výstup z lodi, chování na lodi a dodržování pokynů. Provozovatel odpovídá za technický stav a bezpečnost zapůjčeného vybavení, za vedení skupiny a za poskytnutí tohoto poučení.'],
+    uk:['Розподіл відповідальності щодо неповнолітніх','Батько/законний представник, який супроводжує дитину, відповідає за безпосередній нагляд за нею протягом усього заходу — посадка та висадка з човна, поведінка в човні, дотримання вказівок. Оператор відповідає за технічний стан і безпеку орендованого спорядження, за керівництво групою та за надання цього інструктажу.']
+  },
+  emergency: {
+    ru:['В случае чрезвычайной ситуации','Следуйте указаниям инструктора. Контакт инструктора/организатора: [добавить телефон]. Ближайшие места выхода из воды инструктор укажет в начале мероприятия.'],
+    en:['In an emergency','Follow the guide’s instructions. Guide/organizer contact: [add phone number]. The nearest exit points from the water will be pointed out by the guide at the start of the event.'],
+    cs:['V případě nouze','Řiďte se pokyny průvodce. Kontakt na průvodce/organizátora: [doplnit telefon]. Nejbližší místa výstupu z vody označí průvodce na začátku akce.'],
+    uk:['У разі надзвичайної ситуації','Дотримуйтесь вказівок інструктора. Контакт інструктора/організатора: [додати телефон]. Найближчі місця виходу з води інструктор вкаже на початку заходу.']
+  },
+  acknowledgement: {
+    ru:['Подтверждение','Отмечая галочку в регистрационной форме или расписываясь на месте, участник (а за несовершеннолетнего — его родитель/законный представитель) подтверждает, что ознакомился с этим инструктажем и понимает описанные риски.'],
+    en:['Acknowledgment','By checking the box on the registration form, or by signing on site, the participant (or, for a minor, their parent/legal guardian) confirms they have read this briefing and understand the risks described.'],
+    cs:['Potvrzení','Zaškrtnutím políčka v registračním formuláři nebo podpisem na místě účastník (u nezletilého jeho rodič/zákonný zástupce) potvrzuje, že se s tímto poučením seznámil a rozumí uvedeným rizikům.'],
+    uk:['Підтвердження','Позначивши галочку в реєстраційній формі або підписавшись на місці, учасник (а за неповнолітнього — його батько/законний представник) підтверджує, що ознайомився з цим інструктажем і розуміє описані ризики.']
+  }
+};
+
+function renderCanoeSafety(lang) {
+  const d = CANOE_SAFETY;
+  const block = (section) => `<h3>${section[lang][0]}</h3><p>${section[lang][1]}</p>`;
+  const rules = d.rules[lang];
+  return `
+  <section id="canoe-safety">
+    <div class="wrap">
+      <div class="eyebrow-sm">${d.eyebrow[lang]}</div>
+      <h2 class="anchor-heading">${d.title[lang]}<a class="anchor-link" href="#canoe-safety">#</a></h2>
+      <p class="lead">${d.intro[lang]}</p>
+      ${block(d.risks)}
+      <h3>${rules[0]}</h3>
+      <ul class="plain">${rules[1].map(item => `<li>${item}</li>`).join('')}</ul>
+      ${block(d.minors)}
+      ${block(d.emergency)}
+      ${block(d.acknowledgement)}
     </div>
   </section>`;
 }
@@ -2680,6 +2863,41 @@ function renderWalkersTab(lang, t) {
   const registerLabel = {ru:'Зарегистрироваться на мероприятие', en:'Register for an event', cs:'Zaregistrovat se na akci', uk:'Зареєструватися на захід'};
   return `
   <section class="hero">
+    <div class="hero-visuals hero-visuals-walkers" aria-hidden="true">
+      <svg viewBox="0 0 950 420" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="trailGlow" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#f4f1e8" stop-opacity=".3"/>
+            <stop offset="100%" stop-color="#c9a227" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <g class="walker-background" id="walker-background">
+          <path d="M0 320c120-92 260-112 420-84 120 20 250 18 420-20v124H0Z" fill="#17181b"/>
+          <path d="M680 226c34-22 78-36 110-18 24 14 48 42 48 72" fill="none" stroke="#ece7d8" stroke-opacity=".18" stroke-width="8"/>
+          <path d="M112 274c44-26 112-40 172-28 45 9 96 32 150 38" fill="none" stroke="#ece7d8" stroke-opacity=".14" stroke-width="6"/>
+        </g>
+        <g class="walker-cloud" id="walker-cloud-1" opacity=".2">
+          <ellipse cx="725" cy="82" rx="72" ry="24" fill="#ece7d8"/>
+          <ellipse cx="770" cy="80" rx="44" ry="18" fill="#ece7d8"/>
+        </g>
+        <g class="walker-cloud" id="walker-cloud-2" opacity=".16">
+          <ellipse cx="150" cy="68" rx="64" ry="22" fill="#ece7d8"/>
+          <ellipse cx="185" cy="62" rx="38" ry="16" fill="#ece7d8"/>
+        </g>
+        <g id="walker-silhouettes" opacity=".5">
+          <path d="M830 312h32l16-72 22-18 4 42 18 28v42H830Z" fill="#1f2127"/>
+          <path d="M760 316h24l12-58 20-16 2 36 14 22v30H760Z" fill="#1f2127"/>
+        </g>
+        <g id="walker-figure" class="walker-figure">
+          <path d="M392 196c-18 24-26 56-20 86l-8 42 34 8 50-14 22-60c6-18 10-38 6-58-6-30-26-54-58-60-18-4-38 2-46 14Z" fill="#f4f1e8"/>
+          <path d="M410 214c8 10 14 24 16 38l-22 12-12-18c-2-14 4-28 18-32Z" fill="#17181b" opacity=".6"/>
+          <path class="walker-hair" d="M404 142c12-8 34-12 44-8l8 18c-14-2-36 0-52 14Z" fill="#ece7d8" opacity=".92"/>
+          <path d="M416 248l48 18 12 32-44 14-18-18-4-42Z" fill="#17181b" opacity=".6"/>
+          <path class="walker-map" d="M402 260l64-26 48 38-48 32-64-24Z" fill="url(#trailGlow)" stroke="#c9a227" stroke-width="3"/>
+          <path d="M432 252l18-12 24 18" fill="none" stroke="#17181b" stroke-width="3" stroke-linecap="round"/>
+        </g>
+      </svg>
+    </div>
     <div class="wrap">
       <div class="eyebrow">${t.walkers.eyebrow}</div>
       <h1>${t.walkers.title}</h1>
@@ -2705,6 +2923,8 @@ function renderWalkersTab(lang, t) {
   </div>
 
   ${renderEventTypes(lang)}
+
+  ${renderCanoeSafety(lang)}
 
   ${renderMedals(lang)}
 
@@ -2841,6 +3061,49 @@ function renderDruzinaTab(lang, t) {
   const cordColors = ['var(--r2)','var(--r3)','var(--r4)','var(--r5)'];
   return `
   <section class="hero">
+    <div class="hero-visuals hero-visuals-druzina" aria-hidden="true">
+      <div class="hero-visuals-druzina__scene">
+        <svg viewBox="0 0 960 420" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="fireGlow" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#ffd27a" stop-opacity=".92"/>
+              <stop offset="100%" stop-color="#f4c66d" stop-opacity="0"/>
+            </linearGradient>
+            <radialGradient id="smokeGlow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#ece7d8" stop-opacity=".25"/>
+              <stop offset="100%" stop-color="#16171a" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+          <path id="background-trees" d="M0 320c90-90 220-120 360-106 140 14 240 54 320 80 90 28 180 28 280-20v166H0Z" fill="#16171a"/>
+          <path d="M44 320C130 240 220 208 300 214c94 6 142 38 238 56 116 22 204 20 306-18v108H44Z" fill="#1d1f23"/>
+          <g id="campfire" transform="translate(460 278)">
+            <ellipse cx="0" cy="14" rx="58" ry="22" fill="#241f17" opacity=".95"/>
+            <path id="campfire-glow" d="M-20 0c8-22 30-36 46-30 14 4 24 20 18 34-6 18-24 32-38 34-18 2-24-14-26-22-2-8-2-16 0-16Z" fill="url(#fireGlow)" opacity=".72"/>
+            <path id="campfire-flame" d="M-8 0c4-18 18-26 30-20 8 4 10 16 6 24-6 14-18 22-28 20-10-2-12-10-8-24Z" fill="#e0b650"/>
+            <path d="M-40 20l20 12 10-24 18 30 22-14 12 22" fill="none" stroke="#f4e3b3" stroke-width="3" stroke-linecap="round"/>
+          </g>
+          <g id="footman" class="druzina-character" transform="translate(300 242)">
+            <path d="M-34 -18c28-18 32-38 32-58 0-14-8-26-24-34-22-10-42 0-54 18-10 16-14 52-4 82 10 32 24 48 30 48 8 0 20-12 20-12s-4-30-4-44Z" fill="#d7d0bb"/>
+            <path d="M-34 -18c10-2 28 2 42-18 6-8 4-22-2-30-10-12-32-20-52-12-14 6-22 18-24 30-4 22 4 40 20 52 12 8 20 16 16 28Z" fill="#1d1f23" opacity=".75"/>
+            <path d="M-18 12l-34 22 8 16 32-18 12-34-18 14Z" fill="#686259"/>
+            <path d="M-18 -16l24 -12 6 10-26 14Z" fill="#ece7d8" opacity=".78"/>
+            <path d="M-36 2l-8 38 14 8 20-14 4-24-18-10Z" fill="#1f2127" opacity=".65"/>
+            <path d="M-24 2l8 18 14-10" fill="none" stroke="#c9a227" stroke-width="3" stroke-linecap="round"/>
+          </g>
+          <g id="paladin" class="druzina-character" transform="translate(560 246)">
+            <path d="M-40 -26c20-20 40-28 54-14 12 12 16 30 10 50-6 18-22 30-36 34-18 6-30-8-34-22-4-16-2-36 6-48Z" fill="#f4f1e8"/>
+            <path d="M-28 2l14-10 24 32-10 14-24-22Z" fill="#1d1f23" opacity=".7"/>
+            <path d="M-38 -6l-8 20 18 10 30-18-12-20Z" fill="#ece7d8" opacity=".9"/>
+            <path id="paladin-weapon" d="M24 -14l42 20-6 18-42-18Z" fill="#d7d0bb"/>
+            <path d="M40 4l18 4" fill="none" stroke="#c9a227" stroke-width="4" stroke-linecap="round"/>
+            <path d="M-48 4a18 18 0 0 1 36 0" fill="#1f2127" opacity=".6"/>
+          </g>
+          <path d="M150 310c40-18 80-38 124-52" fill="none" stroke="#ece7d8" stroke-opacity=".12" stroke-width="4" stroke-linecap="round"/>
+          <path d="M760 300c22-16 52-22 78-18" fill="none" stroke="#ece7d8" stroke-opacity=".12" stroke-width="4" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <canvas class="hero-visuals-druzina__canvas" aria-hidden="true"></canvas>
+    </div>
     <div class="wrap">
       <div class="eyebrow">Brno · HEMA · LARP</div>
       <h1>${t.ui.druzinaName}</h1>
@@ -3027,7 +3290,9 @@ function render(lang){
 
   document.getElementById('app').innerHTML = htmlContent;
   bindLangButtons(lang);
+  bindAudioToggle();
   initScrollReveal();
+  initHeroAnimations();
 
   if(currentTab === 'druzina'){
     observeLadder();
@@ -3090,13 +3355,157 @@ function bindLangButtons(active){
   });
 }
 
-function observeLadder(){
-  const el = document.getElementById('ladder');
-  if(!el) return;
-  const io = new IntersectionObserver((entries)=>{
-    entries.forEach(en=>{ if(en.isIntersecting){ el.classList.add('revealed'); io.disconnect(); } });
-  }, {threshold:.2});
-  io.observe(el);
+function bindAudioToggle(){
+  const audio = document.getElementById('bgAudio');
+  const button = document.getElementById('audioToggle');
+  if(!audio || !button) return;
+
+  const stored = localStorage.getItem('bgAudioOn');
+  const enabled = stored === 'true';
+  button.setAttribute('aria-pressed', enabled ? 'true' : 'false');
+  button.textContent = enabled ? '🔊' : '🔇';
+
+  const syncToState = (playState) => {
+    button.setAttribute('aria-pressed', playState ? 'true' : 'false');
+    button.textContent = playState ? '🔊' : '🔇';
+  };
+
+  button.onclick = async () => {
+    const willPlay = button.getAttribute('aria-pressed') !== 'true';
+    if(willPlay){
+      try{
+        await audio.play();
+        syncToState(true);
+        localStorage.setItem('bgAudioOn', 'true');
+      }catch(e){
+        syncToState(false);
+        localStorage.setItem('bgAudioOn', 'false');
+      }
+    } else {
+      audio.pause();
+      audio.currentTime = 0;
+      syncToState(false);
+      localStorage.setItem('bgAudioOn', 'false');
+    }
+  };
+}
+
+const heroAnimationStore = {
+  raf: null,
+  resizeHandler: null,
+  canvas: null,
+  root: null,
+  bounds: null,
+  particles: [],
+  reduced: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+};
+
+function cleanupHeroAnimations(){
+  if(heroAnimationStore.raf) cancelAnimationFrame(heroAnimationStore.raf);
+  if(heroAnimationStore.resizeHandler) window.removeEventListener('resize', heroAnimationStore.resizeHandler);
+  heroAnimationStore.raf = null;
+  heroAnimationStore.resizeHandler = null;
+  heroAnimationStore.canvas = null;
+  heroAnimationStore.root = null;
+  heroAnimationStore.bounds = null;
+  heroAnimationStore.particles = [];
+}
+
+function initHeroAnimations(){
+  cleanupHeroAnimations();
+  if(heroAnimationStore.reduced) return;
+  const druzinaRoot = document.querySelector('.hero-visuals-druzina');
+  if(druzinaRoot) return initDruzinaHero(druzinaRoot);
+}
+
+function initDruzinaHero(root){
+  const canvas = root.querySelector('.hero-visuals-druzina__canvas');
+  if(!canvas || !(canvas instanceof HTMLCanvasElement)) return;
+  const ctx = canvas.getContext('2d');
+  if(!ctx) return;
+  const particles = Array.from({length: 24}, () => createDruzinaParticle());
+  heroAnimationStore.root = root;
+  heroAnimationStore.canvas = canvas;
+  heroAnimationStore.particles = particles;
+
+  function resize(){
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = Math.max(1, rect.width * dpr);
+    canvas.height = Math.max(1, rect.height * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    heroAnimationStore.bounds = {width: rect.width, height: rect.height};
+  }
+
+  heroAnimationStore.resizeHandler = resize;
+  window.addEventListener('resize', resize, { passive: true });
+  resize();
+
+  function animate(){
+    if(!heroAnimationStore.canvas) return;
+    const bounds = heroAnimationStore.bounds;
+    if(bounds){
+      ctx.clearRect(0, 0, bounds.width, bounds.height);
+      drawDruzinaParticles(ctx, bounds, particles);
+    }
+    heroAnimationStore.raf = requestAnimationFrame(animate);
+  }
+
+  heroAnimationStore.raf = requestAnimationFrame(animate);
+}
+
+function createDruzinaParticle(){
+  const lifetime = 2200 + Math.random() * 1800;
+  return {
+    x: 0,
+    y: 0,
+    vx: (Math.random() - 0.5) * 12,
+    vy: -1.5 - Math.random() * 1.5,
+    radius: 3 + Math.random() * 6,
+    alpha: 0,
+    life: 0,
+    lifetime,
+  };
+}
+
+function drawDruzinaParticles(ctx, bounds, particles){
+  const originX = bounds.width * 0.50;
+  const originY = bounds.height * 0.70;
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  particles.forEach(p => {
+    p.life += 16;
+    if(p.life > p.lifetime){
+      Object.assign(p, createDruzinaParticle());
+      p.x = originX + (Math.random() - 0.5) * 36;
+      p.y = originY;
+      p.life = 0;
+      p.alpha = 0;
+      p.vx = (Math.random() - 0.5) * 12;
+      p.vy = -1.5 - Math.random() * 1.5;
+      p.radius = 3 + Math.random() * 6;
+    }
+    p.x += p.vx * 0.18;
+    p.y += p.vy * 0.18;
+    p.alpha = Math.min(1, p.life / (p.lifetime * 0.35));
+    const fade = 1 - p.life / p.lifetime;
+    const grd = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.radius * 2);
+    grd.addColorStop(0, `rgba(255,220,140,${p.alpha})`);
+    grd.addColorStop(0.35, `rgba(255,140,60,${Math.max(0, p.alpha * 0.4)})`);
+    grd.addColorStop(1, 'rgba(255,140,60,0)');
+    ctx.fillStyle = grd;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.radius * (0.75 + fade * 0.45), 0, Math.PI * 2);
+    ctx.fill();
+    if(Math.random() > 0.7){
+      ctx.strokeStyle = `rgba(255,215,120,${fade * 0.2})`;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.radius * 1.6, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+  });
+  ctx.restore();
 }
 
 function detectLang(){

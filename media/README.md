@@ -1,0 +1,1 @@
+Drop a royalty-free ambient/folk track here as ambient.mp3 (<2–3MB, loopable).
