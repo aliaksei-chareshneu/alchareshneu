@@ -556,6 +556,9 @@
 
   /* PRICING */
   .price-global-note{background:var(--bg-card);border:1px solid var(--rule);border-left:3px solid var(--r5);border-radius:4px;padding:12px 16px;font-size:13.5px;color:var(--ink-dim);margin-bottom:28px;}
+  .price-jump-list{display:flex;flex-wrap:wrap;gap:10px;margin:8px 0 20px;}
+  .price-jump-link{font-size:14px;font-weight:700;color:var(--r5);text-decoration:none;padding:8px 12px;border:1px solid var(--rule);border-radius:999px;background:var(--bg-card);transition:transform .15s ease,background .15s ease;}
+  .price-jump-link:hover{background:var(--bg-alt);transform:translateY(-1px);}
   .price-jump{margin:8px 0 18px;font-size:14px}
   .price-jump a{font-weight:700;color:var(--r5);text-decoration:none}
   .price-cats{display:flex;flex-direction:column;gap:32px;}
@@ -657,6 +660,7 @@
         <button data-lang="cs">CZ</button>
         <button data-lang="en">EN</button>
       </div>
+      <button id="navHousingBtn" class="btn" style="margin-left:10px;">Housing</button>
     </div>
   </div>
 </nav>
@@ -1986,6 +1990,7 @@ function renderMainTab(lang, t) {
       <div class="hero-ctas">
         <button class="btn solid" onclick="switchTab('druzina')">${t.tabs.druzina}</button>
         <button class="btn" onclick="switchTab('walkers')">${t.tabs.walkers}</button>
+        <button class="btn" onclick="switchTab('main'); setTimeout(()=>{const el=document.getElementById('price-hous'); if(el) el.scrollIntoView({behavior:'smooth', block:'start'})},120)">${PRICING && PRICING.categories ? PRICING.categories.find(c=>c.id==='HOUS').title[lang] : 'Housing'}</button>
         <a class="btn" href="${communityLinks(lang,'walkers').channel}" target="_blank" rel="noopener">${t.ui.eventAlerts}</a>
       </div>
     </div>
@@ -2528,13 +2533,17 @@ function renderPricing(lang) {
       </div>`;
   }).join('');
 
+  const jumpLinks = d.categories.map(cat => `
+        <a class="price-jump-link" href="#price-${cat.id.toLowerCase()}">${cat.icon} ${cat.title[lang]}</a>
+      `).join('');
+
   return `
   <section id="pricing">
     <div class="wrap">
       <div class="eyebrow-sm">${d.eyebrow[lang]}</div>
       <h2 class="anchor-heading">${d.title[lang]}<a class="anchor-link" href="#pricing">#</a></h2>
       <p class="price-global-note">${d.globalNote[lang]}</p>
-      <p class="price-jump"><a href="#price-hous">🏠 ${housTitle}</a></p>
+      <div class="price-jump-list">${jumpLinks}</div>
 
       <div class="price-cats">${cats}</div>
 
@@ -3554,6 +3563,16 @@ function render(lang){
   bindAudioToggle();
   initScrollReveal();
   initHeroAnimations();
+
+  // Update nav housing button label and behavior
+  const navH = document.getElementById('navHousingBtn');
+  if(navH){
+    try{
+      const hous = PRICING && PRICING.categories ? PRICING.categories.find(c=>c.id==='HOUS') : null;
+      navH.textContent = hous ? hous.title[lang] : (lang==='ru' ? 'Помощь с жильём' : 'Housing');
+    }catch(e){}
+    navH.onclick = () => { switchTab('main'); setTimeout(()=>{ const el=document.getElementById('price-hous'); if(el) el.scrollIntoView({behavior:'smooth', block:'start'}); },120); };
+  }
 
   if(currentTab === 'druzina'){
     observeLadder();
