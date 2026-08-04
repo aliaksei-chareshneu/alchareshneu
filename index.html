@@ -186,6 +186,33 @@
   .contact-card-label{font-size:14px;font-weight:600;color:var(--ink);}
   .contact-card-desc{font-size:12.5px;color:var(--ink-dim);word-break:break-word;}
 
+  .hero-testimonial{border:1px solid var(--rule);border-radius:8px;padding:18px 20px;background:var(--bg-card);max-width:680px;margin-top:22px;}
+  .hero-testimonial p{margin:0;font-size:15px;line-height:1.65;color:var(--ink-dim);}
+  .hero-testimonial .quote{font-style:italic;color:var(--ink);}
+  .hero-testimonial .author{margin-top:12px;font-size:13px;font-weight:700;color:var(--ink);}
+
+  .priority-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:20px;}
+  .priority-card{border:1px solid var(--rule);border-radius:8px;padding:20px;background:var(--bg-card);display:flex;flex-direction:column;gap:12px;}
+  .priority-card h3{margin:0;font-size:18px;color:var(--ink);}
+  .priority-card p{margin:0;color:var(--ink-dim);line-height:1.7;}
+  .priority-card .card-cta{margin-top:auto;}
+
+  .leaderboard-table{width:100%;border-collapse:collapse;margin-top:20px;}
+  .leaderboard-table th,.leaderboard-table td{border:1px solid var(--rule);padding:10px 12px;text-align:left;font-size:14px;}
+  .leaderboard-table th{background:var(--bg-alt);font-weight:700;color:var(--ink);}
+  .leaderboard-note{margin-top:12px;font-size:13px;color:var(--ink-faint);}
+
+  .policy-box{border:1px solid var(--rule);border-radius:8px;padding:18px;background:rgba(249,246,230,.6);margin-top:16px;}
+  .policy-box p{margin:0 0 10px;color:var(--ink-dim);line-height:1.6;}
+  .policy-box p:last-child{margin-bottom:0;}
+
+  .best-value-row{display:inline-flex;align-items:center;gap:6px;margin-left:10px;font-size:12px;font-weight:700;color:var(--r5);}
+  .best-value-row::before{content:'★';}
+
+  .combo-card{background:var(--bg-card);border:1px solid var(--rule);border-radius:6px;padding:18px 16px;display:flex;flex-direction:column;gap:4px;transition:border-color .15s;position:relative;}
+  .combo-card.best-value{border-color:var(--r5);box-shadow:0 18px 40px rgba(0,0,0,.08);}
+  .combo-card .combo-badge{position:absolute;top:14px;right:14px;background:var(--r5);color:#16171a;font-size:11px;font-weight:700;padding:6px 10px;border-radius:999px;}
+
   .hero-icon-btn{display:inline-flex;align-items:center;gap:9px;}
   .hero-icon-btn svg{width:22px;height:22px;flex:0 0 auto;}
 
@@ -529,6 +556,8 @@
 
   /* PRICING */
   .price-global-note{background:var(--bg-card);border:1px solid var(--rule);border-left:3px solid var(--r5);border-radius:4px;padding:12px 16px;font-size:13.5px;color:var(--ink-dim);margin-bottom:28px;}
+  .price-jump{margin:8px 0 18px;font-size:14px}
+  .price-jump a{font-weight:700;color:var(--r5);text-decoration:none}
   .price-cats{display:flex;flex-direction:column;gap:32px;}
   .price-cat{border:1px solid var(--rule);border-radius:6px;padding:20px;}
   .price-cat-title{font-size:17px;font-weight:700;margin:0 0 6px;color:var(--ink);}
@@ -948,6 +977,8 @@ ru:{
     joinTG:'Вступить в Telegram',
     joinChat:'Чат сообщества · Telegram',
     joinChannel:'Канал анонсов · Telegram',
+    eventAlerts:'Получать анонсы событий',
+    walkersNewHere:'Новый здесь? Начни бесплатно — настолки во вторник',
     druzinaRulesH:'Общие правила участия & Официальный регламент',
     druzinaName:'Дружина Моравы',
     druzinaTagline:'Клуб исторического средневекового боя, фехтования (HEMA), стрельбы и LARP-реконструкции в Брно.',
@@ -1158,6 +1189,8 @@ en:{
     joinTG:'Join Telegram',
     joinChat:'Community Chat · WhatsApp',
     joinChannel:'Announcements Channel · WhatsApp',
+    eventAlerts:'Get event alerts',
+    walkersNewHere:'New here? Start free — Tuesday Board Game Night',
     druzinaRulesH:'General Rules & Official Regulations',
     druzinaName:'Druzhina Moravy',
     druzinaTagline:'A club for historical medieval combat, fencing (HEMA), archery, and LARP re-enactment in Brno.',
@@ -1368,6 +1401,8 @@ cs:{
     joinTG:'Vstoupit na Telegram',
     joinChat:'Komunitní chat · WhatsApp',
     joinChannel:'Kanál oznámení · WhatsApp',
+    eventAlerts:'Dostat upozornění na akce',
+    walkersNewHere:'Nová? Začni zdarma — úterní večer deskovek',
     druzinaRulesH:'Obecná pravidla účasti & Officiální řád',
     druzinaName:'Družina Moravy',
     druzinaTagline:'Klub historického středověkého boje, šermu (HEMA), střelby a LARP rekonstrukce v Brně.',
@@ -1578,6 +1613,8 @@ uk:{
     joinTG:'Вступити в Telegram',
     joinChat:'Чат спільноти · Telegram',
     joinChannel:'Канал анонсів · Telegram',
+    eventAlerts:'Отримувати сповіщення про заходи',
+    walkersNewHere:'Новий тут? Почни безкоштовно — вівторок настілок',
     druzinaRulesH:'Загальні правила участі & Офіційний регламент',
     druzinaName:'Дружина Моравії',
     druzinaTagline:'Клуб історичного середньовічного бою, фехтування (HEMA), стрільби та LARP-реконструкції в Брно.',
@@ -1681,6 +1718,100 @@ function renderTableWithPackages(headers, rows){
     html += accordion(`📚 ${g.title.replace(/^📚\s*/, '')}`, renderTable(headers, g.rows), false);
   });
   return html;
+}
+
+function renderAcademyPriorityStrip(lang){
+  const items = {
+    ru:[
+      {title:'Приоритет академии', desc:'Регулярные ученики получают первоочередной выбор времени в расписании.'},
+      {title:'Персональное сопровождение', desc:'Мы подбираем учебный путь с учётом целей, чтобы прогресс был быстрым и понятным.'},
+      {title:'Месячный ритм', desc:'Контроль и поддержка каждый месяц — чтобы знания накапливались стабильно.'}
+    ],
+    en:[
+      {title:'Academy priority', desc:'Regular students get first access to the best time slots.'},
+      {title:'Tailored guidance', desc:'We match your study plan to your goals for faster, clearer progress.'},
+      {title:'Monthly continuity', desc:'Ongoing monthly support keeps learning steady and on-track.'}
+    ],
+    cs:[
+      {title:'Priorita akademie', desc:'Pravidelní studenti získávají první výběr nejlepších časů.'},
+      {title:'Osobní vedení', desc:'Přizpůsobíme studijní plán vašim cílům pro rychlejší pokrok.'},
+      {title:'Měsíční kontinuita', desc:'Průběžná podpora každý měsíc drží učení stabilní.'}
+    ],
+    uk:[
+      {title:'Пріоритет академії', desc:'Постійні учні отримують перший вибір найкращого часу.'},
+      {title:'Персональне ведення', desc:'Ми підбираємо навчальний план під ваші цілі для швидшого прогресу.'},
+      {title:'Місячна підтримка', desc:'Регулярна підтримка щомісяця тримає навчання стабільним.'}
+    ]
+  };
+
+  const cards = (items[lang] || items.en).map(item => `
+    <div class="priority-card">
+      <h3>${item.title}</h3>
+      <p>${item.desc}</p>
+    </div>
+  `).join('');
+
+  return `
+  <section id="academy-priority">
+    <div class="wrap">
+      <div class="priority-grid">${cards}</div>
+    </div>
+  </section>`;
+}
+
+function renderLeaderboardTable(lang, t){
+  const headers = {
+    ru:['Имя','Ранг','Тренировок','Битв'],
+    en:['Name','Rank','Sessions','Battles'],
+    cs:['Jméno','Hodnost','Tréninků','Bitev'],
+    uk:["Ім'я",'Ранг','Тренувань','Битв']
+  }[lang] || ['Name','Rank','Sessions','Battles'];
+
+  const rows = [
+    ['Alex','Warlord','115','12'],
+    ['Marta','Champion','63','7'],
+    ['Petr','Veteran','42','5'],
+    ['Oksana','Warrior','27','3'],
+    ['Tomáš','Recruit','12','1']
+  ];
+
+  return `
+    <div style="margin-top:28px;">
+      <h3 style="margin-bottom:14px;font-size:18px;">${t.ranks.boardH}</h3>
+      <table class="leaderboard-table">
+        <thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead>
+        <tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody>
+      </table>
+      <p class="leaderboard-note">${t.ranks.boardText}</p>
+    </div>`;
+}
+
+function renderPolicySection(lang){
+  const titles = {
+    ru:{eyebrow:'Политика', title:'Политика и правила'},
+    en:{eyebrow:'Policy', title:'Policy and Rules'},
+    cs:{eyebrow:'Politika', title:'Politika a pravidla'},
+    uk:{eyebrow:'Політика', title:'Політика та правила'}
+  }[lang] || {eyebrow:'Policy', title:'Policy and Rules'};
+
+  const text = {
+    ru:{first:'📋 В первом сообщении укажи: 1) услугу/направление 2) конкретную цель 3) предпочитаемые дни и время.', second:'⚡ One Strike Rule: первое нарушение — предупреждение. Второе — постоянный бан (форс-мажор с доказательствами — исключение).'},
+    en:{first:'📋 First message must include: 1) service/subject 2) specific goal 3) preferred days and times.', second:'⚡ One Strike Rule: first violation — warning. Second — permanent ban (force majeure with proof — exception).'},
+    cs:{first:'📋 První zpráva musí obsahovat: 1) službu/předmět 2) konkrétní cíl 3) preferované dny a čas.', second:'⚡ One Strike Rule: první porušení — varování. Druhé — trvalý ban (vyšší moc s důkazy — výjimka).'},
+    uk:{first:'📋 При першому зверненні вкажи: 1) послугу/напрям 2) конкретну мету 3) бажані дні та час.', second:'⚡ One Strike Rule: перше порушення — попередження. Друге — постійний бан (форс-мажор з доказами — виняток).'}
+  }[lang] || {first:'📋 First message must include: 1) service/subject 2) specific goal 3) preferred days and times.', second:'⚡ One Strike Rule: first violation — warning. Second — permanent ban (force majeure with proof — exception).'};
+
+  return `
+  <section id="policy">
+    <div class="wrap">
+      <div class="eyebrow-sm">${titles.eyebrow}</div>
+      <h2 class="anchor-heading">${titles.title}<a class="anchor-link" href="#policy">#</a></h2>
+      <div class="policy-box">
+        <p>${text.first}</p>
+        <p>${text.second}</p>
+      </div>
+    </div>
+  </section>`;
 }
 
 function renderTable(headers, rows){
@@ -1799,8 +1930,8 @@ function renderGlobalRulesText(lang) {
 }
 
 // Единственное место для обновления счётчика отзывов (раз в 1-2 месяца, вручную).
-// Меняешь только эту цифру — она подтянется во все 8 мест на сайте, где упоминается счётчик.
-const GOOGLE_REVIEW_COUNT = 30;
+// Меняешь только эту цифру — она подтянется во все места на сайте, где упоминается счётчик.
+const GOOGLE_REVIEW_COUNT = 45;
 
 const REVIEWS_BADGE_TEXT = {
   ru:`${GOOGLE_REVIEW_COUNT}+ отзывов на Google · 5.0`,
@@ -1855,6 +1986,7 @@ function renderMainTab(lang, t) {
       <div class="hero-ctas">
         <button class="btn solid" onclick="switchTab('druzina')">${t.tabs.druzina}</button>
         <button class="btn" onclick="switchTab('walkers')">${t.tabs.walkers}</button>
+        <a class="btn" href="${communityLinks(lang,'walkers').channel}" target="_blank" rel="noopener">${t.ui.eventAlerts}</a>
       </div>
     </div>
   </section>
@@ -1870,6 +2002,10 @@ function renderMainTab(lang, t) {
   </div>
 
   ${renderUpcomingEvents(lang)}
+
+  ${renderAcademyPriorityStrip(lang)}
+
+  ${renderPolicySection(lang)}
 
   <section id="leader-about">
     <div class="wrap">
@@ -1941,6 +2077,7 @@ const ACADEMY_SUBJECTS = {
     uni:      {ru:'🎓 Студентам & Абитуриентам', en:'🎓 University & Applicants', cs:'🎓 Studenti & Uchazeči', uk:'🎓 Студентам & Абітурієнтам'},
     adult:    {ru:'🌍 Взрослым & Экспатам', en:'🌍 Adults & Expats', cs:'🌍 Dospělí & Expati', uk:'🌍 Дорослим & Експатам'},
     creative: {ru:'🎨 Творческое & Прикладное', en:'🎨 Creative & Applied', cs:'🎨 Kreativní & Aplikované', uk:'🎨 Творче & Прикладне'},
+    tech:      {ru:'🛠️ Техническое / Практическое', en:'🛠️ Technical / Practical help', cs:'🛠️ Technická / Praktická pomoc', uk:'🛠️ Технічна / Практична допомога'},
   },
   groups: [
     {
@@ -1978,6 +2115,13 @@ const ACADEMY_SUBJECTS = {
          items:{ru:['Бизнес-английский','Подготовка к IELTS / Cambridge','Разговорная практика','Английский для детей'],en:['Business English','IELTS / Cambridge exam prep','Conversational practice','English for children'],cs:['Obchodní angličtina','Příprava na IELTS / Cambridge','Konverzační praxe','Angličtina pro děti'],uk:['Бізнес-англійська','Підготовка до IELTS / Cambridge','Розмовна практика','Англійська для дітей']}},
         {icon:'🩺', name:{ru:'Медицинская поддержка',en:'Medical Support',cs:'Zdravotní podpora',uk:'Медична підтримка'},
          items:{ru:['Анализ диагноза и плана лечения','Помощь в общении с врачом','Медицинский перевод (онлайн/офлайн)','Нострификация медицинских документов'],en:['Diagnosis & treatment analysis','Support communicating with doctors','Medical interpreting (online/in-person)','Medical document nostrification'],cs:['Analýza diagnózy a léčby','Pomoc v komunikaci s lékařem','Zdravotní tlumočení (online/osobně)','Nostrifikace zdravotních dokumentů'],uk:['Аналіз діагнозу та плану лікування','Допомога у спілкуванні з лікарем','Медичний переклад (онлайн/офлайн)','Нострифікація медичних документів']}},
+      ]
+    },
+    {
+      key: 'tech',
+      subjects: [
+        {icon:'🛡️', name:{ru:'Чистка компьютера от вирусов и вредоносного ПО',en:'Computer & malware cleanup',cs:'Úklid počítače / odstranění malwaru',uk:'Чистка комп\'ютера від вірусів та шкідливого ПЗ'},
+         items:{ru:['Удаление вирусов и вредоносного ПО, базовая настройка защиты, проверка подозрительных программ.'],en:['Malware removal, basic security hardening, and a check for suspicious software on your computer.'],cs:['Vyčištění počítače od virů a malwaru, základní zabezpečení, kontrola podezřelého softwaru.'],uk:['Видалення вірусів і шкідливого ПЗ, базове налаштування захисту, перевірка підозрілих програм.']}},
       ]
     },
     {
@@ -2047,7 +2191,7 @@ const PRICING = {
           ['📚 Пакеты — Индивидуально офлайн','—'],['5 занятий (−5%)','2 850 Kč'],['10 занятий (−10%)','5 400 Kč'],['20 занятий (−15%)','10 200 Kč'],
           ['📚 Пакеты — Группа онлайн (за чел.)','—'],['5 занятий (−5%)','1 663 Kč'],['10 занятий (−10%)','3 150 Kč'],['20 занятий (−15%)','5 950 Kč'],
           ['📚 Пакеты — Группа офлайн (за чел.)','—'],['5 занятий (−5%)','1 900 Kč'],['10 занятий (−10%)','3 600 Kč'],['20 занятий (−15%)','6 800 Kč'],
-          ['Подготовка к Maturita (15 уроков + тесты)','5 000 Kč'],['Чешский для ПМЖ (18 уроков)','6 000 Kč (−1 200 Kč)'],['Полный пакет ПМЖ (20 ч + помощь с документами)','7 000 Kč']],
+          ['Подготовка к Maturita (15 уроков + тесты)','5 000 Kč'],['Чешский для ПМЖ (18 уроков)','6 000 Kč (−1 200 Kč)'],['Чешское месячное членство','600 Kč/мес. (онлайн + практика)'],['Полный пакет ПМЖ (20 ч + помощь с документами)','7 000 Kč']],
         en:[['Individual online (1 hour)','500 Kč'],['Individual in-person (1 hour)','600 Kč'],['Group 2–4 online (1 hr/person)','350 Kč'],['Group 2–4 in-person (1 hr/person)','400 Kč'],
           ['🎁 First lesson (any format)','300 Kč'],
           ['📚 Packages cost less than single lessons — save up to 15%','—'],
@@ -2055,7 +2199,7 @@ const PRICING = {
           ['📚 Packages — Individual in-person','—'],['5 lessons (−5%)','2,850 Kč'],['10 lessons (−10%)','5,400 Kč'],['20 lessons (−15%)','10,200 Kč'],
           ['📚 Packages — Group online (per person)','—'],['5 lessons (−5%)','1,663 Kč'],['10 lessons (−10%)','3,150 Kč'],['20 lessons (−15%)','5,950 Kč'],
           ['📚 Packages — Group in-person (per person)','—'],['5 lessons (−5%)','1,900 Kč'],['10 lessons (−10%)','3,600 Kč'],['20 lessons (−15%)','6,800 Kč'],
-          ['Maturita prep (15 lessons + tests)','5,000 Kč'],['Czech for residency (18 lessons)','6,000 Kč (−1,200 Kč)'],['Full residency pack (20h + document help)','7,000 Kč']],
+          ['Maturita prep (15 lessons + tests)','5,000 Kč'],['Czech for residency (18 lessons)','6,000 Kč (−1,200 Kč)'],['Czech monthly membership','600 Kč/mo (online + practice)'],['Full residency pack (20h + document help)','7,000 Kč']],
         cs:[['Individuálně online (1 hodina)','500 Kč'],['Individuálně osobně (1 hodina)','600 Kč'],['Skupina 2–4 online (1 hod/os.)','350 Kč'],['Skupina 2–4 osobně (1 hod/os.)','400 Kč'],
           ['🎁 První lekce (jakýkoli formát)','300 Kč'],
           ['📚 Balíčky vyjdou levněji než jednotlivé lekce — ušetříš až 15 %','—'],
@@ -2063,7 +2207,7 @@ const PRICING = {
           ['📚 Balíčky — Individuálně osobně','—'],['5 lekcí (−5 %)','2 850 Kč'],['10 lekcí (−10 %)','5 400 Kč'],['20 lekcí (−15 %)','10 200 Kč'],
           ['📚 Balíčky — Skupina online (za osobu)','—'],['5 lekcí (−5 %)','1 663 Kč'],['10 lekcí (−10 %)','3 150 Kč'],['20 lekcí (−15 %)','5 950 Kč'],
           ['📚 Balíčky — Skupina osobně (za osobu)','—'],['5 lekcí (−5 %)','1 900 Kč'],['10 lekcí (−10 %)','3 600 Kč'],['20 lekcí (−15 %)','6 800 Kč'],
-          ['Příprava na Maturitu (15 lekcí + testy)','5 000 Kč'],['Čeština pro trvalý pobyt (18 lekcí)','6 000 Kč (−1 200 Kč)'],['Kompletní balíček TP (20 hod + pomoc s dokumenty)','7 000 Kč']],
+          ['Příprava na Maturitu (15 lekcí + testy)','5 000 Kč'],['Čeština pro trvalý pobyt (18 lekcí)','6 000 Kč (−1 200 Kč)'],['České měsíční členství','600 Kč/měs. (online + praxe)'],['Kompletní balíček TP (20 hod + pomoc s dokumenty)','7 000 Kč']],
         uk:[['Індивідуально онлайн (1 година)','500 Kč'],['Індивідуально офлайн (1 година)','600 Kč'],['Група 2–4 онлайн (1 год/особа)','350 Kč'],['Група 2–4 офлайн (1 год/особа)','400 Kč'],
           ['🎁 Перше заняття (будь-який формат)','300 Kč'],
           ['📚 Пакети вигідніші за разові заняття — економія до 15%','—'],
@@ -2071,7 +2215,7 @@ const PRICING = {
           ['📚 Пакети — Індивідуально офлайн','—'],['5 занять (−5%)','2 850 Kč'],['10 занять (−10%)','5 400 Kč'],['20 занять (−15%)','10 200 Kč'],
           ['📚 Пакети — Група онлайн (за особу)','—'],['5 занять (−5%)','1 663 Kč'],['10 занять (−10%)','3 150 Kč'],['20 занять (−15%)','5 950 Kč'],
           ['📚 Пакети — Група офлайн (за особу)','—'],['5 занять (−5%)','1 900 Kč'],['10 занять (−10%)','3 600 Kč'],['20 занять (−15%)','6 800 Kč'],
-          ['Підготовка до Maturita (15 уроків + тести)','5 000 Kč'],['Чеська для ПМП (18 уроків)','6 000 Kč (−1 200 Kč)'],['Повний пакет ПМП (20 год + допомога з документами)','7 000 Kč']]
+          ['Підготовка до Maturita (15 уроків + тести)','5 000 Kč'],['Чеська для ПМП (18 уроків)','6 000 Kč (−1 200 Kč)'],['Чеське місячне членство','600 Kč/міс. (онлайн + практика)'],['Повний пакет ПМП (20 год + допомога з документами)','7 000 Kč']]
       }
     },
     {
@@ -2120,6 +2264,78 @@ const PRICING = {
         en:[['General consultation (1st hour)','300 Kč'],['Each additional hour','400 Kč'],['Doctor search','700 Kč'],['Lawyer search','900 Kč'],['University admission consultation (1h)','500 Kč'],['Medical diagnosis & treatment analysis','1,000 Kč'],['Nostrification assistance','from 3,500 Kč'],['Legal representation (advocacy)','from 1,500 Kč'],['Medical advocacy','from 2,000 Kč'],['Interpreting online (legal/medical)','600 Kč/hr'],['In-person interpreting at meetings','900 Kč/hr']],
         cs:[['Obecná konzultace (1. hodina)','300 Kč'],['Každá další hodina','400 Kč'],['Hledání lékaře','700 Kč'],['Hledání právníka','900 Kč'],['Konzultace k přijímání na VŠ (1h)','500 Kč'],['Analýza lékařské diagnózy a léčby','1 000 Kč'],['Pomoc s nostrifikací','od 3 500 Kč'],['Právní zastoupení','od 1 500 Kč'],['Zdravotní doprovod','od 2 000 Kč'],['Tlumočení online (právní/medicinské)','600 Kč/hod'],['Osobní tlumočení na schůzkách','900 Kč/hod']],
         uk:[['Загальна консультація (1-й час)','300 Kč'],['Кожна наступна година','400 Kč'],['Пошук лікаря','700 Kč'],['Пошук адвоката','900 Kč'],['Консультація щодо вступу до вузу (1год)','500 Kč'],['Аналіз медичного діагнозу та лікування','1 000 Kč'],['Допомога з нострифікацією','від 3 500 Kč'],['Юридичне представництво','від 1 500 Kč'],['Медичний супровід','від 2 000 Kč'],['Усний переклад онлайн (юристи/медицина)','600 Kč/год'],['Усний переклад на зустрічах особисто','900 Kč/год']]
+      }
+    },
+    {
+      id:'HOUS',
+      icon:'🏠',
+      title:{ru:'Помощь с жильём в Брно', en:'Brno Housing Support', cs:'Pomoc s bydlením v Brně', uk:'Підтримка з житлом у Брно'},
+      subjects:{ru:'Для новичков сообщества и по рекомендациям', en:'For community newcomers and referrals', cs:'Pro nové členy komunity a doporučení', uk:'Для новачків спільноти та за рекомендацією'},
+      rows:{
+        ru:[
+          ['Помощь с жильём в Брно (для новичков сообщества и по рекомендациям)','—'],
+          ['Уровень 0 — Базовая консультация','бесплатно'],
+          ['Подборка проверенных ресурсов','bezrealitky.cz, sreality.cz, espolubydleni.cz, профильные ФБ-группы; ориентир по ценам под бюджет и район; один развёрнутый ответ. Доступно всем, кто обращается через сообщество или тёплый контакт.'],
+          ['Уровень 1 — Продвижение запроса','—'],
+          ['300 Kč','публикация запроса «как есть» в моих каналах (BrnoWalkers, Družina Moravy, Instagram, Facebook — 250+ человек в Брно)'],
+          ['500 Kč','то же + перевод/адаптация текста на чешский под площадку'],
+          ['Действует 7 дней или до нахождения варианта','Не гарантирует результат — это охват, не гарантия.'],
+          ['Уровень 2 — Личное сопровождение','500 Kč/час (мин. пакет — 2 часа, 1 000 Kč, предоплата)'],
+          ['Составление шорт-листа под критерии, переписка/звонки хозяевам на чешском, сопровождение на просмотры в пределах Брно, базовая сверка договора найма на предмет явных красных флагов.','—'],
+          ['Не входит','юридическая экспертиза договора, риелторское посредничество за комиссию/процент от сделки — услуга оплачивается за время консультации, а не за результат.'],
+          ['Общие условия','оплата в Kč наличными или переводом (OSVČ, IČO 23041625) · отмена минимум за 24 часа · услуга не является риелторской деятельностью и не заменяет юридическую консультацию.']
+        ],
+        en:[
+          ['Brno Housing Support (for community newcomers and referrals)','—'],
+          ['Tier 0 — Basic consultation','free'],
+          ['Curated list of vetted resources','bezrealitky.cz, sreality.cz, espolubydleni.cz, relevant FB groups; price/area guidance for the person’s budget; one detailed reply. Open to anyone reaching out through the community or a warm referral.'],
+          ['Tier 1 — Boosted listing','—'],
+          ['300 Kč','post the request as-is across my channels (BrnoWalkers, Družina Moravy, Instagram, Facebook — 250+ people in Brno)'],
+          ['500 Kč','same, plus translation/adaptation into Czech for the platform'],
+          ['Runs 7 days or until a match is found','No outcome guarantee — this is reach, not a placement guarantee.'],
+          ['Tier 2 — Personal accompaniment','500 Kč/hour (min. package — 2 hours, 1 000 Kč, prepaid)'],
+          ['Shortlisting options against criteria, calling/messaging landlords in Czech, accompanying viewings within Brno, a basic sanity-check of the lease for obvious red flags.','—'],
+          ['Not included','legal review of the contract, or brokerage-style service tied to a commission/success fee — this is billed for time, not outcome.'],
+          ['General terms','payment in Kč, cash or bank transfer (OSVČ, IČO 23041625) · cancellation with at least 24h notice · this is a personal assistance service, not real estate brokerage, and not a substitute for legal advice.']
+        ],
+        cs:[
+          ['Podpora bydlení v Brně (pro nové členy komunity a doporučení)','—'],
+          ['Úroveň 0 — Základní konzultace','zdarma'],
+          ['Seznam ověřených zdrojů','bezrealitky.cz, sreality.cz, espolubydleni.cz, relevantní FB skupiny; orientace na ceny podle rozpočtu a lokality; jedna podrobná odpověď. Otevřeno pro každého, kdo se ozve skrze komunitu nebo teplé doporučení.'],
+          ['Úroveň 1 — Propagace poptávky','—'],
+          ['300 Kč','zveřejnění poptávky „jak je“ v mých kanálech (BrnoWalkers, Družina Moravy, Instagram, Facebook — 250+ lidí v Brně)'],
+          ['500 Kč','to samé, plus překlad/adaptace textu do češtiny pro platformu'],
+          ['Platí 7 dní nebo do nalezení varianty','Nezaručuje výsledek — jde o dosah, ne garanci umístění.'],
+          ['Úroveň 2 — Osobní doprovod','500 Kč/hod (min. balíček — 2 hodiny, 1 000 Kč, předem)'],
+          ['Sestavení shortlistu podle kritérií, komunikace/volání majitelům v češtině, doprovod na prohlídky v rámci Brna, základní kontrola nájemní smlouvy na zřejmé červené vlajky.','—'],
+          ['Není součástí','právní revize smlouvy, zprostředkování s provizí/úspěšnostní odměnou — služba se platí za čas, nikoli za výsledek.'],
+          ['Obecné podmínky','platba v Kč hotově nebo převodem (OSVČ, IČO 23041625) · storno minimálně 24 hodin předem · jedná se o osobní asistenci, nikoli realitní činnost, a nenahrazuje právní poradenství.']
+        ],
+        uk:[
+          ['Підтримка з житлом у Брно (для новачків спільноти та за рекомендацією)','—'],
+          ['Рівень 0 — Базова консультація','безкоштовно'],
+          ['Підбір перевірених ресурсів','bezrealitky.cz, sreality.cz, espolubydleni.cz, тематичні FB-групи; орієнтир за цінами відповідно до бюджету та району; одна детальна відповідь. Доступно всім, хто звертається через спільноту або тепле знайомство.'],
+          ['Рівень 1 — Просування запиту','—'],
+          ['300 Kč','публікація запиту «як є» в моїх каналах (BrnoWalkers, Družina Moravy, Instagram, Facebook — 250+ людей у Брно)'],
+          ['500 Kč','те саме, плюс переклад/адаптація тексту чеською для майданчика'],
+          ['Діє 7 днів або до знаходження варіанту','Не гарантує результат — це охоплення, не гарантія розміщення.'],
+          ['Рівень 2 — Особистий супровід','500 Kč/год (мін. пакет — 2 години, 1 000 Kč, передоплата)'],
+          ['Складання шорт-листу за критеріями, переписка/дзвінки власникам чеською, супровід на перегляди в межах Брно, базова перевірка договору найму на предмет явних червоних прапорців.','—'],
+          ['Не входить','юридичний аналіз договору, ріелторське посередництво за комісію/відсоток від угоди — послуга оплачується за час консультації, а не за результат.'],
+          ['Загальні умови','оплата в Kč готівкою або переказом (OSVČ, IČО 23041625) · скасування мінімум за 24 годин · це особистий супровід, не ріелторська діяльність і не замінює юридичну консультацію.']
+        ]
+      }
+    },
+    {
+      id:'ITSEC',
+      icon:'🛡️',
+      title:{ru:'IT-безопасность', en:'IT Security', cs:'IT bezpečnost', uk:'IT безпека'},
+      subjects:{ru:'Удаление вирусов, базовая проверка безопасности и очистка компьютера.', en:'Malware removal, security hardening, and a cleanup check for suspicious software.', cs:'Odstranění virů, základní kontrola zabezpečení a úklid počítače.', uk:'Видалення вірусів, базова перевірка безпеки та очищення комп\'ютера.'},
+      rows:{
+        ru:[['Чистка компьютера от вирусов и вредоносного ПО (1 час)','600 Kč/час'],['Типичная работа','1 200 – 1 800 Kč']],
+        en:[['Computer & malware cleanup (1 hour)','600 Kč/hr'],['Typical job','1 200 – 1 800 Kč']],
+        cs:[['Úklid počítače / odstranění malwaru (1 hodina)','600 Kč/hod'],['Orientace práce','1 200 – 1 800 Kč']],
+        uk:[['Чистка комп\'ютера від вірусів та шкідливого ПЗ (1 година)','600 Kč/год'],['Типова робота','1 200 – 1 800 Kč']]
       }
     },
     {
@@ -2282,6 +2498,8 @@ const PRICING = {
 
 function renderPricing(lang) {
   const d = PRICING;
+  const hous = d.categories.find(c => c.id === 'HOUS');
+  const housTitle = hous ? hous.title[lang] : (lang==='ru'? 'Помощь с жильём в Брно' : 'Brno Housing Support');
 
   // Category tables
   const cats = d.categories.map(cat => `
@@ -2294,14 +2512,21 @@ function renderPricing(lang) {
     </div>`).join('');
 
   // Combo cards
-  const combos = d.combos.items.map(pkg => `
-    <div class="combo-card">
-      <div class="combo-id">${pkg.id}</div>
-      <div class="combo-name">${pkg.name}</div>
-      <div class="combo-desc">${pkg.desc[lang]}</div>
-      <div class="combo-price">${pkg.price}</div>
-      <div class="combo-save">${pkg.save[lang]}</div>
-    </div>`).join('');
+  const bestValueLabel = {ru:'Лучшее решение', en:'Best value', cs:'Nejlepší volba', uk:'Найкращий вибір'}[lang] || 'Best value';
+  const bestValueDetail = {ru:'Оптимально для стабильного прогресса и цены.', en:'Most balanced for long-term progress and cost.', cs:'Nejlépe vyvážené pro dlouhodobý pokrok a cenu.', uk:'Найкраще збалансовано для довгострокового прогресу та ціни.'}[lang] || 'Most balanced for long-term progress and cost.';
+  const combos = d.combos.items.map(pkg => {
+    const isBest = pkg.id === 'PKG-PRO';
+    return `
+      <div class="combo-card${isBest ? ' best-value' : ''}">
+        ${isBest ? `<div class="combo-badge">${bestValueLabel}</div>` : ''}
+        <div class="combo-id">${pkg.id}</div>
+        <div class="combo-name">${pkg.name}</div>
+        <div class="combo-desc">${pkg.desc[lang]}</div>
+        <div class="combo-detail">${isBest ? bestValueDetail : ''}</div>
+        <div class="combo-price">${pkg.price}</div>
+        <div class="combo-save">${pkg.save[lang]}</div>
+      </div>`;
+  }).join('');
 
   return `
   <section id="pricing">
@@ -2309,6 +2534,7 @@ function renderPricing(lang) {
       <div class="eyebrow-sm">${d.eyebrow[lang]}</div>
       <h2 class="anchor-heading">${d.title[lang]}<a class="anchor-link" href="#pricing">#</a></h2>
       <p class="price-global-note">${d.globalNote[lang]}</p>
+      <p class="price-jump"><a href="#price-hous">🏠 ${housTitle}</a></p>
 
       <div class="price-cats">${cats}</div>
 
@@ -2681,7 +2907,7 @@ const FAQ = {
       items: [
         {
           q: {ru:'Я новичок, никого не знаю — это нормально прийти одному?', en:'I\'m new and don\'t know anyone — is it fine to come alone?', cs:'Jsem nováček a nikoho neznám — je v pořádku přijít sám?', uk:'Я новачок, нікого не знаю — нормально прийти одному?'},
-          a: {ru:'Абсолютно нормально и даже типично. Большинство участников пришли именно так. Группа дружелюбная, познакомишься по дороге.', en:'Absolutely normal and actually typical. Most participants joined exactly this way. The group is friendly — you\'ll get to know people along the route.', cs:'Absolutně normální a dokonce typické. Většina účastníků přišla přesně takto. Skupina je přátelská — po cestě se s někým spřátelíš.', uk:'Абсолютно нормально і навіть типово. Більшість учасників прийшли саме так. Група дружня, познайомишся по дорозі.'}
+          a: {ru:'Абсолютно нормально и даже типично. Большинство участников пришли именно так. Группа дружелюбная, познакомишься по дороге. Если хочешь начать мягко — сначала приходи на вечер настолок во вторник, без долгих обязательств, и следи за анонсами в канале.', en:'Absolutely normal and actually typical. Most participants joined exactly this way. The group is friendly — you\'ll get to know people along the route. If you want a soft start, first come to Tuesday Board Game Night with no long-term commitment and follow the announcements channel.', cs:'Absolutně normální a dokonce typické. Většina účastníků přišla přesně takto. Skupina je přátelská — po cestě se s někým spřátelíš. Pokud chceš začít nenásilně, nejdřív přijď na úterní večer deskovek bez dlouhodobých závazků a sleduj kanál s oznámeními.', uk:'Абсолютно нормально і навіть типово. Більшість учасників прийшли саме так. Група дружня, познайомишся по дорозі. Якщо хочеш почати легко — спочатку прийди на вівторковий вечір настільних ігор без довгострокових зобов’язань і стеж за каналом анонсів.'}
         },
         {
           q: {ru:'Что делать в экстренной ситуации на маршруте?', en:'What to do in an emergency on the route?', cs:'Co dělat v nouzové situaci na trase?', uk:'Що робити в екстреній ситуації на маршруті?'},
@@ -2906,7 +3132,24 @@ function renderWalkersTab(lang, t) {
       <div class="hero-ctas">
         <a class="btn solid" href="${REGISTER_FORM}" target="_blank" rel="noopener">${registerLabel[lang]}</a>
         <a class="btn" href="${lnk.chat}" target="_blank" rel="noopener">${t.ui.joinChat}</a>
+        <a class="btn" href="${lnk.channel}" target="_blank" rel="noopener">${t.ui.eventAlerts}</a>
+        <a class="btn" href="#boardgames">${t.ui.walkersNewHere}</a>
+        <a class="btn" href="${lnk.channel}" target="_blank" rel="noopener">${t.ui.joinChannel}</a>
         <button class="btn" onclick="switchTab('druzina')" style="border-color:var(--rule); color:var(--ink-dim);">${t.ui.alsoFencing}</button>
+      </div>
+      <div class="hero-testimonial">
+        <p class="quote">${{
+          ru:'Практический маршрут, хорошая компания и никакого напряжения — просто выйти на выходных и вернуться с новыми впечатлениями.',
+          en:'Great walks, clear guidance, and zero pressure. A perfect weekend reset with people who actually enjoy exploring Moravia.',
+          cs:'Skvělé výlety, jasné vedení a žádný tlak. Perfektní víkendové načerpání s lidmi, kteří si užívají Moravu.',
+          uk:'Чудові походи, чіткі інструкції та відсутність тиску. Ідеальний вихідний для перезавантаження з тими, хто любить досліджувати Моравію.'
+        }[lang]}</p>
+        <div class="author">${{
+          ru:'— Марина, BrnoWalkers',
+          en:'— Marina, BrnoWalkers',
+          cs:'— Marina, BrnoWalkers',
+          uk:'— Марина, BrnoWalkers'
+        }[lang]}</div>
       </div>
     </div>
   </section>
@@ -2976,6 +3219,8 @@ function renderWalkersTab(lang, t) {
 
   ${renderFAQ(lang, 'walkers')}
 
+  ${renderPolicySection(lang)}
+
   <section id="boardgames">
     <div class="wrap">
       <div class="eyebrow-sm">${BOARDGAMES.eyebrow[lang]}</div>
@@ -2989,7 +3234,9 @@ function renderWalkersTab(lang, t) {
         <p><strong>${BOARDGAMES.bringH[lang]}</strong> ${BOARDGAMES.bringText[lang]}</p>
         <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
           <a class="btn solid" href="${REGISTER_FORM}" target="_blank" rel="noopener">${BOARDGAMES.registerBtn[lang]}</a>
+          <a class="btn" href="${lnk.channel}" target="_blank" rel="noopener">${t.ui.joinChannel}</a>
         </div>
+        <p style="margin-top:12px; font-size:13px; color:var(--r5); text-align:center; font-weight:700;">${lang==='ru'?'Низкий порог входа: подписывайся на канал анонсов и приходи на ближайшую встречу без долгих обязательств.' : lang==='uk'?'Низький поріг входу: підписуйся на канал анонсів і приходь на наступну гру без довгих зобов’язань.' : lang==='cs'?'Nízký vstupní práh: přihlas se na kanál oznámení a přijď na další večer bez závazků.' : 'Low commitment: join the announcements channel and come to the next night without long-term obligations.'}</p>
       </div>
       <p style="margin-top:16px; font-size:13px; color:var(--ink-faint); text-align:center;">${BOARDGAMES.contactNote[lang]}</p>
     </div>
@@ -3046,8 +3293,7 @@ function renderRanksElement(lang, t) {
         <p><strong>${t.ranks.referralB}</strong> ${t.ranks.referral}</p>
       </div>
 
-      <h3 style="font-size:18px">${t.ranks.boardH}</h3>
-      <p>${t.ranks.boardText}</p>
+      ${renderLeaderboardTable(lang, t)}
 
       <h3 style="margin-top:32px;font-size:18px">${t.ranks.recogH}</h3>
       <p>${t.ranks.recogText}</p>
@@ -3113,11 +3359,28 @@ function renderDruzinaTab(lang, t) {
       <div class="hero-ctas">
         <a class="btn solid" href="${REGISTER_FORM}" target="_blank" rel="noopener">${lang==='ru'?'Записаться на тренировку':lang==='uk'?'Записатись на тренування':lang==='cs'?'Přihlásit se na trénink':'Register for Training'}</a>
         <a class="btn" href="${lnk.chat}" target="_blank" rel="noopener">${t.ui.joinChat}</a>
+        <a class="btn" href="${lnk.channel}" target="_blank" rel="noopener">${t.ui.eventAlerts}</a>
         <button class="btn" onclick="switchTab('walkers')" style="border-color:var(--r5); color:var(--r5); font-weight:600;">${t.ui.walkersTeaserBtn}</button>
+      </div>
+      <div class="hero-testimonial">
+        <p class="quote">${{
+          ru:'Тренировки в дружине — жесткие, но честные. У меня появились новые друзья и реальный навык, а не просто красивая история.',
+          en:'Druzhina training feels demanding and honest. I gained new friends and real skills, not just another story.',
+          cs:'Tréninky Družiny jsou náročné, ale poctivé. Získal jsem nové kamarády a opravdové dovednosti, ne jen další příběh.',
+          uk:'Тренування Дружини — вимогливі, але чесні. Я здобув нових друзів і реальні навички, а не просто історію.'
+        }[lang]}</p>
+        <div class="author">${{
+          ru:'— Иван, Дружина Моравы',
+          en:'— Ivan, Druzhina Moravy',
+          cs:'— Ivan, Družina Moravy',
+          uk:'— Іван, Дружина Морави'
+        }[lang]}</div>
       </div>
       <div class="free-note">${t.tariff.free}</div>
     </div>
   </section>
+
+  ${renderPolicySection(lang)}
 
   <div class="wrap" style="padding-top:0;">
     <div class="hero-img"><img src="${IMG_DRUZINA_TRAIN}" alt="Druzhina Moravy HEMA training session" loading="lazy"></div>
@@ -3265,8 +3528,6 @@ function render(lang){
   <footer>
     <div class="wrap">
       <h2>${t.footer.h}</h2>
-      <p style="font-size:13px;color:var(--ink-faint);margin-bottom:6px;">${firstMsgRule[lang]}</p>
-      <p style="font-size:13px;color:var(--ink-faint);margin-bottom:20px;">${oneStrike[lang]}</p>
       <div class="footer-contacts">
         <a class="btn solid" href="https://revolut.me/aliaksj5pq" target="_blank" rel="noopener">${orderServiceLabel[lang]}</a>
         <a class="btn solid" href="${REGISTER_FORM}" target="_blank" rel="noopener">${registerLabelFooter[lang]}</a>
