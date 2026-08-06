@@ -1,0 +1,29 @@
+2026-08-05 Web Changelog
+
+Updated file:
+- alchareshneu/index.html
+
+Changes made:
+1. First training pricing updated across all languages.
+   - The first training offer was changed from a free session to a paid introductory session costing 100 Kč.
+   - All language variants now state the first training costs 100 Kč (50% introductory rate) instead of "free".
+   - Payment/rules sections were updated to reference the first training fee where applicable.
+   - Public fact cards were updated from "Free" to "100 Kč" for first training.
+   - Družina and LARP schedule copy were updated to reference the first training costing 100 Kč.
+
+2. Housing navigation and UI behavior improved.
+   - The Housing button on the hero section now opens a modal instead of scrolling to a page section.
+   - The navigation housing button in the top nav now opens the same Housing modal.
+   - Added modal markup and styling for the HOUS category.
+   - Added accessible modal controls: showHousingModal() and closeHousingModal().
+   - Added click-outside-to-close and close button behavior.
+
+3. Modal content rendering for HOUS category.
+   - The modal now dynamically renders title and subject copy from the HOUS pricing category.
+   - The HOUS rows are rendered in a readable styled grid within the modal.
+   - A close button is included inside the modal content.
+
+User-facing impact:
+- Visitors now see accurate introductory first-training pricing rather than a free trial claim.
+- Housing support details are easier to access through a modal popup.
+- The site copy is consistent across multiple languages for training fees and payment expectations.

@@ -1,0 +1,15 @@
+# Project Rules: alchareshneu Community Hub & Personal Brand
+
+## Architecture & Tech Stack
+- **Frontend**: Lightweight Semantic HTML5, CSS3, Vanilla JavaScript (GitHub Pages hosting).
+- **Backend / Automations**: Google Apps Script (`Code.gs`, `appsscript.json`), Tally.so webhooks/forms.
+- **PWA & Assets**: Maintain favicon links (`favicon-16.png` up to `icon-512.png`), `site.webmanifest`, relative paths to `images/`.
+
+## Design & Brand Identity
+- **Theme**: Dark elegance with gold accent matching the "AC" icon (`#D4AF37` / `#C5A059`).
+- **Typography & Layout**: Clean, responsive, mobile-first design.
+
+## Coding Standards
+- Before making structural changes, check `START-HERE.md` and `site-integration-notes.md`.
+- Keep Google Apps Script logic isolated in `Code.gs`.
+- Ensure proper Open Graph meta tags and metadata in `index.html`.
