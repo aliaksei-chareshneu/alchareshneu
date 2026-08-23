@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Moravian Host | Brno: HEMA, Hiking & Premium Tutoring</title>
+    <meta name="description" content="Community hub in Brno: historical fencing, guided Moravian hikes, and PhD-level tutoring. High-performance growth in Moravia.">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Moravian Host | Brno: Movement & Mind">
+    <meta property="og:image" content="https://aliaksei-chareshneu.github.io/alchareshneu/images/main_hero.png">
+    <meta property="og:description" content="Join HEMA training, explore Moravia, or master IT/Science with Dr. Chareshneu.">
+    <script type="application/ld+json" id="schema-org"></script>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+<header class="glass-nav">
+    <div class="container nav-flex">
+        <div class="logo">MORAVIAN HOST</div>
+        <nav id="main-nav">
+            <a href="#events">Events</a>
+            <a href="#academy">Academy</a>
+            <select id="langSwitcher" class="lang-select">
+                <option value="cs">CZ</option>
+                <option value="ru">RU</option>
+                <option value="en" selected>EN</option>
+            </select>
+        </nav>
+    </div>
+</header>
+<main>
+    <section class="hero" style="background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://aliaksei-chareshneu.github.io/alchareshneu/images/main_hero.png');">
+        <div class="container">
+            <h1 id="hero-title">Morava v pohybu</h1>
+            <p id="hero-sub">Brno Community: HEMA • Hiking • PhD Tutoring</p>
+            <div class="hero-ctas">
+                <a href="#events" class="btn btn-primary">Join Event</a>
+                <a href="https://t.me/Chareshneu" class="btn btn-secondary">Direct Chat</a>
+            </div>
+        </div>
+    </section>
+    <div id="fomo-banner" class="fomo-banner" style="display:none;">
+        <div class="container">
+            🔥 <span id="fomo-text">Next HEMA session starts in:</span> <span id="countdown">00:00:00</span>
+        </div>
+    </div>
+    <section id="events" class="section-padding">
+        <div class="container">
+            <div class="filter-bar">
+                <button class="filter-btn active" data-filter="all">All Activities</button>
+                <button class="filter-btn" data-filter="HEMA">HEMA/LARP</button>
+                <button class="filter-btn" data-filter="Hike">Hiking</button>
+                <button class="filter-btn" data-filter="Board Games">Board Games</button>
+            </div>
+            <div id="eventGrid" class="event-grid"></div>
+        </div>
+    </section>
+    <section class="community-proof section-padding">
+        <div class="container">
+            <h2 class="text-center">Live the Experience</h2>
+            <div class="masonry-gallery">
+                <img src="https://aliaksei-chareshneu.github.io/alchareshneu/images/druzina_train.jpg" alt="HEMA Sparring" loading="lazy">
+                <img src="https://aliaksei-chareshneu.github.io/alchareshneu/images/walkers_group.jpg" alt="Hiking Group" loading="lazy">
+                <img src="https://aliaksei-chareshneu.github.io/alchareshneu/images/boardgames.jpg" alt="Board Games Night" loading="lazy">
+            </div>
+        </div>
+    </section>
+    <section id="academy" class="section-padding pricing-bg">
+        <div class="container">
+            <h2 class="text-center">Premium Tutoring & Coaching</h2>
+            <div class="pricing-grid">
+                <div class="price-card">
+                    <h3>5 Lessons</h3>
+                    <div class="discount">-5% OFF</div>
+                    <div class="price">2,375 CZK</div>
+                    <button class="btn btn-outline-dark btn-full" onclick="bookService('Tutoring-5')">Book Now</button>
+                </div>
+                <div class="price-card featured">
+                    <div class="badge">Best Seller</div>
+                    <h3>10 Lessons</h3>
+                    <div class="discount">-10% OFF</div>
+                    <div class="price">4,500 CZK</div>
+                    <button class="btn btn-primary btn-full" onclick="bookService('Tutoring-10')">Book Now</button>
+                </div>
+            </div>
+        </div>
+    </section>
+    <footer class="legal-footer">
+        <div class="container">
+            <div class="accordion">
+                <details>
+                    <summary>§ Storno & Refund Policy (NOZ)</summary>
+                    <div class="details-content"><p>>48h: 100% | 24-48h: 50% | <24h: 0%. No-show = non-refundable.</p></div>
+                </details>
+                <details>
+                    <summary>⚔️ Club & Gear Rules</summary>
+                    <div class="details-content"><p>Trial: 100 CZK. Gear rental must be confirmed 48h prior. Late request fee: +25%.</p></div>
+                </details>
+            </div>
+            <p class="copyright">© 2024 Aliaksei Chareshneu | IČO: 23041625 | Brno, CZ</p>
+        </div>
+    </footer>
+</main>
+<div class="sticky-cta">
+    <a href="https://t.me/Chareshneu" class="btn-full">Fast Booking (Telegram)</a>
+</div>
+<script src="js/app.js"></script>
+</body>
+</html>
