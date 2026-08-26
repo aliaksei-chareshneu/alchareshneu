@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Moravian Host | Brno: HEMA, Hiking & PhD Tutoring</title>
+    <meta name="description" content="Družina Moravy (HEMA), BrnoWalkers (Hiking) a Eternal Learning (PhD Tutoring). Komunitní centrum v Brně.">
+    
+    <!-- SEO / Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Moravian Host | Brno: Movement & Mind">
+    <meta property="og:url" content="https://aliaksei-chareshneu.github.io/alchareshneu/">
+    <meta property="og:image" content="./images/img16.jpg">
+    <meta property="og:description" content="Join HEMA training, explore Moravia, or master IT/Science with Dr. Chareshneu.">
+
+    <link rel="stylesheet" href="./css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <script type="application/ld+json" id="schema-org"></script>
+</head>
+<body>
+
+<header class="glass-nav">
+    <div class="container nav-flex">
+        <div class="logo">MORAVIAN HOST</div>
+        <nav>
+            <select id="langSwitcher" class="lang-select">
+                <option value="cs">CZ</option>
+                <option value="en">EN</option>
+                <option value="ru">RU</option>
+                <option value="uk">UK</option>
+            </select>
+        </nav>
+    </div>
+</header>
+
+<main>
+    <!-- HERO: Morava v pohybu -->
+    <section class="hero" style="background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('./images/img16.jpg');">
+        <div class="container">
+            <h1 id="hero-title">Morava v pohybu</h1>
+            <p id="hero-tagline">Movement & Mind in Brno</p>
+            <div class="hero-ctas">
+                <a href="#events" class="btn btn-primary">Ceník & Rezervace</a>
+                <a href="https://t.me/Chareshneu" class="btn btn-secondary">Telegram Aliaksei</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOMO Banner -->
+    <div id="fomo-banner" class="fomo-banner" style="display:none;">
+        <div class="container">
+            🔥 <span id="fomo-text">Next session starts in:</span> <span id="countdown">00:00:00</span>
+        </div>
+    </div>
+
+    <!-- Events Grid -->
+    <section id="events" class="section-padding">
+        <div class="container">
+            <div class="filter-bar">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="HEMA">HEMA</button>
+                <button class="filter-btn" data-filter="Hike">Hiking</button>
+                <button class="filter-btn" data-filter="Board Games">Games</button>
+            </div>
+            <div id="eventGrid" class="event-grid"></div>
+        </div>
+    </section>
+
+    <!-- Social Proof Gallery -->
+    <section class="community-proof section-padding">
+        <div class="container">
+            <h2 class="text-center">Live the Experience</h2>
+            <div class="masonry-gallery">
+                <img src="./images/img2.jpg" alt="HEMA">
+                <img src="./images/img10.jpg" alt="Hiking">
+                <img src="./images/img1.jpg" alt="Board Games">
+                <img src="./images/img5.jpg" alt="Archery">
+                <img src="./images/img8.jpg" alt="LARP">
+                <img src="./images/img12.jpg" alt="Caves">
+            </div>
+        </div>
+    </section>
+
+    <!-- Academy Upsells -->
+    <section id="academy" class="section-padding pricing-bg">
+        <div class="container">
+            <h2 class="text-center">Academy Premium Packages</h2>
+            <div class="pricing-grid">
+                <div class="price-card" style="background-image: linear-gradient(rgba(255,255,255,0.9), rgba(255,255,255,0.9)), url('./images/img4.jpg'); background-size: cover;">
+                    <h3>5 Lessons</h3>
+                    <div class="discount">-5% OFF</div>
+                    <div class="price-val" id="price-tut-5">2,375 Kč</div>
+                    <button class="btn btn-outline-dark btn-full" onclick="bookService('Tutoring-5')">Book Now</button>
+                </div>
+                <div class="price-card featured">
+                    <div class="badge">Best Seller</div>
+                    <h3>10 Lessons</h3>
+                    <div class="discount">-10% OFF</div>
+                    <div class="price-val" id="price-tut-10">4,500 Kč</div>
+                    <button class="btn btn-primary btn-full" onclick="bookService('Tutoring-10')">Book Now</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Legal Compliance -->
+    <footer class="legal-footer">
+        <div class="container">
+            <div class="accordion">
+                <details>
+                    <summary>§ Právní informace & IČO</summary>
+                    <div class="details-content">
+                        <p><strong>Družina Moravy z.s.</strong> (IČO: 29876150) — Spolková činnost, granty, HEMA.</p>
+                        <p><strong>Aliaksei Chareshneu</strong> (OSVČ, IČO: 23041625) — Doučování, fitness, průvodcovství.</p>
+                    </div>
+                </details>
+                <details>
+                    <summary>§ Storno podmínky (NOZ)</summary>
+                    <div class="details-content" id="legal-storno"></div>
+                </details>
+                <details>
+                    <summary>🛡️ Bezpečnostní protokol (HEMA)</summary>
+                    <div class="details-content" id="legal-safety"></div>
+                </details>
+            </div>
+            <p class="copyright">© 2026 Moravian Host | Brno, CZ</p>
+        </div>
+    </footer>
+</main>
+
+<div class="sticky-cta">
+    <button onclick="openBooking()" class="btn-full">Blesková rezervace</button>
+</div>
+
+<script src="./js/app.js"></script>
+</body>
+</html>
