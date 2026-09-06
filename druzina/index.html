@@ -57,10 +57,24 @@
   <div class="wrap">
     <div class="brand"><a href="../" style="color:var(--ink);text-decoration:none;">Aliaksei Chareshneu, PhD</a><small>Družina Moravy</small></div>
     <div class="nav-actions">
-      <a class="btn" href="../">Full site ➔</a>
+      <a id="navBookBtn" class="btn solid" href="https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog" target="_blank" rel="noopener">Register / Book</a>
     </div>
   </div>
 </nav>
+
+<!-- Same 7-item nav as the root page and /walkers/ — see the comment
+     there. "Družina Moravy" marked active since that's this page. -->
+<div class="tabs-bar">
+  <div class="wrap">
+    <a class="tab-btn" href="../">Home</a>
+    <a class="tab-btn" href="../walkers/">BrnoWalkers</a>
+    <a class="tab-btn" href="../#pricing">Academy</a>
+    <a class="tab-btn active" href="./">Družina Moravy</a>
+    <a class="tab-btn" href="../#walkers-schedule">Calendar</a>
+    <a class="tab-btn tab-btn--accent" href="../#ambassador">Become an Ambassador</a>
+    <a class="tab-btn" href="../#contacts">Contacts</a>
+  </div>
+</div>
 
 <main>
 <section class="hero" id="druzina">
@@ -117,6 +131,12 @@
       <div class="hero-ctas">
         <a class="btn solid" href="https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog" target="_blank" rel="noopener">Register for training</a>
         <a class="btn" href="https://chat.whatsapp.com/JzeXAQF8I2XE3zQ2OqWsPz" target="_blank" rel="noopener">Join the chat</a>
+        <!-- Added per site-updates brief (3.9.updates, item 1) — this
+             page had no announcements-channel button at all (only the
+             chat above). Two buttons for the two language audiences on
+             two platforms, same pattern as /walkers/. -->
+        <a class="btn" href="https://chat.whatsapp.com/DuTpgF22mxMFy6L1Cfrcvu" target="_blank" rel="noopener">Announcements · WhatsApp</a>
+        <a class="btn" href="https://t.me/druzinamoravy_news" target="_blank" rel="noopener">Announcements · Telegram</a>
       </div>
 
       <div class="hero-testimonial">
@@ -143,6 +163,42 @@
         </table>
       </div>
       <p class="note">LARP events happen irregularly, announced separately on Telegram and WhatsApp. Training is cancelled if no participant has registered (paid session, a registered trial training, or an active subscription).</p>
+    </div>
+  </section>
+<section id="tariff">
+    <div class="wrap">
+      <p class="eyebrow-sm">Membership &amp; payment</p>
+      <h3 class="anchor-heading">Tariff Is Not Rank<a class="anchor-link" href="#tariff">#</a></h3>
+      <p>This is about how you pay — it has nothing to do with rank progression.</p>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Parameter</th><th>Junior tier</th><th>Senior tier</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Who</strong></td><td>Occasional, irregular guests</td><td>Those training regularly</td></tr>
+            <tr><td><strong>Payment (single visit)</strong></td><td>240 Kč / session</td><td>120 Kč / session</td></tr>
+            <tr><td><strong>Condition</strong></td><td>At least 1 session a month</td><td>4+ sessions every month</td></tr>
+            <tr><td><strong>Standard subscription (up to 4/month)</strong></td><td>1,008 Kč</td><td>504 Kč</td></tr>
+            <tr><td><strong>Unlimited subscription (3+/week)</strong></td><td>2,880 Kč</td><td>1,440 Kč</td></tr>
+            <tr><td><strong>3-month subscription (90 days)</strong></td><td>8,640 Kč</td><td>4,320 Kč</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note" style="margin-top:10px">Subscriptions include free weapon rental (swords, axes, spears, bows). Armour (cuirass, helmet) rents separately. Valid 30 days from payment (quarterly — 90 days), refund only before activation. First person to buy the quarterly subscription in the current cycle gets a handmade weapon as a gift. Standard is specific days, not a walk-in-whenever pass — you tell the coach in advance which of the Mon/Thu/Sat sessions you'll attend that cycle.</p>
+      <p style="margin-top:18px"><strong>Senior tier is a status you reconfirm every month, not a one-time threshold.</strong> If you stop keeping up 4+ sessions a month, you automatically drop back to Junior tier and the 240 Kč/session rate. Rank doesn't reset.</p>
+      <p class="note">Your first training costs 120 Kč — a chance to get to know the club. Before it, we'll always ask: are you planning to train regularly going forward (a subscription from 504 Kč/month, or 120–240 Kč per visit), or is this a one-off try out of curiosity? It's not a test — it just lets the coach pick the right format from the start, so nobody's time gets wasted.</p>
+    </div>
+  </section>
+<section id="druzina-payment">
+    <div class="wrap">
+      <p class="eyebrow-sm">Payment</p>
+      <h3 class="anchor-heading">How Payment Works<a class="anchor-link" href="#druzina-payment">#</a></h3>
+      <ul class="plain">
+        <li>Registration and payment must be completed at least 48 hours before the start of training, via Revolut: revolut.me/aliaksj5pq.</li>
+        <li>Payment later than 48 hours before, or on the day — a 25% surcharge on the session price.</li>
+        <li>Need to borrow/rent club gear (weapons, armour)? Tell us at least 48 hours before training, same as payment. Later — the same 25% surcharge on the session price.</li>
+        <li>An unpaid surcharge blocks attendance at the next training until settled.</li>
+        <li>Training takes place only if at least one participant has a paid session (including a first-time trial) or an active subscription. If no one qualifies — the session is cancelled.</li>
+      </ul>
     </div>
   </section>
 <section id="onboarding">
@@ -334,6 +390,25 @@
     }, {threshold: 0});
     io2.observe(hero);
   });
+
+  // Same nav-height sync as the root page (see initNavHeightSync() in
+  // ../index.html) — this page now has its own .tabs-bar too (the 7-item
+  // nav added this pass), so it needs the same fix: a hardcoded --nav-
+  // height guess breaks the moment .nav's real height differs, and .nav
+  // would stick on top of .tabs-bar as you scroll.
+  (function initNavHeightSync() {
+    var nav = document.querySelector('.nav');
+    if (!nav) return;
+    var apply = function () {
+      document.documentElement.style.setProperty('--nav-height', nav.offsetHeight + 'px');
+    };
+    apply();
+    if ('ResizeObserver' in window) {
+      new ResizeObserver(apply).observe(nav);
+    } else {
+      window.addEventListener('resize', apply);
+    }
+  })();
 </script>
 </body>
 </html>

@@ -53,10 +53,30 @@
   <div class="wrap">
     <div class="brand"><a href="../" style="color:var(--ink);text-decoration:none;">Aliaksei Chareshneu, PhD</a><small>BrnoWalkers</small></div>
     <div class="nav-actions">
-      <a class="btn" href="../">Full site ➔</a>
+      <a id="navBookBtn" class="btn solid" href="https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog" target="_blank" rel="noopener">Register / Book</a>
     </div>
   </div>
 </nav>
+
+<!-- Same 7-item nav as the root page (see index.html renderTabsNav()),
+     hardcoded here since this page has no i18n engine — it's English-
+     only by design, same as the rest of this page's content. This was
+     the actual gap the site owner flagged: before this, landing here
+     from a shared link left you with zero way to reach Contacts,
+     Calendar, Academy or Družina Moravy without going all the way back
+     to "Full site" and re-navigating. "BrnoWalkers" marked active since
+     that's this page. -->
+<div class="tabs-bar">
+  <div class="wrap">
+    <a class="tab-btn" href="../">Home</a>
+    <a class="tab-btn active" href="./">BrnoWalkers</a>
+    <a class="tab-btn" href="../#pricing">Academy</a>
+    <a class="tab-btn" href="../druzina/">Družina Moravy</a>
+    <a class="tab-btn" href="../#walkers-schedule">Calendar</a>
+    <a class="tab-btn tab-btn--accent" href="../#ambassador">Become an Ambassador</a>
+    <a class="tab-btn" href="../#contacts">Contacts</a>
+  </div>
+</div>
 
 <main>
 <section class="hero" id="walkers">
@@ -105,6 +125,14 @@
       <div class="hero-ctas">
         <a class="btn solid" href="https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog" target="_blank" rel="noopener">Register for an event</a>
         <a class="btn" href="https://chat.whatsapp.com/JCyEJNm746nBXNll3VzzX3" target="_blank" rel="noopener">Join the chat</a>
+        <!-- Added per site-updates brief (3.9.updates, item 1) — the
+             announcements channels (lower-commitment than the chat
+             above: one-way, no group noise) had no button anywhere near
+             the top of this page. Two buttons, not one, because the two
+             channels serve different language audiences on different
+             platforms — WhatsApp for CZ/EN, Telegram for RU/UK. -->
+        <a class="btn" href="https://chat.whatsapp.com/BSlQetCjMoL8IO45c6VnH0" target="_blank" rel="noopener">Announcements · WhatsApp</a>
+        <a class="btn" href="https://t.me/pochody_brno_news" target="_blank" rel="noopener">Announcements · Telegram</a>
       </div>
 
       <div class="hero-testimonial">
@@ -407,6 +435,13 @@
         <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
           <a class="btn solid" href="https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog" target="_blank" rel="noopener">Register for the evening</a>
           <a class="btn" href="https://chat.whatsapp.com/BSlQetCjMoL8IO45c6VnH0" target="_blank" rel="noopener">Announcements Channel · WhatsApp</a>
+          <!-- Added per site-updates brief (3.9.updates, item 1): the
+               Telegram announcements channel (RU/UK audience) had no
+               button anywhere on this page — only the WhatsApp one
+               above (CZ/EN audience) existed. Same destination as the
+               Home page's WA/TG icon pair and the root #contacts table,
+               just missing here specifically. -->
+          <a class="btn" href="https://t.me/pochody_brno_news" target="_blank" rel="noopener">Announcements Channel · Telegram</a>
         </div>
         <p style="margin-top:12px; font-size:13px; color:var(--r5); text-align:center; font-weight:700;">Low commitment: join the announcements channel and come to the next night without long-term obligations.</p>
       </div>
@@ -572,6 +607,25 @@
     }, {threshold: 0});
     io2.observe(hero);
   });
+
+  // Same nav-height sync as the root page (see initNavHeightSync() in
+  // ../index.html) — this page now has its own .tabs-bar too (the 7-item
+  // nav added this pass), so it needs the same fix: a hardcoded --nav-
+  // height guess breaks the moment .nav's real height differs, and .nav
+  // would stick on top of .tabs-bar as you scroll.
+  (function initNavHeightSync() {
+    var nav = document.querySelector('.nav');
+    if (!nav) return;
+    var apply = function () {
+      document.documentElement.style.setProperty('--nav-height', nav.offsetHeight + 'px');
+    };
+    apply();
+    if ('ResizeObserver' in window) {
+      new ResizeObserver(apply).observe(nav);
+    } else {
+      window.addEventListener('resize', apply);
+    }
+  })();
 </script>
 </body>
 </html>

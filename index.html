@@ -57,7 +57,7 @@
     "https://t.me/Chareshneu",
     "https://t.me/eternallearning",
     "https://t.me/druzinamoravy_news",
-    "https://t.me/pochody_brno_new",
+    "https://t.me/pochody_brno_news",
     "https://wa.me/420702914842"
   ],
   "knowsLanguage": ["en", "cs", "ru", "uk", "be"]
@@ -119,12 +119,17 @@
         <button data-lang="cs">CZ</button>
         <button data-lang="en">EN</button>
       </div>
-      <!-- Was a bare <button id="navHousingBtn"> with no href — did
-           nothing without JS. JS (see initNavHousingBtn() below) still
-           updates the label text per-language and keeps the destination
-           in sync if this ever needs to point elsewhere, but the href
-           itself now works even if that JS never runs. -->
-      <a id="navHousingBtn" class="btn" href="#price-hous" style="margin-left:10px;">Housing</a>
+      <!-- Replaces the old standalone "Housing" button (navHousingBtn):
+           Housing was one pricing category promoted to top-level nav on
+           its own, which didn't scale once the nav needed to cover the
+           whole ecosystem (Walkers/Academy/Družina/Calendar/Contacts/
+           Ambassador). Housing is still one click away — see the new
+           price-jump-list at the top of #pricing — this slot now carries
+           the single highest-value action instead: booking. Reuses the
+           same REGISTER_FORM link and ui.stickyRegister translation key
+           already used by the mobile sticky CTA, so it's one label to
+           maintain, not two. -->
+      <a id="navBookBtn" class="btn solid" href="https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog" target="_blank" rel="noopener" data-i18n="ui.stickyRegister">Register / Book</a>
     </div>
   </div>
 </nav>
@@ -208,7 +213,7 @@
       <div class="venture-grid">
 
         <div class="venture-card-wrap">
-          <a class="venture-card" href="#pricing" onclick="switchTab('pricing'); return true;">
+          <a class="venture-card" href="#pricing" onclick="switchTab('main'); return true;">
             <div class="venture-photo"><img class="photo-slot" src="images/portrait_face.jpg" data-alt="Aliaksei Chareshneu, PhD" alt="Aliaksei Chareshneu, PhD — tutoring" loading="eager"></div>
             <div class="venture-card-body">
               <h3>🎓 Tutoring &amp; Coaching</h3>
@@ -232,7 +237,7 @@
             </div>
           </a>
           <div class="venture-channels">
-            <a href="https://t.me/pochody_brno_new" target="_blank" rel="noopener" aria-label="Telegram"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 3 2 10.6l6.2 2.1M21 3l-4.4 17-4.9-7.3M21 3 8.2 12.7"/></svg></a>
+            <a href="https://t.me/pochody_brno_news" target="_blank" rel="noopener" aria-label="Telegram"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 3 2 10.6l6.2 2.1M21 3l-4.4 17-4.9-7.3M21 3 8.2 12.7"/></svg></a>
             <a href="https://chat.whatsapp.com/BSlQetCjMoL8IO45c6VnH0" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l1.3-4.1A8 8 0 1 1 9 18.6z"/><path d="M9.2 10.3c0 3 2.4 5.4 5.4 5.4"/></svg></a>
           </div>
         </div>
@@ -304,6 +309,27 @@
           <a class="btn solid" href="https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog" target="_blank" rel="noopener" data-i18n="ui.stickyRegister">Register / Book</a>
           <a class="btn" href="#pricing-payment" data-i18n="pricing.fullPaymentInfo">Full payment details ↓</a>
         </div>
+      </div>
+
+      <!-- Category jump-list — reuses .price-jump-list/.price-jump-link,
+           CSS that already existed in styles.css from an earlier build
+           and was simply unused since the static-first migration dropped
+           the markup. Brought back because of the nav change: "Housing"
+           no longer has its own top-level nav button (see nav comment in
+           <head>/<body>), so this is now the only quick way to reach it
+           (and the other 9 categories) without scrolling past all of
+           them. Static English, matching the rest of #pricing. -->
+      <div class="price-jump-list">
+        <a class="price-jump-link" href="#price-edu">📚 Tutoring &amp; Education</a>
+        <a class="price-jump-link" href="#price-hema">⚔️ Fencing &amp; Archery</a>
+        <a class="price-jump-link" href="#price-trek">🗺️ Guided Tours</a>
+        <a class="price-jump-link" href="#price-fit">💪 Fitness</a>
+        <a class="price-jump-link" href="#price-nutr">🥗 Nutrition</a>
+        <a class="price-jump-link" href="#price-supp">🌍 Expat Support</a>
+        <a class="price-jump-link" href="#price-hous">🏠 Housing</a>
+        <a class="price-jump-link" href="#price-itsec">🛡️ IT Security</a>
+        <a class="price-jump-link" href="#price-coach">🧠 Life Coaching</a>
+        <a class="price-jump-link" href="#price-web">💻 Web &amp; Media</a>
       </div>
 
       <div class="price-cats">
@@ -692,8 +718,10 @@
              hand-organized as tier sections (h4 + prose) instead of forced
              through the same 2-column-table-plus-accordion pattern. Same
              underlying facts and prices, clearer presentation.
-             Note the id — matches your real site's navHousingBtn scroll
-             target (document.getElementById('price-hous')) exactly. -->
+             Note the id — this is now reached via the price-jump-list
+             at the top of #pricing (the old standalone navHousingBtn nav
+             button was retired this pass, see the nav comment in
+             <body>), not a dedicated nav button anymore. -->
         <div class="price-cat" id="price-hous">
           <h3 class="price-cat-title">🏠 Brno Housing Support</h3>
           <p class="price-cat-sub">For community newcomers and referrals.</p>
@@ -1108,6 +1136,55 @@
     </div>
   </section>
 
+  <!-- ══════════════════════════════════════════════════════════════
+       NEW: "Become an Ambassador" — added because the new top nav (see
+       renderTabsNav()) needed a real destination for this, not a dead
+       link. IMPORTANT — this is a draft aggregator, not a new program:
+       every perk named below already exists and is already live
+       elsewhere on the site (BrnoWalkers medals, Družina roles/ranks,
+       Academy loyalty programme) — nothing new is promised here, this
+       section just puts the three under one roof so "how do I get more
+       involved" has one answer instead of three buried ones. Flag for
+       the site owner before this goes live: confirm the three summaries
+       below still match the source sections exactly (they were accurate
+       as of this pass), and decide whether "become an ambassador"
+       should eventually be its own real program (a fourth thing, not
+       just a index of the other three) — that's a business decision
+       Phase 1 shouldn't guess at, this is the safe placeholder for it.
+       Static English, matching #pricing/#contacts/#walkers-schedule. -->
+  <section id="ambassador">
+    <div class="wrap">
+      <div class="eyebrow-sm">Grow the Community</div>
+      <h2 class="anchor-heading">Become an Ambassador<a class="anchor-link" href="#ambassador">#</a></h2>
+      <p class="lead">There's no single sign-up form for this yet — but every corner of the ecosystem already rewards people who bring others in. Here's what's live today:</p>
+
+      <div class="grid-ctas">
+        <div class="card-cta">
+          <h3>🥾 BrnoWalkers</h3>
+          <p>Bring a friend who attends 2 paid events and it counts as 2 events toward your own rank. The top tier (Guardian of Moravia) gets a reserved spot at every limited event, one free event a year, and a name + photo on the site.</p>
+          <a class="btn" href="walkers/#medals">See the ranks →</a>
+        </div>
+        <div class="card-cta">
+          <h3>⚔️ Družina Moravy</h3>
+          <p>Take the Recruiter role for status and visibility in the club plus a +5-session rank bonus for every person you bring who stays. Either way: anyone who brings someone in who trains 4+ times gets +5 sessions credited.</p>
+          <a class="btn" href="druzina/#roles">See club roles →</a>
+        </div>
+        <div class="card-cta">
+          <h3>🎓 Academy</h3>
+          <p>Refer a friend to tutoring, fitness, or any other service: they get −10% on their first booking, you get −10% on your next one.</p>
+          <a class="btn" href="#pricing-loyalty">See the loyalty programme →</a>
+        </div>
+      </div>
+
+      <div class="callout" style="margin-top:28px;">
+        <p><strong>Want to do more?</strong> Host newcomers, help with translations, represent a venture at an event — message me directly and we'll figure out the right way to thank you.</p>
+        <div style="margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+          <a class="btn solid" href="https://t.me/Chareshneu" target="_blank" rel="noopener">Message on Telegram</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Static Contacts — per the site owner's request to verify the site
        works without JS: this was 100% invisible without JS before
        (fixed one session ago). Tariff, Payment, and Ecosystem (the rest
@@ -1118,22 +1195,6 @@
        here and there), and Ecosystem was dropped as redundant with the
        hero fork + .venture-picker. renderDruzinaTab() itself is now a
        no-op — see that function. -->
-  <!-- Ambassador / referral — soft-launch by design: no fixed
-       percentages or formal terms published here, just an invite to DM.
-       Matches "test with real conversions via personal outreach before
-       going public" — easy to expand into a full program page once
-       that's decided. -->
-  <section id="ambassador">
-    <div class="wrap">
-      <p class="eyebrow-sm" data-i18n="ambassador.eyebrow">Partnership</p>
-      <h2 data-i18n="ambassador.h">Become a Community Ambassador</h2>
-      <p data-i18n="ambassador.text">Bring friends to a hike or training, share a post, make content — get a reward (free sessions, merch, eventually a referral cut). Not a formal public program yet — details discussed 1-on-1.</p>
-      <div style="margin-top:14px;">
-        <a class="btn solid" href="https://t.me/chareshneu" target="_blank" rel="noopener" data-i18n="ambassador.cta">Message me on Telegram</a>
-      </div>
-    </div>
-  </section>
-
   <section id="contacts">
     <div class="wrap">
       <div class="eyebrow-sm">IX · Contacts</div>
@@ -1210,7 +1271,7 @@
         <span class="contact-card-label">TG Chat · RU/UA/BY</span>
         <span class="contact-card-desc">main chat</span>
       </span>
-    </a><a class="contact-card" href="https://t.me/pochody_brno_new" target="_blank" rel="noopener">
+    </a><a class="contact-card" href="https://t.me/pochody_brno_news" target="_blank" rel="noopener">
       <span class="contact-card-icon"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 3 2 10.6l6.2 2.1M21 3l-4.4 17-4.9-7.3M21 3 8.2 12.7"/></svg></span>
       <span class="contact-card-body">
         <span class="contact-card-label">TG Channel · RU/UA/BY</span>
@@ -1465,13 +1526,13 @@ const T = {
 ru:{
   meta:{title:'Aliaksei Chareshneu, PhD | Алексей Черешнев, доктор наук — Брно'},
   nav:{brand:'Aliaksei Chareshneu, PhD | Алексей Черешнев, доктор наук', sub:'Экосистема проектов в Брно'},
-  tabs:{main:'Введение в экосистему', druzina:'Дружина Моравы', walkers:'Брноходцы', academy:'Академия', contacts:'Контакты', ambassador:'Стать послом'},
-  ambassador:{
-    eyebrow:'Партнёрство',
-    h:'Стать послом сообщества',
-    text:'Приводишь друзей на поход или тренировку, делаешь репост, снимаешь контент — получаешь бонус (бесплатные занятия, мерч, в перспективе процент от привода). Публичной программы пока нет — все условия обсуждаем лично.',
-    cta:'Написать в Telegram'
-  },
+  // Shortened for the 7-item nav bar (was long parenthetical taglines
+  // meant for a 3-tab strip) + 4 new keys for the destinations that had
+  // no nav entry at all before: academy, calendar, ambassador, contacts.
+  // ambassador/calendar copy is AI-drafted, same caveat as the rest of
+  // this file — check before publishing, RU especially since it's the
+  // primary audience.
+  tabs:{main:'Главная', walkers:'Брноходцы', academy:'Академия', druzina:'Дружина Моравы', calendar:'Календарь', ambassador:'Стать послом', contacts:'Контакты'},
   hero:{
     eyebrow:'Брно · Движение · Интеллект',
     cta1:'WhatsApp', cta2:'Telegram',
@@ -1485,7 +1546,7 @@ ru:{
     matrixIntro:'Мы построили экосистему так, чтобы вход был доступен абсолютно любому человеку (есть бесплатные уровни), но при этом существовали глубокие премиум-форматы для индивидуальной прокачки.',
     headers:['Направление','Доступный / Бесплатный уровень','Регулярный / Премиум уровень'],
     rows:[
-      ['Физическая активность (Спорт & Туризм)','<strong>Брноходцы:</strong> Походы выходного дня, скалы, замки Моравии (платно, цена в анонсе)<br><br><strong>Дружина Моравы:</strong> Первая ознакомительная тренировка (<span class="trial-price-auto">100 Kč</span>)','<strong>Дружина Моравы:</strong> Регулярные тренировки HEMA/LARP (120–240 Kč разово или абонемент от 420 Kč/мес)<br><br><strong>Moravian Squad:</strong> Спорт и выезды для детей 5–15 лет'],
+      ['Физическая активность (Спорт & Туризм)','<strong>Брноходцы:</strong> Походы выходного дня, скалы, замки Моравии (платно, цена в анонсе)<br><br><strong>Дружина Моравы:</strong> Первая ознакомительная тренировка (<span class="trial-price-auto">100 Kč</span>)','<strong>Дружина Моравы:</strong> Регулярные тренировки HEMA/LARP (120–240 Kč разово или абонемент от 504 Kč/мес)<br><br><strong>Moravian Squad:</strong> Спорт и выезды для детей 5–15 лет'],
       ['Интеллектуальная активность (Разум & Дисциплины)','Исторические лекции, разборы LARP-лора, тактические брифинги внутри клубов','<strong>Групповые лекции:</strong> Тематические лекции и семинары по истории, HEMA, естественным наукам для малых групп.<br><br><strong>Репетиторство премиум-класса:</strong> Индивидуальные занятия один на один по полному диапазону школьных и нешкольных предметов (Биохимия, Молекулярная биология, программирование на Python, ОС UNIX, Английский, Чешский, Русский (родной) и Белорусский (родной) языки, Ораторское мастерство, Музыка: гитара, пианино, вокал)'],
       ['Индивидуальный подход','Открытые консультации по подбору снаряжения, базовый онбординг новичков','Персональные тренировки по фехтованию и стрельбе из лука (от 700 Kč)<br><br>Индивидуальное изготовление и ремонт оружия/доспехов на заказ (LARP & HEMA снаряжение)']
     ],
@@ -1537,14 +1598,14 @@ ru:{
       ['Кто','Разовые гости, нерегулярные','Те, кто ходит регулярно'],
       ['Оплата (разово)','240 Kč / сессия','120 Kč / сессия'],
       ['Условие','Минимум 1 сессия в месяц','4+ сессии каждый месяц'],
-      ['Абонемент Стандарт (до 4 трен./мес)','840 Kč','420 Kč'],
-      ['Абонемент Безлимит (от 3 трен./нед)','2 400 Kč','1 200 Kč'],
-      ['Абонемент на 3 месяца (90 дней)','7 200 Kč','3 600 Kč'],
+      ['Абонемент Стандарт (до 4 трен./мес)','1 008 Kč','504 Kč'],
+      ['Абонемент Безлимит (от 3 трен./нед)','2 880 Kč','1 440 Kč'],
+      ['Абонемент на 3 месяца (90 дней)','8 640 Kč','4 320 Kč'],
     ],
     subsNote:'Абонементы включают бесплатную аренду оружия (мечи, топоры, копья, луки). Доспехи (кираса, шлем) — аренда отдельно. Действуют 30 дней с оплаты (квартальный — 90 дней), возврат только до активации. Первому, кто оформит квартальный абонемент в текущем цикле — авторское оружие ручной работы в подарок. Стандарт — это конкретные дни, а не свободный вход в любой день: заранее говоришь тренеру, на какие тренировки из Пн/Чт/Сб придёшь в этом цикле.',
     rollbackB:'Старшая дружина — статус, который подтверждается каждый месяц, не разовый порог.',
     rollback:'Если регулярность 4+ сессий в месяц не сохраняется, участник автоматически возвращается в Младшую дружину и тариф 240 Kč/сессия — до тех пор, пока темп не восстановится. Ранг при этом не сбрасывается: он считает накопленный путь и не уменьшается.',
-    free:'Первая тренировка — <span class="trial-price-auto">100 Kč</span>, чтобы познакомиться с клубом. Перед ней мы всегда спросим: планируешь заниматься дальше на регулярной основе (абонемент от 420 Kč/мес или 120–240 Kč за разовое посещение), или это разовая проба ради интереса? Это не проверка — так тренер сразу выбирает правильный формат занятия, и никто не тратит время впустую.'
+    free:'Первая тренировка — <span class="trial-price-auto">100 Kč</span>, чтобы познакомиться с клубом. Перед ней мы всегда спросим: планируешь заниматься дальше на регулярной основе (абонемент от 504 Kč/мес или 120–240 Kč за разовое посещение), или это разовая проба ради интереса? Это не проверка — так тренер сразу выбирает правильный формат занятия, и никто не тратит время впустую.'
   },
   ranks:{
     eyebrow:'III · Ранг', h:'Путь участника',
@@ -1631,7 +1692,7 @@ ru:{
       ['WA Канал · EN/CS','<a href="https://chat.whatsapp.com/DuTpgF22mxMFy6L1Cfrcvu" target="_blank" rel="noopener">chat.whatsapp.com/DuTpgF...</a> — анонсы, без флуда'],
       ['── Брноходцы ──','──────────────────'],
       ['TG Чат · RU/UA/BY','<a href="https://t.me/pochody_brno" target="_blank" rel="noopener">t.me/pochody_brno</a> — основной чат'],
-      ['TG Канал · RU/UA/BY','<a href="https://t.me/pochody_brno_new" target="_blank" rel="noopener">t.me/pochody_brno_new</a> — анонсы, без флуда'],
+      ['TG Канал · RU/UA/BY','<a href="https://t.me/pochody_brno_news" target="_blank" rel="noopener">t.me/pochody_brno_news</a> — анонсы, без флуда'],
       ['WA Чат · EN/CS','<a href="https://chat.whatsapp.com/JCyEJNm746nBXNll3VzzX3" target="_blank" rel="noopener">chat.whatsapp.com/JCyEJN...</a> — основной чат'],
       ['WA Канал · EN/CS','<a href="https://chat.whatsapp.com/BSlQetCjMoL8IO45c6VnH0" target="_blank" rel="noopener">chat.whatsapp.com/BSlQet...</a> — анонсы, без флуда'],
     ]
@@ -1670,8 +1731,11 @@ ru:{
     <h4>4. ИЗМЕНЕНИЕ ПРОГРАММЫ</h4>
     <p><strong>4.1</strong> Организатор имеет право менять маршруты, тайминг или локации из соображений безопасности (погода, логистика). Изменение считается несущественным, если программа выполнена на 70% и более.</p>
     <h4>5. ПОВЕДЕНИЕ, ЭТИКА И ДИСЦИПЛИНА</h4>
-    <p><strong>5.1</strong> Запрещены любые формы дискриминации, агрессии, харассмента. Инструкции организатора обязательны к исполнению.</p>
-    <p><strong>5.2 Немедленное отстранение (без возврата средств)</strong> грозит за явку в состоянии опьянения, умышленное нарушение ТБ, отказ следовать командам организатора, агрессивное поведение или порчу имущества.</p>
+    <p><strong>5.1</strong> Запрещены любые формы дискриминации, агрессии, харассмента. Инструкции организатора или назначенного им модератора/тренера обязательны к немедленному исполнению.</p>
+    <p><strong>5.2 Указания о прекращении действия выполняются сразу.</strong> Если организатор или тренер говорит «хватит», «тема закрыта», «замолчите» или «стоп» — это выполняется в ту же секунду, без возражений в моменте. На тренировке команда «стоп» от тренера или партнёра останавливает любое действие немедленно, независимо от ситуации в спарринге. Несогласие с решением высказывается организатору лично и позже, не публично и не в момент конфликта.</p>
+    <p><strong>5.3 Запрещены без исключений:</strong> оскорбления по национальности, языку, религии, полу, ориентации, внешности или происхождению; угрозы, запугивание и шантаж; сексуальные домогательства и непристойные комментарии; публичные обвинения и разборки в общих чатах (любой конфликт решается один на один с организатором); травля и намеренное коллективное исключение участника; разглашение личных данных участников без согласия; намеренный раскол сообщества по языковому или национальному признаку.</p>
+    <p><strong>5.4 Немедленное отстранение (без возврата средств)</strong> грозит за: явку в состоянии опьянения, умышленное нарушение техники безопасности, отказ выполнить команду организатора или тренера, любое нарушение из п. 5.3, агрессивное поведение или порчу имущества. Разовое незначительное нарушение впервые — предупреждение; повторное или сразу серьёзное — исключение без предупреждения и без права вернуться.</p>
+    <p><strong>5.5</strong> Решение организатора по любому спору о поведении — окончательное и не подлежит пересмотру, апелляции или голосованию. При неоднозначной формулировке правил действует более строгое толкование — в пользу порядка и безопасности участников.</p>
     <h4>6. ЗДОРОВЬЕ, ОТВЕТСТВЕННОСТЬ И СТРАХОВАНИЕ</h4>
     <p><strong>6.1</strong> Участники подтверждают отсутствие медицинских противопоказаний. Участие осуществляется на собственный риск. Организатор не предоставляет страховое покрытие, участникам настоятельно рекомендуется оформить личную спортивную/туристическую страховку.</p>
     <p><strong>6.2 Имущество:</strong> Организатор не несет ответственности за кражу или повреждение личных вещей участников в ходе мероприятий.</p>
@@ -1685,13 +1749,7 @@ ru:{
 en:{
   meta:{title:'Aliaksei Chareshneu, PhD | Алексей Черешнев, доктор наук — Brno'},
   nav:{brand:'Aliaksei Chareshneu, PhD | Алексей Черешнев, доктор наук', sub:'Ecosystem of projects in Brno'},
-  tabs:{main:'Ecosystem Intro', druzina:'Druzhina Moravy', walkers:'BrnoWalkers', academy:'Academy', contacts:'Contacts', ambassador:'Become an Ambassador'},
-  ambassador:{
-    eyebrow:'Partnership',
-    h:'Become a Community Ambassador',
-    text:'Bring friends to a hike or training, share a post, make content — get a reward (free sessions, merch, eventually a referral cut). Not a formal public program yet — details discussed 1-on-1.',
-    cta:'Message me on Telegram'
-  },
+  tabs:{main:'Home', walkers:'BrnoWalkers', academy:'Academy', druzina:'Družina Moravy', calendar:'Calendar', ambassador:'Become an Ambassador', contacts:'Contacts'},
   hero:{
     eyebrow:'Brno · Movement · Mind',
     cta1:'WhatsApp', cta2:'Telegram',
@@ -1705,7 +1763,7 @@ en:{
     matrixIntro:'We designed our ecosystem to be accessible to absolutely everyone (featuring free tiers), while offering top-end premium formats for targeted individual growth.',
     headers:['Direction','Accessible / Free Level','Regular / Premium Level'],
     rows:[
-      ['Physical Activity (Sport & Tourism)','<strong>BrnoWalkers:</strong> Weekend hikes, cliffs, castles of Moravia (paid, price per event)<br><br><strong>Druzhina Moravy:</strong> First introductory session (<span class="trial-price-auto">100 Kč</span>)','<strong>Druzhina Moravy:</strong> Regular HEMA/LARP training (120–240 Kč per visit or a subscription from 420 Kč/month)<br><br><strong>Moravian Squad:</strong> Sports and trips for children aged 5–15'],
+      ['Physical Activity (Sport & Tourism)','<strong>BrnoWalkers:</strong> Weekend hikes, cliffs, castles of Moravia (paid, price per event)<br><br><strong>Druzhina Moravy:</strong> First introductory session (<span class="trial-price-auto">100 Kč</span>)','<strong>Druzhina Moravy:</strong> Regular HEMA/LARP training (120–240 Kč per visit or a subscription from 504 Kč/month)<br><br><strong>Moravian Squad:</strong> Sports and trips for children aged 5–15'],
       ['Intellectual Activity (Mind & Subjects)','Historical lectures, LARP lore breakdowns, tactical briefings before club battles','<strong>Group Lectures:</strong> Themed lectures and seminars on history, HEMA, and natural sciences for small groups.<br><br><strong>Premium Tutoring:</strong> One-on-one tailored mentoring in Biochem, Molecular biology, Python programming, UNIX OS, English, Czech, native-level Russian and Belarusian, Public speaking, and Music (guitar, piano, vocals)'],
       ['Individual Focus','Open gear consultations, basic onboarding for newcomers','Private fencing/combat lessons (from 700 Kč)<br><br>Custom HEMA/LARP gear crafting and repairs']
     ],
@@ -1757,14 +1815,14 @@ en:{
       ['Who','Occasional, irregular guests','Those training regularly'],
       ['Payment (single visit)','240 Kč / session','120 Kč / session'],
       ['Condition','At least 1 session a month','4+ sessions every month'],
-      ['Standard subscription (up to 4/month)','840 Kč','420 Kč'],
-      ['Unlimited subscription (3+/week)','2,400 Kč','1,200 Kč'],
-      ['3-month subscription (90 days)','7,200 Kč','3,600 Kč'],
+      ['Standard subscription (up to 4/month)','1,008 Kč','504 Kč'],
+      ['Unlimited subscription (3+/week)','2,880 Kč','1,440 Kč'],
+      ['3-month subscription (90 days)','8,640 Kč','4,320 Kč'],
     ],
     subsNote:'Subscriptions include free weapon rental (swords, axes, spears, bows). Armour (cuirass, helmet) rents separately. Valid 30 days from payment (quarterly — 90 days), refund only before activation. First person to buy the quarterly subscription in the current cycle gets a handmade weapon as a gift. Standard is specific days, not a walk-in-whenever pass — you tell the coach in advance which of the Mon/Thu/Sat sessions you\'ll attend that cycle.',
     rollbackB:'Senior tier is a status you reconfirm every month, not a one-time threshold.',
     rollback:'If you stop keeping up 4+ sessions a month, you automatically drop back to Junior tier and the 240 Kč/session rate. Rank doesn\'t reset.',
-    free:'Your first training costs <span class="trial-price-auto">100 Kč</span> — a chance to get to know the club. Before it, we\'ll always ask: are you planning to train regularly going forward (a subscription from 420 Kč/month, or 120–240 Kč per visit), or is this a one-off try out of curiosity? It\'s not a test — it just lets the coach pick the right format from the start, so nobody\'s time gets wasted.'
+    free:'Your first training costs <span class="trial-price-auto">100 Kč</span> — a chance to get to know the club. Before it, we\'ll always ask: are you planning to train regularly going forward (a subscription from 504 Kč/month, or 120–240 Kč per visit), or is this a one-off try out of curiosity? It\'s not a test — it just lets the coach pick the right format from the start, so nobody\'s time gets wasted.'
   },
   ranks:{
     eyebrow:'III · Rank', h:'The member\'s path',
@@ -1853,7 +1911,7 @@ en:{
       ['WA Chat · EN/CS','<a href="https://chat.whatsapp.com/JCyEJNm746nBXNll3VzzX3" target="_blank" rel="noopener">chat.whatsapp.com/JCyEJN...</a> — main chat'],
       ['WA Channel · EN/CS','<a href="https://chat.whatsapp.com/BSlQetCjMoL8IO45c6VnH0" target="_blank" rel="noopener">chat.whatsapp.com/BSlQet...</a> — announcements, no spam'],
       ['TG Chat · RU/UA/BY','<a href="https://t.me/pochody_brno" target="_blank" rel="noopener">t.me/pochody_brno</a> — main chat'],
-      ['TG Channel · RU/UA/BY','<a href="https://t.me/pochody_brno_new" target="_blank" rel="noopener">t.me/pochody_brno_new</a> — announcements, no spam'],
+      ['TG Channel · RU/UA/BY','<a href="https://t.me/pochody_brno_news" target="_blank" rel="noopener">t.me/pochody_brno_news</a> — announcements, no spam'],
     ]
   },
   footer:{h:'Ready to make your first move?',free:'Start by registering via the form above. If you\'ve read everything and still have questions — reach out directly.'},
@@ -1890,8 +1948,11 @@ en:{
     <h4>4. PROGRAM CHANGES</h4>
     <p><strong>4.1</strong> The organizer reserves the right to change routes, timing or locations for safety reasons (weather, logistics). A change is considered non-material if at least 70% of the program is completed.</p>
     <h4>5. CONDUCT, ETHICS AND DISCIPLINE</h4>
-    <p><strong>5.1</strong> Any form of discrimination, aggression or harassment is prohibited. The organizer's instructions are mandatory.</p>
-    <p><strong>5.2 Immediate removal (without refund)</strong> applies to: arriving intoxicated, deliberate safety violations, refusing to follow the organizer's commands, aggressive behavior or property damage.</p>
+    <p><strong>5.1</strong> Any form of discrimination, aggression or harassment is prohibited. Instructions from the organizer or an appointed moderator/instructor must be followed immediately.</p>
+    <p><strong>5.2 Instructions to stop are followed immediately.</strong> If the organizer or instructor says "that's enough," "topic closed," "be quiet," or "stop" — this is carried out that same second, with no arguing in the moment. During training, a "stop" command from the instructor or your sparring partner halts any action instantly, regardless of what's happening in the bout. Disagreement with a decision is raised with the organizer privately and afterwards, not publicly and not in the moment of conflict.</p>
+    <p><strong>5.3 Prohibited, no exceptions:</strong> insults based on nationality, language, religion, gender, orientation, appearance or origin; threats, intimidation and blackmail; sexual harassment and lewd comments; public accusations and disputes in group chats (any conflict is resolved one-on-one with the organizer); bullying and deliberate collective exclusion of a participant; sharing participants' personal data without consent; deliberately splitting the community along language or national lines.</p>
+    <p><strong>5.4 Immediate removal (without refund)</strong> applies to: arriving intoxicated, deliberate safety violations, refusing to follow a command from the organizer or instructor, any violation under clause 5.3, aggressive behavior, or property damage. A first minor violation earns a warning; a repeat or an immediately serious one results in removal with no warning and no way back.</p>
+    <p><strong>5.5</strong> The organizer's decision on any conduct dispute is final and is not subject to appeal, review or vote. Where the wording of these rules is ambiguous, the stricter interpretation applies, in favor of order and participants' safety.</p>
     <h4>6. HEALTH, LIABILITY AND INSURANCE</h4>
     <p><strong>6.1</strong> Participants confirm they have no medical contraindications. Participation is at the participant's own risk. The organizer does not provide insurance coverage; participants are strongly advised to obtain personal sports/travel insurance.</p>
     <p><strong>6.2 Property:</strong> The organizer is not liable for theft or damage to participants' personal belongings during events.</p>
@@ -1905,13 +1966,7 @@ en:{
 cs:{
   meta:{title:'Aliaksei Chareshneu, PhD | Алексей Черешнев, доктор наук — Brno'},
   nav:{brand:'Aliaksei Chareshneu, PhD | Алексей Черешнев, доктор наук', sub:'Ekosystém projektů v Brně'},
-  tabs:{main:'Úvod do ekosystému', druzina:'Družina Moravy', walkers:'BrnoWalkers', academy:'Akademie', contacts:'Kontakty', ambassador:'Staň se ambasadorem'},
-  ambassador:{
-    eyebrow:'Partnerství',
-    h:'Staň se ambasadorem komunity',
-    text:'Přiveď kamarády na výšlap nebo trénink, sdílej příspěvek, tvoř obsah — a získej odměnu (volné lekce, merch, do budoucna i podíl z doporučení). Zatím to není formální veřejný program — podmínky řešíme osobně.',
-    cta:'Napsat na Telegram'
-  },
+  tabs:{main:'Domů', walkers:'BrnoWalkers', academy:'Akademie', druzina:'Družina Moravy', calendar:'Kalendář', ambassador:'Staň se ambasadorem', contacts:'Kontakty'},
   hero:{
     eyebrow:'Brno · Pohyb · Mysl',
     cta1:'WhatsApp', cta2:'Telegram',
@@ -1925,7 +1980,7 @@ cs:{
     matrixIntro:'Náš ekosystém jsme navrhli tak, aby byl přístupný naprosto každému (včetně bezplatných úrovní), ale zároveň nabízel špičkové prémiové formáty pro individuální rozvoj.',
     headers:['Směr','Dostupná / Bezplatná úroveň','Pravidelná / Prémiová úroveň'],
     rows:[
-      ['Fyzická aktivita (Sport a turistika)','<strong>BrnoWalkers:</strong> Víkendové výšlapy, skály, hrady Moravy (platí se, cena v anonce)<br><br><strong>Družina Moravy:</strong> První seznamovací trénink (<span class="trial-price-auto">100 Kč</span>)','<strong>Družina Moravy:</strong> Pravidelné tréninky HEMA/LARP (120–240 Kč jednorázově nebo předplatné od 420 Kč/měsíc)<br><br><strong>Moravian Squad:</strong> Sport a výlety pro děti od 5 do 15 let'],
+      ['Fyzická aktivita (Sport a turistika)','<strong>BrnoWalkers:</strong> Víkendové výšlapy, skály, hrady Moravy (platí se, cena v anonce)<br><br><strong>Družina Moravy:</strong> První seznamovací trénink (<span class="trial-price-auto">100 Kč</span>)','<strong>Družina Moravy:</strong> Pravidelné tréninky HEMA/LARP (120–240 Kč jednorázově nebo předplatné od 504 Kč/měsíc)<br><br><strong>Moravian Squad:</strong> Sport a výlety pro děti od 5 do 15 let'],
       ['Intelektuální aktivita (Mysl a rozvoj)','Historické přednášky, rozbory LARP lore, taktické brífinky před bitvami v rámci klubů','<strong>Skupinové přednášky:</strong> Tematické přednášky a semináře z historie, HEMA a přírodních věd pro malé skupiny.<br><br><strong>Prémiové doučování:</strong> Individuální lekce 1-na-1 pro kompletní škálu předmětů (Biochemie, Molekulární biologie, programování Python, UNIX OS, Angličtina, Čeština, Ruština (rodilý mluvčí) a Běloruština (rodilý mluvčí), Rétorika/Veřejné vystupování, Hudba: kytara, klavír, zpěv)'],
       ['Individuální přístup','Otevřené konzultace k výběru výbavy, základní onboarding pro nováčky','Individuální tréninky šermu a lukostřelby (od 700 Kč)<br><br>Zakázková výroba a oprava LARP & HEMA výbavy / zbraní na zakázku']
     ],
@@ -1977,14 +2032,14 @@ cs:{
       ['Kdo','Příležitostní, nepravidelní hosté','Ti, kdo chodí pravidelně'],
       ['Platba (jednorázově)','240 Kč / trénink','120 Kč / trénink'],
       ['Podmínka','Alespoň 1 trénink za měsíc','4+ tréninky každý měsíc'],
-      ['Předplatné Standard (do 4 tréninků/měsíc)','840 Kč','420 Kč'],
-      ['Předplatné Neomezené (3+/týden)','2 400 Kč','1 200 Kč'],
-      ['Předplatné na 3 měsíce (90 dní)','7 200 Kč','3 600 Kč'],
+      ['Předplatné Standard (do 4 tréninků/měsíc)','1 008 Kč','504 Kč'],
+      ['Předplatné Neomezené (3+/týden)','2 880 Kč','1 440 Kč'],
+      ['Předplatné na 3 měsíce (90 dní)','8 640 Kč','4 320 Kč'],
     ],
     subsNote:'Předplatné zahrnuje bezplatné zapůjčení zbraní (meče, sekery, kopí, luky). Zbroj (kyrys, přilba) — zapůjčení zvlášť. Platnost 30 dní od platby (čtvrtletní — 90 dní), vrácení peněz jen před aktivací. První, kdo si v aktuálním cyklu pořídí čtvrtletní předplatné, dostane darem ručně vyrobenou zbraň. Standard znamená konkrétní dny, ne volný vstup kdykoli — trenérovi předem řekneš, na které tréninky z Po/Čt/So v tomto cyklu přijdeš.',
     rollbackB:'Starší družina je status, který se potvrzuje každý měsíc, ne jednorázová hranice.',
     rollback:'Pokud se pravidelnost 4+ tréninků měsíčně nedrží, člen automaticky spadá zpět do Mladší družiny. Hodnost se přitom nikdy neresetuje.',
-    free:'První trénink stojí <span class="trial-price-auto">100 Kč</span> — jde o seznámení s klubem. Předtím se vždy zeptáme: plánuješ trénovat pravidelně dál (předplatné od 420 Kč/měsíc, nebo 120–240 Kč jednorázově), nebo je to jednorázová zkouška ze zvědavosti? Není to zkouška tebe — díky tomu trenér hned zvolí správný formát a nikdo neztrácí čas.'
+    free:'První trénink stojí <span class="trial-price-auto">100 Kč</span> — jde o seznámení s klubem. Předtím se vždy zeptáme: plánuješ trénovat pravidelně dál (předplatné od 504 Kč/měsíc, nebo 120–240 Kč jednorázově), nebo je to jednorázová zkouška ze zvědavosti? Není to zkouška tebe — díky tomu trenér hned zvolí správný formát a nikdo neztrácí čas.'
   },
   ranks:{
     eyebrow:'III · Hodnost', h:'Cesta člena',
@@ -2073,7 +2128,7 @@ cs:{
       ['WA Chat · EN/CS','<a href="https://chat.whatsapp.com/JCyEJNm746nBXNll3VzzX3" target="_blank" rel="noopener">chat.whatsapp.com/JCyEJN...</a> — hlavní chat'],
       ['WA Kanál · EN/CS','<a href="https://chat.whatsapp.com/BSlQetCjMoL8IO45c6VnH0" target="_blank" rel="noopener">chat.whatsapp.com/BSlQet...</a> — oznámení, bez spamu'],
       ['TG Chat · RU/UA/BY','<a href="https://t.me/pochody_brno" target="_blank" rel="noopener">t.me/pochody_brno</a> — hlavní chat'],
-      ['TG Kanál · RU/UA/BY','<a href="https://t.me/pochody_brno_new" target="_blank" rel="noopener">t.me/pochody_brno_new</a> — oznámení, bez spamu'],
+      ['TG Kanál · RU/UA/BY','<a href="https://t.me/pochody_brno_news" target="_blank" rel="noopener">t.me/pochody_brno_news</a> — oznámení, bez spamu'],
     ]
   },
   footer:{h:'Chceš udělat první krok?',free:'Nejdřív se zaregistruj přes formulář výše. Pokud jsi vše přečetl a máš otázky — napiš mi přímo.'},
@@ -2110,8 +2165,11 @@ cs:{
     <h4>4. ZMĚNA PROGRAMU</h4>
     <p><strong>4.1</strong> Organizátor má právo měnit trasy, časování nebo místa z bezpečnostních důvodů (počasí, logistika). Změna se považuje za nepodstatnou, pokud byl program splněn na 70 % a více.</p>
     <h4>5. CHOVÁNÍ, ETIKA A DISCIPLÍNA</h4>
-    <p><strong>5.1</strong> Jsou zakázány jakékoli formy diskriminace, agrese a obtěžování. Pokyny organizátora jsou závazné.</p>
-    <p><strong>5.2 Okamžité vyloučení (bez vrácení peněz)</strong> hrozí za: příchod pod vlivem alkoholu, úmyslné porušení bezpečnosti, odmítnutí řídit se pokyny organizátora, agresivní chování nebo poškozování majetku.</p>
+    <p><strong>5.1</strong> Jsou zakázány jakékoli formy diskriminace, agrese a obtěžování. Pokyny organizátora nebo jím pověřeného moderátora/instruktora musí být splněny okamžitě.</p>
+    <p><strong>5.2 Pokyny k ukončení se plní okamžitě.</strong> Řekne-li organizátor nebo instruktor „dost", „téma uzavřeno", „ticho" nebo „stop" — provede se to ve stejnou vteřinu, bez námitek v danou chvíli. Na tréninku povel „stop" od instruktora nebo tréninkového partnera okamžitě zastaví jakoukoli akci, bez ohledu na to, co se právě děje ve sparingu. Nesouhlas s rozhodnutím se řeší s organizátorem soukromě a později, ne veřejně a ne v okamžiku konfliktu.</p>
+    <p><strong>5.3 Zakázáno bez výjimek:</strong> urážky na základě národnosti, jazyka, náboženství, pohlaví, orientace, vzhledu nebo původu; vyhrožování, zastrašování a vydírání; sexuální obtěžování a oplzlé komentáře; veřejné obviňování a hádky ve skupinových chatech (jakýkoli konflikt se řeší jeden na jednoho s organizátorem); šikana a záměrné kolektivní vyloučení účastníka; sdílení osobních údajů účastníků bez souhlasu; záměrné rozdělování komunity podle jazyka nebo národnosti.</p>
+    <p><strong>5.4 Okamžité vyloučení (bez vrácení peněz)</strong> hrozí za: příchod pod vlivem alkoholu, úmyslné porušení bezpečnosti, odmítnutí splnit pokyn organizátora nebo instruktora, jakékoli porušení dle bodu 5.3, agresivní chování nebo poškozování majetku. První drobné porušení znamená varování; opakované nebo rovnou závažné porušení znamená vyloučení bez varování a bez možnosti návratu.</p>
+    <p><strong>5.5</strong> Rozhodnutí organizátora v jakémkoli sporu o chování je konečné a nepodléhá odvolání, přezkumu ani hlasování. Je-li znění těchto pravidel nejednoznačné, platí přísnější výklad — ve prospěch pořádku a bezpečnosti účastníků.</p>
     <h4>6. ZDRAVÍ, ODPOVĚDNOST A POJIŠTĚNÍ</h4>
     <p><strong>6.1</strong> Účastníci potvrzují, že nemají žádné zdravotní kontraindikace. Účast probíhá na vlastní riziko. Organizátor neposkytuje pojistné krytí; účastníkům je důrazně doporučeno sjednat si osobní sportovní/cestovní pojištění.</p>
     <p><strong>6.2 Majetek:</strong> Organizátor nenese odpovědnost za krádež nebo poškození osobních věcí účastníků při akcích.</p>
@@ -2125,13 +2183,7 @@ cs:{
 uk:{
   meta:{title:'Aliaksei Chareshneu, PhD | Алексей Черешнев, доктор наук — Брно'},
   nav:{brand:'Aliaksei Chareshneu, PhD | Алексей Черешнев, доктор наук', sub:'Екосистема проєктів у Брно'},
-  tabs:{main:'Вступ до екосистеми', druzina:'Дружина Моравії', walkers:'Брнохідці', academy:'Академія', contacts:'Контакти', ambassador:'Стати послом'},
-  ambassador:{
-    eyebrow:'Партнерство',
-    h:'Стати послом спільноти',
-    text:'Приводиш друзів на похід чи тренування, робиш репост, знімаєш контент — отримуєш бонус (безкоштовні заняття, мерч, у перспективі відсоток від приведення). Публічної програми поки немає — усі умови обговорюємо особисто.',
-    cta:'Написати в Telegram'
-  },
+  tabs:{main:'Головна', walkers:'Брнохідці', academy:'Академія', druzina:'Дружина Моравії', calendar:'Календар', ambassador:'Стати послом', contacts:'Контакти'},
   hero:{
     eyebrow:'Брно · Рух · Інтелект',
     cta1:'WhatsApp', cta2:'Telegram',
@@ -2145,7 +2197,7 @@ uk:{
     matrixIntro:'Ми побудували екосистему так, щоб вхід був доступний абсолютно кожній людині (є безкоштовні рівні), але при цьому існували глибокі преміум-формати для індивідуального прокачування.',
     headers:['Напрямок','Доступний / Безкоштовний рівень','Регулярний / Премиум рівень'],
     rows:[
-      ['Фізична активність (Спорт & Туризм)','<strong>Брнохідці:</strong> Походи вихідного дня, скелі, замки Моравії (платно, ціна в анонсі)<br><br><strong>Дружина Моравії:</strong> Перше ознайомче тренування (<span class="trial-price-auto">100 Kč</span>)','<strong>Дружина Моравії:</strong> Регулярні тренування HEMA/LARP (120–240 Kč разово або абонемент від 420 Kč/міс)<br><br><strong>Moravian Squad:</strong> Спорт та виїзди для дітей 5–15 років'],
+      ['Фізична активність (Спорт & Туризм)','<strong>Брнохідці:</strong> Походи вихідного дня, скелі, замки Моравії (платно, ціна в анонсі)<br><br><strong>Дружина Моравії:</strong> Перше ознайомче тренування (<span class="trial-price-auto">100 Kč</span>)','<strong>Дружина Моравії:</strong> Регулярні тренування HEMA/LARP (120–240 Kč разово або абонемент від 504 Kč/міс)<br><br><strong>Moravian Squad:</strong> Спорт та виїзди для дітей 5–15 років'],
       ['Інтелектуальна активність (Розум & Предмети)','Історичні лекції, розбори LARP-лору, тактичні брифінги всередині клубів','<strong>Групові лекції:</strong> Тематичні лекції та семінари з історії, HEMA та природничих наук для малих груп.<br><br><strong>Індивідуальне репетиторство преміум-класу:</strong> Заняття 1-на-1 з біохімії, молекулярної біології, Python, UNIX, англійської, чеської, російської (рідна) та білоруської (рідна) мов, риторики, музики (гітара, фортепіано, вокал)'],
       ['Індивідуальний підхід','Відкриті консультації щодо підбору спорядження, базовий онбординг новачків','Персональні тренування з фехтування та стрільби з лука (від 700 Kč)<br><br>Індивідуальне виготовлення та ремонт HEMA/LARP спорядження на замовлення']
     ],
@@ -2197,14 +2249,14 @@ uk:{
       ['Хто','Разові гості, нерегулярні','Ті, хто ходить регулярно'],
       ['Оплата (разово)','240 Kč / сесія','120 Kč / сесія'],
       ['Умова','Щонайменше 1 сесія на місяць','4+ сесії щомісяця'],
-      ['Абонемент Стандарт (до 4 трен./міс)','840 Kč','420 Kč'],
-      ['Абонемент Безліміт (від 3 трен./тиж)','2 400 Kč','1 200 Kč'],
-      ['Абонемент на 3 місяці (90 днів)','7 200 Kč','3 600 Kč'],
+      ['Абонемент Стандарт (до 4 трен./міс)','1 008 Kč','504 Kč'],
+      ['Абонемент Безліміт (від 3 трен./тиж)','2 880 Kč','1 440 Kč'],
+      ['Абонемент на 3 місяці (90 днів)','8 640 Kč','4 320 Kč'],
     ],
     subsNote:'Абонементи включають безкоштовну оренду зброї (мечі, сокири, списи, луки). Обладунки (кіраса, шолом) — оренда окремо. Діють 30 днів з оплати (квартальний — 90 днів), повернення лише до активації. Першому, хто оформить квартальний абонемент у поточному циклі — авторська зброя ручної роботи в подарунок. Стандарт — це конкретні дні, а не вільний вхід у будь-який день: заздалегідь кажеш тренеру, на які тренування з Пн/Чт/Сб прийдеш у цьому циклі.',
     rollbackB:'Старша дружина — статус, який підтверджується щомісяця.',
     rollback:'Якщо регулярність 4+ сесій на місяць не зберігається, учасник автоматично повертається до Молодшої дружини і тариф 240 Kč/сесія. Ранг не скидається.',
-    free:'Перше тренування — <span class="trial-price-auto">100 Kč</span>, щоб познайомитися з клубом. Перед ним ми завжди запитаємо: чи плануєш тренуватися далі на регулярній основі (абонемент від 420 Kč/міс або 120–240 Kč за разовий візит), чи це одноразова спроба з цікавості? Це не перевірка — так тренер одразу обере правильний формат, і ніхто не витрачає час даремно.'
+    free:'Перше тренування — <span class="trial-price-auto">100 Kč</span>, щоб познайомитися з клубом. Перед ним ми завжди запитаємо: чи плануєш тренуватися далі на регулярній основі (абонемент від 504 Kč/міс або 120–240 Kč за разовий візит), чи це одноразова спроба з цікавості? Це не перевірка — так тренер одразу обере правильний формат, і ніхто не витрачає час даремно.'
   },
   ranks:{
     eyebrow:'III · Ранг', h:'Шлях учасника',
@@ -2291,7 +2343,7 @@ uk:{
       ['WA Канал · EN/CS','<a href="https://chat.whatsapp.com/DuTpgF22mxMFy6L1Cfrcvu" target="_blank" rel="noopener">chat.whatsapp.com/DuTpgF...</a> — анонси, без флуду'],
       ['── Брнохідці ──','──────────────────'],
       ['TG Чат · RU/UA/BY','<a href="https://t.me/pochody_brno" target="_blank" rel="noopener">t.me/pochody_brno</a> — основний чат'],
-      ['TG Канал · RU/UA/BY','<a href="https://t.me/pochody_brno_new" target="_blank" rel="noopener">t.me/pochody_brno_new</a> — анонси, без флуду'],
+      ['TG Канал · RU/UA/BY','<a href="https://t.me/pochody_brno_news" target="_blank" rel="noopener">t.me/pochody_brno_news</a> — анонси, без флуду'],
       ['WA Чат · EN/CS','<a href="https://chat.whatsapp.com/JCyEJNm746nBXNll3VzzX3" target="_blank" rel="noopener">chat.whatsapp.com/JCyEJN...</a> — основний чат'],
       ['WA Канал · EN/CS','<a href="https://chat.whatsapp.com/BSlQetCjMoL8IO45c6VnH0" target="_blank" rel="noopener">chat.whatsapp.com/BSlQet...</a> — анонси, без флуду'],
     ]
@@ -2330,8 +2382,11 @@ uk:{
     <h4>4. ЗМІНА ПРОГРАМИ</h4>
     <p><strong>4.1</strong> Організатор має право змінювати маршрути, тайминг або локації з міркувань безпеки (погода, логістика). Зміна вважається несуттєвою, якщо програму виконано на 70% і більше.</p>
     <h4>5. ПОВЕДІНКА, ЕТИКА ТА ДИСЦИПЛІНА</h4>
-    <p><strong>5.1</strong> Забороняються будь-які форми дискримінації, агресії, харасменту. Інструкції організатора обов'язкові до виконання.</p>
-    <p><strong>5.2 Негайне відсторонення (без повернення коштів)</strong> загрожує за явку в стані сп'яніння, навмисне порушення ТБ, відмову виконувати команди організатора, агресивну поведінку або псування майна.</p>
+    <p><strong>5.1</strong> Забороняються будь-які форми дискримінації, агресії, харасменту. Інструкції організатора або призначеного ним модератора/тренера обов'язкові до негайного виконання.</p>
+    <p><strong>5.2 Вказівки про припинення виконуються негайно.</strong> Якщо організатор або тренер каже «досить», «тему закрито», «замовкніть» або «стоп» — це виконується тієї ж секунди, без заперечень у моменті. На тренуванні команда «стоп» від тренера чи партнера зупиняє будь-яку дію миттєво, незалежно від ситуації у спарингу. Незгоду з рішенням висловлюють організатору особисто і пізніше, не публічно і не в момент конфлікту.</p>
+    <p><strong>5.3 Заборонено без винятків:</strong> образи за національністю, мовою, релігією, статтю, орієнтацією, зовнішністю чи походженням; погрози, залякування та шантаж; сексуальні домагання та непристойні коментарі; публічні звинувачення та розбірки у спільних чатах (будь-який конфлікт вирішується один на один з організатором); цькування та навмисне колективне виключення учасника; розголошення особистих даних учасників без згоди; навмисний розкол спільноти за мовною чи національною ознакою.</p>
+    <p><strong>5.4 Негайне відсторонення (без повернення коштів)</strong> загрожує за: явку в стані сп'яніння, навмисне порушення техніки безпеки, відмову виконати команду організатора чи тренера, будь-яке порушення з п. 5.3, агресивну поведінку або псування майна. Перше незначне порушення — попередження; повторне або одразу серйозне — виключення без попередження і без права повернутись.</p>
+    <p><strong>5.5</strong> Рішення організатора щодо будь-якого спору про поведінку є остаточним і не підлягає оскарженню, перегляду чи голосуванню. За неоднозначного формулювання цих правил діє суворіше тлумачення — на користь порядку та безпеки учасників.</p>
     <h4>6. ЗДОРОВ'Я, ВІДПОВІДАЛЬНІСТЬ ТА СТРАХУВАННЯ</h4>
     <p><strong>6.1</strong> Учасники підтверджують відсутність медичних протипоказань. Участь здійснюється на власний ризик. Організатор не надає страхового покриття; учасникам настійно рекомендується оформити особисте спортивне/туристичне страхування.</p>
     <p><strong>6.2 Майно:</strong> Організатор не несе відповідальності за крадіжку або пошкодження особистих речей учасників під час заходів.</p>
@@ -2357,7 +2412,7 @@ const CALENDAR_SUBSCRIBE_LINK = 'https://calendar.google.com/calendar/u/0/newemb
 const INTRO_VIDEO_ID = { ru: 'v0l_dqA9E-o', en: 'BPuT55R3On0', cs: 'BPuT55R3On0', uk: 'BPuT55R3On0' };
 
 const WALKERS_TG_CHAT    = 'https://t.me/pochody_brno';
-const WALKERS_TG_CHANNEL = 'https://t.me/pochody_brno_new';
+const WALKERS_TG_CHANNEL = 'https://t.me/pochody_brno_news';
 const WALKERS_WA_CHAT    = 'https://chat.whatsapp.com/JCyEJNm746nBXNll3VzzX3';
 const WALKERS_WA_CHANNEL = 'https://chat.whatsapp.com/BSlQetCjMoL8IO45c6VnH0';
 
@@ -2559,25 +2614,29 @@ function renderContactsGrid(rows){
   return html + '</div>';
 }
 
+// Full ecosystem nav — extended this pass from 3 items (Main/Walkers/
+// Družina) to the complete set of hub-level destinations: Home,
+// BrnoWalkers, Academy, Družina Moravy, Calendar, Become an Ambassador,
+// Contacts. Only "Home" stays a same-page-scroll <button> — everything
+// else is a real <a href>, crawlable and working with zero JS, same
+// principle as the BrnoWalkers/Družina links already were. #pricing,
+// #walkers-schedule, #ambassador and #contacts are all static HTML (not
+// re-rendered per language), so those four hrefs are plain anchors, not
+// per-language routes.
 function renderTabsNav(lang){
   const t = T[lang];
-  // "main"/"academy"(→#pricing)/"contacts"/"ambassador" are same-page
-  // scroll <button>s — that content genuinely lives on this page.
-  // Družina/BrnoWalkers stay real <a href> links straight to their
-  // dedicated pages (see HANDOVER.md §6 — their full content lives
-  // there, not here, so a same-page scroll would be misleading).
   document.getElementById('tabsNav').innerHTML = `
     <button class="tab-btn ${currentTab === 'main' ? 'active' : ''}" data-tab="main">${t.tabs.main}</button>
-    <a class="tab-btn" href="druzina/">${t.tabs.druzina}</a>
     <a class="tab-btn" href="walkers/">${t.tabs.walkers}</a>
-    <button class="tab-btn ${currentTab === 'pricing' ? 'active' : ''}" data-tab="pricing">${t.tabs.academy}</button>
-    <button class="tab-btn ${currentTab === 'contacts' ? 'active' : ''}" data-tab="contacts">${t.tabs.contacts}</button>
-    <button class="tab-btn ${currentTab === 'ambassador' ? 'active' : ''}" data-tab="ambassador">${t.tabs.ambassador}</button>
+    <a class="tab-btn" href="#pricing">${t.tabs.academy}</a>
+    <a class="tab-btn" href="druzina/">${t.tabs.druzina}</a>
+    <a class="tab-btn" href="#walkers-schedule">${t.tabs.calendar}</a>
+    <a class="tab-btn tab-btn--accent" href="#ambassador">${t.tabs.ambassador}</a>
+    <a class="tab-btn" href="#contacts">${t.tabs.contacts}</a>
   `;
 
-  document.querySelectorAll('#tabsNav button[data-tab]').forEach(btn => {
-    btn.onclick = () => switchTab(btn.dataset.tab);
-  });
+  const mainBtn = document.querySelector('#tabsNav button[data-tab="main"]');
+  if (mainBtn) mainBtn.onclick = () => switchTab('main');
 }
 
 // Just toggles which tab-bar button looks active — no DOM rebuild.
@@ -2612,7 +2671,7 @@ function parseHash() {
   const raw = (location.hash || '').replace('#','');
   if(!raw) return {tab:'main', section:null};
   const parts = raw.split('/');
-  const tab = ['main','walkers','druzina','pricing','contacts','ambassador'].includes(parts[0]) ? parts[0] : 'main';
+  const tab = ['main','walkers','druzina'].includes(parts[0]) ? parts[0] : 'main';
   const section = parts[1] || null;
   return {tab, section};
 }
@@ -3919,17 +3978,10 @@ function render(lang){
   // but the check costs nothing).
   if (typeof updateTrialPriceDisplays === 'function') updateTrialPriceDisplays();
 
-  // Update nav housing button label (JS enhancement only now — the
-  // button itself is a real <a href="#price-hous"> in the static HTML,
-  // so it already navigates correctly with zero JS; this just keeps the
-  // label translated per-language on top of that).
-  const navH = document.getElementById('navHousingBtn');
-  if(navH){
-    try{
-      const hous = PRICING && PRICING.categories ? PRICING.categories.find(c=>c.id==='HOUS') : null;
-      navH.textContent = hous ? hous.title[lang] : (lang==='ru' ? 'Помощь с жильём' : 'Housing');
-    }catch(e){}
-  }
+  // navHousingBtn removed this pass (see nav markup comment) — the CTA
+  // button that replaced it (navBookBtn) is a plain data-i18n element
+  // and already gets its label from applyTranslations() above, no
+  // dedicated JS needed.
 
   // observeLadder() removed — the rank ladder is now a static table (see
   // <main id="static-content">, id="ranks"), not the animated .ladder
@@ -4394,7 +4446,7 @@ function initMobileCta() {
 // old 55px) breaks as soon as .nav's actual height differs — which it
 // does: the bilingual brand text wraps to a different number of lines
 // per language, and narrow phones wrap the brand + 4 lang buttons +
-// audio/Housing buttons across multiple lines too. When the offset is
+// audio/CTA buttons across multiple lines too. When the offset is
 // too small, .nav (z-index:50) sticks on top of and covers the top of
 // .tabs-bar (z-index:45) as you scroll — reported as "tabs tend to hide
 // on scroll". ResizeObserver re-fires on any reflow (window resize,
