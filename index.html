@@ -208,7 +208,7 @@
       <div class="venture-grid">
 
         <div class="venture-card-wrap">
-          <a class="venture-card" href="#pricing" onclick="switchTab('main'); return true;">
+          <a class="venture-card" href="#pricing" onclick="switchTab('pricing'); return true;">
             <div class="venture-photo"><img class="photo-slot" src="images/portrait_face.jpg" data-alt="Aliaksei Chareshneu, PhD" alt="Aliaksei Chareshneu, PhD — tutoring" loading="eager"></div>
             <div class="venture-card-body">
               <h3>🎓 Tutoring &amp; Coaching</h3>
@@ -1118,6 +1118,22 @@
        here and there), and Ecosystem was dropped as redundant with the
        hero fork + .venture-picker. renderDruzinaTab() itself is now a
        no-op — see that function. -->
+  <!-- Ambassador / referral — soft-launch by design: no fixed
+       percentages or formal terms published here, just an invite to DM.
+       Matches "test with real conversions via personal outreach before
+       going public" — easy to expand into a full program page once
+       that's decided. -->
+  <section id="ambassador">
+    <div class="wrap">
+      <p class="eyebrow-sm" data-i18n="ambassador.eyebrow">Partnership</p>
+      <h2 data-i18n="ambassador.h">Become a Community Ambassador</h2>
+      <p data-i18n="ambassador.text">Bring friends to a hike or training, share a post, make content — get a reward (free sessions, merch, eventually a referral cut). Not a formal public program yet — details discussed 1-on-1.</p>
+      <div style="margin-top:14px;">
+        <a class="btn solid" href="https://t.me/chareshneu" target="_blank" rel="noopener" data-i18n="ambassador.cta">Message me on Telegram</a>
+      </div>
+    </div>
+  </section>
+
   <section id="contacts">
     <div class="wrap">
       <div class="eyebrow-sm">IX · Contacts</div>
@@ -1449,7 +1465,13 @@ const T = {
 ru:{
   meta:{title:'Aliaksei Chareshneu, PhD | Алексей Черешнев, доктор наук — Брно'},
   nav:{brand:'Aliaksei Chareshneu, PhD | Алексей Черешнев, доктор наук', sub:'Экосистема проектов в Брно'},
-  tabs:{main:'Обо мне & Экосистема', walkers:'Брноходцы (Походы, настолки и веселье)', druzina:'Дружина Моравы (Безопасные мечи, луки и не только)'},
+  tabs:{main:'Введение в экосистему', druzina:'Дружина Моравы', walkers:'Брноходцы', academy:'Академия', contacts:'Контакты', ambassador:'Стать послом'},
+  ambassador:{
+    eyebrow:'Партнёрство',
+    h:'Стать послом сообщества',
+    text:'Приводишь друзей на поход или тренировку, делаешь репост, снимаешь контент — получаешь бонус (бесплатные занятия, мерч, в перспективе процент от привода). Публичной программы пока нет — все условия обсуждаем лично.',
+    cta:'Написать в Telegram'
+  },
   hero:{
     eyebrow:'Брно · Движение · Интеллект',
     cta1:'WhatsApp', cta2:'Telegram',
@@ -1663,7 +1685,13 @@ ru:{
 en:{
   meta:{title:'Aliaksei Chareshneu, PhD | Алексей Черешнев, доктор наук — Brno'},
   nav:{brand:'Aliaksei Chareshneu, PhD | Алексей Черешнев, доктор наук', sub:'Ecosystem of projects in Brno'},
-  tabs:{main:'About Me & Ecosystem', walkers:'BrnoWalkers (Hiking & Boardgames & Fun)', druzina:'Druzhina Moravy (Safe Swords, Bows & More)'},
+  tabs:{main:'Ecosystem Intro', druzina:'Druzhina Moravy', walkers:'BrnoWalkers', academy:'Academy', contacts:'Contacts', ambassador:'Become an Ambassador'},
+  ambassador:{
+    eyebrow:'Partnership',
+    h:'Become a Community Ambassador',
+    text:'Bring friends to a hike or training, share a post, make content — get a reward (free sessions, merch, eventually a referral cut). Not a formal public program yet — details discussed 1-on-1.',
+    cta:'Message me on Telegram'
+  },
   hero:{
     eyebrow:'Brno · Movement · Mind',
     cta1:'WhatsApp', cta2:'Telegram',
@@ -1877,7 +1905,13 @@ en:{
 cs:{
   meta:{title:'Aliaksei Chareshneu, PhD | Алексей Черешнев, доктор наук — Brno'},
   nav:{brand:'Aliaksei Chareshneu, PhD | Алексей Черешнев, доктор наук', sub:'Ekosystém projektů v Brně'},
-  tabs:{main:'O mně & Ekosystém', walkers:'BrnoWalkers (Výšlapy, deskovky a zábava)', druzina:'Družina Moravy (Bezpečné meče, luky a další)'},
+  tabs:{main:'Úvod do ekosystému', druzina:'Družina Moravy', walkers:'BrnoWalkers', academy:'Akademie', contacts:'Kontakty', ambassador:'Staň se ambasadorem'},
+  ambassador:{
+    eyebrow:'Partnerství',
+    h:'Staň se ambasadorem komunity',
+    text:'Přiveď kamarády na výšlap nebo trénink, sdílej příspěvek, tvoř obsah — a získej odměnu (volné lekce, merch, do budoucna i podíl z doporučení). Zatím to není formální veřejný program — podmínky řešíme osobně.',
+    cta:'Napsat na Telegram'
+  },
   hero:{
     eyebrow:'Brno · Pohyb · Mysl',
     cta1:'WhatsApp', cta2:'Telegram',
@@ -2091,7 +2125,13 @@ cs:{
 uk:{
   meta:{title:'Aliaksei Chareshneu, PhD | Алексей Черешнев, доктор наук — Брно'},
   nav:{brand:'Aliaksei Chareshneu, PhD | Алексей Черешнев, доктор наук', sub:'Екосистема проєктів у Брно'},
-  tabs:{main:'Про мене & Екосистема', walkers:'Брнохідці (Походи, настільні гри та веселощі)', druzina:'Дружина Моравії (Безпечні мечі, луки та інше)'},
+  tabs:{main:'Вступ до екосистеми', druzina:'Дружина Моравії', walkers:'Брнохідці', academy:'Академія', contacts:'Контакти', ambassador:'Стати послом'},
+  ambassador:{
+    eyebrow:'Партнерство',
+    h:'Стати послом спільноти',
+    text:'Приводиш друзів на похід чи тренування, робиш репост, знімаєш контент — отримуєш бонус (безкоштовні заняття, мерч, у перспективі відсоток від приведення). Публічної програми поки немає — усі умови обговорюємо особисто.',
+    cta:'Написати в Telegram'
+  },
   hero:{
     eyebrow:'Брно · Рух · Інтелект',
     cta1:'WhatsApp', cta2:'Telegram',
@@ -2521,22 +2561,23 @@ function renderContactsGrid(rows){
 
 function renderTabsNav(lang){
   const t = T[lang];
-  // Only "main" stays a same-page-scroll <button> — that content
-  // genuinely lives on this page. BrnoWalkers/Družina used to be
-  // <button onclick="switchTab(...)"> too, which (a) did nothing without
-  // JS and (b) even with JS just scrolled to the on-page teaser, not the
-  // actual venture content — that content moved to the dedicated pages
-  // during the duplication fix (HANDOVER.md §6), so the tab's own label
-  // promising "BrnoWalkers"/"Družina Moravy" was misleading. Real links
-  // now, straight to those pages.
+  // "main"/"academy"(→#pricing)/"contacts"/"ambassador" are same-page
+  // scroll <button>s — that content genuinely lives on this page.
+  // Družina/BrnoWalkers stay real <a href> links straight to their
+  // dedicated pages (see HANDOVER.md §6 — their full content lives
+  // there, not here, so a same-page scroll would be misleading).
   document.getElementById('tabsNav').innerHTML = `
     <button class="tab-btn ${currentTab === 'main' ? 'active' : ''}" data-tab="main">${t.tabs.main}</button>
-    <a class="tab-btn" href="walkers/">${t.tabs.walkers}</a>
     <a class="tab-btn" href="druzina/">${t.tabs.druzina}</a>
+    <a class="tab-btn" href="walkers/">${t.tabs.walkers}</a>
+    <button class="tab-btn ${currentTab === 'pricing' ? 'active' : ''}" data-tab="pricing">${t.tabs.academy}</button>
+    <button class="tab-btn ${currentTab === 'contacts' ? 'active' : ''}" data-tab="contacts">${t.tabs.contacts}</button>
+    <button class="tab-btn ${currentTab === 'ambassador' ? 'active' : ''}" data-tab="ambassador">${t.tabs.ambassador}</button>
   `;
 
-  const mainBtn = document.querySelector('#tabsNav button[data-tab="main"]');
-  if (mainBtn) mainBtn.onclick = () => switchTab('main');
+  document.querySelectorAll('#tabsNav button[data-tab]').forEach(btn => {
+    btn.onclick = () => switchTab(btn.dataset.tab);
+  });
 }
 
 // Just toggles which tab-bar button looks active — no DOM rebuild.
@@ -2571,7 +2612,7 @@ function parseHash() {
   const raw = (location.hash || '').replace('#','');
   if(!raw) return {tab:'main', section:null};
   const parts = raw.split('/');
-  const tab = ['main','walkers','druzina'].includes(parts[0]) ? parts[0] : 'main';
+  const tab = ['main','walkers','druzina','pricing','contacts','ambassador'].includes(parts[0]) ? parts[0] : 'main';
   const section = parts[1] || null;
   return {tab, section};
 }
