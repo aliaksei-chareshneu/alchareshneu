@@ -175,74 +175,99 @@
       <p class="eyebrow" data-i18n="hero.eyebrow">Brno · Movement · Mind</p>
       <h1 data-i18n="main.title">Your Guide in Brno — Tutoring, Hiking &amp; HEMA/LARP</h1>
       <p class="tagline" data-i18n="main.tagline">PhD-level tutoring in sciences, IT, languages and music, weekend hikes with BrnoWalkers, and historical combat training with Družina Moravy.</p>
-      <!-- Three-way venture fork, right in the hero — per the site
-           owner's follow-up ("дай развилку с первого экрана"). Before,
-           this row was 2 buttons pointed only at Tutoring+WhatsApp; the
-           actual "which of the three things do I want" choice (the
-           .venture-picker cards) lived a full scroll further down —
-           trust-strip, then service-finder, then the picker. On most
-           phones the picker was below the fold on first load. This
-           doesn't replace that picker (still there, still has the
-           fuller descriptions for anyone who scrolls a bit) — it's the
-           same three destinations, just also reachable with zero
-           scrolling. Labels mostly reuse the picker's own static English
-           brand names (BrnoWalkers, Družina Moravy — proper nouns, not
-           translated anywhere else on the site either) except the first
-           one, which needed an actual word since "Eternal Learning"
-           alone doesn't mean anything to a first-time visitor — reused
-           "Репетиторство"/"Tutoring"/"Doučování", the exact term already
-           established in pricing.title2 (STATIC_ADAPTED_I18N). -->
-      <div class="hero-ctas">
-        <a class="btn solid" href="#pricing" onclick="switchTab('main'); return true;">🎓 <span data-i18n="ui.forkTutoring">Tutoring</span></a>
-        <a class="btn" href="walkers/">🥾 BrnoWalkers</a>
-        <a class="btn" href="druzina/">⚔️ Družina Moravy</a>
-      </div>
-      <div class="hero-secondary-row">
-        <a class="reviews-badge" href="https://maps.app.goo.gl/fEbnJHxiVoAx1v498" target="_blank" rel="noopener">
-          <span class="star">⭐</span><span data-i18n="reviewsBadge">45+ Google reviews · 5.0</span>
-        </a>
-        <!-- Same channel your real site's Main-hero eventAlerts button already
-             links to (communityLinks('en','walkers').channel) — not a new
-             decision, just carried forward and restyled quieter. -->
-        <a class="alerts-ghost" href="https://chat.whatsapp.com/BSlQetCjMoL8IO45c6VnH0" target="_blank" rel="noopener">🔔 <span data-i18n="ui.eventAlerts">Get event alerts</span></a>
+      <a class="reviews-badge" href="https://maps.app.goo.gl/fEbnJHxiVoAx1v498" target="_blank" rel="noopener">
+        <span class="star">⭐</span><span data-i18n="reviewsBadge">45+ Google reviews · 5.0</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- Trust strip condensed to one line (was 4 icon+text items stacked
+       in a grid) — same facts, none dropped, just far less vertical
+       space. Part of "first screen should show the whole concept without
+       scrolling" — every section above the venture picker needed to get
+       smaller for that to be physically possible on a phone. -->
+  <section class="trust-strip" aria-label="Credentials and community size">
+    <p class="trust-line">PhD, Biomolecular Chemistry &amp; Bioinformatics (Masaryk University) · Teaching since 2015 · 230+ combined community</p>
+  </section>
+
+  <!-- VENTURE PICKER — redesigned this session from icon+text cards into
+       photo cards, per the site owner's request: "three pictures, left
+       to right on desktop or top to bottom on phone, visible from the
+       first screen." Photos are real existing assets already used
+       elsewhere on the site (confirmed via grep, not newly uploaded) —
+       swap in better/dedicated ones later if available, structure won't
+       need to change. Each card is still one real <a href>, crawlable
+       and working with zero JS, same as before — only the visual
+       treatment and text length changed. Channel icons (Telegram/
+       WhatsApp) sit in a small row BELOW each card rather than inside
+       the <a> — nesting a second <a> inside the card's own link isn't
+       valid HTML and browsers handle it unpredictably. -->
+  <section class="venture-picker" aria-label="Choose what you're here for">
+    <div class="wrap">
+      <h2 class="visually-hidden">What we offer</h2>
+      <div class="venture-grid">
+
+        <div class="venture-card-wrap">
+          <a class="venture-card" href="#pricing" onclick="switchTab('main'); return true;">
+            <div class="venture-photo"><img class="photo-slot" src="images/portrait_face.jpg" data-alt="Aliaksei Chareshneu, PhD" alt="Aliaksei Chareshneu, PhD — tutoring" loading="eager"></div>
+            <div class="venture-card-body">
+              <h3>🎓 Tutoring &amp; Coaching</h3>
+              <p>PhD-level 1-on-1 lessons: sciences, IT, languages, music.</p>
+              <span class="venture-cta">See prices →</span>
+            </div>
+          </a>
+          <div class="venture-channels">
+            <a href="https://t.me/eternallearning" target="_blank" rel="noopener" aria-label="Telegram"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 3 2 10.6l6.2 2.1M21 3l-4.4 17-4.9-7.3M21 3 8.2 12.7"/></svg></a>
+            <a href="https://wa.me/420702914842" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l1.3-4.1A8 8 0 1 1 9 18.6z"/><path d="M9.2 10.3c0 3 2.4 5.4 5.4 5.4"/></svg></a>
+          </div>
+        </div>
+
+        <div class="venture-card-wrap">
+          <a class="venture-card" href="walkers/">
+            <div class="venture-photo"><img class="photo-slot" src="images/walkers_group.jpg" data-alt="BrnoWalkers group hike" alt="BrnoWalkers group hike" loading="eager"></div>
+            <div class="venture-card-body">
+              <h3>🥾 BrnoWalkers</h3>
+              <p>Guided hikes, cave tours &amp; city walks across Moravia.</p>
+              <span class="venture-cta">See upcoming hikes →</span>
+            </div>
+          </a>
+          <div class="venture-channels">
+            <a href="https://t.me/pochody_brno_new" target="_blank" rel="noopener" aria-label="Telegram"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 3 2 10.6l6.2 2.1M21 3l-4.4 17-4.9-7.3M21 3 8.2 12.7"/></svg></a>
+            <a href="https://chat.whatsapp.com/BSlQetCjMoL8IO45c6VnH0" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l1.3-4.1A8 8 0 1 1 9 18.6z"/><path d="M9.2 10.3c0 3 2.4 5.4 5.4 5.4"/></svg></a>
+          </div>
+        </div>
+
+        <div class="venture-card-wrap">
+          <a class="venture-card" href="druzina/">
+            <div class="venture-photo"><img class="photo-slot" src="images/druzina_train.jpg" data-alt="Družina Moravy HEMA training" alt="Družina Moravy HEMA training" loading="eager"></div>
+            <div class="venture-card-body">
+              <h3>⚔️ Družina Moravy</h3>
+              <p>HEMA &amp; LARP club, training 3× a week. First session <span class="trial-price-auto">120 Kč</span>.</p>
+              <span class="venture-cta">See training schedule →</span>
+            </div>
+          </a>
+          <div class="venture-channels">
+            <a href="https://t.me/druzinamoravy_news" target="_blank" rel="noopener" aria-label="Telegram"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 3 2 10.6l6.2 2.1M21 3l-4.4 17-4.9-7.3M21 3 8.2 12.7"/></svg></a>
+            <a href="https://chat.whatsapp.com/DuTpgF22mxMFy6L1Cfrcvu" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l1.3-4.1A8 8 0 1 1 9 18.6z"/><path d="M9.2 10.3c0 3 2.4 5.4 5.4 5.4"/></svg></a>
+          </div>
+        </div>
+
       </div>
     </div>
   </section>
 
-  <!-- TRUST STRIP — scannable credibility, zero clicks required.
-       Numbers here need your confirmation before going live, see notes doc. -->
-  <section class="trust-strip" aria-label="Credentials and community size">
-    <ul class="trust-grid">
-      <li class="trust-item">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9l10-5 10 5-10 5-10-5Z"/><path d="M6 11v5c0 1.5 2.5 3 6 3s6-1.5 6-3v-5"/><path d="M22 9v6"/></svg>
-        <span>PhD, Biomolecular Chemistry &amp; Bioinformatics — Masaryk University</span>
-      </li>
-      <li class="trust-item">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
-        <span>Teaching since 2015</span>
-      </li>
-      <li class="trust-item">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 20c.8-3.6 3.2-5.5 5.5-5.5s4.7 1.9 5.5 5.5"/><circle cx="17" cy="9" r="2.6"/><path d="M15.5 14.3c2 .2 3.9 1.9 4.6 5"/></svg>
-        <!-- 140+85 BrnoWalkers (TG+WA) + 8+5 Družina (TG+WA) = 238, rounded
-             down to 230+ since you said numbers usually grow — never overclaim. -->
-        <span>230+ combined community across BrnoWalkers &amp; Družina Moravy</span>
-      </li>
-      <li class="trust-item">
-        <span class="star">⭐</span>
-        <span>45+ reviews, 5.0 on Google</span>
-      </li>
-    </ul>
-  </section>
-
   <!-- ============================================================
-       SERVICE FINDER — direct response to "too bulky, hard to find
-       the exact order." Indexes every priced row and event card
-       straight from the DOM (not a hand-maintained duplicate list —
-       can't drift out of sync with the real prices), so typing
-       "chemistry" or "canoe" jumps straight to that exact row with
-       its price, auto-expanding it if it's inside a collapsed
-       category. This is now the PRIMARY way to reach a specific
-       service — placed above the venture picker on purpose.
+       SERVICE FINDER — moved BELOW the venture picker this session
+       (used to sit between trust-strip and the picker). The picker is
+       now the star of the first screen per the site owner's request;
+       the finder is a power-user tool for people who already know
+       exactly what they want and would rather type than click through —
+       still one scroll away, not gone.
+       Indexes every priced row and event card straight from the DOM
+       (not a hand-maintained duplicate list — can't drift out of sync
+       with the real prices), so typing "chemistry" or "canoe" jumps
+       straight to that exact row with its price, auto-expanding it if
+       it's inside a collapsed category.
        ============================================================ -->
   <section class="service-finder" aria-label="Find a specific service or price">
     <div class="wrap">
@@ -252,40 +277,6 @@
       </div>
       <div id="finderResults" class="finder-results" hidden></div>
       <div id="finderEmpty" class="finder-empty" hidden>No exact match — try a shorter word, or browse below.</div>
-    </div>
-  </section>
-
-  <!-- VENTURE PICKER — each card is real, static, crawlable copy for that
-       venture. This is what lets BrnoWalkers / Družina Moravy start
-       carrying their own topical relevance in Search even before they get
-       dedicated URLs (see roadmap note in the handoff doc). -->
-  <section class="venture-picker" aria-label="Choose what you're here for">
-    <div class="wrap">
-      <h2 class="visually-hidden">What we offer</h2>
-      <div class="venture-grid">
-
-        <a class="venture-card" href="#pricing" onclick="switchTab('main'); return true;">
-          <svg class="venture-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5C4 4.7 4.7 4 5.5 4H12v16H5.5A1.5 1.5 0 0 1 4 18.5v-13Z"/><path d="M20 5.5c0-.8-.7-1.5-1.5-1.5H12v16h6.5c.8 0 1.5-.7 1.5-1.5v-13Z"/></svg>
-          <h3>Eternal Learning — Tutoring &amp; Coaching</h3>
-          <p>PhD-level 1-on-1 lessons: sciences, IT, Czech, English, native Russian &amp; Belarusian, music, public speaking. Packages save up to 15%.</p>
-          <span class="venture-cta">See tutoring &amp; prices →</span>
-        </a>
-
-        <a class="venture-card" href="walkers/">
-          <svg class="venture-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m3 20 6.5-11L14 15l2.5-3.5L21 20H3Z"/><circle cx="7.5" cy="6.5" r="1.6"/></svg>
-          <h3>BrnoWalkers</h3>
-          <p>Guided hikes, cave tours and city walks across Moravia, plus a weekly Tuesday board game night. Open to solo travellers, families and dogs.</p>
-          <span class="venture-cta">See upcoming hikes →</span>
-        </a>
-
-        <a class="venture-card" href="druzina/">
-          <svg class="venture-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 3.5 20.5 9.5 11 19l-3-3 9.5-9.5Z"/><path d="M8 16l-3.5 3.5M6 14l-2.5 2.5M10 18l-2.5 2.5"/></svg>
-          <h3>Družina Moravy</h3>
-          <p>Historical European martial arts (HEMA) and LARP club, training 3× a week in Brno. First training <span class="trial-price-auto">100 Kč</span>.</p>
-          <span class="venture-cta">See training schedule →</span>
-        </a>
-
-      </div>
     </div>
   </section>
 
@@ -983,18 +974,13 @@
     </div>
   </section>
 
-  <div id="walkers-dynamic"></div>
-
-  <!-- Static fallback for the calendar-embed part of #walkers-dynamic —
-       per the site owner's request to verify the site works without JS.
-       Unlike Medals/Board Games (still dynamic, follow-up work), this one
-       needed zero real logic to convert: it's just an <iframe> pointing
-       at the public Google Calendar, no per-language data involved.
-       Directly relevant to the earlier "shortest path to arrival" pass
-       too — a visitor without JS running had literally no way to see the
-       schedule at all before this. renderWalkersTab()'s own <section
-       id="walkers-schedule"> block was removed (see that function) to
-       avoid a duplicate id. -->
+  <!-- Live calendar embed — deliberately stayed on the main page rather
+       than moving to /walkers/ during this session's "venture-specific
+       content only on its own page" cleanup: this calendar covers BOTH
+       BrnoWalkers and Družina Moravy events (one shared Google Calendar),
+       so it doesn't belong to either dedicated page specifically — it's
+       genuinely hub-level content, same category as Contacts. Just an
+       <iframe>, no per-language data. -->
   <section id="walkers-schedule">
     <div class="wrap">
       <div class="eyebrow-sm">Schedule</div>
@@ -1100,41 +1086,38 @@
     </div>
   </section>
 
-  <!-- Content-duplication fix (see HANDOVER.md §6) — same reasoning as
-       the BrnoWalkers link-out above. Onboarding, the full Rank ladder,
-       Roles and Conduct/Discipline now live only on /druzina/. The hero
-       and the About+facts section above are unchanged.
-       Schedule + venue are surfaced directly here (not just linked out):
-       per the site owner's request, the "when/where to show up" fact
-       needed zero clicks even though the deeper schedule table (LARP
-       notes, cancellation rule) still lives on the dedicated page. -->
+  <!-- Content-duplication fix (see HANDOVER.md §6), simplified further
+       this session for consistency with the BrnoWalkers callout above.
+       This used to also surface Mon/Thu/Sat 18:00 + the venue address
+       directly here, reasoning that "when/where to show up" deserved
+       zero clicks — but the site owner flagged the resulting split as
+       confusing in practice (schedule/price details here, ranks/roles
+       only on the dedicated page, no consistent rule for what lives
+       where). Now the rule is simple and the same for both ventures:
+       the main page states what the venture is, everything else
+       (schedule, tariff, ranks, roles, conduct) lives ONLY on the
+       dedicated page, one click away. -->
   <section aria-label="Full Družina Moravy details">
     <div class="wrap">
       <div class="callout">
-        <p><strong>Mon · Thu · Sat, 18:00</strong> — Dukelská třída 157/44, Brno. Outdoors, 1h 30m. First training — <span class="trial-price-auto">120 Kč</span>, just show up.</p>
+        <p><strong>Schedule, pricing, the full rank ladder, club roles and conduct rules all live on the Družina Moravy page.</strong></p>
         <div style="margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-          <a class="btn solid" href="https://www.google.com/maps/search/?api=1&query=Dukelsk%C3%A1%20t%C5%99%C3%ADda%20157%2F44%2C%20Brno" target="_blank" rel="noopener">📍 Get directions</a>
-          <a class="btn" href="druzina/">Full schedule, ranks, roles &amp; rules →</a>
+          <a class="btn solid" href="druzina/">Open the Družina Moravy page →</a>
         </div>
       </div>
     </div>
   </section>
 
-  <div id="druzina-dynamic"></div>
-
-  <!-- Static fallback for the Contacts part of #druzina-dynamic — per the
-       site owner's request to verify the site works without JS. Same
-       reasoning as the #site-footer fix above: this is literally "how to
-       reach us" (email, phone, WhatsApp, Telegram — for all three
-       ventures), and it was 100% invisible without JS. Tariff, Payment
-       and Ecosystem (the rest of what renderDruzinaTab() outputs) are
-       NOT converted here — flagged as follow-up work, not done in this
-       pass. renderDruzinaTab()'s own <section id="contacts"> block was
-       REMOVED from its template string (see that function) so this
-       static one doesn't collide with a JS-generated duplicate id;
-       render() still restyles nothing here on language switch because
-       this content never had translations to begin with (English-only
-       contact labels, same as the rest of the static-first content). -->
+  <!-- Static Contacts — per the site owner's request to verify the site
+       works without JS: this was 100% invisible without JS before
+       (fixed one session ago). Tariff, Payment, and Ecosystem (the rest
+       of what renderDruzinaTab() used to output alongside this) are
+       gone entirely now — Tariff/Payment moved to static HTML on
+       /druzina/ this session (part of a bigger fix: venture-specific
+       content now lives ONLY on the dedicated page, not split between
+       here and there), and Ecosystem was dropped as redundant with the
+       hero fork + .venture-picker. renderDruzinaTab() itself is now a
+       no-op — see that function. -->
   <section id="contacts">
     <div class="wrap">
       <div class="eyebrow-sm">IX · Contacts</div>
@@ -3684,103 +3667,35 @@ function injectEventSchema(events) {
 
 
 function renderWalkersTab(lang, t) {
-  // Hero and portrait/hero-img photos are static (see <main
-  // id="static-content">). Event-types, canoe-safety, walkers-about,
-  // walkers-rules and FAQ used to be static here too, but were removed
-  // during the content-duplication fix (HANDOVER.md §6) — that content
-  // now lives only on the dedicated /walkers/ page, linked from a short
-  // callout right after the static facts section. The calendar embed
-  // (old id="walkers-schedule") is ALSO now static — moved right after
-  // the #walkers-dynamic placeholder in the static HTML, since it needed
-  // no per-language logic to convert (just an <iframe>). Medals and
-  // Board Games were never part of that migration (Medals partly because
-  // the sample leaderboard uses placeholder names, not real data) —
-  // still genuinely dynamic here.
-  const lnk = communityLinks(lang, 'walkers');
-  return `
-  ${renderMedals(lang)}
-
-  <!-- renderPolicySection() call removed here — already rendered once in
-       Main's dynamic content. Both used to render fine simultaneously
-       under the old one-tab-at-a-time architecture; now that all tabs'
-       remaining content renders together, calling it twice would create
-       a duplicate id="policy" on the page. -->
-
-  <section id="boardgames">
-    <div class="wrap">
-      <div class="eyebrow-sm">${BOARDGAMES.eyebrow[lang]}</div>
-      <h2 class="anchor-heading">${BOARDGAMES.aboutH[lang]}<a class="anchor-link" href="#boardgames">#</a></h2>
-      <div class="photo-float"><img src="${IMG_BOARDGAMES}" alt="Board game evening Scythe Brno" loading="lazy"></div>
-      <p class="lead">${BOARDGAMES.aboutText[lang]}</p>
-      <div style="clear:both; margin-top:20px;">
-        <p style="font-size:16px; color:var(--ink-dim); line-height:1.8;">${lang==='en' ? BOARDGAMES.gamesEn : lang==='cs' ? BOARDGAMES.gamesCs : lang==='uk' ? BOARDGAMES.gamesUk : BOARDGAMES.games}</p>
-      </div>
-      <div class="callout" style="margin-top:24px;">
-        <p><strong>${BOARDGAMES.bringH[lang]}</strong> ${BOARDGAMES.bringText[lang]}</p>
-        <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
-          <a class="btn solid" href="${REGISTER_FORM}" target="_blank" rel="noopener">${BOARDGAMES.registerBtn[lang]}</a>
-          <a class="btn" href="${lnk.channel}" target="_blank" rel="noopener">${t.ui.joinChannel}</a>
-        </div>
-        <p style="margin-top:12px; font-size:13px; color:var(--r5); text-align:center; font-weight:700;">${lang==='ru'?'Низкий порог входа: подписывайся на канал анонсов и приходи на ближайшую встречу без долгих обязательств.' : lang==='uk'?'Низький поріг входу: підписуйся на канал анонсів і приходь на наступну гру без довгих зобов’язань.' : lang==='cs'?'Nízký vstupní práh: přihlas se na kanál oznámení a přijď na další večer bez závazků.' : 'Low commitment: join the announcements channel and come to the next night without long-term obligations.'}</p>
-      </div>
-      <p style="margin-top:16px; font-size:13px; color:var(--ink-faint); text-align:center;">${BOARDGAMES.contactNote[lang]}</p>
-    </div>
-  </section>
-  `;
+  // Nothing left to render here. Medals and Board Games (the last two
+  // pieces still dynamic in this function) moved to static HTML on
+  // /walkers/ this session, alongside Event-types/About/Rules/Canoe
+  // Safety/FAQ from the earlier duplication fix — completing the
+  // "venture-specific content lives ONLY on the dedicated page" rule the
+  // site owner asked for, after the schedule/tariff split (some Družina
+  // info here, some there) turned out confusing in practice. Function
+  // kept as a harmless no-op rather than deleted outright, in case a
+  // genuinely main-page-only Walkers widget gets added later — but as
+  // of this session, #walkers-dynamic no longer exists in the static
+  // HTML for it to render into (see render(), below).
+  return '';
 }
 
 function renderDruzinaTab(lang, t) {
-  // Never rendered here (avoids duplicate ids / duplicate content):
-  // hero and About+facts are static in <main id="static-content">; Rank
-  // ladder, Roles, Schedule, Onboarding, and Conduct/Discipline used to
-  // be static here too, but were removed during the content-duplication
-  // fix (HANDOVER.md §6) — that content now lives only on the dedicated
-  // /druzina/ page, linked from a short callout right after the static
-  // About+facts section.
-  //
-  // Kept genuinely dynamic: Tariff (Junior/Senior attendance pricing —
-  // real content, not yet converted to static), the Payment sub-rules
-  // from the old "rules" section (also not yet converted — given a
-  // non-colliding id below), and Ecosystem. None of these exist on the
-  // dedicated /druzina/ page, so there's no duplication concern for
-  // them — only the main page carries them at all right now.
-  //
-  // Contacts is NOT rendered here anymore (moved to a static <section
-  // id="contacts"> right after the #druzina-dynamic placeholder in the
-  // static HTML) — it was completely invisible without JS before, which
-  // matters most for exactly this content (how to actually reach the
-  // business). See the comment on that static section for the full
-  // reasoning.
-  const lnk = communityLinks(lang, 'druzina');
-  return `
-  <section id="tariff">
-    <div class="wrap">
-      <div class="eyebrow-sm">${t.tariff.eyebrow}</div>
-      <h2 class="anchor-heading">${t.tariff.h}<a class="anchor-link" href="#tariff">#</a></h2>
-      <p class="lead">${t.tariff.intro}</p>
-      ${renderTable(t.tariff.headers, t.tariff.rows)}
-      <p class="note" style="margin-top:10px">${t.tariff.subsNote}</p>
-      <p style="margin-top:18px"><strong>${t.tariff.rollbackB}</strong> ${t.tariff.rollback}</p>
-      <p class="note">${t.tariff.free}</p>
-    </div>
-  </section>
-
-  <section id="druzina-payment">
-    <div class="wrap">
-      <div class="eyebrow-sm">Payment</div>
-      <h2 class="anchor-heading">${t.rules.payH}<a class="anchor-link" href="#druzina-payment">#</a></h2>
-      <ul class="plain">${t.rules.pay.map(c=>`<li>${c}</li>`).join('')}</ul>
-    </div>
-  </section>
-
-  <section id="ecosystem">
-    <div class="wrap">
-      <div class="eyebrow-sm">${t.ecosystem.eyebrow}</div>
-      <h2 class="anchor-heading">${t.ecosystem.h}<a class="anchor-link" href="#ecosystem">#</a></h2>
-      ${renderTable([' ',' '], t.ecosystem.rows)}
-    </div>
-  </section>
-  `;
+  // Nothing left to render here. Tariff, Payment, and Ecosystem (the
+  // last three pieces still dynamic in this function) were removed this
+  // session: Tariff/Payment moved to static HTML on /druzina/, alongside
+  // Schedule/Onboarding/Rank ladder/Roles/Conduct from the earlier
+  // duplication fix — this is the fix for a real problem the site owner
+  // flagged: schedule+address were on the main page while ranks/roles
+  // were only on /druzina/, with no consistent rule for what lived
+  // where. Now the rule is simple: venture-specific content lives ONLY
+  // on the dedicated page. Ecosystem (cross-links to all three ventures)
+  // wasn't moved anywhere — it's redundant with the hero fork and
+  // .venture-picker, which already do the same job more visually, so it
+  // was dropped rather than relocated. Function kept as a no-op rather
+  // than deleted outright, same reasoning as renderWalkersTab() above.
+  return '';
 }
 
 // ====================== STATIC-CONTENT TRANSLATIONS ======================
@@ -3898,19 +3813,15 @@ function render(lang){
 
   // Static-first migration: there is no more "current tab" content-wise —
   // all three ventures' static content already exists in <main
-  // id="static-content"> regardless of currentTab. What's left to render
-  // dynamically is just the not-yet-migrated pieces per venture, and they
-  // ALL render on every call (not gated by currentTab), each into its own
-  // placeholder positioned inside that venture's static section. currentTab
+  // id="static-content"> regardless of currentTab. Main is the only
+  // venture that still has genuinely dynamic content (renders into
+  // #main-dynamic below) — Walkers and Družina don't anymore: both
+  // #walkers-dynamic and #druzina-dynamic were removed from the static
+  // HTML this session, once renderWalkersTab()/renderDruzinaTab() had
+  // nothing left to put in them (see those two functions). currentTab
   // now only drives nav-highlight state and where deep-links scroll to.
   const mainEl = document.getElementById('main-dynamic');
   if (mainEl) mainEl.innerHTML = renderMainTab(lang, t);
-
-  const walkersEl = document.getElementById('walkers-dynamic');
-  if (walkersEl) walkersEl.innerHTML = renderWalkersTab(lang, t);
-
-  const druzinaEl = document.getElementById('druzina-dynamic');
-  if (druzinaEl) druzinaEl.innerHTML = renderDruzinaTab(lang, t);
 
   // Common footer with clickable elements including Email and Phone
   const registerLabelFooter = {ru:'Зарегистрироваться на мероприятие', en:'Register for an event', cs:'Zaregistrovat se na akci', uk:'Зареєструватися на подію'};
@@ -4281,18 +4192,24 @@ function buildServiceIndex() {
     index.push({ name, price: 'See tutoring rates', category: 'Academy Subjects', elId: card.id, keywords });
   });
   // External pointers — content that used to be indexed here (event
-  // types, canoe safety, FAQ, schedule, ranks, onboarding, roles, conduct)
-  // moved to the dedicated /walkers/ and /druzina/ pages during the
-  // content-duplication fix (see HANDOVER.md §6) and is no longer in this
-  // page's DOM at all. Without these hand-written entries, searching
-  // "canoe" or "rank" here would silently return nothing even though the
-  // answer is one click away. `url` (not `elId`) signals jumpToService()
-  // to navigate instead of scroll.
+  // types, canoe safety, FAQ, schedule, ranks, onboarding, roles, conduct,
+  // tariff, payment, medals, board games) moved to the dedicated /walkers/
+  // and /druzina/ pages during the content-duplication fix and this
+  // session's follow-up (venture-specific content now lives ONLY on its
+  // own page — see HANDOVER.md §6) and is no longer in this page's DOM at
+  // all. Without these hand-written entries, searching "canoe" or "rank"
+  // here would silently return nothing even though the answer is one
+  // click away. `url` (not `elId`) signals jumpToService() to navigate
+  // instead of scroll.
   index.push(
     { name: 'Mountain Hikes, Caves, City Trips, Canoe Trips, BBQ Outings', price: 'See event types →', category: 'BrnoWalkers', url: 'walkers/#event-types', keywords: 'hiking hike cave caving canoe kayak bbq city walk event types' },
     { name: 'BrnoWalkers FAQ', price: 'See answers →', category: 'BrnoWalkers', url: 'walkers/#faq', keywords: 'faq questions footwear gear weather cancellation refund late' },
     { name: 'Canoe Safety Briefing', price: 'See briefing →', category: 'BrnoWalkers', url: 'walkers/#canoe-safety', keywords: 'canoe safety life vest river paddle' },
     { name: 'BrnoWalkers Official Rules', price: 'See rules →', category: 'BrnoWalkers', url: 'walkers/#walkers-rules', keywords: 'rules terms transport dog children' },
+    { name: 'BrnoWalkers Ranks & Medals', price: 'See rewards →', category: 'BrnoWalkers', url: 'walkers/#medals', keywords: 'medal rank reward scout guardian loyalty referral' },
+    { name: 'Board Game Evening', price: 'See details →', category: 'BrnoWalkers', url: 'walkers/#boardgames', keywords: 'board games tuesday scythe mafia uno utopia' },
+    { name: 'HEMA Training Price (Junior/Senior)', price: 'See tariff →', category: 'Družina Moravy', url: 'druzina/#tariff', keywords: 'price cost tariff hema training subscription fee kč' },
+    { name: 'How Payment Works', price: 'See rules →', category: 'Družina Moravy', url: 'druzina/#druzina-payment', keywords: 'payment revolut deadline surcharge 48 hours' },
     { name: 'Training Schedule & Venue', price: 'See schedule →', category: 'Družina Moravy', url: 'druzina/#schedule', keywords: 'training days monday thursday saturday time venue address dukelska' },
     { name: 'First Training — What to Expect', price: 'See onboarding →', category: 'Družina Moravy', url: 'druzina/#onboarding', keywords: 'first time clothing bring structure trial newcomer' },
     { name: 'Rank Ladder & Weapon Access', price: 'See ranks →', category: 'Družina Moravy', url: 'druzina/#ranks', keywords: 'rank bracelet recruit warrior veteran champion warlord weapon sword access' },

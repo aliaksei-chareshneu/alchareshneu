@@ -605,22 +605,42 @@
   }
   .alerts-ghost:hover{border-color:var(--r5);color:var(--r5);text-decoration:none;}
 
-  /* Hero: venture picker (replaces the old 4-button .hero-ctas row) */
+  /* Hero: venture picker — redesigned this session into photo cards
+     (was icon+text only). .venture-card-wrap holds the card itself plus
+     a small channel-icons row below it (kept OUTSIDE the <a> — nesting
+     an <a> inside another <a> isn't valid HTML). */
   .venture-picker{padding:48px 0 64px;}
   .venture-picker h2.visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);}
   .venture-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;margin-top:8px;}
+  .venture-card-wrap{display:flex;flex-direction:column;gap:8px;}
   .venture-card{
-    display:flex;flex-direction:column;gap:10px;background:var(--bg-card);border:1px solid var(--rule);
-    border-radius:8px;padding:24px 20px;transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease;
+    display:flex;flex-direction:column;background:var(--bg-card);border:1px solid var(--rule);
+    border-radius:8px;overflow:hidden;text-decoration:none;
+    transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease;
   }
-  .venture-card:hover{transform:translateY(-3px);border-color:var(--r5);box-shadow:0 8px 24px rgba(0,0,0,.35);}
+  .venture-card:hover{transform:translateY(-3px);border-color:var(--r5);box-shadow:0 8px 24px rgba(0,0,0,.35);text-decoration:none;}
+  .venture-photo{aspect-ratio:4/3;overflow:hidden;background:var(--bg-alt);}
+  .venture-photo img{width:100%;height:100%;object-fit:cover;display:block;}
+  .venture-card-body{display:flex;flex-direction:column;gap:6px;padding:14px 16px 16px;}
+  .venture-card-body h3{font-family:var(--font-d);font-size:18px;margin:0;color:var(--ink);}
+  .venture-card-body p{font-size:13px;color:var(--ink-dim);margin:0;line-height:1.5;}
   .venture-icon{width:30px;height:30px;color:var(--r5);}
-  .venture-card h3{font-family:var(--font-d);font-size:19px;margin:0;color:var(--ink);}
-  .venture-card p{font-size:13.5px;color:var(--ink-dim);margin:0;flex:1;line-height:1.6;}
   .venture-cta{font-size:13px;font-weight:700;color:var(--r5);}
+  .venture-channels{display:flex;gap:8px;justify-content:center;}
+  .venture-channels a{
+    display:flex;align-items:center;justify-content:center;width:32px;height:32px;
+    border:1px solid var(--rule);border-radius:6px;color:var(--ink-dim);
+    transition:border-color .15s,color .15s;
+  }
+  .venture-channels a:hover{border-color:var(--r5);color:var(--r5);}
 
-  /* Hero: trust strip (PhD / teaching since / community / reviews) */
-  .trust-strip{border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);background:var(--bg-alt);}
+  /* Hero: trust strip — condensed this session from a 4-item icon grid
+     into one line (same facts, none dropped, far less vertical space —
+     see the "first screen" note in index.html). .trust-grid/.trust-item
+     kept defined but unused, same as other dead-but-documented CSS this
+     session (cheap to leave, no reason to risk deleting). */
+  .trust-strip{border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);background:var(--bg-alt);padding:14px 22px;}
+  .trust-line{max-width:var(--maxw);margin:0 auto;text-align:center;font-size:13px;color:var(--ink-dim);}
   .trust-grid{
     list-style:none;margin:0;padding:18px 22px;max-width:var(--maxw);margin-left:auto;margin-right:auto;
     display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px;
