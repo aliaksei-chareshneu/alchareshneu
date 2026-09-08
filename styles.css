@@ -147,7 +147,7 @@
   .leaderboard-table th{background:var(--bg-alt);font-weight:700;color:var(--ink);}
   .leaderboard-note{margin-top:12px;font-size:13px;color:var(--ink-faint);}
 
-  .policy-box{border:1px solid var(--rule);border-radius:8px;padding:18px;background:rgba(249,246,230,.6);margin-top:16px;}
+  .policy-box{border:1px solid var(--rule);border-radius:8px;padding:18px;background:var(--bg-card);margin-top:16px;}
   .policy-box p{margin:0 0 10px;color:var(--ink-dim);line-height:1.6;}
   .policy-box p:last-child{margin-bottom:0;}
 
