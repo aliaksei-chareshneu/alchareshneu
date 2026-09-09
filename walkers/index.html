@@ -80,40 +80,15 @@
 
 <main>
 <section class="hero" id="walkers">
+    <!-- CHARACTER HERO ART — "the Ranger" — kept in sync with the
+         matching block on the main index.html walkers hero. -->
     <div class="hero-visuals hero-visuals-walkers" aria-hidden="true">
-      <svg viewBox="0 0 950 420" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <linearGradient id="trailGlow" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="#f4f1e8" stop-opacity=".3"/>
-            <stop offset="100%" stop-color="#c9a227" stop-opacity="0"/>
-          </linearGradient>
-        </defs>
-        <g class="walker-background" id="walker-background">
-          <path d="M0 320c120-92 260-112 420-84 120 20 250 18 420-20v124H0Z" fill="#17181b"/>
-          <path d="M680 226c34-22 78-36 110-18 24 14 48 42 48 72" fill="none" stroke="#ece7d8" stroke-opacity=".18" stroke-width="8"/>
-          <path d="M112 274c44-26 112-40 172-28 45 9 96 32 150 38" fill="none" stroke="#ece7d8" stroke-opacity=".14" stroke-width="6"/>
-        </g>
-        <g class="walker-cloud" id="walker-cloud-1" opacity=".2">
-          <ellipse cx="725" cy="82" rx="72" ry="24" fill="#ece7d8"/>
-          <ellipse cx="770" cy="80" rx="44" ry="18" fill="#ece7d8"/>
-        </g>
-        <g class="walker-cloud" id="walker-cloud-2" opacity=".16">
-          <ellipse cx="150" cy="68" rx="64" ry="22" fill="#ece7d8"/>
-          <ellipse cx="185" cy="62" rx="38" ry="16" fill="#ece7d8"/>
-        </g>
-        <g id="walker-silhouettes" opacity=".5">
-          <path d="M830 312h32l16-72 22-18 4 42 18 28v42H830Z" fill="#1f2127"/>
-          <path d="M760 316h24l12-58 20-16 2 36 14 22v30H760Z" fill="#1f2127"/>
-        </g>
-        <g id="walker-figure" class="walker-figure">
-          <path d="M392 196c-18 24-26 56-20 86l-8 42 34 8 50-14 22-60c6-18 10-38 6-58-6-30-26-54-58-60-18-4-38 2-46 14Z" fill="#f4f1e8"/>
-          <path d="M410 214c8 10 14 24 16 38l-22 12-12-18c-2-14 4-28 18-32Z" fill="#17181b" opacity=".6"/>
-          <path class="walker-hair" d="M404 142c12-8 34-12 44-8l8 18c-14-2-36 0-52 14Z" fill="#ece7d8" opacity=".92"/>
-          <path d="M416 248l48 18 12 32-44 14-18-18-4-42Z" fill="#17181b" opacity=".6"/>
-          <path class="walker-map" d="M402 260l64-26 48 38-48 32-64-24Z" fill="url(#trailGlow)" stroke="#c9a227" stroke-width="3"/>
-          <path d="M432 252l18-12 24 18" fill="none" stroke="#17181b" stroke-width="3" stroke-linecap="round"/>
-        </g>
-      </svg>
+      <picture>
+        <source srcset="../images/hero-ranger.webp" type="image/webp">
+        <img class="hero-photo hero-photo--kenburns hero-photo--ranger"
+             src="../images/hero-ranger.jpg" alt="" loading="eager" fetchpriority="high">
+      </picture>
+      <div class="hero-scrim"></div>
     </div>
     
     <div class="wrap">

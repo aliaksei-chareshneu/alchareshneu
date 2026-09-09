@@ -212,83 +212,115 @@
   }
   .hero-visuals svg{width:100%;height:100%;display:block;pointer-events:none;}
 
-  .hero-visuals-main svg{opacity:.92;}
-  .hero-visuals-main .main-notebook{opacity:.24;animation:mainFloat 12s ease-in-out infinite alternate;}
-  .hero-visuals-main .main-pencil{opacity:.18;animation:mainFloat 10s ease-in-out infinite alternate-reverse;}
-  .hero-visuals-main .main-pulse{opacity:.22;animation:pulseGlow 4.5s ease-in-out infinite;}
-  .hero-visuals-main .main-dumbbell{opacity:.15;animation:mainFloat 9s ease-in-out infinite alternate;}
-  .hero-visuals-main .main-page{transform-origin:70% 50%;animation:pageFlip 4.8s ease-in-out infinite alternate;}
-  .hero-visuals-main .main-wave{animation:energyWave 3.8s ease-in-out infinite alternate;}
+  /* ══════════════════════════════════════════════════════════════════
+     CHARACTER HERO ART — scholar / ranger / knight photo+video treatment
+     Replaces the old abstract line-art SVGs (notebook/pencil, walker
+     figure, footman+paladin) with the three commissioned character
+     portraits. Družina keeps its ember-particle <canvas> — see below,
+     it now overlays the knight photo instead of the old SVG campfire.
 
-  .hero-visuals-walkers .walker-background{opacity:.72;animation:walkersDrift 40s linear infinite;}
-  .hero-visuals-walkers .walker-cloud{opacity:.18;animation:cloudDrift 16s linear infinite;}
-  .hero-visuals-walkers .walker-cloud:nth-child(2){animation-duration:18s;animation-direction:reverse;}
-  .hero-visuals-walkers .walker-cloud:nth-child(3){animation-duration:22s;}
-  .hero-visuals-walkers .walker-figure{transform-origin:50% 80%;animation:characterBreath 6.4s ease-in-out infinite alternate;}
-  .hero-visuals-walkers .walker-map{transform-origin:50% 50%;animation:mapFlutter 5.4s ease-in-out infinite alternate;}
-  .hero-visuals-walkers .walker-hair{transform-origin:18% 20%;animation:hairWind 5.2s ease-in-out infinite alternate;}
+     Source art is pre-composed for this exact use: ~30-35% of the left
+     edge is already painted pure black in all three images (see
+     data-driven object-position values per character below, picked from
+     each image's actual brightness centroid) — that's intentional
+     negative space for the .wrap text, not an accident of cropping.
+     The .hero-scrim gradient is a *safety net* on top of that baked-in
+     space, not the primary mechanism — it keeps text legible even where
+     object-fit:cover crops differently than the source composition
+     (very wide desktop monitors, or the tall/narrow mobile crop).
+     ══════════════════════════════════════════════════════════════════ */
+  .hero-photo{
+    position:absolute;inset:0;width:100%;height:100%;
+    object-fit:cover;display:block;
+  }
+  /* Static <img> variant is hidden by default — only shown on mobile
+     (in place of the video, to avoid loading video bytes on mobile
+     data) and when prefers-reduced-motion is set, see the two media
+     queries below. */
+  .hero-photo--static{display:none;}
+
+  .hero-photo--scholar{object-position:65% 42%;}
+  .hero-photo--ranger{object-position:72% 32%;}
+  .hero-photo--knight{object-position:70% 46%;}
+
+  /* Slow Ken Burns drift for the two static portraits (ranger, knight)
+     — the scholar doesn't need this, its own video loop already
+     supplies motion (rising embers off the book, ambient flicker).
+     Very subtle and slow on purpose: this is a backdrop, not the
+     focal animation on the page. */
+  .hero-photo--kenburns{animation:heroPhotoDrift 26s ease-in-out infinite alternate;}
+  .hero-visuals-druzina .hero-photo--kenburns{animation-duration:30s;}
+  @keyframes heroPhotoDrift{
+    0%{transform:scale(1) translate(0,0);}
+    100%{transform:scale(1.06) translate(-1.2%,-1%);}
+  }
+
+  /* Scrim: left-to-right for the desktop overlap zone, plus a soft
+     top/bottom vignette so headings and CTA buttons never sit directly
+     on a bright patch of the painting. Mobile gets a stronger version
+     below (text overlaps a much larger share of the image there, since
+     the hero is narrower than the art's negative-space zone). */
+  .hero-scrim{
+    position:absolute;inset:0;pointer-events:none;
+    background:
+      linear-gradient(90deg, var(--bg) 0%, rgba(22,23,26,.82) 20%, rgba(22,23,26,.32) 42%, rgba(22,23,26,0) 62%),
+      linear-gradient(180deg, rgba(22,23,26,.5) 0%, rgba(22,23,26,0) 22%, rgba(22,23,26,0) 78%, rgba(22,23,26,.55) 100%);
+  }
 
   .hero-visuals-druzina{position:relative;}
   .hero-visuals-druzina__scene,
   .hero-visuals-druzina__canvas{position:absolute;inset:0;width:100%;height:100%;}
+  /* __scene now holds the knight photo (+ .hero-scrim) instead of the
+     old hand-drawn SVG campfire scene. __canvas keeps drawing the same
+     rising-ember particle loop on top of it (z-index:1) — kept
+     deliberately, the knight art has its own painted campfire glow at
+     roughly the same spot (see JS: originX/originY in
+     drawDruzinaParticles(), tuned to that image), so the embers now
+     read as coming from the actual painted fire instead of a
+     disconnected effect. */
   .hero-visuals-druzina__canvas{z-index:1;}
   .hero-visuals-druzina__scene{z-index:0;}
-  .hero-visuals-druzina #footman,
-  .hero-visuals-druzina #paladin{animation:characterBreath 6.6s ease-in-out infinite alternate;transform-origin:50% 80%;}
-  .hero-visuals-druzina #paladin-weapon{animation:weaponSway 8s ease-in-out infinite alternate;transform-origin:10% 80%;}
-  .hero-visuals-druzina #campfire-flame{animation:flameFlicker 1.2s ease-in-out infinite alternate;transform-origin:50% 100%;}
-  .hero-visuals-druzina #campfire-glow{animation:glowPulse 3.6s ease-in-out infinite alternate;transform-origin:50% 100%;}
-  .hero-visuals-druzina #background-trees{opacity:.75;animation:backgroundDrift 28s linear infinite;}
 
   @keyframes heroDrift{
     0%{transform:translate(0,0) scale(1);}
     100%{transform:translate(3%,-3%) scale(1.08);}
   }
-  @keyframes mainFloat{
-    0%{transform:translateY(0);}100%{transform:translateY(-10px);} 
-  }
-  @keyframes pulseGlow{
-    0%{transform:scale(1);opacity:.22;}50%{transform:scale(1.02);opacity:.28;}100%{transform:scale(1);opacity:.22;} 
-  }
-  @keyframes pageFlip{
-    0%{transform:rotateY(0deg);}100%{transform:rotateY(-12deg);} 
-  }
-  @keyframes energyWave{
-    0%{transform:translateY(0);}100%{transform:translateY(-6px);} 
-  }
-  @keyframes walkersDrift{
-    0%{transform:translateX(0);}100%{transform:translateX(-14px);} 
-  }
-  @keyframes characterBreath{
-    0%{transform:translateY(0);}100%{transform:translateY(-5px);} 
-  }
-  @keyframes mapFlutter{
-    0%{transform:rotate(0deg);}100%{transform:rotate(-2deg);} 
-  }
-  @keyframes hairWind{
-    0%{transform:translateX(0);}100%{transform:translateX(-5px);} 
-  }
-  @keyframes weaponSway{
-    0%{transform:rotate(0deg);}100%{transform:rotate(3deg);} 
-  }
-  @keyframes flameFlicker{
-    0%{transform:scaleY(1);opacity:1;}50%{transform:scaleY(1.08);opacity:.9;}100%{transform:scaleY(1);opacity:1;} 
-  }
-  @keyframes glowPulse{
-    0%{opacity:.18;}50%{opacity:.26;}100%{opacity:.18;} 
-  }
-  @keyframes backgroundDrift{
-    0%{transform:translateX(0);}100%{transform:translateX(-18px);} 
-  }
 
   .hero .wrap{position:relative;z-index:1;}
-  @media (max-width:900px){ .hero-visuals{display:none;} }
+
+  /* Mobile — DECISION FLAGGED: previously .hero-visuals was display:none
+     entirely below 900px (abstract line-art didn't read well behind
+     full-width stacked text on a phone). Photo art is common practice
+     to keep full-bleed on mobile too (this is standard "hero banner"
+     treatment), so it's now kept visible here rather than hidden —
+     just dimmed and given a stronger scrim, since on a narrow viewport
+     the text column is full width and sits over most of the image, not
+     just its left third like on desktop. Video is swapped for the
+     static poster frame to avoid burning mobile data on autoplay video
+     that's 50% hidden under a scrim anyway. If this reads as too busy
+     on a real phone, the one-line fallback is restoring the old
+     `.hero-visuals{display:none}` rule — flag it and it's a 30-second
+     revert, no markup changes needed. */
+  @media (max-width:899px){
+    .hero-photo--video{display:none;}
+    .hero-photo--static{display:block;}
+    .hero-photo{opacity:.5;}
+    .hero-photo--kenburns{animation:none;}
+    .hero-scrim{
+      background:
+        linear-gradient(180deg, rgba(22,23,26,.72) 0%, rgba(22,23,26,.5) 45%, rgba(22,23,26,.85) 100%);
+    }
+  }
+
   @media(prefers-reduced-motion:reduce){
     .hero::before,
     .hero-visuals *,
-    .hero-visuals-druzina__canvas{
+    .hero-visuals-druzina__canvas,
+    .hero-photo--kenburns{
       animation:none !important;
     }
+    .hero-photo--video{display:none;}
+    .hero-photo--static{display:block;}
   }
 
   /* GENERIC */

@@ -141,40 +141,27 @@
 <main id="static-content">
 
   <section class="hero" id="main">
+    <!-- CHARACTER HERO ART — "the Scholar" (Eternal Learning / Academy).
+         Replaces the old abstract notebook/pencil/pulse SVG line-art.
+         Video autoplays muted/looped on desktop (its own idle animation:
+         embers rising off the book, ambient flicker — no CSS Ken Burns
+         needed on top of that). Mobile gets the static frame instead of
+         the video, see styles.css's max-width:899px block. `poster` +
+         the plain <img> fallback-inside-<video> both point at the same
+         frame extracted directly from the video's first frame, so there
+         is zero flash-of-different-image while the video loads/decodes. -->
     <div class="hero-visuals hero-visuals-main" aria-hidden="true">
-      <svg viewBox="0 0 950 420" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <linearGradient id="notebookGradient" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="#f4f1e8" stop-opacity=".9"/>
-            <stop offset="100%" stop-color="#c9a227" stop-opacity=".14"/>
-          </linearGradient>
-          <linearGradient id="pulseGradient" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stop-color="#c9a227" stop-opacity=".7"/>
-            <stop offset="100%" stop-color="#ece7d8" stop-opacity=".2"/>
-          </linearGradient>
-        </defs>
-        <g class="main-notebook">
-          <path d="M180 122h194v196a14 14 0 0 1-14 14H194a14 14 0 0 1-14-14V136a14 14 0 0 1 14-14Z" fill="url(#notebookGradient)" stroke="#ece7d8" stroke-width="3"/>
-          <path d="M206 146h138v164H206z" fill="#1f2127" opacity=".88"/>
-          <path d="M218 166h118M218 190h118M218 214h118" fill="none" stroke="#c9a227" stroke-width="3" stroke-linecap="round" opacity=".8"/>
-          <path class="main-page" d="M188 138l22 12-22 12z" fill="#ece7d8" opacity=".92"/>
-        </g>
-        <g class="main-pencil">
-          <path d="M520 72l96 92-54 60-96-92z" fill="#ece7d8" stroke="#c9a227" stroke-width="4"/>
-          <path d="M558 110l30 28" fill="none" stroke="#1f2127" stroke-width="5" stroke-linecap="round"/>
-          <path d="M602 150l18 18" fill="none" stroke="#c9a227" stroke-width="4" stroke-linecap="round"/>
-        </g>
-        <g class="main-pulse">
-          <rect x="680" y="160" width="156" height="32" rx="16" fill="rgba(255,255,255,.06)"/>
-          <path d="M692 176l18 0 16-24 14 40 18-28 12 20 22-16 20 8 16-28 24 0" fill="none" stroke="url(#pulseGradient)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
-        </g>
-        <g class="main-dumbbell">
-          <rect x="270" y="280" width="346" height="24" rx="12" fill="rgba(236,231,216,.12)"/>
-          <rect x="238" y="264" width="44" height="48" rx="12" fill="#ece7d8" opacity=".18"/>
-          <rect x="600" y="264" width="44" height="48" rx="12" fill="#ece7d8" opacity=".18"/>
-          <path class="main-wave" d="M299 294c22-20 78-24 116-12 26 8 46 22 86 16 22-4 46-18 60-24" fill="none" stroke="#c9a227" stroke-width="4" stroke-linecap="round"/>
-        </g>
-      </svg>
+      <video class="hero-photo hero-photo--video hero-photo--scholar"
+             autoplay muted loop playsinline preload="none"
+             poster="images/hero-scholar.jpg">
+        <source src="images/hero-scholar.mp4" type="video/mp4">
+      </video>
+      <picture>
+        <source srcset="images/hero-scholar.webp" type="image/webp">
+        <img class="hero-photo hero-photo--static hero-photo--scholar"
+             src="images/hero-scholar.jpg" alt="" loading="eager" fetchpriority="high">
+      </picture>
+      <div class="hero-scrim"></div>
     </div>
     <div class="wrap">
       <p class="eyebrow" data-i18n="hero.eyebrow">Brno · Movement · Mind</p>
@@ -914,40 +901,19 @@
 
 
   <section class="hero" id="walkers">
+    <!-- CHARACTER HERO ART — "the Ranger" (BrnoWalkers). Replaces the
+         old walker-figure/clouds SVG. Static photo only (no video asset
+         exists for this character) — the .hero-photo--kenburns class
+         gives it a very slow zoom/drift so it still reads as "alive",
+         not a flat backdrop. This same block is duplicated verbatim in
+         walkers/index.html — keep both in sync if this changes. -->
     <div class="hero-visuals hero-visuals-walkers" aria-hidden="true">
-      <svg viewBox="0 0 950 420" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <linearGradient id="trailGlow" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="#f4f1e8" stop-opacity=".3"/>
-            <stop offset="100%" stop-color="#c9a227" stop-opacity="0"/>
-          </linearGradient>
-        </defs>
-        <g class="walker-background" id="walker-background">
-          <path d="M0 320c120-92 260-112 420-84 120 20 250 18 420-20v124H0Z" fill="#17181b"/>
-          <path d="M680 226c34-22 78-36 110-18 24 14 48 42 48 72" fill="none" stroke="#ece7d8" stroke-opacity=".18" stroke-width="8"/>
-          <path d="M112 274c44-26 112-40 172-28 45 9 96 32 150 38" fill="none" stroke="#ece7d8" stroke-opacity=".14" stroke-width="6"/>
-        </g>
-        <g class="walker-cloud" id="walker-cloud-1" opacity=".2">
-          <ellipse cx="725" cy="82" rx="72" ry="24" fill="#ece7d8"/>
-          <ellipse cx="770" cy="80" rx="44" ry="18" fill="#ece7d8"/>
-        </g>
-        <g class="walker-cloud" id="walker-cloud-2" opacity=".16">
-          <ellipse cx="150" cy="68" rx="64" ry="22" fill="#ece7d8"/>
-          <ellipse cx="185" cy="62" rx="38" ry="16" fill="#ece7d8"/>
-        </g>
-        <g id="walker-silhouettes" opacity=".5">
-          <path d="M830 312h32l16-72 22-18 4 42 18 28v42H830Z" fill="#1f2127"/>
-          <path d="M760 316h24l12-58 20-16 2 36 14 22v30H760Z" fill="#1f2127"/>
-        </g>
-        <g id="walker-figure" class="walker-figure">
-          <path d="M392 196c-18 24-26 56-20 86l-8 42 34 8 50-14 22-60c6-18 10-38 6-58-6-30-26-54-58-60-18-4-38 2-46 14Z" fill="#f4f1e8"/>
-          <path d="M410 214c8 10 14 24 16 38l-22 12-12-18c-2-14 4-28 18-32Z" fill="#17181b" opacity=".6"/>
-          <path class="walker-hair" d="M404 142c12-8 34-12 44-8l8 18c-14-2-36 0-52 14Z" fill="#ece7d8" opacity=".92"/>
-          <path d="M416 248l48 18 12 32-44 14-18-18-4-42Z" fill="#17181b" opacity=".6"/>
-          <path class="walker-map" d="M402 260l64-26 48 38-48 32-64-24Z" fill="url(#trailGlow)" stroke="#c9a227" stroke-width="3"/>
-          <path d="M432 252l18-12 24 18" fill="none" stroke="#17181b" stroke-width="3" stroke-linecap="round"/>
-        </g>
-      </svg>
+      <picture>
+        <source srcset="images/hero-ranger.webp" type="image/webp">
+        <img class="hero-photo hero-photo--kenburns hero-photo--ranger"
+             src="images/hero-ranger.jpg" alt="" loading="eager" fetchpriority="high">
+      </picture>
+      <div class="hero-scrim"></div>
     </div>
     <div class="wrap">
       <p class="eyebrow" data-i18n="walkers.eyebrow">A Community of Active People</p>
@@ -1028,46 +994,23 @@
   </section>
 
   <section class="hero" id="druzina">
+    <!-- CHARACTER HERO ART — "the Knight" (Družina Moravy). Replaces the
+         old footman+paladin+campfire SVG scene. The photo already has
+         its own painted campfire glow at roughly x=61-63%/y=71-82% of
+         frame (checked directly against the source image, not eyeballed)
+         — the existing ember-particle <canvas> is kept and its origin
+         point in the JS (drawDruzinaParticles()) was retargeted to that
+         same spot, so the rising embers now read as coming from the
+         actual painted fire. Same duplication note as Walkers: this
+         block is repeated in druzina/index.html, keep both in sync. -->
     <div class="hero-visuals hero-visuals-druzina" aria-hidden="true">
       <div class="hero-visuals-druzina__scene">
-        <svg viewBox="0 0 960 420" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="fireGlow" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#ffd27a" stop-opacity=".92"/>
-              <stop offset="100%" stop-color="#f4c66d" stop-opacity="0"/>
-            </linearGradient>
-            <radialGradient id="smokeGlow" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stop-color="#ece7d8" stop-opacity=".25"/>
-              <stop offset="100%" stop-color="#16171a" stop-opacity="0"/>
-            </radialGradient>
-          </defs>
-          <path id="background-trees" d="M0 320c90-90 220-120 360-106 140 14 240 54 320 80 90 28 180 28 280-20v166H0Z" fill="#16171a"/>
-          <path d="M44 320C130 240 220 208 300 214c94 6 142 38 238 56 116 22 204 20 306-18v108H44Z" fill="#1d1f23"/>
-          <g id="campfire" transform="translate(460 278)">
-            <ellipse cx="0" cy="14" rx="58" ry="22" fill="#241f17" opacity=".95"/>
-            <path id="campfire-glow" d="M-20 0c8-22 30-36 46-30 14 4 24 20 18 34-6 18-24 32-38 34-18 2-24-14-26-22-2-8-2-16 0-16Z" fill="url(#fireGlow)" opacity=".72"/>
-            <path id="campfire-flame" d="M-8 0c4-18 18-26 30-20 8 4 10 16 6 24-6 14-18 22-28 20-10-2-12-10-8-24Z" fill="#e0b650"/>
-            <path d="M-40 20l20 12 10-24 18 30 22-14 12 22" fill="none" stroke="#f4e3b3" stroke-width="3" stroke-linecap="round"/>
-          </g>
-          <g id="footman" class="druzina-character" transform="translate(300 242)">
-            <path d="M-34 -18c28-18 32-38 32-58 0-14-8-26-24-34-22-10-42 0-54 18-10 16-14 52-4 82 10 32 24 48 30 48 8 0 20-12 20-12s-4-30-4-44Z" fill="#d7d0bb"/>
-            <path d="M-34 -18c10-2 28 2 42-18 6-8 4-22-2-30-10-12-32-20-52-12-14 6-22 18-24 30-4 22 4 40 20 52 12 8 20 16 16 28Z" fill="#1d1f23" opacity=".75"/>
-            <path d="M-18 12l-34 22 8 16 32-18 12-34-18 14Z" fill="#686259"/>
-            <path d="M-18 -16l24 -12 6 10-26 14Z" fill="#ece7d8" opacity=".78"/>
-            <path d="M-36 2l-8 38 14 8 20-14 4-24-18-10Z" fill="#1f2127" opacity=".65"/>
-            <path d="M-24 2l8 18 14-10" fill="none" stroke="#c9a227" stroke-width="3" stroke-linecap="round"/>
-          </g>
-          <g id="paladin" class="druzina-character" transform="translate(560 246)">
-            <path d="M-40 -26c20-20 40-28 54-14 12 12 16 30 10 50-6 18-22 30-36 34-18 6-30-8-34-22-4-16-2-36 6-48Z" fill="#f4f1e8"/>
-            <path d="M-28 2l14-10 24 32-10 14-24-22Z" fill="#1d1f23" opacity=".7"/>
-            <path d="M-38 -6l-8 20 18 10 30-18-12-20Z" fill="#ece7d8" opacity=".9"/>
-            <path id="paladin-weapon" d="M24 -14l42 20-6 18-42-18Z" fill="#d7d0bb"/>
-            <path d="M40 4l18 4" fill="none" stroke="#c9a227" stroke-width="4" stroke-linecap="round"/>
-            <path d="M-48 4a18 18 0 0 1 36 0" fill="#1f2127" opacity=".6"/>
-          </g>
-          <path d="M150 310c40-18 80-38 124-52" fill="none" stroke="#ece7d8" stroke-opacity=".12" stroke-width="4" stroke-linecap="round"/>
-          <path d="M760 300c22-16 52-22 78-18" fill="none" stroke="#ece7d8" stroke-opacity=".12" stroke-width="4" stroke-linecap="round"/>
-        </svg>
+        <picture>
+          <source srcset="images/hero-knight.webp" type="image/webp">
+          <img class="hero-photo hero-photo--kenburns hero-photo--knight"
+               src="images/hero-knight.jpg" alt="" loading="eager" fetchpriority="high">
+        </picture>
+        <div class="hero-scrim"></div>
       </div>
       <canvas class="hero-visuals-druzina__canvas" aria-hidden="true"></canvas>
     </div>
@@ -4472,8 +4415,12 @@ function createDruzinaParticle(){
 }
 
 function drawDruzinaParticles(ctx, bounds, particles){
-  const originX = bounds.width * 0.50;
-  const originY = bounds.height * 0.70;
+  // Origin retargeted from the old 0.50/0.70 (center of the hand-drawn
+  // SVG campfire) to match the knight photo's actual painted fire —
+  // measured directly from the source image (warm-pixel centroid at
+  // ~62% width / ~71-82% height), not eyeballed.
+  const originX = bounds.width * 0.61;
+  const originY = bounds.height * 0.75;
   ctx.save();
   ctx.globalCompositeOperation = 'lighter';
   particles.forEach(p => {
