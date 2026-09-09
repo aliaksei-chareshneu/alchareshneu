@@ -105,6 +105,12 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Spectral:wght=500;600;700&family=Source+Sans+3:wght=400;500;600;700&family=JetBrains+Mono:wght=500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
+<!-- Plausible Analytics (self-hosted) — will 404 until the Oracle VM
+     instance is deployed, see PLAUSIBLE-SETUP.md. Harmless while absent:
+     defer + no other code depends on it. Swap ANALYTICS_HOST once the
+     server is live (see PLAUSIBLE-SETUP.md §7 for the Cloudflare/custom
+     domain upgrade path, which would replace this src entirely). -->
+<script defer data-domain="aliaksei-chareshneu.github.io" src="https://150-230-157-71.sslip.io/js/script.outbound-links.js"></script>
 </head>
 <body>
 <audio id="bgAudio" loop preload="none" src="media/ambient.mp3"></audio>
@@ -922,13 +928,13 @@
       <a class="reviews-badge" href="https://maps.app.goo.gl/fEbnJHxiVoAx1v498" target="_blank" rel="noopener"><span class="star">⭐</span> <span data-i18n="reviewsBadge">50+ Google reviews · 5.0</span></a>
 
       <div class="hero-ctas">
-        <a class="btn solid" href="https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog" target="_blank" rel="noopener" data-i18n="ui.registerEvent">Register for an event</a>
-        <a class="btn" href="https://chat.whatsapp.com/JCyEJNm746nBXNll3VzzX3" target="_blank" rel="noopener" data-i18n="ui.joinTheChat">Join the chat</a>
+        <a class="btn solid plausible-event-name=Register-Walkers" href="https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog" target="_blank" rel="noopener" data-i18n="ui.registerEvent">Register for an event</a>
+        <a class="btn plausible-event-name=Join-Chat-Walkers" href="https://chat.whatsapp.com/JCyEJNm746nBXNll3VzzX3" target="_blank" rel="noopener" data-i18n="ui.joinTheChat">Join the chat</a>
         <!-- Synced with walkers/index.html hero-ctas (site-updates brief 3.9.updates,
              item 1) — these were only added to the standalone subpage originally,
              leaving this main-page hero out of sync. -->
-        <a class="btn" href="https://chat.whatsapp.com/BSlQetCjMoL8IO45c6VnH0" target="_blank" rel="noopener" data-i18n="ui.announceWA">Announcements · WhatsApp</a>
-        <a class="btn" href="https://t.me/pochody_brno_news" target="_blank" rel="noopener" data-i18n="ui.announceTG">Announcements · Telegram</a>
+        <a class="btn plausible-event-name=Announce-WA-Walkers" href="https://chat.whatsapp.com/BSlQetCjMoL8IO45c6VnH0" target="_blank" rel="noopener" data-i18n="ui.announceWA">Announcements · WhatsApp</a>
+        <a class="btn plausible-event-name=Announce-TG-Walkers" href="https://t.me/pochody_brno_news" target="_blank" rel="noopener" data-i18n="ui.announceTG">Announcements · Telegram</a>
       </div>
 
       <div class="hero-testimonial">
@@ -986,7 +992,7 @@
       <h2 class="anchor-heading" data-i18n="ui.scheduleH">Upcoming Events<a class="anchor-link" href="#walkers-schedule">#</a></h2>
       <p class="lead" data-i18n="ui.scheduleLead">Up-to-date trip and event announcements are published on Facebook Events. Each post includes the route, price, participation terms, and meeting time.</p>
       <div style="text-align:center; margin-top:20px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
-        <a class="btn solid" href="https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog" target="_blank" rel="noopener" data-i18n="ui.registerEvent">Register for an event</a>
+        <a class="btn solid plausible-event-name=Register-Walkers" href="https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog" target="_blank" rel="noopener" data-i18n="ui.registerEvent">Register for an event</a>
         <a class="btn" href="https://www.facebook.com/alexey.chereshnev.3/events" target="_blank" rel="noopener" data-i18n="ui.scheduleFbBtn">View events on Facebook →</a>
       </div>
       <div class="calendar-embed-card">
@@ -1026,13 +1032,13 @@
       <a class="reviews-badge" href="https://maps.app.goo.gl/fEbnJHxiVoAx1v498" target="_blank" rel="noopener"><span class="star">⭐</span> <span data-i18n="reviewsBadge">50+ Google reviews · 5.0</span></a>
 
       <div class="hero-ctas">
-        <a class="btn solid" href="https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog" target="_blank" rel="noopener" data-i18n="ui.registerTraining">Register for training</a>
-        <a class="btn" href="https://chat.whatsapp.com/JzeXAQF8I2XE3zQ2OqWsPz" target="_blank" rel="noopener" data-i18n="ui.joinTheChat">Join the chat</a>
+        <a class="btn solid plausible-event-name=Register-Druzina" href="https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog" target="_blank" rel="noopener" data-i18n="ui.registerTraining">Register for training</a>
+        <a class="btn plausible-event-name=Join-Chat-Druzina" href="https://chat.whatsapp.com/JzeXAQF8I2XE3zQ2OqWsPz" target="_blank" rel="noopener" data-i18n="ui.joinTheChat">Join the chat</a>
         <!-- Synced with druzina/index.html hero-ctas (site-updates brief 3.9.updates,
              item 1) — these were only added to the standalone subpage originally,
              leaving this main-page hero out of sync. -->
-        <a class="btn" href="https://chat.whatsapp.com/DuTpgF22mxMFy6L1Cfrcvu" target="_blank" rel="noopener" data-i18n="ui.announceWA">Announcements · WhatsApp</a>
-        <a class="btn" href="https://t.me/druzinamoravy_news" target="_blank" rel="noopener" data-i18n="ui.announceTG">Announcements · Telegram</a>
+        <a class="btn plausible-event-name=Announce-WA-Druzina" href="https://chat.whatsapp.com/DuTpgF22mxMFy6L1Cfrcvu" target="_blank" rel="noopener" data-i18n="ui.announceWA">Announcements · WhatsApp</a>
+        <a class="btn plausible-event-name=Announce-TG-Druzina" href="https://t.me/druzinamoravy_news" target="_blank" rel="noopener" data-i18n="ui.announceTG">Announcements · Telegram</a>
       </div>
 
       <div class="hero-testimonial">
