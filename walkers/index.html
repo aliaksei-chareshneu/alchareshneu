@@ -83,11 +83,18 @@
 <main>
 <section class="hero" id="walkers">
     <!-- CHARACTER HERO ART — "the Ranger" — kept in sync with the
-         matching block on the main index.html walkers hero. -->
+         matching block on the main index.html walkers hero. Video
+         autoplays muted/looped on desktop; mobile gets the static frame
+         (see styles.css max-width:899px block). -->
     <div class="hero-visuals hero-visuals-walkers" aria-hidden="true">
+      <video class="hero-photo hero-photo--video hero-photo--ranger"
+             autoplay muted loop playsinline preload="none"
+             poster="../images/hero-ranger.jpg">
+        <source src="../images/hero-ranger.mp4" type="video/mp4">
+      </video>
       <picture>
         <source srcset="../images/hero-ranger.webp" type="image/webp">
-        <img class="hero-photo hero-photo--kenburns hero-photo--ranger"
+        <img class="hero-photo hero-photo--static hero-photo--ranger"
              src="../images/hero-ranger.jpg" alt="" loading="eager" fetchpriority="high">
       </picture>
       <div class="hero-scrim"></div>

@@ -907,16 +907,27 @@
 
 
   <section class="hero" id="walkers">
-    <!-- CHARACTER HERO ART — "the Ranger" (BrnoWalkers). Replaces the
-         old walker-figure/clouds SVG. Static photo only (no video asset
-         exists for this character) — the .hero-photo--kenburns class
-         gives it a very slow zoom/drift so it still reads as "alive",
-         not a flat backdrop. This same block is duplicated verbatim in
-         walkers/index.html — keep both in sync if this changes. -->
+    <!-- CHARACTER HERO ART — "the Ranger" (BrnoWalkers). Video autoplays
+         muted/looped on desktop (own idle animation — mist drifting
+         through the valley, ambient light shift — same treatment as the
+         scholar hero above), same reasoning as scholar: no CSS Ken Burns
+         needed on top of that, so hero-photo--kenburns is dropped here.
+         Mobile gets the static frame instead of the video, see styles.css's
+         max-width:899px block. `poster` + the plain <img>
+         fallback-inside-<video> both point at the same frame extracted
+         directly from the video's first frame, so there is zero
+         flash-of-different-image while the video loads/decodes. This
+         same block is duplicated verbatim in walkers/index.html — keep
+         both in sync if this changes. -->
     <div class="hero-visuals hero-visuals-walkers" aria-hidden="true">
+      <video class="hero-photo hero-photo--video hero-photo--ranger"
+             autoplay muted loop playsinline preload="none"
+             poster="images/hero-ranger.jpg">
+        <source src="images/hero-ranger.mp4" type="video/mp4">
+      </video>
       <picture>
         <source srcset="images/hero-ranger.webp" type="image/webp">
-        <img class="hero-photo hero-photo--kenburns hero-photo--ranger"
+        <img class="hero-photo hero-photo--static hero-photo--ranger"
              src="images/hero-ranger.jpg" alt="" loading="eager" fetchpriority="high">
       </picture>
       <div class="hero-scrim"></div>
