@@ -83,18 +83,11 @@
 <main>
 <section class="hero" id="walkers">
     <!-- CHARACTER HERO ART — "the Ranger" — kept in sync with the
-         matching block on the main index.html walkers hero. Video
-         autoplays muted/looped on desktop; mobile gets the static frame
-         (see styles.css max-width:899px block). -->
+         matching block on the main index.html walkers hero. -->
     <div class="hero-visuals hero-visuals-walkers" aria-hidden="true">
-      <video class="hero-photo hero-photo--video hero-photo--ranger"
-             autoplay muted loop playsinline preload="none"
-             poster="../images/hero-ranger.jpg">
-        <source src="../images/hero-ranger.mp4" type="video/mp4">
-      </video>
       <picture>
         <source srcset="../images/hero-ranger.webp" type="image/webp">
-        <img class="hero-photo hero-photo--static hero-photo--ranger"
+        <img class="hero-photo hero-photo--kenburns hero-photo--ranger"
              src="../images/hero-ranger.jpg" alt="" loading="eager" fetchpriority="high">
       </picture>
       <div class="hero-scrim"></div>
@@ -104,6 +97,7 @@
       <p class="eyebrow" data-i18n="walkers.eyebrow">A Community of Active People</p>
       <h2 data-i18n="walkers.title2">BrnoWalkers — Guided Hikes, Cave Tours &amp; City Walks in Moravia</h2>
       <p class="tagline" data-i18n="walkers.tagline">Pedestrian tourism, hiking, rock climbing, and exploring the best spots in Moravia with great company.</p>
+      <p class="hero-mission" data-i18n="walkers.missionText">BrnoWalkers make Moravia their own — step by step, we discover the city and the region together, so Brno becomes home and fellow travelers become family.</p>
       <a class="reviews-badge" href="https://maps.app.goo.gl/fEbnJHxiVoAx1v498" target="_blank" rel="noopener">⭐ 50+ Google reviews · 5.0</a>
 
       <div class="hero-ctas">
@@ -327,7 +321,7 @@
           <button class="faq-q" onclick="toggleFAQ('faq-walkers-8')">
             <span>How do I pay?</span><span class="faq-icon">+</span>
           </button>
-          <div class="faq-a"><div class="faq-a-inner">The payment method is specified in the event announcement. Usually it's a bank transfer or Revolut. Payment confirms your spot — without payment your place is not reserved.</div></div>
+          <div class="faq-a"><div class="faq-a-inner">The payment method is specified in the event announcement. Usually it's a bank transfer — Raiffeisenbank, account no. 7804336003/5500 (put your name and the event name in the reference) — or Revolut: <a href="https://revolut.me/aliaksj5pq" target="_blank" rel="noopener">revolut.me/aliaksj5pq</a>. Payment confirms your spot — without payment your place is not reserved.</div></div>
         </div>
 
         <div class="faq-item" id="faq-walkers-9">
@@ -336,8 +330,9 @@
           </button>
           <div class="faq-a"><div class="faq-a-inner">
             <strong>Late arrival:</strong> the group waits a maximum of 10 minutes from the set time, then departs. If you're running late — warn me in advance, we may be able to adjust a joining point along the route.<br><br>
-            <strong>Cancellation on your side:</strong> your spot was reserved specifically for you — payment is not refunded regardless of how much notice you give.<br><br>
-            <strong>Cancellation or rescheduling on our side</strong> (weather, not enough participants) — full refund or reschedule, see below.
+            <strong>Cancellation on your side, 7+ days before the event:</strong> refunded minus a fixed 120 Kč admin fee (covers payment processing and the back-and-forth of cancelling — kept even on a fully valid, on-time cancellation).<br><br>
+            <strong>Cancellation less than 7 days before, or a no-show:</strong> your spot was reserved specifically for you — no refund, including the 120 Kč fee.<br><br>
+            <strong>Cancellation or rescheduling on our side</strong> (weather, not enough participants) — full refund, including the fee, see below.
           </div></div>
         </div>
 
@@ -527,7 +522,7 @@
       "name": "What if I'm late or can't make it?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Late arrival: the group waits a maximum of 10 minutes from the set time, then departs. If you're running late — warn me in advance, we may be able to adjust a joining point along the route. Cancellation on your side: your spot was reserved specifically for you — payment is not refunded regardless of how much notice you give. Cancellation or rescheduling on our side (weather, not enough participants) — full refund or reschedule, see below."
+        "text": "Late arrival: the group waits a maximum of 10 minutes from the set time, then departs. If you're running late — warn me in advance, we may be able to adjust a joining point along the route. Cancellation on your side, 7+ days before the event: refunded minus a fixed 120 Kč admin fee. Less than 7 days before, or a no-show: no refund, including the fee. Cancellation or rescheduling on our side (weather, not enough participants) — full refund including the fee, or reschedule, see below."
       }
     },
     {

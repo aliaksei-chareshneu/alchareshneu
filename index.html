@@ -171,11 +171,27 @@
     </div>
     <div class="wrap">
       <p class="eyebrow" data-i18n="hero.eyebrow">Brno · Movement · Mind</p>
-      <h1 data-i18n="main.title">Your Guide in Brno — Tutoring, Hiking &amp; HEMA/LARP</h1>
-      <p class="tagline" data-i18n="main.tagline">PhD-level tutoring in sciences, IT, languages and music, weekend hikes with BrnoWalkers, and historical combat training with Družina Moravy.</p>
+      <h1 data-i18n="main.title">Step into Great Moravia</h1>
+      <p class="tagline" data-i18n="main.tagline">Historical swordsmanship, craft, and trail expeditions in Brno — built on real 9th-century Slavic heritage, not costume-party fantasy. Full protective gear provided, no membership required to start.</p>
+      <a id="heroCta" class="btn solid plausible-event-name=Hero-CTA" href="druzina/#schedule">Reserve Your First Session</a>
       <a class="reviews-badge" href="https://maps.app.goo.gl/fEbnJHxiVoAx1v498" target="_blank" rel="noopener">
         <span class="star">⭐</span><span data-i18n="reviewsBadge">50+ Google reviews · 5.0</span>
       </a>
+    </div>
+  </section>
+
+  <!-- MISSION STATEMENT — sourced from the "Družina Moravy Манифест миссии
+       (сен 2026)" doc in the owner's Google Drive (Communities folder) via
+       the companion AI-briefing.md in the same folder. RU and CS text is
+       copied verbatim from that briefing. EN and UK are this session's own
+       translation of the RU original — NOT pulled from the source doc,
+       which only supplies RU+CS for this general statement — flag to the
+       owner for review/correction. Added 10.09.2026; previously this
+       manifesto content had never been integrated into the site despite an
+       earlier claim that it had (see HANDOVER.md if that gets logged). -->
+  <section class="mission-strip" aria-label="Our mission">
+    <div class="wrap">
+      <p class="mission-text" data-i18n="main.missionText">We're building living communities in Brno, where anyone new to the city finds their people — through the trails of Moravia and the fellowship of our ancestors — so Brno becomes home, and acquaintances become family.</p>
     </div>
   </section>
 
@@ -907,27 +923,16 @@
 
 
   <section class="hero" id="walkers">
-    <!-- CHARACTER HERO ART — "the Ranger" (BrnoWalkers). Video autoplays
-         muted/looped on desktop (own idle animation — mist drifting
-         through the valley, ambient light shift — same treatment as the
-         scholar hero above), same reasoning as scholar: no CSS Ken Burns
-         needed on top of that, so hero-photo--kenburns is dropped here.
-         Mobile gets the static frame instead of the video, see styles.css's
-         max-width:899px block. `poster` + the plain <img>
-         fallback-inside-<video> both point at the same frame extracted
-         directly from the video's first frame, so there is zero
-         flash-of-different-image while the video loads/decodes. This
-         same block is duplicated verbatim in walkers/index.html — keep
-         both in sync if this changes. -->
+    <!-- CHARACTER HERO ART — "the Ranger" (BrnoWalkers). Replaces the
+         old walker-figure/clouds SVG. Static photo only (no video asset
+         exists for this character) — the .hero-photo--kenburns class
+         gives it a very slow zoom/drift so it still reads as "alive",
+         not a flat backdrop. This same block is duplicated verbatim in
+         walkers/index.html — keep both in sync if this changes. -->
     <div class="hero-visuals hero-visuals-walkers" aria-hidden="true">
-      <video class="hero-photo hero-photo--video hero-photo--ranger"
-             autoplay muted loop playsinline preload="none"
-             poster="images/hero-ranger.jpg">
-        <source src="images/hero-ranger.mp4" type="video/mp4">
-      </video>
       <picture>
         <source srcset="images/hero-ranger.webp" type="image/webp">
-        <img class="hero-photo hero-photo--static hero-photo--ranger"
+        <img class="hero-photo hero-photo--kenburns hero-photo--ranger"
              src="images/hero-ranger.jpg" alt="" loading="eager" fetchpriority="high">
       </picture>
       <div class="hero-scrim"></div>
@@ -936,6 +941,7 @@
       <p class="eyebrow" data-i18n="walkers.eyebrow">A Community of Active People</p>
       <h2 data-i18n="walkers.title2">BrnoWalkers — Guided Hikes, Cave Tours &amp; City Walks in Moravia</h2>
       <p class="tagline" data-i18n="walkers.tagline">Pedestrian tourism, hiking, rock climbing, and exploring the best spots in Moravia with great company.</p>
+      <p class="hero-mission" data-i18n="walkers.missionText">BrnoWalkers make Moravia their own — step by step, we discover the city and the region together, so Brno becomes home and fellow travelers become family.</p>
       <a class="reviews-badge" href="https://maps.app.goo.gl/fEbnJHxiVoAx1v498" target="_blank" rel="noopener"><span class="star">⭐</span> <span data-i18n="reviewsBadge">50+ Google reviews · 5.0</span></a>
 
       <div class="hero-ctas">
@@ -1040,6 +1046,7 @@
       <p class="eyebrow">Brno · HEMA · LARP</p>
       <h2 data-i18n="ui.druzinaName2">Družina Moravy — HEMA Fencing &amp; LARP Club in Brno</h2>
       <p class="tagline" data-i18n="ui.druzinaTagline">A club for historical medieval combat, fencing (HEMA), archery, and LARP re-enactment in Brno.</p>
+      <p class="hero-mission" data-i18n="ui.druzinaMission">Družina Moravy revives the living tradition of Great Moravia — fellowship, craft, and the path from novice to warrior — so that everyone who joins finds roots, mastery, and their people.</p>
       <a class="reviews-badge" href="https://maps.app.goo.gl/fEbnJHxiVoAx1v498" target="_blank" rel="noopener"><span class="star">⭐</span> <span data-i18n="reviewsBadge">50+ Google reviews · 5.0</span></a>
 
       <div class="hero-ctas">
@@ -1274,16 +1281,19 @@
           <div class="rules-scrollbox" data-i18n="ui.globalRules">
             <h4>1. Scope and Consent</h4>
             <p><strong>1.1</strong> These rules apply to all events, sessions, tours and activities organized by Aliaksei Chareshneu (OSVČ, IČO: 23041625) under the brands BrnoWalkers, Družina Moravy, and individual services.</p>
-            <p><strong>1.2</strong> Payment or registration for participation constitutes unconditional acceptance of all applicable rules.</p>
+            <p><strong>1.2</strong> Payment or registration for participation constitutes unconditional acceptance of all applicable rules. These rules constitute a public offer (a public proposal to conclude a contract) under §1780 et seq. of Czech Civil Code No. 89/2012 Sb.; payment or registration constitutes its acceptance.</p>
             <p><strong>1.3 Participants under 18</strong> are only permitted with written consent of a legal guardian and physical accompaniment by an adult (18+) who bears full responsibility for them.</p>
 
             <h4>2. Registration, Payment and Deadlines</h4>
             <p><strong>2.1</strong> A participant's place is confirmed only after full payment is received. Early-bird prices are valid strictly until the deadline stated in the announcements.</p>
+            <p><strong>2.2 Payment methods:</strong> bank transfer — Raiffeisenbank, account no. 7804336003/5500 (please put your name and the event name in the payment reference), or Revolut — <a href="https://revolut.me/aliaksj5pq" target="_blank" rel="noopener">revolut.me/aliaksj5pq</a>. Cash is accepted only where explicitly stated in a specific event's announcement.</p>
 
             <h4>3. Cancellation and Refunds</h4>
-            <p><strong>3.1 Cancellation by the participant:</strong> your spot at the event was reserved specifically for you. If you cancel, payment is not refunded, regardless of how much notice you give. No-shows are not eligible for a refund.</p>
-            <p><strong>3.2 Payment transfer:</strong> may be done once, provided the request is made at least 7 days before the event, to an event within 30 calendar days.</p>
-            <p><strong>3.3 Cancellation by the organizer or force majeure:</strong> a full 100% refund is issued to participants. Third-party expenses (tickets, accommodation booked by participants) are not compensated.</p>
+            <p><strong>3.1 Cancellation ≥7 days before the event:</strong> the amount paid is refunded minus a fixed, non-refundable administrative fee of <strong>120 Kč</strong>. This fee covers payment processing, verification of incoming/outgoing transfers and the communication involved in cancelling — it is retained even on a fully valid, on-time cancellation.</p>
+            <p><strong>3.2 Cancellation &lt;7 days before the event, or a no-show:</strong> your spot was reserved specifically for you and turned other participants away. No refund is issued, including the 120 Kč fee referenced above (there is nothing further to deduct it from).</p>
+            <p><strong>3.3 Payment transfer:</strong> as an alternative to cancelling, a payment may be moved once — free of the 120 Kč fee — to a different event, provided the request is made at least 7 days before the original event and the new event is within 30 calendar days.</p>
+            <p><strong>3.4 Cancellation by the organizer or force majeure:</strong> a full 100% refund is issued, including the 120 Kč fee. Third-party expenses (tickets, accommodation booked by participants) are not compensated.</p>
+            <p><strong>3.5 Legal basis:</strong> under §1837(j) of Czech Civil Code No. 89/2012 Sb., accommodation, transport, catering and leisure-time services scheduled for a specific date are excluded from the general 14-day distance-contract withdrawal right. The terms in this section 3 are the complete and exclusive cancellation terms for these events; no separate statutory withdrawal period applies on top of them.</p>
 
             <h4>4. Program Changes</h4>
             <p><strong>4.1</strong> The organizer reserves the right to change routes, timing or locations for safety reasons (weather, logistics). A change is considered non-material if at least 70% of the program is completed.</p>
@@ -1294,6 +1304,7 @@
             <p><strong>5.3 Prohibited, no exceptions:</strong> insults based on nationality, language, religion, gender, orientation, appearance or origin; threats, intimidation and blackmail; sexual harassment and lewd comments; public accusations and disputes in group chats (any conflict is resolved one-on-one with the organizer); bullying and deliberate collective exclusion of a participant; sharing participants' personal data without consent; deliberately splitting the community along language or national lines.</p>
             <p><strong>5.4 Immediate removal (without refund)</strong> applies to: arriving intoxicated, deliberate safety violations, refusing to follow a command from the organizer or instructor, any violation under clause 5.3, aggressive behavior, or property damage. A first minor violation earns a warning; a repeat or an immediately serious one results in removal with no warning and no way back.</p>
             <p><strong>5.5</strong> The organizer's decision on any conduct dispute is final and is not subject to appeal, review or vote. Where the wording of these rules is ambiguous, the stricter interpretation applies, in favor of order and participants' safety.</p>
+            <p><strong>5.6 Voice messages</strong> in the community group chats are sent only with the organizer's prior permission — text is the default. This keeps the chat readable and searchable for everyone.</p>
 
             <h4>6. Health, Liability and Insurance</h4>
             <p><strong>6.1</strong> Participants confirm they have no medical contraindications. Participation is at the participant's own risk. The organizer does not provide insurance coverage; participants are strongly advised to obtain personal sports/travel insurance.</p>
@@ -1527,8 +1538,9 @@ ru:{
     cta1:'WhatsApp', cta2:'Telegram',
   },
   main:{
-    title:'Твой проводник в Брно',
-    tagline:'Развиваем тело, навыки и интеллект. Полный диапазон школьных и нешкольных предметов (точные науки, биохимия, IT, языки, музыка), а также походы, фехтование и кастомный крафт.',
+    title:'Возрождаем живую традицию Великой Моравии',
+    tagline:'Товарищество, ремесло и путь от новичка до воина — для тех, кто ищет своих.',
+    missionText:'Мы строим в Брно живые сообщества, где случайный человек в новом городе находит своих — через тропы Моравии и через дружину предков, — чтобы город стал домом, а знакомые семьёй.',
     aboutH:'Кто такой Алексей Черешнев?',
     aboutText:'Я создаю и развиваю живые сообщества в Брно, координирую проекты и обучаю людей. Моя цель — вытащить участников из рутины, предоставив комплексное пространство для физического роста (хайкинг, спорт), творческо-прикладного развития (крафт) и глубокого интеллектуального буста (премиум-репетиторство по широкому спектру предметов). Без нудной зубрёжки — только интерактив, индивидуальные цели и практический результат.',
     matrixH:'Шкала наших мероприятий и цен',
@@ -1551,6 +1563,7 @@ ru:{
     eyebrow:'Сообщество активных людей',
     title:'Брноходцы',
     tagline:'Пешеходный туризм, хайкинг, скалы и исследование красивейших локаций Моравии в отличной компании.',
+    missionText:'Брноходцы делают Моравию своей — шаг за шагом мы открываем город и край вместе, чтобы Брно стало домом, а попутчики — своими.',
     guideIntro:'Меня зовут Алексей — я веду эти походы лично уже несколько лет. Знаю каждую тропу, каждую пещеру и за что зацепиться взглядом по дороге.',
     aboutH:'О Брноходцах',
     aboutText:'Брноходцы — это открытое сообщество для тех, кто любит движение. Мы регулярно организуем пешие вылазки вокруг Брно и по всей Чехии (Babi Lom, Praděd, Moravský Kras, пещеры, сплавы на каноэ). Это идеальный способ перезагрузить голову после рабочей недели, размять тело на свежем воздухе и сразу найти друзей в эмиграции.',
@@ -1754,17 +1767,21 @@ ru:{
     druzinaRulesH:'Общие правила участия & Официальный регламент',
     druzinaName:'Дружина Моравы',
     druzinaTagline:'Клуб исторического средневекового боя, фехтования (HEMA), стрельбы и LARP-реконструкции в Брно.',
+    druzinaMission:'Дружина Моравы возрождает живую традицию Великой Моравии — товарищество, ремесло и путь от новичка до воина, — чтобы каждый, кто пришёл, обрёл корни, мастерство и своих.',
     walkersTeaserBtn:'Походы, настолки, экскурсии, спорт и многое другое! Перейти к Брноходцам',
     globalRules:`<h4>1. ОБЛАСТЬ ПРИМЕНЕНИЯ И СОГЛАСИЕ</h4>
     <p><strong>1.1</strong> Настоящие правила распространяются на все мероприятия, занятия, туры и активности, организуемые Алексеем Черешневым (OSVČ, IČO: 23041625) под брендами BrnoWalkers, Дружина Моравы (Družina Moravy), а также индивидуальные услуги.</p>
-    <p><strong>1.2</strong> Оплата или бронь участия означает безоговорочное согласие со всеми действующими правилами.</p>
+    <p><strong>1.2</strong> Оплата или бронь участия означает безоговорочное согласие со всеми действующими правилами. Настоящие правила являются публичной офертой (публичным предложением заключить договор) в значении § 1780 и след. Гражданского кодекса ЧР № 89/2012 Sb.; оплатой или бронью происходит её акцепт (принятие).</p>
     <p><strong>1.3 Участники до 18 лет</strong> допускаются исключительно при наличии письменного согласия законного представителя и физического сопровождения совершеннолетним лицом (18+), несущим за них полную ответственность.</p>
     <h4>2. РЕГИСТРАЦИЯ, ОПЛАТА И ДЕДЛАЙНЫ</h4>
     <p><strong>2.1</strong> Место участника подтверждается исключительно после поступления полной оплаты. Ранняя цена действует строго до указанного в анонсах дедлайна.</p>
+    <p><strong>2.2 Способы оплаты:</strong> банковский перевод — Raiffeisenbank, №счета 7804336003/5500 (в назначении платежа укажите имя и название мероприятия), либо Revolut — <a href="https://revolut.me/aliaksj5pq" target="_blank" rel="noopener">revolut.me/aliaksj5pq</a>. Наличные — только если это явно указано в анонсе конкретного мероприятия.</p>
     <h4>3. ОТМЕНА И ВОЗВРАТ СРЕДСТВ</h4>
-    <p><strong>3.1 Отмена участником:</strong> место на мероприятии зарезервировано специально под вас. При отмене с вашей стороны оплата не возвращается, независимо от срока предупреждения. Неявка не является основанием для возврата.</p>
-    <p><strong>3.2 Перенос оплаты:</strong> возможен однократно при запросе не позднее чем за 7 дней до начала, на событие в течение 30 календарных дней.</p>
-    <p><strong>3.3 Отмена организатором или форс-мажор:</strong> производится полный 100% возврат средств участников. Компенсация сторонних расходов (билеты, брони участников) не осуществляется.</p>
+    <p><strong>3.1 Отмена участником за 7 и более дней до мероприятия:</strong> уплаченная сумма возвращается за вычетом фиксированного невозвратного административного сбора — <strong>120 Kč</strong>. Сбор покрывает обработку платежа, проверку входящего/исходящего перевода и коммуникацию по отмене — удерживается даже при полностью корректной, своевременной отмене.</p>
+    <p><strong>3.2 Отмена менее чем за 7 дней до мероприятия или неявка:</strong> место было зарезервировано именно под вас и, соответственно, отказано другим. Возврат не производится, включая указанный сбор 120 Kč (вычитать его уже не из чего).</p>
+    <p><strong>3.3 Перенос оплаты:</strong> как альтернатива отмене, возможен однократный перенос без удержания сбора 120 Kč — при запросе не позднее чем за 7 дней до исходного мероприятия, на событие в течение 30 календарных дней.</p>
+    <p><strong>3.4 Отмена организатором или форс-мажор:</strong> производится полный 100% возврат средств, включая сбор 120 Kč. Компенсация сторонних расходов (билеты, брони участников) не осуществляется.</p>
+    <p><strong>3.5 Правовое основание:</strong> согласно § 1837 písm. j) Гражданского кодекса ЧР № 89/2012 Sb., услуги проживания, перевозки, питания и использования свободного времени, если по договору должны быть оказаны в определённую дату, исключены из общего 14-дневного права на отказ от договора при дистанционной покупке. Условия настоящего раздела 3 являются полными и исчерпывающими условиями отмены для таких мероприятий; дополнительный законный период отказа сверх них не действует.</p>
     <h4>4. ИЗМЕНЕНИЕ ПРОГРАММЫ</h4>
     <p><strong>4.1</strong> Организатор имеет право менять маршруты, тайминг или локации из соображений безопасности (погода, логистика). Изменение считается несущественным, если программа выполнена на 70% и более.</p>
     <h4>5. ПОВЕДЕНИЕ, ЭТИКА И ДИСЦИПЛИНА</h4>
@@ -1773,6 +1790,7 @@ ru:{
     <p><strong>5.3 Запрещены без исключений:</strong> оскорбления по национальности, языку, религии, полу, ориентации, внешности или происхождению; угрозы, запугивание и шантаж; сексуальные домогательства и непристойные комментарии; публичные обвинения и разборки в общих чатах (любой конфликт решается один на один с организатором); травля и намеренное коллективное исключение участника; разглашение личных данных участников без согласия; намеренный раскол сообщества по языковому или национальному признаку.</p>
     <p><strong>5.4 Немедленное отстранение (без возврата средств)</strong> грозит за: явку в состоянии опьянения, умышленное нарушение техники безопасности, отказ выполнить команду организатора или тренера, любое нарушение из п. 5.3, агрессивное поведение или порчу имущества. Разовое незначительное нарушение впервые — предупреждение; повторное или сразу серьёзное — исключение без предупреждения и без права вернуться.</p>
     <p><strong>5.5</strong> Решение организатора по любому спору о поведении — окончательное и не подлежит пересмотру, апелляции или голосованию. При неоднозначной формулировке правил действует более строгое толкование — в пользу порядка и безопасности участников.</p>
+    <p><strong>5.6 Голосовые сообщения</strong> в общих чатах сообщества отправляются только с предварительного разрешения организатора — по умолчанию общение текстом. Так чат остаётся читаемым и с возможностью поиска для всех.</p>
     <h4>6. ЗДОРОВЬЕ, ОТВЕТСТВЕННОСТЬ И СТРАХОВАНИЕ</h4>
     <p><strong>6.1</strong> Участники подтверждают отсутствие медицинских противопоказаний. Участие осуществляется на собственный риск. Организатор не предоставляет страховое покрытие, участникам настоятельно рекомендуется оформить личную спортивную/туристическую страховку.</p>
     <p><strong>6.2 Имущество:</strong> Организатор не несет ответственности за кражу или повреждение личных вещей участников в ходе мероприятий.</p>
@@ -1808,8 +1826,9 @@ en:{
     cta1:'WhatsApp', cta2:'Telegram',
   },
   main:{
-    title:'Your Guide in Brno',
-    tagline:'Developing body and intellect. Full spectrum of academic & non-academic tutoring (sciences, IT, languages, music), weekend hikes, fencing and custom crafts.',
+    title:'Step into Great Moravia',
+    tagline:'Historical swordsmanship, craft, and trail expeditions in Brno — built on real 9th-century Slavic heritage, not costume-party fantasy. Full protective gear provided, no membership required to start.',
+    missionText:'We\'re building living communities in Brno, where anyone new to the city finds their people — through the trails of Moravia and the fellowship of our ancestors — so Brno becomes home, and acquaintances become family.',
     aboutH:'Who is Aliaksei Chareshneu?',
     aboutText:'I build and nurture active communities in Brno, coordinate projects, and teach. My goal is to pull people out of their daily routines, providing space for physical growth (hiking, sports), craft development, and top-end targeted academic mentoring. No boring memorization — just real results based on your individual objectives.',
     matrixH:'Our Activity & Price Spectrum',
@@ -1832,6 +1851,7 @@ en:{
     eyebrow:'A community of active people',
     title:'BrnoWalkers',
     tagline:'Pedestrian tourism, hiking, rock climbing, and exploring the best spots in Moravia with great company.',
+    missionText:'BrnoWalkers make Moravia their own — step by step, we discover the city and the region together, so Brno becomes home and fellow travelers become family.',
     guideIntro:'I\'m Aliaksei — I\'ve been personally leading these hikes for several years. I know every trail, every cave, and exactly what\'s worth looking up at along the way.',
     aboutH:'About BrnoWalkers',
     aboutText:'BrnoWalkers is an open community for people who love movement. We regularly organize walking trips around Brno and across the Czech Republic (Babi Lom, Praděd, Moravian Karst, caves, canoe river trips). It\'s the perfect way to reset your brain and find active friends.',
@@ -2035,17 +2055,21 @@ en:{
     druzinaRulesH:'General Rules & Official Regulations',
     druzinaName:'Druzhina Moravy',
     druzinaTagline:'A club for historical medieval combat, fencing (HEMA), archery, and LARP re-enactment in Brno.',
+    druzinaMission:'Družina Moravy revives the living tradition of Great Moravia — fellowship, craft, and the path from novice to warrior — so that everyone who joins finds roots, mastery, and their people.',
     walkersTeaserBtn:'Hikes, board games, tours, sports and more! Go to BrnoWalkers',
     globalRules:`<h4>1. SCOPE AND CONSENT</h4>
     <p><strong>1.1</strong> These rules apply to all events, sessions, tours and activities organized by Aliaksei Chareshneu (OSVČ, IČO: 23041625) under the brands BrnoWalkers, Druzhina Moravy, and individual services.</p>
-    <p><strong>1.2</strong> Payment or registration for participation constitutes unconditional acceptance of all applicable rules.</p>
+    <p><strong>1.2</strong> Payment or registration for participation constitutes unconditional acceptance of all applicable rules. These rules constitute a public offer (a public proposal to conclude a contract) under §1780 et seq. of Czech Civil Code No. 89/2012 Sb.; payment or registration constitutes its acceptance.</p>
     <p><strong>1.3 Participants under 18</strong> are only permitted with written consent of a legal guardian and physical accompaniment by an adult (18+) who bears full responsibility for them.</p>
     <h4>2. REGISTRATION, PAYMENT AND DEADLINES</h4>
     <p><strong>2.1</strong> A participant's place is confirmed only after full payment is received. Early-bird prices are valid strictly until the deadline stated in the announcements.</p>
+    <p><strong>2.2 Payment methods:</strong> bank transfer — Raiffeisenbank, account no. 7804336003/5500 (please put your name and the event name in the payment reference), or Revolut — <a href="https://revolut.me/aliaksj5pq" target="_blank" rel="noopener">revolut.me/aliaksj5pq</a>. Cash is accepted only where explicitly stated in a specific event's announcement.</p>
     <h4>3. CANCELLATION AND REFUNDS</h4>
-    <p><strong>3.1 Cancellation by the participant:</strong> your spot at the event was reserved specifically for you. If you cancel, payment is not refunded, regardless of how much notice you give. No-shows are not eligible for a refund.</p>
-    <p><strong>3.2 Payment transfer:</strong> may be done once, provided the request is made at least 7 days before the event, to an event within 30 calendar days.</p>
-    <p><strong>3.3 Cancellation by the organizer or force majeure:</strong> a full 100% refund is issued to participants. Third-party expenses (tickets, accommodation booked by participants) are not compensated.</p>
+    <p><strong>3.1 Cancellation ≥7 days before the event:</strong> the amount paid is refunded minus a fixed, non-refundable administrative fee of <strong>120 Kč</strong>. This fee covers payment processing, verification of incoming/outgoing transfers and the communication involved in cancelling — it is retained even on a fully valid, on-time cancellation.</p>
+    <p><strong>3.2 Cancellation &lt;7 days before the event, or a no-show:</strong> your spot was reserved specifically for you and turned other participants away. No refund is issued, including the 120 Kč fee referenced above (there is nothing further to deduct it from).</p>
+    <p><strong>3.3 Payment transfer:</strong> as an alternative to cancelling, a payment may be moved once — free of the 120 Kč fee — to a different event, provided the request is made at least 7 days before the original event and the new event is within 30 calendar days.</p>
+    <p><strong>3.4 Cancellation by the organizer or force majeure:</strong> a full 100% refund is issued, including the 120 Kč fee. Third-party expenses (tickets, accommodation booked by participants) are not compensated.</p>
+    <p><strong>3.5 Legal basis:</strong> under §1837(j) of Czech Civil Code No. 89/2012 Sb., accommodation, transport, catering and leisure-time services scheduled for a specific date are excluded from the general 14-day distance-contract withdrawal right. The terms in this section 3 are the complete and exclusive cancellation terms for these events; no separate statutory withdrawal period applies on top of them.</p>
     <h4>4. PROGRAM CHANGES</h4>
     <p><strong>4.1</strong> The organizer reserves the right to change routes, timing or locations for safety reasons (weather, logistics). A change is considered non-material if at least 70% of the program is completed.</p>
     <h4>5. CONDUCT, ETHICS AND DISCIPLINE</h4>
@@ -2054,6 +2078,7 @@ en:{
     <p><strong>5.3 Prohibited, no exceptions:</strong> insults based on nationality, language, religion, gender, orientation, appearance or origin; threats, intimidation and blackmail; sexual harassment and lewd comments; public accusations and disputes in group chats (any conflict is resolved one-on-one with the organizer); bullying and deliberate collective exclusion of a participant; sharing participants' personal data without consent; deliberately splitting the community along language or national lines.</p>
     <p><strong>5.4 Immediate removal (without refund)</strong> applies to: arriving intoxicated, deliberate safety violations, refusing to follow a command from the organizer or instructor, any violation under clause 5.3, aggressive behavior, or property damage. A first minor violation earns a warning; a repeat or an immediately serious one results in removal with no warning and no way back.</p>
     <p><strong>5.5</strong> The organizer's decision on any conduct dispute is final and is not subject to appeal, review or vote. Where the wording of these rules is ambiguous, the stricter interpretation applies, in favor of order and participants' safety.</p>
+    <p><strong>5.6 Voice messages</strong> in the community group chats are sent only with the organizer's prior permission — text is the default. This keeps the chat readable and searchable for everyone.</p>
     <h4>6. HEALTH, LIABILITY AND INSURANCE</h4>
     <p><strong>6.1</strong> Participants confirm they have no medical contraindications. Participation is at the participant's own risk. The organizer does not provide insurance coverage; participants are strongly advised to obtain personal sports/travel insurance.</p>
     <p><strong>6.2 Property:</strong> The organizer is not liable for theft or damage to participants' personal belongings during events.</p>
@@ -2089,8 +2114,9 @@ cs:{
     cta1:'WhatsApp', cta2:'Telegram',
   },
   main:{
-    title:'Tvůj průvodce v Brně',
-    tagline:'Rozvíjíme tělo, dovednosti i intelekt. Kompletní nabídka školního i mimoškolního doučování (vědy, IT, jazyky, hudba), víkendové výšlapy, historický šerm a zakázkové řemeslo.',
+    title:'Naše historie, naše město',
+    tagline:'Historický šerm, řemeslo a výlety po Moravě — komunitní spolek v Brně, otevřený všem, kdo chtějí objevovat vlastní kraj. Registrovaný spolek (z.s.) — transparentní, komunitní, brněnský.',
+    missionText:'Budujeme v Brně živá společenství, kde každý — ať už tu žije odjakživa, nebo právě přijel — najde své lidi: stezkami Moravy i družinou předků, aby se z Brna stal domov a ze známých rodina.',
     aboutH:'Kdo je Aliaksei Chareshneu?',
     aboutText:'Vytvářím a rozvíjím živé komunity v Brně, koordinuji projekty a školím lidi. Mým cílem je vytáhnout účastníky z každodenní rutiny díky vyváženému mixu fyzických aktivit (turistika, sport), kreativního řemesla a prémiového doučování na klíč. Žádné nudné memorování — jdeme po individuálních cílech a reálných výsledcích.',
     matrixH:'Škála našich akcí a cen',
@@ -2113,6 +2139,7 @@ cs:{
     eyebrow:'Komunita aktivních lidí',
     title:'BrnoWalkers',
     tagline:'Pěší turistika, hiking, skalní lezení a objevování nejkrásnějších míst Moravy ve skvělé společnosti.',
+    missionText:'BrnoWalkers dělají z Moravy svůj domov — krok za krokem objevujeme město a kraj společně, aby se Brno stalo domovem a spolucestující rodinou.',
     guideIntro:'Jmenuji se Aliaksei — tyto výlety osobně vedu už několik let. Znám každou stezku, každou jeskyni a vím, na co se cestou stojí za to podívat.',
     aboutH:'O BrnoWalkers',
     aboutText:'BrnoWalkers je otevřená komunita pro všechny, kteří milují pohyb. Pravidelně pořádáme pěší výlety v okolí Brna i po celé České republice (Babi Lom, Praděd, Moravský kras, jeskyně, vodácké výlety). Ideální způsob resetu hlavy.',
@@ -2316,17 +2343,21 @@ cs:{
     druzinaRulesH:'Obecná pravidla účasti & Officiální řád',
     druzinaName:'Družina Moravy',
     druzinaTagline:'Klub historického středověkého boje, šermu (HEMA), střelby a LARP rekonstrukce v Brně.',
+    druzinaMission:'Družina Moravy oživuje živou tradici Velké Moravy — kamarádství, řemeslo a cestu od nováčka k válečníkovi, aby každý, kdo přijde, našel kořeny, mistrovství a své lidi.',
     walkersTeaserBtn:'Výšlapy, deskovky, výlety, sport a mnoho dalšího! Přejít k BrnoWalkers',
     globalRules:`<h4>1. ROZSAH A SOUHLAS</h4>
     <p><strong>1.1</strong> Tato pravidla se vztahují na všechny akce, tréninky, prohlídky a aktivity organizované Aliakseim Charesneuem (OSVČ, IČO: 23041625) pod značkami BrnoWalkers, Družina Moravy a individuální služby.</p>
-    <p><strong>1.2</strong> Zaplacení nebo rezervace účasti znamená bezpodmínečný souhlas se všemi platnými pravidly.</p>
+    <p><strong>1.2</strong> Zaplacení nebo rezervace účasti znamená bezpodmínečný souhlas se všemi platnými pravidly. Tato pravidla představují veřejnou nabídku (veřejný návrh na uzavření smlouvy) ve smyslu § 1780 a násl. zákona č. 89/2012 Sb., občanský zákoník; zaplacením nebo rezervací dochází k jejímu přijetí.</p>
     <p><strong>1.3 Účastníci do 18 let</strong> jsou přijímáni výhradně s písemným souhlasem zákonného zástupce a fyzickým doprovodem zletilé osoby (18+), která za ně nese plnou odpovědnost.</p>
     <h4>2. REGISTRACE, PLATBA A TERMÍNY</h4>
     <p><strong>2.1</strong> Místo účastníka je potvrzeno výhradně po přijetí plné platby. Zvýhodněná cena platí přísně do termínu uvedeného v oznámeních.</p>
+    <p><strong>2.2 Způsoby platby:</strong> bankovní převod — Raiffeisenbank, č. účtu 7804336003/5500 (do poznámky pro příjemce uveď jméno a název akce), nebo Revolut — <a href="https://revolut.me/aliaksj5pq" target="_blank" rel="noopener">revolut.me/aliaksj5pq</a>. Hotovost pouze tam, kde je to výslovně uvedeno v oznámení konkrétní akce.</p>
     <h4>3. ZRUŠENÍ A VRÁCENÍ PENĚZ</h4>
-    <p><strong>3.1 Zrušení účastníkem:</strong> tvé místo na akci bylo rezervováno konkrétně pro tebe. Při zrušení z tvé strany se platba nevrací, bez ohledu na to, jak brzy dáš vědět. Nedostavení se není důvodem k vrácení peněz.</p>
-    <p><strong>3.2 Přesunutí platby:</strong> možné jednou při žádosti nejpozději 7 dní před akcí, na akci do 30 kalendářních dní.</p>
-    <p><strong>3.3 Zrušení organizátorem nebo vyšší moc:</strong> provede se plné 100% vrácení peněz účastníkům. Náhrada výdajů třetích stran (jízdenky, rezervace účastníků) se neprovádí.</p>
+    <p><strong>3.1 Zrušení účastníkem 7 a více dní před akcí:</strong> zaplacená částka se vrací po odečtení fixního nevratného administrativního poplatku ve výši <strong>120 Kč</strong>. Poplatek pokrývá zpracování platby, ověření příchozí/odchozí platby a komunikaci spojenou se zrušením — zadržuje se i při zcela řádném, včasném zrušení.</p>
+    <p><strong>3.2 Zrušení méně než 7 dní před akcí nebo nedostavení se:</strong> místo bylo rezervováno konkrétně pro tebe, a tím pádem odmítnuto ostatním. Peníze se nevrací, včetně výše uvedeného poplatku 120 Kč (není už z čeho jej odečíst).</p>
+    <p><strong>3.3 Přesunutí platby:</strong> jako alternativa ke zrušení, možné jednou bez odečtení poplatku 120 Kč — při žádosti nejpozději 7 dní před původní akcí, na akci do 30 kalendářních dní.</p>
+    <p><strong>3.4 Zrušení organizátorem nebo vyšší moc:</strong> provede se plné 100% vrácení peněz, včetně poplatku 120 Kč. Náhrada výdajů třetích stran (jízdenky, rezervace účastníků) se neprovádí.</p>
+    <p><strong>3.5 Právní základ:</strong> podle § 1837 písm. j) zákona č. 89/2012 Sb., občanský zákoník, jsou služby ubytování, přepravy, stravování a využití volného času, má-li být podle smlouvy plněno k určitému datu, vyloučeny z obecného čtrnáctidenního práva na odstoupení od smlouvy uzavřené distančním způsobem. Podmínky tohoto oddílu 3 jsou úplnými a výlučnými podmínkami zrušení pro tyto akce; žádná další zákonná lhůta pro odstoupení se nad jejich rámec neuplatní.</p>
     <h4>4. ZMĚNA PROGRAMU</h4>
     <p><strong>4.1</strong> Organizátor má právo měnit trasy, časování nebo místa z bezpečnostních důvodů (počasí, logistika). Změna se považuje za nepodstatnou, pokud byl program splněn na 70 % a více.</p>
     <h4>5. CHOVÁNÍ, ETIKA A DISCIPLÍNA</h4>
@@ -2335,6 +2366,7 @@ cs:{
     <p><strong>5.3 Zakázáno bez výjimek:</strong> urážky na základě národnosti, jazyka, náboženství, pohlaví, orientace, vzhledu nebo původu; vyhrožování, zastrašování a vydírání; sexuální obtěžování a oplzlé komentáře; veřejné obviňování a hádky ve skupinových chatech (jakýkoli konflikt se řeší jeden na jednoho s organizátorem); šikana a záměrné kolektivní vyloučení účastníka; sdílení osobních údajů účastníků bez souhlasu; záměrné rozdělování komunity podle jazyka nebo národnosti.</p>
     <p><strong>5.4 Okamžité vyloučení (bez vrácení peněz)</strong> hrozí za: příchod pod vlivem alkoholu, úmyslné porušení bezpečnosti, odmítnutí splnit pokyn organizátora nebo instruktora, jakékoli porušení dle bodu 5.3, agresivní chování nebo poškozování majetku. První drobné porušení znamená varování; opakované nebo rovnou závažné porušení znamená vyloučení bez varování a bez možnosti návratu.</p>
     <p><strong>5.5</strong> Rozhodnutí organizátora v jakémkoli sporu o chování je konečné a nepodléhá odvolání, přezkumu ani hlasování. Je-li znění těchto pravidel nejednoznačné, platí přísnější výklad — ve prospěch pořádku a bezpečnosti účastníků.</p>
+    <p><strong>5.6 Hlasové zprávy</strong> ve skupinových chatech komunity se posílají pouze s předchozím souhlasem organizátora — výchozí je textová komunikace. Chat tak zůstává čitelný a prohledatelný pro všechny.</p>
     <h4>6. ZDRAVÍ, ODPOVĚDNOST A POJIŠTĚNÍ</h4>
     <p><strong>6.1</strong> Účastníci potvrzují, že nemají žádné zdravotní kontraindikace. Účast probíhá na vlastní riziko. Organizátor neposkytuje pojistné krytí; účastníkům je důrazně doporučeno sjednat si osobní sportovní/cestovní pojištění.</p>
     <p><strong>6.2 Majetek:</strong> Organizátor nenese odpovědnost za krádež nebo poškození osobních věcí účastníků při akcích.</p>
@@ -2370,8 +2402,9 @@ uk:{
     cta1:'WhatsApp', cta2:'Telegram',
   },
   main:{
-    title:'Твой провідник у Брно',
-    tagline:'Розвиваємо тіло, навички та інтелект. Повний спектр шкільних та позашкільних дисциплін (науки, IT, мови, музика), походи, фехтування та крафт.',
+    title:'Тут ти не сам',
+    tagline:'Спільнота у Брно: настільні ігри, чеська мова, спільні прогулянки — перший крок безкоштовний, без жодних умов.',
+    missionText:'Ми будуємо в Брно живі спільноти, де випадкова людина в новому місті знаходить своїх — стежками Моравії і дружиною предків, — щоб місто стало домом, а знайомі — родиною.',
     aboutH:'Хто такий Олексій Черешньов?',
     aboutText:'Я створюю та розвиваю живі спільноти в Брно, координую проєкти та навчаю. Моя мета — надати простір для всебічного фізичного (хайкінг, спорт) та інтелектуального розвитку (преміум-репетиторство). Забудьте про нудне зазубрювання — ми працюємо на практичний результат та індивідуальні цілі.',
     matrixH:'Шкала наших заходів та цін',
@@ -2394,6 +2427,7 @@ uk:{
     eyebrow:'Спільнота активних людей',
     title:'Брнохідці',
     tagline:'Пішохідний туризм, хайкінг, скелі та дослідження найкрасивіших локацій Моравії у чудовій компанії.',
+    missionText:'Брнохідці роблять Моравію своєю — крок за кроком ми відкриваємо місто і край разом, щоб Брно стало домом, а попутники — своїми.',
     guideIntro:'Мене звуть Алексій — я особисто веду ці походи вже кілька років. Знаю кожну стежку, кожну печеру і за що зачепитись поглядом по дорозі.',
     aboutH:'Про Брнохідців',
     aboutText:'Брнохідці — це відкрита спільнота для тих, хто любить рух. Ми регулярно організуємо піші вилазки навколо Брно та по всій Чехії (Моравський крас, печери, сплави). Прекрасний спосіб перезавантажитись та знайти друзів.',
@@ -2597,17 +2631,21 @@ uk:{
     druzinaRulesH:'Загальні правила участі & Офіційний регламент',
     druzinaName:'Дружина Моравії',
     druzinaTagline:'Клуб історичного середньовічного бою, фехтування (HEMA), стрільби та LARP-реконструкції в Брно.',
+    druzinaMission:'Дружина Моравії відроджує живу традицію Великої Моравії — товариство, ремесло і шлях від новачка до воїна, — щоб кожен, хто прийшов, знайшов коріння, майстерність і своїх.',
     walkersTeaserBtn:'Походи, настільні гри, екскурсії, спорт та багато іншого! Перейти до Брнохідців',
     globalRules:`<h4>1. СФЕРА ДІЇ ТА ЗГОДА</h4>
     <p><strong>1.1</strong> Ці правила поширюються на всі заходи, заняття, тури та активності, організовані Олексієм Черешньовим (OSVČ, IČO: 23041625) під брендами BrnoWalkers, Дружина Моравії, а також індивідуальні послуги.</p>
-    <p><strong>1.2</strong> Оплата або реєстрація участі означає безумовну згоду з усіма чинними правилами.</p>
+    <p><strong>1.2</strong> Оплата або реєстрація участі означає безумовну згоду з усіма чинними правилами. Ці правила є публічною офертою (публічною пропозицією укласти договір) у розумінні § 1780 і наст. Цивільного кодексу ЧР № 89/2012 Sb.; оплатою або реєстрацією відбувається її прийняття (акцепт).</p>
     <p><strong>1.3 Учасники до 18 років</strong> допускаються виключно за наявності письмової згоди законного представника та фізичного супроводу повнолітньою особою (18+), яка несе за них повну відповідальність.</p>
     <h4>2. РЕЄСТРАЦІЯ, ОПЛАТА ТА ДЕДЛАЙНИ</h4>
     <p><strong>2.1</strong> Місце учасника підтверджується виключно після надходження повної оплати. Рання ціна діє строго до зазначеного в анонсах дедлайну.</p>
+    <p><strong>2.2 Способи оплати:</strong> банківський переказ — Raiffeisenbank, №рахунку 7804336003/5500 (у призначенні платежу вкажіть ім'я та назву заходу), або Revolut — <a href="https://revolut.me/aliaksj5pq" target="_blank" rel="noopener">revolut.me/aliaksj5pq</a>. Готівка — лише якщо це явно зазначено в анонсі конкретного заходу.</p>
     <h4>3. СКАСУВАННЯ ТА ПОВЕРНЕННЯ КОШТІВ</h4>
-    <p><strong>3.1 Скасування учасником:</strong> ваше місце на заході було зарезервовано спеціально для вас. При скасуванні з вашого боку оплата не повертається, незалежно від того, за скільки ви попередили. Неявка не є підставою для повернення коштів.</p>
-    <p><strong>3.2 Перенесення оплати:</strong> можливе одноразово при запиті не пізніше ніж за 7 днів до початку, на захід протягом 30 календарних днів.</p>
-    <p><strong>3.3 Скасування організатором або форс-мажор:</strong> здійснюється повне 100% повернення коштів учасникам. Компенсація сторонніх витрат (квитки, бронювання учасників) не здійснюється.</p>
+    <p><strong>3.1 Скасування учасником за 7 і більше днів до заходу:</strong> сплачена сума повертається за вирахуванням фіксованого неповоротного адміністративного збору — <strong>120 Kč</strong>. Збір покриває обробку платежу, перевірку вхідного/вихідного переказу та комунікацію щодо скасування — утримується навіть при повністю коректному, своєчасному скасуванні.</p>
+    <p><strong>3.2 Скасування менш ніж за 7 днів до заходу або неявка:</strong> місце було зарезервовано спеціально для вас і, відповідно, відмовлено іншим. Повернення не здійснюється, включно зі згаданим збором 120 Kč (вираховувати вже нема з чого).</p>
+    <p><strong>3.3 Перенесення оплати:</strong> як альтернатива скасуванню, можливе одноразове перенесення без утримання збору 120 Kč — при запиті не пізніше ніж за 7 днів до початкового заходу, на захід протягом 30 календарних днів.</p>
+    <p><strong>3.4 Скасування організатором або форс-мажор:</strong> здійснюється повне 100% повернення коштів, включно зі збором 120 Kč. Компенсація сторонніх витрат (квитки, бронювання учасників) не здійснюється.</p>
+    <p><strong>3.5 Правова підстава:</strong> згідно з § 1837 písm. j) Цивільного кодексу ЧР № 89/2012 Sb., послуги проживання, перевезення, харчування та використання вільного часу, якщо за договором мають бути надані у визначену дату, виключені із загального 14-денного права на відмову від договору, укладеного дистанційним способом. Умови цього розділу 3 є повними та вичерпними умовами скасування для таких заходів; додатковий законний строк для відмови понад них не діє.</p>
     <h4>4. ЗМІНА ПРОГРАМИ</h4>
     <p><strong>4.1</strong> Організатор має право змінювати маршрути, тайминг або локації з міркувань безпеки (погода, логістика). Зміна вважається несуттєвою, якщо програму виконано на 70% і більше.</p>
     <h4>5. ПОВЕДІНКА, ЕТИКА ТА ДИСЦИПЛІНА</h4>
@@ -2616,6 +2654,7 @@ uk:{
     <p><strong>5.3 Заборонено без винятків:</strong> образи за національністю, мовою, релігією, статтю, орієнтацією, зовнішністю чи походженням; погрози, залякування та шантаж; сексуальні домагання та непристойні коментарі; публічні звинувачення та розбірки у спільних чатах (будь-який конфлікт вирішується один на один з організатором); цькування та навмисне колективне виключення учасника; розголошення особистих даних учасників без згоди; навмисний розкол спільноти за мовною чи національною ознакою.</p>
     <p><strong>5.4 Негайне відсторонення (без повернення коштів)</strong> загрожує за: явку в стані сп'яніння, навмисне порушення техніки безпеки, відмову виконати команду організатора чи тренера, будь-яке порушення з п. 5.3, агресивну поведінку або псування майна. Перше незначне порушення — попередження; повторне або одразу серйозне — виключення без попередження і без права повернутись.</p>
     <p><strong>5.5</strong> Рішення організатора щодо будь-якого спору про поведінку є остаточним і не підлягає оскарженню, перегляду чи голосуванню. За неоднозначного формулювання цих правил діє суворіше тлумачення — на користь порядку та безпеки учасників.</p>
+    <p><strong>5.6 Голосові повідомлення</strong> у спільних чатах спільноти надсилаються лише з попереднього дозволу організатора — за замовчуванням спілкування текстом. Так чат лишається читабельним і придатним для пошуку для всіх.</p>
     <h4>6. ЗДОРОВ'Я, ВІДПОВІДАЛЬНІСТЬ ТА СТРАХУВАННЯ</h4>
     <p><strong>6.1</strong> Учасники підтверджують відсутність медичних протипоказань. Участь здійснюється на власний ризик. Організатор не надає страхового покриття; учасникам настійно рекомендується оформити особисте спортивне/туристичне страхування.</p>
     <p><strong>6.2 Майно:</strong> Організатор не несе відповідальності за крадіжку або пошкодження особистих речей учасників під час заходів.</p>
@@ -3519,10 +3558,12 @@ function renderUpcomingEvents(lang) {
     body = `<div class="events-status">${loadingText[lang]}</div>`;
   } else if (LIVE_EVENTS.length === 0) {
     body = `
-      <div class="calendar-cta-empty">
-        <a class="btn solid calendar-cta-btn" href="${CALENDAR_SUBSCRIBE_LINK}" target="_blank" rel="noopener">${calSubBtn[lang]}</a>
-        <p class="calendar-cta-explain">${calExplain[lang]}</p>
-        <div class="calendar-embed-card calendar-embed-inline">
+      <div class="events-empty-stack">
+        <div class="calendar-cta-empty">
+          <a class="btn solid calendar-cta-btn" href="${CALENDAR_SUBSCRIBE_LINK}" target="_blank" rel="noopener">${calSubBtn[lang]}</a>
+          <p class="calendar-cta-explain">${calExplain[lang]}</p>
+        </div>
+        <div class="calendar-embed-card">
           <iframe
             src="https://calendar.google.com/calendar/embed?src=2b87a4e595671b05f82867969757d6c8500733a05a7ebcc77a3c6102b1644757%40group.calendar.google.com&amp;ctz=Europe%2FPrague&amp;mode=AGENDA&amp;showTitle=0&amp;showNav=1&amp;showDate=1&amp;showPrint=0&amp;showTabs=0&amp;showCalendars=0&amp;showTz=0&amp;wkst=2"
             style="border:0" width="100%" height="480" frameborder="0" scrolling="no" loading="lazy"
@@ -3704,84 +3745,6 @@ const CANOE_SAFETY = {
 // Underlying data object kept, still referenced elsewhere.
 
 
-const FAQ = {
-  walkers: [
-    {
-      category: {ru:'📍 Место и время', en:'📍 Location & Time', cs:'📍 Místo a čas', uk:'📍 Місце та час'},
-      items: [
-        {
-          q: {ru:'Где и во сколько встречаемся?', en:'Where and when do we meet?', cs:'Kde a v kolik se setkáváme?', uk:'Де і о котрій зустрічаємось?'},
-          a: {ru:'Место и время встречи всегда указаны в анонсе конкретного мероприятия в чате. После оплаты я дублирую точку встречи отдельным сообщением. Если не можешь найти — напиши мне.', en:'The meeting point and time are always in the specific event announcement in the chat. After payment I send the meeting point again in a separate message. If you can\'t find it — just message me.', cs:'Místo a čas setkání jsou vždy uvedeny v oznámení konkrétní akce v chatu. Po zaplacení pošlu místo setkání znovu v samostatné zprávě. Pokud to nemůžeš najít — napiš mi.', uk:'Місце і час зустрічі завжди вказані в анонсі конкретного заходу в чаті. Після оплати я дублюю точку зустрічі окремим повідомленням. Якщо не можеш знайти — напиши мені.'}
-        },
-        {
-          q: {ru:'Как добраться до места старта?', en:'How do I get to the starting point?', cs:'Jak se dostanu na místo startu?', uk:'Як дістатися до місця старту?'},
-          a: {ru:'В анонсе всегда есть адрес или GPS-точка. Обычно это остановка общественного транспорта или парковка. Мы не организуем общий транспорт — каждый добирается самостоятельно.', en:'The announcement always includes an address or GPS point. Usually it\'s a public transport stop or a parking spot. We don\'t organise shared transport — everyone gets there on their own.', cs:'V oznámení je vždy adresa nebo GPS bod. Obvykle je to zastávka MHD nebo parkoviště. Společnou dopravu neorganizujeme — každý se dopraví sám.', uk:'В анонсі завжди є адреса або GPS-точка. Зазвичай це зупинка громадського транспорту або парковка. Спільний транспорт ми не організовуємо — кожен добирається самостійно.'}
-        }
-      ]
-    },
-    {
-      category: {ru:'🎒 Снаряжение и одяг', en:'🎒 Gear & Clothing', cs:'🎒 Výbava a oblečení', uk:'🎒 Спорядження та одяг'},
-      items: [
-        {
-          q: {ru:'Какая обувь нужна?', en:'What footwear do I need?', cs:'Jakou obuv potřebuji?', uk:'Яке взуття потрібне?'},
-          a: {ru:'<strong>Обязательно:</strong> закрытая спортивная или трекинговая обувь. Кроссовки подходят для большинства маршрутов. Для горных и пещерных выходов нужны ботинки с жёсткой подошвой и фиксацией голеностопа. Сандалии, шлёпки и туфли — нельзя.', en:'<strong>Required:</strong> closed sports or hiking shoes. Trainers work for most routes. For mountain and cave trips you\'ll need boots with a rigid sole and ankle support. Sandals, flip-flops, and dress shoes — not allowed.', cs:'<strong>Povinné:</strong> uzavřená sportovní nebo trekingová obuv. Tenisky jsou vhodné pro většinu tras. Na horské a jeskyní výpravy jsou potřeba boty s pevnou podrážkou a fixací kotníku. Sandály, žabky a lodičky — zakázány.', uk:'<strong>Обов\'язково:</strong> закрите спортивне або трекінгове взуття. Кросівки підходять для більшості маршрутів. Для гірських і печерних виходів потрібні черевики з жорсткою підошвою та фіксацією гомілкостопа. Сандалі, шльопки і туфлі — не можна.'}
-        },
-        {
-          q: {ru:'Что взять с собой?', en:'What should I bring?', cs:'Co si vzít s sebou?', uk:'Що взяти з собою?'},
-          a: {ru:'<strong>Всегда:</strong><ul><li>Вода — минимум 1.5 л на человека</li><li>Перекус / бутерброды (кафе по дороге нет почти никогда)</li><li>Дождевик или ветровка (погода меняется)</li><li>Заряженный телефон</li><li>Наличные или карта — иногда нужны для транспорта</li></ul><strong>Для горных и пещерных маршрутов дополнительно:</strong><ul><li>Трекинговые палки (по желанию)</li><li>Фонарик (для пещер — обязательно)</li><li>Смена носков</li></ul>', en:'<strong>Always:</strong><ul><li>Water — at least 1.5 L per person</li><li>Snacks / sandwiches (cafés on the route are rare)</li><li>Rain jacket or windbreaker (weather changes)</li><li>Charged phone</li><li>Cash or card — sometimes needed for transport</li></ul><strong>For mountain and cave routes also:</strong><ul><li>Trekking poles (optional)</li><li>Torch (for caves — mandatory)</li><li>Spare socks</li></ul>', cs:'<strong>Vždy:</strong><ul><li>Voda — minimálně 1,5 l na osobu</li><li>Svačina / sendviče (kavárny na trase jsou vzácné)</li><li>Pláštěnka nebo větrovka (počasí se mění)</li><li>Nabitý telefon</li><li>Hotovost nebo karta — občas potřeba na dopravu</li></ul><strong>Na horské a jeskyní trasy navíc:</strong><ul><li>Trekingové hole (volitelně)</li><li>Baterka (pro jeskyně — povinně)</li><li>Náhradní ponožky</li></ul>', uk:'<strong>Завжди:</strong><ul><li>Вода — мінімум 1.5 л на людину</li><li>Перекус / бутерброди (кафе на маршруті майже не буває)</li><li>Дощовик або вітровка (погода змінюється)</li><li>Заряджений телефон</li><li>Готівка або картка — іноді потрібні для транспорту</li></ul><strong>Для гірських і печерних маршрутів додатково:</strong><ul><li>Трекінгові палиці (за бажанням)</li><li>Ліхтарик (для печер — обов\'язково)</li><li>Змінні шкарпетки</li></ul>'}
-        },
-        {
-          q: {ru:'Будет ли еда и вода по дороге?', en:'Is food and water available along the route?', cs:'Je po cestě jídlo a voda?', uk:'Чи буде їжа та вода по дорозі?'},
-          a: {ru:'Рассчитывать на это не стоит. Магазины и кафе по маршруту — редкость. Берите еду и воду с собой. Если на маршруте есть точка питания — это будет отдельно отмечено в анонсе.', en:'Don\'t count on it. Shops and cafés on the route are rare. Bring your own food and water. If there\'s a food stop on the route, it will be specifically mentioned in the announcement.', cs:'Na to nespoléhejte. Obchody a kavárny na trase jsou vzácné. Přineste si vlastní jídlo a vodu. Pokud je na trase občerstvení, bude to výslovně zmíněno v oznámení.', uk:'Розраховувати на це не варто. Магазини і кафе по маршруту — рідкість. Беріть їжу та воду з собою. Якщо на маршруті є точка харчування — це буде окремо відмічено в анонсі.'}
-        }
-      ]
-    },
-    {
-      category: {ru:'🏃 Физподготовка и сложность', en:'🏃 Fitness & Difficulty', cs:'🏃 Fyzická kondice a náročnost', uk:'🏃 Фізпідготовка і складність'},
-      items: [
-        {
-          q: {ru:'Нужна ли физическая подготовка?', en:'Do I need to be physically fit?', cs:'Je potřeba fyzická kondice?', uk:'Чи потрібна фізична підготовка?'},
-          a: {ru:'Зависит от конкретного маршрута. Уровень сложности всегда указан в анонсе: лёгкий (для всех, включая детей), средний (нужна базовая выносливость), сложный (горный рельеф, 15+ км). Если сомневаешься — спроси меня перед записью.', en:'It depends on the specific route. The difficulty level is always in the announcement: easy (for everyone including children), medium (basic fitness needed), hard (mountain terrain, 15+ km). If in doubt — ask me before signing up.', cs:'Záleží na konkrétní trase. Úroveň obtížnosti je vždy uvedena v oznámení: lehká (pro všechny včetně dětí), střední (potřeba základní kondice), těžká (horský terén, 15+ km). Pokud si nejsi jistý — zeptej se mě před přihlášením.', uk:'Залежить від конкретного маршруту. Рівень складності завжди вказаний в анонсі: легкий (для всіх, включаючи дітей), середній (потрібна базова витривалість), складний (гірський рельєф, 15+ км). Якщо сумніваєшся — запитай мене перед записом.'}
-        },
-        {
-          q: {ru:'Можно ли идти с детьми или собакой?', en:'Can I come with children or a dog?', cs:'Mohu přijít s dětmi nebo psem?', uk:'Чи можна йти з дітьми або собакою?'},
-          a: {ru:'Собаки — добро пожаловать на большинство маршрутов (кроме пещер). Дети — зависит от сложности маршрута. Если в анонсе не указано иное, уточняй у меня. Ответственность за детей и животных остаётся на родителях/хозяевах.', en:'Dogs — welcome on most routes (except caves). Children — depends on the route difficulty. If the announcement doesn\'t say otherwise, check with me. Parents and owners remain responsible for children and animals.', cs:'Psi — vítáni na většině tras (kromě jeskyní). Děti — záleží na obtížnosti trasy. Pokud oznámení neurčuje jinak, ověř to se mnou. Odpovědnost za děti a zvířata zůstává na rodičích/majitelích.', uk:'Собаки — ласкаво просимо на більшість маршрутів (крім печер). Діти — залежить від складності маршруту. Якщо в анонсі не вказано інше — уточнюй у мене. Відповідальність за дітей і тварин залишається на батьках/господарях.'}
-        }
-      ]
-    },
-    {
-      category: {ru:'💳 Оплата и отмена', en:'💳 Payment & Cancellation', cs:'💳 Platba a zrušení', uk:'💳 Оплата та скасування'},
-      items: [
-        {
-          q: {ru:'Как оплатить участие?', en:'How do I pay?', cs:'Jak zaplatit za účast?', uk:'Як оплатити участь?'},
-          a: {ru:'Способ оплаты указывается в анонсе мероприятия. Обычно это банковский перевод или Revolut. Оплата подтверждает твоё место — без оплаты место не бронируется.', en:'The payment method is specified in the event announcement. Usually it\'s a bank transfer or Revolut. Payment confirms your spot — without payment your place is not reserved.', cs:'Způsob platby je uveden v oznámení akce. Obvykle jde o bankovní převod nebo Revolut. Platba potvrzuje tvoje místo — bez platby místo není rezervováno.', uk:'Спосіб оплати вказується в анонсі заходу. Зазвичай це банківський переказ або Revolut. Оплата підтверджує твоє місце — без оплати місце не бронюється.'}
-        },
-        {
-          q: {ru:'Что если я опоздаю или не смогу прийти?', en:'What if I\'m late or can\'t make it?', cs:'Co když přijdu pozdě nebo nepřijdu?', uk:'Що якщо я запізнюся або не зможу прийти?'},
-          a: {ru:'<strong>Опоздание:</strong> группа ждёт максимум 10 минут от назначенного времени, после чего выходит. Если опаздываешь — предупреди заранее, возможно сможем скорректировать точку подключения по маршруту.<br><br><strong>Отмена с вашей стороны:</strong> место было зарезервировано специально под вас — при отмене оплата не возвращается, независимо от срока предупреждения.<br><br><strong>Отмена или перенос с нашей стороны</strong> (погода, недобор группы) — полный возврат или перенос, см. ниже.', en:'<strong>Late arrival:</strong> the group waits a maximum of 10 minutes from the set time, then departs. If you\'re running late — warn me in advance, we may be able to adjust a joining point along the route.<br><br><strong>Cancellation on your side:</strong> your spot was reserved specifically for you — payment is not refunded regardless of how much notice you give.<br><br><strong>Cancellation or rescheduling on our side</strong> (weather, not enough participants) — full refund or reschedule, see below.', cs:'<strong>Zpoždění:</strong> skupina čeká maximálně 10 minut od stanoveného času, poté odchází. Pokud přicházíš pozdě — upozorni mě předem, možná se podaří upravit místo nástupu na trase.<br><br><strong>Zrušení z tvé strany:</strong> místo bylo rezervováno konkrétně pro tebe — platba se nevrací bez ohledu na to, jak brzy dáš vědět.<br><br><strong>Zrušení nebo přeložení z naší strany</strong> (počasí, nedostatek účastníků) — plné vrácení peněz nebo přeložení, viz níže.', uk:'<strong>Запізнення:</strong> група чекає максимум 10 хвилин від призначеного часу, після чого виходить. Якщо запізнюєшся — попередь заздалегідь, можливо зможемо скоригувати точку підключення по маршруту.<br><br><strong>Скасування з вашого боку:</strong> місце було зарезервовано спеціально для вас — оплата не повертається, незалежно від того, за скільки ви попередили.<br><br><strong>Скасування або перенесення з нашого боку</strong> (погода, недобір групи) — повне повернення або перенесення, див. нижче.'}
-        },
-        {
-          q: {ru:'Может ли организатор отменить мероприятие?', en:'Can the organiser cancel an event?', cs:'Může organizátor zrušit akci?', uk:'Чи може організатор скасувати захід?'},
-          a: {ru:'Да, в случае экстремальной погоды или недостаточного количества участников. О переносе или отмене сообщаю в чате как минимум за сутки. В этом случае оплата возвращается полностью или переносится на следующее мероприятие.', en:'Yes, in case of extreme weather or insufficient participant numbers. I announce postponement or cancellation in the chat at least 24 hours in advance. In this case payment is fully refunded or transferred to the next event.', cs:'Ano, v případě extrémního počasí nebo nedostatečného počtu účastníků. O přeložení nebo zrušení informuji v chatu nejméně 24 hodin předem. V takovém případě se platba vrátí v plné výši nebo přenese na další akci.', uk:'Так, у разі екстремальної погоди або недостатньої кількості учасників. Про перенесення або скасування повідомляю в чаті мінімум за добу. У цьому випадку оплата повертається повністю або переноситься на наступний захід.'}
-        }
-      ]
-    },
-    {
-      category: {ru:'❓ Прочее', en:'❓ Other', cs:'❓ Ostatní', uk:'❓ Інше'},
-      items: [
-        {
-          q: {ru:'Я новичок, никого не знаю — это нормально прийти одному?', en:'I\'m new and don\'t know anyone — is it fine to come alone?', cs:'Jsem nováček a nikoho neznám — je v pořádku přijít sám?', uk:'Я новачок, нікого не знаю — нормально прийти одному?'},
-          a: {ru:'Абсолютно нормально и даже типично. Большинство участников пришли именно так. Группа дружелюбная, познакомишься по дороге. Если хочешь начать мягко — сначала приходи на вечер настолок во вторник, без долгих обязательств, и следи за анонсами в канале.', en:'Absolutely normal and actually typical. Most participants joined exactly this way. The group is friendly — you\'ll get to know people along the route. If you want a soft start, first come to Tuesday Board Game Night with no long-term commitment and follow the announcements channel.', cs:'Absolutně normální a dokonce typické. Většina účastníků přišla přesně takto. Skupina je přátelská — po cestě se s někým spřátelíš. Pokud chceš začít nenásilně, nejdřív přijď na úterní večer deskovek bez dlouhodobých závazků a sleduj kanál s oznámeními.', uk:'Абсолютно нормально і навіть типово. Більшість учасників прийшли саме так. Група дружня, познайомишся по дорозі. Якщо хочеш почати легко — спочатку прийди на вівторковий вечір настільних ігор без довгострокових зобов’язань і стеж за каналом анонсів.'}
-        },
-        {
-          q: {ru:'Что делать в экстренной ситуации на маршруте?', en:'What to do in an emergency on the route?', cs:'Co dělat v nouzové situaci na trase?', uk:'Що робити в екстреній ситуації на маршруті?'},
-          a: {ru:'Немедленно сообщи организатору или любому участнику группы. Организатор всегда на связи и несёт ответственность за координацию. При необходимости — звони 112 (Чехия). Не уходи с маршрута самостоятельно без предупреждения группы.', en:'Immediately inform the organiser or any group member. The organiser is always reachable and responsible for coordination. If needed — call 112 (Czech Republic). Don\'t leave the route on your own without telling the group.', cs:'Okamžitě informuj organizátora nebo jakéhokoli člena skupiny. Organizátor je vždy dostupný a zodpovídá za koordinaci. V případě potřeby — volej 112 (Česká republika). Neopouštěj trasu samostatně bez upozornění skupiny.', uk:'Негайно повідом організатора або будь-якого учасника групи. Організатор завжди на зв\'язку і відповідає за координацію. За потреби — дзвони 112 (Чехія). Не йди з маршруту самостійно без попередження групи.'}
-        }
-      ]
-    }
-  ]
-};
-
 const MEDALS = {
   eyebrow: {ru:'Звания & Медали', en:'Ranks & Medals', cs:'Hodnosti & Medaile', uk:'Звання & Медалі'},
   title:   {ru:'Система наград BrnoWalkers', en:'BrnoWalkers Reward System', cs:'Systém odměn BrnoWalkers', uk:'Система нагород BrnoWalkers'},
@@ -3894,58 +3857,6 @@ function renderMedals(lang) {
   </section>`;
 }
 
-const FAQ_LABELS = {
-  ru: 'Частые вопросы',
-  en: 'FAQ',
-  cs: 'Časté dotazy',
-  uk: 'Часті запитання'
-};
-
-// renderFAQ() removed — dead code after the static-first migration (real
-// content now lives in <main id="static-content">, no callers left).
-// Underlying data object kept, still referenced elsewhere.
-
-
-function toggleFAQ(id) {
-  const item = document.getElementById(id);
-  if (!item) return;
-  const isOpen = item.classList.contains('open');
-  item.classList.toggle('open', !isOpen);
-  const ans = item.querySelector('.faq-a');
-  ans.style.maxHeight = isOpen ? '0' : ans.scrollHeight + 'px';
-}
-
-// ====================== STRUCTURED DATA: FAQ + EVENTS ======================
-// Generated straight from the same FAQ / LIVE_EVENTS data that renders the
-// visible content, so schema can't drift out of sync with what's on the
-// page. Always in English regardless of UI language — Google's own
-// recommendation for FAQPage is one consistent language.
-function injectFAQSchema(faqKey) {
-  const items = FAQ[faqKey];
-  if (!items) return;
-  const mainEntity = items.flatMap(cat =>
-    cat.items.map(item => ({
-      "@type": "Question",
-      "name": item.q.en,
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": item.a.en.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
-      }
-    }))
-  );
-  const existing = document.getElementById('faq-schema');
-  if (existing) existing.remove();
-  const script = document.createElement('script');
-  script.type = 'application/ld+json';
-  script.id = 'faq-schema';
-  script.textContent = JSON.stringify({
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": mainEntity
-  });
-  document.head.appendChild(script);
-}
-
 function injectEventSchema(events) {
   const existing = document.getElementById('event-schema');
   if (existing) existing.remove();
@@ -3987,12 +3898,15 @@ function injectEventSchema(events) {
 // "walkers" FAQ content this schema described was removed from this page
 // during the content-duplication fix (see HANDOVER.md §6) — it now lives
 // only on /walkers/, which already carries its own hardcoded FAQPage
-// JSON-LD tied to that page's own visible FAQ markup. Calling
-// injectFAQSchema('walkers') here would emit structured data with no
-// matching visible content on THIS page, which is exactly what Google's
-// structured-data guidelines warn against. injectFAQSchema() itself is
-// left in place (unused for now) in case a genuinely main-page-only FAQ
-// gets written later.
+// JSON-LD tied to that page's own visible FAQ markup. Injecting it here
+// would emit structured data with no matching visible content on THIS
+// page, which is exactly what Google's structured-data guidelines warn
+// against. The old FAQ data object, injectFAQSchema(), toggleFAQ() and
+// FAQ_LABELS were fully removed on 10.09.2026 — they were dead (no
+// callers) AND had gone stale (pre-120-Kč-fee cancellation wording),
+// so keeping them around risked someone reviving inaccurate copy. If a
+// genuinely main-page-only FAQ gets written later, write it fresh from
+// the current /walkers/ rules text, not from source control history.
 
 
 function renderWalkersTab(lang, t) {
@@ -4037,17 +3951,29 @@ function renderDruzinaTab(lang, t) {
 // T[lang] strings verbatim or is intentionally English-only supplementary
 // prose (e.g. venture-picker card blurbs) rather than swapped by language.
 const STATIC_ADAPTED_I18N = {
+  // main.title/main.tagline updated 11.09.2026 to match the new
+  // manifesto-driven hero (see mission-strip work) — these two entries
+  // are what ACTUALLY renders (resolveI18nValue checks this object
+  // before ever touching T[lang]), so leaving them on the old "Your
+  // Guide in Brno — Tutoring..." copy while T[lang].main.title/tagline
+  // held the new text meant the new hero was silently dead: visitors
+  // and crawlers alike would still have seen the old pitch. Copied
+  // verbatim from T[lang].main.title/tagline rather than writing a
+  // separate longer/keyword-dense variant, to remove the drift risk
+  // that caused this bug in the first place — one source of truth,
+  // even at some cost to this object's original "more SEO-adapted"
+  // intent for these two specific keys.
   'main.title': {
-    en: 'Your Guide in Brno — Tutoring, Hiking &amp; HEMA/LARP',
-    ru: 'Твой проводник в Брно — репетиторство, походы и HEMA/LARP',
-    uk: 'Твій провідник у Брно — репетиторство, походи та HEMA/LARP',
-    cs: 'Tvůj průvodce v Brně — doučování, výšlapy a HEMA/LARP'
+    en: 'Step into Great Moravia',
+    ru: 'Возрождаем живую традицию Великой Моравии',
+    uk: 'Тут ти не сам',
+    cs: 'Naše historie, naše město'
   },
   'main.tagline': {
-    en: 'PhD-level tutoring in sciences, IT, languages and music, weekend hikes with BrnoWalkers, and historical combat training with Družina Moravy.',
-    ru: 'Репетиторство PhD-уровня по точным наукам, IT, языкам и музыке, походы выходного дня с Брноходцами и историческое фехтование с Дружиной Моравы.',
-    uk: 'Репетиторство PhD-рівня з природничих наук, IT, мов і музики, походи вихідного дня з Брнохідцями та історичне фехтування з Дружиною Моравії.',
-    cs: 'Doučování na úrovni PhD z přírodních věd, IT, jazyků a hudby, víkendové výšlapy s BrnoWalkers a historický šerm s Družinou Moravy.'
+    en: 'Historical swordsmanship, craft, and trail expeditions in Brno — built on real 9th-century Slavic heritage, not costume-party fantasy. Full protective gear provided, no membership required to start.',
+    ru: 'Товарищество, ремесло и путь от новичка до воина — для тех, кто ищет своих.',
+    uk: 'Спільнота у Брно: настільні ігри, чеська мова, спільні прогулянки — перший крок безкоштовний, без жодних умов.',
+    cs: 'Historický šerm, řemeslo a výlety po Moravě — komunitní spolek v Brně, otevřený všem, kdo chtějí objevovat vlastní kraj. Registrovaný spolek (z.s.) — transparentní, komunitní, brněnský.'
   },
   'walkers.title2': {
     en: 'BrnoWalkers — Guided Hikes, Cave Tours &amp; City Walks in Moravia',
@@ -4175,6 +4101,28 @@ function applyTranslations(lang) {
   });
 }
 
+// Main-hero CTA — added 10.09.2026 with the mission-strip/manifesto work.
+// Text AND href both change per language (unlike everything else driven
+// by applyTranslations(), which only ever touches innerHTML), because
+// the manifesto brief points 3 of 4 language audiences at Družina's
+// booking flow and the uk audience at BrnoWalkers' free first step
+// instead — a real difference in destination, not just wording. Kept as
+// its own small lookup + setter rather than bolting attribute-switching
+// onto the generic data-i18n system for one element.
+const HERO_CTA = {
+  en:{text:'Reserve Your First Session', href:'druzina/#schedule'},
+  cs:{text:'Zjistit, kdy trénujeme', href:'druzina/#schedule'},
+  ru:{text:'Записаться на первое занятие', href:'druzina/#schedule'},
+  uk:{text:'Приєднатися безкоштовно', href:'walkers/'}
+};
+function updateHeroCta(lang) {
+  const el = document.getElementById('heroCta');
+  if (!el) return;
+  const d = HERO_CTA[lang] || HERO_CTA.en;
+  el.textContent = d.text;
+  el.href = d.href;
+}
+
 function render(lang){
   currentLang = lang;
   const t = T[lang];
@@ -4184,6 +4132,7 @@ function render(lang){
 
   renderTabsNav(lang);
   applyTranslations(lang);
+  updateHeroCta(lang);
   // Rebuild the search index after text content changes on language
   // switch — SERVICE_INDEX reads directly from the DOM, so it would
   // otherwise keep matching against whatever language was active when
