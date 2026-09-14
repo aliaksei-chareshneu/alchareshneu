@@ -53,9 +53,15 @@
 <body>
 <nav class="nav">
   <div class="wrap">
-    <div class="brand"><a href="../" style="color:var(--ink);text-decoration:none;">Aliaksei Chareshneu, PhD</a><small>BrnoWalkers</small></div>
+    <div class="brand"><a href="../" style="color:var(--ink);text-decoration:none;">Aliaksei Chareshneu, PhD</a><small data-i18n="nav.brand">BrnoWalkers</small></div>
     <div class="nav-actions">
-      <a id="navBookBtn" class="btn solid plausible-event-name=Register-Walkers" href="https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog" target="_blank" rel="noopener">Register / Book</a>
+      <div class="langs" id="langSwitch" role="group" aria-label="Language">
+        <button data-lang="ru">RU</button>
+        <button data-lang="uk">UK</button>
+        <button data-lang="cs">CZ</button>
+        <button data-lang="en">EN</button>
+      </div>
+      <a id="navBookBtn" class="btn solid plausible-event-name=Register-Walkers" data-i18n="nav.bookBtn" href="https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog" target="_blank" rel="noopener">Register / Book</a>
     </div>
   </div>
 </nav>
@@ -70,13 +76,13 @@
      that's this page. -->
 <div class="tabs-bar">
   <div class="wrap">
-    <a class="tab-btn" href="../">Home</a>
-    <a class="tab-btn active" href="./">BrnoWalkers</a>
-    <a class="tab-btn" href="../#pricing">Academy</a>
-    <a class="tab-btn" href="../druzina/">Družina Moravy</a>
-    <a class="tab-btn" href="../#walkers-schedule">Calendar</a>
-    <a class="tab-btn tab-btn--accent" href="../#ambassador">Become an Ambassador</a>
-    <a class="tab-btn" href="../#contacts">Contacts</a>
+    <a class="tab-btn" href="../" data-i18n="tabs.main">Home</a>
+    <a class="tab-btn active" href="./" data-i18n="tabs.walkers">BrnoWalkers</a>
+    <a class="tab-btn" href="../#pricing" data-i18n="tabs.academy">Academy</a>
+    <a class="tab-btn" href="../druzina/" data-i18n="tabs.druzina">Družina Moravy</a>
+    <a class="tab-btn" href="../#walkers-schedule" data-i18n="tabs.calendar">Calendar</a>
+    <a class="tab-btn tab-btn--accent" href="../#ambassador" data-i18n="tabs.ambassador">Become an Ambassador</a>
+    <a class="tab-btn" href="../#contacts" data-i18n="tabs.contacts">Contacts</a>
   </div>
 </div>
 
@@ -101,26 +107,22 @@
       <a class="reviews-badge" href="https://maps.app.goo.gl/fEbnJHxiVoAx1v498" target="_blank" rel="noopener">⭐ 50+ Google reviews · 5.0</a>
 
       <div class="hero-ctas">
-        <a class="btn solid plausible-event-name=Register-Walkers" href="https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog" target="_blank" rel="noopener">Register for an event</a>
-        <a class="btn plausible-event-name=Join-Chat-Walkers" href="https://chat.whatsapp.com/JCyEJNm746nBXNll3VzzX3" target="_blank" rel="noopener">Join the chat</a>
-        <!-- Added per site-updates brief (3.9.updates, item 1) — the
-             announcements channels (lower-commitment than the chat
-             above: one-way, no group noise) had no button anywhere near
-             the top of this page. Two buttons, not one, because the two
-             channels serve different language audiences on different
-             platforms — WhatsApp for CZ/EN, Telegram for RU/UK. -->
-        <a class="btn plausible-event-name=Announce-WA-Walkers" href="https://chat.whatsapp.com/BSlQetCjMoL8IO45c6VnH0" target="_blank" rel="noopener">Announcements · WhatsApp</a>
-        <a class="btn plausible-event-name=Announce-TG-Walkers" href="https://t.me/pochody_brno_news" target="_blank" rel="noopener">Announcements · Telegram</a>
+        <a class="btn solid plausible-event-name=Register-Walkers" data-i18n="hero.ctaRegister" href="https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog" target="_blank" rel="noopener">Register for an event</a>
+        <a class="btn plausible-event-name=Join-Chat-Walkers" data-i18n="hero.ctaChat" href="https://chat.whatsapp.com/JCyEJNm746nBXNll3VzzX3" target="_blank" rel="noopener">Join the chat</a>
+      </div>
+      <div class="hero-ctas-secondary">
+        <a class="btn-quiet plausible-event-name=Announce-WA-Walkers" data-i18n="hero.ctaAnnounceWA" href="https://chat.whatsapp.com/BSlQetCjMoL8IO45c6VnH0" target="_blank" rel="noopener">Announcements · WhatsApp</a>
+        <a class="btn-quiet plausible-event-name=Announce-TG-Walkers" data-i18n="hero.ctaAnnounceTG" href="https://t.me/pochody_brno_news" target="_blank" rel="noopener">Announcements · Telegram</a>
       </div>
 
       <div class="hero-testimonial">
-        <p class="quote">"Great walks, clear guidance, and zero pressure. A perfect weekend reset with people who actually enjoy exploring Moravia."</p>
-        <div class="author">— Marina, BrnoWalkers</div>
+        <p class="quote" data-i18n="hero.testimonialQuote">"Great walks, clear guidance, and zero pressure. A perfect weekend reset with people who actually enjoy exploring Moravia."</p>
+        <div class="author" data-i18n="hero.testimonialAuthor">— Marina, BrnoWalkers</div>
       </div>
     </div>
   </section>
 <section id="event-types">
-    <div class="wrap">
+    <div class="wrap" data-i18n="eventTypes">
       <div class="eyebrow-sm">What we run</div>
       <h3 class="anchor-heading">Event Types<a class="anchor-link" href="#event-types">#</a></h3>
       <div class="event-types">
@@ -165,7 +167,7 @@
     </div>
   </section>
 <section id="walkers-about">
-    <div class="wrap">
+    <div class="wrap" data-i18n="about">
       <div class="eyebrow-sm">About</div>
       <h3 class="anchor-heading">About BrnoWalkers<a class="anchor-link" href="#walkers-about">#</a></h3>
       <div class="portrait-block">
@@ -181,7 +183,7 @@
     </div>
   </section>
 <section id="walkers-rules">
-    <div class="wrap">
+    <div class="wrap" data-i18n="rules">
       <h3 class="anchor-heading">Official Regulations &amp; Rules<a class="anchor-link" href="#walkers-rules">#</a></h3>
       <ul class="plain">
         <li>Activities are paid. The price of each event is announced in advance in the chats. Donations are also welcome.</li>
@@ -203,7 +205,7 @@
     </div>
   </section>
 <section id="canoe-safety">
-    <div class="wrap">
+    <div class="wrap" data-i18n="canoeSafety">
       <p class="eyebrow-sm">Safety</p>
       <h3 class="anchor-heading">Safety Briefing — Canoe River Trips<a class="anchor-link" href="#canoe-safety">#</a></h3>
       <p>This briefing is part of event registration. By taking part in the event, the participant confirms they have read and understood it.</p>
@@ -234,7 +236,7 @@
     </div>
   </section>
 <section id="faq">
-    <div class="wrap">
+    <div class="wrap" data-i18n="faq">
       <p class="eyebrow-sm">FAQ</p>
       <h3 class="anchor-heading">Frequently Asked Questions<a class="anchor-link" href="#faq">#</a></h3>
 
@@ -368,7 +370,7 @@
     </div>
   </section>
 <section id="medals">
-    <div class="wrap">
+    <div class="wrap" data-i18n="medals">
       <p class="eyebrow-sm">Ranks &amp; Medals</p>
       <h3 class="anchor-heading">BrnoWalkers Reward System<a class="anchor-link" href="#medals">#</a></h3>
       <div class="medals-grid">
@@ -401,7 +403,7 @@
     </div>
   </section>
 <section id="boardgames">
-    <div class="wrap">
+    <div class="wrap" data-i18n="boardgames">
       <p class="eyebrow-sm">Voluntary contribution</p>
       <h3 class="anchor-heading">Board Game Evening<a class="anchor-link" href="#boardgames">#</a></h3>
       <div class="photo-float"><img src="../images/boardgames.jpg" alt="Board game evening Scythe Brno" loading="lazy"></div>
@@ -413,14 +415,14 @@
         <p><strong>Bring your own games!</strong> We love it when players bring their own games — the more variety, the better.</p>
         <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
           <a class="btn solid plausible-event-name=Register-Walkers" href="https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog" target="_blank" rel="noopener">Register for the evening</a>
-          <a class="btn plausible-event-name=Announce-WA-Walkers" href="https://chat.whatsapp.com/BSlQetCjMoL8IO45c6VnH0" target="_blank" rel="noopener">Announcements Channel · WhatsApp</a>
+          <a class="btn-quiet plausible-event-name=Announce-WA-Walkers" href="https://chat.whatsapp.com/BSlQetCjMoL8IO45c6VnH0" target="_blank" rel="noopener">Announcements Channel · WhatsApp</a>
           <!-- Added per site-updates brief (3.9.updates, item 1): the
                Telegram announcements channel (RU/UK audience) had no
                button anywhere on this page — only the WhatsApp one
                above (CZ/EN audience) existed. Same destination as the
                Home page's WA/TG icon pair and the root #contacts table,
                just missing here specifically. -->
-          <a class="btn plausible-event-name=Announce-TG-Walkers" href="https://t.me/pochody_brno_news" target="_blank" rel="noopener">Announcements Channel · Telegram</a>
+          <a class="btn-quiet plausible-event-name=Announce-TG-Walkers" href="https://t.me/pochody_brno_news" target="_blank" rel="noopener">Announcements Channel · Telegram</a>
         </div>
         <p style="margin-top:12px; font-size:13px; color:var(--r5); text-align:center; font-weight:700;">Low commitment: join the announcements channel and come to the next night without long-term obligations.</p>
       </div>
@@ -438,10 +440,10 @@
 
 <footer>
   <div class="wrap">
-    <h2>Want the full picture?</h2>
-    <p class="lead">Tutoring, Družina Moravy HEMA/LARP, and the complete site live at the main hub.</p>
+    <h2 data-i18n="footer.title">Want the full picture?</h2>
+    <p class="lead" data-i18n="footer.lead">Tutoring, Družina Moravy HEMA/LARP, and the complete site live at the main hub.</p>
     <div class="footer-contacts">
-      <a class="btn solid" href="../">Visit the full site ➔</a>
+      <a class="btn solid" data-i18n="footer.visitFull" href="../">Visit the full site ➔</a>
       <a class="btn" href="../druzina/">Družina Moravy ➔</a>
     </div>
     <div class="footer-fine">Aliaksei Chareshneu, PhD · Brno, Czech Republic · OSVČ IČO: 23041625</div>
@@ -605,6 +607,895 @@
       window.addEventListener('resize', apply);
     }
   })();
+</script>
+<script>
+
+const T = {
+en: {
+  nav: { brand: 'BrnoWalkers', bookBtn: 'Register / Book' },
+  tabs: {main:'Home', walkers:'BrnoWalkers', academy:'Academy', druzina:'Družina Moravy', calendar:'Calendar', ambassador:'Become an Ambassador', contacts:'Contacts'},
+  hero: {
+    ctaRegister: 'Register for an event', ctaChat: 'Join the chat',
+    ctaAnnounceWA: 'Announcements · WhatsApp', ctaAnnounceTG: 'Announcements · Telegram',
+    testimonialQuote: '"Great walks, clear guidance, and zero pressure. A perfect weekend reset with people who actually enjoy exploring Moravia."',
+    testimonialAuthor: '— Marina, BrnoWalkers'
+  },
+  eventTypes: `<div class="eyebrow-sm">What we run</div>
+      <h3 class="anchor-heading">Event Types<a class="anchor-link" href="#event-types">#</a></h3>
+      <div class="event-types">
+        <div class="event-card">
+          <div class="ec-icon">🏔️</div>
+          <div class="ec-title">Mountain Hikes</div>
+          <div class="ec-meta">10–25 km · medium/hard</div>
+          <div class="ec-desc">Beskydy, Jeseníky, Alps — routes with elevation gain. Ankle-support hiking boots required. No food on route — bring your own.</div>
+        </div>
+        <div class="event-card">
+          <div class="ec-icon">🦇</div>
+          <div class="ec-title">Caves</div>
+          <div class="ec-meta">2–6 km · easy/medium</div>
+          <div class="ec-desc">Moravian Karst and other cave systems. Torch mandatory. Dogs not allowed. Wear clothes you don't mind getting dirty.</div>
+        </div>
+        <div class="event-card">
+          <div class="ec-icon">🏙️</div>
+          <div class="ec-title">City Trips</div>
+          <div class="ec-meta">5–12 km · easy</div>
+          <div class="ec-desc">History, architecture, small Moravian towns. Suitable for everyone including children. Regular trainers are fine.</div>
+        </div>
+        <div class="event-card">
+          <div class="ec-icon">🚣</div>
+          <div class="ec-title">Canoe Trip</div>
+          <div class="ec-meta">1–2 times a year</div>
+          <div class="ec-desc">Morava or Dyje river. Equipment rented through the organizer. Canoes and paddles must be returned undamaged — see rule 7.</div>
+          <a href="#canoe-safety" style="display:inline-block;margin-top:10px;font-size:13px;font-weight:600;">Safety briefing →</a>
+        </div>
+        <div class="event-card">
+          <div class="ec-icon">🔥</div>
+          <div class="ec-title">BBQ Outings</div>
+          <div class="ec-meta">Brno area · easy</div>
+          <div class="ec-desc">BBQ picnic in nature near Brno. Relaxed format, suitable for everyone. Food and drinks usually brought by participants.</div>
+        </div>
+      </div>`,
+  about: `<div class="eyebrow-sm">About</div>
+      <h3 class="anchor-heading">About BrnoWalkers<a class="anchor-link" href="#walkers-about">#</a></h3>
+      <div class="portrait-block">
+        <img class="photo-slot" src="../images/portrait_cave.jpg" alt="Aliaksei — your hiking guide" loading="lazy"
+             onerror="this.setAttribute('data-alt', this.alt); this.classList.add('img-fallback'); this.removeAttribute('src');">
+        <p class="portrait-text">I'm Aliaksei — I've been personally leading these hikes for several years. I know every trail, every cave, and exactly what's worth looking up at along the way.</p>
+      </div>
+      <p>BrnoWalkers is an open community for people who love movement. We regularly organize walking trips around Brno and across the Czech Republic (Babi Lom, Praděd, Moravian Karst, caves, canoe river trips). It's the perfect way to reset your brain and find active friends.</p>`,
+  rules: `<h3 class="anchor-heading">Official Regulations &amp; Rules<a class="anchor-link" href="#walkers-rules">#</a></h3>
+      <ul class="plain">
+        <li>Activities are paid. The price of each event is announced in advance in the chats. Donations are also welcome.</li>
+        <li>Transport to and from the venue, as well as additional services (food, water, equipment), are not included in the price and are the participant's own responsibility — unless explicitly stated otherwise in the event announcement.</li>
+        <li>Routes, distance, and difficulty levels are always announced in advance in our chats.</li>
+        <li>Mandatory requirement: comfortable sports/hiking shoes and weather-appropriate clothing.</li>
+        <li>You can join solo, bring friends, family, or your dog — our community welcomes everyone.</li>
+      </ul>
+      <p style="margin-top:14px;"><a href="../#terms">📜 Full legal terms of participation →</a></p>
+      <div class="callout">
+        <p><strong>Join the BrnoWalkers chats to never miss the next trip announcement!</strong></p>
+        <div style="margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+          <a class="btn solid plausible-event-name=Register-Walkers" href="https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog" target="_blank" rel="noopener">Register for an event</a>
+          <a class="btn plausible-event-name=Join-Chat-Walkers" href="https://chat.whatsapp.com/JCyEJNm746nBXNll3VzzX3" target="_blank" rel="noopener">Join the chat</a>
+        </div>
+      </div>`,
+  canoeSafety: `<p class="eyebrow-sm">Safety</p>
+      <h3 class="anchor-heading">Safety Briefing — Canoe River Trips<a class="anchor-link" href="#canoe-safety">#</a></h3>
+      <p>This briefing is part of event registration. By taking part in the event, the participant confirms they have read and understood it.</p>
+      <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:20px 0 8px;">Risks involved</h4>
+      <p>Canoeing on a river is an outdoor activity with inherent risks: the canoe capsizing, falling into the water, getting cold, hitting obstacles, currents, and varying water depth and temperature. These risks cannot be fully eliminated even when all rules are followed.</p>
+      <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:20px 0 8px;">Required equipment and rules</h4>
+      <ul class="plain">
+        <li>A life vest is mandatory on the water at all times for every participant; for children under 15 this is a legal requirement, not just a recommendation.</li>
+        <li>Follow the guide's instructions — especially when boarding/leaving the canoe, on more difficult sections, and during stops.</li>
+        <li>Do not stand up in the canoe.</li>
+        <li>No alcohol before or during the event.</li>
+        <li>Wear suitable footwear (no flip-flops, no bare feet).</li>
+        <li>Stay within sight of the group; report any problem to the guide immediately.</li>
+      </ul>
+      <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:20px 0 8px;">Responsibility for minors</h4>
+      <p>The accompanying parent/legal guardian is responsible for direct supervision of their child throughout the event — boarding and leaving the canoe, behavior on board, and following instructions. The operator is responsible for the technical condition and safety of the rented equipment, for leading the group, and for providing this briefing.</p>
+      <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:20px 0 8px;">In an emergency</h4>
+      <p>Follow the guide's instructions. Guide/organizer contact: <a href="tel:+420702914842">+420 702 914 842</a>. The nearest exit points from the water will be pointed out by the guide at the start of the event.</p>
+      <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:20px 0 8px;">Acknowledgment</h4>
+      <p>By checking the box on the registration form, or by signing on site, the participant (or, for a minor, their parent/legal guardian) confirms they have read this briefing and understand the risks described.</p>`,
+  faq: `<p class="eyebrow-sm">FAQ</p>
+      <h3 class="anchor-heading">Frequently Asked Questions<a class="anchor-link" href="#faq">#</a></h3>
+      <div class="faq-category">
+        <p class="faq-category-label">📍 Location &amp; Time</p>
+        <div class="faq-item" id="faq-walkers-1">
+          <button class="faq-q" onclick="toggleFAQ('faq-walkers-1')"><span>Where and when do we meet?</span><span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner">The meeting point and time are always in the specific event announcement in the chat. After payment I send the meeting point again in a separate message. If you can't find it — just message me.</div></div>
+        </div>
+        <div class="faq-item" id="faq-walkers-2">
+          <button class="faq-q" onclick="toggleFAQ('faq-walkers-2')"><span>How do I get to the starting point?</span><span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner">The announcement always includes an address or GPS point. Usually it's a public transport stop or a parking spot. We don't organise shared transport — everyone gets there on their own.</div></div>
+        </div>
+      </div>
+      <div class="faq-category">
+        <p class="faq-category-label">🎒 Gear &amp; Clothing</p>
+        <div class="faq-item" id="faq-walkers-3">
+          <button class="faq-q" onclick="toggleFAQ('faq-walkers-3')"><span>What footwear do I need?</span><span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner"><strong>Required:</strong> closed sports or hiking shoes. Trainers work for most routes. For mountain and cave trips you'll need boots with a rigid sole and ankle support. Sandals, flip-flops, and dress shoes — not allowed.</div></div>
+        </div>
+        <div class="faq-item" id="faq-walkers-4">
+          <button class="faq-q" onclick="toggleFAQ('faq-walkers-4')"><span>What should I bring?</span><span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner">
+            <strong>Always:</strong>
+            <ul><li>Water — at least 1.5 L per person</li><li>Snacks / sandwiches (cafés on the route are rare)</li><li>Rain jacket or windbreaker (weather changes)</li><li>Charged phone</li><li>Cash or card — sometimes needed for transport</li></ul>
+            <strong>For mountain and cave routes also:</strong>
+            <ul><li>Trekking poles (optional)</li><li>Torch (for caves — mandatory)</li><li>Spare socks</li></ul>
+          </div></div>
+        </div>
+        <div class="faq-item" id="faq-walkers-5">
+          <button class="faq-q" onclick="toggleFAQ('faq-walkers-5')"><span>Is food and water available along the route?</span><span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner">Don't count on it. Shops and cafés on the route are rare. Bring your own food and water. If there's a food stop on the route, it will be specifically mentioned in the announcement.</div></div>
+        </div>
+      </div>
+      <div class="faq-category">
+        <p class="faq-category-label">🏃 Fitness &amp; Difficulty</p>
+        <div class="faq-item" id="faq-walkers-6">
+          <button class="faq-q" onclick="toggleFAQ('faq-walkers-6')"><span>Do I need to be physically fit?</span><span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner">It depends on the specific route. The difficulty level is always in the announcement: easy (for everyone including children), medium (basic fitness needed), hard (mountain terrain, 15+ km). If in doubt — ask me before signing up.</div></div>
+        </div>
+        <div class="faq-item" id="faq-walkers-7">
+          <button class="faq-q" onclick="toggleFAQ('faq-walkers-7')"><span>Can I come with children or a dog?</span><span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner">Dogs — welcome on most routes (except caves). Children — depends on the route difficulty. If the announcement doesn't say otherwise, check with me. Parents and owners remain responsible for children and animals.</div></div>
+        </div>
+      </div>
+      <div class="faq-category">
+        <p class="faq-category-label">💳 Payment &amp; Cancellation</p>
+        <div class="faq-item" id="faq-walkers-8">
+          <button class="faq-q" onclick="toggleFAQ('faq-walkers-8')"><span>How do I pay?</span><span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner">The payment method is specified in the event announcement. Usually it's a bank transfer — Raiffeisenbank, account no. 7804336003/5500 (put your name and the event name in the reference) — or Revolut: <a href="https://revolut.me/aliaksj5pq" target="_blank" rel="noopener">revolut.me/aliaksj5pq</a>. Payment confirms your spot — without payment your place is not reserved.</div></div>
+        </div>
+        <div class="faq-item" id="faq-walkers-9">
+          <button class="faq-q" onclick="toggleFAQ('faq-walkers-9')"><span>What if I'm late or can't make it?</span><span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner">
+            <strong>Late arrival:</strong> the group waits a maximum of 10 minutes from the set time, then departs. If you're running late — warn me in advance, we may be able to adjust a joining point along the route.<br><br>
+            <strong>Cancellation on your side, 7+ days before the event:</strong> refunded minus a fixed 120 Kč admin fee (covers payment processing and the back-and-forth of cancelling — kept even on a fully valid, on-time cancellation).<br><br>
+            <strong>Cancellation less than 7 days before, or a no-show:</strong> your spot was reserved specifically for you — no refund, including the 120 Kč fee.<br><br>
+            <strong>Cancellation or rescheduling on our side</strong> (weather, not enough participants) — full refund, including the fee, see below.
+          </div></div>
+        </div>
+        <div class="faq-item" id="faq-walkers-10">
+          <button class="faq-q" onclick="toggleFAQ('faq-walkers-10')"><span>Can the organiser cancel an event?</span><span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner">Yes, in case of extreme weather or insufficient participant numbers. I announce postponement or cancellation in the chat at least 24 hours in advance. In this case payment is fully refunded or transferred to the next event.</div></div>
+        </div>
+      </div>
+      <div class="faq-category">
+        <p class="faq-category-label">❓ Other</p>
+        <div class="faq-item" id="faq-walkers-11">
+          <button class="faq-q" onclick="toggleFAQ('faq-walkers-11')"><span>I'm new and don't know anyone — is it fine to come alone?</span><span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner">Absolutely normal and actually typical. Most participants joined exactly this way. The group is friendly — you'll get to know people along the route. If you want a soft start, first come to Tuesday Board Game Night with no long-term commitment and follow the announcements channel.</div></div>
+        </div>
+        <div class="faq-item" id="faq-walkers-12">
+          <button class="faq-q" onclick="toggleFAQ('faq-walkers-12')"><span>What to do in an emergency on the route?</span><span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner">Immediately inform the organiser or any group member. The organiser is always reachable and responsible for coordination. If needed — call 112 (Czech Republic). Don't leave the route on your own without telling the group.</div></div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:28px;">
+        <a class="btn" href="https://maps.app.goo.gl/fEbnJHxiVoAx1v498" target="_blank" rel="noopener">⭐ 50+ Google reviews · 5.0 →</a>
+      </div>`,
+  medals: `<p class="eyebrow-sm">Ranks &amp; Medals</p>
+      <h3 class="anchor-heading">BrnoWalkers Reward System<a class="anchor-link" href="#medals">#</a></h3>
+      <div class="medals-grid">
+        <div class="medal-card">
+          <div class="medal-icon">⚪</div><div class="medal-title">Scout</div><div class="medal-req">5 paid events</div>
+          <ul class="medal-perks"><li>Scout medal</li><li>Public recognition in the group</li></ul>
+        </div>
+        <div class="medal-card">
+          <div class="medal-icon">⚫</div><div class="medal-title">Walker</div><div class="medal-req">15 events (own + credited)</div>
+          <ul class="medal-perks"><li>Walker medal</li><li>Priority registration for limited events 48h before public opening — canoe, caves, expeditions</li></ul>
+        </div>
+        <div class="medal-card">
+          <div class="medal-icon">🥈</div><div class="medal-title">Moravia Scout</div><div class="medal-req">30 events (own + credited)</div>
+          <ul class="medal-perks"><li>Silver medal</li><li>One free event per year of your choice</li><li>Name on the website in the members section</li></ul>
+        </div>
+        <div class="medal-card">
+          <div class="medal-icon">🥇</div><div class="medal-title">Guardian of Moravia</div><div class="medal-req">60 events (own + credited)</div>
+          <ul class="medal-perks"><li>Gold medal</li><li>A spot at any limited event reserved automatically — canoe, caves, expeditions</li><li>One free event every year</li><li>Right to propose a route or event format once a year — if a group forms, we run it</li><li>Name and photo on the website in the "Guardians" section — visible to all new members</li><li>Optional senior group role with event credits</li></ul>
+        </div>
+      </div>
+      <p class="medals-ref-note">1 referral who attends 2 paid events = 2 events credited to your count. Participants provide proof themselves.</p>`,
+  boardgames: `<p class="eyebrow-sm">Voluntary contribution</p>
+      <h3 class="anchor-heading">Board Game Evening<a class="anchor-link" href="#boardgames">#</a></h3>
+      <div class="photo-float"><img src="../images/boardgames.jpg" alt="Board game evening Scythe Brno" loading="lazy"></div>
+      <p>Every Tuesday (almost weekly — confirm current schedule via contacts) we meet at <strong>Utopia Centre Koblizna</strong> at 18:00. Entry is by voluntary contribution — pay what you feel is fair via Revolut: revolut.me/aliaksj5pq. It helps cover the venue rent.<br><br>We run two tables: one in <strong>Russian</strong>, one in <strong>English</strong>. Want a table in another language? Write to us — we'll set it up.</p>
+      <div style="clear:both; margin-top:20px;">
+        <p style="font-size:16px; color:var(--ink-dim); line-height:1.8;">Avalon · Scythe · Mafia · Uno · Citadels · Brass · Munchkin · …and much more</p>
+      </div>
+      <div class="callout" style="margin-top:24px;">
+        <p><strong>Bring your own games!</strong> We love it when players bring their own games — the more variety, the better.</p>
+        <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
+          <a class="btn solid plausible-event-name=Register-Walkers" href="https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog" target="_blank" rel="noopener">Register for the evening</a>
+          <a class="btn-quiet plausible-event-name=Announce-WA-Walkers" href="https://chat.whatsapp.com/BSlQetCjMoL8IO45c6VnH0" target="_blank" rel="noopener">Announcements Channel · WhatsApp</a>
+          <a class="btn-quiet plausible-event-name=Announce-TG-Walkers" href="https://t.me/pochody_brno_news" target="_blank" rel="noopener">Announcements Channel · Telegram</a>
+        </div>
+        <p style="margin-top:12px; font-size:13px; color:var(--r5); text-align:center; font-weight:700;">Low commitment: join the announcements channel and come to the next night without long-term obligations.</p>
+      </div>
+      <p style="margin-top:16px; font-size:13px; color:var(--ink-faint); text-align:center;">To confirm the current schedule or propose a new language table — reach us via contacts.</p>`,
+  footer: { title: 'Want the full picture?', lead: 'Tutoring, Družina Moravy HEMA/LARP, and the complete site live at the main hub.', visitFull: 'Visit the full site ➔' }
+},
+ru: {
+  nav: { brand: 'Брноходцы', bookBtn: 'Записаться' },
+  tabs: {main:'Главная', walkers:'Брноходцы', academy:'Академия', druzina:'Дружина Моравы', calendar:'Календарь', ambassador:'Стать послом', contacts:'Контакты'},
+  hero: {
+    ctaRegister: 'Записаться на событие', ctaChat: 'Присоединиться к чату',
+    ctaAnnounceWA: 'Анонсы · WhatsApp', ctaAnnounceTG: 'Анонсы · Telegram',
+    testimonialQuote: '«Отличные прогулки, чёткое сопровождение и никакого давления. Идеальная перезагрузка выходного дня с людьми, которым правда интересна Моравия.»',
+    testimonialAuthor: '— Марина, Брноходцы'
+  },
+  eventTypes: `<div class="eyebrow-sm">Чем мы занимаемся</div>
+      <h3 class="anchor-heading">Типы мероприятий<a class="anchor-link" href="#event-types">#</a></h3>
+      <div class="event-types">
+        <div class="event-card">
+          <div class="ec-icon">🏔️</div>
+          <div class="ec-title">Горные походы</div>
+          <div class="ec-meta">10–25 км · средне/сложно</div>
+          <div class="ec-desc">Бескиды, Есеники, Альпы — маршруты с набором высоты. Обязательны треккинговые ботинки с поддержкой голеностопа. Еды на маршруте нет — бери свою.</div>
+        </div>
+        <div class="event-card">
+          <div class="ec-icon">🦇</div>
+          <div class="ec-title">Пещеры</div>
+          <div class="ec-meta">2–6 км · легко/средне</div>
+          <div class="ec-desc">Моравский карст и другие пещерные системы. Фонарик обязателен. С собаками нельзя. Надень одежду, которую не жалко испачкать.</div>
+        </div>
+        <div class="event-card">
+          <div class="ec-icon">🏙️</div>
+          <div class="ec-title">Городские прогулки</div>
+          <div class="ec-meta">5–12 км · легко</div>
+          <div class="ec-desc">История, архитектура, небольшие моравские городки. Подходит всем, включая детей. Обычные кроссовки — ок.</div>
+        </div>
+        <div class="event-card">
+          <div class="ec-icon">🚣</div>
+          <div class="ec-title">Сплав на байдарках</div>
+          <div class="ec-meta">1–2 раза в год</div>
+          <div class="ec-desc">Река Морава или Дийе. Снаряжение арендуется через организатора. Байдарки и вёсла нужно вернуть неповреждёнными — см. правило 7.</div>
+          <a href="#canoe-safety" style="display:inline-block;margin-top:10px;font-size:13px;font-weight:600;">Инструктаж по безопасности →</a>
+        </div>
+        <div class="event-card">
+          <div class="ec-icon">🔥</div>
+          <div class="ec-title">Шашлыки на природе</div>
+          <div class="ec-meta">Окрестности Брно · легко</div>
+          <div class="ec-desc">Пикник с шашлыками на природе недалеко от Брно. Расслабленный формат, подходит всем. Еду и напитки обычно приносят сами участники.</div>
+        </div>
+      </div>`,
+  about: `<div class="eyebrow-sm">О нас</div>
+      <h3 class="anchor-heading">О Брноходцах<a class="anchor-link" href="#walkers-about">#</a></h3>
+      <div class="portrait-block">
+        <img class="photo-slot" src="../images/portrait_cave.jpg" alt="Алексей — твой гид по походам" loading="lazy"
+             onerror="this.setAttribute('data-alt', this.alt); this.classList.add('img-fallback'); this.removeAttribute('src');">
+        <p class="portrait-text">Я Алексей — веду эти походы лично уже несколько лет. Знаю каждую тропу, каждую пещеру и точно знаю, куда стоит заглянуть по пути.</p>
+      </div>
+      <p>Брноходцы — открытое сообщество для тех, кто любит движение. Мы регулярно организуем походы вокруг Брно и по всей Чехии (Бабий Лом, Прадед, Моравский карст, пещеры, сплавы на байдарках). Это отличный способ перезагрузить голову и найти активных друзей.</p>`,
+  rules: `<h3 class="anchor-heading">Официальные правила и регламент<a class="anchor-link" href="#walkers-rules">#</a></h3>
+      <ul class="plain">
+        <li>Мероприятия платные. Цена каждого события анонсируется заранее в чатах. Донаты тоже приветствуются.</li>
+        <li>Транспорт до места и обратно, а также доп. услуги (еда, вода, снаряжение) не включены в цену и остаются на ответственности участника — если в анонсе события явно не указано иное.</li>
+        <li>Маршрут, дистанция и уровень сложности всегда анонсируются заранее в наших чатах.</li>
+        <li>Обязательное требование: удобная спортивная/треккинговая обувь и одежда по погоде.</li>
+        <li>Можно прийти одному, с друзьями, семьёй или собакой — наше сообщество открыто всем.</li>
+      </ul>
+      <p style="margin-top:14px;"><a href="../#terms">📜 Полные юридические условия участия →</a></p>
+      <div class="callout">
+        <p><strong>Присоединяйся к чатам Брноходцев, чтобы не пропустить анонс следующего похода!</strong></p>
+        <div style="margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+          <a class="btn solid plausible-event-name=Register-Walkers" href="https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog" target="_blank" rel="noopener">Записаться на событие</a>
+          <a class="btn plausible-event-name=Join-Chat-Walkers" href="https://chat.whatsapp.com/JCyEJNm746nBXNll3VzzX3" target="_blank" rel="noopener">Присоединиться к чату</a>
+        </div>
+      </div>`,
+  canoeSafety: `<p class="eyebrow-sm">Безопасность</p>
+      <h3 class="anchor-heading">Инструктаж по безопасности — сплав на байдарках<a class="anchor-link" href="#canoe-safety">#</a></h3>
+      <p>Этот инструктаж — часть регистрации на событие. Участвуя в мероприятии, участник подтверждает, что прочитал и понял его.</p>
+      <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:20px 0 8px;">Связанные риски</h4>
+      <p>Сплав на байдарках по реке — активность на открытом воздухе с неотъемлемыми рисками: переворот байдарки, падение в воду, переохлаждение, столкновение с препятствиями, течения, разная глубина и температура воды. Эти риски невозможно полностью исключить даже при соблюдении всех правил.</p>
+      <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:20px 0 8px;">Обязательное снаряжение и правила</h4>
+      <ul class="plain">
+        <li>Спасательный жилет обязателен на воде всё время для каждого участника; для детей до 15 лет это законодательное требование, а не просто рекомендация.</li>
+        <li>Следуй инструкциям гида — особенно при посадке/высадке из байдарки, на сложных участках и во время остановок.</li>
+        <li>Не вставай в байдарке.</li>
+        <li>Никакого алкоголя до или во время мероприятия.</li>
+        <li>Надень подходящую обувь (не сланцы, не босиком).</li>
+        <li>Оставайся в поле зрения группы; сразу сообщай гиду о любой проблеме.</li>
+      </ul>
+      <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:20px 0 8px;">Ответственность за несовершеннолетних</h4>
+      <p>Сопровождающий родитель/законный представитель отвечает за непосредственный присмотр за своим ребёнком на протяжении всего мероприятия — посадка и высадка из байдарки, поведение на борту, следование инструкциям. Оператор отвечает за техническое состояние и безопасность арендованного снаряжения, за руководство группой и за проведение этого инструктажа.</p>
+      <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:20px 0 8px;">В экстренной ситуации</h4>
+      <p>Следуй инструкциям гида. Контакт гида/организатора: <a href="tel:+420702914842">+420 702 914 842</a>. Ближайшие точки выхода из воды гид укажет в начале мероприятия.</p>
+      <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:20px 0 8px;">Подтверждение</h4>
+      <p>Отмечая галочку в регистрационной форме или подписываясь на месте, участник (а за несовершеннолетнего — его родитель/законный представитель) подтверждает, что прочитал этот инструктаж и понимает описанные риски.</p>`,
+  faq: `<p class="eyebrow-sm">Частые вопросы</p>
+      <h3 class="anchor-heading">Часто задаваемые вопросы<a class="anchor-link" href="#faq">#</a></h3>
+      <div class="faq-category">
+        <p class="faq-category-label">📍 Место и время</p>
+        <div class="faq-item" id="faq-walkers-1">
+          <button class="faq-q" onclick="toggleFAQ('faq-walkers-1')"><span>Где и когда встречаемся?</span><span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner">Точка и время встречи всегда указаны в конкретном анонсе события в чате. После оплаты я ещё раз пришлю точку встречи отдельным сообщением. Не нашёл — просто напиши мне.</div></div>
+        </div>
+        <div class="faq-item" id="faq-walkers-2">
+          <button class="faq-q" onclick="toggleFAQ('faq-walkers-2')"><span>Как добраться до стартовой точки?</span><span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner">В анонсе всегда есть адрес или GPS-точка. Обычно это остановка общественного транспорта или парковка. Совместный трансфер мы не организуем — каждый добирается сам.</div></div>
+        </div>
+      </div>
+      <div class="faq-category">
+        <p class="faq-category-label">🎒 Снаряжение и одежда</p>
+        <div class="faq-item" id="faq-walkers-3">
+          <button class="faq-q" onclick="toggleFAQ('faq-walkers-3')"><span>Какая обувь нужна?</span><span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner"><strong>Обязательно:</strong> закрытые спортивные или треккинговые кроссовки/ботинки. Кроссовки подходят для большинства маршрутов. Для горных и пещерных походов нужны ботинки с жёсткой подошвой и поддержкой голеностопа. Сандалии, шлёпанцы и туфли — нельзя.</div></div>
+        </div>
+        <div class="faq-item" id="faq-walkers-4">
+          <button class="faq-q" onclick="toggleFAQ('faq-walkers-4')"><span>Что взять с собой?</span><span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner">
+            <strong>Всегда:</strong>
+            <ul><li>Вода — минимум 1,5 л на человека</li><li>Перекус/бутерброды (кафе на маршруте — редкость)</li><li>Дождевик или ветровка (погода меняется)</li><li>Заряженный телефон</li><li>Наличные или карта — иногда нужны для транспорта</li></ul>
+            <strong>Для горных и пещерных маршрутов дополнительно:</strong>
+            <ul><li>Трекинговые палки (по желанию)</li><li>Фонарик (для пещер — обязательно)</li><li>Запасные носки</li></ul>
+          </div></div>
+        </div>
+        <div class="faq-item" id="faq-walkers-5">
+          <button class="faq-q" onclick="toggleFAQ('faq-walkers-5')"><span>Есть ли еда и вода на маршруте?</span><span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner">Не рассчитывай на это. Магазины и кафе на маршруте — редкость. Бери свою еду и воду. Если на маршруте будет остановка с едой, это отдельно укажут в анонсе.</div></div>
+        </div>
+      </div>
+      <div class="faq-category">
+        <p class="faq-category-label">🏃 Физподготовка и сложность</p>
+        <div class="faq-item" id="faq-walkers-6">
+          <button class="faq-q" onclick="toggleFAQ('faq-walkers-6')"><span>Нужна ли хорошая физическая форма?</span><span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner">Зависит от конкретного маршрута. Уровень сложности всегда указан в анонсе: лёгкий (для всех, включая детей), средний (нужна базовая форма), сложный (горный рельеф, 15+ км). Если сомневаешься — спроси меня перед записью.</div></div>
+        </div>
+        <div class="faq-item" id="faq-walkers-7">
+          <button class="faq-q" onclick="toggleFAQ('faq-walkers-7')"><span>Можно прийти с детьми или собакой?</span><span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner">Собаки — приветствуются на большинстве маршрутов (кроме пещер). Дети — зависит от сложности маршрута. Если в анонсе не сказано иначе, уточни у меня. Родители и хозяева остаются ответственными за детей и животных.</div></div>
+        </div>
+      </div>
+      <div class="faq-category">
+        <p class="faq-category-label">💳 Оплата и отмена</p>
+        <div class="faq-item" id="faq-walkers-8">
+          <button class="faq-q" onclick="toggleFAQ('faq-walkers-8')"><span>Как оплатить?</span><span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner">Способ оплаты указан в анонсе события. Обычно это банковский перевод — Raiffeisenbank, счёт 7804336003/5500 (укажи в назначении платежа своё имя и название события) — или Revolut: <a href="https://revolut.me/aliaksj5pq" target="_blank" rel="noopener">revolut.me/aliaksj5pq</a>. Оплата подтверждает твоё место — без оплаты место не бронируется.</div></div>
+        </div>
+        <div class="faq-item" id="faq-walkers-9">
+          <button class="faq-q" onclick="toggleFAQ('faq-walkers-9')"><span>Что если я опаздываю или не смогу прийти?</span><span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner">
+            <strong>Опоздание:</strong> группа ждёт максимум 10 минут от назначенного времени, потом выходит. Если опаздываешь — предупреди заранее, возможно получится скорректировать точку присоединения по маршруту.<br><br>
+            <strong>Отмена с твоей стороны, за 7+ дней до события:</strong> возврат за вычетом фиксированного сбора 120 крон (покрывает обработку платежа и переписку по отмене — удерживается даже при полностью правомерной, своевременной отмене).<br><br>
+            <strong>Отмена менее чем за 7 дней, или неявка:</strong> место было забронировано именно под тебя — возврата нет, включая сбор 120 крон.<br><br>
+            <strong>Отмена или перенос с нашей стороны</strong> (погода, недобор участников) — полный возврат, включая сбор, см. ниже.
+          </div></div>
+        </div>
+        <div class="faq-item" id="faq-walkers-10">
+          <button class="faq-q" onclick="toggleFAQ('faq-walkers-10')"><span>Может ли организатор отменить событие?</span><span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner">Да, в случае экстремальной погоды или недостаточного числа участников. Об отмене или переносе я сообщу в чате минимум за 24 часа. В этом случае оплата возвращается полностью или переносится на следующее событие.</div></div>
+        </div>
+      </div>
+      <div class="faq-category">
+        <p class="faq-category-label">❓ Другое</p>
+        <div class="faq-item" id="faq-walkers-11">
+          <button class="faq-q" onclick="toggleFAQ('faq-walkers-11')"><span>Я новенький и никого не знаю — можно прийти одному?</span><span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner">Абсолютно нормально и на самом деле типично. Большинство участников присоединились именно так. Группа дружелюбная — познакомишься с людьми по пути. Если хочешь мягкий старт — приходи сначала на настольные игры по вторникам без долгосрочных обязательств и подпишись на канал анонсов.</div></div>
+        </div>
+        <div class="faq-item" id="faq-walkers-12">
+          <button class="faq-q" onclick="toggleFAQ('faq-walkers-12')"><span>Что делать в экстренной ситуации на маршруте?</span><span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner">Немедленно сообщи организатору или любому участнику группы. Организатор всегда на связи и отвечает за координацию. При необходимости — звони 112 (Чехия). Не уходи с маршрута самостоятельно, не предупредив группу.</div></div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:28px;">
+        <a class="btn" href="https://maps.app.goo.gl/fEbnJHxiVoAx1v498" target="_blank" rel="noopener">⭐ 50+ отзывов в Google · 5.0 →</a>
+      </div>`,
+  medals: `<p class="eyebrow-sm">Ранги и медали</p>
+      <h3 class="anchor-heading">Система наград Брноходцев<a class="anchor-link" href="#medals">#</a></h3>
+      <div class="medals-grid">
+        <div class="medal-card">
+          <div class="medal-icon">⚪</div><div class="medal-title">Разведчик</div><div class="medal-req">5 платных событий</div>
+          <ul class="medal-perks"><li>Медаль «Разведчик»</li><li>Публичное признание в группе</li></ul>
+        </div>
+        <div class="medal-card">
+          <div class="medal-icon">⚫</div><div class="medal-title">Ходок</div><div class="medal-req">15 событий (свои + зачтённые)</div>
+          <ul class="medal-perks"><li>Медаль «Ходок»</li><li>Приоритетная запись на лимитированные события за 48ч до открытия — байдарки, пещеры, экспедиции</li></ul>
+        </div>
+        <div class="medal-card">
+          <div class="medal-icon">🥈</div><div class="medal-title">Разведчик Моравии</div><div class="medal-req">30 событий (свои + зачтённые)</div>
+          <ul class="medal-perks"><li>Серебряная медаль</li><li>Одно бесплатное событие в год на выбор</li><li>Имя на сайте в разделе участников</li></ul>
+        </div>
+        <div class="medal-card">
+          <div class="medal-icon">🥇</div><div class="medal-title">Страж Моравии</div><div class="medal-req">60 событий (свои + зачтённые)</div>
+          <ul class="medal-perks"><li>Золотая медаль</li><li>Место на любом лимитированном событии бронируется автоматически — байдарки, пещеры, экспедиции</li><li>Одно бесплатное событие каждый год</li><li>Право раз в год предложить маршрут или формат события — если наберётся группа, мы его проведём</li><li>Имя и фото на сайте в разделе «Стражи» — видно всем новым участникам</li><li>Опциональная старшая роль в группе с зачётом событий</li></ul>
+        </div>
+      </div>
+      <p class="medals-ref-note">1 приглашённый, который сходит на 2 платных события = 2 события засчитываются в твой счёт. Участники сами предоставляют подтверждение.</p>`,
+  boardgames: `<p class="eyebrow-sm">Добровольный взнос</p>
+      <h3 class="anchor-heading">Настольные игры по вечерам<a class="anchor-link" href="#boardgames">#</a></h3>
+      <div class="photo-float"><img src="../images/boardgames.jpg" alt="Вечер настольных игр Scythe Брно" loading="lazy"></div>
+      <p>Каждый вторник (почти еженедельно — актуальное расписание уточняй через контакты) встречаемся в <strong>Utopia Centre Koblizna</strong> в 18:00. Вход — добровольный взнос, плати сколько считаешь справедливым через Revolut: revolut.me/aliaksj5pq. Это помогает покрыть аренду места.<br><br>У нас два стола: один на <strong>русском</strong>, один на <strong>английском</strong>. Хочешь стол на другом языке? Напиши нам — организуем.</p>
+      <div style="clear:both; margin-top:20px;">
+        <p style="font-size:16px; color:var(--ink-dim); line-height:1.8;">Avalon · Scythe · Мафия · Уно · Citadels · Brass · Munchkin · …и многое другое</p>
+      </div>
+      <div class="callout" style="margin-top:24px;">
+        <p><strong>Приноси свои игры!</strong> Нам нравится, когда участники приносят свои игры — чем больше разнообразия, тем лучше.</p>
+        <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
+          <a class="btn solid plausible-event-name=Register-Walkers" href="https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog" target="_blank" rel="noopener">Записаться на вечер</a>
+          <a class="btn-quiet plausible-event-name=Announce-WA-Walkers" href="https://chat.whatsapp.com/BSlQetCjMoL8IO45c6VnH0" target="_blank" rel="noopener">Канал анонсов · WhatsApp</a>
+          <a class="btn-quiet plausible-event-name=Announce-TG-Walkers" href="https://t.me/pochody_brno_news" target="_blank" rel="noopener">Канал анонсов · Telegram</a>
+        </div>
+        <p style="margin-top:12px; font-size:13px; color:var(--r5); text-align:center; font-weight:700;">Минимум обязательств: подпишись на канал анонсов и приходи на следующий вечер без долгосрочных обязательств.</p>
+      </div>
+      <p style="margin-top:16px; font-size:13px; color:var(--ink-faint); text-align:center;">Чтобы уточнить актуальное расписание или предложить стол на новом языке — свяжись с нами через контакты.</p>`,
+  footer: { title: 'Хочешь увидеть всю картину?', lead: 'Репетиторство, Дружина Моравы (HEMA/LARP) и весь сайт целиком — на главном хабе.', visitFull: 'Перейти на весь сайт ➔' }
+},
+cs: {
+  nav: { brand: 'BrnoWalkers', bookBtn: 'Přihlásit se' },
+  tabs: {main:'Domů', walkers:'BrnoWalkers', academy:'Akademie', druzina:'Družina Moravy', calendar:'Kalendář', ambassador:'Staň se ambasadorem', contacts:'Kontakty'},
+  hero: {
+    ctaRegister: 'Přihlásit se na akci', ctaChat: 'Připojit se k chatu',
+    ctaAnnounceWA: 'Oznámení · WhatsApp', ctaAnnounceTG: 'Oznámení · Telegram',
+    testimonialQuote: '„Skvělé výšlapy, jasné vedení a žádný tlak. Perfektní víkendový reset s lidmi, které Morava opravdu baví objevovat."',
+    testimonialAuthor: '— Marina, BrnoWalkers'
+  },
+  eventTypes: `<div class="eyebrow-sm">Co pořádáme</div>
+      <h3 class="anchor-heading">Typy akcí<a class="anchor-link" href="#event-types">#</a></h3>
+      <div class="event-types">
+        <div class="event-card">
+          <div class="ec-icon">🏔️</div>
+          <div class="ec-title">Horské výšlapy</div>
+          <div class="ec-meta">10–25 km · středně/těžké</div>
+          <div class="ec-desc">Beskydy, Jeseníky, Alpy — trasy s převýšením. Nutná turistická obuv se zpevněným kotníkem. Na trase žádné jídlo — vezmi si vlastní.</div>
+        </div>
+        <div class="event-card">
+          <div class="ec-icon">🦇</div>
+          <div class="ec-title">Jeskyně</div>
+          <div class="ec-meta">2–6 km · lehké/středně</div>
+          <div class="ec-desc">Moravský kras a další jeskynní systémy. Baterka povinná. Psi nejsou povoleni. Obleč si oblečení, které ti nevadí ušpinit.</div>
+        </div>
+        <div class="event-card">
+          <div class="ec-icon">🏙️</div>
+          <div class="ec-title">Výlety po městech</div>
+          <div class="ec-meta">5–12 km · lehké</div>
+          <div class="ec-desc">Historie, architektura, malá moravská města. Vhodné pro každého včetně dětí. Běžné tenisky stačí.</div>
+        </div>
+        <div class="event-card">
+          <div class="ec-icon">🚣</div>
+          <div class="ec-title">Sjezd na kánoích</div>
+          <div class="ec-meta">1–2× ročně</div>
+          <div class="ec-desc">Řeka Morava nebo Dyje. Vybavení se půjčuje přes organizátora. Kánoe a pádla je nutné vrátit nepoškozené — viz pravidlo 7.</div>
+          <a href="#canoe-safety" style="display:inline-block;margin-top:10px;font-size:13px;font-weight:600;">Bezpečnostní instruktáž →</a>
+        </div>
+        <div class="event-card">
+          <div class="ec-icon">🔥</div>
+          <div class="ec-title">Grilovačky</div>
+          <div class="ec-meta">Okolí Brna · lehké</div>
+          <div class="ec-desc">Piknik s grilováním v přírodě poblíž Brna. Uvolněný formát, vhodný pro každého. Jídlo a pití si obvykle nosí účastníci sami.</div>
+        </div>
+      </div>`,
+  about: `<div class="eyebrow-sm">O nás</div>
+      <h3 class="anchor-heading">O BrnoWalkers<a class="anchor-link" href="#walkers-about">#</a></h3>
+      <div class="portrait-block">
+        <img class="photo-slot" src="../images/portrait_cave.jpg" alt="Aliaksei — tvůj průvodce na výšlapech" loading="lazy"
+             onerror="this.setAttribute('data-alt', this.alt); this.classList.add('img-fallback'); this.removeAttribute('src');">
+        <p class="portrait-text">Jsem Aliaksei — tyto výšlapy osobně vedu už několik let. Znám každou stezku, každou jeskyni a přesně vím, co je po cestě stojí za to.</p>
+      </div>
+      <p>BrnoWalkers je otevřená komunita pro lidi, kteří milují pohyb. Pravidelně pořádáme pěší výlety po Brně a po celé České republice (Babí lom, Praděd, Moravský kras, jeskyně, sjezdy na kánoích). Je to skvělý způsob, jak si vyčistit hlavu a najít aktivní přátele.</p>`,
+  rules: `<h3 class="anchor-heading">Oficiální pravidla a řád<a class="anchor-link" href="#walkers-rules">#</a></h3>
+      <ul class="plain">
+        <li>Akce jsou placené. Cena každé akce se oznamuje předem v chatech. Dary jsou také vítány.</li>
+        <li>Doprava na místo a zpět, stejně jako doplňkové služby (jídlo, voda, vybavení), nejsou zahrnuty v ceně a jsou na odpovědnosti účastníka — pokud v oznámení akce není výslovně uvedeno jinak.</li>
+        <li>Trasa, vzdálenost a úroveň obtížnosti se vždy oznamují předem v našich chatech.</li>
+        <li>Povinný požadavek: pohodlná sportovní/turistická obuv a oblečení podle počasí.</li>
+        <li>Můžeš přijít sám, s přáteli, rodinou nebo se psem — naše komunita je otevřená všem.</li>
+      </ul>
+      <p style="margin-top:14px;"><a href="../#terms">📜 Úplné právní podmínky účasti →</a></p>
+      <div class="callout">
+        <p><strong>Připoj se k chatům BrnoWalkers, aby ti neuniklo oznámení dalšího výletu!</strong></p>
+        <div style="margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+          <a class="btn solid plausible-event-name=Register-Walkers" href="https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog" target="_blank" rel="noopener">Přihlásit se na akci</a>
+          <a class="btn plausible-event-name=Join-Chat-Walkers" href="https://chat.whatsapp.com/JCyEJNm746nBXNll3VzzX3" target="_blank" rel="noopener">Připojit se k chatu</a>
+        </div>
+      </div>`,
+  canoeSafety: `<p class="eyebrow-sm">Bezpečnost</p>
+      <h3 class="anchor-heading">Bezpečnostní instruktáž — sjezd na kánoích<a class="anchor-link" href="#canoe-safety">#</a></h3>
+      <p>Tento instruktáž je součástí registrace na akci. Účastí na akci účastník potvrzuje, že si jej přečetl a porozuměl mu.</p>
+      <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:20px 0 8px;">Související rizika</h4>
+      <p>Sjíždění řeky na kánoi je outdoorová aktivita s vlastními riziky: převrácení kánoe, pád do vody, prochladnutí, náraz na překážky, proudy a proměnlivá hloubka a teplota vody. Tato rizika nelze zcela vyloučit ani při dodržení všech pravidel.</p>
+      <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:20px 0 8px;">Povinné vybavení a pravidla</h4>
+      <ul class="plain">
+        <li>Záchranná vesta je na vodě povinná po celou dobu pro každého účastníka; pro děti do 15 let je to zákonná povinnost, ne jen doporučení.</li>
+        <li>Řiď se pokyny průvodce — zejména při nastupování/vystupování z kánoe, na náročnějších úsecích a během zastávek.</li>
+        <li>Nevstávej v kánoi.</li>
+        <li>Žádný alkohol před ani během akce.</li>
+        <li>Vhodná obuv (žádné žabky, žádné bosé nohy).</li>
+        <li>Zůstávej na dohled skupiny; jakýkoli problém okamžitě nahlas průvodci.</li>
+      </ul>
+      <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:20px 0 8px;">Odpovědnost za nezletilé</h4>
+      <p>Doprovázející rodič/zákonný zástupce odpovídá za přímý dohled nad svým dítětem po celou dobu akce — nastupování a vystupování z kánoe, chování na palubě a dodržování pokynů. Provozovatel odpovídá za technický stav a bezpečnost pronajatého vybavení, za vedení skupiny a za poskytnutí tohoto instruktáže.</p>
+      <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:20px 0 8px;">V nouzové situaci</h4>
+      <p>Řiď se pokyny průvodce. Kontakt na průvodce/organizátora: <a href="tel:+420702914842">+420 702 914 842</a>. Nejbližší místa výstupu z vody ukáže průvodce na začátku akce.</p>
+      <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:20px 0 8px;">Potvrzení</h4>
+      <p>Zaškrtnutím políčka v registračním formuláři nebo podpisem na místě účastník (u nezletilého jeho rodič/zákonný zástupce) potvrzuje, že se s tímto instruktáží seznámil a rozumí popsaným rizikům.</p>`,
+  faq: `<p class="eyebrow-sm">FAQ</p>
+      <h3 class="anchor-heading">Často kladené otázky<a class="anchor-link" href="#faq">#</a></h3>
+      <div class="faq-category">
+        <p class="faq-category-label">📍 Místo a čas</p>
+        <div class="faq-item" id="faq-walkers-1">
+          <button class="faq-q" onclick="toggleFAQ('faq-walkers-1')"><span>Kde a kdy se sejdeme?</span><span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner">Místo a čas srazu jsou vždy v konkrétním oznámení akce v chatu. Po platbě ještě jednou pošlu místo srazu samostatnou zprávou. Nemůžeš ho najít — napiš mi.</div></div>
+        </div>
+        <div class="faq-item" id="faq-walkers-2">
+          <button class="faq-q" onclick="toggleFAQ('faq-walkers-2')"><span>Jak se dostanu na startovní bod?</span><span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner">Oznámení vždy obsahuje adresu nebo GPS bod. Obvykle je to zastávka MHD nebo parkoviště. Společnou dopravu neorganizujeme — každý se dostaví sám.</div></div>
+        </div>
+      </div>
+      <div class="faq-category">
+        <p class="faq-category-label">🎒 Vybavení a oblečení</p>
+        <div class="faq-item" id="faq-walkers-3">
+          <button class="faq-q" onclick="toggleFAQ('faq-walkers-3')"><span>Jakou obuv potřebuji?</span><span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner"><strong>Povinné:</strong> uzavřená sportovní nebo turistická obuv. Tenisky stačí na většinu tras. Na horské a jeskynní výlety potřebuješ boty s tuhou podrážkou a oporou kotníku. Sandály, žabky a společenská obuv — nejsou povoleny.</div></div>
+        </div>
+        <div class="faq-item" id="faq-walkers-4">
+          <button class="faq-q" onclick="toggleFAQ('faq-walkers-4')"><span>Co si mám vzít s sebou?</span><span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner">
+            <strong>Vždy:</strong>
+            <ul><li>Voda — alespoň 1,5 l na osobu</li><li>Svačina/obložené chleby (kavárny na trase jsou vzácné)</li><li>Pláštěnka nebo větrovka (počasí se mění)</li><li>Nabitý telefon</li><li>Hotovost nebo karta — někdy potřeba na dopravu</li></ul>
+            <strong>Pro horské a jeskynní trasy navíc:</strong>
+            <ul><li>Trekové hole (volitelně)</li><li>Baterka (do jeskyní — povinně)</li><li>Náhradní ponožky</li></ul>
+          </div></div>
+        </div>
+        <div class="faq-item" id="faq-walkers-5">
+          <button class="faq-q" onclick="toggleFAQ('faq-walkers-5')"><span>Je na trase k dispozici jídlo a voda?</span><span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner">Nespoléhej na to. Obchody a kavárny na trase jsou vzácné. Vezmi si vlastní jídlo a vodu. Pokud bude na trase zastávka s jídlem, bude to výslovně uvedeno v oznámení.</div></div>
+        </div>
+      </div>
+      <div class="faq-category">
+        <p class="faq-category-label">🏃 Kondice a obtížnost</p>
+        <div class="faq-item" id="faq-walkers-6">
+          <button class="faq-q" onclick="toggleFAQ('faq-walkers-6')"><span>Potřebuji být fyzicky fit?</span><span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner">Záleží na konkrétní trase. Úroveň obtížnosti je vždy v oznámení: lehká (pro každého včetně dětí), střední (potřeba základní kondice), těžká (horský terén, 15+ km). Pokud si nejsi jistý — zeptej se mě před přihlášením.</div></div>
+        </div>
+        <div class="faq-item" id="faq-walkers-7">
+          <button class="faq-q" onclick="toggleFAQ('faq-walkers-7')"><span>Můžu přijít s dětmi nebo se psem?</span><span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner">Psi — vítáni na většině tras (kromě jeskyní). Děti — záleží na obtížnosti trasy. Pokud oznámení neříká jinak, ověř si to u mě. Rodiče a majitelé zůstávají odpovědní za děti a zvířata.</div></div>
+        </div>
+      </div>
+      <div class="faq-category">
+        <p class="faq-category-label">💳 Platba a storno</p>
+        <div class="faq-item" id="faq-walkers-8">
+          <button class="faq-q" onclick="toggleFAQ('faq-walkers-8')"><span>Jak zaplatím?</span><span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner">Způsob platby je uveden v oznámení akce. Obvykle je to bankovní převod — Raiffeisenbank, účet 7804336003/5500 (do poznámky uveď jméno a název akce) — nebo Revolut: <a href="https://revolut.me/aliaksj5pq" target="_blank" rel="noopener">revolut.me/aliaksj5pq</a>. Platba potvrzuje tvé místo — bez platby není místo rezervováno.</div></div>
+        </div>
+        <div class="faq-item" id="faq-walkers-9">
+          <button class="faq-q" onclick="toggleFAQ('faq-walkers-9')"><span>Co když se opozdím nebo nemůžu dorazit?</span><span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner">
+            <strong>Pozdní příchod:</strong> skupina čeká maximálně 10 minut od stanoveného času, pak odchází. Pokud se opozdíš — dej vědět předem, možná půjde upravit bod připojení na trase.<br><br>
+            <strong>Zrušení z tvé strany, 7+ dní před akcí:</strong> vrácení peněz mínus fixní poplatek 120 Kč (pokrývá zpracování platby a komunikaci kolem zrušení — zůstává i při plně platném, včasném zrušení).<br><br>
+            <strong>Zrušení méně než 7 dní předem, nebo neúčast:</strong> místo bylo rezervováno přímo pro tebe — bez vrácení peněz, včetně poplatku 120 Kč.<br><br>
+            <strong>Zrušení nebo přeložení z naší strany</strong> (počasí, nedostatek účastníků) — plné vrácení peněz včetně poplatku, viz níže.
+          </div></div>
+        </div>
+        <div class="faq-item" id="faq-walkers-10">
+          <button class="faq-q" onclick="toggleFAQ('faq-walkers-10')"><span>Může organizátor akci zrušit?</span><span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner">Ano, v případě extrémního počasí nebo nedostatečného počtu účastníků. Odklad nebo zrušení oznámím v chatu minimálně 24 hodin předem. V takovém případě se platba plně vrací nebo převádí na další akci.</div></div>
+        </div>
+      </div>
+      <div class="faq-category">
+        <p class="faq-category-label">❓ Ostatní</p>
+        <div class="faq-item" id="faq-walkers-11">
+          <button class="faq-q" onclick="toggleFAQ('faq-walkers-11')"><span>Jsem nový a nikoho neznám — je v pořádku přijít sám?</span><span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner">Naprosto normální a vlastně typické. Většina účastníků se přidala přesně takto. Skupina je přátelská — lidi poznáš cestou. Pokud chceš měkký start, přijď nejprve na úterní herní večer bez dlouhodobého závazku a sleduj kanál oznámení.</div></div>
+        </div>
+        <div class="faq-item" id="faq-walkers-12">
+          <button class="faq-q" onclick="toggleFAQ('faq-walkers-12')"><span>Co dělat v nouzové situaci na trase?</span><span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner">Okamžitě informuj organizátora nebo kohokoli ze skupiny. Organizátor je vždy dostupný a odpovídá za koordinaci. V případě potřeby volej 112 (Česká republika). Neopouštěj trasu sám, aniž bys to řekl skupině.</div></div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:28px;">
+        <a class="btn" href="https://maps.app.goo.gl/fEbnJHxiVoAx1v498" target="_blank" rel="noopener">⭐ 50+ recenzí na Google · 5.0 →</a>
+      </div>`,
+  medals: `<p class="eyebrow-sm">Hodnosti a medaile</p>
+      <h3 class="anchor-heading">Odměnový systém BrnoWalkers<a class="anchor-link" href="#medals">#</a></h3>
+      <div class="medals-grid">
+        <div class="medal-card">
+          <div class="medal-icon">⚪</div><div class="medal-title">Skaut</div><div class="medal-req">5 placených akcí</div>
+          <ul class="medal-perks"><li>Medaile Skaut</li><li>Veřejné uznání ve skupině</li></ul>
+        </div>
+        <div class="medal-card">
+          <div class="medal-icon">⚫</div><div class="medal-title">Chodec</div><div class="medal-req">15 akcí (vlastní + připsané)</div>
+          <ul class="medal-perks"><li>Medaile Chodec</li><li>Přednostní registrace na limitované akce 48h před veřejným otevřením — kánoe, jeskyně, expedice</li></ul>
+        </div>
+        <div class="medal-card">
+          <div class="medal-icon">🥈</div><div class="medal-title">Zvěd Moravy</div><div class="medal-req">30 akcí (vlastní + připsané)</div>
+          <ul class="medal-perks"><li>Stříbrná medaile</li><li>Jedna zdarma akce ročně dle výběru</li><li>Jméno na webu v sekci členů</li></ul>
+        </div>
+        <div class="medal-card">
+          <div class="medal-icon">🥇</div><div class="medal-title">Strážce Moravy</div><div class="medal-req">60 akcí (vlastní + připsané)</div>
+          <ul class="medal-perks"><li>Zlatá medaile</li><li>Místo na jakékoli limitované akci automaticky rezervováno — kánoe, jeskyně, expedice</li><li>Jedna zdarma akce každý rok</li><li>Právo jednou ročně navrhnout trasu nebo formát akce — pokud se sejde skupina, uskutečníme ji</li><li>Jméno a fotka na webu v sekci „Strážci" — viditelné všem novým členům</li><li>Volitelná seniorní role ve skupině s připsáním akcí</li></ul>
+        </div>
+      </div>
+      <p class="medals-ref-note">1 doporučený, který se zúčastní 2 placených akcí = 2 akce připsány do tvého počtu. Účastníci poskytují důkaz sami.</p>`,
+  boardgames: `<p class="eyebrow-sm">Dobrovolný příspěvek</p>
+      <h3 class="anchor-heading">Herní večer<a class="anchor-link" href="#boardgames">#</a></h3>
+      <div class="photo-float"><img src="../images/boardgames.jpg" alt="Herní večer Scythe Brno" loading="lazy"></div>
+      <p>Každé úterý (skoro každý týden — aktuální rozvrh ověř přes kontakty) se scházíme v <strong>Utopia Centre Kobližná</strong> v 18:00. Vstup formou dobrovolného příspěvku — zaplať, kolik uznáš za vhodné, přes Revolut: revolut.me/aliaksj5pq. Pomáhá to pokrýt nájem prostoru.<br><br>Máme dva stoly: jeden v <strong>ruštině</strong>, jeden v <strong>angličtině</strong>. Chceš stůl v jiném jazyce? Napiš nám — zařídíme to.</p>
+      <div style="clear:both; margin-top:20px;">
+        <p style="font-size:16px; color:var(--ink-dim); line-height:1.8;">Avalon · Scythe · Mafia · Uno · Citadels · Brass · Munchkin · …a mnohem víc</p>
+      </div>
+      <div class="callout" style="margin-top:24px;">
+        <p><strong>Přines vlastní hry!</strong> Rádi vidíme, když hráči nosí vlastní hry — čím větší rozmanitost, tím lépe.</p>
+        <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
+          <a class="btn solid plausible-event-name=Register-Walkers" href="https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog" target="_blank" rel="noopener">Přihlásit se na večer</a>
+          <a class="btn-quiet plausible-event-name=Announce-WA-Walkers" href="https://chat.whatsapp.com/BSlQetCjMoL8IO45c6VnH0" target="_blank" rel="noopener">Kanál oznámení · WhatsApp</a>
+          <a class="btn-quiet plausible-event-name=Announce-TG-Walkers" href="https://t.me/pochody_brno_news" target="_blank" rel="noopener">Kanál oznámení · Telegram</a>
+        </div>
+        <p style="margin-top:12px; font-size:13px; color:var(--r5); text-align:center; font-weight:700;">Minimum závazků: připoj se ke kanálu oznámení a přijď na další večer bez dlouhodobých závazků.</p>
+      </div>
+      <p style="margin-top:16px; font-size:13px; color:var(--ink-faint); text-align:center;">Pro ověření aktuálního rozvrhu nebo návrh nového jazykového stolu — kontaktuj nás.</p>`,
+  footer: { title: 'Chceš vidět celý obrázek?', lead: 'Doučování, Družina Moravy (HEMA/LARP) a celý web najdeš na hlavním hubu.', visitFull: 'Přejít na celý web ➔' }
+},
+uk: {
+  nav: { brand: 'Брнохідці', bookBtn: 'Записатися' },
+  tabs: {main:'Головна', walkers:'Брнохідці', academy:'Академія', druzina:'Дружина Моравії', calendar:'Календар', ambassador:'Стати послом', contacts:'Контакти'},
+  hero: {
+    ctaRegister: 'Записатися на подію', ctaChat: 'Приєднатися до чату',
+    ctaAnnounceWA: 'Анонси · WhatsApp', ctaAnnounceTG: 'Анонси · Telegram',
+    testimonialQuote: '«Чудові прогулянки, чітке супроводження і жодного тиску. Ідеальна перезавантаження вихідного дня з людьми, яким справді цікава Моравія.»',
+    testimonialAuthor: '— Марина, Брнохідці'
+  },
+  eventTypes: `<div class="eyebrow-sm">Чим ми займаємось</div>
+      <h3 class="anchor-heading">Типи заходів<a class="anchor-link" href="#event-types">#</a></h3>
+      <div class="event-types">
+        <div class="event-card">
+          <div class="ec-icon">🏔️</div>
+          <div class="ec-title">Гірські походи</div>
+          <div class="ec-meta">10–25 км · середньо/складно</div>
+          <div class="ec-desc">Бескиди, Єсеніки, Альпи — маршрути з набором висоти. Обов'язкові трекінгові черевики з підтримкою гомілковостопа. Їжі на маршруті немає — бери свою.</div>
+        </div>
+        <div class="event-card">
+          <div class="ec-icon">🦇</div>
+          <div class="ec-title">Печери</div>
+          <div class="ec-meta">2–6 км · легко/середньо</div>
+          <div class="ec-desc">Моравський карст та інші печерні системи. Ліхтарик обов'язковий. Із собаками не можна. Вдягни одяг, який не шкода забруднити.</div>
+        </div>
+        <div class="event-card">
+          <div class="ec-icon">🏙️</div>
+          <div class="ec-title">Міські прогулянки</div>
+          <div class="ec-meta">5–12 км · легко</div>
+          <div class="ec-desc">Історія, архітектура, невеликі моравські містечка. Підходить усім, включно з дітьми. Звичайні кросівки — ок.</div>
+        </div>
+        <div class="event-card">
+          <div class="ec-icon">🚣</div>
+          <div class="ec-title">Сплав на байдарках</div>
+          <div class="ec-meta">1–2 рази на рік</div>
+          <div class="ec-desc">Річка Морава або Дийє. Спорядження орендується через організатора. Байдарки та весла потрібно повернути неушкодженими — див. правило 7.</div>
+          <a href="#canoe-safety" style="display:inline-block;margin-top:10px;font-size:13px;font-weight:600;">Інструктаж з безпеки →</a>
+        </div>
+        <div class="event-card">
+          <div class="ec-icon">🔥</div>
+          <div class="ec-title">Шашлики на природі</div>
+          <div class="ec-meta">Околиці Брно · легко</div>
+          <div class="ec-desc">Пікнік із шашликами на природі поблизу Брно. Розслаблений формат, підходить усім. Їжу та напої зазвичай приносять самі учасники.</div>
+        </div>
+      </div>`,
+  about: `<div class="eyebrow-sm">Про нас</div>
+      <h3 class="anchor-heading">Про Брнохідців<a class="anchor-link" href="#walkers-about">#</a></h3>
+      <div class="portrait-block">
+        <img class="photo-slot" src="../images/portrait_cave.jpg" alt="Олексій — твій гід у походах" loading="lazy"
+             onerror="this.setAttribute('data-alt', this.alt); this.classList.add('img-fallback'); this.removeAttribute('src');">
+        <p class="portrait-text">Я Олексій — веду ці походи особисто вже кілька років. Знаю кожну стежку, кожну печеру і точно знаю, куди варто зазирнути дорогою.</p>
+      </div>
+      <p>Брнохідці — відкрита спільнота для тих, хто любить рух. Ми регулярно організовуємо походи навколо Брно та по всій Чехії (Бабі Лом, Прадед, Моравський карст, печери, сплави на байдарках). Це чудовий спосіб перезавантажити голову і знайти активних друзів.</p>`,
+  rules: `<h3 class="anchor-heading">Офіційні правила та регламент<a class="anchor-link" href="#walkers-rules">#</a></h3>
+      <ul class="plain">
+        <li>Заходи платні. Ціна кожної події анонсується заздалегідь у чатах. Донати теж вітаються.</li>
+        <li>Транспорт до місця і назад, а також додаткові послуги (їжа, вода, спорядження) не включені в ціну і залишаються на відповідальності учасника — якщо в анонсі події явно не вказано інше.</li>
+        <li>Маршрут, відстань і рівень складності завжди анонсуються заздалегідь у наших чатах.</li>
+        <li>Обов'язкова вимога: зручне спортивне/трекінгове взуття та одяг за погодою.</li>
+        <li>Можна прийти самому, з друзями, родиною або собакою — наша спільнота відкрита всім.</li>
+      </ul>
+      <p style="margin-top:14px;"><a href="../#terms">📜 Повні юридичні умови участі →</a></p>
+      <div class="callout">
+        <p><strong>Приєднуйся до чатів Брнохідців, щоб не пропустити анонс наступного походу!</strong></p>
+        <div style="margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+          <a class="btn solid plausible-event-name=Register-Walkers" href="https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog" target="_blank" rel="noopener">Записатися на подію</a>
+          <a class="btn plausible-event-name=Join-Chat-Walkers" href="https://chat.whatsapp.com/JCyEJNm746nBXNll3VzzX3" target="_blank" rel="noopener">Приєднатися до чату</a>
+        </div>
+      </div>`,
+  canoeSafety: `<p class="eyebrow-sm">Безпека</p>
+      <h3 class="anchor-heading">Інструктаж з безпеки — сплав на байдарках<a class="anchor-link" href="#canoe-safety">#</a></h3>
+      <p>Цей інструктаж — частина реєстрації на подію. Беручи участь у заході, учасник підтверджує, що прочитав і зрозумів його.</p>
+      <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:20px 0 8px;">Пов'язані ризики</h4>
+      <p>Сплав на байдарках річкою — активність на відкритому повітрі з невід'ємними ризиками: перекидання байдарки, падіння у воду, переохолодження, зіткнення з перешкодами, течії, різна глибина і температура води. Ці ризики неможливо повністю усунути навіть за дотримання всіх правил.</p>
+      <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:20px 0 8px;">Обов'язкове спорядження та правила</h4>
+      <ul class="plain">
+        <li>Рятувальний жилет обов'язковий на воді весь час для кожного учасника; для дітей до 15 років це законодавча вимога, а не просто рекомендація.</li>
+        <li>Дотримуйся інструкцій гіда — особливо під час посадки/висадки з байдарки, на складних ділянках і під час зупинок.</li>
+        <li>Не вставай у байдарці.</li>
+        <li>Жодного алкоголю до або під час заходу.</li>
+        <li>Вдягни підходяще взуття (не шльопанці, не босоніж).</li>
+        <li>Залишайся в полі зору групи; одразу повідомляй гіда про будь-яку проблему.</li>
+      </ul>
+      <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:20px 0 8px;">Відповідальність за неповнолітніх</h4>
+      <p>Супроводжуючий батько/законний представник відповідає за безпосередній нагляд за своєю дитиною протягом усього заходу — посадка і висадка з байдарки, поведінка на борту, дотримання інструкцій. Оператор відповідає за технічний стан і безпеку орендованого спорядження, за керівництво групою і за проведення цього інструктажу.</p>
+      <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:20px 0 8px;">В екстреній ситуації</h4>
+      <p>Дотримуйся інструкцій гіда. Контакт гіда/організатора: <a href="tel:+420702914842">+420 702 914 842</a>. Найближчі точки виходу з води гід вкаже на початку заходу.</p>
+      <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:20px 0 8px;">Підтвердження</h4>
+      <p>Позначивши галочку в реєстраційній формі або підписавшись на місці, учасник (а за неповнолітнього — його батько/законний представник) підтверджує, що ознайомився з цим інструктажем і розуміє описані ризики.</p>`,
+  faq: `<p class="eyebrow-sm">Часті запитання</p>
+      <h3 class="anchor-heading">Часті запитання<a class="anchor-link" href="#faq">#</a></h3>
+      <div class="faq-category">
+        <p class="faq-category-label">📍 Місце та час</p>
+        <div class="faq-item" id="faq-walkers-1">
+          <button class="faq-q" onclick="toggleFAQ('faq-walkers-1')"><span>Де і коли зустрічаємось?</span><span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner">Точка і час зустрічі завжди вказані в конкретному анонсі події в чаті. Після оплати я ще раз надішлю точку зустрічі окремим повідомленням. Не знайшов — просто напиши мені.</div></div>
+        </div>
+        <div class="faq-item" id="faq-walkers-2">
+          <button class="faq-q" onclick="toggleFAQ('faq-walkers-2')"><span>Як дістатися до стартової точки?</span><span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner">В анонсі завжди є адреса або GPS-точка. Зазвичай це зупинка громадського транспорту або парковка. Спільний трансфер ми не організовуємо — кожен дістається сам.</div></div>
+        </div>
+      </div>
+      <div class="faq-category">
+        <p class="faq-category-label">🎒 Спорядження та одяг</p>
+        <div class="faq-item" id="faq-walkers-3">
+          <button class="faq-q" onclick="toggleFAQ('faq-walkers-3')"><span>Яке взуття потрібне?</span><span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner"><strong>Обов'язково:</strong> закрите спортивне або трекінгове взуття. Кросівки підходять для більшості маршрутів. Для гірських і печерних походів потрібні черевики з жорсткою підошвою і підтримкою гомілковостопа. Сандалі, шльопанці та туфлі — не можна.</div></div>
+        </div>
+        <div class="faq-item" id="faq-walkers-4">
+          <button class="faq-q" onclick="toggleFAQ('faq-walkers-4')"><span>Що взяти з собою?</span><span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner">
+            <strong>Завжди:</strong>
+            <ul><li>Вода — мінімум 1,5 л на людину</li><li>Перекус/бутерброди (кафе на маршруті — рідкість)</li><li>Дощовик або вітрівка (погода змінюється)</li><li>Заряджений телефон</li><li>Готівка або картка — іноді потрібні для транспорту</li></ul>
+            <strong>Для гірських і печерних маршрутів додатково:</strong>
+            <ul><li>Трекінгові палиці (за бажанням)</li><li>Ліхтарик (для печер — обов'язково)</li><li>Запасні шкарпетки</li></ul>
+          </div></div>
+        </div>
+        <div class="faq-item" id="faq-walkers-5">
+          <button class="faq-q" onclick="toggleFAQ('faq-walkers-5')"><span>Чи є їжа і вода на маршруті?</span><span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner">Не розраховуй на це. Магазини і кафе на маршруті — рідкість. Бери свою їжу і воду. Якщо на маршруті буде зупинка з їжею, це окремо вкажуть в анонсі.</div></div>
+        </div>
+      </div>
+      <div class="faq-category">
+        <p class="faq-category-label">🏃 Фізпідготовка та складність</p>
+        <div class="faq-item" id="faq-walkers-6">
+          <button class="faq-q" onclick="toggleFAQ('faq-walkers-6')"><span>Чи потрібна хороша фізична форма?</span><span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner">Залежить від конкретного маршруту. Рівень складності завжди вказаний в анонсі: легкий (для всіх, включно з дітьми), середній (потрібна базова форма), складний (гірський рельєф, 15+ км). Якщо сумніваєшся — запитай мене перед записом.</div></div>
+        </div>
+        <div class="faq-item" id="faq-walkers-7">
+          <button class="faq-q" onclick="toggleFAQ('faq-walkers-7')"><span>Можна прийти з дітьми або собакою?</span><span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner">Собаки — вітаються на більшості маршрутів (крім печер). Діти — залежить від складності маршруту. Якщо в анонсі не сказано інше, уточни в мене. Батьки і власники залишаються відповідальними за дітей і тварин.</div></div>
+        </div>
+      </div>
+      <div class="faq-category">
+        <p class="faq-category-label">💳 Оплата та скасування</p>
+        <div class="faq-item" id="faq-walkers-8">
+          <button class="faq-q" onclick="toggleFAQ('faq-walkers-8')"><span>Як оплатити?</span><span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner">Спосіб оплати вказаний в анонсі події. Зазвичай це банківський переказ — Raiffeisenbank, рахунок 7804336003/5500 (вкажи в призначенні платежу своє ім'я і назву події) — або Revolut: <a href="https://revolut.me/aliaksj5pq" target="_blank" rel="noopener">revolut.me/aliaksj5pq</a>. Оплата підтверджує твоє місце — без оплати місце не бронюється.</div></div>
+        </div>
+        <div class="faq-item" id="faq-walkers-9">
+          <button class="faq-q" onclick="toggleFAQ('faq-walkers-9')"><span>Що якщо я запізнююсь або не зможу прийти?</span><span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner">
+            <strong>Запізнення:</strong> група чекає максимум 10 хвилин від призначеного часу, потім виходить. Якщо запізнюєшся — попередь заздалегідь, можливо вдасться скоригувати точку приєднання по маршруту.<br><br>
+            <strong>Скасування з твого боку, за 7+ днів до події:</strong> повернення за вирахуванням фіксованого збору 120 крон (покриває обробку платежу і листування щодо скасування — утримується навіть при повністю правомірному, своєчасному скасуванні).<br><br>
+            <strong>Скасування менш ніж за 7 днів, або неявка:</strong> місце було заброньоване саме для тебе — повернення немає, включно зі збором 120 крон.<br><br>
+            <strong>Скасування або перенесення з нашого боку</strong> (погода, недобір учасників) — повне повернення, включно зі збором, див. нижче.
+          </div></div>
+        </div>
+        <div class="faq-item" id="faq-walkers-10">
+          <button class="faq-q" onclick="toggleFAQ('faq-walkers-10')"><span>Чи може організатор скасувати подію?</span><span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner">Так, у разі екстремальної погоди або недостатньої кількості учасників. Про скасування або перенесення я повідомлю в чаті мінімум за 24 години. У такому разі оплата повертається повністю або переноситься на наступну подію.</div></div>
+        </div>
+      </div>
+      <div class="faq-category">
+        <p class="faq-category-label">❓ Інше</p>
+        <div class="faq-item" id="faq-walkers-11">
+          <button class="faq-q" onclick="toggleFAQ('faq-walkers-11')"><span>Я новенький і нікого не знаю — можна прийти самому?</span><span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner">Абсолютно нормально і насправді типово. Більшість учасників приєдналися саме так. Група дружня — познайомишся з людьми дорогою. Якщо хочеш м'який старт — приходь спочатку на настільні ігри по вівторках без довгострокових зобов'язань і підпишись на канал анонсів.</div></div>
+        </div>
+        <div class="faq-item" id="faq-walkers-12">
+          <button class="faq-q" onclick="toggleFAQ('faq-walkers-12')"><span>Що робити в екстреній ситуації на маршруті?</span><span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner">Негайно повідом організатора або будь-якого учасника групи. Організатор завжди на зв'язку і відповідає за координацію. За потреби — телефонуй 112 (Чехія). Не залишай маршрут самостійно, не попередивши групу.</div></div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:28px;">
+        <a class="btn" href="https://maps.app.goo.gl/fEbnJHxiVoAx1v498" target="_blank" rel="noopener">⭐ 50+ відгуків у Google · 5.0 →</a>
+      </div>`,
+  medals: `<p class="eyebrow-sm">Ранги та медалі</p>
+      <h3 class="anchor-heading">Система нагород Брнохідців<a class="anchor-link" href="#medals">#</a></h3>
+      <div class="medals-grid">
+        <div class="medal-card">
+          <div class="medal-icon">⚪</div><div class="medal-title">Розвідник</div><div class="medal-req">5 платних подій</div>
+          <ul class="medal-perks"><li>Медаль «Розвідник»</li><li>Публічне визнання в групі</li></ul>
+        </div>
+        <div class="medal-card">
+          <div class="medal-icon">⚫</div><div class="medal-title">Ходак</div><div class="medal-req">15 подій (свої + зараховані)</div>
+          <ul class="medal-perks"><li>Медаль «Ходак»</li><li>Пріоритетний запис на лімітовані події за 48г до відкриття — байдарки, печери, експедиції</li></ul>
+        </div>
+        <div class="medal-card">
+          <div class="medal-icon">🥈</div><div class="medal-title">Розвідник Моравії</div><div class="medal-req">30 подій (свої + зараховані)</div>
+          <ul class="medal-perks"><li>Срібна медаль</li><li>Одна безкоштовна подія на рік за вибором</li><li>Ім'я на сайті в розділі учасників</li></ul>
+        </div>
+        <div class="medal-card">
+          <div class="medal-icon">🥇</div><div class="medal-title">Страж Моравії</div><div class="medal-req">60 подій (свої + зараховані)</div>
+          <ul class="medal-perks"><li>Золота медаль</li><li>Місце на будь-якій лімітованій події бронюється автоматично — байдарки, печери, експедиції</li><li>Одна безкоштовна подія щороку</li><li>Право раз на рік запропонувати маршрут або формат події — якщо збереться група, ми її проведемо</li><li>Ім'я і фото на сайті в розділі «Стражі» — видно всім новим учасникам</li><li>Опціональна старша роль у групі із зарахуванням подій</li></ul>
+        </div>
+      </div>
+      <p class="medals-ref-note">1 запрошений, який відвідає 2 платні події = 2 події зараховуються до твого рахунку. Учасники самі надають підтвердження.</p>`,
+  boardgames: `<p class="eyebrow-sm">Добровільний внесок</p>
+      <h3 class="anchor-heading">Настільні ігри ввечері<a class="anchor-link" href="#boardgames">#</a></h3>
+      <div class="photo-float"><img src="../images/boardgames.jpg" alt="Вечір настільних ігор Scythe Брно" loading="lazy"></div>
+      <p>Щовівторка (майже щотижня — актуальний розклад уточнюй через контакти) зустрічаємось у <strong>Utopia Centre Koblizna</strong> о 18:00. Вхід — добровільний внесок, плати скільки вважаєш справедливим через Revolut: revolut.me/aliaksj5pq. Це допомагає покрити оренду приміщення.<br><br>У нас два столи: один російською, один англійською. Хочеш стіл іншою мовою? Напиши нам — організуємо.</p>
+      <div style="clear:both; margin-top:20px;">
+        <p style="font-size:16px; color:var(--ink-dim); line-height:1.8;">Avalon · Scythe · Мафія · Uno · Citadels · Brass · Munchkin · …і багато іншого</p>
+      </div>
+      <div class="callout" style="margin-top:24px;">
+        <p><strong>Приноси свої ігри!</strong> Нам подобається, коли учасники приносять свої ігри — чим більше різноманіття, тим краще.</p>
+        <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
+          <a class="btn solid plausible-event-name=Register-Walkers" href="https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog" target="_blank" rel="noopener">Записатися на вечір</a>
+          <a class="btn-quiet plausible-event-name=Announce-WA-Walkers" href="https://chat.whatsapp.com/BSlQetCjMoL8IO45c6VnH0" target="_blank" rel="noopener">Канал анонсів · WhatsApp</a>
+          <a class="btn-quiet plausible-event-name=Announce-TG-Walkers" href="https://t.me/pochody_brno_news" target="_blank" rel="noopener">Канал анонсів · Telegram</a>
+        </div>
+        <p style="margin-top:12px; font-size:13px; color:var(--r5); text-align:center; font-weight:700;">Мінімум зобов'язань: підпишись на канал анонсів і приходь на наступний вечір без довгострокових зобов'язань.</p>
+      </div>
+      <p style="margin-top:16px; font-size:13px; color:var(--ink-faint); text-align:center;">Щоб уточнити актуальний розклад або запропонувати стіл новою мовою — зв'яжись з нами через контакти.</p>`,
+  footer: { title: 'Хочеш побачити всю картину?', lead: 'Репетиторство, Дружина Моравії (HEMA/LARP) та весь сайт цілком — на головному хабі.', visitFull: 'Перейти на весь сайт ➔' }
+}
+};
+
+// i18n engine for this standalone page — added 11.09.2026. Deliberately
+// NOT a shared external file included by every subpage: each subpage's
+// CONTENT (the T object above) is genuinely unique to it, so there is
+// nothing to desync between pages by keeping the engine local. What
+// DOES need to match across pages is the localStorage key ('dm_lang')
+// and detection order, copied verbatim from the main index.html so a
+// language choice made on one page carries over when someone clicks
+// through to another.
+function resolveI18nValue(key, lang) {
+  const parts = key.split('.');
+  let val = T[lang];
+  for (const p of parts) {
+    if (val == null) return null;
+    val = val[p];
+  }
+  return typeof val === 'string' ? val : null;
+}
+
+function applyTranslations(lang) {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    const val = resolveI18nValue(key, lang);
+    if (val) el.innerHTML = val;
+  });
+  document.documentElement.lang = lang;
+}
+
+function detectLang() {
+  try {
+    const saved = localStorage.getItem('dm_lang');
+    if (saved && T[saved]) return saved;
+  } catch (e) {}
+  const nav = (navigator.language || 'en').toLowerCase();
+  if (nav.startsWith('ru')) return 'ru';
+  if (nav.startsWith('uk')) return 'uk';
+  if (nav.startsWith('cs') || nav.startsWith('sk')) return 'cs';
+  return 'en';
+}
+
+function bindLangButtons() {
+  document.querySelectorAll('#langSwitch button[data-lang]').forEach(b => {
+    b.addEventListener('click', () => {
+      const lang = b.dataset.lang;
+      try { localStorage.setItem('dm_lang', lang); } catch (e) {}
+      render(lang);
+    });
+  });
+}
+
+function render(lang) {
+  if (!T[lang]) lang = 'en';
+  document.querySelectorAll('#langSwitch button[data-lang]').forEach(b => {
+    b.setAttribute('aria-pressed', b.dataset.lang === lang ? 'true' : 'false');
+  });
+  applyTranslations(lang);
+}
+
+bindLangButtons();
+render(detectLang());
 </script>
 </body>
 </html>

@@ -120,6 +120,21 @@
   .btn:hover{background:var(--r5);color:#16171a;text-decoration:none;}
   .btn.solid{background:var(--r5);color:#16171a;}
   .btn.solid:hover{background:transparent;color:var(--r5);}
+
+  /* Secondary hero links (Announcements etc.) — deliberately NOT another
+     bordered .btn box. Four equal-weight buttons in one row was the single
+     biggest source of the "overloaded" complaint (09.09.2026 site-updates) —
+     this demotes the secondary actions to plain text so Register/Join stay
+     the two things a first-time visitor actually has to choose between.
+     Re-applied 13.09.2026 on top of the manifesto/i18n merge — the branch
+     that added those didn't have this yet. */
+  .hero-ctas-secondary{display:flex;gap:18px;flex-wrap:wrap;margin-top:2px;width:100%;}
+  .btn-quiet{
+    display:inline-flex;align-items:center;gap:5px;font-family:var(--font-b);
+    font-size:13px;font-weight:600;color:var(--ink-dim);text-decoration:none;
+    border-bottom:1px solid transparent;padding-bottom:1px;transition:color .15s,border-color .15s;
+  }
+  .btn-quiet:hover{color:var(--r5);border-color:var(--r5);text-decoration:none;}
   .free-note{margin-top:18px;font-size:13px;color:var(--ink-faint);}
   .reviews-badge{
     display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;

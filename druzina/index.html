@@ -57,9 +57,15 @@
 <body>
 <nav class="nav">
   <div class="wrap">
-    <div class="brand"><a href="../" style="color:var(--ink);text-decoration:none;">Aliaksei Chareshneu, PhD</a><small>Družina Moravy</small></div>
+    <div class="brand"><a href="../" style="color:var(--ink);text-decoration:none;">Aliaksei Chareshneu, PhD</a><small data-i18n="nav.brand">Družina Moravy</small></div>
     <div class="nav-actions">
-      <a id="navBookBtn" class="btn solid plausible-event-name=Register-Druzina" href="https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog" target="_blank" rel="noopener">Register / Book</a>
+      <div class="langs" id="langSwitch" role="group" aria-label="Language">
+        <button data-lang="ru">RU</button>
+        <button data-lang="uk">UK</button>
+        <button data-lang="cs">CZ</button>
+        <button data-lang="en">EN</button>
+      </div>
+      <a id="navBookBtn" class="btn solid plausible-event-name=Register-Druzina" data-i18n="nav.bookBtn" href="https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog" target="_blank" rel="noopener">Register / Book</a>
     </div>
   </div>
 </nav>
@@ -68,13 +74,13 @@
      there. "Družina Moravy" marked active since that's this page. -->
 <div class="tabs-bar">
   <div class="wrap">
-    <a class="tab-btn" href="../">Home</a>
-    <a class="tab-btn" href="../walkers/">BrnoWalkers</a>
-    <a class="tab-btn" href="../#pricing">Academy</a>
-    <a class="tab-btn active" href="./">Družina Moravy</a>
-    <a class="tab-btn" href="../#walkers-schedule">Calendar</a>
-    <a class="tab-btn tab-btn--accent" href="../#ambassador">Become an Ambassador</a>
-    <a class="tab-btn" href="../#contacts">Contacts</a>
+    <a class="tab-btn" href="../" data-i18n="tabs.main">Home</a>
+    <a class="tab-btn" href="../walkers/" data-i18n="tabs.walkers">BrnoWalkers</a>
+    <a class="tab-btn" href="../#pricing" data-i18n="tabs.academy">Academy</a>
+    <a class="tab-btn active" href="./" data-i18n="tabs.druzina">Družina Moravy</a>
+    <a class="tab-btn" href="../#walkers-schedule" data-i18n="tabs.calendar">Calendar</a>
+    <a class="tab-btn tab-btn--accent" href="../#ambassador" data-i18n="tabs.ambassador">Become an Ambassador</a>
+    <a class="tab-btn" href="../#contacts" data-i18n="tabs.contacts">Contacts</a>
   </div>
 </div>
 
@@ -101,32 +107,30 @@
     
     <div class="wrap">
       <p class="eyebrow">Brno · HEMA · LARP</p>
-      <h2 data-i18n="ui.druzinaName2">Družina Moravy — HEMA Fencing &amp; LARP Club in Brno</h2>
-      <p class="tagline" data-i18n="ui.druzinaTagline">A club for historical medieval combat, fencing (HEMA), archery, and LARP re-enactment in Brno.</p>
-      <p class="hero-mission" data-i18n="ui.druzinaMission">Družina Moravy revives the living tradition of Great Moravia — fellowship, craft, and the path from novice to warrior — so that everyone who joins finds roots, mastery, and their people.</p>
+      <h2 data-i18n="hero.name2">Družina Moravy — HEMA Fencing &amp; LARP Club in Brno</h2>
+      <p class="tagline" data-i18n="hero.tagline">A club for historical medieval combat, fencing (HEMA), archery, and LARP re-enactment in Brno.</p>
+      <p class="hero-mission" data-i18n="hero.mission">Družina Moravy revives the living tradition of Great Moravia — fellowship, craft, and the path from novice to warrior — so that everyone who joins finds roots, mastery, and their people.</p>
       <a class="reviews-badge" href="https://maps.app.goo.gl/fEbnJHxiVoAx1v498" target="_blank" rel="noopener">⭐ 50+ Google reviews · 5.0</a>
 
       <div class="hero-ctas">
-        <a class="btn solid plausible-event-name=Register-Druzina" href="https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog" target="_blank" rel="noopener">Register for training</a>
-        <a class="btn plausible-event-name=Join-Chat-Druzina" href="https://chat.whatsapp.com/JzeXAQF8I2XE3zQ2OqWsPz" target="_blank" rel="noopener">Join the chat</a>
-        <!-- Added per site-updates brief (3.9.updates, item 1) — this
-             page had no announcements-channel button at all (only the
-             chat above). Two buttons for the two language audiences on
-             two platforms, same pattern as /walkers/. -->
-        <a class="btn plausible-event-name=Announce-WA-Druzina" href="https://chat.whatsapp.com/DuTpgF22mxMFy6L1Cfrcvu" target="_blank" rel="noopener">Announcements · WhatsApp</a>
-        <a class="btn plausible-event-name=Announce-TG-Druzina" href="https://t.me/druzinamoravy_news" target="_blank" rel="noopener">Announcements · Telegram</a>
+        <a class="btn solid plausible-event-name=Register-Druzina" data-i18n="hero.ctaRegister" href="https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog" target="_blank" rel="noopener">Register for training</a>
+        <a class="btn plausible-event-name=Join-Chat-Druzina" data-i18n="hero.ctaChat" href="https://chat.whatsapp.com/JzeXAQF8I2XE3zQ2OqWsPz" target="_blank" rel="noopener">Join the chat</a>
+      </div>
+      <div class="hero-ctas-secondary">
+        <a class="btn-quiet plausible-event-name=Announce-WA-Druzina" data-i18n="hero.ctaAnnounceWA" href="https://chat.whatsapp.com/DuTpgF22mxMFy6L1Cfrcvu" target="_blank" rel="noopener">Announcements · WhatsApp</a>
+        <a class="btn-quiet plausible-event-name=Announce-TG-Druzina" data-i18n="hero.ctaAnnounceTG" href="https://t.me/druzinamoravy_news" target="_blank" rel="noopener">Announcements · Telegram</a>
       </div>
 
       <div class="hero-testimonial">
-        <p class="quote">"Druzhina training feels demanding and honest. I gained new friends and real skills, not just another story."</p>
-        <div class="author">— Ivan, Druzhina Moravy</div>
+        <p class="quote" data-i18n="hero.testimonialQuote">"Druzhina training feels demanding and honest. I gained new friends and real skills, not just another story."</p>
+        <div class="author" data-i18n="hero.testimonialAuthor">— Ivan, Druzhina Moravy</div>
       </div>
 
-      <div class="free-note">Your first training costs 120 Kč — a chance to get to know the club. Before it, we'll always ask whether you're planning to train regularly going forward or this is a one-off try out of curiosity — not a test, it just lets the coach pick the right format from the start.</div>
+      <div class="free-note" data-i18n="hero.freeNote">Your first training costs 120 Kč — a chance to get to know the club. Before it, we'll always ask whether you're planning to train regularly going forward or this is a one-off try out of curiosity — not a test, it just lets the coach pick the right format from the start.</div>
     </div>
   </section>
 <section id="schedule">
-    <div class="wrap">
+    <div class="wrap" data-i18n="schedule">
       <p class="eyebrow-sm">Schedule &amp; venue</p>
       <h3 class="anchor-heading">When &amp; Where<a class="anchor-link" href="#schedule">#</a></h3>
       <p>Venue: Dukelská třída 157/44, Brno. Training outdoors. Duration: 1 hour 30 minutes. Call the trainer upon arrival.</p>
@@ -144,7 +148,7 @@
     </div>
   </section>
 <section id="tariff">
-    <div class="wrap">
+    <div class="wrap" data-i18n="tariff">
       <p class="eyebrow-sm">Membership &amp; payment</p>
       <h3 class="anchor-heading">Tariff Is Not Rank<a class="anchor-link" href="#tariff">#</a></h3>
       <p>This is about how you pay — it has nothing to do with rank progression.</p>
@@ -189,7 +193,7 @@
     </div>
   </section>
 <section id="druzina-payment">
-    <div class="wrap">
+    <div class="wrap" data-i18n="payment">
       <p class="eyebrow-sm">Payment</p>
       <h3 class="anchor-heading">How Payment Works<a class="anchor-link" href="#druzina-payment">#</a></h3>
       <ul class="plain">
@@ -202,7 +206,7 @@
     </div>
   </section>
 <section id="onboarding">
-    <div class="wrap">
+    <div class="wrap" data-i18n="onboarding">
       <p class="eyebrow-sm">First time here</p>
       <h3 class="anchor-heading">What to Expect<a class="anchor-link" href="#onboarding">#</a></h3>
       <div class="tbl-wrap">
@@ -227,7 +231,7 @@
     </div>
   </section>
 <section id="ranks">
-    <div class="wrap">
+    <div class="wrap" data-i18n="ranks">
       <p class="eyebrow-sm">Rank</p>
       <h3 class="anchor-heading">The Member's Path<a class="anchor-link" href="#ranks">#</a></h3>
       <p>Rank tracks accumulated progress based on attendance and bringing people in. Each rank grants a specific colored bracelet, awarded in person and announced out loud at the end of training.</p>
@@ -288,7 +292,7 @@
     </div>
   </section>
 <section id="roles">
-    <div class="wrap">
+    <div class="wrap" data-i18n="roles">
       <p class="eyebrow-sm">Roles in the Senior tier</p>
       <h3 class="anchor-heading">Pick at Least One<a class="anchor-link" href="#roles">#</a></h3>
       <p>Every Senior-tier member picks at least one role below from day one.</p>
@@ -308,7 +312,7 @@
     </div>
   </section>
 <section id="conduct">
-    <div class="wrap">
+    <div class="wrap" data-i18n="conduct">
       <p class="eyebrow-sm">Rules and code</p>
       <h3 class="anchor-heading">Conduct &amp; Safety<a class="anchor-link" href="#conduct">#</a></h3>
 
@@ -356,10 +360,10 @@
 
 <footer>
   <div class="wrap">
-    <h2>Want the full picture?</h2>
-    <p class="lead">Tutoring, BrnoWalkers hiking, and the complete site live at the main hub.</p>
+    <h2 data-i18n="footer.title">Want the full picture?</h2>
+    <p class="lead" data-i18n="footer.lead">Tutoring, BrnoWalkers hiking, and the complete site live at the main hub.</p>
     <div class="footer-contacts">
-      <a class="btn solid" href="../">Visit the full site ➔</a>
+      <a class="btn solid" data-i18n="footer.visitFull" href="../">Visit the full site ➔</a>
       <a class="btn" href="../walkers/">BrnoWalkers ➔</a>
     </div>
     <div class="footer-fine">Aliaksei Chareshneu, PhD · Brno, Czech Republic · OSVČ IČO: 23041625</div>
@@ -487,6 +491,795 @@
     }
     requestAnimationFrame(draw);
   })();
+</script>
+<script>
+
+const T = {
+en: {
+  nav: { brand: 'Družina Moravy', bookBtn: 'Register / Book' },
+  tabs: {main:'Home', walkers:'BrnoWalkers', academy:'Academy', druzina:'Družina Moravy', calendar:'Calendar', ambassador:'Become an Ambassador', contacts:'Contacts'},
+  hero: {
+    name2: 'Družina Moravy — HEMA Fencing &amp; LARP Club in Brno',
+    tagline: 'A club for historical medieval combat, fencing (HEMA), archery, and LARP re-enactment in Brno.',
+    mission: 'Družina Moravy revives the living tradition of Great Moravia — fellowship, craft, and the path from novice to warrior — so that everyone who joins finds roots, mastery, and their people.',
+    ctaRegister: 'Register for training', ctaChat: 'Join the chat',
+    ctaAnnounceWA: 'Announcements · WhatsApp', ctaAnnounceTG: 'Announcements · Telegram',
+    testimonialQuote: '"Druzhina training feels demanding and honest. I gained new friends and real skills, not just another story."',
+    testimonialAuthor: '— Ivan, Druzhina Moravy',
+    freeNote: 'Your first training costs 120 Kč — a chance to get to know the club. Before it, we\u2019ll always ask whether you\u2019re planning to train regularly going forward or this is a one-off try out of curiosity — not a test, it just lets the coach pick the right format from the start.'
+  },
+  schedule: `<p class="eyebrow-sm">Schedule &amp; venue</p>
+      <h3 class="anchor-heading">When &amp; Where<a class="anchor-link" href="#schedule">#</a></h3>
+      <p>Venue: Dukelská třída 157/44, Brno. Training outdoors. Duration: 1 hour 30 minutes. Call the trainer upon arrival.</p>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Day</th><th>Time</th><th>Format</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Monday</strong></td><td>18:00</td><td>Training</td></tr>
+            <tr><td><strong>Thursday</strong></td><td>18:00</td><td>Training</td></tr>
+            <tr><td><strong>Saturday</strong></td><td>18:00</td><td>Training</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">LARP events happen irregularly, announced separately on Telegram and WhatsApp. Training is cancelled if no participant has registered (paid session, a registered trial training, or an active subscription).</p>`,
+  tariff: `<p class="eyebrow-sm">Membership &amp; payment</p>
+      <h3 class="anchor-heading">Tariff Is Not Rank<a class="anchor-link" href="#tariff">#</a></h3>
+      <p>This is about how you pay — it has nothing to do with rank progression.</p>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Parameter</th><th>Junior tier</th><th>Senior tier</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Who</strong></td><td>Occasional, irregular guests</td><td>Those training regularly</td></tr>
+            <tr><td><strong>Payment (single visit)</strong></td><td>240 Kč / session</td><td>120 Kč / session</td></tr>
+            <tr><td><strong>Condition</strong></td><td>At least 1 session a month</td><td>4+ sessions every month</td></tr>
+            <tr><td><strong>Standard subscription (up to 4/month)</strong></td><td>910 Kč</td><td>455 Kč</td></tr>
+            <tr><td><strong>Unlimited subscription (3+/week)</strong></td><td>2,870 Kč</td><td>1,435 Kč</td></tr>
+            <tr><td><strong>3-month subscription (90 days)</strong></td><td>8,235 Kč</td><td>4,120 Kč</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note" style="margin-top:10px">Subscriptions include free weapon rental (swords, axes, spears, bows). Armour (cuirass, helmet) rents separately. Valid 30 days from payment (quarterly — 90 days), refund only before activation. First person to buy the quarterly subscription in the current cycle gets a handmade weapon as a gift. Standard is specific days, not a walk-in-whenever pass — you tell the coach in advance which of the Mon/Thu/Sat sessions you\u2019ll attend that cycle.</p>
+      <div class="callout" style="margin-top:18px;">
+        <p><strong>Starter Package (Junior tier)</strong> — for those training 2×/week or more who haven\u2019t yet reached Senior status.</p>
+        <div class="tbl-wrap" style="margin-top:10px;">
+          <table>
+            <thead><tr><th>Package</th><th>Price</th><th>Per session</th></tr></thead>
+            <tbody>
+              <tr><td>10 lessons</td><td>2,300 Kč</td><td>230 Kč</td></tr>
+              <tr><td>20 lessons</td><td>4,200 Kč</td><td>210 Kč</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note" style="margin-top:10px">Weapon rental included. Valid 4 months from purchase. Buying a package doesn\u2019t grant Senior status on its own — that still requires 4+ sessions in a calendar month; once reached, renew at Senior rates.</p>
+      </div>
+      <p style="margin-top:18px"><strong>Senior tier is a status you reconfirm every month, not a one-time threshold.</strong> If you stop keeping up 4+ sessions a month, you automatically drop back to Junior tier and the 240 Kč/session rate. Rank doesn\u2019t reset.</p>
+      <p class="note">Your first training costs 120 Kč — a chance to get to know the club. Before it, we\u2019ll always ask: are you planning to train regularly going forward (a subscription from 455 Kč/month, or 120–240 Kč per visit), or is this a one-off try out of curiosity? It\u2019s not a test — it just lets the coach pick the right format from the start, so nobody\u2019s time gets wasted.</p>`,
+  payment: `<p class="eyebrow-sm">Payment</p>
+      <h3 class="anchor-heading">How Payment Works<a class="anchor-link" href="#druzina-payment">#</a></h3>
+      <ul class="plain">
+        <li>Registration and payment must be completed at least 48 hours before the start of training, via Revolut: revolut.me/aliaksj5pq.</li>
+        <li>Payment later than 48 hours before, or on the day — a 25% surcharge on the session price.</li>
+        <li>Need to borrow/rent club gear (weapons, armour)? Tell us at least 48 hours before training, same as payment. Later — the same 25% surcharge on the session price.</li>
+        <li>Payment (including any late surcharge) must be received before the training starts — without it, you won\u2019t be admitted to that session.</li>
+        <li>Training takes place only if at least one participant has a paid session (including a first-time trial) or an active subscription. If no one qualifies — the session is cancelled.</li>
+      </ul>`,
+  onboarding: `<p class="eyebrow-sm">First time here</p>
+      <h3 class="anchor-heading">What to Expect<a class="anchor-link" href="#onboarding">#</a></h3>
+      <div class="tbl-wrap">
+        <table>
+          <tbody>
+            <tr><td><strong>Clothing</strong></td><td>Comfortable sportswear, closed shoes. Gear provided.</td></tr>
+            <tr><td><strong>Bring</strong></td><td>A bottle of water. First training costs 120 Kč.</td></tr>
+            <tr><td><strong>Structure</strong></td><td>Briefing → stances → weapons testing → light sparring.</td></tr>
+            <tr><td><strong>Liability</strong></td><td>Waiver signing. No insurance provided.</td></tr>
+            <tr><td><strong>Next step</strong></td><td>After 4 sessions/month, move to Senior tier.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout">
+        <p><strong>First training — 120 Kč, just show up.</strong></p>
+        <div style="margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+          <a class="btn solid plausible-event-name=Register-Druzina" href="https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog" target="_blank" rel="noopener">Register for training</a>
+          <a class="btn plausible-event-name=Join-Chat-Druzina" href="https://chat.whatsapp.com/JzeXAQF8I2XE3zQ2OqWsPz" target="_blank" rel="noopener">Join the chat</a>
+        </div>
+      </div>`,
+  ranks: `<p class="eyebrow-sm">Rank</p>
+      <h3 class="anchor-heading">The Member\u2019s Path<a class="anchor-link" href="#ranks">#</a></h3>
+      <p>Rank tracks accumulated progress based on attendance and bringing people in. Each rank grants a specific colored bracelet, awarded in person and announced out loud at the end of training.</p>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Rank</th><th>Bracelet</th><th>Threshold</th><th>Perk</th></tr></thead>
+          <tbody>
+            <tr><td><strong>I — Recruit</strong> (Otrok)</td><td>No bracelet</td><td>Showed up to a training</td><td>Basic access. At your very first training you can try any weapon in the club.</td></tr>
+            <tr><td><strong>II — Warrior</strong> (Ratník)</td><td>Red</td><td>8 sessions</td><td>Priority booking on club trips + 5% discount on custom craft/repair.</td></tr>
+            <tr><td><strong>III — Veteran</strong> (Veterán)</td><td>Blue</td><td>20 sessions + 2 battles</td><td>A pin badge · priority choice of sparring partner in free rounds · access to the special trip "Battle Under the Mountain" + 10% discount.</td></tr>
+            <tr><td><strong>IV — Champion</strong> (Vítěz)</td><td>Orange</td><td>40 sessions + 5 battles</td><td>Priority access to the club\u2019s best/newest gear + 15% discount.</td></tr>
+            <tr><td><strong>V — Warlord</strong> (Tisícník)</td><td>Black with a gold thread</td><td>100 sessions, 1+ year tenure, 10 battles</td><td>Runs trainings independently when the head trainer is away + 20% discount.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">The sparring-partner priority (Rank III) only applies in free rounds.</p>
+      <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:24px 0 8px;">Weapon access by rank</h4>
+      <div class="tbl-wrap">
+        <table><tbody>
+          <tr><td><strong>First training (once)</strong></td><td>You can try any weapon in the club — a two-handed sword, spear, bow, crossbow — under the trainer\u2019s guidance.</td></tr>
+          <tr><td><strong>Regular training</strong></td><td>One-handed swords, bow and crossbow — unrestricted, at any rank.</td></tr>
+          <tr><td><strong>From Rank III (Veteran)</strong></td><td>Training opens up for long/two-handed weapons (140cm+), spear, and the pike.</td></tr>
+        </tbody></table>
+      </div>
+      <div class="callout">
+        <div class="big">+5</div>
+        <p><strong>Brought in someone who stayed for 4+ trainings?</strong> +5 sessions are credited to your rank count.</p>
+      </div>
+      <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:24px 0 8px;">Renting advanced gear</h4>
+      <p>The club offers rental of advanced historical weapons and armor.</p>
+      <p><a href="https://docs.google.com/spreadsheets/d/11-XATZWWwX6YjltnxsNxqNGbrEt9e1WKpoDXlvc6LC4/edit?usp=drivesdk" target="_blank" rel="noopener">Full list and prices →</a></p>
+      <p class="note">Rental doesn\u2019t override rank restrictions — training with long/two-handed weapons still requires Rank III.</p>
+      <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:24px 0 8px;">Craft &amp; repair discount</h4>
+      <p>The discount in the rank table above applies only to custom-made gear and repairs.</p>
+      <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:24px 0 8px;">Rank IV &amp; V privileges</h4>
+      <div class="tbl-wrap">
+        <table><tbody>
+          <tr><td><strong>Private lesson</strong></td><td>from 700 Kč; from Rank IV: first one each month is free, the second is 200 Kč.</td></tr>
+          <tr><td><strong>Council of the Druzhina</strong></td><td>From Rank IV: a small group discussing the club\u2019s direction.</td></tr>
+          <tr><td><strong>Special trip "Battle Under the Mountain"</strong></td><td>From Rank III: higher-risk format.</td></tr>
+          <tr><td><strong>A named weapon</strong></td><td>Rank V: on first reaching Warlord — a personal weapon (materials cost only).</td></tr>
+        </tbody></table>
+      </div>
+      <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:24px 0 8px;">The moment of recognition</h4>
+      <p>Rank upgrades are announced out loud at the end of training with bracelet delivery.</p>
+      <p>Rank III (Veteran) marks your acceptance into the core foundation of the club.</p>`,
+  roles: `<p class="eyebrow-sm">Roles in the Senior tier</p>
+      <h3 class="anchor-heading">Pick at Least One<a class="anchor-link" href="#roles">#</a></h3>
+      <p>Every Senior-tier member picks at least one role below from day one.</p>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Role</th><th>What it does</th><th>Reward</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Recruiter</strong></td><td>Brings in new members</td><td>Status and visibility in the club + a +5-session rank bonus for every retained referral</td></tr>
+            <tr><td><strong>Tournament fighter</strong></td><td>Represents the club at tournaments and battles as a fighter</td><td>"Face of the club" status: priority placement in photos/videos for social media</td></tr>
+            <tr><td><strong>Assistant commander-trainer</strong></td><td>Helps lead part of a training session</td><td>Title + a faster track toward becoming a candidate deputy</td></tr>
+            <tr><td><strong>Craftsman</strong></td><td>Repairs and maintains the club\u2019s shared gear</td><td>Barter: repair hours are exchanged for free training sessions</td></tr>
+            <tr><td><strong>Logistics</strong></td><td>Transport, routes, distributing gear/food/tents for trips</td><td>Status + priority spot in the car/tent on trips</td></tr>
+          </tbody>
+        </table>
+      </div>`,
+  conduct: `<p class="eyebrow-sm">Rules and code</p>
+      <h3 class="anchor-heading">Conduct &amp; Safety<a class="anchor-link" href="#conduct">#</a></h3>
+      <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:0 0 8px;">Conduct</h4>
+      <ul class="plain">
+        <li>No extremism — immediate removal.</li>
+        <li>Respect for members, gear, and the venue.</li>
+        <li>Honor code — honestly acknowledge hits taken in sparring.</li>
+        <li>Conflicts are resolved through the head trainer, not in public.</li>
+        <li>Alcohol and drugs are strictly forbidden.</li>
+      </ul>
+      <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:24px 0 8px;">Safety</h4>
+      <ul class="plain">
+        <li>The right to refuse a bout — no explanation needed.</li>
+        <li>Gear check is mandatory before use.</li>
+        <li>Newcomers get a briefing before their first bout.</li>
+        <li>Children from age 7, with written parental consent.</li>
+      </ul>
+      <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:24px 0 8px;">Discipline</h4>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Violation</th><th>Consequence</th></tr></thead>
+          <tbody>
+            <tr><td><strong>1st violation</strong></td><td>A strike (written warning)</td></tr>
+            <tr><td><strong>2nd violation</strong></td><td>Removal (can rejoin after 3 months)</td></tr>
+            <tr><td><strong>Repeated</strong></td><td>Final removal</td></tr>
+            <tr><td><strong>Severe</strong></td><td>Immediate removal</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="margin-top:14px;"><a href="../#terms">📜 Full legal terms of participation →</a></p>`,
+  footer: { title: 'Want the full picture?', lead: 'Tutoring, BrnoWalkers hiking, and the complete site live at the main hub.', visitFull: 'Visit the full site ➔' }
+},
+ru: {
+  nav: { brand: 'Дружина Моравы', bookBtn: 'Записаться' },
+  tabs: {main:'Главная', walkers:'Брноходцы', academy:'Академия', druzina:'Дружина Моравы', calendar:'Календарь', ambassador:'Стать послом', contacts:'Контакты'},
+  hero: {
+    name2: 'Дружина Моравы — клуб исторического фехтования (HEMA) и LARP в Брно',
+    tagline: 'Клуб исторического средневекового боя, фехтования (HEMA), стрельбы и LARP-реконструкции в Брно.',
+    mission: 'Дружина Моравы возрождает живую традицию Великой Моравии — товарищество, ремесло и путь от новичка до воина, — чтобы каждый, кто пришёл, обрёл корни, мастерство и своих.',
+    ctaRegister: 'Записаться на тренировку', ctaChat: 'Присоединиться к чату',
+    ctaAnnounceWA: 'Анонсы · WhatsApp', ctaAnnounceTG: 'Анонсы · Telegram',
+    testimonialQuote: '«Тренировки в Дружине — требовательные и честные. Я получил новых друзей и реальные навыки, а не просто ещё одну байку.»',
+    testimonialAuthor: '— Иван, Дружина Моравы',
+    freeNote: 'Первая тренировка стоит 120 крон — возможность познакомиться с клубом. Перед ней мы всегда спросим, планируешь ли ты тренироваться регулярно дальше или это разовая проба из любопытства — это не тест, просто помогает тренеру сразу выбрать правильный формат.'
+  },
+  schedule: `<p class="eyebrow-sm">Расписание и место</p>
+      <h3 class="anchor-heading">Когда и где<a class="anchor-link" href="#schedule">#</a></h3>
+      <p>Место: Dukelská třída 157/44, Брно. Тренировки на улице. Длительность: 1 час 30 минут. По прибытии позвони тренеру.</p>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>День</th><th>Время</th><th>Формат</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Понедельник</strong></td><td>18:00</td><td>Тренировка</td></tr>
+            <tr><td><strong>Четверг</strong></td><td>18:00</td><td>Тренировка</td></tr>
+            <tr><td><strong>Суббота</strong></td><td>18:00</td><td>Тренировка</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">LARP-мероприятия проходят нерегулярно, анонсируются отдельно в Telegram и WhatsApp. Тренировка отменяется, если ни один участник не зарегистрировался (оплаченное занятие, записанная пробная тренировка или активный абонемент).</p>`,
+  tariff: `<p class="eyebrow-sm">Членство и оплата</p>
+      <h3 class="anchor-heading">Тариф — это не ранг<a class="anchor-link" href="#tariff">#</a></h3>
+      <p>Это про то, как ты платишь — к прогрессу в рангах отношения не имеет.</p>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Параметр</th><th>Тариф Junior</th><th>Тариф Senior</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Кто</strong></td><td>Нерегулярные, случайные гости</td><td>Те, кто тренируется регулярно</td></tr>
+            <tr><td><strong>Оплата (разовое посещение)</strong></td><td>240 крон / занятие</td><td>120 крон / занятие</td></tr>
+            <tr><td><strong>Условие</strong></td><td>Минимум 1 занятие в месяц</td><td>4+ занятий каждый месяц</td></tr>
+            <tr><td><strong>Стандартный абонемент (до 4/мес)</strong></td><td>910 крон</td><td>455 крон</td></tr>
+            <tr><td><strong>Безлимитный абонемент (3+/нед)</strong></td><td>2 870 крон</td><td>1 435 крон</td></tr>
+            <tr><td><strong>3-месячный абонемент (90 дней)</strong></td><td>8 235 крон</td><td>4 120 крон</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note" style="margin-top:10px">В абонементы включена бесплатная аренда оружия (мечи, топоры, копья, луки). Броня (кираса, шлем) арендуется отдельно. Действует 30 дней с оплаты (квартальный — 90 дней), возврат только до активации. Первый, кто купит квартальный абонемент в текущем цикле, получает оружие ручной работы в подарок. Стандартный — это конкретные дни, а не проход когда угодно: ты заранее говоришь тренеру, на какие из тренировок Пн/Чт/Сб придёшь в этом цикле.</p>
+      <div class="callout" style="margin-top:18px;">
+        <p><strong>Стартовый пакет (тариф Junior)</strong> — для тех, кто тренируется 2+ раз в неделю, но ещё не достиг статуса Senior.</p>
+        <div class="tbl-wrap" style="margin-top:10px;">
+          <table>
+            <thead><tr><th>Пакет</th><th>Цена</th><th>За занятие</th></tr></thead>
+            <tbody>
+              <tr><td>10 занятий</td><td>2 300 крон</td><td>230 крон</td></tr>
+              <tr><td>20 занятий</td><td>4 200 крон</td><td>210 крон</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note" style="margin-top:10px">Аренда оружия включена. Действует 4 месяца с покупки. Покупка пакета сама по себе не даёт статус Senior — для этого всё равно нужно 4+ занятия в календарный месяц; после достижения — продление по тарифу Senior.</p>
+      </div>
+      <p style="margin-top:18px"><strong>Статус Senior подтверждается каждый месяц заново, а не даётся один раз навсегда.</strong> Если перестаёшь держать 4+ занятия в месяц — автоматически откатываешься на тариф Junior и ставку 240 крон/занятие. Ранг при этом не сбрасывается.</p>
+      <p class="note">Первая тренировка стоит 120 крон — возможность познакомиться с клубом. Перед ней мы всегда спросим: планируешь ли ты тренироваться регулярно (абонемент от 455 крон/месяц, либо 120–240 крон за визит), или это разовая проба из любопытства? Это не тест — просто помогает тренеру сразу выбрать правильный формат, чтобы никто не терял время.</p>`,
+  payment: `<p class="eyebrow-sm">Оплата</p>
+      <h3 class="anchor-heading">Как устроена оплата<a class="anchor-link" href="#druzina-payment">#</a></h3>
+      <ul class="plain">
+        <li>Регистрация и оплата должны быть завершены минимум за 48 часов до начала тренировки, через Revolut: revolut.me/aliaksj5pq.</li>
+        <li>Оплата позже, чем за 48 часов, или в день тренировки — надбавка 25% к стоимости занятия.</li>
+        <li>Нужно одолжить/арендовать снаряжение клуба (оружие, броню)? Сообщи минимум за 48 часов до тренировки, как и с оплатой. Позже — та же надбавка 25% к стоимости занятия.</li>
+        <li>Оплата (включая любую надбавку за опоздание) должна поступить до начала тренировки — без неё на занятие не допустят.</li>
+        <li>Тренировка состоится только если хотя бы у одного участника есть оплаченное занятие (включая первую пробную) или активный абонемент. Если таких нет — тренировка отменяется.</li>
+      </ul>`,
+  onboarding: `<p class="eyebrow-sm">Впервые здесь</p>
+      <h3 class="anchor-heading">Чего ожидать<a class="anchor-link" href="#onboarding">#</a></h3>
+      <div class="tbl-wrap">
+        <table>
+          <tbody>
+            <tr><td><strong>Одежда</strong></td><td>Удобная спортивная одежда, закрытая обувь. Снаряжение предоставляется.</td></tr>
+            <tr><td><strong>Взять с собой</strong></td><td>Бутылку воды. Первая тренировка стоит 120 крон.</td></tr>
+            <tr><td><strong>Структура</strong></td><td>Инструктаж → стойки → проба оружия → лёгкий спарринг.</td></tr>
+            <tr><td><strong>Ответственность</strong></td><td>Подписание расписки об ответственности. Страховка не предоставляется.</td></tr>
+            <tr><td><strong>Следующий шаг</strong></td><td>После 4 занятий в месяц — переход на тариф Senior.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout">
+        <p><strong>Первая тренировка — 120 крон, просто приходи.</strong></p>
+        <div style="margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+          <a class="btn solid plausible-event-name=Register-Druzina" href="https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog" target="_blank" rel="noopener">Записаться на тренировку</a>
+          <a class="btn plausible-event-name=Join-Chat-Druzina" href="https://chat.whatsapp.com/JzeXAQF8I2XE3zQ2OqWsPz" target="_blank" rel="noopener">Присоединиться к чату</a>
+        </div>
+      </div>`,
+  ranks: `<p class="eyebrow-sm">Ранг</p>
+      <h3 class="anchor-heading">Путь участника<a class="anchor-link" href="#ranks">#</a></h3>
+      <p>Ранг отражает накопленный прогресс на основе посещаемости и приведённых людей. Каждый ранг даёт свой цветной браслет, который вручается лично и объявляется вслух в конце тренировки.</p>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Ранг</th><th>Браслет</th><th>Порог</th><th>Привилегия</th></tr></thead>
+          <tbody>
+            <tr><td><strong>I — Новобранец</strong> (Отрок)</td><td>Без браслета</td><td>Пришёл на тренировку</td><td>Базовый доступ. На самой первой тренировке можно попробовать любое оружие клуба.</td></tr>
+            <tr><td><strong>II — Воин</strong> (Ратник)</td><td>Красный</td><td>8 занятий</td><td>Приоритет записи на выезды клуба + скидка 5% на кастомный крафт/ремонт.</td></tr>
+            <tr><td><strong>III — Ветеран</strong> (Ветеран)</td><td>Синий</td><td>20 занятий + 2 сражения</td><td>Значок · приоритетный выбор партнёра по спаррингу в свободных раундах · доступ к спецвыезду «Битва под горой» + скидка 10%.</td></tr>
+            <tr><td><strong>IV — Чемпион</strong> (Витязь)</td><td>Оранжевый</td><td>40 занятий + 5 сражений</td><td>Приоритетный доступ к лучшему/новому снаряжению клуба + скидка 15%.</td></tr>
+            <tr><td><strong>V — Вождь</strong> (Тысяцкий)</td><td>Чёрный с золотой нитью</td><td>100 занятий, стаж 1+ год, 10 сражений</td><td>Самостоятельно ведёт тренировки в отсутствие главного тренера + скидка 20%.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">Приоритет выбора партнёра (III ранг) действует только в свободных раундах.</p>
+      <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:24px 0 8px;">Доступ к оружию по рангу</h4>
+      <div class="tbl-wrap">
+        <table><tbody>
+          <tr><td><strong>Первая тренировка (один раз)</strong></td><td>Можно попробовать любое оружие клуба — двуручный меч, копьё, лук, арбалет — под руководством тренера.</td></tr>
+          <tr><td><strong>Обычные тренировки</strong></td><td>Одноручные мечи, лук и арбалет — без ограничений, на любом ранге.</td></tr>
+          <tr><td><strong>С III ранга (Ветеран)</strong></td><td>Открываются тренировки с длинным/двуручным оружием (140см+), копьём и пикой.</td></tr>
+        </tbody></table>
+      </div>
+      <div class="callout">
+        <div class="big">+5</div>
+        <p><strong>Привёл кого-то, кто остался на 4+ тренировки?</strong> +5 занятий засчитываются в твой ранговый счёт.</p>
+      </div>
+      <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:24px 0 8px;">Аренда продвинутого снаряжения</h4>
+      <p>Клуб предлагает аренду продвинутого исторического оружия и брони.</p>
+      <p><a href="https://docs.google.com/spreadsheets/d/11-XATZWWwX6YjltnxsNxqNGbrEt9e1WKpoDXlvc6LC4/edit?usp=drivesdk" target="_blank" rel="noopener">Полный список и цены →</a></p>
+      <p class="note">Аренда не отменяет ранговых ограничений — тренировки с длинным/двуручным оружием всё равно требуют III ранга.</p>
+      <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:24px 0 8px;">Скидка на крафт и ремонт</h4>
+      <p>Скидка из таблицы рангов выше применяется только к изготовленному на заказ снаряжению и ремонту.</p>
+      <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:24px 0 8px;">Привилегии IV и V ранга</h4>
+      <div class="tbl-wrap">
+        <table><tbody>
+          <tr><td><strong>Индивидуальное занятие</strong></td><td>от 700 крон; с IV ранга: первое в месяц бесплатно, второе — 200 крон.</td></tr>
+          <tr><td><strong>Совет Дружины</strong></td><td>С IV ранга: небольшая группа, обсуждающая направление развития клуба.</td></tr>
+          <tr><td><strong>Спецвыезд «Битва под горой»</strong></td><td>С III ранга: формат повышенного риска.</td></tr>
+          <tr><td><strong>Именное оружие</strong></td><td>V ранг: при первом достижении Вождя — личное оружие (только стоимость материалов).</td></tr>
+        </tbody></table>
+      </div>
+      <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:24px 0 8px;">Момент признания</h4>
+      <p>Повышение ранга объявляется вслух в конце тренировки с вручением браслета.</p>
+      <p>III ранг (Ветеран) означает принятие в костяк клуба.</p>`,
+  roles: `<p class="eyebrow-sm">Роли в тарифе Senior</p>
+      <h3 class="anchor-heading">Выбери минимум одну<a class="anchor-link" href="#roles">#</a></h3>
+      <p>Каждый участник тарифа Senior выбирает минимум одну роль ниже с первого дня.</p>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Роль</th><th>Что делает</th><th>Награда</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Рекрутер</strong></td><td>Приводит новых участников</td><td>Статус и видимость в клубе + бонус +5 занятий к рангу за каждого удержанного приглашённого</td></tr>
+            <tr><td><strong>Турнирный боец</strong></td><td>Представляет клуб на турнирах и сражениях как боец</td><td>Статус «лица клуба»: приоритет в фото/видео для соцсетей</td></tr>
+            <tr><td><strong>Помощник командира-тренера</strong></td><td>Помогает вести часть тренировки</td><td>Титул + ускоренный путь к статусу кандидата в заместители</td></tr>
+            <tr><td><strong>Мастеровой</strong></td><td>Ремонтирует и обслуживает общее снаряжение клуба</td><td>Бартер: часы ремонта обмениваются на бесплатные тренировки</td></tr>
+            <tr><td><strong>Логистика</strong></td><td>Транспорт, маршруты, распределение снаряжения/еды/палаток для выездов</td><td>Статус + приоритетное место в машине/палатке на выездах</td></tr>
+          </tbody>
+        </table>
+      </div>`,
+  conduct: `<p class="eyebrow-sm">Правила и кодекс</p>
+      <h3 class="anchor-heading">Поведение и безопасность<a class="anchor-link" href="#conduct">#</a></h3>
+      <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:0 0 8px;">Поведение</h4>
+      <ul class="plain">
+        <li>Никакого экстремизма — немедленное исключение.</li>
+        <li>Уважение к участникам, снаряжению и месту тренировок.</li>
+        <li>Кодекс чести — честно признавай полученные в спарринге удары.</li>
+        <li>Конфликты решаются через главного тренера, не публично.</li>
+        <li>Алкоголь и наркотики строго запрещены.</li>
+      </ul>
+      <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:24px 0 8px;">Безопасность</h4>
+      <ul class="plain">
+        <li>Право отказаться от боя — без объяснений.</li>
+        <li>Проверка снаряжения обязательна перед использованием.</li>
+        <li>Новички получают инструктаж перед первым боем.</li>
+        <li>Дети с 7 лет, при письменном согласии родителей.</li>
+      </ul>
+      <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:24px 0 8px;">Дисциплина</h4>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Нарушение</th><th>Последствие</th></tr></thead>
+          <tbody>
+            <tr><td><strong>1-е нарушение</strong></td><td>Страйк (письменное предупреждение)</td></tr>
+            <tr><td><strong>2-е нарушение</strong></td><td>Исключение (можно вернуться через 3 месяца)</td></tr>
+            <tr><td><strong>Повторно</strong></td><td>Окончательное исключение</td></tr>
+            <tr><td><strong>Серьёзное</strong></td><td>Немедленное исключение</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="margin-top:14px;"><a href="../#terms">📜 Полные юридические условия участия →</a></p>`,
+  footer: { title: 'Хочешь увидеть всю картину?', lead: 'Репетиторство, походы Брноходцев и весь сайт целиком — на главном хабе.', visitFull: 'Перейти на весь сайт ➔' }
+},
+cs: {
+  nav: { brand: 'Družina Moravy', bookBtn: 'Přihlásit se' },
+  tabs: {main:'Domů', walkers:'BrnoWalkers', academy:'Akademie', druzina:'Družina Moravy', calendar:'Kalendář', ambassador:'Staň se ambasadorem', contacts:'Kontakty'},
+  hero: {
+    name2: 'Družina Moravy — klub historického šermu (HEMA) a LARPu v Brně',
+    tagline: 'Klub historického středověkého boje, šermu (HEMA), střelby a LARP rekonstrukce v Brně.',
+    mission: 'Družina Moravy oživuje živou tradici Velké Moravy — kamarádství, řemeslo a cestu od nováčka k válečníkovi, aby každý, kdo přijde, našel kořeny, mistrovství a své lidi.',
+    ctaRegister: 'Přihlásit se na trénink', ctaChat: 'Připojit se k chatu',
+    ctaAnnounceWA: 'Oznámení · WhatsApp', ctaAnnounceTG: 'Oznámení · Telegram',
+    testimonialQuote: '„Tréninky v Družině jsou náročné a upřímné. Získal jsem nové přátele a skutečné dovednosti, ne jen další historku."',
+    testimonialAuthor: '— Ivan, Družina Moravy',
+    freeNote: 'První trénink stojí 120 Kč — šance poznat klub. Před ním se vždy zeptáme, jestli plánuješ trénovat pravidelně dál, nebo je to jednorázová zkouška ze zvědavosti — není to test, jen to trenérovi pomůže hned zvolit správný formát.'
+  },
+  schedule: `<p class="eyebrow-sm">Rozvrh a místo</p>
+      <h3 class="anchor-heading">Kdy a kde<a class="anchor-link" href="#schedule">#</a></h3>
+      <p>Místo: Dukelská třída 157/44, Brno. Trénink venku. Délka: 1 hodina 30 minut. Po příchodu zavolej trenérovi.</p>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Den</th><th>Čas</th><th>Formát</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Pondělí</strong></td><td>18:00</td><td>Trénink</td></tr>
+            <tr><td><strong>Čtvrtek</strong></td><td>18:00</td><td>Trénink</td></tr>
+            <tr><td><strong>Sobota</strong></td><td>18:00</td><td>Trénink</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">LARP akce probíhají nepravidelně, oznamují se zvlášť na Telegramu a WhatsAppu. Trénink se ruší, pokud se nezaregistroval žádný účastník (zaplacená lekce, zapsaný zkušební trénink nebo aktivní předplatné).</p>`,
+  tariff: `<p class="eyebrow-sm">Členství a platba</p>
+      <h3 class="anchor-heading">Tarif není hodnost<a class="anchor-link" href="#tariff">#</a></h3>
+      <p>Jde o to, jak platíš — s postupem v hodnostech to nesouvisí.</p>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Parametr</th><th>Tarif Junior</th><th>Tarif Senior</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Kdo</strong></td><td>Příležitostní, nepravidelní hosté</td><td>Ti, kdo trénují pravidelně</td></tr>
+            <tr><td><strong>Platba (jedna návštěva)</strong></td><td>240 Kč / lekce</td><td>120 Kč / lekce</td></tr>
+            <tr><td><strong>Podmínka</strong></td><td>Alespoň 1 lekce měsíčně</td><td>4+ lekcí každý měsíc</td></tr>
+            <tr><td><strong>Standardní předplatné (do 4/měs)</strong></td><td>910 Kč</td><td>455 Kč</td></tr>
+            <tr><td><strong>Neomezené předplatné (3+/týden)</strong></td><td>2 870 Kč</td><td>1 435 Kč</td></tr>
+            <tr><td><strong>3měsíční předplatné (90 dní)</strong></td><td>8 235 Kč</td><td>4 120 Kč</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note" style="margin-top:10px">Předplatné zahrnuje bezplatné zapůjčení zbraní (meče, sekery, kopí, luky). Zbroj (kyrys, přilba) se půjčuje zvlášť. Platí 30 dní od platby (čtvrtletní — 90 dní), vrácení peněz jen před aktivací. První, kdo koupí čtvrtletní předplatné v aktuálním cyklu, dostane ručně vyrobenou zbraň jako dárek. Standard jsou konkrétní dny, ne vstup kdykoliv — trenérovi předem řekneš, na které z tréninků Po/Čt/So v daném cyklu přijdeš.</p>
+      <div class="callout" style="margin-top:18px;">
+        <p><strong>Startovní balíček (tarif Junior)</strong> — pro ty, kdo trénují 2×/týden nebo víc a ještě nedosáhli statusu Senior.</p>
+        <div class="tbl-wrap" style="margin-top:10px;">
+          <table>
+            <thead><tr><th>Balíček</th><th>Cena</th><th>Za lekci</th></tr></thead>
+            <tbody>
+              <tr><td>10 lekcí</td><td>2 300 Kč</td><td>230 Kč</td></tr>
+              <tr><td>20 lekcí</td><td>4 200 Kč</td><td>210 Kč</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note" style="margin-top:10px">Zapůjčení zbraní je v ceně. Platí 4 měsíce od koupě. Koupě balíčku sama o sobě nedává status Senior — pro to je stále potřeba 4+ lekcí v kalendářním měsíci; po dosažení — obnovení za sazby Senior.</p>
+      </div>
+      <p style="margin-top:18px"><strong>Status Senior si každý měsíc znovu potvrzuješ, není to jednorázová hranice.</strong> Pokud přestaneš držet 4+ lekcí měsíčně, automaticky se vrátíš na tarif Junior a sazbu 240 Kč/lekce. Hodnost se přitom neresetuje.</p>
+      <p class="note">První trénink stojí 120 Kč — šance poznat klub. Před ním se vždy zeptáme: plánuješ trénovat pravidelně (předplatné od 455 Kč/měsíc, nebo 120–240 Kč za návštěvu), nebo je to jednorázová zkouška ze zvědavosti? Není to test — jen to trenérovi pomůže hned zvolit správný formát, ať nikdo neztrácí čas.</p>`,
+  payment: `<p class="eyebrow-sm">Platba</p>
+      <h3 class="anchor-heading">Jak funguje platba<a class="anchor-link" href="#druzina-payment">#</a></h3>
+      <ul class="plain">
+        <li>Registrace a platba musí být dokončeny minimálně 48 hodin před začátkem tréninku, přes Revolut: revolut.me/aliaksj5pq.</li>
+        <li>Platba později než 48 hodin předem, nebo v den tréninku — příplatek 25 % k ceně lekce.</li>
+        <li>Potřebuješ půjčit/pronajmout klubové vybavení (zbraně, zbroj)? Dej vědět minimálně 48 hodin před tréninkem, stejně jako u platby. Později — stejný příplatek 25 % k ceně lekce.</li>
+        <li>Platba (včetně případného příplatku za pozdní platbu) musí dorazit před začátkem tréninku — bez ní tě na lekci nepustí.</li>
+        <li>Trénink se koná jen pokud má alespoň jeden účastník zaplacenou lekci (včetně první zkušební) nebo aktivní předplatné. Pokud nikdo takový není — trénink se ruší.</li>
+      </ul>`,
+  onboarding: `<p class="eyebrow-sm">Poprvé tady</p>
+      <h3 class="anchor-heading">Co očekávat<a class="anchor-link" href="#onboarding">#</a></h3>
+      <div class="tbl-wrap">
+        <table>
+          <tbody>
+            <tr><td><strong>Oblečení</strong></td><td>Pohodlné sportovní oblečení, uzavřená obuv. Vybavení se zapůjčuje.</td></tr>
+            <tr><td><strong>Vzít s sebou</strong></td><td>Láhev vody. První trénink stojí 120 Kč.</td></tr>
+            <tr><td><strong>Struktura</strong></td><td>Instruktáž → postoje → zkoušení zbraní → lehký sparring.</td></tr>
+            <tr><td><strong>Odpovědnost</strong></td><td>Podpis prohlášení o odpovědnosti. Pojištění se neposkytuje.</td></tr>
+            <tr><td><strong>Další krok</strong></td><td>Po 4 lekcích/měsíc — přechod na tarif Senior.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout">
+        <p><strong>První trénink — 120 Kč, stačí přijít.</strong></p>
+        <div style="margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+          <a class="btn solid plausible-event-name=Register-Druzina" href="https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog" target="_blank" rel="noopener">Přihlásit se na trénink</a>
+          <a class="btn plausible-event-name=Join-Chat-Druzina" href="https://chat.whatsapp.com/JzeXAQF8I2XE3zQ2OqWsPz" target="_blank" rel="noopener">Připojit se k chatu</a>
+        </div>
+      </div>`,
+  ranks: `<p class="eyebrow-sm">Hodnost</p>
+      <h3 class="anchor-heading">Cesta člena<a class="anchor-link" href="#ranks">#</a></h3>
+      <p>Hodnost sleduje nahromaděný pokrok na základě docházky a přivedených lidí. Každá hodnost dává specifický barevný náramek, předávaný osobně a oznámený nahlas na konci tréninku.</p>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Hodnost</th><th>Náramek</th><th>Práh</th><th>Výhoda</th></tr></thead>
+          <tbody>
+            <tr><td><strong>I — Nováček</strong> (Otrok)</td><td>Bez náramku</td><td>Přišel na trénink</td><td>Základní přístup. Na úplně první trénink si můžeš vyzkoušet jakoukoli zbraň klubu.</td></tr>
+            <tr><td><strong>II — Bojovník</strong> (Ratník)</td><td>Červený</td><td>8 lekcí</td><td>Přednostní rezervace na výjezdy klubu + sleva 5 % na zakázkové řemeslo/opravy.</td></tr>
+            <tr><td><strong>III — Veterán</strong> (Veterán)</td><td>Modrý</td><td>20 lekcí + 2 bitvy</td><td>Odznak · přednostní výběr sparing partnera ve volných kolech · přístup na speciální výjezd „Bitva pod horou" + sleva 10 %.</td></tr>
+            <tr><td><strong>IV — Šampion</strong> (Vítěz)</td><td>Oranžový</td><td>40 lekcí + 5 bitev</td><td>Přednostní přístup k nejlepšímu/nejnovějšímu vybavení klubu + sleva 15 %.</td></tr>
+            <tr><td><strong>V — Vojvoda</strong> (Tisícník)</td><td>Černý se zlatou nití</td><td>100 lekcí, 1+ rok členství, 10 bitev</td><td>Samostatně vede tréninky v nepřítomnosti hlavního trenéra + sleva 20 %.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">Přednostní výběr partnera (hodnost III) platí jen ve volných kolech.</p>
+      <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:24px 0 8px;">Přístup ke zbraním podle hodnosti</h4>
+      <div class="tbl-wrap">
+        <table><tbody>
+          <tr><td><strong>První trénink (jednorázově)</strong></td><td>Můžeš si vyzkoušet jakoukoli zbraň klubu — obouruční meč, kopí, luk, kuši — pod vedením trenéra.</td></tr>
+          <tr><td><strong>Běžný trénink</strong></td><td>Jednoruční meče, luk a kuše — bez omezení, na jakékoli hodnosti.</td></tr>
+          <tr><td><strong>Od hodnosti III (Veterán)</strong></td><td>Otevírá se trénink s dlouhými/obouručními zbraněmi (140cm+), kopím a píkou.</td></tr>
+        </tbody></table>
+      </div>
+      <div class="callout">
+        <div class="big">+5</div>
+        <p><strong>Přivedl jsi někoho, kdo zůstal na 4+ tréninky?</strong> +5 lekcí se připočítá k tvému hodnostnímu počtu.</p>
+      </div>
+      <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:24px 0 8px;">Pronájem pokročilého vybavení</h4>
+      <p>Klub nabízí pronájem pokročilých historických zbraní a zbroje.</p>
+      <p><a href="https://docs.google.com/spreadsheets/d/11-XATZWWwX6YjltnxsNxqNGbrEt9e1WKpoDXlvc6LC4/edit?usp=drivesdk" target="_blank" rel="noopener">Úplný seznam a ceny →</a></p>
+      <p class="note">Pronájem neruší hodnostní omezení — trénink s dlouhými/obouručními zbraněmi stále vyžaduje hodnost III.</p>
+      <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:24px 0 8px;">Sleva na řemeslo a opravy</h4>
+      <p>Sleva z tabulky hodností výše platí jen na zakázkové vybavení a opravy.</p>
+      <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:24px 0 8px;">Výhody hodností IV a V</h4>
+      <div class="tbl-wrap">
+        <table><tbody>
+          <tr><td><strong>Soukromá lekce</strong></td><td>od 700 Kč; od hodnosti IV: první v měsíci zdarma, druhá za 200 Kč.</td></tr>
+          <tr><td><strong>Rada Družiny</strong></td><td>Od hodnosti IV: malá skupina diskutující o směřování klubu.</td></tr>
+          <tr><td><strong>Speciální výjezd „Bitva pod horou"</strong></td><td>Od hodnosti III: formát s vyšším rizikem.</td></tr>
+          <tr><td><strong>Pojmenovaná zbraň</strong></td><td>Hodnost V: při prvním dosažení Vojvody — osobní zbraň (jen cena materiálu).</td></tr>
+        </tbody></table>
+      </div>
+      <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:24px 0 8px;">Okamžik uznání</h4>
+      <p>Povýšení hodnosti se oznamuje nahlas na konci tréninku s předáním náramku.</p>
+      <p>Hodnost III (Veterán) znamená přijetí do jádra klubu.</p>`,
+  roles: `<p class="eyebrow-sm">Role v tarifu Senior</p>
+      <h3 class="anchor-heading">Vyber si alespoň jednu<a class="anchor-link" href="#roles">#</a></h3>
+      <p>Každý člen tarifu Senior si od prvního dne vybere alespoň jednu roli níže.</p>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Role</th><th>Co dělá</th><th>Odměna</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Náborář</strong></td><td>Přivádí nové členy</td><td>Status a viditelnost v klubu + bonus +5 lekcí k hodnosti za každého udrženého doporučeného</td></tr>
+            <tr><td><strong>Turnajový bojovník</strong></td><td>Reprezentuje klub na turnajích a bitvách jako bojovník</td><td>Status „tváře klubu": přednostní zařazení do fotek/videí pro sociální sítě</td></tr>
+            <tr><td><strong>Asistent velitele-trenéra</strong></td><td>Pomáhá vést část tréninkové lekce</td><td>Titul + rychlejší cesta ke kandidátovi na zástupce</td></tr>
+            <tr><td><strong>Řemeslník</strong></td><td>Opravuje a udržuje společné vybavení klubu</td><td>Směna: hodiny oprav se vyměňují za bezplatné tréninky</td></tr>
+            <tr><td><strong>Logistika</strong></td><td>Doprava, trasy, rozdělování vybavení/jídla/stanů na výjezdy</td><td>Status + přednostní místo v autě/stanu na výjezdech</td></tr>
+          </tbody>
+        </table>
+      </div>`,
+  conduct: `<p class="eyebrow-sm">Pravidla a kodex</p>
+      <h3 class="anchor-heading">Chování a bezpečnost<a class="anchor-link" href="#conduct">#</a></h3>
+      <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:0 0 8px;">Chování</h4>
+      <ul class="plain">
+        <li>Žádný extremismus — okamžité vyloučení.</li>
+        <li>Respekt k členům, vybavení a místu.</li>
+        <li>Čestný kodex — poctivě přiznávej zásahy ve sparringu.</li>
+        <li>Konflikty se řeší přes hlavního trenéra, ne veřejně.</li>
+        <li>Alkohol a drogy jsou přísně zakázány.</li>
+      </ul>
+      <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:24px 0 8px;">Bezpečnost</h4>
+      <ul class="plain">
+        <li>Právo odmítnout souboj — bez vysvětlení.</li>
+        <li>Kontrola vybavení je povinná před použitím.</li>
+        <li>Nováčci dostanou instruktáž před prvním soubojem.</li>
+        <li>Děti od 7 let, s písemným souhlasem rodičů.</li>
+      </ul>
+      <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:24px 0 8px;">Kázeň</h4>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Porušení</th><th>Následek</th></tr></thead>
+          <tbody>
+            <tr><td><strong>1. porušení</strong></td><td>Strike (písemné varování)</td></tr>
+            <tr><td><strong>2. porušení</strong></td><td>Vyloučení (možný návrat po 3 měsících)</td></tr>
+            <tr><td><strong>Opakovaně</strong></td><td>Konečné vyloučení</td></tr>
+            <tr><td><strong>Závažné</strong></td><td>Okamžité vyloučení</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="margin-top:14px;"><a href="../#terms">📜 Úplné právní podmínky účasti →</a></p>`,
+  footer: { title: 'Chceš vidět celý obrázek?', lead: 'Doučování, výšlapy BrnoWalkers a celý web najdeš na hlavním hubu.', visitFull: 'Přejít na celý web ➔' }
+},
+uk: {
+  nav: { brand: 'Дружина Моравії', bookBtn: 'Записатися' },
+  tabs: {main:'Головна', walkers:'Брнохідці', academy:'Академія', druzina:'Дружина Моравії', calendar:'Календар', ambassador:'Стати послом', contacts:'Контакти'},
+  hero: {
+    name2: 'Дружина Моравії — клуб історичного фехтування (HEMA) та LARP у Брно',
+    tagline: 'Клуб історичного середньовічного бою, фехтування (HEMA), стрільби та LARP-реконструкції в Брно.',
+    mission: 'Дружина Моравії відроджує живу традицію Великої Моравії — товариство, ремесло і шлях від новачка до воїна, — щоб кожен, хто прийшов, знайшов коріння, майстерність і своїх.',
+    ctaRegister: 'Записатися на тренування', ctaChat: 'Приєднатися до чату',
+    ctaAnnounceWA: 'Анонси · WhatsApp', ctaAnnounceTG: 'Анонси · Telegram',
+    testimonialQuote: '«Тренування в Дружині — вимогливі й чесні. Я здобув нових друзів і реальні навички, а не просто ще одну байку.»',
+    testimonialAuthor: '— Іван, Дружина Моравії',
+    freeNote: 'Перше тренування коштує 120 крон — можливість познайомитися з клубом. Перед ним ми завжди запитаємо, чи плануєш ти тренуватися регулярно далі, чи це разова спроба з цікавості — це не тест, просто допомагає тренеру одразу обрати правильний формат.'
+  },
+  schedule: `<p class="eyebrow-sm">Розклад і місце</p>
+      <h3 class="anchor-heading">Коли і де<a class="anchor-link" href="#schedule">#</a></h3>
+      <p>Місце: Dukelská třída 157/44, Брно. Тренування на вулиці. Тривалість: 1 година 30 хвилин. Після прибуття зателефонуй тренеру.</p>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>День</th><th>Час</th><th>Формат</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Понеділок</strong></td><td>18:00</td><td>Тренування</td></tr>
+            <tr><td><strong>Четвер</strong></td><td>18:00</td><td>Тренування</td></tr>
+            <tr><td><strong>Субота</strong></td><td>18:00</td><td>Тренування</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">LARP-заходи відбуваються нерегулярно, анонсуються окремо в Telegram і WhatsApp. Тренування скасовується, якщо жоден учасник не зареєструвався (оплачене заняття, записане пробне тренування або активний абонемент).</p>`,
+  tariff: `<p class="eyebrow-sm">Членство та оплата</p>
+      <h3 class="anchor-heading">Тариф — це не ранг<a class="anchor-link" href="#tariff">#</a></h3>
+      <p>Це про те, як ти платиш — до прогресу в рангах стосунку не має.</p>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Параметр</th><th>Тариф Junior</th><th>Тариф Senior</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Хто</strong></td><td>Нерегулярні, випадкові гості</td><td>Ті, хто тренується регулярно</td></tr>
+            <tr><td><strong>Оплата (разове відвідування)</strong></td><td>240 крон / заняття</td><td>120 крон / заняття</td></tr>
+            <tr><td><strong>Умова</strong></td><td>Мінімум 1 заняття на місяць</td><td>4+ занять щомісяця</td></tr>
+            <tr><td><strong>Стандартний абонемент (до 4/міс)</strong></td><td>910 крон</td><td>455 крон</td></tr>
+            <tr><td><strong>Безлімітний абонемент (3+/тижд)</strong></td><td>2 870 крон</td><td>1 435 крон</td></tr>
+            <tr><td><strong>3-місячний абонемент (90 днів)</strong></td><td>8 235 крон</td><td>4 120 крон</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note" style="margin-top:10px">В абонементи включена безкоштовна оренда зброї (мечі, сокири, списи, луки). Броня (кіраса, шолом) орендується окремо. Діє 30 днів з оплати (квартальний — 90 днів), повернення лише до активації. Перший, хто купить квартальний абонемент у поточному циклі, отримає зброю ручної роботи в подарунок. Стандартний — це конкретні дні, а не прохід коли завгодно: ти заздалегідь кажеш тренеру, на які з тренувань Пн/Чт/Сб прийдеш цього циклу.</p>
+      <div class="callout" style="margin-top:18px;">
+        <p><strong>Стартовий пакет (тариф Junior)</strong> — для тих, хто тренується 2+ раз на тиждень, але ще не досяг статусу Senior.</p>
+        <div class="tbl-wrap" style="margin-top:10px;">
+          <table>
+            <thead><tr><th>Пакет</th><th>Ціна</th><th>За заняття</th></tr></thead>
+            <tbody>
+              <tr><td>10 занять</td><td>2 300 крон</td><td>230 крон</td></tr>
+              <tr><td>20 занять</td><td>4 200 крон</td><td>210 крон</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note" style="margin-top:10px">Оренда зброї включена. Діє 4 місяці з покупки. Купівля пакета сама по собі не дає статус Senior — для цього все одно потрібно 4+ занять у календарний місяць; після досягнення — продовження за тарифом Senior.</p>
+      </div>
+      <p style="margin-top:18px"><strong>Статус Senior підтверджується щомісяця заново, а не дається один раз назавжди.</strong> Якщо перестаєш тримати 4+ занять на місяць — автоматично повертаєшся на тариф Junior і ставку 240 крон/заняття. Ранг при цьому не скидається.</p>
+      <p class="note">Перше тренування коштує 120 крон — можливість познайомитися з клубом. Перед ним ми завжди запитаємо: чи плануєш ти тренуватися регулярно (абонемент від 455 крон/місяць, або 120–240 крон за візит), чи це разова спроба з цікавості? Це не тест — просто допомагає тренеру одразу обрати правильний формат, щоб ніхто не втрачав час.</p>`,
+  payment: `<p class="eyebrow-sm">Оплата</p>
+      <h3 class="anchor-heading">Як влаштована оплата<a class="anchor-link" href="#druzina-payment">#</a></h3>
+      <ul class="plain">
+        <li>Реєстрація та оплата мають бути завершені мінімум за 48 годин до початку тренування, через Revolut: revolut.me/aliaksj5pq.</li>
+        <li>Оплата пізніше, ніж за 48 годин, або в день тренування — надбавка 25% до вартості заняття.</li>
+        <li>Потрібно позичити/орендувати спорядження клубу (зброю, броню)? Повідом мінімум за 48 годин до тренування, як і з оплатою. Пізніше — та сама надбавка 25% до вартості заняття.</li>
+        <li>Оплата (включно з будь-якою надбавкою за запізнення) має надійти до початку тренування — без неї на заняття не допустять.</li>
+        <li>Тренування відбудеться лише якщо хоча б у одного учасника є оплачене заняття (включно з першим пробним) або активний абонемент. Якщо таких немає — тренування скасовується.</li>
+      </ul>`,
+  onboarding: `<p class="eyebrow-sm">Вперше тут</p>
+      <h3 class="anchor-heading">Чого очікувати<a class="anchor-link" href="#onboarding">#</a></h3>
+      <div class="tbl-wrap">
+        <table>
+          <tbody>
+            <tr><td><strong>Одяг</strong></td><td>Зручний спортивний одяг, закрите взуття. Спорядження надається.</td></tr>
+            <tr><td><strong>Взяти з собою</strong></td><td>Пляшку води. Перше тренування коштує 120 крон.</td></tr>
+            <tr><td><strong>Структура</strong></td><td>Інструктаж → стійки → проба зброї → легкий спаринг.</td></tr>
+            <tr><td><strong>Відповідальність</strong></td><td>Підписання розписки про відповідальність. Страхування не надається.</td></tr>
+            <tr><td><strong>Наступний крок</strong></td><td>Після 4 занять на місяць — перехід на тариф Senior.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout">
+        <p><strong>Перше тренування — 120 крон, просто приходь.</strong></p>
+        <div style="margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+          <a class="btn solid plausible-event-name=Register-Druzina" href="https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog" target="_blank" rel="noopener">Записатися на тренування</a>
+          <a class="btn plausible-event-name=Join-Chat-Druzina" href="https://chat.whatsapp.com/JzeXAQF8I2XE3zQ2OqWsPz" target="_blank" rel="noopener">Приєднатися до чату</a>
+        </div>
+      </div>`,
+  ranks: `<p class="eyebrow-sm">Ранг</p>
+      <h3 class="anchor-heading">Шлях учасника<a class="anchor-link" href="#ranks">#</a></h3>
+      <p>Ранг відображає накопичений прогрес на основі відвідуваності та приведених людей. Кожен ранг дає свій кольоровий браслет, який вручається особисто і оголошується вголос наприкінці тренування.</p>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Ранг</th><th>Браслет</th><th>Поріг</th><th>Привілей</th></tr></thead>
+          <tbody>
+            <tr><td><strong>I — Новобранець</strong> (Отрок)</td><td>Без браслета</td><td>Прийшов на тренування</td><td>Базовий доступ. На найпершому тренуванні можна спробувати будь-яку зброю клубу.</td></tr>
+            <tr><td><strong>II — Воїн</strong> (Ратник)</td><td>Червоний</td><td>8 занять</td><td>Пріоритет запису на виїзди клубу + знижка 5% на кастомний крафт/ремонт.</td></tr>
+            <tr><td><strong>III — Ветеран</strong> (Ветеран)</td><td>Синій</td><td>20 занять + 2 битви</td><td>Значок · пріоритетний вибір партнера по спарингу у вільних раундах · доступ до спецвиїзду «Битва під горою» + знижка 10%.</td></tr>
+            <tr><td><strong>IV — Чемпіон</strong> (Витязь)</td><td>Помаранчевий</td><td>40 занять + 5 битв</td><td>Пріоритетний доступ до кращого/нового спорядження клубу + знижка 15%.</td></tr>
+            <tr><td><strong>V — Вождь</strong> (Тисяцький)</td><td>Чорний із золотою ниткою</td><td>100 занять, стаж 1+ рік, 10 битв</td><td>Самостійно веде тренування за відсутності головного тренера + знижка 20%.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">Пріоритет вибору партнера (III ранг) діє лише у вільних раундах.</p>
+      <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:24px 0 8px;">Доступ до зброї за рангом</h4>
+      <div class="tbl-wrap">
+        <table><tbody>
+          <tr><td><strong>Перше тренування (один раз)</strong></td><td>Можна спробувати будь-яку зброю клубу — дворучний меч, спис, лук, арбалет — під керівництвом тренера.</td></tr>
+          <tr><td><strong>Звичайні тренування</strong></td><td>Одноручні мечі, лук та арбалет — без обмежень, на будь-якому рангу.</td></tr>
+          <tr><td><strong>З III рангу (Ветеран)</strong></td><td>Відкриваються тренування з довгою/дворучною зброєю (140см+), списом та пікою.</td></tr>
+        </tbody></table>
+      </div>
+      <div class="callout">
+        <div class="big">+5</div>
+        <p><strong>Привів когось, хто залишився на 4+ тренування?</strong> +5 занять зараховуються до твого рангового рахунку.</p>
+      </div>
+      <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:24px 0 8px;">Оренда просунутого спорядження</h4>
+      <p>Клуб пропонує оренду просунутої історичної зброї та броні.</p>
+      <p><a href="https://docs.google.com/spreadsheets/d/11-XATZWWwX6YjltnxsNxqNGbrEt9e1WKpoDXlvc6LC4/edit?usp=drivesdk" target="_blank" rel="noopener">Повний список і ціни →</a></p>
+      <p class="note">Оренда не скасовує рангових обмежень — тренування з довгою/дворучною зброєю все одно вимагають III рангу.</p>
+      <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:24px 0 8px;">Знижка на крафт і ремонт</h4>
+      <p>Знижка з таблиці рангів вище застосовується лише до виготовленого на замовлення спорядження та ремонту.</p>
+      <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:24px 0 8px;">Привілеї IV та V рангу</h4>
+      <div class="tbl-wrap">
+        <table><tbody>
+          <tr><td><strong>Індивідуальне заняття</strong></td><td>від 700 крон; з IV рангу: перше на місяць безкоштовно, друге — 200 крон.</td></tr>
+          <tr><td><strong>Рада Дружини</strong></td><td>З IV рангу: невелика група, що обговорює напрямок розвитку клубу.</td></tr>
+          <tr><td><strong>Спецвиїзд «Битва під горою»</strong></td><td>З III рангу: формат підвищеного ризику.</td></tr>
+          <tr><td><strong>Іменна зброя</strong></td><td>V ранг: при першому досягненні Вождя — особиста зброя (лише вартість матеріалів).</td></tr>
+        </tbody></table>
+      </div>
+      <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:24px 0 8px;">Момент визнання</h4>
+      <p>Підвищення рангу оголошується вголос наприкінці тренування з врученням браслета.</p>
+      <p>III ранг (Ветеран) означає прийняття до кістяка клубу.</p>`,
+  roles: `<p class="eyebrow-sm">Ролі в тарифі Senior</p>
+      <h3 class="anchor-heading">Обери мінімум одну<a class="anchor-link" href="#roles">#</a></h3>
+      <p>Кожен учасник тарифу Senior обирає мінімум одну роль нижче з першого дня.</p>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Роль</th><th>Що робить</th><th>Нагорода</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Рекрутер</strong></td><td>Приводить нових учасників</td><td>Статус і видимість у клубі + бонус +5 занять до рангу за кожного утриманого запрошеного</td></tr>
+            <tr><td><strong>Турнірний боєць</strong></td><td>Представляє клуб на турнірах і битвах як боєць</td><td>Статус «обличчя клубу»: пріоритет у фото/відео для соцмереж</td></tr>
+            <tr><td><strong>Помічник командира-тренера</strong></td><td>Допомагає вести частину тренування</td><td>Титул + прискорений шлях до статусу кандидата в заступники</td></tr>
+            <tr><td><strong>Майстровий</strong></td><td>Ремонтує та обслуговує спільне спорядження клубу</td><td>Бартер: години ремонту обмінюються на безкоштовні тренування</td></tr>
+            <tr><td><strong>Логістика</strong></td><td>Транспорт, маршрути, розподіл спорядження/їжі/наметів для виїздів</td><td>Статус + пріоритетне місце в машині/наметі на виїздах</td></tr>
+          </tbody>
+        </table>
+      </div>`,
+  conduct: `<p class="eyebrow-sm">Правила та кодекс</p>
+      <h3 class="anchor-heading">Поведінка та безпека<a class="anchor-link" href="#conduct">#</a></h3>
+      <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:0 0 8px;">Поведінка</h4>
+      <ul class="plain">
+        <li>Жодного екстремізму — негайне виключення.</li>
+        <li>Повага до учасників, спорядження та місця тренувань.</li>
+        <li>Кодекс честі — чесно визнавай отримані у спарингу удари.</li>
+        <li>Конфлікти вирішуються через головного тренера, не публічно.</li>
+        <li>Алкоголь і наркотики суворо заборонені.</li>
+      </ul>
+      <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:24px 0 8px;">Безпека</h4>
+      <ul class="plain">
+        <li>Право відмовитися від бою — без пояснень.</li>
+        <li>Перевірка спорядження обов'язкова перед використанням.</li>
+        <li>Новачки отримують інструктаж перед першим боєм.</li>
+        <li>Діти з 7 років, за письмової згоди батьків.</li>
+      </ul>
+      <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:24px 0 8px;">Дисципліна</h4>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Порушення</th><th>Наслідок</th></tr></thead>
+          <tbody>
+            <tr><td><strong>1-е порушення</strong></td><td>Страйк (письмове попередження)</td></tr>
+            <tr><td><strong>2-е порушення</strong></td><td>Виключення (можна повернутися через 3 місяці)</td></tr>
+            <tr><td><strong>Повторно</strong></td><td>Остаточне виключення</td></tr>
+            <tr><td><strong>Серйозне</strong></td><td>Негайне виключення</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="margin-top:14px;"><a href="../#terms">📜 Повні юридичні умови участі →</a></p>`,
+  footer: { title: 'Хочеш побачити всю картину?', lead: 'Репетиторство, походи Брнохідців та весь сайт цілком — на головному хабі.', visitFull: 'Перейти на весь сайт ➔' }
+}
+};
+
+// i18n engine for this standalone page — added 11.09.2026. Deliberately
+// NOT a shared external file included by every subpage: each subpage's
+// CONTENT (the T object above) is genuinely unique to it, so there is
+// nothing to desync between pages by keeping the engine local. What
+// DOES need to match across pages is the localStorage key ('dm_lang')
+// and detection order, copied verbatim from the main index.html so a
+// language choice made on one page carries over when someone clicks
+// through to another.
+function resolveI18nValue(key, lang) {
+  const parts = key.split('.');
+  let val = T[lang];
+  for (const p of parts) {
+    if (val == null) return null;
+    val = val[p];
+  }
+  return typeof val === 'string' ? val : null;
+}
+
+function applyTranslations(lang) {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    const val = resolveI18nValue(key, lang);
+    if (val) el.innerHTML = val;
+  });
+  document.documentElement.lang = lang;
+}
+
+function detectLang() {
+  try {
+    const saved = localStorage.getItem('dm_lang');
+    if (saved && T[saved]) return saved;
+  } catch (e) {}
+  const nav = (navigator.language || 'en').toLowerCase();
+  if (nav.startsWith('ru')) return 'ru';
+  if (nav.startsWith('uk')) return 'uk';
+  if (nav.startsWith('cs') || nav.startsWith('sk')) return 'cs';
+  return 'en';
+}
+
+function bindLangButtons() {
+  document.querySelectorAll('#langSwitch button[data-lang]').forEach(b => {
+    b.addEventListener('click', () => {
+      const lang = b.dataset.lang;
+      try { localStorage.setItem('dm_lang', lang); } catch (e) {}
+      render(lang);
+    });
+  });
+}
+
+function render(lang) {
+  if (!T[lang]) lang = 'en';
+  document.querySelectorAll('#langSwitch button[data-lang]').forEach(b => {
+    b.setAttribute('aria-pressed', b.dataset.lang === lang ? 'true' : 'false');
+  });
+  applyTranslations(lang);
+}
+
+bindLangButtons();
+render(detectLang());
 </script>
 </body>
 </html>

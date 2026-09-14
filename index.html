@@ -216,7 +216,7 @@
        WhatsApp) sit in a small row BELOW each card rather than inside
        the <a> — nesting a second <a> inside the card's own link isn't
        valid HTML and browsers handle it unpredictably. -->
-  <section class="venture-picker" aria-label="Choose what you're here for">
+  <section class="venture-picker" id="join" aria-label="Choose what you're here for">
     <div class="wrap">
       <h2 class="visually-hidden">What we offer</h2>
       <div class="venture-grid">
@@ -947,11 +947,10 @@
       <div class="hero-ctas">
         <a class="btn solid plausible-event-name=Register-Walkers" href="https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog" target="_blank" rel="noopener" data-i18n="ui.registerEvent">Register for an event</a>
         <a class="btn plausible-event-name=Join-Chat-Walkers" href="https://chat.whatsapp.com/JCyEJNm746nBXNll3VzzX3" target="_blank" rel="noopener" data-i18n="ui.joinTheChat">Join the chat</a>
-        <!-- Synced with walkers/index.html hero-ctas (site-updates brief 3.9.updates,
-             item 1) — these were only added to the standalone subpage originally,
-             leaving this main-page hero out of sync. -->
-        <a class="btn plausible-event-name=Announce-WA-Walkers" href="https://chat.whatsapp.com/BSlQetCjMoL8IO45c6VnH0" target="_blank" rel="noopener" data-i18n="ui.announceWA">Announcements · WhatsApp</a>
-        <a class="btn plausible-event-name=Announce-TG-Walkers" href="https://t.me/pochody_brno_news" target="_blank" rel="noopener" data-i18n="ui.announceTG">Announcements · Telegram</a>
+      </div>
+      <div class="hero-ctas-secondary">
+        <a class="btn-quiet plausible-event-name=Announce-WA-Walkers" href="https://chat.whatsapp.com/BSlQetCjMoL8IO45c6VnH0" target="_blank" rel="noopener" data-i18n="ui.announceWA">Announcements · WhatsApp</a>
+        <a class="btn-quiet plausible-event-name=Announce-TG-Walkers" href="https://t.me/pochody_brno_news" target="_blank" rel="noopener" data-i18n="ui.announceTG">Announcements · Telegram</a>
       </div>
 
       <div class="hero-testimonial">
@@ -1052,11 +1051,10 @@
       <div class="hero-ctas">
         <a class="btn solid plausible-event-name=Register-Druzina" href="https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog" target="_blank" rel="noopener" data-i18n="ui.registerTraining">Register for training</a>
         <a class="btn plausible-event-name=Join-Chat-Druzina" href="https://chat.whatsapp.com/JzeXAQF8I2XE3zQ2OqWsPz" target="_blank" rel="noopener" data-i18n="ui.joinTheChat">Join the chat</a>
-        <!-- Synced with druzina/index.html hero-ctas (site-updates brief 3.9.updates,
-             item 1) — these were only added to the standalone subpage originally,
-             leaving this main-page hero out of sync. -->
-        <a class="btn plausible-event-name=Announce-WA-Druzina" href="https://chat.whatsapp.com/DuTpgF22mxMFy6L1Cfrcvu" target="_blank" rel="noopener" data-i18n="ui.announceWA">Announcements · WhatsApp</a>
-        <a class="btn plausible-event-name=Announce-TG-Druzina" href="https://t.me/druzinamoravy_news" target="_blank" rel="noopener" data-i18n="ui.announceTG">Announcements · Telegram</a>
+      </div>
+      <div class="hero-ctas-secondary">
+        <a class="btn-quiet plausible-event-name=Announce-WA-Druzina" href="https://chat.whatsapp.com/DuTpgF22mxMFy6L1Cfrcvu" target="_blank" rel="noopener" data-i18n="ui.announceWA">Announcements · WhatsApp</a>
+        <a class="btn-quiet plausible-event-name=Announce-TG-Druzina" href="https://t.me/druzinamoravy_news" target="_blank" rel="noopener" data-i18n="ui.announceTG">Announcements · Telegram</a>
       </div>
 
       <div class="hero-testimonial">
@@ -2964,6 +2962,10 @@ document.addEventListener('click', (e) => {
   history.pushState({tab: currentTab, section: sectionId}, '', hash);
   const el = document.getElementById(sectionId);
   if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+  if (sectionId === 'terms') {
+    const details = document.querySelector('#terms details.acc');
+    if (details && !details.open) details.open = true;
+  }
 });
 
 function renderGlobalRulesText(lang) {
@@ -4724,6 +4726,23 @@ if(initHash.section) {
     if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
   }, 120);
 }
+
+// A direct #terms link (site-updates request, 09.09.2026: "quickly send a
+// link to the rules") needs to actually show the rules, not just scroll to
+// a collapsed <details> summary bar — parseHash() above ignores '#terms'
+// entirely (not a tab/section pair), so this is handled separately here.
+// Also re-checked on hashchange, since an in-page click to #terms doesn't
+// reload the page and wouldn't otherwise re-run this.
+function openTermsIfLinked() {
+  const h = location.hash.replace('#','');
+  if (h !== 'terms' && h !== 'main/terms') return;
+  const details = document.querySelector('#terms details.acc');
+  if (details && !details.open) details.open = true;
+  const el = document.getElementById('terms');
+  if (el) setTimeout(() => el.scrollIntoView({behavior:'smooth', block:'start'}), 120);
+}
+openTermsIfLinked();
+window.addEventListener('hashchange', openTermsIfLinked);
 
 // Тот же /exec URL, что и для приёма вебхука Tally (см. Шаг 8 гайда) —
 // один Web App, doGet() отдаёт публичные данные о событиях, doPost() принимает регистрации.
