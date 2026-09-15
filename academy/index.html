@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Academy — Tutoring, Fitness &amp; Coaching by Aliaksei Chareshneu, PhD | Brno</title>
+<meta name="description" content="PhD-level tutoring (sciences, IT, languages), fitness &amp; nutrition coaching, private guided tours, life coaching, IT security cleanup and expat support in Brno — Eternal Learning Academy.">
+<link rel="canonical" href="https://aliaksei-chareshneu.github.io/alchareshneu/academy/">
+
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://aliaksei-chareshneu.github.io/alchareshneu/academy/">
+<meta property="og:site_name" content="Eternal Learning Academy">
+<meta property="og:title" content="Academy — Tutoring, Fitness &amp; Coaching by Aliaksei Chareshneu, PhD">
+<meta property="og:description" content="PhD-level tutoring, fitness &amp; nutrition coaching, private guided tours, life coaching and more in Brno.">
+<meta property="og:image" content="https://aliaksei-chareshneu.github.io/alchareshneu/images/og-cover.jpg">
+<meta property="og:locale" content="en_US">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Academy — Tutoring, Fitness &amp; Coaching in Brno">
+<meta name="twitter:description" content="PhD-level tutoring, fitness &amp; nutrition coaching, private guided tours and more.">
+<meta name="twitter:image" content="https://aliaksei-chareshneu.github.io/alchareshneu/images/og-cover.jpg">
+
+<link rel="icon" type="image/x-icon" href="../favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="manifest" href="../site.webmanifest">
+<meta name="theme-color" content="#16171a">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "name": "Eternal Learning Academy — Tutoring, Fitness & Coaching",
+  "url": "https://aliaksei-chareshneu.github.io/alchareshneu/academy/",
+  "provider": {
+    "@type": "LocalBusiness",
+    "@id": "https://aliaksei-chareshneu.github.io/alchareshneu/#localbusiness",
+    "name": "Aliaksei Chareshneu — Tutoring, BrnoWalkers, Družina Moravy"
+  },
+  "areaServed": {"@type": "Place", "name": "Brno, Czech Republic"},
+  "serviceType": ["Tutoring", "Fitness coaching", "Nutrition coaching", "Life coaching", "IT security", "Expat support"]
+}
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:wght=500;600;700&family=Source+Sans+3:wght=400;500;600;700&family=JetBrains+Mono:wght=500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles.css">
+<!-- Plausible Analytics (self-hosted) — see PLAUSIBLE-SETUP.md. -->
+<script defer data-domain="aliaksei-chareshneu.github.io" src="https://150-230-157-71.sslip.io/js/script.outbound-links.js"></script>
+</head>
+<body>
+<nav class="nav">
+  <div class="wrap">
+    <div class="brand"><a href="../" style="color:var(--ink);text-decoration:none;">Aliaksei Chareshneu, PhD</a><small data-i18n="nav.brand">Eternal Learning Academy</small></div>
+    <div class="nav-actions">
+      <div class="langs" id="langSwitch" role="group" aria-label="Language">
+        <button data-lang="ru">RU</button>
+        <button data-lang="uk">UK</button>
+        <button data-lang="cs">CZ</button>
+        <button data-lang="en">EN</button>
+      </div>
+      <a id="navBookBtn" class="btn solid plausible-event-name=Register-Walkers" data-i18n="nav.bookBtn" href="https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog" target="_blank" rel="noopener">Register / Book</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Same 7-item nav as the root page (see index.html renderTabsNav()),
+     hardcoded here since this page has no i18n engine — it's English-
+     only by design, same as the rest of this page's content. This was
+     the actual gap the site owner flagged: before this, landing here
+     from a shared link left you with zero way to reach Contacts,
+     Calendar, Academy or Družina Moravy without going all the way back
+     to "Full site" and re-navigating. "BrnoWalkers" marked active since
+     that's this page. -->
+<div class="tabs-bar">
+  <div class="wrap">
+    <a class="tab-btn" href="../" data-i18n="tabs.main">Home</a>
+    <a class="tab-btn active" href="./" data-i18n="tabs.walkers">BrnoWalkers</a>
+    <a class="tab-btn" href="../academy/" data-i18n="tabs.academy">Academy</a>
+    <a class="tab-btn" href="../druzina/" data-i18n="tabs.druzina">Družina Moravy</a>
+    <a class="tab-btn" href="../calendar/" data-i18n="tabs.calendar">Calendar</a>
+    <a class="tab-btn tab-btn--accent" href="../#ambassador" data-i18n="tabs.ambassador">Become an Ambassador</a>
+    <a class="tab-btn" href="../#contacts" data-i18n="tabs.contacts">Contacts</a>
+  </div>
+</div>
+
+<main>
+<section class="hero" id="academy">
+    <!-- CHARACTER HERO ART — "the Scholar" — was previously only on the
+         main hub hero (comment there: "Eternal Learning / Academy"); this
+         is the page it was actually made for. Video autoplays muted/looped
+         on desktop, static frame on mobile — see styles.css. -->
+    <div class="hero-visuals hero-visuals-main" aria-hidden="true">
+      <video class="hero-photo hero-photo--video hero-photo--scholar"
+             autoplay muted loop playsinline preload="none"
+             poster="../images/hero-scholar.jpg">
+        <source src="../images/hero-scholar.mp4" type="video/mp4">
+      </video>
+      <picture>
+        <source srcset="../images/hero-scholar.webp" type="image/webp">
+        <img class="hero-photo hero-photo--static hero-photo--scholar"
+             src="../images/hero-scholar.jpg" alt="" loading="eager" fetchpriority="high">
+      </picture>
+      <div class="hero-scrim"></div>
+    </div>
+
+    <div class="wrap">
+      <p class="eyebrow" data-i18n="academy.eyebrow">PhD-Level Tutoring &amp; Coaching</p>
+      <h2 data-i18n="academy.title2">Eternal Learning Academy — Tutoring, Fitness &amp; Coaching in Brno</h2>
+      <p class="tagline" data-i18n="academy.tagline">Sciences, IT, and languages taught by a PhD — plus fitness, nutrition, life coaching, private guided tours, IT security cleanup and expat support. One person, nine ways to help.</p>
+      <a class="reviews-badge" href="https://maps.app.goo.gl/fEbnJHxiVoAx1v498" target="_blank" rel="noopener">⭐ 50+ Google reviews · 5.0</a>
+
+      <div class="hero-ctas">
+        <a class="btn solid plausible-event-name=Register-Academy" data-i18n="academy.ctaRegister" href="https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog" target="_blank" rel="noopener">Book a session</a>
+        <a class="btn plausible-event-name=Contact-Academy" data-i18n="academy.ctaContact" href="../#contacts" rel="noopener">Contact me</a>
+      </div>
+    </div>
+  </section>
+<section id="academy-pricing">
+    <div class="wrap">
+      <div class="eyebrow-sm" data-i18n="academy.priorityEyebrow">Why regulars stick around</div>
+      <div class="priority-grid" data-i18n="academyPriority">
+        <div class="priority-card"><h3>Academy priority</h3><p>Regular students get first access to the best time slots.</p></div>
+        <div class="priority-card"><h3>Tailored guidance</h3><p>We match your study plan to your goals for faster, clearer progress.</p></div>
+        <div class="priority-card"><h3>Monthly continuity</h3><p>Ongoing monthly support keeps learning steady and on-track.</p></div>
+      </div>
+    </div>
+    <div class="wrap" data-i18n="academyPricing">
+<p class="price-global-note">💡 First session in any category — 100 Kč discount. Online is always 100 Kč/hr cheaper than in-person. Urgent request (under 48h) — +50% surcharge.</p>
+    <p class="note">Full price list — 9 categories. Jump straight to one:</p>
+    <div class="price-jump-list"><a class="price-jump-link" href="#price-edu">📚 Tutoring</a> <a class="price-jump-link" href="#price-fit">💪 Fitness</a> <a class="price-jump-link" href="#price-nutr">🥗 Nutrition</a> <a class="price-jump-link" href="#price-supp">🌍 Expat Support</a> <a class="price-jump-link" href="#price-hous">🏠 Housing</a> <a class="price-jump-link" href="#price-itsec">🛡️ IT Security</a> <a class="price-jump-link" href="#price-coach">🧠 Life Coaching</a> <a class="price-jump-link" href="#price-web">💻 Web & Media</a> <a class="price-jump-link" href="#price-trek">🗺️ Guided Tours</a></div>
+    <div class="price-cats">
+    <div class="price-cat" id="price-edu">
+      <h3 class="price-cat-title">📚 Tutoring & Education</h3>
+      <p class="price-cat-sub">Maths, Physics, Chemistry, Biology, History, Languages, Chess and more</p>
+      <div class="academy-subjects"><div class="subj-group">
+      <div class="subj-group-title">🏫 School Students</div>
+      <div class="subj-grid"><div class="subj-card">
+        <div class="subj-icon">⚗️</div>
+        <div class="subj-name">Chemistry</div>
+        <ul class="subj-items"><li>School curriculum grades 7–11</li><li>Exam prep: Maturita / A-levels</li><li>Organic & inorganic chemistry</li><li>Biochemistry (advanced)</li></ul>
+      </div><div class="subj-card">
+        <div class="subj-icon">🔬</div>
+        <div class="subj-name">Biology</div>
+        <ul class="subj-items"><li>General biology grades 7–11</li><li>Molecular biology & genetics</li><li>Anatomy & physiology</li><li>Maturita preparation</li></ul>
+      </div><div class="subj-card">
+        <div class="subj-icon">⚡</div>
+        <div class="subj-name">Physics</div>
+        <ul class="subj-items"><li>School curriculum grades 7–11</li><li>Mechanics, electricity, optics</li><li>Exam preparation</li><li>Olympiad problem solving</li></ul>
+      </div><div class="subj-card">
+        <div class="subj-icon">📐</div>
+        <div class="subj-name">Maths</div>
+        <ul class="subj-items"><li>Algebra & geometry</li><li>Trigonometry, functions</li><li>Maturita preparation</li><li>Statistics & probability</li></ul>
+      </div><div class="subj-card">
+        <div class="subj-icon">♟️</div>
+        <div class="subj-name">Chess</div>
+        <ul class="subj-items"><li>Complete beginners welcome</li><li>Tactics & strategy</li><li>Game analysis</li><li>Opening theory</li></ul>
+      </div></div>
+    </div><div class="subj-group">
+      <div class="subj-group-title">🎓 University & Applicants</div>
+      <div class="subj-grid"><div class="subj-card">
+        <div class="subj-icon">🧬</div>
+        <div class="subj-name">Biochemistry & Mol. Biology</div>
+        <ul class="subj-items"><li>University biochemistry course</li><li>Molecular biology (PhD level)</li><li>University entrance exam prep</li><li>Coursework & thesis support</li></ul>
+      </div><div class="subj-card">
+        <div class="subj-icon">💻</div>
+        <div class="subj-name">IT & Programming</div>
+        <ul class="subj-items"><li>Python (zero to projects)</li><li>UNIX / Linux command line</li><li>Algorithms & data structures</li><li>Intro to data science</li></ul>
+      </div><div class="subj-card">
+        <div class="subj-icon">🏛️</div>
+        <div class="subj-name">History</div>
+        <ul class="subj-items"><li>World & European history</li><li>Czech & Moravian history</li><li>Middle Ages & HEMA context</li><li>Exam preparation</li></ul>
+      </div></div>
+    </div><div class="subj-group">
+      <div class="subj-group-title">🌍 Adults & Expats</div>
+      <div class="subj-grid"><div class="subj-card">
+        <div class="subj-icon">🇨🇿</div>
+        <div class="subj-name">Czech Language</div>
+        <ul class="subj-items"><li>Czech for beginners (A1–A2)</li><li>Czech for permanent residency (B1–B2)</li><li>Language exam preparation</li><li>Conversational practice</li></ul>
+      </div><div class="subj-card">
+        <div class="subj-icon">🇬🇧</div>
+        <div class="subj-name">English Language</div>
+        <ul class="subj-items"><li>Business English</li><li>IELTS / Cambridge exam prep</li><li>Conversational practice</li><li>English for children</li></ul>
+      </div><div class="subj-card">
+        <div class="subj-icon">🩺</div>
+        <div class="subj-name">Medical Support</div>
+        <ul class="subj-items"><li>Diagnosis & treatment analysis</li><li>Support communicating with doctors</li><li>Medical interpreting (online/in-person)</li><li>Medical document nostrification</li></ul>
+      </div></div>
+    </div><div class="subj-group">
+      <div class="subj-group-title">🛠️ Technical / Practical help</div>
+      <div class="subj-grid"><div class="subj-card">
+        <div class="subj-icon">🛡️</div>
+        <div class="subj-name">Computer & malware cleanup</div>
+        <ul class="subj-items"><li>Malware removal, basic security hardening, and a check for suspicious software on your computer.</li></ul>
+      </div></div>
+    </div><div class="subj-group">
+      <div class="subj-group-title">🎨 Creative & Applied</div>
+      <div class="subj-grid"><div class="subj-card">
+        <div class="subj-icon">🎸</div>
+        <div class="subj-name">Music</div>
+        <ul class="subj-items"><li>Guitar (classical / rock / acoustic)</li><li>Piano</li><li>Vocals & voice coaching</li><li>Music theory</li></ul>
+      </div><div class="subj-card">
+        <div class="subj-icon">🎤</div>
+        <div class="subj-name">Public Speaking</div>
+        <ul class="subj-items"><li>Overcoming stage fright</li><li>Speech structure & argumentation</li><li>Voice & body language</li><li>Presentation preparation</li></ul>
+      </div></div>
+    </div></div>
+      <div class="tbl-wrap"><table><tbody>
+      <tr><td>Individual online (1 hour)</td><td>500 Kč</td></tr>
+<tr><td>Individual in-person (1 hour)</td><td>600 Kč</td></tr>
+<tr><td>Group 2–4 online (1 hr/person)</td><td>350 Kč</td></tr>
+<tr><td>Group 2–4 in-person (1 hr/person)</td><td>400 Kč</td></tr>
+<tr><td>🎁 First lesson (any format)</td><td>300 Kč</td></tr>
+<tr class="subhead"><td colspan="2">📚 Packages cost less than single lessons — save up to 15%</td></tr>
+<tr class="subhead"><td colspan="2">📚 Packages — Individual online</td></tr>
+<tr><td>5 lessons (−5%)</td><td>2,375 Kč</td></tr>
+<tr><td>10 lessons (−10%)</td><td>4,500 Kč</td></tr>
+<tr><td>20 lessons (−15%)</td><td>8,500 Kč</td></tr>
+<tr class="subhead"><td colspan="2">📚 Packages — Individual in-person</td></tr>
+<tr><td>5 lessons (−5%)</td><td>2,850 Kč</td></tr>
+<tr><td>10 lessons (−10%)</td><td>5,400 Kč</td></tr>
+<tr><td>20 lessons (−15%)</td><td>10,200 Kč</td></tr>
+<tr class="subhead"><td colspan="2">📚 Packages — Group online (per person)</td></tr>
+<tr><td>5 lessons (−5%)</td><td>1,663 Kč</td></tr>
+<tr><td>10 lessons (−10%)</td><td>3,150 Kč</td></tr>
+<tr><td>20 lessons (−15%)</td><td>5,950 Kč</td></tr>
+<tr class="subhead"><td colspan="2">📚 Packages — Group in-person (per person)</td></tr>
+<tr><td>5 lessons (−5%)</td><td>1,900 Kč</td></tr>
+<tr><td>10 lessons (−10%)</td><td>3,600 Kč</td></tr>
+<tr><td>20 lessons (−15%)</td><td>6,800 Kč</td></tr>
+<tr><td>Maturita prep (15 lessons + tests)</td><td>5,000 Kč</td></tr>
+<tr><td>Czech for residency (18 lessons)</td><td>6,000 Kč (−1,200 Kč)</td></tr>
+<tr><td>Czech monthly membership</td><td>600 Kč/mo (online + practice)</td></tr>
+<tr><td>Full residency pack (20h + document help)</td><td>7,000 Kč</td></tr>
+      </tbody></table></div>
+    </div>
+<div class="price-cat" id="price-trek">
+      <h3 class="price-cat-title">🗺️ Guided Tours</h3>
+      <p class="price-cat-sub">Included: guide, route, maps, planning. Not included: transport, food, entry tickets.</p>
+      
+      <div class="tbl-wrap"><table><tbody>
+      <tr><td>Individual tour (1 day)</td><td>from 2,000 Kč</td></tr>
+<tr><td>Group tour (1 day, 4+ people)</td><td>from 1,000 Kč/person</td></tr>
+      </tbody></table></div>
+    </div>
+<div class="price-cat" id="price-fit">
+      <h3 class="price-cat-title">💪 Fitness & Personal Training</h3>
+      <p class="price-cat-sub">Outdoors or at client's location. Experience: 100+ trained clients.</p>
+      
+      <div class="tbl-wrap"><table><tbody>
+      <tr><td>Personal in-person (1 hour)</td><td>600 Kč</td></tr>
+<tr><td>Personal online (1 hour)</td><td>400 Kč</td></tr>
+<tr><td>Group training (single)</td><td>300 Kč</td></tr>
+<tr><td>🎁 First session in-person</td><td>400 Kč</td></tr>
+<tr><td>🎁 First session online</td><td>300 Kč</td></tr>
+<tr class="subhead"><td colspan="2">📚 Packages & passes cost less per session</td></tr>
+<tr><td>4-session group pass</td><td>600 Kč (150 Kč/session)</td></tr>
+<tr><td>8-session group pass</td><td>1,000 Kč (125 Kč/session)</td></tr>
+<tr><td>5-session personal in-person pack</td><td>2,000 Kč (−500 Kč)</td></tr>
+<tr><td>10-session personal in-person pack</td><td>3,350 Kč (−1,650 Kč)</td></tr>
+<tr><td>1-month online programme (plan+nutrition)</td><td>2,000 Kč/mo</td></tr>
+<tr><td>Weight-loss programme (8 weeks)</td><td>4,000 Kč</td></tr>
+<tr><td>3-month body transformation</td><td>5,000 Kč</td></tr>
+      </tbody></table></div>
+    </div>
+<div class="price-cat" id="price-nutr">
+      <h3 class="price-cat-title">🥗 Nutrition Consulting</h3>
+      <p class="price-cat-sub">Personal nutrition plans, ongoing support, adjustments.</p>
+      
+      <div class="tbl-wrap"><table><tbody>
+      <tr><td>Initial consultation (90 min)</td><td>600 Kč</td></tr>
+<tr><td>Personal nutrition plan</td><td>600 Kč</td></tr>
+<tr><td>Monthly support</td><td>2,000 Kč/mo</td></tr>
+<tr><td>Single correction session (60 min)</td><td>700 Kč</td></tr>
+      </tbody></table></div>
+    </div>
+<div class="price-cat" id="price-supp">
+      <h3 class="price-cat-title">🌍 Expat Support</h3>
+      <p class="price-cat-sub">Work, housing, medicine, documents, legal issues, nostrification.</p>
+      
+      <div class="tbl-wrap"><table><tbody>
+      <tr><td>General consultation (1st hour)</td><td>300 Kč</td></tr>
+<tr><td>Each additional hour</td><td>400 Kč</td></tr>
+<tr><td>Doctor search</td><td>700 Kč</td></tr>
+<tr><td>Lawyer search</td><td>900 Kč</td></tr>
+<tr><td>University admission consultation (1h)</td><td>500 Kč</td></tr>
+<tr><td>Medical diagnosis & treatment analysis</td><td>1,000 Kč</td></tr>
+<tr><td>Nostrification assistance</td><td>from 3,500 Kč</td></tr>
+<tr><td>Legal representation (advocacy)</td><td>from 1,500 Kč</td></tr>
+<tr><td>Medical advocacy</td><td>from 2,000 Kč</td></tr>
+<tr><td>Interpreting online (legal/medical)</td><td>600 Kč/hr</td></tr>
+<tr><td>In-person interpreting at meetings</td><td>900 Kč/hr</td></tr>
+      </tbody></table></div>
+    </div>
+<div class="price-cat" id="price-hous">
+      <h3 class="price-cat-title">🏠 Brno Housing Support</h3>
+      <p class="price-cat-sub">For community newcomers and referrals</p>
+      
+      <div class="tbl-wrap"><table><tbody>
+      <tr class="subhead"><td colspan="2">Brno Housing Support (for community newcomers and referrals)</td></tr>
+<tr><td>Tier 0 — Basic consultation</td><td>free</td></tr>
+<tr><td>Curated list of vetted resources</td><td>bezrealitky.cz, sreality.cz, espolubydleni.cz, relevant FB groups; price/area guidance for the person’s budget; one detailed reply. Open to anyone reaching out through the community or a warm referral.</td></tr>
+<tr class="subhead"><td colspan="2">Tier 1 — Boosted listing</td></tr>
+<tr><td>300 Kč</td><td>post the request as-is across my channels (BrnoWalkers, Družina Moravy, Instagram, Facebook — 250+ people in Brno)</td></tr>
+<tr><td>500 Kč</td><td>same, plus translation/adaptation into Czech for the platform</td></tr>
+<tr><td>Runs 7 days or until a match is found</td><td>No outcome guarantee — this is reach, not a placement guarantee.</td></tr>
+<tr><td>Tier 2 — Personal accompaniment</td><td>500 Kč/hour (min. package — 2 hours, 1 000 Kč, prepaid)</td></tr>
+<tr class="subhead"><td colspan="2">Shortlisting options against criteria, calling/messaging landlords in Czech, accompanying viewings within Brno, a basic sanity-check of the lease for obvious red flags.</td></tr>
+<tr><td>Not included</td><td>legal review of the contract, or brokerage-style service tied to a commission/success fee — this is billed for time, not outcome.</td></tr>
+<tr><td>General terms</td><td>payment in Kč, cash or bank transfer (OSVČ, IČO 23041625) · cancellation with at least 24h notice · this is a personal assistance service, not real estate brokerage, and not a substitute for legal advice.</td></tr>
+      </tbody></table></div>
+    </div>
+<div class="price-cat" id="price-itsec">
+      <h3 class="price-cat-title">🛡️ IT Security</h3>
+      <p class="price-cat-sub">Malware removal, security hardening, and a cleanup check for suspicious software.</p>
+      
+      <div class="tbl-wrap"><table><tbody>
+      <tr><td>Computer & malware cleanup (1 hour)</td><td>600 Kč/hr</td></tr>
+<tr><td>Typical job</td><td>1 200 – 1 800 Kč</td></tr>
+      </tbody></table></div>
+    </div>
+<div class="price-cat" id="price-coach">
+      <h3 class="price-cat-title">🧠 Life Coaching</h3>
+      <p class="price-cat-sub">⚠️ Not a medical or psychological service. A doctor is required for medical conditions.</p>
+      
+      <div class="tbl-wrap"><table><tbody>
+      <tr><td>Habit change session (1 hour)</td><td>700 Kč</td></tr>
+<tr><td>Parent consultation (1 hour)</td><td>800 Kč</td></tr>
+<tr><td>Screen/gaming addiction (4 sessions)</td><td>2,000 Kč</td></tr>
+<tr><td>Monthly coaching (weekly sessions)</td><td>3,500 Kč/mo</td></tr>
+      </tbody></table></div>
+    </div>
+<div class="price-cat" id="price-web">
+      <h3 class="price-cat-title">💻 Web Design & Media</h3>
+      <p class="price-cat-sub">Websites, social media, content, photography.</p>
+      
+      <div class="tbl-wrap"><table><tbody>
+      <tr><td>Single-page website</td><td>3,000 Kč</td></tr>
+<tr><td>Multi-page website (3–5 pages)</td><td>6,000 Kč</td></tr>
+<tr><td>Social media setup (FB + IG)</td><td>1,500 Kč</td></tr>
+<tr><td>Content creation (5 posts)</td><td>1,000 Kč</td></tr>
+<tr><td>Business photoshoot (2 hours)</td><td>2,000 Kč</td></tr>
+<tr><td>Starter pack (Website + Facebook)</td><td>3,500 Kč</td></tr>
+<tr><td>Pro pack (Website + FB + IG + training)</td><td>5,500 Kč</td></tr>
+<tr><td>VIP pack (Everything + photoshoot + support)</td><td>8,000 Kč</td></tr>
+      </tbody></table></div>
+    </div>
+    </div>
+    <h3 class="price-cat-title" style="margin-top:32px">Cancellation Policy</h3>
+    <div class="tbl-wrap"><table><tbody><tr><td>More than 48h before</td><td>Full refund</td></tr><tr><td>24–48 hours</td><td>50% refund</td></tr><tr><td>Less than 24h / no-show</td><td>No refund</td></tr><tr><td>Late arrival</td><td>The session still ends at the original time — lost time is not added back</td></tr></tbody></table></div>
+    </div>
+  </section>
+</main>
+
+<div class="mobile-cta" id="mobileCta" aria-hidden="true">
+  <a class="mobile-cta-btn" data-i18n="nav.bookBtn" href="https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog" target="_blank" rel="noopener">Register / Book</a>
+  <a class="mobile-cta-icon" href="https://wa.me/420702914842" target="_blank" rel="noopener" aria-label="WhatsApp">
+    <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l1.3-4.1A8 8 0 1 1 9 18.6z"/><path d="M9.2 10.3c0 3 2.4 5.4 5.4 5.4"/></svg>
+  </a>
+</div>
+
+<footer>
+  <div class="wrap">
+    <h2 data-i18n="footer.title">Want the full picture?</h2>
+    <p class="lead" data-i18n="footer.lead">Tutoring, Družina Moravy HEMA/LARP, and the complete site live at the main hub.</p>
+    <div class="footer-contacts">
+      <a class="btn solid" data-i18n="footer.visitFull" href="../">Visit the full site ➔</a>
+      <a class="btn" href="../walkers/">BrnoWalkers ➔</a>
+      <a class="btn" href="../druzina/">Družina Moravy ➔</a>
+    </div>
+    <div class="footer-fine">Aliaksei Chareshneu, PhD · Brno, Czech Republic · OSVČ IČO: 23041625</div>
+  </div>
+</footer>
+
+
+<script>
+  function toggleFAQ(id) {
+    const item = document.getElementById(id);
+    if (!item) return;
+    const isOpen = item.classList.contains('open');
+    item.classList.toggle('open', !isOpen);
+    const ans = item.querySelector('.faq-a');
+    ans.style.maxHeight = isOpen ? '0' : ans.scrollHeight + 'px';
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const els = document.querySelectorAll('main section');
+    els.forEach(el => el.classList.add('reveal'));
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) { entry.target.classList.add('is-visible'); io.unobserve(entry.target); }
+        });
+      }, { threshold: 0, rootMargin: '0px 0px 200px 0px' });
+      els.forEach(el => io.observe(el));
+    } else {
+      els.forEach(el => el.classList.add('is-visible'));
+    }
+
+    const cta = document.getElementById('mobileCta');
+    const hero = document.getElementById('walkers');
+    const io2 = new IntersectionObserver(([entry]) => {
+      const show = !entry.isIntersecting;
+      cta.style.transform = show ? 'translateY(0)' : 'translateY(120%)';
+      cta.setAttribute('aria-hidden', show ? 'false' : 'true');
+    }, {threshold: 0});
+    io2.observe(hero);
+  });
+
+  // Same nav-height sync as the root page (see initNavHeightSync() in
+  // ../index.html) — this page now has its own .tabs-bar too (the 7-item
+  // nav added this pass), so it needs the same fix: a hardcoded --nav-
+  // height guess breaks the moment .nav's real height differs, and .nav
+  // would stick on top of .tabs-bar as you scroll.
+  (function initNavHeightSync() {
+    var nav = document.querySelector('.nav');
+    if (!nav) return;
+    var apply = function () {
+      document.documentElement.style.setProperty('--nav-height', nav.offsetHeight + 'px');
+    };
+    apply();
+    if ('ResizeObserver' in window) {
+      new ResizeObserver(apply).observe(nav);
+    } else {
+      window.addEventListener('resize', apply);
+    }
+  })();
+</script>
+<script>
+
+const T = {
+en: {
+  nav: { brand: "Eternal Learning Academy", bookBtn: "Register / Book" },
+  tabs: {main:'Home', walkers:'BrnoWalkers', academy:'Academy', druzina:'Družina Moravy', calendar:'Calendar', ambassador:'Become an Ambassador', contacts:'Contacts'},
+  academy: {
+    eyebrow: "PhD-Level Tutoring & Coaching",
+    title2: "Eternal Learning Academy — Tutoring, Fitness & Coaching in Brno",
+    tagline: "Sciences, IT, and languages taught by a PhD — plus fitness, nutrition, life coaching, private guided tours, IT security cleanup and expat support. One person, nine ways to help.",
+    ctaRegister: "Book a session",
+    ctaContact: "Contact me",
+    priorityEyebrow: "Why regulars stick around"
+  },
+  academyPriority: "<div class=\"priority-card\"><h3>Academy priority</h3><p>Regular students get first access to the best time slots.</p></div><div class=\"priority-card\"><h3>Tailored guidance</h3><p>We match your study plan to your goals for faster, clearer progress.</p></div><div class=\"priority-card\"><h3>Monthly continuity</h3><p>Ongoing monthly support keeps learning steady and on-track.</p></div>",
+  academyPricing: "<p class=\"price-global-note\">💡 First session in any category — 100 Kč discount. Online is always 100 Kč/hr cheaper than in-person. Urgent request (under 48h) — +50% surcharge.</p>\n    <p class=\"note\">Full price list — 9 categories. Jump straight to one:</p>\n    <div class=\"price-jump-list\"><a class=\"price-jump-link\" href=\"#price-edu\">📚 Tutoring</a> <a class=\"price-jump-link\" href=\"#price-fit\">💪 Fitness</a> <a class=\"price-jump-link\" href=\"#price-nutr\">🥗 Nutrition</a> <a class=\"price-jump-link\" href=\"#price-supp\">🌍 Expat Support</a> <a class=\"price-jump-link\" href=\"#price-hous\">🏠 Housing</a> <a class=\"price-jump-link\" href=\"#price-itsec\">🛡️ IT Security</a> <a class=\"price-jump-link\" href=\"#price-coach\">🧠 Life Coaching</a> <a class=\"price-jump-link\" href=\"#price-web\">💻 Web & Media</a> <a class=\"price-jump-link\" href=\"#price-trek\">🗺️ Guided Tours</a></div>\n    <div class=\"price-cats\">\n    <div class=\"price-cat\" id=\"price-edu\">\n      <h3 class=\"price-cat-title\">📚 Tutoring & Education</h3>\n      <p class=\"price-cat-sub\">Maths, Physics, Chemistry, Biology, History, Languages, Chess and more</p>\n      <div class=\"academy-subjects\"><div class=\"subj-group\">\n      <div class=\"subj-group-title\">🏫 School Students</div>\n      <div class=\"subj-grid\"><div class=\"subj-card\">\n        <div class=\"subj-icon\">⚗️</div>\n        <div class=\"subj-name\">Chemistry</div>\n        <ul class=\"subj-items\"><li>School curriculum grades 7–11</li><li>Exam prep: Maturita / A-levels</li><li>Organic & inorganic chemistry</li><li>Biochemistry (advanced)</li></ul>\n      </div><div class=\"subj-card\">\n        <div class=\"subj-icon\">🔬</div>\n        <div class=\"subj-name\">Biology</div>\n        <ul class=\"subj-items\"><li>General biology grades 7–11</li><li>Molecular biology & genetics</li><li>Anatomy & physiology</li><li>Maturita preparation</li></ul>\n      </div><div class=\"subj-card\">\n        <div class=\"subj-icon\">⚡</div>\n        <div class=\"subj-name\">Physics</div>\n        <ul class=\"subj-items\"><li>School curriculum grades 7–11</li><li>Mechanics, electricity, optics</li><li>Exam preparation</li><li>Olympiad problem solving</li></ul>\n      </div><div class=\"subj-card\">\n        <div class=\"subj-icon\">📐</div>\n        <div class=\"subj-name\">Maths</div>\n        <ul class=\"subj-items\"><li>Algebra & geometry</li><li>Trigonometry, functions</li><li>Maturita preparation</li><li>Statistics & probability</li></ul>\n      </div><div class=\"subj-card\">\n        <div class=\"subj-icon\">♟️</div>\n        <div class=\"subj-name\">Chess</div>\n        <ul class=\"subj-items\"><li>Complete beginners welcome</li><li>Tactics & strategy</li><li>Game analysis</li><li>Opening theory</li></ul>\n      </div></div>\n    </div><div class=\"subj-group\">\n      <div class=\"subj-group-title\">🎓 University & Applicants</div>\n      <div class=\"subj-grid\"><div class=\"subj-card\">\n        <div class=\"subj-icon\">🧬</div>\n        <div class=\"subj-name\">Biochemistry & Mol. Biology</div>\n        <ul class=\"subj-items\"><li>University biochemistry course</li><li>Molecular biology (PhD level)</li><li>University entrance exam prep</li><li>Coursework & thesis support</li></ul>\n      </div><div class=\"subj-card\">\n        <div class=\"subj-icon\">💻</div>\n        <div class=\"subj-name\">IT & Programming</div>\n        <ul class=\"subj-items\"><li>Python (zero to projects)</li><li>UNIX / Linux command line</li><li>Algorithms & data structures</li><li>Intro to data science</li></ul>\n      </div><div class=\"subj-card\">\n        <div class=\"subj-icon\">🏛️</div>\n        <div class=\"subj-name\">History</div>\n        <ul class=\"subj-items\"><li>World & European history</li><li>Czech & Moravian history</li><li>Middle Ages & HEMA context</li><li>Exam preparation</li></ul>\n      </div></div>\n    </div><div class=\"subj-group\">\n      <div class=\"subj-group-title\">🌍 Adults & Expats</div>\n      <div class=\"subj-grid\"><div class=\"subj-card\">\n        <div class=\"subj-icon\">🇨🇿</div>\n        <div class=\"subj-name\">Czech Language</div>\n        <ul class=\"subj-items\"><li>Czech for beginners (A1–A2)</li><li>Czech for permanent residency (B1–B2)</li><li>Language exam preparation</li><li>Conversational practice</li></ul>\n      </div><div class=\"subj-card\">\n        <div class=\"subj-icon\">🇬🇧</div>\n        <div class=\"subj-name\">English Language</div>\n        <ul class=\"subj-items\"><li>Business English</li><li>IELTS / Cambridge exam prep</li><li>Conversational practice</li><li>English for children</li></ul>\n      </div><div class=\"subj-card\">\n        <div class=\"subj-icon\">🩺</div>\n        <div class=\"subj-name\">Medical Support</div>\n        <ul class=\"subj-items\"><li>Diagnosis & treatment analysis</li><li>Support communicating with doctors</li><li>Medical interpreting (online/in-person)</li><li>Medical document nostrification</li></ul>\n      </div></div>\n    </div><div class=\"subj-group\">\n      <div class=\"subj-group-title\">🛠️ Technical / Practical help</div>\n      <div class=\"subj-grid\"><div class=\"subj-card\">\n        <div class=\"subj-icon\">🛡️</div>\n        <div class=\"subj-name\">Computer & malware cleanup</div>\n        <ul class=\"subj-items\"><li>Malware removal, basic security hardening, and a check for suspicious software on your computer.</li></ul>\n      </div></div>\n    </div><div class=\"subj-group\">\n      <div class=\"subj-group-title\">🎨 Creative & Applied</div>\n      <div class=\"subj-grid\"><div class=\"subj-card\">\n        <div class=\"subj-icon\">🎸</div>\n        <div class=\"subj-name\">Music</div>\n        <ul class=\"subj-items\"><li>Guitar (classical / rock / acoustic)</li><li>Piano</li><li>Vocals & voice coaching</li><li>Music theory</li></ul>\n      </div><div class=\"subj-card\">\n        <div class=\"subj-icon\">🎤</div>\n        <div class=\"subj-name\">Public Speaking</div>\n        <ul class=\"subj-items\"><li>Overcoming stage fright</li><li>Speech structure & argumentation</li><li>Voice & body language</li><li>Presentation preparation</li></ul>\n      </div></div>\n    </div></div>\n      <div class=\"tbl-wrap\"><table><tbody>\n      <tr><td>Individual online (1 hour)</td><td>500 Kč</td></tr>\n<tr><td>Individual in-person (1 hour)</td><td>600 Kč</td></tr>\n<tr><td>Group 2–4 online (1 hr/person)</td><td>350 Kč</td></tr>\n<tr><td>Group 2–4 in-person (1 hr/person)</td><td>400 Kč</td></tr>\n<tr><td>🎁 First lesson (any format)</td><td>300 Kč</td></tr>\n<tr class=\"subhead\"><td colspan=\"2\">📚 Packages cost less than single lessons — save up to 15%</td></tr>\n<tr class=\"subhead\"><td colspan=\"2\">📚 Packages — Individual online</td></tr>\n<tr><td>5 lessons (−5%)</td><td>2,375 Kč</td></tr>\n<tr><td>10 lessons (−10%)</td><td>4,500 Kč</td></tr>\n<tr><td>20 lessons (−15%)</td><td>8,500 Kč</td></tr>\n<tr class=\"subhead\"><td colspan=\"2\">📚 Packages — Individual in-person</td></tr>\n<tr><td>5 lessons (−5%)</td><td>2,850 Kč</td></tr>\n<tr><td>10 lessons (−10%)</td><td>5,400 Kč</td></tr>\n<tr><td>20 lessons (−15%)</td><td>10,200 Kč</td></tr>\n<tr class=\"subhead\"><td colspan=\"2\">📚 Packages — Group online (per person)</td></tr>\n<tr><td>5 lessons (−5%)</td><td>1,663 Kč</td></tr>\n<tr><td>10 lessons (−10%)</td><td>3,150 Kč</td></tr>\n<tr><td>20 lessons (−15%)</td><td>5,950 Kč</td></tr>\n<tr class=\"subhead\"><td colspan=\"2\">📚 Packages — Group in-person (per person)</td></tr>\n<tr><td>5 lessons (−5%)</td><td>1,900 Kč</td></tr>\n<tr><td>10 lessons (−10%)</td><td>3,600 Kč</td></tr>\n<tr><td>20 lessons (−15%)</td><td>6,800 Kč</td></tr>\n<tr><td>Maturita prep (15 lessons + tests)</td><td>5,000 Kč</td></tr>\n<tr><td>Czech for residency (18 lessons)</td><td>6,000 Kč (−1,200 Kč)</td></tr>\n<tr><td>Czech monthly membership</td><td>600 Kč/mo (online + practice)</td></tr>\n<tr><td>Full residency pack (20h + document help)</td><td>7,000 Kč</td></tr>\n      </tbody></table></div>\n    </div>\n<div class=\"price-cat\" id=\"price-trek\">\n      <h3 class=\"price-cat-title\">🗺️ Guided Tours</h3>\n      <p class=\"price-cat-sub\">Included: guide, route, maps, planning. Not included: transport, food, entry tickets.</p>\n      \n      <div class=\"tbl-wrap\"><table><tbody>\n      <tr><td>Individual tour (1 day)</td><td>from 2,000 Kč</td></tr>\n<tr><td>Group tour (1 day, 4+ people)</td><td>from 1,000 Kč/person</td></tr>\n      </tbody></table></div>\n    </div>\n<div class=\"price-cat\" id=\"price-fit\">\n      <h3 class=\"price-cat-title\">💪 Fitness & Personal Training</h3>\n      <p class=\"price-cat-sub\">Outdoors or at client's location. Experience: 100+ trained clients.</p>\n      \n      <div class=\"tbl-wrap\"><table><tbody>\n      <tr><td>Personal in-person (1 hour)</td><td>600 Kč</td></tr>\n<tr><td>Personal online (1 hour)</td><td>400 Kč</td></tr>\n<tr><td>Group training (single)</td><td>300 Kč</td></tr>\n<tr><td>🎁 First session in-person</td><td>400 Kč</td></tr>\n<tr><td>🎁 First session online</td><td>300 Kč</td></tr>\n<tr class=\"subhead\"><td colspan=\"2\">📚 Packages & passes cost less per session</td></tr>\n<tr><td>4-session group pass</td><td>600 Kč (150 Kč/session)</td></tr>\n<tr><td>8-session group pass</td><td>1,000 Kč (125 Kč/session)</td></tr>\n<tr><td>5-session personal in-person pack</td><td>2,000 Kč (−500 Kč)</td></tr>\n<tr><td>10-session personal in-person pack</td><td>3,350 Kč (−1,650 Kč)</td></tr>\n<tr><td>1-month online programme (plan+nutrition)</td><td>2,000 Kč/mo</td></tr>\n<tr><td>Weight-loss programme (8 weeks)</td><td>4,000 Kč</td></tr>\n<tr><td>3-month body transformation</td><td>5,000 Kč</td></tr>\n      </tbody></table></div>\n    </div>\n<div class=\"price-cat\" id=\"price-nutr\">\n      <h3 class=\"price-cat-title\">🥗 Nutrition Consulting</h3>\n      <p class=\"price-cat-sub\">Personal nutrition plans, ongoing support, adjustments.</p>\n      \n      <div class=\"tbl-wrap\"><table><tbody>\n      <tr><td>Initial consultation (90 min)</td><td>600 Kč</td></tr>\n<tr><td>Personal nutrition plan</td><td>600 Kč</td></tr>\n<tr><td>Monthly support</td><td>2,000 Kč/mo</td></tr>\n<tr><td>Single correction session (60 min)</td><td>700 Kč</td></tr>\n      </tbody></table></div>\n    </div>\n<div class=\"price-cat\" id=\"price-supp\">\n      <h3 class=\"price-cat-title\">🌍 Expat Support</h3>\n      <p class=\"price-cat-sub\">Work, housing, medicine, documents, legal issues, nostrification.</p>\n      \n      <div class=\"tbl-wrap\"><table><tbody>\n      <tr><td>General consultation (1st hour)</td><td>300 Kč</td></tr>\n<tr><td>Each additional hour</td><td>400 Kč</td></tr>\n<tr><td>Doctor search</td><td>700 Kč</td></tr>\n<tr><td>Lawyer search</td><td>900 Kč</td></tr>\n<tr><td>University admission consultation (1h)</td><td>500 Kč</td></tr>\n<tr><td>Medical diagnosis & treatment analysis</td><td>1,000 Kč</td></tr>\n<tr><td>Nostrification assistance</td><td>from 3,500 Kč</td></tr>\n<tr><td>Legal representation (advocacy)</td><td>from 1,500 Kč</td></tr>\n<tr><td>Medical advocacy</td><td>from 2,000 Kč</td></tr>\n<tr><td>Interpreting online (legal/medical)</td><td>600 Kč/hr</td></tr>\n<tr><td>In-person interpreting at meetings</td><td>900 Kč/hr</td></tr>\n      </tbody></table></div>\n    </div>\n<div class=\"price-cat\" id=\"price-hous\">\n      <h3 class=\"price-cat-title\">🏠 Brno Housing Support</h3>\n      <p class=\"price-cat-sub\">For community newcomers and referrals</p>\n      \n      <div class=\"tbl-wrap\"><table><tbody>\n      <tr class=\"subhead\"><td colspan=\"2\">Brno Housing Support (for community newcomers and referrals)</td></tr>\n<tr><td>Tier 0 — Basic consultation</td><td>free</td></tr>\n<tr><td>Curated list of vetted resources</td><td>bezrealitky.cz, sreality.cz, espolubydleni.cz, relevant FB groups; price/area guidance for the person’s budget; one detailed reply. Open to anyone reaching out through the community or a warm referral.</td></tr>\n<tr class=\"subhead\"><td colspan=\"2\">Tier 1 — Boosted listing</td></tr>\n<tr><td>300 Kč</td><td>post the request as-is across my channels (BrnoWalkers, Družina Moravy, Instagram, Facebook — 250+ people in Brno)</td></tr>\n<tr><td>500 Kč</td><td>same, plus translation/adaptation into Czech for the platform</td></tr>\n<tr><td>Runs 7 days or until a match is found</td><td>No outcome guarantee — this is reach, not a placement guarantee.</td></tr>\n<tr><td>Tier 2 — Personal accompaniment</td><td>500 Kč/hour (min. package — 2 hours, 1 000 Kč, prepaid)</td></tr>\n<tr class=\"subhead\"><td colspan=\"2\">Shortlisting options against criteria, calling/messaging landlords in Czech, accompanying viewings within Brno, a basic sanity-check of the lease for obvious red flags.</td></tr>\n<tr><td>Not included</td><td>legal review of the contract, or brokerage-style service tied to a commission/success fee — this is billed for time, not outcome.</td></tr>\n<tr><td>General terms</td><td>payment in Kč, cash or bank transfer (OSVČ, IČO 23041625) · cancellation with at least 24h notice · this is a personal assistance service, not real estate brokerage, and not a substitute for legal advice.</td></tr>\n      </tbody></table></div>\n    </div>\n<div class=\"price-cat\" id=\"price-itsec\">\n      <h3 class=\"price-cat-title\">🛡️ IT Security</h3>\n      <p class=\"price-cat-sub\">Malware removal, security hardening, and a cleanup check for suspicious software.</p>\n      \n      <div class=\"tbl-wrap\"><table><tbody>\n      <tr><td>Computer & malware cleanup (1 hour)</td><td>600 Kč/hr</td></tr>\n<tr><td>Typical job</td><td>1 200 – 1 800 Kč</td></tr>\n      </tbody></table></div>\n    </div>\n<div class=\"price-cat\" id=\"price-coach\">\n      <h3 class=\"price-cat-title\">🧠 Life Coaching</h3>\n      <p class=\"price-cat-sub\">⚠️ Not a medical or psychological service. A doctor is required for medical conditions.</p>\n      \n      <div class=\"tbl-wrap\"><table><tbody>\n      <tr><td>Habit change session (1 hour)</td><td>700 Kč</td></tr>\n<tr><td>Parent consultation (1 hour)</td><td>800 Kč</td></tr>\n<tr><td>Screen/gaming addiction (4 sessions)</td><td>2,000 Kč</td></tr>\n<tr><td>Monthly coaching (weekly sessions)</td><td>3,500 Kč/mo</td></tr>\n      </tbody></table></div>\n    </div>\n<div class=\"price-cat\" id=\"price-web\">\n      <h3 class=\"price-cat-title\">💻 Web Design & Media</h3>\n      <p class=\"price-cat-sub\">Websites, social media, content, photography.</p>\n      \n      <div class=\"tbl-wrap\"><table><tbody>\n      <tr><td>Single-page website</td><td>3,000 Kč</td></tr>\n<tr><td>Multi-page website (3–5 pages)</td><td>6,000 Kč</td></tr>\n<tr><td>Social media setup (FB + IG)</td><td>1,500 Kč</td></tr>\n<tr><td>Content creation (5 posts)</td><td>1,000 Kč</td></tr>\n<tr><td>Business photoshoot (2 hours)</td><td>2,000 Kč</td></tr>\n<tr><td>Starter pack (Website + Facebook)</td><td>3,500 Kč</td></tr>\n<tr><td>Pro pack (Website + FB + IG + training)</td><td>5,500 Kč</td></tr>\n<tr><td>VIP pack (Everything + photoshoot + support)</td><td>8,000 Kč</td></tr>\n      </tbody></table></div>\n    </div>\n    </div>\n    <h3 class=\"price-cat-title\" style=\"margin-top:32px\">Cancellation Policy</h3>\n    <div class=\"tbl-wrap\"><table><tbody><tr><td>More than 48h before</td><td>Full refund</td></tr><tr><td>24–48 hours</td><td>50% refund</td></tr><tr><td>Less than 24h / no-show</td><td>No refund</td></tr><tr><td>Late arrival</td><td>The session still ends at the original time — lost time is not added back</td></tr></tbody></table></div>",
+  footer: { title: "Want the full picture?", lead: "BrnoWalkers hikes, Družina Moravy HEMA/LARP, and the complete site live at the main hub.", visitFull: "Visit the full site ➔" }
+},
+ru: {
+  nav: { brand: "Eternal Learning Academy", bookBtn: "Записаться" },
+  tabs: {main:'Home', walkers:'BrnoWalkers', academy:'Academy', druzina:'Družina Moravy', calendar:'Calendar', ambassador:'Become an Ambassador', contacts:'Contacts'},
+  academy: {
+    eyebrow: "Репетиторство PhD-уровня",
+    title2: "Eternal Learning Academy — репетиторство, фитнес и коучинг в Брно",
+    tagline: "Точные науки, IT и языки — от кандидата наук. Плюс фитнес, нутрициология, лайф-коучинг, частные экскурсии, чистка компьютеров от вирусов и помощь экспатам. Один человек — девять направлений.",
+    ctaRegister: "Записаться на занятие",
+    ctaContact: "Связаться",
+    priorityEyebrow: "Почему ученики остаются надолго"
+  },
+  academyPriority: "<div class=\"priority-card\"><h3>Приоритет академии</h3><p>Регулярные ученики получают первоочередной выбор времени в расписании.</p></div><div class=\"priority-card\"><h3>Персональное сопровождение</h3><p>Мы подбираем учебный путь с учётом целей, чтобы прогресс был быстрым и понятным.</p></div><div class=\"priority-card\"><h3>Месячный ритм</h3><p>Контроль и поддержка каждый месяц — чтобы знания накапливались стабильно.</p></div>",
+  academyPricing: "<p class=\"price-global-note\">💡 Первая сессия в любой категории — скидка 100 Kč. Онлайн всегда на 100 Kč/час дешевле офлайн. Срочный запрос (менее 48ч) — наценка +50%.</p>\n    <p class=\"note\">Полный прайс — 9 направлений. Перейти сразу к категории:</p>\n    <div class=\"price-jump-list\"><a class=\"price-jump-link\" href=\"#price-edu\">📚 Репетиторство</a> <a class=\"price-jump-link\" href=\"#price-fit\">💪 Фитнес</a> <a class=\"price-jump-link\" href=\"#price-nutr\">🥗 Нутрициология</a> <a class=\"price-jump-link\" href=\"#price-supp\">🌍 Помощь экспатам</a> <a class=\"price-jump-link\" href=\"#price-hous\">🏠 Жильё</a> <a class=\"price-jump-link\" href=\"#price-itsec\">🛡️ IT-безопасность</a> <a class=\"price-jump-link\" href=\"#price-coach\">🧠 Лайф-коучинг</a> <a class=\"price-jump-link\" href=\"#price-web\">💻 Веб & Медиа</a> <a class=\"price-jump-link\" href=\"#price-trek\">🗺️ Экскурсии</a></div>\n    <div class=\"price-cats\">\n    <div class=\"price-cat\" id=\"price-edu\">\n      <h3 class=\"price-cat-title\">📚 Репетиторство & Образование</h3>\n      <p class=\"price-cat-sub\">Математика, Физика, Химия, Биология, История, Языки, Шахматы и другое</p>\n      <div class=\"academy-subjects\"><div class=\"subj-group\">\n      <div class=\"subj-group-title\">🏫 Школьникам</div>\n      <div class=\"subj-grid\"><div class=\"subj-card\">\n        <div class=\"subj-icon\">⚗️</div>\n        <div class=\"subj-name\">Химия</div>\n        <ul class=\"subj-items\"><li>Школьная программа 7–11 класс</li><li>Подготовка к ЕГЭ / Maturita</li><li>Органическая и неорганическая химия</li><li>Биохимия (углублённо)</li></ul>\n      </div><div class=\"subj-card\">\n        <div class=\"subj-icon\">🔬</div>\n        <div class=\"subj-name\">Биология</div>\n        <ul class=\"subj-items\"><li>Общая биология 7–11 класс</li><li>Молекулярная биология и генетика</li><li>Анатомия и физиология</li><li>Подготовка к Maturita</li></ul>\n      </div><div class=\"subj-card\">\n        <div class=\"subj-icon\">⚡</div>\n        <div class=\"subj-name\">Физика</div>\n        <ul class=\"subj-items\"><li>Школьная программа 7–11 класс</li><li>Механика, электричество, оптика</li><li>Подготовка к экзаменам</li><li>Решение олимпиадных задач</li></ul>\n      </div><div class=\"subj-card\">\n        <div class=\"subj-icon\">📐</div>\n        <div class=\"subj-name\">Математика</div>\n        <ul class=\"subj-items\"><li>Алгебра и геометрия</li><li>Тригонометрия, функции</li><li>Подготовка к Maturita</li><li>Статистика и вероятность</li></ul>\n      </div><div class=\"subj-card\">\n        <div class=\"subj-icon\">♟️</div>\n        <div class=\"subj-name\">Шахматы</div>\n        <ul class=\"subj-items\"><li>Для начинающих с нуля</li><li>Тактика и стратегия</li><li>Разбор партий</li><li>Дебютная теория</li></ul>\n      </div></div>\n    </div><div class=\"subj-group\">\n      <div class=\"subj-group-title\">🎓 Студентам & Абитуриентам</div>\n      <div class=\"subj-grid\"><div class=\"subj-card\">\n        <div class=\"subj-icon\">🧬</div>\n        <div class=\"subj-name\">Биохимия & Молбиология</div>\n        <ul class=\"subj-items\"><li>Университетский курс биохимии</li><li>Молекулярная биология (PhD уровень)</li><li>Подготовка к вступительным экзаменам</li><li>Помощь с курсовыми и дипломными</li></ul>\n      </div><div class=\"subj-card\">\n        <div class=\"subj-icon\">💻</div>\n        <div class=\"subj-name\">IT & Программирование</div>\n        <ul class=\"subj-items\"><li>Python (с нуля до проектов)</li><li>ОС UNIX / Linux командная строка</li><li>Алгоритмы и структуры данных</li><li>Введение в data science</li></ul>\n      </div><div class=\"subj-card\">\n        <div class=\"subj-icon\">🏛️</div>\n        <div class=\"subj-name\">История</div>\n        <ul class=\"subj-items\"><li>Мировая и европейская история</li><li>История Чехии и Моравии</li><li>Средневековье и HEMA-контекст</li><li>Подготовка к экзаменам</li></ul>\n      </div></div>\n    </div><div class=\"subj-group\">\n      <div class=\"subj-group-title\">🌍 Взрослым & Экспатам</div>\n      <div class=\"subj-grid\"><div class=\"subj-card\">\n        <div class=\"subj-icon\">🇨🇿</div>\n        <div class=\"subj-name\">Чешский язык</div>\n        <ul class=\"subj-items\"><li>Чешский для начинающих (A1–A2)</li><li>Чешский для ПМЖ (B1–B2)</li><li>Подготовка к языковому экзамену</li><li>Разговорная практика</li></ul>\n      </div><div class=\"subj-card\">\n        <div class=\"subj-icon\">🇬🇧</div>\n        <div class=\"subj-name\">Английский язык</div>\n        <ul class=\"subj-items\"><li>Бизнес-английский</li><li>Подготовка к IELTS / Cambridge</li><li>Разговорная практика</li><li>Английский для детей</li></ul>\n      </div><div class=\"subj-card\">\n        <div class=\"subj-icon\">🩺</div>\n        <div class=\"subj-name\">Медицинская поддержка</div>\n        <ul class=\"subj-items\"><li>Анализ диагноза и плана лечения</li><li>Помощь в общении с врачом</li><li>Медицинский перевод (онлайн/офлайн)</li><li>Нострификация медицинских документов</li></ul>\n      </div></div>\n    </div><div class=\"subj-group\">\n      <div class=\"subj-group-title\">🛠️ Техническое / Практическое</div>\n      <div class=\"subj-grid\"><div class=\"subj-card\">\n        <div class=\"subj-icon\">🛡️</div>\n        <div class=\"subj-name\">Чистка компьютера от вирусов и вредоносного ПО</div>\n        <ul class=\"subj-items\"><li>Удаление вирусов и вредоносного ПО, базовая настройка защиты, проверка подозрительных программ.</li></ul>\n      </div></div>\n    </div><div class=\"subj-group\">\n      <div class=\"subj-group-title\">🎨 Творческое & Прикладное</div>\n      <div class=\"subj-grid\"><div class=\"subj-card\">\n        <div class=\"subj-icon\">🎸</div>\n        <div class=\"subj-name\">Музыка</div>\n        <ul class=\"subj-items\"><li>Гитара (классика / рок / акустика)</li><li>Фортепиано</li><li>Вокал и постановка голоса</li><li>Теория музыки</li></ul>\n      </div><div class=\"subj-card\">\n        <div class=\"subj-icon\">🎤</div>\n        <div class=\"subj-name\">Ораторское мастерство</div>\n        <ul class=\"subj-items\"><li>Преодоление страха сцены</li><li>Структура речи и аргументация</li><li>Работа с голосом и телом</li><li>Подготовка к презентациям</li></ul>\n      </div></div>\n    </div></div>\n      <div class=\"tbl-wrap\"><table><tbody>\n      <tr><td>Индивидуально онлайн (1 час)</td><td>500 Kč</td></tr>\n<tr><td>Индивидуально офлайн (1 час)</td><td>600 Kč</td></tr>\n<tr><td>Группа 2–4 чел. онлайн (1 час/чел.)</td><td>350 Kč</td></tr>\n<tr><td>Группа 2–4 чел. офлайн (1 час/чел.)</td><td>400 Kč</td></tr>\n<tr><td>🎁 Первое занятие (любой формат)</td><td>300 Kč</td></tr>\n<tr class=\"subhead\"><td colspan=\"2\">📚 Пакеты выгоднее разовых занятий — экономия до 15%</td></tr>\n<tr class=\"subhead\"><td colspan=\"2\">📚 Пакеты — Индивидуально онлайн</td></tr>\n<tr><td>5 занятий (−5%)</td><td>2 375 Kč</td></tr>\n<tr><td>10 занятий (−10%)</td><td>4 500 Kč</td></tr>\n<tr><td>20 занятий (−15%)</td><td>8 500 Kč</td></tr>\n<tr class=\"subhead\"><td colspan=\"2\">📚 Пакеты — Индивидуально офлайн</td></tr>\n<tr><td>5 занятий (−5%)</td><td>2 850 Kč</td></tr>\n<tr><td>10 занятий (−10%)</td><td>5 400 Kč</td></tr>\n<tr><td>20 занятий (−15%)</td><td>10 200 Kč</td></tr>\n<tr class=\"subhead\"><td colspan=\"2\">📚 Пакеты — Группа онлайн (за чел.)</td></tr>\n<tr><td>5 занятий (−5%)</td><td>1 663 Kč</td></tr>\n<tr><td>10 занятий (−10%)</td><td>3 150 Kč</td></tr>\n<tr><td>20 занятий (−15%)</td><td>5 950 Kč</td></tr>\n<tr class=\"subhead\"><td colspan=\"2\">📚 Пакеты — Группа офлайн (за чел.)</td></tr>\n<tr><td>5 занятий (−5%)</td><td>1 900 Kč</td></tr>\n<tr><td>10 занятий (−10%)</td><td>3 600 Kč</td></tr>\n<tr><td>20 занятий (−15%)</td><td>6 800 Kč</td></tr>\n<tr><td>Подготовка к Maturita (15 уроков + тесты)</td><td>5 000 Kč</td></tr>\n<tr><td>Чешский для ПМЖ (18 уроков)</td><td>6 000 Kč (−1 200 Kč)</td></tr>\n<tr><td>Чешское месячное членство</td><td>600 Kč/мес. (онлайн + практика)</td></tr>\n<tr><td>Полный пакет ПМЖ (20 ч + помощь с документами)</td><td>7 000 Kč</td></tr>\n      </tbody></table></div>\n    </div>\n<div class=\"price-cat\" id=\"price-trek\">\n      <h3 class=\"price-cat-title\">🗺️ Авторские гид-туры</h3>\n      <p class=\"price-cat-sub\">Включено: гид, маршрут, карты, планирование. Не включено: транспорт, еда, билеты.</p>\n      \n      <div class=\"tbl-wrap\"><table><tbody>\n      <tr><td>Индивидуальный тур (1 день)</td><td>от 2 000 Kč</td></tr>\n<tr><td>Групповой тур (1 день, от 4 чел.)</td><td>от 1 000 Kč/чел.</td></tr>\n      </tbody></table></div>\n    </div>\n<div class=\"price-cat\" id=\"price-fit\">\n      <h3 class=\"price-cat-title\">💪 Фитнес & Персональные тренировки</h3>\n      <p class=\"price-cat-sub\">На открытом воздухе или локации клиента. Опыт: 100+ клиентов.</p>\n      \n      <div class=\"tbl-wrap\"><table><tbody>\n      <tr><td>Персонально офлайн (1 час)</td><td>600 Kč</td></tr>\n<tr><td>Персонально онлайн (1 час)</td><td>400 Kč</td></tr>\n<tr><td>Групповая тренировка (разово)</td><td>300 Kč</td></tr>\n<tr><td>🎁 Первое занятие офлайн</td><td>400 Kč</td></tr>\n<tr><td>🎁 Первое занятие онлайн</td><td>300 Kč</td></tr>\n<tr class=\"subhead\"><td colspan=\"2\">📚 Пакеты и абонементы выгоднее — ниже цена за сессию</td></tr>\n<tr><td>Абонемент 4 групп. тренировки</td><td>600 Kč (150 Kč/сессия)</td></tr>\n<tr><td>Абонемент 8 групп. тренировок</td><td>1 000 Kč (125 Kč/сессия)</td></tr>\n<tr><td>Пакет 5 персон. офлайн</td><td>2 000 Kč (−500 Kč)</td></tr>\n<tr><td>Пакет 10 персон. офлайн</td><td>3 350 Kč (−1 650 Kč)</td></tr>\n<tr><td>Онлайн-программа 1 мес. (план+питание)</td><td>2 000 Kč/мес.</td></tr>\n<tr><td>Программа похудения (8 недель)</td><td>4 000 Kč</td></tr>\n<tr><td>3-месячная трансформация тела</td><td>5 000 Kč</td></tr>\n      </tbody></table></div>\n    </div>\n<div class=\"price-cat\" id=\"price-nutr\">\n      <h3 class=\"price-cat-title\">🥗 Нутрициология</h3>\n      <p class=\"price-cat-sub\">Персональные планы питания, сопровождение, коррекция.</p>\n      \n      <div class=\"tbl-wrap\"><table><tbody>\n      <tr><td>Первичная консультация (90 мин)</td><td>600 Kč</td></tr>\n<tr><td>Персональный план питания</td><td>600 Kč</td></tr>\n<tr><td>Ежемесячное сопровождение</td><td>2 000 Kč/мес.</td></tr>\n<tr><td>Разовая корректирующая сессия (60 мин)</td><td>700 Kč</td></tr>\n      </tbody></table></div>\n    </div>\n<div class=\"price-cat\" id=\"price-supp\">\n      <h3 class=\"price-cat-title\">🌍 Поддержка экспатов</h3>\n      <p class=\"price-cat-sub\">Работа, жильё, медицина, документы, юридические вопросы, нострификация.</p>\n      \n      <div class=\"tbl-wrap\"><table><tbody>\n      <tr><td>Общая консультация (1-й час)</td><td>300 Kč</td></tr>\n<tr><td>Каждый последующий час</td><td>400 Kč</td></tr>\n<tr><td>Поиск врача</td><td>700 Kč</td></tr>\n<tr><td>Поиск адвоката</td><td>900 Kč</td></tr>\n<tr><td>Консультация по поступлению в вуз (1ч)</td><td>500 Kč</td></tr>\n<tr><td>Анализ медицинского диагноза и лечения</td><td>1 000 Kč</td></tr>\n<tr><td>Помощь с нострификацией</td><td>от 3 500 Kč</td></tr>\n<tr><td>Юридическое представительство</td><td>от 1 500 Kč</td></tr>\n<tr><td>Медицинское сопровождение</td><td>от 2 000 Kč</td></tr>\n<tr><td>Устный перевод онлайн (юристы/медицина)</td><td>600 Kč/час</td></tr>\n<tr><td>Устный перевод на встречах лично</td><td>900 Kč/час</td></tr>\n      </tbody></table></div>\n    </div>\n<div class=\"price-cat\" id=\"price-hous\">\n      <h3 class=\"price-cat-title\">🏠 Помощь с жильём в Брно</h3>\n      <p class=\"price-cat-sub\">Для новичков сообщества и по рекомендациям</p>\n      \n      <div class=\"tbl-wrap\"><table><tbody>\n      <tr class=\"subhead\"><td colspan=\"2\">Помощь с жильём в Брно (для новичков сообщества и по рекомендациям)</td></tr>\n<tr><td>Уровень 0 — Базовая консультация</td><td>бесплатно</td></tr>\n<tr><td>Подборка проверенных ресурсов</td><td>bezrealitky.cz, sreality.cz, espolubydleni.cz, профильные ФБ-группы; ориентир по ценам под бюджет и район; один развёрнутый ответ. Доступно всем, кто обращается через сообщество или тёплый контакт.</td></tr>\n<tr class=\"subhead\"><td colspan=\"2\">Уровень 1 — Продвижение запроса</td></tr>\n<tr><td>300 Kč</td><td>публикация запроса «как есть» в моих каналах (BrnoWalkers, Družina Moravy, Instagram, Facebook — 250+ человек в Брно)</td></tr>\n<tr><td>500 Kč</td><td>то же + перевод/адаптация текста на чешский под площадку</td></tr>\n<tr><td>Действует 7 дней или до нахождения варианта</td><td>Не гарантирует результат — это охват, не гарантия.</td></tr>\n<tr><td>Уровень 2 — Личное сопровождение</td><td>500 Kč/час (мин. пакет — 2 часа, 1 000 Kč, предоплата)</td></tr>\n<tr class=\"subhead\"><td colspan=\"2\">Составление шорт-листа под критерии, переписка/звонки хозяевам на чешском, сопровождение на просмотры в пределах Брно, базовая сверка договора найма на предмет явных красных флагов.</td></tr>\n<tr><td>Не входит</td><td>юридическая экспертиза договора, риелторское посредничество за комиссию/процент от сделки — услуга оплачивается за время консультации, а не за результат.</td></tr>\n<tr><td>Общие условия</td><td>оплата в Kč наличными или переводом (OSVČ, IČO 23041625) · отмена минимум за 24 часа · услуга не является риелторской деятельностью и не заменяет юридическую консультацию.</td></tr>\n      </tbody></table></div>\n    </div>\n<div class=\"price-cat\" id=\"price-itsec\">\n      <h3 class=\"price-cat-title\">🛡️ IT-безопасность</h3>\n      <p class=\"price-cat-sub\">Удаление вирусов, базовая проверка безопасности и очистка компьютера.</p>\n      \n      <div class=\"tbl-wrap\"><table><tbody>\n      <tr><td>Чистка компьютера от вирусов и вредоносного ПО (1 час)</td><td>600 Kč/час</td></tr>\n<tr><td>Типичная работа</td><td>1 200 – 1 800 Kč</td></tr>\n      </tbody></table></div>\n    </div>\n<div class=\"price-cat\" id=\"price-coach\">\n      <h3 class=\"price-cat-title\">🧠 Лайф-коучинг</h3>\n      <p class=\"price-cat-sub\">⚠️ Не является медицинской или психологической помощью. При наличии заболеваний необходим врач.</p>\n      \n      <div class=\"tbl-wrap\"><table><tbody>\n      <tr><td>Сессия по изменению привычек (1 час)</td><td>700 Kč</td></tr>\n<tr><td>Консультация для родителей (1 час)</td><td>800 Kč</td></tr>\n<tr><td>Борьба с экранной/игровой зависимостью (4 сессии)</td><td>2 000 Kč</td></tr>\n<tr><td>Ежемесячное ведение (еженедельные сессии)</td><td>3 500 Kč/мес.</td></tr>\n      </tbody></table></div>\n    </div>\n<div class=\"price-cat\" id=\"price-web\">\n      <h3 class=\"price-cat-title\">💻 Веб-дизайн & Продвижение</h3>\n      <p class=\"price-cat-sub\">Сайты, соцсети, контент, фотосъёмка.</p>\n      \n      <div class=\"tbl-wrap\"><table><tbody>\n      <tr><td>Одностраничный сайт-визитка</td><td>3 000 Kč</td></tr>\n<tr><td>Многостраничный сайт (3–5 стр.)</td><td>6 000 Kč</td></tr>\n<tr><td>Настройка соцсетей (FB + IG)</td><td>1 500 Kč</td></tr>\n<tr><td>Создание контента (5 постов)</td><td>1 000 Kč</td></tr>\n<tr><td>Бизнес-фотосессия (2 часа)</td><td>2 000 Kč</td></tr>\n<tr><td>Пакет Starter (Сайт + Facebook)</td><td>3 500 Kč</td></tr>\n<tr><td>Пакет Pro (Сайт + FB + IG + обучение)</td><td>5 500 Kč</td></tr>\n<tr><td>Пакет VIP (Всё + фотосессия + поддержка)</td><td>8 000 Kč</td></tr>\n      </tbody></table></div>\n    </div>\n    </div>\n    <h3 class=\"price-cat-title\" style=\"margin-top:32px\">Политика отмен</h3>\n    <div class=\"tbl-wrap\"><table><tbody><tr><td>Более 48 часов до занятия</td><td>Полный возврат</td></tr><tr><td>24–48 часов</td><td>Возврат 50%</td></tr><tr><td>Менее 24 часов / неявка</td><td>Без возврата</td></tr><tr><td>Опоздание</td><td>Занятие идёт до исходного времени окончания — оставшееся время не продлевается</td></tr></tbody></table></div>",
+  footer: { title: "Хочешь увидеть всю картину?", lead: "BrnoWalkers походы, Дружина Моравии (HEMA/LARP) и весь сайт целиком — на главном хабе.", visitFull: "Перейти на весь сайт ➔" }
+},
+cs: {
+  nav: { brand: "Eternal Learning Academy", bookBtn: "Rezervovat" },
+  tabs: {main:'Home', walkers:'BrnoWalkers', academy:'Academy', druzina:'Družina Moravy', calendar:'Calendar', ambassador:'Become an Ambassador', contacts:'Contacts'},
+  academy: {
+    eyebrow: "Doučování na úrovni PhD",
+    title2: "Eternal Learning Academy — doučování, fitness a koučink v Brně",
+    tagline: "Přírodní vědy, IT a jazyky vyučované držitelem PhD. Navíc fitness, výživové poradenství, koučink, soukromé prohlídky, čištění počítačů od virů a podpora expatů. Jeden člověk, devět směrů.",
+    ctaRegister: "Objednat lekci",
+    ctaContact: "Kontaktovat",
+    priorityEyebrow: "Proč studenti zůstávají"
+  },
+  academyPriority: "<div class=\"priority-card\"><h3>Priorita akademie</h3><p>Pravidelní studenti získávají první výběr nejlepších časů.</p></div><div class=\"priority-card\"><h3>Osobní vedení</h3><p>Přizpůsobíme studijní plán vašim cílům pro rychlejší pokrok.</p></div><div class=\"priority-card\"><h3>Měsíční kontinuita</h3><p>Průběžná podpora každý měsíc drží učení stabilní.</p></div>",
+  academyPricing: "<p class=\"price-global-note\">💡 První sezení v jakékoli kategorii — sleva 100 Kč. Online je vždy o 100 Kč/hod levnější než osobní. Urgentní požadavek (méně než 48h) — příplatek +50 %.</p>\n    <p class=\"note\">Kompletní ceník — 9 kategorií. Přejít přímo na kategorii:</p>\n    <div class=\"price-jump-list\"><a class=\"price-jump-link\" href=\"#price-edu\">📚 Doučování</a> <a class=\"price-jump-link\" href=\"#price-fit\">💪 Fitness</a> <a class=\"price-jump-link\" href=\"#price-nutr\">🥗 Výživa</a> <a class=\"price-jump-link\" href=\"#price-supp\">🌍 Podpora expatů</a> <a class=\"price-jump-link\" href=\"#price-hous\">🏠 Bydlení</a> <a class=\"price-jump-link\" href=\"#price-itsec\">🛡️ IT bezpečnost</a> <a class=\"price-jump-link\" href=\"#price-coach\">🧠 Koučink</a> <a class=\"price-jump-link\" href=\"#price-web\">💻 Web & Média</a> <a class=\"price-jump-link\" href=\"#price-trek\">🗺️ Prohlídky</a></div>\n    <div class=\"price-cats\">\n    <div class=\"price-cat\" id=\"price-edu\">\n      <h3 class=\"price-cat-title\">📚 Doučování & Vzdělávání</h3>\n      <p class=\"price-cat-sub\">Matematika, Fyzika, Chemie, Biologie, Dějepis, Jazyky, Šachy a další</p>\n      <div class=\"academy-subjects\"><div class=\"subj-group\">\n      <div class=\"subj-group-title\">🏫 Pro školáky</div>\n      <div class=\"subj-grid\"><div class=\"subj-card\">\n        <div class=\"subj-icon\">⚗️</div>\n        <div class=\"subj-name\">Chemie</div>\n        <ul class=\"subj-items\"><li>Školní program 7.–11. třída</li><li>Příprava na Maturitu</li><li>Organická a anorganická chemie</li><li>Biochemie (pokročilá)</li></ul>\n      </div><div class=\"subj-card\">\n        <div class=\"subj-icon\">🔬</div>\n        <div class=\"subj-name\">Biologie</div>\n        <ul class=\"subj-items\"><li>Obecná biologie 7.–11. třída</li><li>Molekulární biologie a genetika</li><li>Anatomie a fyziologie</li><li>Příprava na Maturitu</li></ul>\n      </div><div class=\"subj-card\">\n        <div class=\"subj-icon\">⚡</div>\n        <div class=\"subj-name\">Fyzika</div>\n        <ul class=\"subj-items\"><li>Školní program 7.–11. třída</li><li>Mechanika, elektřina, optika</li><li>Příprava na zkoušky</li><li>Olympijské úlohy</li></ul>\n      </div><div class=\"subj-card\">\n        <div class=\"subj-icon\">📐</div>\n        <div class=\"subj-name\">Matematika</div>\n        <ul class=\"subj-items\"><li>Algebra a geometrie</li><li>Trigonometrie, funkce</li><li>Příprava na Maturitu</li><li>Statistika a pravděpodobnost</li></ul>\n      </div><div class=\"subj-card\">\n        <div class=\"subj-icon\">♟️</div>\n        <div class=\"subj-name\">Šachy</div>\n        <ul class=\"subj-items\"><li>Pro úplné začátečníky</li><li>Taktika a strategie</li><li>Rozbor partií</li><li>Teorie zahájení</li></ul>\n      </div></div>\n    </div><div class=\"subj-group\">\n      <div class=\"subj-group-title\">🎓 Studenti & Uchazeči</div>\n      <div class=\"subj-grid\"><div class=\"subj-card\">\n        <div class=\"subj-icon\">🧬</div>\n        <div class=\"subj-name\">Biochemie & Mol. biologie</div>\n        <ul class=\"subj-items\"><li>Univerzitní kurz biochemie</li><li>Molekulární biologie (PhD úroveň)</li><li>Příprava na přijímací zkoušky</li><li>Pomoc s pracemi a diplomkami</li></ul>\n      </div><div class=\"subj-card\">\n        <div class=\"subj-icon\">💻</div>\n        <div class=\"subj-name\">IT & Programování</div>\n        <ul class=\"subj-items\"><li>Python (od nuly k projektům)</li><li>UNIX / Linux příkazový řádek</li><li>Algoritmy a datové struktury</li><li>Úvod do datové vědy</li></ul>\n      </div><div class=\"subj-card\">\n        <div class=\"subj-icon\">🏛️</div>\n        <div class=\"subj-name\">Dějepis</div>\n        <ul class=\"subj-items\"><li>Světové a evropské dějiny</li><li>Dějiny Čech a Moravy</li><li>Středověk a HEMA kontext</li><li>Příprava na zkoušky</li></ul>\n      </div></div>\n    </div><div class=\"subj-group\">\n      <div class=\"subj-group-title\">🌍 Dospělí & Expati</div>\n      <div class=\"subj-grid\"><div class=\"subj-card\">\n        <div class=\"subj-icon\">🇨🇿</div>\n        <div class=\"subj-name\">Český jazyk</div>\n        <ul class=\"subj-items\"><li>Čeština pro začátečníky (A1–A2)</li><li>Čeština pro trvalý pobyt (B1–B2)</li><li>Příprava na jazykovou zkoušku</li><li>Konverzační praxe</li></ul>\n      </div><div class=\"subj-card\">\n        <div class=\"subj-icon\">🇬🇧</div>\n        <div class=\"subj-name\">Anglický jazyk</div>\n        <ul class=\"subj-items\"><li>Obchodní angličtina</li><li>Příprava na IELTS / Cambridge</li><li>Konverzační praxe</li><li>Angličtina pro děti</li></ul>\n      </div><div class=\"subj-card\">\n        <div class=\"subj-icon\">🩺</div>\n        <div class=\"subj-name\">Zdravotní podpora</div>\n        <ul class=\"subj-items\"><li>Analýza diagnózy a léčby</li><li>Pomoc v komunikaci s lékařem</li><li>Zdravotní tlumočení (online/osobně)</li><li>Nostrifikace zdravotních dokumentů</li></ul>\n      </div></div>\n    </div><div class=\"subj-group\">\n      <div class=\"subj-group-title\">🛠️ Technická / Praktická pomoc</div>\n      <div class=\"subj-grid\"><div class=\"subj-card\">\n        <div class=\"subj-icon\">🛡️</div>\n        <div class=\"subj-name\">Úklid počítače / odstranění malwaru</div>\n        <ul class=\"subj-items\"><li>Vyčištění počítače od virů a malwaru, základní zabezpečení, kontrola podezřelého softwaru.</li></ul>\n      </div></div>\n    </div><div class=\"subj-group\">\n      <div class=\"subj-group-title\">🎨 Kreativní & Aplikované</div>\n      <div class=\"subj-grid\"><div class=\"subj-card\">\n        <div class=\"subj-icon\">🎸</div>\n        <div class=\"subj-name\">Hudba</div>\n        <ul class=\"subj-items\"><li>Kytara (klasická / rock / akustická)</li><li>Klavír</li><li>Zpěv a hlasová průprava</li><li>Hudební teorie</li></ul>\n      </div><div class=\"subj-card\">\n        <div class=\"subj-icon\">🎤</div>\n        <div class=\"subj-name\">Rétorika</div>\n        <ul class=\"subj-items\"><li>Překonání trémy</li><li>Struktura řeči a argumentace</li><li>Práce s hlasem a tělem</li><li>Příprava na prezentace</li></ul>\n      </div></div>\n    </div></div>\n      <div class=\"tbl-wrap\"><table><tbody>\n      <tr><td>Individuálně online (1 hodina)</td><td>500 Kč</td></tr>\n<tr><td>Individuálně osobně (1 hodina)</td><td>600 Kč</td></tr>\n<tr><td>Skupina 2–4 online (1 hod/os.)</td><td>350 Kč</td></tr>\n<tr><td>Skupina 2–4 osobně (1 hod/os.)</td><td>400 Kč</td></tr>\n<tr><td>🎁 První lekce (jakýkoli formát)</td><td>300 Kč</td></tr>\n<tr class=\"subhead\"><td colspan=\"2\">📚 Balíčky vyjdou levněji než jednotlivé lekce — ušetříš až 15 %</td></tr>\n<tr class=\"subhead\"><td colspan=\"2\">📚 Balíčky — Individuálně online</td></tr>\n<tr><td>5 lekcí (−5 %)</td><td>2 375 Kč</td></tr>\n<tr><td>10 lekcí (−10 %)</td><td>4 500 Kč</td></tr>\n<tr><td>20 lekcí (−15 %)</td><td>8 500 Kč</td></tr>\n<tr class=\"subhead\"><td colspan=\"2\">📚 Balíčky — Individuálně osobně</td></tr>\n<tr><td>5 lekcí (−5 %)</td><td>2 850 Kč</td></tr>\n<tr><td>10 lekcí (−10 %)</td><td>5 400 Kč</td></tr>\n<tr><td>20 lekcí (−15 %)</td><td>10 200 Kč</td></tr>\n<tr class=\"subhead\"><td colspan=\"2\">📚 Balíčky — Skupina online (za osobu)</td></tr>\n<tr><td>5 lekcí (−5 %)</td><td>1 663 Kč</td></tr>\n<tr><td>10 lekcí (−10 %)</td><td>3 150 Kč</td></tr>\n<tr><td>20 lekcí (−15 %)</td><td>5 950 Kč</td></tr>\n<tr class=\"subhead\"><td colspan=\"2\">📚 Balíčky — Skupina osobně (za osobu)</td></tr>\n<tr><td>5 lekcí (−5 %)</td><td>1 900 Kč</td></tr>\n<tr><td>10 lekcí (−10 %)</td><td>3 600 Kč</td></tr>\n<tr><td>20 lekcí (−15 %)</td><td>6 800 Kč</td></tr>\n<tr><td>Příprava na Maturitu (15 lekcí + testy)</td><td>5 000 Kč</td></tr>\n<tr><td>Čeština pro trvalý pobyt (18 lekcí)</td><td>6 000 Kč (−1 200 Kč)</td></tr>\n<tr><td>České měsíční členství</td><td>600 Kč/měs. (online + praxe)</td></tr>\n<tr><td>Kompletní balíček TP (20 hod + pomoc s dokumenty)</td><td>7 000 Kč</td></tr>\n      </tbody></table></div>\n    </div>\n<div class=\"price-cat\" id=\"price-trek\">\n      <h3 class=\"price-cat-title\">🗺️ Autorské průvodcovské výlety</h3>\n      <p class=\"price-cat-sub\">Zahrnuto: průvodce, trasa, mapy, plánování. Nezahrnuto: doprava, jídlo, vstupenky.</p>\n      \n      <div class=\"tbl-wrap\"><table><tbody>\n      <tr><td>Individuální výlet (1 den)</td><td>od 2 000 Kč</td></tr>\n<tr><td>Skupinový výlet (1 den, 4+ os.)</td><td>od 1 000 Kč/os.</td></tr>\n      </tbody></table></div>\n    </div>\n<div class=\"price-cat\" id=\"price-fit\">\n      <h3 class=\"price-cat-title\">💪 Fitness & Osobní trénink</h3>\n      <p class=\"price-cat-sub\">Venku nebo v místě klienta. Zkušenosti: 100+ klientů.</p>\n      \n      <div class=\"tbl-wrap\"><table><tbody>\n      <tr><td>Osobně individuálně (1 hodina)</td><td>600 Kč</td></tr>\n<tr><td>Online individuálně (1 hodina)</td><td>400 Kč</td></tr>\n<tr><td>Skupinový trénink (jednorázově)</td><td>300 Kč</td></tr>\n<tr><td>🎁 První lekce osobně</td><td>400 Kč</td></tr>\n<tr><td>🎁 První lekce online</td><td>300 Kč</td></tr>\n<tr class=\"subhead\"><td colspan=\"2\">📚 Balíčky a permanentky vyjdou levněji za sezení</td></tr>\n<tr><td>Permanentka 4 skupinové tréninky</td><td>600 Kč (150 Kč/sezení)</td></tr>\n<tr><td>Permanentka 8 skupinových tréninků</td><td>1 000 Kč (125 Kč/sezení)</td></tr>\n<tr><td>Balíček 5 osobních tréninků</td><td>2 000 Kč (−500 Kč)</td></tr>\n<tr><td>Balíček 10 osobních tréninků</td><td>3 350 Kč (−1 650 Kč)</td></tr>\n<tr><td>Online program 1 měsíc (plán+výživa)</td><td>2 000 Kč/měs.</td></tr>\n<tr><td>Program hubnutí (8 týdnů)</td><td>4 000 Kč</td></tr>\n<tr><td>3měsíční proměna těla</td><td>5 000 Kč</td></tr>\n      </tbody></table></div>\n    </div>\n<div class=\"price-cat\" id=\"price-nutr\">\n      <h3 class=\"price-cat-title\">🥗 Nutriční poradenství</h3>\n      <p class=\"price-cat-sub\">Osobní plány výživy, průběžná podpora, korekce.</p>\n      \n      <div class=\"tbl-wrap\"><table><tbody>\n      <tr><td>Vstupní konzultace (90 min)</td><td>600 Kč</td></tr>\n<tr><td>Osobní plán výživy</td><td>600 Kč</td></tr>\n<tr><td>Měsíční doprovázení</td><td>2 000 Kč/měs.</td></tr>\n<tr><td>Jednorázová korekční sezení (60 min)</td><td>700 Kč</td></tr>\n      </tbody></table></div>\n    </div>\n<div class=\"price-cat\" id=\"price-supp\">\n      <h3 class=\"price-cat-title\">🌍 Podpora expatů</h3>\n      <p class=\"price-cat-sub\">Práce, bydlení, medicína, dokumenty, právní otázky, nostrifikace.</p>\n      \n      <div class=\"tbl-wrap\"><table><tbody>\n      <tr><td>Obecná konzultace (1. hodina)</td><td>300 Kč</td></tr>\n<tr><td>Každá další hodina</td><td>400 Kč</td></tr>\n<tr><td>Hledání lékaře</td><td>700 Kč</td></tr>\n<tr><td>Hledání právníka</td><td>900 Kč</td></tr>\n<tr><td>Konzultace k přijímání na VŠ (1h)</td><td>500 Kč</td></tr>\n<tr><td>Analýza lékařské diagnózy a léčby</td><td>1 000 Kč</td></tr>\n<tr><td>Pomoc s nostrifikací</td><td>od 3 500 Kč</td></tr>\n<tr><td>Právní zastoupení</td><td>od 1 500 Kč</td></tr>\n<tr><td>Zdravotní doprovod</td><td>od 2 000 Kč</td></tr>\n<tr><td>Tlumočení online (právní/medicinské)</td><td>600 Kč/hod</td></tr>\n<tr><td>Osobní tlumočení na schůzkách</td><td>900 Kč/hod</td></tr>\n      </tbody></table></div>\n    </div>\n<div class=\"price-cat\" id=\"price-hous\">\n      <h3 class=\"price-cat-title\">🏠 Pomoc s bydlením v Brně</h3>\n      <p class=\"price-cat-sub\">Pro nové členy komunity a doporučení</p>\n      \n      <div class=\"tbl-wrap\"><table><tbody>\n      <tr class=\"subhead\"><td colspan=\"2\">Podpora bydlení v Brně (pro nové členy komunity a doporučení)</td></tr>\n<tr><td>Úroveň 0 — Základní konzultace</td><td>zdarma</td></tr>\n<tr><td>Seznam ověřených zdrojů</td><td>bezrealitky.cz, sreality.cz, espolubydleni.cz, relevantní FB skupiny; orientace na ceny podle rozpočtu a lokality; jedna podrobná odpověď. Otevřeno pro každého, kdo se ozve skrze komunitu nebo teplé doporučení.</td></tr>\n<tr class=\"subhead\"><td colspan=\"2\">Úroveň 1 — Propagace poptávky</td></tr>\n<tr><td>300 Kč</td><td>zveřejnění poptávky „jak je“ v mých kanálech (BrnoWalkers, Družina Moravy, Instagram, Facebook — 250+ lidí v Brně)</td></tr>\n<tr><td>500 Kč</td><td>to samé, plus překlad/adaptace textu do češtiny pro platformu</td></tr>\n<tr><td>Platí 7 dní nebo do nalezení varianty</td><td>Nezaručuje výsledek — jde o dosah, ne garanci umístění.</td></tr>\n<tr><td>Úroveň 2 — Osobní doprovod</td><td>500 Kč/hod (min. balíček — 2 hodiny, 1 000 Kč, předem)</td></tr>\n<tr class=\"subhead\"><td colspan=\"2\">Sestavení shortlistu podle kritérií, komunikace/volání majitelům v češtině, doprovod na prohlídky v rámci Brna, základní kontrola nájemní smlouvy na zřejmé červené vlajky.</td></tr>\n<tr><td>Není součástí</td><td>právní revize smlouvy, zprostředkování s provizí/úspěšnostní odměnou — služba se platí za čas, nikoli za výsledek.</td></tr>\n<tr><td>Obecné podmínky</td><td>platba v Kč hotově nebo převodem (OSVČ, IČO 23041625) · storno minimálně 24 hodin předem · jedná se o osobní asistenci, nikoli realitní činnost, a nenahrazuje právní poradenství.</td></tr>\n      </tbody></table></div>\n    </div>\n<div class=\"price-cat\" id=\"price-itsec\">\n      <h3 class=\"price-cat-title\">🛡️ IT bezpečnost</h3>\n      <p class=\"price-cat-sub\">Odstranění virů, základní kontrola zabezpečení a úklid počítače.</p>\n      \n      <div class=\"tbl-wrap\"><table><tbody>\n      <tr><td>Úklid počítače / odstranění malwaru (1 hodina)</td><td>600 Kč/hod</td></tr>\n<tr><td>Orientace práce</td><td>1 200 – 1 800 Kč</td></tr>\n      </tbody></table></div>\n    </div>\n<div class=\"price-cat\" id=\"price-coach\">\n      <h3 class=\"price-cat-title\">🧠 Life Coaching</h3>\n      <p class=\"price-cat-sub\">⚠️ Nejde o lékařskou ani psychologickou pomoc. Při zdravotních potížích je nutný lékař.</p>\n      \n      <div class=\"tbl-wrap\"><table><tbody>\n      <tr><td>Sezení ke změně návyků (1 hodina)</td><td>700 Kč</td></tr>\n<tr><td>Konzultace pro rodiče (1 hodina)</td><td>800 Kč</td></tr>\n<tr><td>Závislost na obrazovce/hrách (4 sezení)</td><td>2 000 Kč</td></tr>\n<tr><td>Měsíční vedení (týdenní sezení)</td><td>3 500 Kč/měs.</td></tr>\n      </tbody></table></div>\n    </div>\n<div class=\"price-cat\" id=\"price-web\">\n      <h3 class=\"price-cat-title\">💻 Webdesign & Propagace</h3>\n      <p class=\"price-cat-sub\">Weby, sociální sítě, obsah, fotografie.</p>\n      \n      <div class=\"tbl-wrap\"><table><tbody>\n      <tr><td>Jednostránkový web-vizitka</td><td>3 000 Kč</td></tr>\n<tr><td>Vícestránkový web (3–5 str.)</td><td>6 000 Kč</td></tr>\n<tr><td>Nastavení soc. sítí (FB + IG)</td><td>1 500 Kč</td></tr>\n<tr><td>Tvorba obsahu (5 příspěvků)</td><td>1 000 Kč</td></tr>\n<tr><td>Firemní focení (2 hodiny)</td><td>2 000 Kč</td></tr>\n<tr><td>Balíček Starter (Web + Facebook)</td><td>3 500 Kč</td></tr>\n<tr><td>Balíček Pro (Web + FB + IG + školení)</td><td>5 500 Kč</td></tr>\n<tr><td>Balíček VIP (Vše + focení + podpora)</td><td>8 000 Kč</td></tr>\n      </tbody></table></div>\n    </div>\n    </div>\n    <h3 class=\"price-cat-title\" style=\"margin-top:32px\">Storno podmínky</h3>\n    <div class=\"tbl-wrap\"><table><tbody><tr><td>Více než 48h předem</td><td>Plná náhrada</td></tr><tr><td>24–48 hodin</td><td>Náhrada 50 %</td></tr><tr><td>Méně než 24h / neúčast</td><td>Bez náhrady</td></tr><tr><td>Pozdní příchod</td><td>Sezení stále končí v původním čase — ztracený čas se nenahrazuje</td></tr></tbody></table></div>",
+  footer: { title: "Chceš vidět celý obrázek?", lead: "Výlety BrnoWalkers, Družina Moravy HEMA/LARP a celý web — na hlavním hubu.", visitFull: "Přejít na celý web ➔" }
+},
+uk: {
+  nav: { brand: "Eternal Learning Academy", bookBtn: "Записатися" },
+  tabs: {main:'Home', walkers:'BrnoWalkers', academy:'Academy', druzina:'Družina Moravy', calendar:'Calendar', ambassador:'Become an Ambassador', contacts:'Contacts'},
+  academy: {
+    eyebrow: "Репетиторство PhD-рівня",
+    title2: "Eternal Learning Academy — репетиторство, фітнес і коучинг у Брно",
+    tagline: "Точні науки, IT та мови — від кандидата наук. Плюс фітнес, нутриціологія, лайф-коучинг, приватні екскурсії, чистка комп'ютерів від вірусів і допомога експатам. Одна людина — дев'ять напрямків.",
+    ctaRegister: "Записатися на заняття",
+    ctaContact: "Зв'язатися",
+    priorityEyebrow: "Чому учні залишаються надовго"
+  },
+  academyPriority: "<div class=\"priority-card\"><h3>Пріоритет академії</h3><p>Постійні учні отримують перший вибір найкращого часу.</p></div><div class=\"priority-card\"><h3>Персональне ведення</h3><p>Ми підбираємо навчальний план під ваші цілі для швидшого прогресу.</p></div><div class=\"priority-card\"><h3>Місячна підтримка</h3><p>Регулярна підтримка щомісяця тримає навчання стабільним.</p></div>",
+  academyPricing: "<p class=\"price-global-note\">💡 Перша сесія в будь-якій категорії — знижка 100 Kč. Онлайн завжди на 100 Kč/год дешевше ніж офлайн. Терміновий запит (менше 48год) — надбавка +50%.</p>\n    <p class=\"note\">Повний прайс — 9 напрямків. Перейти одразу до категорії:</p>\n    <div class=\"price-jump-list\"><a class=\"price-jump-link\" href=\"#price-edu\">📚 Репетиторство</a> <a class=\"price-jump-link\" href=\"#price-fit\">💪 Фітнес</a> <a class=\"price-jump-link\" href=\"#price-nutr\">🥗 Нутриціологія</a> <a class=\"price-jump-link\" href=\"#price-supp\">🌍 Допомога експатам</a> <a class=\"price-jump-link\" href=\"#price-hous\">🏠 Житло</a> <a class=\"price-jump-link\" href=\"#price-itsec\">🛡️ IT-безпека</a> <a class=\"price-jump-link\" href=\"#price-coach\">🧠 Лайф-коучинг</a> <a class=\"price-jump-link\" href=\"#price-web\">💻 Веб & Медіа</a> <a class=\"price-jump-link\" href=\"#price-trek\">🗺️ Екскурсії</a></div>\n    <div class=\"price-cats\">\n    <div class=\"price-cat\" id=\"price-edu\">\n      <h3 class=\"price-cat-title\">📚 Репетиторство & Освіта</h3>\n      <p class=\"price-cat-sub\">Математика, Фізика, Хімія, Біологія, Історія, Мови, Шахи та інше</p>\n      <div class=\"academy-subjects\"><div class=\"subj-group\">\n      <div class=\"subj-group-title\">🏫 Школярам</div>\n      <div class=\"subj-grid\"><div class=\"subj-card\">\n        <div class=\"subj-icon\">⚗️</div>\n        <div class=\"subj-name\">Хімія</div>\n        <ul class=\"subj-items\"><li>Шкільна програма 7–11 клас</li><li>Підготовка до ЗНО / Maturita</li><li>Органічна та неорганічна хімія</li><li>Біохімія (поглиблено)</li></ul>\n      </div><div class=\"subj-card\">\n        <div class=\"subj-icon\">🔬</div>\n        <div class=\"subj-name\">Біологія</div>\n        <ul class=\"subj-items\"><li>Загальна біологія 7–11 клас</li><li>Молекулярна біологія та генетика</li><li>Анатомія та фізіологія</li><li>Підготовка до Maturita</li></ul>\n      </div><div class=\"subj-card\">\n        <div class=\"subj-icon\">⚡</div>\n        <div class=\"subj-name\">Фізика</div>\n        <ul class=\"subj-items\"><li>Шкільна програма 7–11 клас</li><li>Механіка, електрика, оптика</li><li>Підготовка до іспитів</li><li>Олімпіадні задачі</li></ul>\n      </div><div class=\"subj-card\">\n        <div class=\"subj-icon\">📐</div>\n        <div class=\"subj-name\">Математика</div>\n        <ul class=\"subj-items\"><li>Алгебра та геометрія</li><li>Тригонометрія, функції</li><li>Підготовка до Maturita</li><li>Статистика та імовірність</li></ul>\n      </div><div class=\"subj-card\">\n        <div class=\"subj-icon\">♟️</div>\n        <div class=\"subj-name\">Шахи</div>\n        <ul class=\"subj-items\"><li>Для початківців з нуля</li><li>Тактика та стратегія</li><li>Розбір партій</li><li>Теорія дебютів</li></ul>\n      </div></div>\n    </div><div class=\"subj-group\">\n      <div class=\"subj-group-title\">🎓 Студентам & Абітурієнтам</div>\n      <div class=\"subj-grid\"><div class=\"subj-card\">\n        <div class=\"subj-icon\">🧬</div>\n        <div class=\"subj-name\">Біохімія & Молбіологія</div>\n        <ul class=\"subj-items\"><li>Університетський курс біохімії</li><li>Молекулярна біологія (PhD рівень)</li><li>Підготовка до вступних іспитів</li><li>Допомога з курсовими та дипломними</li></ul>\n      </div><div class=\"subj-card\">\n        <div class=\"subj-icon\">💻</div>\n        <div class=\"subj-name\">IT & Програмування</div>\n        <ul class=\"subj-items\"><li>Python (з нуля до проектів)</li><li>ОС UNIX / Linux командний рядок</li><li>Алгоритми та структури даних</li><li>Вступ до data science</li></ul>\n      </div><div class=\"subj-card\">\n        <div class=\"subj-icon\">🏛️</div>\n        <div class=\"subj-name\">Історія</div>\n        <ul class=\"subj-items\"><li>Всесвітня та європейська історія</li><li>Історія Чехії та Моравії</li><li>Середньовіччя та HEMA-контекст</li><li>Підготовка до іспитів</li></ul>\n      </div></div>\n    </div><div class=\"subj-group\">\n      <div class=\"subj-group-title\">🌍 Дорослим & Експатам</div>\n      <div class=\"subj-grid\"><div class=\"subj-card\">\n        <div class=\"subj-icon\">🇨🇿</div>\n        <div class=\"subj-name\">Чеська мова</div>\n        <ul class=\"subj-items\"><li>Чеська для початківців (A1–A2)</li><li>Чеська для ПМП (B1–B2)</li><li>Підготовка до мовного іспиту</li><li>Розмовна практика</li></ul>\n      </div><div class=\"subj-card\">\n        <div class=\"subj-icon\">🇬🇧</div>\n        <div class=\"subj-name\">Англійська мова</div>\n        <ul class=\"subj-items\"><li>Бізнес-англійська</li><li>Підготовка до IELTS / Cambridge</li><li>Розмовна практика</li><li>Англійська для дітей</li></ul>\n      </div><div class=\"subj-card\">\n        <div class=\"subj-icon\">🩺</div>\n        <div class=\"subj-name\">Медична підтримка</div>\n        <ul class=\"subj-items\"><li>Аналіз діагнозу та плану лікування</li><li>Допомога у спілкуванні з лікарем</li><li>Медичний переклад (онлайн/офлайн)</li><li>Нострифікація медичних документів</li></ul>\n      </div></div>\n    </div><div class=\"subj-group\">\n      <div class=\"subj-group-title\">🛠️ Технічна / Практична допомога</div>\n      <div class=\"subj-grid\"><div class=\"subj-card\">\n        <div class=\"subj-icon\">🛡️</div>\n        <div class=\"subj-name\">Чистка комп'ютера від вірусів та шкідливого ПЗ</div>\n        <ul class=\"subj-items\"><li>Видалення вірусів і шкідливого ПЗ, базове налаштування захисту, перевірка підозрілих програм.</li></ul>\n      </div></div>\n    </div><div class=\"subj-group\">\n      <div class=\"subj-group-title\">🎨 Творче & Прикладне</div>\n      <div class=\"subj-grid\"><div class=\"subj-card\">\n        <div class=\"subj-icon\">🎸</div>\n        <div class=\"subj-name\">Музика</div>\n        <ul class=\"subj-items\"><li>Гітара (класика / рок / акустика)</li><li>Фортепіано</li><li>Вокал та постановка голосу</li><li>Теорія музики</li></ul>\n      </div><div class=\"subj-card\">\n        <div class=\"subj-icon\">🎤</div>\n        <div class=\"subj-name\">Ораторське мистецтво</div>\n        <ul class=\"subj-items\"><li>Подолання страху сцени</li><li>Структура мови та аргументація</li><li>Робота з голосом та тілом</li><li>Підготовка до презентацій</li></ul>\n      </div></div>\n    </div></div>\n      <div class=\"tbl-wrap\"><table><tbody>\n      <tr><td>Індивідуально онлайн (1 година)</td><td>500 Kč</td></tr>\n<tr><td>Індивідуально офлайн (1 година)</td><td>600 Kč</td></tr>\n<tr><td>Група 2–4 онлайн (1 год/особа)</td><td>350 Kč</td></tr>\n<tr><td>Група 2–4 офлайн (1 год/особа)</td><td>400 Kč</td></tr>\n<tr><td>🎁 Перше заняття (будь-який формат)</td><td>300 Kč</td></tr>\n<tr class=\"subhead\"><td colspan=\"2\">📚 Пакети вигідніші за разові заняття — економія до 15%</td></tr>\n<tr class=\"subhead\"><td colspan=\"2\">📚 Пакети — Індивідуально онлайн</td></tr>\n<tr><td>5 занять (−5%)</td><td>2 375 Kč</td></tr>\n<tr><td>10 занять (−10%)</td><td>4 500 Kč</td></tr>\n<tr><td>20 занять (−15%)</td><td>8 500 Kč</td></tr>\n<tr class=\"subhead\"><td colspan=\"2\">📚 Пакети — Індивідуально офлайн</td></tr>\n<tr><td>5 занять (−5%)</td><td>2 850 Kč</td></tr>\n<tr><td>10 занять (−10%)</td><td>5 400 Kč</td></tr>\n<tr><td>20 занять (−15%)</td><td>10 200 Kč</td></tr>\n<tr class=\"subhead\"><td colspan=\"2\">📚 Пакети — Група онлайн (за особу)</td></tr>\n<tr><td>5 занять (−5%)</td><td>1 663 Kč</td></tr>\n<tr><td>10 занять (−10%)</td><td>3 150 Kč</td></tr>\n<tr><td>20 занять (−15%)</td><td>5 950 Kč</td></tr>\n<tr class=\"subhead\"><td colspan=\"2\">📚 Пакети — Група офлайн (за особу)</td></tr>\n<tr><td>5 занять (−5%)</td><td>1 900 Kč</td></tr>\n<tr><td>10 занять (−10%)</td><td>3 600 Kč</td></tr>\n<tr><td>20 занять (−15%)</td><td>6 800 Kč</td></tr>\n<tr><td>Підготовка до Maturita (15 уроків + тести)</td><td>5 000 Kč</td></tr>\n<tr><td>Чеська для ПМП (18 уроків)</td><td>6 000 Kč (−1 200 Kč)</td></tr>\n<tr><td>Чеське місячне членство</td><td>600 Kč/міс. (онлайн + практика)</td></tr>\n<tr><td>Повний пакет ПМП (20 год + допомога з документами)</td><td>7 000 Kč</td></tr>\n      </tbody></table></div>\n    </div>\n<div class=\"price-cat\" id=\"price-trek\">\n      <h3 class=\"price-cat-title\">🗺️ Авторські гід-тури</h3>\n      <p class=\"price-cat-sub\">Включено: гід, маршрут, карти, планування. Не включено: транспорт, їжа, квитки.</p>\n      \n      <div class=\"tbl-wrap\"><table><tbody>\n      <tr><td>Індивідуальний тур (1 день)</td><td>від 2 000 Kč</td></tr>\n<tr><td>Груповий тур (1 день, від 4 осіб)</td><td>від 1 000 Kč/особа</td></tr>\n      </tbody></table></div>\n    </div>\n<div class=\"price-cat\" id=\"price-fit\">\n      <h3 class=\"price-cat-title\">💪 Фітнес & Персональні тренування</h3>\n      <p class=\"price-cat-sub\">На вулиці або у клієнта. Досвід: 100+ клієнтів.</p>\n      \n      <div class=\"tbl-wrap\"><table><tbody>\n      <tr><td>Персонально офлайн (1 година)</td><td>600 Kč</td></tr>\n<tr><td>Персонально онлайн (1 година)</td><td>400 Kč</td></tr>\n<tr><td>Групове тренування (разово)</td><td>300 Kč</td></tr>\n<tr><td>🎁 Перше заняття офлайн</td><td>400 Kč</td></tr>\n<tr><td>🎁 Перше заняття онлайн</td><td>300 Kč</td></tr>\n<tr class=\"subhead\"><td colspan=\"2\">📚 Пакети та абонементи вигідніші за сесію</td></tr>\n<tr><td>Абонемент 4 групп. тренування</td><td>600 Kč (150 Kč/сесія)</td></tr>\n<tr><td>Абонемент 8 групп. тренувань</td><td>1 000 Kč (125 Kč/сесія)</td></tr>\n<tr><td>Пакет 5 персон. офлайн</td><td>2 000 Kč (−500 Kč)</td></tr>\n<tr><td>Пакет 10 персон. офлайн</td><td>3 350 Kč (−1 650 Kč)</td></tr>\n<tr><td>Онлайн-програма 1 міс. (план+харчування)</td><td>2 000 Kč/міс.</td></tr>\n<tr><td>Програма схуднення (8 тижнів)</td><td>4 000 Kč</td></tr>\n<tr><td>3-місячна трансформація тіла</td><td>5 000 Kč</td></tr>\n      </tbody></table></div>\n    </div>\n<div class=\"price-cat\" id=\"price-nutr\">\n      <h3 class=\"price-cat-title\">🥗 Нутриціологія</h3>\n      <p class=\"price-cat-sub\">Персональні плани харчування, супровід, корекція.</p>\n      \n      <div class=\"tbl-wrap\"><table><tbody>\n      <tr><td>Первинна консультація (90 хв)</td><td>600 Kč</td></tr>\n<tr><td>Персональний план харчування</td><td>600 Kč</td></tr>\n<tr><td>Щомісячний супровід</td><td>2 000 Kč/міс.</td></tr>\n<tr><td>Разова коригуюча сесія (60 хв)</td><td>700 Kč</td></tr>\n      </tbody></table></div>\n    </div>\n<div class=\"price-cat\" id=\"price-supp\">\n      <h3 class=\"price-cat-title\">🌍 Підтримка експатів</h3>\n      <p class=\"price-cat-sub\">Робота, житло, медицина, документи, юридичні питання, нострифікація.</p>\n      \n      <div class=\"tbl-wrap\"><table><tbody>\n      <tr><td>Загальна консультація (1-й час)</td><td>300 Kč</td></tr>\n<tr><td>Кожна наступна година</td><td>400 Kč</td></tr>\n<tr><td>Пошук лікаря</td><td>700 Kč</td></tr>\n<tr><td>Пошук адвоката</td><td>900 Kč</td></tr>\n<tr><td>Консультація щодо вступу до вузу (1год)</td><td>500 Kč</td></tr>\n<tr><td>Аналіз медичного діагнозу та лікування</td><td>1 000 Kč</td></tr>\n<tr><td>Допомога з нострифікацією</td><td>від 3 500 Kč</td></tr>\n<tr><td>Юридичне представництво</td><td>від 1 500 Kč</td></tr>\n<tr><td>Медичний супровід</td><td>від 2 000 Kč</td></tr>\n<tr><td>Усний переклад онлайн (юристи/медицина)</td><td>600 Kč/год</td></tr>\n<tr><td>Усний переклад на зустрічах особисто</td><td>900 Kč/год</td></tr>\n      </tbody></table></div>\n    </div>\n<div class=\"price-cat\" id=\"price-hous\">\n      <h3 class=\"price-cat-title\">🏠 Підтримка з житлом у Брно</h3>\n      <p class=\"price-cat-sub\">Для новачків спільноти та за рекомендацією</p>\n      \n      <div class=\"tbl-wrap\"><table><tbody>\n      <tr class=\"subhead\"><td colspan=\"2\">Підтримка з житлом у Брно (для новачків спільноти та за рекомендацією)</td></tr>\n<tr><td>Рівень 0 — Базова консультація</td><td>безкоштовно</td></tr>\n<tr><td>Підбір перевірених ресурсів</td><td>bezrealitky.cz, sreality.cz, espolubydleni.cz, тематичні FB-групи; орієнтир за цінами відповідно до бюджету та району; одна детальна відповідь. Доступно всім, хто звертається через спільноту або тепле знайомство.</td></tr>\n<tr class=\"subhead\"><td colspan=\"2\">Рівень 1 — Просування запиту</td></tr>\n<tr><td>300 Kč</td><td>публікація запиту «як є» в моїх каналах (BrnoWalkers, Družina Moravy, Instagram, Facebook — 250+ людей у Брно)</td></tr>\n<tr><td>500 Kč</td><td>те саме, плюс переклад/адаптація тексту чеською для майданчика</td></tr>\n<tr><td>Діє 7 днів або до знаходження варіанту</td><td>Не гарантує результат — це охоплення, не гарантія розміщення.</td></tr>\n<tr><td>Рівень 2 — Особистий супровід</td><td>500 Kč/год (мін. пакет — 2 години, 1 000 Kč, передоплата)</td></tr>\n<tr class=\"subhead\"><td colspan=\"2\">Складання шорт-листу за критеріями, переписка/дзвінки власникам чеською, супровід на перегляди в межах Брно, базова перевірка договору найму на предмет явних червоних прапорців.</td></tr>\n<tr><td>Не входить</td><td>юридичний аналіз договору, ріелторське посередництво за комісію/відсоток від угоди — послуга оплачується за час консультації, а не за результат.</td></tr>\n<tr><td>Загальні умови</td><td>оплата в Kč готівкою або переказом (OSVČ, IČО 23041625) · скасування мінімум за 24 годин · це особистий супровід, не ріелторська діяльність і не замінює юридичну консультацію.</td></tr>\n      </tbody></table></div>\n    </div>\n<div class=\"price-cat\" id=\"price-itsec\">\n      <h3 class=\"price-cat-title\">🛡️ IT безпека</h3>\n      <p class=\"price-cat-sub\">Видалення вірусів, базова перевірка безпеки та очищення комп'ютера.</p>\n      \n      <div class=\"tbl-wrap\"><table><tbody>\n      <tr><td>Чистка комп'ютера від вірусів та шкідливого ПЗ (1 година)</td><td>600 Kč/год</td></tr>\n<tr><td>Типова робота</td><td>1 200 – 1 800 Kč</td></tr>\n      </tbody></table></div>\n    </div>\n<div class=\"price-cat\" id=\"price-coach\">\n      <h3 class=\"price-cat-title\">🧠 Лайф-коучинг</h3>\n      <p class=\"price-cat-sub\">⚠️ Не є медичною або психологічною допомогою. При захворюваннях необхідний лікар.</p>\n      \n      <div class=\"tbl-wrap\"><table><tbody>\n      <tr><td>Сесія зі зміни звичок (1 година)</td><td>700 Kč</td></tr>\n<tr><td>Консультація для батьків (1 година)</td><td>800 Kč</td></tr>\n<tr><td>Боротьба з екранною/ігровою залежністю (4 сесії)</td><td>2 000 Kč</td></tr>\n<tr><td>Щомісячне ведення (щотижневі сесії)</td><td>3 500 Kč/міс.</td></tr>\n      </tbody></table></div>\n    </div>\n<div class=\"price-cat\" id=\"price-web\">\n      <h3 class=\"price-cat-title\">💻 Веб-дизайн & Просування</h3>\n      <p class=\"price-cat-sub\">Сайти, соцмережі, контент, фотозйомка.</p>\n      \n      <div class=\"tbl-wrap\"><table><tbody>\n      <tr><td>Односторінковий сайт-візитка</td><td>3 000 Kč</td></tr>\n<tr><td>Багатосторінковий сайт (3–5 стор.)</td><td>6 000 Kč</td></tr>\n<tr><td>Налаштування соцмереж (FB + IG)</td><td>1 500 Kč</td></tr>\n<tr><td>Створення контенту (5 постів)</td><td>1 000 Kč</td></tr>\n<tr><td>Бізнес-фотосесія (2 години)</td><td>2 000 Kč</td></tr>\n<tr><td>Пакет Starter (Сайт + Facebook)</td><td>3 500 Kč</td></tr>\n<tr><td>Пакет Pro (Сайт + FB + IG + навчання)</td><td>5 500 Kč</td></tr>\n<tr><td>Пакет VIP (Все + фотосесія + підтримка)</td><td>8 000 Kč</td></tr>\n      </tbody></table></div>\n    </div>\n    </div>\n    <h3 class=\"price-cat-title\" style=\"margin-top:32px\">Політика скасувань</h3>\n    <div class=\"tbl-wrap\"><table><tbody><tr><td>Більше 48год до заняття</td><td>Повне повернення</td></tr><tr><td>24–48 годин</td><td>Повернення 50%</td></tr><tr><td>Менше 24год / неявка</td><td>Без повернення</td></tr><tr><td>Запізнення</td><td>Заняття закінчується у початковий час — втрачений час не додається</td></tr></tbody></table></div>",
+  footer: { title: "Хочеш побачити всю картину?", lead: "Походи BrnoWalkers, Дружина Моравії (HEMA/LARP) і весь сайт цілком — на головному хабі.", visitFull: "Перейти на весь сайт ➔" }
+}
+};
+
+// i18n engine for this standalone page — added 11.09.2026. Deliberately
+// NOT a shared external file included by every subpage: each subpage's
+// CONTENT (the T object above) is genuinely unique to it, so there is
+// nothing to desync between pages by keeping the engine local. What
+// DOES need to match across pages is the localStorage key ('dm_lang')
+// and detection order, copied verbatim from the main index.html so a
+// language choice made on one page carries over when someone clicks
+// through to another.
+function resolveI18nValue(key, lang) {
+  const parts = key.split('.');
+  let val = T[lang];
+  for (const p of parts) {
+    if (val == null) return null;
+    val = val[p];
+  }
+  return typeof val === 'string' ? val : null;
+}
+
+function applyTranslations(lang) {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    const val = resolveI18nValue(key, lang);
+    if (val) el.innerHTML = val;
+  });
+  document.documentElement.lang = lang;
+}
+
+function detectLang() {
+  try {
+    const saved = localStorage.getItem('dm_lang');
+    if (saved && T[saved]) return saved;
+  } catch (e) {}
+  const nav = (navigator.language || 'en').toLowerCase();
+  if (nav.startsWith('ru')) return 'ru';
+  if (nav.startsWith('uk')) return 'uk';
+  if (nav.startsWith('cs') || nav.startsWith('sk')) return 'cs';
+  return 'en';
+}
+
+function bindLangButtons() {
+  document.querySelectorAll('#langSwitch button[data-lang]').forEach(b => {
+    b.addEventListener('click', () => {
+      const lang = b.dataset.lang;
+      try { localStorage.setItem('dm_lang', lang); } catch (e) {}
+      render(lang);
+    });
+  });
+}
+
+function render(lang) {
+  if (!T[lang]) lang = 'en';
+  document.querySelectorAll('#langSwitch button[data-lang]').forEach(b => {
+    b.setAttribute('aria-pressed', b.dataset.lang === lang ? 'true' : 'false');
+  });
+  applyTranslations(lang);
+}
+
+bindLangButtons();
+render(detectLang());
+</script>
+</body>
+</html>

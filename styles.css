@@ -380,6 +380,13 @@
   td strong{color:var(--ink);}
   tr:last-child td{border-bottom:none;}
   .tbl-wrap{overflow-x:auto;}
+  /* Grouped sub-header rows inside a price table (e.g. "Packages —
+     Individual online") — flat styling instead of an accordion, so every
+     price is visible/searchable on page load; see academy/index.html. */
+  .tbl-wrap table tr.subhead td{
+    padding-top:16px;font-weight:700;font-size:12px;letter-spacing:.02em;
+    text-transform:uppercase;color:var(--r5);border-bottom:1px solid var(--rule);
+  }
 
   ul.plain{list-style:none;margin:0;padding:0;}
   ul.plain li{padding:9px 0;border-bottom:1px solid var(--rule);color:var(--ink-dim);}

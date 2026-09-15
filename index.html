@@ -222,7 +222,7 @@
       <div class="venture-grid">
 
         <div class="venture-card-wrap">
-          <a class="venture-card" href="#pricing" onclick="switchTab('main'); return true;">
+          <a class="venture-card" href="academy/">
             <div class="venture-photo"><img class="photo-slot" src="images/portrait_face.jpg" data-alt="Aliaksei Chareshneu, PhD" alt="Aliaksei Chareshneu, PhD — tutoring" loading="eager"></div>
             <div class="venture-card-body">
               <h3>🎓 Tutoring &amp; Coaching</h3>
@@ -266,6 +266,17 @@
           </div>
         </div>
 
+        <div class="venture-card-wrap">
+          <a class="venture-card" href="calendar/">
+            <div class="venture-photo"><img class="photo-slot" src="images/main_hero.png" data-alt="Calendar of upcoming events" alt="Calendar of upcoming events" loading="eager"></div>
+            <div class="venture-card-body">
+              <h3>📅 Calendar</h3>
+              <p>Every open hike and training session, updated live, in one place.</p>
+              <span class="venture-cta">See what's next →</span>
+            </div>
+          </a>
+        </div>
+
       </div>
     </div>
   </section>
@@ -283,850 +294,22 @@
        straight to that exact row with its price, auto-expanding it if
        it's inside a collapsed category.
        ============================================================ -->
-  <section class="service-finder" aria-label="Find a specific service or price">
-    <div class="wrap">
-      <div class="finder-box">
-        <svg class="finder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-        <input type="text" id="serviceFinderInput" class="finder-input" placeholder="Find a service or price — try &quot;chemistry&quot;, &quot;canoe&quot;, &quot;HEMA&quot;…" autocomplete="off">
-      </div>
-      <div id="finderResults" class="finder-results" hidden></div>
-      <div id="finderEmpty" class="finder-empty" hidden>No exact match — try a shorter word, or browse below.</div>
+  <!-- Full price lists, hike/training schedules and live event details now
+       live on their own pages (site-updates request, 14.09.2026: "very
+       simple main page with links to everything else") — this used to be
+       ~840 lines of static pricing + walkers hero + druzina hero
+       duplicating /academy/, /walkers/, /druzina/, /calendar/. The
+       venture-picker above is the real "which one do I want" answer;
+       this is just a plain-text safety net for anyone who scrolls past
+       it looking for prices directly. -->
+  <section id="quick-links" aria-label="Quick links">
+    <div class="wrap" style="text-align:center; padding-top:8px; padding-bottom:8px;">
+      <p class="note">Full price lists: <a href="academy/">Academy</a> · <a href="druzina/#tariff">Družina Moravy</a> — Schedules: <a href="walkers/">BrnoWalkers</a> · <a href="druzina/#schedule">Družina Moravy</a> · <a href="calendar/">full calendar</a></p>
+      <p class="note" style="margin-top:6px;">💰 Brno iD vouchers cover up to 80% of costs (up to 4,000 CZK/child) for children's activities — ask when registering.</p>
     </div>
   </section>
 
 
-  <section id="pricing">
-    <div class="wrap">
-      <p class="eyebrow-sm" data-i18n="pricing.eyebrow">Services &amp; Pricing</p>
-      <h2 class="anchor-heading" data-i18n="pricing.title2">Academy — Tutoring &amp; Coaching Prices in Brno<a class="anchor-link" href="#pricing">#</a></h2>
-      <p data-i18n="pricing.tutoringIntro">PhD-level 1-on-1 and small-group lessons across the full subject range below — sciences, IT, languages including native Russian &amp; Belarusian, music, and public speaking. The same discount structure (packages save up to 15%) applies across every subject.</p>
-
-      <p class="price-global-note" data-i18n="pricing.globalNote">💡 First session in any category — 100 Kč discount. Online is always 100 Kč/hr cheaper than in-person. Urgent request (under 48h) — +50% surcharge.</p>
-
-      <!-- "Shortest path to payment" — the actual Payment section (with the
-           same Revolut link + booking buttons) already existed, but only at
-           the very bottom of #pricing, past nine category tables plus
-           combos/loyalty/gear/cancellation. Someone who jumps straight to
-           #pricing (from the new hero CTA, the venture picker, or the
-           service finder) had to scroll past all of that just to find out
-           HOW to pay. This surfaces the same real info immediately; the
-           full breakdown further down is unchanged, for anyone who wants
-           it — one click away via the anchor link, not deleted. -->
-      <div class="callout">
-        <p><strong data-i18n="pricing.quickPayLabel">💳 Pay via Revolut:</strong> <a href="https://revolut.me/aliaksj5pq" target="_blank" rel="noopener">revolut.me/aliaksj5pq</a> — <span data-i18n="pricing.quickPayNote">locks in your slot. Bank transfer / cash on request.</span></p>
-        <div style="margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-          <a class="btn solid" href="https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog" target="_blank" rel="noopener" data-i18n="ui.stickyRegister">Register / Book</a>
-          <a class="btn" href="#pricing-payment" data-i18n="pricing.fullPaymentInfo">Full payment details ↓</a>
-        </div>
-      </div>
-
-      <!-- Category jump-list — reuses .price-jump-list/.price-jump-link,
-           CSS that already existed in styles.css from an earlier build
-           and was simply unused since the static-first migration dropped
-           the markup. Brought back because of the nav change: "Housing"
-           no longer has its own top-level nav button (see nav comment in
-           <head>/<body>), so this is now the only quick way to reach it
-           (and the other 9 categories) without scrolling past all of
-           them. Static English, matching the rest of #pricing. -->
-      <div class="price-jump-list">
-        <a class="price-jump-link" href="#price-edu" data-i18n="pricing.catTutoring">📚 Tutoring &amp; Education</a>
-        <a class="price-jump-link" href="#price-hema" data-i18n="pricing.catHema">⚔️ Fencing &amp; Archery</a>
-        <a class="price-jump-link" href="#price-trek" data-i18n="pricing.catTours">🗺️ Guided Tours</a>
-        <a class="price-jump-link" href="#price-fit" data-i18n="pricing.catFitness">💪 Fitness</a>
-        <a class="price-jump-link" href="#price-nutr" data-i18n="pricing.catNutrition">🥗 Nutrition</a>
-        <a class="price-jump-link" href="#price-supp" data-i18n="pricing.catExpat">🌍 Expat Support</a>
-        <a class="price-jump-link" href="#price-hous" data-i18n="pricing.catHousing">🏠 Housing</a>
-        <a class="price-jump-link" href="#price-itsec" data-i18n="pricing.catItsec">🛡️ IT Security</a>
-        <a class="price-jump-link" href="#price-coach" data-i18n="pricing.catCoaching">🧠 Life Coaching</a>
-        <a class="price-jump-link" href="#price-web" data-i18n="pricing.catWeb">💻 Web &amp; Media</a>
-      </div>
-
-      <div class="price-cats">
-        <div class="price-cat" id="price-edu">
-          <h3 class="price-cat-title" data-i18n="pricing.catTutoring">📚 Tutoring &amp; Education</h3>
-
-          <!-- ACADEMY_SUBJECTS, in full, visible by default (not an
-               accordion) — this is real long-tail keyword content
-               ("chemistry tutor Brno", "Python programming Brno", etc.)
-               and per the hidden-content research in INTEGRATION-GUIDE.md,
-               content meant to independently rank shouldn't be left
-               behind a click even though Google does technically index it
-               either way. Replaces the one-line subtitle the earlier drop
-               used as a placeholder for this. -->
-          <div class="academy-subjects">
-            <div class="subj-group">
-              <div class="subj-group-title">🏫 School Students</div>
-              <div class="subj-grid">
-                <div class="subj-card">
-                  <div class="subj-icon">⚗️</div>
-                  <div class="subj-name">Chemistry</div>
-                  <ul class="subj-items">
-                    <li>School curriculum grades 7–11</li>
-                    <li>Exam prep: Maturita / A-levels</li>
-                    <li>Organic &amp; inorganic chemistry</li>
-                    <li>Biochemistry (advanced)</li>
-                  </ul>
-                </div>
-                <div class="subj-card">
-                  <div class="subj-icon">🔬</div>
-                  <div class="subj-name">Biology</div>
-                  <ul class="subj-items">
-                    <li>General biology grades 7–11</li>
-                    <li>Molecular biology &amp; genetics</li>
-                    <li>Anatomy &amp; physiology</li>
-                    <li>Maturita preparation</li>
-                  </ul>
-                </div>
-                <div class="subj-card">
-                  <div class="subj-icon">⚡</div>
-                  <div class="subj-name">Physics</div>
-                  <ul class="subj-items">
-                    <li>School curriculum grades 7–11</li>
-                    <li>Mechanics, electricity, optics</li>
-                    <li>Exam preparation</li>
-                    <li>Olympiad problem solving</li>
-                  </ul>
-                </div>
-                <div class="subj-card">
-                  <div class="subj-icon">📐</div>
-                  <div class="subj-name">Maths</div>
-                  <ul class="subj-items">
-                    <li>Algebra &amp; geometry</li>
-                    <li>Trigonometry, functions</li>
-                    <li>Maturita preparation</li>
-                    <li>Statistics &amp; probability</li>
-                  </ul>
-                </div>
-                <div class="subj-card">
-                  <div class="subj-icon">♟️</div>
-                  <div class="subj-name">Chess</div>
-                  <ul class="subj-items">
-                    <li>Complete beginners welcome</li>
-                    <li>Tactics &amp; strategy</li>
-                    <li>Game analysis</li>
-                    <li>Opening theory</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-
-            <div class="subj-group">
-              <div class="subj-group-title">🎓 University &amp; Applicants</div>
-              <div class="subj-grid">
-                <div class="subj-card">
-                  <div class="subj-icon">🧬</div>
-                  <div class="subj-name">Biochemistry &amp; Mol. Biology</div>
-                  <ul class="subj-items">
-                    <li>University biochemistry course</li>
-                    <li>Molecular biology (PhD level)</li>
-                    <li>University entrance exam prep</li>
-                    <li>Coursework &amp; thesis support</li>
-                  </ul>
-                </div>
-                <div class="subj-card">
-                  <div class="subj-icon">💻</div>
-                  <div class="subj-name">IT &amp; Programming</div>
-                  <ul class="subj-items">
-                    <li>Python (zero to projects)</li>
-                    <li>UNIX / Linux command line</li>
-                    <li>Algorithms &amp; data structures</li>
-                    <li>Intro to data science</li>
-                  </ul>
-                </div>
-                <div class="subj-card">
-                  <div class="subj-icon">🏛️</div>
-                  <div class="subj-name">History</div>
-                  <ul class="subj-items">
-                    <li>World &amp; European history</li>
-                    <li>Czech &amp; Moravian history</li>
-                    <li>Middle Ages &amp; HEMA context</li>
-                    <li>Exam preparation</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-
-            <div class="subj-group">
-              <div class="subj-group-title">🌍 Adults &amp; Expats</div>
-              <div class="subj-grid">
-                <div class="subj-card">
-                  <div class="subj-icon">🇨🇿</div>
-                  <div class="subj-name">Czech Language</div>
-                  <ul class="subj-items">
-                    <li>Czech for beginners (A1–A2)</li>
-                    <li>Czech for permanent residency (B1–B2)</li>
-                    <li>Language exam preparation</li>
-                    <li>Conversational practice</li>
-                  </ul>
-                </div>
-                <div class="subj-card">
-                  <div class="subj-icon">🇬🇧</div>
-                  <div class="subj-name">English Language</div>
-                  <ul class="subj-items">
-                    <li>Business English</li>
-                    <li>IELTS / Cambridge exam prep</li>
-                    <li>Conversational practice</li>
-                    <li>English for children</li>
-                  </ul>
-                </div>
-                <div class="subj-card">
-                  <div class="subj-icon">🩺</div>
-                  <div class="subj-name">Medical Support</div>
-                  <ul class="subj-items">
-                    <li>Diagnosis &amp; treatment analysis</li>
-                    <li>Support communicating with doctors</li>
-                    <li>Medical interpreting (online/in-person)</li>
-                    <li>Medical document nostrification</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-
-            <div class="subj-group">
-              <div class="subj-group-title">🛠️ Technical / Practical Help</div>
-              <div class="subj-grid">
-                <div class="subj-card">
-                  <div class="subj-icon">🛡️</div>
-                  <div class="subj-name">Computer &amp; Malware Cleanup</div>
-                  <ul class="subj-items">
-                    <li>Malware removal, basic security hardening, and a check for suspicious software on your computer.</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-
-            <div class="subj-group">
-              <div class="subj-group-title">🎨 Creative &amp; Applied</div>
-              <div class="subj-grid">
-                <div class="subj-card">
-                  <div class="subj-icon">🎸</div>
-                  <div class="subj-name">Music</div>
-                  <ul class="subj-items">
-                    <li>Guitar (classical / rock / acoustic)</li>
-                    <li>Piano</li>
-                    <li>Vocals &amp; voice coaching</li>
-                    <li>Music theory</li>
-                  </ul>
-                </div>
-                <div class="subj-card">
-                  <div class="subj-icon">🎤</div>
-                  <div class="subj-name">Public Speaking</div>
-                  <ul class="subj-items">
-                    <li>Overcoming stage fright</li>
-                    <li>Speech structure &amp; argumentation</li>
-                    <li>Voice &amp; body language</li>
-                    <li>Presentation preparation</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="tbl-wrap">
-            <table><tbody>
-              <tr><td><strong>Individual online (1 hour)</strong></td><td>500 Kč</td></tr>
-              <tr><td><strong>Individual in-person (1 hour)</strong></td><td>600 Kč</td></tr>
-              <tr><td><strong>Group 2–4 online (1 hr/person)</strong></td><td>350 Kč</td></tr>
-              <tr><td><strong>Group 2–4 in-person (1 hr/person)</strong></td><td>400 Kč</td></tr>
-              <tr><td><strong>🎁 First lesson (any format)</strong></td><td>300 Kč</td></tr>
-            </tbody></table>
-          </div>
-
-          <p class="note" data-i18n="pricing.note0">📚 Packages cost less than single lessons — save up to 15%.</p>
-
-          <details class="acc">
-            <summary class="acc-summary" data-i18n="pricing.pkgIndivOnline">📚 Packages — Individual online</summary>
-            <div class="acc-body"><div class="tbl-wrap"><table><tbody>
-              <tr><td><strong>5 lessons (−5%)</strong></td><td>2,375 Kč</td></tr>
-              <tr><td><strong>10 lessons (−10%)</strong></td><td>4,500 Kč</td></tr>
-              <tr><td><strong>20 lessons (−15%)</strong></td><td>8,500 Kč</td></tr>
-            </tbody></table></div></div>
-          </details>
-
-          <details class="acc">
-            <summary class="acc-summary" data-i18n="pricing.pkgIndivInperson">📚 Packages — Individual in-person</summary>
-            <div class="acc-body"><div class="tbl-wrap"><table><tbody>
-              <tr><td><strong>5 lessons (−5%)</strong></td><td>2,850 Kč</td></tr>
-              <tr><td><strong>10 lessons (−10%)</strong></td><td>5,400 Kč</td></tr>
-              <tr><td><strong>20 lessons (−15%)</strong></td><td>10,200 Kč</td></tr>
-            </tbody></table></div></div>
-          </details>
-
-          <details class="acc">
-            <summary class="acc-summary" data-i18n="pricing.pkgGroupOnline">📚 Packages — Group online (per person)</summary>
-            <div class="acc-body"><div class="tbl-wrap"><table><tbody>
-              <tr><td><strong>5 lessons (−5%)</strong></td><td>1,663 Kč</td></tr>
-              <tr><td><strong>10 lessons (−10%)</strong></td><td>3,150 Kč</td></tr>
-              <tr><td><strong>20 lessons (−15%)</strong></td><td>5,950 Kč</td></tr>
-            </tbody></table></div></div>
-          </details>
-
-          <details class="acc">
-            <summary class="acc-summary" data-i18n="pricing.pkgGroupInperson">📚 Packages — Group in-person (per person)</summary>
-            <div class="acc-body"><div class="tbl-wrap"><table><tbody>
-              <tr><td><strong>5 lessons (−5%)</strong></td><td>1,900 Kč</td></tr>
-              <tr><td><strong>10 lessons (−10%)</strong></td><td>3,600 Kč</td></tr>
-              <tr><td><strong>20 lessons (−15%)</strong></td><td>6,800 Kč</td></tr>
-            </tbody></table></div></div>
-          </details>
-
-          <div class="tbl-wrap" style="margin-top:18px;">
-            <table><tbody>
-              <tr><td><strong>Maturita prep (15 lessons + tests)</strong></td><td>5,000 Kč</td></tr>
-              <tr><td><strong>Czech for residency (18 lessons)</strong></td><td>6,000 Kč (−1,200 Kč)</td></tr>
-              <tr><td><strong>Czech monthly membership</strong></td><td>600 Kč/mo (online + practice)</td></tr>
-              <tr><td><strong>Full residency pack (20h + document help)</strong></td><td>7,000 Kč</td></tr>
-            </tbody></table>
-          </div>
-        </div>
-
-        <!-- ═══ NEW IN THIS DROP: HEMA (Personal Fencing & Archery) ═══ -->
-        <div class="price-cat" id="price-hema">
-          <h3 class="price-cat-title" data-i18n="pricing.catHema">⚔️ Personal Fencing &amp; Archery</h3>
-          <p class="price-cat-sub" data-i18n="pricing.hemaSub">Individual sessions outside the club — group training runs on Družina Moravy&#39;s own membership pricing, not this table.</p>
-
-          <div class="tbl-wrap">
-            <table><tbody>
-              <tr><td><strong>Personal fencing (1 hour)</strong></td><td>700 Kč</td></tr>
-              <tr><td><strong>Group fencing (1.5 hr/person)</strong></td><td>500 Kč</td></tr>
-              <tr><td><strong>Personal archery (1 hour)</strong></td><td>800 Kč</td></tr>
-              <tr><td><strong>Group archery (1 hr/person)</strong></td><td>550 Kč</td></tr>
-            </tbody></table>
-          </div>
-
-          <p class="note" data-i18n="pricing.note1">📚 Packages save up to 15% here too.</p>
-
-          <details class="acc">
-            <summary class="acc-summary" data-i18n="pricing.pkgFencingPersonal">📚 Packages — Personal fencing</summary>
-            <div class="acc-body"><div class="tbl-wrap"><table><tbody>
-              <tr><td><strong>5 lessons (−5%)</strong></td><td>3,325 Kč</td></tr>
-              <tr><td><strong>10 lessons (−10%)</strong></td><td>6,300 Kč</td></tr>
-              <tr><td><strong>20 lessons (−15%)</strong></td><td>11,900 Kč</td></tr>
-            </tbody></table></div></div>
-          </details>
-
-          <details class="acc">
-            <summary class="acc-summary" data-i18n="pricing.pkgFencingGroup">📚 Packages — Group fencing</summary>
-            <div class="acc-body"><div class="tbl-wrap"><table><tbody>
-              <tr><td><strong>5 lessons (−5%)</strong></td><td>2,375 Kč</td></tr>
-              <tr><td><strong>10 lessons (−10%)</strong></td><td>4,500 Kč</td></tr>
-              <tr><td><strong>20 lessons (−15%)</strong></td><td>8,500 Kč</td></tr>
-            </tbody></table></div></div>
-          </details>
-
-          <details class="acc">
-            <summary class="acc-summary" data-i18n="pricing.pkgArcheryPersonal">📚 Packages — Personal archery</summary>
-            <div class="acc-body"><div class="tbl-wrap"><table><tbody>
-              <tr><td><strong>5 lessons (−5%)</strong></td><td>3,800 Kč</td></tr>
-              <tr><td><strong>10 lessons (−10%)</strong></td><td>7,200 Kč</td></tr>
-              <tr><td><strong>20 lessons (−15%)</strong></td><td>13,600 Kč</td></tr>
-            </tbody></table></div></div>
-          </details>
-
-          <details class="acc">
-            <summary class="acc-summary" data-i18n="pricing.pkgArcheryGroup">📚 Packages — Group archery</summary>
-            <div class="acc-body"><div class="tbl-wrap"><table><tbody>
-              <tr><td><strong>5 lessons (−5%)</strong></td><td>2,613 Kč</td></tr>
-              <tr><td><strong>10 lessons (−10%)</strong></td><td>4,950 Kč</td></tr>
-              <tr><td><strong>20 lessons (−15%)</strong></td><td>9,350 Kč</td></tr>
-            </tbody></table></div></div>
-          </details>
-        </div>
-
-        <!-- ═══ NEW IN THIS DROP: TREK (Guided Tours) ═══ -->
-        <div class="price-cat" id="price-trek">
-          <h3 class="price-cat-title" data-i18n="pricing.catTours">🗺️ Guided Tours</h3>
-          <p class="price-cat-sub" data-i18n="pricing.toursSub">Included: guide, route, maps, planning. Not included: transport, food, entry tickets.</p>
-
-          <div class="tbl-wrap">
-            <table><tbody>
-              <tr><td><strong>Individual tour (1 day)</strong></td><td>from 2,000 Kč</td></tr>
-              <tr><td><strong>Group tour (1 day, 4+ people)</strong></td><td>from 1,000 Kč/person</td></tr>
-            </tbody></table>
-          </div>
-
-          <p class="note" data-i18n="pricing.toursNote">Private, custom-route tours — different from BrnoWalkers' regular scheduled hikes and events, which are priced per event and listed in the <a href="#walkers">BrnoWalkers section</a>.</p>
-        </div>
-
-        <!-- ═══ NEW IN THIS DROP: Fitness & Personal Training ═══ -->
-        <div class="price-cat" id="price-fit">
-          <h3 class="price-cat-title" data-i18n="pricing.catFitness">💪 Fitness &amp; Personal Training</h3>
-          <p class="price-cat-sub" data-i18n="pricing.fitnessSub">Outdoors or at the client&#39;s location. Experience: 100+ trained clients.</p>
-
-          <div class="tbl-wrap">
-            <table><tbody>
-              <tr><td><strong>Personal in-person (1 hour)</strong></td><td>600 Kč</td></tr>
-              <tr><td><strong>Personal online (1 hour)</strong></td><td>400 Kč</td></tr>
-              <tr><td><strong>Group training (single)</strong></td><td>300 Kč</td></tr>
-              <tr><td><strong>🎁 First session in-person</strong></td><td>400 Kč</td></tr>
-              <tr><td><strong>🎁 First session online</strong></td><td>300 Kč</td></tr>
-            </tbody></table>
-          </div>
-
-          <!-- Only one group-marker row in the source data here, unlike
-               EDU/HEMA's multiple named groups — so this is one accordion
-               holding all pass/package rows, not four separate ones.
-               Matches the underlying data exactly, not a simplification. -->
-          <details class="acc">
-            <summary class="acc-summary" data-i18n="pricing.pkgFitnessPasses">📚 Packages &amp; passes — cost less per session</summary>
-            <div class="acc-body"><div class="tbl-wrap"><table><tbody>
-              <tr><td><strong>4-session group pass</strong></td><td>600 Kč (150 Kč/session)</td></tr>
-              <tr><td><strong>8-session group pass</strong></td><td>1,000 Kč (125 Kč/session)</td></tr>
-              <tr><td><strong>5-session personal in-person pack</strong></td><td>2,000 Kč (−500 Kč)</td></tr>
-              <tr><td><strong>10-session personal in-person pack</strong></td><td>3,350 Kč (−1,650 Kč)</td></tr>
-              <tr><td><strong>1-month online programme (plan + nutrition)</strong></td><td>2,000 Kč/mo</td></tr>
-              <tr><td><strong>Weight-loss programme (8 weeks)</strong></td><td>4,000 Kč</td></tr>
-              <tr><td><strong>3-month body transformation</strong></td><td>5,000 Kč</td></tr>
-            </tbody></table></div></div>
-          </details>
-        </div>
-
-        <!-- ═══ NEW IN THIS DROP: Nutrition Consulting ═══ -->
-        <div class="price-cat" id="price-nutr">
-          <h3 class="price-cat-title" data-i18n="pricing.catNutrition">🥗 Nutrition Consulting</h3>
-          <p class="price-cat-sub" data-i18n="pricing.nutritionSub">Personal nutrition plans, ongoing support, adjustments.</p>
-
-          <div class="tbl-wrap">
-            <table><tbody>
-              <tr><td><strong>Initial consultation (90 min)</strong></td><td>600 Kč</td></tr>
-              <tr><td><strong>Personal nutrition plan</strong></td><td>600 Kč</td></tr>
-              <tr><td><strong>Monthly support</strong></td><td>2,000 Kč/mo</td></tr>
-              <tr><td><strong>Single correction session (60 min)</strong></td><td>700 Kč</td></tr>
-            </tbody></table>
-          </div>
-
-          <p class="note" data-i18n="pricing.fitnessComboNote">Fitness + Nutrition bundles at a discount are planned but not available as a package yet — ask about combining them individually.</p>
-        </div>
-
-        <!-- ═══ NEW IN THIS DROP: Expat Support ═══ -->
-        <div class="price-cat" id="price-supp">
-          <h3 class="price-cat-title" data-i18n="pricing.catExpat">🌍 Expat Support</h3>
-          <p class="price-cat-sub" data-i18n="pricing.expatSub">Work, housing, medicine, documents, legal issues, nostrification.</p>
-
-          <div class="tbl-wrap">
-            <table><tbody>
-              <tr><td><strong>General consultation (1st hour)</strong></td><td>300 Kč</td></tr>
-              <tr><td><strong>Each additional hour</strong></td><td>400 Kč</td></tr>
-              <tr><td><strong>Doctor search</strong></td><td>700 Kč</td></tr>
-              <tr><td><strong>Lawyer search</strong></td><td>900 Kč</td></tr>
-              <tr><td><strong>University admission consultation (1h)</strong></td><td>500 Kč</td></tr>
-              <tr><td><strong>Medical diagnosis &amp; treatment analysis</strong></td><td>1,000 Kč</td></tr>
-              <tr><td><strong>Nostrification assistance</strong></td><td>from 3,500 Kč</td></tr>
-              <tr><td><strong>Legal representation (advocacy)</strong></td><td>from 1,500 Kč</td></tr>
-              <tr><td><strong>Medical advocacy</strong></td><td>from 2,000 Kč</td></tr>
-              <tr><td><strong>Interpreting online (legal/medical)</strong></td><td>600 Kč/hr</td></tr>
-              <tr><td><strong>In-person interpreting at meetings</strong></td><td>900 Kč/hr</td></tr>
-            </tbody></table>
-          </div>
-        </div>
-
-        <!-- ═══ NEW IN THIS DROP: Brno Housing Support ═══
-             Editorial call, flagged in the handoff notes: this category's
-             source data is 3 genuinely different service tiers, not
-             repeatable package quantities like EDU/HEMA/FIT — so it's
-             hand-organized as tier sections (h4 + prose) instead of forced
-             through the same 2-column-table-plus-accordion pattern. Same
-             underlying facts and prices, clearer presentation.
-             Note the id — this is now reached via the price-jump-list
-             at the top of #pricing (the old standalone navHousingBtn nav
-             button was retired this pass, see the nav comment in
-             <body>), not a dedicated nav button anymore. -->
-        <div class="price-cat" id="price-hous">
-          <h3 class="price-cat-title" data-i18n="pricing.catHousing">🏠 Brno Housing Support</h3>
-          <p class="price-cat-sub" data-i18n="pricing.housingSub">For community newcomers and referrals.</p>
-
-          <h4><span data-i18n="pricing.housTier0">Tier 0 — Basic Consultation</span> <span style="color:var(--r5);font-weight:700;" data-i18n="pricing.housTier0Badge">Free</span></h4>
-          <p>A curated list of vetted resources — bezrealitky.cz, sreality.cz, espolubydleni.cz, relevant Facebook groups — plus price/area guidance for your budget and one detailed reply. Open to anyone reaching out through the community or a warm referral.</p>
-
-          <h4 data-i18n="pricing.housTier1">Tier 1 — Boosted Listing</h4>
-          <div class="tbl-wrap">
-            <table><tbody>
-              <tr><td><strong>300 Kč</strong></td><td>Post the request as-is across my channels (BrnoWalkers, Družina Moravy, Instagram, Facebook — 250+ people in Brno)</td></tr>
-              <tr><td><strong>500 Kč</strong></td><td>Same, plus translation/adaptation into Czech for the platform</td></tr>
-            </tbody></table>
-          </div>
-          <p class="note" data-i18n="pricing.housingMatchNote">Runs 7 days or until a match is found. No outcome guarantee — this is reach, not a placement guarantee.</p>
-
-          <h4><span data-i18n="pricing.housTier2">Tier 2 — Personal Accompaniment</span> <span style="color:var(--r5);font-weight:700;">500 Kč/hour</span></h4>
-          <p>Minimum package: 2 hours (1,000 Kč, prepaid). Shortlisting options against your criteria, calling/messaging landlords in Czech, accompanying viewings within Brno, a basic sanity-check of the lease for obvious red flags.</p>
-          <p><strong>Not included:</strong> legal review of the contract, or brokerage-style service tied to a commission/success fee — this is billed for time, not outcome.</p>
-
-          <p class="note" data-i18n="pricing.housingTerms">General terms: payment in Kč, cash or bank transfer (OSVČ, IČO 23041625) · cancellation with at least 24h notice · this is a personal assistance service, not real estate brokerage, and not a substitute for legal advice.</p>
-        </div>
-
-        <!-- ═══ NEW IN THIS DROP: IT Security, Life Coaching, Web Design ═══
-             All three are flat tables in the source data — no group-marker
-             rows, so no accordions needed. Completes all 10 base categories. -->
-        <div class="price-cat" id="price-itsec">
-          <h3 class="price-cat-title" data-i18n="pricing.catItsec">🛡️ IT Security</h3>
-          <p class="price-cat-sub" data-i18n="pricing.itsecSub">Malware removal, security hardening, and a cleanup check for suspicious software.</p>
-          <div class="tbl-wrap">
-            <table><tbody>
-              <tr><td><strong>Computer &amp; malware cleanup (1 hour)</strong></td><td>600 Kč/hr</td></tr>
-              <tr><td><strong>Typical job</strong></td><td>1,200 – 1,800 Kč</td></tr>
-            </tbody></table>
-          </div>
-        </div>
-
-        <div class="price-cat" id="price-coach">
-          <h3 class="price-cat-title" data-i18n="pricing.catCoaching">🧠 Life Coaching</h3>
-          <!-- This subtitle is a real disclaimer, not decorative copy —
-               kept verbatim and at the same visual weight your live site
-               already uses for it. Worth deciding if it should be MORE
-               visually prominent than a muted italic subtitle, given what
-               it's disclaiming (medical/psychological scope, gaming
-               addiction) — flagged in the notes doc, not changed here
-               unprompted since every other category's subtitle uses this
-               same treatment. -->
-          <p class="price-cat-sub" data-i18n="pricing.coachingSub">⚠️ Not a medical or psychological service. A doctor is required for medical conditions.</p>
-          <div class="tbl-wrap">
-            <table><tbody>
-              <tr><td><strong>Habit change session (1 hour)</strong></td><td>700 Kč</td></tr>
-              <tr><td><strong>Parent consultation (1 hour)</strong></td><td>800 Kč</td></tr>
-              <tr><td><strong>Screen/gaming addiction (4 sessions)</strong></td><td>2,000 Kč</td></tr>
-              <tr><td><strong>Monthly coaching (weekly sessions)</strong></td><td>3,500 Kč/mo</td></tr>
-            </tbody></table>
-          </div>
-        </div>
-
-        <div class="price-cat" id="price-web">
-          <h3 class="price-cat-title" data-i18n="pricing.catWeb">💻 Web Design &amp; Media</h3>
-          <p class="price-cat-sub" data-i18n="pricing.webSub">Websites, social media, content, photography.</p>
-          <div class="tbl-wrap">
-            <table><tbody>
-              <tr><td><strong>Single-page website</strong></td><td>3,000 Kč</td></tr>
-              <tr><td><strong>Multi-page website (3–5 pages)</strong></td><td>6,000 Kč</td></tr>
-              <tr><td><strong>Social media setup (FB + IG)</strong></td><td>1,500 Kč</td></tr>
-              <tr><td><strong>Content creation (5 posts)</strong></td><td>1,000 Kč</td></tr>
-              <tr><td><strong>Business photoshoot (2 hours)</strong></td><td>2,000 Kč</td></tr>
-              <tr><td><strong>Starter pack (Website + Facebook)</strong></td><td>3,500 Kč</td></tr>
-              <tr><td><strong>Pro pack (Website + FB + IG + training)</strong></td><td>5,500 Kč</td></tr>
-              <tr><td><strong>VIP pack (Everything + photoshoot + support)</strong></td><td>8,000 Kč</td></tr>
-            </tbody></table>
-          </div>
-        </div>
-      </div>
-
-      <!-- Universal — applies to every pricing category. All 10 base
-           categories are now done; only Combo Packages, Loyalty Programme,
-           and Gear Rental remain in the PRICING object. -->
-      <h3 class="price-section-h anchor-heading" id="pricing-combos" data-i18n="pricing.secCombos">Combo Packages<a class="anchor-link" href="#pricing-combos">#</a></h3>
-      <p class="price-cat-sub" data-i18n="pricing.gearValidNote">All packages valid for 6 months from purchase.</p>
-      <div class="combo-grid">
-        <div class="combo-card">
-          <div class="combo-id">PKG-BASE</div>
-          <div class="combo-name">Base</div>
-          <div class="combo-desc">5 online training sessions + nutrition consultation</div>
-          <div class="combo-price">1,500 Kč</div>
-          <div class="combo-save">−500 Kč</div>
-        </div>
-        <div class="combo-card best-value">
-          <div class="combo-badge">Best value</div>
-          <div class="combo-id">PKG-PRO</div>
-          <div class="combo-name">Pro</div>
-          <div class="combo-desc">10 training sessions (5+5) + nutrition plan</div>
-          <div class="combo-detail">Most balanced for long-term progress and cost.</div>
-          <div class="combo-price">4,000 Kč</div>
-          <div class="combo-save">−1,750 Kč</div>
-        </div>
-        <div class="combo-card">
-          <div class="combo-id">PKG-ALL</div>
-          <div class="combo-name">All-in</div>
-          <div class="combo-desc">3-month body transformation + 1 month nutrition</div>
-          <div class="combo-price">6,500 Kč</div>
-          <div class="combo-save">−500 Kč</div>
-        </div>
-        <div class="combo-card">
-          <div class="combo-id">PKG-EDU</div>
-          <div class="combo-name">Education</div>
-          <div class="combo-desc">10 hours online tutoring + study materials</div>
-          <div class="combo-price">3,000 Kč</div>
-          <div class="combo-save">−1,000 Kč</div>
-        </div>
-        <div class="combo-card">
-          <div class="combo-id">PKG-WAR</div>
-          <div class="combo-name">Warrior</div>
-          <div class="combo-desc">10 fitness sessions + 4 fencing + 1 day hike</div>
-          <div class="combo-price">4,000 Kč</div>
-          <div class="combo-save">−1,300 Kč</div>
-        </div>
-      </div>
-
-      <h3 class="price-section-h anchor-heading" id="pricing-loyalty" data-i18n="pricing.secLoyalty">Loyalty Programme<a class="anchor-link" href="#pricing-loyalty">#</a></h3>
-      <div class="tbl-wrap">
-        <table><tbody>
-          <tr><td><strong>First session (any category)</strong></td><td>100 Kč discount</td></tr>
-          <tr><td><strong>Regular clients (3+ sessions, no violations)</strong></td><td>Pay after the session</td></tr>
-          <tr><td><strong>Cumulative purchases from 20,000 Kč</strong></td><td>5% discount forever</td></tr>
-          <tr><td><strong>Cumulative purchases from 50,000 Kč</strong></td><td>10% discount forever</td></tr>
-          <tr><td><strong>Lifetime status (started before 10.02.2026)</strong></td><td>Permanent 10% discount</td></tr>
-          <tr><td><strong>Referral: bring a friend</strong></td><td>Friend gets −10% on first service, you get −10% on next</td></tr>
-        </tbody></table>
-      </div>
-
-      <h3 class="price-section-h anchor-heading" id="pricing-gear" data-i18n="pricing.secGear">Gear Rental (BrnoWalkers)<a class="anchor-link" href="#pricing-gear">#</a></h3>
-      <p class="price-cat-sub" data-i18n="pricing.gearMemberNote">Active club members — 50% discount. Booking: t.me/chareshneu</p>
-      <div class="tbl-wrap">
-        <table><tbody>
-          <tr><td><strong>Skis</strong></td><td>100 Kč/day</td></tr>
-          <tr><td><strong>Climbing ropes</strong></td><td>100 Kč/day</td></tr>
-          <tr><td><strong>Boots / Helmet</strong></td><td>50 Kč/day per item</td></tr>
-          <tr><td><strong>Cooking pots</strong></td><td>50 Kč/day</td></tr>
-          <tr><td><strong>Thermos</strong></td><td>30 Kč/day</td></tr>
-        </tbody></table>
-      </div>
-
-      <h3 class="price-section-h anchor-heading" id="pricing-cancel" data-i18n="pricing.secCancel">Cancellation Policy<a class="anchor-link" href="#pricing-cancel">#</a></h3>
-      <div class="tbl-wrap">
-        <table><tbody>
-          <tr><td><strong>More than 48h before</strong></td><td>Full refund</td></tr>
-          <tr><td><strong>24–48 hours</strong></td><td>50% refund</td></tr>
-          <tr><td><strong>Less than 24h / no-show</strong></td><td>No refund</td></tr>
-          <tr><td><strong>Late arrival</strong></td><td>The session still ends at the original time — lost time is not added back</td></tr>
-        </tbody></table>
-      </div>
-
-      <h3 class="price-section-h anchor-heading" id="pricing-payment" data-i18n="pricing.secPayment">Payment<a class="anchor-link" href="#pricing-payment">#</a></h3>
-      <div class="tbl-wrap">
-        <table><tbody>
-          <tr><td><strong>💳 Revolut (main method)</strong></td><td><a href="https://revolut.me/aliaksj5pq" target="_blank" rel="noopener">revolut.me/aliaksj5pq</a> — payment locks in your slot</td></tr>
-          <tr><td><strong>New clients</strong></td><td>50% prepayment online or 100% in-person</td></tr>
-          <tr><td><strong>Regular clients</strong></td><td>Pay after the session</td></tr>
-          <tr><td><strong>Bank transfer / Cash</strong></td><td>On request</td></tr>
-        </tbody></table>
-      </div>
-
-      <div class="callout">
-        <p><strong>Ready to book your first lesson?</strong></p>
-        <div style="margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-          <a class="btn solid" href="https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog" target="_blank" rel="noopener">Register</a>
-          <a class="btn" href="https://revolut.me/aliaksj5pq" target="_blank" rel="noopener">Order a personal service</a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Moved here (after pricing) from right after the venture-picker,
-       per the site owner's follow-up feedback that the page was "still
-       a portyanka" even with the earlier shortcuts (sticky CTA, hero
-       CTA, quick-pay callout) — those only helped people who click a
-       button; anyone just scrolling still had to pass eight full
-       marketing/trust sections (intro video, upcoming events, academy
-       priority, policy, About, reviews, activity matrix, conversion
-       cards) before ever reaching a price. Reordering is the actual fix
-       for that — the content itself is unchanged, just sequenced after
-       pricing instead of before it. Nothing else needed to change: this
-       is still the same #main-dynamic placeholder, filled by the same
-       renderMainTab() call in render(), regardless of where it sits in
-       the DOM. -->
-  <div id="main-dynamic"></div>
-
-
-  <section class="hero" id="walkers">
-    <!-- CHARACTER HERO ART — "the Ranger" (BrnoWalkers). Replaces the
-         old walker-figure/clouds SVG. Static photo only (no video asset
-         exists for this character) — the .hero-photo--kenburns class
-         gives it a very slow zoom/drift so it still reads as "alive",
-         not a flat backdrop. This same block is duplicated verbatim in
-         walkers/index.html — keep both in sync if this changes. -->
-    <div class="hero-visuals hero-visuals-walkers" aria-hidden="true">
-      <picture>
-        <source srcset="images/hero-ranger.webp" type="image/webp">
-        <img class="hero-photo hero-photo--kenburns hero-photo--ranger"
-             src="images/hero-ranger.jpg" alt="" loading="eager" fetchpriority="high">
-      </picture>
-      <div class="hero-scrim"></div>
-    </div>
-    <div class="wrap">
-      <p class="eyebrow" data-i18n="walkers.eyebrow">A Community of Active People</p>
-      <h2 data-i18n="walkers.title2">BrnoWalkers — Guided Hikes, Cave Tours &amp; City Walks in Moravia</h2>
-      <p class="tagline" data-i18n="walkers.tagline">Pedestrian tourism, hiking, rock climbing, and exploring the best spots in Moravia with great company.</p>
-      <p class="hero-mission" data-i18n="walkers.missionText">BrnoWalkers make Moravia their own — step by step, we discover the city and the region together, so Brno becomes home and fellow travelers become family.</p>
-      <a class="reviews-badge" href="https://maps.app.goo.gl/fEbnJHxiVoAx1v498" target="_blank" rel="noopener"><span class="star">⭐</span> <span data-i18n="reviewsBadge">50+ Google reviews · 5.0</span></a>
-
-      <div class="hero-ctas">
-        <a class="btn solid plausible-event-name=Register-Walkers" href="https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog" target="_blank" rel="noopener" data-i18n="ui.registerEvent">Register for an event</a>
-        <a class="btn plausible-event-name=Join-Chat-Walkers" href="https://chat.whatsapp.com/JCyEJNm746nBXNll3VzzX3" target="_blank" rel="noopener" data-i18n="ui.joinTheChat">Join the chat</a>
-      </div>
-      <div class="hero-ctas-secondary">
-        <a class="btn-quiet plausible-event-name=Announce-WA-Walkers" href="https://chat.whatsapp.com/BSlQetCjMoL8IO45c6VnH0" target="_blank" rel="noopener" data-i18n="ui.announceWA">Announcements · WhatsApp</a>
-        <a class="btn-quiet plausible-event-name=Announce-TG-Walkers" href="https://t.me/pochody_brno_news" target="_blank" rel="noopener" data-i18n="ui.announceTG">Announcements · Telegram</a>
-      </div>
-
-      <div class="hero-testimonial">
-        <p class="quote">"Great walks, clear guidance, and zero pressure. A perfect weekend reset with people who actually enjoy exploring Moravia."</p>
-        <div class="author">— Marina, BrnoWalkers</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Trust facts — reused verbatim from the existing T.en.walkers.facts
-       array, no new/unconfirmed numbers this time (member count is
-       already flagged once, in the Main hero — not repeating an
-       unconfirmed claim twice). -->
-  <section aria-label="At a glance">
-    <div class="wrap">
-      <div class="facts">
-        <div class="fact"><div class="v" data-i18n="ui.factLocationVal">Brno &amp; Moravia</div><div class="l" data-i18n="ui.factLocation">Location</div></div>
-        <div class="fact"><div class="v" data-i18n="ui.factFrequencyVal">Regular</div><div class="l" data-i18n="ui.factFrequency">Frequency</div></div>
-        <div class="fact"><div class="v" data-i18n="ui.factFitnessVal">For everyone</div><div class="l" data-i18n="ui.factFitness">Fitness level</div></div>
-        <div class="fact"><div class="v">50+ · 5.0 ★</div><div class="l" data-i18n="ui.factReviews">Google reviews</div></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Content-duplication fix (see HANDOVER.md §6): Event Types, About,
-       official Rules, Canoe Safety and FAQ used to be duplicated here
-       verbatim AND on the dedicated /walkers/ page. They now live only on
-       /walkers/, which already carries the same content plus its own
-       FAQPage schema — keeping identical long-form content (and matching
-       structured data) on two indexable URLs risked Google picking one to
-       rank and wasting crawl budget on the other. This short link-out
-       replaces those sections; the hero and facts grid above are
-       unchanged. -->
-  <section aria-label="Full BrnoWalkers details">
-    <div class="wrap">
-      <div class="callout">
-        <p><strong data-i18n="ui.walkersCalloutText">Event types, official rules, the canoe safety briefing and the full FAQ live on the BrnoWalkers page.</strong></p>
-        <div style="margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-          <a class="btn solid" href="walkers/" data-i18n="ui.walkersCalloutBtn">Open the BrnoWalkers page →</a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Live calendar embed — deliberately stayed on the main page rather
-       than moving to /walkers/ during this session's "venture-specific
-       content only on its own page" cleanup: this calendar covers BOTH
-       BrnoWalkers and Družina Moravy events (one shared Google Calendar),
-       so it doesn't belong to either dedicated page specifically — it's
-       genuinely hub-level content, same category as Contacts. Just an
-       <iframe>, no per-language data. -->
-  <section id="walkers-schedule">
-    <div class="wrap">
-      <div class="eyebrow-sm" data-i18n="ui.scheduleEyebrow">Schedule</div>
-      <h2 class="anchor-heading" data-i18n="ui.scheduleH">Upcoming Events<a class="anchor-link" href="#walkers-schedule">#</a></h2>
-      <p class="lead" data-i18n="ui.scheduleLead">Up-to-date trip and event announcements are published on Facebook Events. Each post includes the route, price, participation terms, and meeting time.</p>
-      <div style="text-align:center; margin-top:20px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
-        <a class="btn solid plausible-event-name=Register-Walkers" href="https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog" target="_blank" rel="noopener" data-i18n="ui.registerEvent">Register for an event</a>
-        <a class="btn" href="https://www.facebook.com/alexey.chereshnev.3/events" target="_blank" rel="noopener" data-i18n="ui.scheduleFbBtn">View events on Facebook →</a>
-      </div>
-      <div class="calendar-embed-card">
-        <iframe
-          src="https://calendar.google.com/calendar/embed?src=2b87a4e595671b05f82867969757d6c8500733a05a7ebcc77a3c6102b1644757%40group.calendar.google.com&amp;ctz=Europe%2FPrague&amp;mode=AGENDA&amp;showTitle=0&amp;showNav=1&amp;showDate=1&amp;showPrint=0&amp;showTabs=0&amp;showCalendars=0&amp;showTz=0&amp;wkst=2"
-          style="border:0" width="100%" height="520" frameborder="0" scrolling="no" loading="lazy"
-          title="Brnowalkers & Družina Moravy schedule"></iframe>
-      </div>
-    </div>
-  </section>
-
-  <section class="hero" id="druzina">
-    <!-- CHARACTER HERO ART — "the Knight" (Družina Moravy). Replaces the
-         old footman+paladin+campfire SVG scene. The photo already has
-         its own painted campfire glow at roughly x=61-63%/y=71-82% of
-         frame (checked directly against the source image, not eyeballed)
-         — the existing ember-particle <canvas> is kept and its origin
-         point in the JS (drawDruzinaParticles()) was retargeted to that
-         same spot, so the rising embers now read as coming from the
-         actual painted fire. Same duplication note as Walkers: this
-         block is repeated in druzina/index.html, keep both in sync. -->
-    <div class="hero-visuals hero-visuals-druzina" aria-hidden="true">
-      <div class="hero-visuals-druzina__scene">
-        <picture>
-          <source srcset="images/hero-knight.webp" type="image/webp">
-          <img class="hero-photo hero-photo--kenburns hero-photo--knight"
-               src="images/hero-knight.jpg" alt="" loading="eager" fetchpriority="high">
-        </picture>
-        <div class="hero-scrim"></div>
-      </div>
-      <canvas class="hero-visuals-druzina__canvas" aria-hidden="true"></canvas>
-    </div>
-    <div class="wrap">
-      <p class="eyebrow">Brno · HEMA · LARP</p>
-      <h2 data-i18n="ui.druzinaName2">Družina Moravy — HEMA Fencing &amp; LARP Club in Brno</h2>
-      <p class="tagline" data-i18n="ui.druzinaTagline">A club for historical medieval combat, fencing (HEMA), archery, and LARP re-enactment in Brno.</p>
-      <p class="hero-mission" data-i18n="ui.druzinaMission">Družina Moravy revives the living tradition of Great Moravia — fellowship, craft, and the path from novice to warrior — so that everyone who joins finds roots, mastery, and their people.</p>
-      <a class="reviews-badge" href="https://maps.app.goo.gl/fEbnJHxiVoAx1v498" target="_blank" rel="noopener"><span class="star">⭐</span> <span data-i18n="reviewsBadge">50+ Google reviews · 5.0</span></a>
-
-      <div class="hero-ctas">
-        <a class="btn solid plausible-event-name=Register-Druzina" href="https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog" target="_blank" rel="noopener" data-i18n="ui.registerTraining">Register for training</a>
-        <a class="btn plausible-event-name=Join-Chat-Druzina" href="https://chat.whatsapp.com/JzeXAQF8I2XE3zQ2OqWsPz" target="_blank" rel="noopener" data-i18n="ui.joinTheChat">Join the chat</a>
-      </div>
-      <div class="hero-ctas-secondary">
-        <a class="btn-quiet plausible-event-name=Announce-WA-Druzina" href="https://chat.whatsapp.com/DuTpgF22mxMFy6L1Cfrcvu" target="_blank" rel="noopener" data-i18n="ui.announceWA">Announcements · WhatsApp</a>
-        <a class="btn-quiet plausible-event-name=Announce-TG-Druzina" href="https://t.me/druzinamoravy_news" target="_blank" rel="noopener" data-i18n="ui.announceTG">Announcements · Telegram</a>
-      </div>
-
-      <div class="hero-testimonial">
-        <p class="quote">"Druzhina training feels demanding and honest. I gained new friends and real skills, not just another story."</p>
-        <div class="author">— Ivan, Druzhina Moravy</div>
-      </div>
-
-      <div class="free-note" data-i18n="ui.druzinaFreeNote">Your first training costs <span class="trial-price-auto">100 Kč</span> — a chance to get to know the club. Before it, we'll always ask whether you're planning to train regularly going forward or this is a one-off try out of curiosity — not a test, it just lets the coach pick the right format from the start.</div>
-    </div>
-  </section>
-
-  <div class="wrap" style="padding-top:0;">
-    <div class="hero-img photo-slot" data-alt="Družina Moravy HEMA training session">
-      <img src="images/druzina_train.jpg" alt="Družina Moravy HEMA training session" loading="lazy"
-           onerror="this.parentElement.classList.add('img-fallback'); this.remove();">
-    </div>
-  </div>
-
-  <!-- Facts strip — reused verbatim from the existing T.en.about.facts array. -->
-  <section aria-label="At a glance">
-    <div class="wrap">
-      <p class="eyebrow-sm" data-i18n="ui.aboutEyebrow">About</p>
-      <h3 class="anchor-heading" data-i18n="ui.druzinaAboutH">Sword, Spear, Bow, Crossbow and More<a class="anchor-link" href="#about">#</a></h3>
-      <p id="about" data-i18n="ui.druzinaAboutIntro">We bring together people interested in medieval combat in all its forms, along with the history of arms and the warrior culture of Europe.</p>
-      <div class="facts">
-        <div class="fact"><div class="v">Brno, CZ</div><div class="l" data-i18n="ui.factCity">City</div></div>
-        <div class="fact"><div class="v" data-i18n="ui.factTrainingVal">3× a week</div><div class="l" data-i18n="ui.factTraining">Training, outdoors</div></div>
-        <div class="fact"><div class="v">13</div><div class="l" data-i18n="ui.factCommunity">Community (TG + WA)</div></div>
-        <div class="fact"><div class="v trial-price-auto">100 Kč</div><div class="l" data-i18n="ui.factFirstTraining">First training</div></div>
-      </div>
-      <p style="margin-top:16px;" data-i18n="ui.druzinaInsuranceNote"><strong>The club does not provide insurance.</strong> All training, sparring, and trips are undertaken at the member's own risk.</p>
-    </div>
-  </section>
-
-  <!-- Content-duplication fix (see HANDOVER.md §6), simplified further
-       this session for consistency with the BrnoWalkers callout above.
-       This used to also surface Mon/Thu/Sat 18:00 + the venue address
-       directly here, reasoning that "when/where to show up" deserved
-       zero clicks — but the site owner flagged the resulting split as
-       confusing in practice (schedule/price details here, ranks/roles
-       only on the dedicated page, no consistent rule for what lives
-       where). Now the rule is simple and the same for both ventures:
-       the main page states what the venture is, everything else
-       (schedule, tariff, ranks, roles, conduct) lives ONLY on the
-       dedicated page, one click away. -->
-  <section aria-label="Full Družina Moravy details">
-    <div class="wrap">
-      <div class="callout">
-        <p><strong data-i18n="ui.druzinaCalloutText">Schedule, pricing, the full rank ladder, club roles and conduct rules all live on the Družina Moravy page.</strong></p>
-        <div style="margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-          <a class="btn solid" href="druzina/" data-i18n="ui.druzinaCalloutBtn">Open the Družina Moravy page →</a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ══════════════════════════════════════════════════════════════
-       NEW: "Become an Ambassador" — added because the new top nav (see
-       renderTabsNav()) needed a real destination for this, not a dead
-       link. IMPORTANT — this is a draft aggregator, not a new program:
-       every perk named below already exists and is already live
-       elsewhere on the site (BrnoWalkers medals, Družina roles/ranks,
-       Academy loyalty programme) — nothing new is promised here, this
-       section just puts the three under one roof so "how do I get more
-       involved" has one answer instead of three buried ones. Flag for
-       the site owner before this goes live: confirm the three summaries
-       below still match the source sections exactly (they were accurate
-       as of this pass), and decide whether "become an ambassador"
-       should eventually be its own real program (a fourth thing, not
-       just a index of the other three) — that's a business decision
-       Phase 1 shouldn't guess at, this is the safe placeholder for it.
-       Static English, matching #pricing/#contacts/#walkers-schedule. -->
   <section id="ambassador">
     <div class="wrap">
       <div class="eyebrow-sm" data-i18n="ambassador.eyebrow">Grow the Community</div>
@@ -1672,7 +855,7 @@ ru:{
     eyebrow:'VIII · Экосистема проектов', h:'Другие проекты',
     rows:[
       ['<a style="color:var(--r5);font-weight:600;" href="walkers/">BrnoWalkers ➔</a>','Пешеходный туризм и хайкинг (Перейти в раздел)'],
-      ['<a style="color:var(--r5);font-weight:600;" href="#pricing">Репетиторство ➔</a>','Индивидуальные занятия по всем предметам (На главную)'],
+      ['<a style="color:var(--r5);font-weight:600;" href="academy/">Репетиторство ➔</a>','Индивидуальные занятия по всем предметам'],
       ['<a style="color:var(--r5);font-weight:600;" href="#main">Moravian Squad ➔</a>','Активности для детей 5–15 лет']
     ]
   },
@@ -1960,7 +1143,7 @@ en:{
     eyebrow:'VIII · Ecosystem of projects', h:'Other projects',
     rows:[
       ['<a style="color:var(--r5);font-weight:600;" href="walkers/">BrnoWalkers ➔</a>','Hiking and walking community'],
-      ['<a style="color:var(--r5);font-weight:600;" href="#pricing">Tutoring ➔</a>','All-subject premium mentoring'],
+      ['<a style="color:var(--r5);font-weight:600;" href="academy/">Tutoring ➔</a>','All-subject premium mentoring'],
       ['<a style="color:var(--r5);font-weight:600;" href="#main">Moravian Squad ➔</a>','Activities for children 5–15']
     ]
   },
@@ -2248,7 +1431,7 @@ cs:{
     eyebrow:'VIII · Ekosystém projektů', h:'Další projekty',
     rows:[
       ['<a style="color:var(--r5);font-weight:600;" href="walkers/">BrnoWalkers ➔</a>','Pěší turistika a hiking'],
-      ['<a style="color:var(--r5);font-weight:600;" href="#pricing">Doučování ➔</a>','Prémiové doučování předmětů'],
+      ['<a style="color:var(--r5);font-weight:600;" href="academy/">Doučování ➔</a>','Prémiové doučování předmětů'],
       ['<a style="color:var(--r5);font-weight:600;" href="#main">Moravian Squad ➔</a>','Aktivity pro děti 5–15 let']
     ]
   },
@@ -2536,7 +1719,7 @@ uk:{
     eyebrow:'VIII · Екосистема проєктів', h:'Інші проєкти',
     rows:[
       ['<a style="color:var(--r5);font-weight:600;" href="walkers/">BrnoWalkers ➔</a>','Пішохідний туризм і хайкінг'],
-      ['<a style="color:var(--r5);font-weight:600;" href="#pricing">Репетиторство ➔</a>','Преміум-заняття з усіх предметів'],
+      ['<a style="color:var(--r5);font-weight:600;" href="academy/">Репетиторство ➔</a>','Преміум-заняття з усіх предметів'],
       ['<a style="color:var(--r5);font-weight:600;" href="#main">Moravian Squad ➔</a>','Активності для дітей 5–15 років']
     ]
   },
@@ -2884,19 +2067,18 @@ function renderContactsGrid(rows){
 // Družina) to the complete set of hub-level destinations: Home,
 // BrnoWalkers, Academy, Družina Moravy, Calendar, Become an Ambassador,
 // Contacts. Only "Home" stays a same-page-scroll <button> — everything
-// else is a real <a href>, crawlable and working with zero JS, same
-// principle as the BrnoWalkers/Družina links already were. #pricing,
-// #walkers-schedule, #ambassador and #contacts are all static HTML (not
-// re-rendered per language), so those four hrefs are plain anchors, not
-// per-language routes.
+// else is a real <a href>, crawlable and working with zero JS.
+// Academy and Calendar route to their own dedicated pages (14.09.2026);
+// #ambassador and #contacts are still static HTML on this page (not
+// re-rendered per language), so those two hrefs are plain anchors.
 function renderTabsNav(lang){
   const t = T[lang];
   document.getElementById('tabsNav').innerHTML = `
     <button class="tab-btn ${currentTab === 'main' ? 'active' : ''}" data-tab="main">${t.tabs.main}</button>
     <a class="tab-btn" href="walkers/">${t.tabs.walkers}</a>
-    <a class="tab-btn" href="#pricing">${t.tabs.academy}</a>
+    <a class="tab-btn" href="academy/">${t.tabs.academy}</a>
     <a class="tab-btn" href="druzina/">${t.tabs.druzina}</a>
-    <a class="tab-btn" href="#walkers-schedule">${t.tabs.calendar}</a>
+    <a class="tab-btn" href="calendar/">${t.tabs.calendar}</a>
     <a class="tab-btn tab-btn--accent" href="#ambassador">${t.tabs.ambassador}</a>
     <a class="tab-btn" href="#contacts">${t.tabs.contacts}</a>
   `;
@@ -2987,6 +2169,15 @@ const REVIEWS_BADGE_TEXT = {
 function renderMainTab(lang, t) {
   // TRIMMED for static-first migration: hero (now static, see <main id="static-content">)
   // and renderPricing() (now its own static section) removed from here.
+  // TRIMMED AGAIN 14.09.2026 (site-updates: "very simple main page"):
+  // renderUpcomingEvents() call removed — that's /calendar/ now.
+  // renderAcademyPriorityStrip() call removed — that's on /academy/ now.
+  // The whole "conversion" section (3 card-cta blocks re-pitching
+  // Družina/Walkers registration) removed too — it was pitching the exact
+  // same two things the venture-picker above already pitches, just in
+  // different words further down the page. The one genuinely unique fact
+  // in there (Brno iD vouchers) got moved to the quick-links note instead
+  // of just deleted.
   // Everything below is still genuinely dynamic (i18n-dependent or live-data) and stays JS-rendered.
   return `
   <div class="wrap" style="padding-top:44px;">
@@ -2998,10 +2189,6 @@ function renderMainTab(lang, t) {
         allowfullscreen loading="lazy"></iframe>
     </div>
   </div>
-
-  ${renderUpcomingEvents(lang)}
-
-  ${renderAcademyPriorityStrip(lang)}
 
   ${renderPolicySection(lang)}
 
@@ -3024,44 +2211,6 @@ function renderMainTab(lang, t) {
       <h2 class="anchor-heading">${t.main.matrixH}<a class="anchor-link" href="#matrix-activities">#</a></h2>
       <p class="lead">${t.main.matrixIntro}</p>
       ${renderTable(t.main.headers, t.main.rows)}
-    </div>
-  </section>
-
-  <section id="conversion">
-    <div class="wrap">
-      <h2>${t.main.ctaH}</h2>
-      <p class="lead">${t.main.ctaText}</p>
-      <div class="grid-ctas">        <div class="card-cta">
-          <h3>${t.main.ctas[0][0]}</h3>
-          <p>${t.main.ctas[0][1]}</p>
-          <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            <a class="btn solid" href="${REGISTER_FORM}" target="_blank" rel="noopener">${lang==='ru'?'Записаться':lang==='uk'?'Записатись':lang==='cs'?'Přihlásit se':'Register'}</a>
-            <a class="btn" href="druzina/">${t.ui.openDruzina}</a>
-          </div>
-        </div>
-        <div class="card-cta">
-          <h3>${t.main.ctas[1][0]}</h3>
-          <p>${t.main.ctas[1][1]}</p>
-          <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            <a class="btn solid" href="${REGISTER_FORM}" target="_blank" rel="noopener">${lang==='ru'?'Записаться':lang==='uk'?'Записатись':lang==='cs'?'Přihlásit se':'Register'}</a>
-            <a class="btn" href="walkers/">${t.ui.openWalkers}</a>
-          </div>
-        </div>
-        <div class="card-cta">
-          <h3>${t.main.ctas[2][0]}</h3>
-          <p>${t.main.ctas[2][1]}</p>
-          <p style="font-size:12px; color:var(--r5); margin-top:8px; font-family:var(--font-m);">
-            💰 ${lang==='ru'? 'Brno iD ваучеры покрывают до 80% стоимости (до 4 000 CZK/ребёнок). Найти нас: Aliaksei Chareshneu, IČO 23041625.' :
-               lang==='uk'? 'Brno iD ваучери покривають до 80% вартості (до 4 000 CZK/дитина). Знайти нас: Aliaksei Chareshneu, IČO 23041625.' :
-               lang==='cs'? 'Brno iD vouchery hradí až 80 % nákladů (až 4 000 CZK/dítě). Najít nás: Aliaksei Chareshneu, IČO 23041625.' :
-               'Brno iD vouchers cover up to 80% of costs (up to 4,000 CZK/child). Find us: Aliaksei Chareshneu, IČO 23041625.'}
-          </p>
-          <div style="display:flex; gap:10px; flex-wrap:wrap;">
-            <a class="btn solid hero-icon-btn" href="${PERSONAL_WA}" target="_blank" rel="noopener">${CONTACT_ICONS.whatsapp}<span>${t.hero.cta1}</span></a>
-            <a class="btn hero-icon-btn" href="${PERSONAL_TG}" target="_blank" rel="noopener">${CONTACT_ICONS.telegram}<span>${t.hero.cta2}</span></a>
-          </div>
-        </div>
-      </div>
     </div>
   </section>
   `;
@@ -3747,117 +2896,11 @@ const CANOE_SAFETY = {
 // Underlying data object kept, still referenced elsewhere.
 
 
-const MEDALS = {
-  eyebrow: {ru:'Звания & Медали', en:'Ranks & Medals', cs:'Hodnosti & Medaile', uk:'Звання & Медалі'},
-  title:   {ru:'Система наград BrnoWalkers', en:'BrnoWalkers Reward System', cs:'Systém odměn BrnoWalkers', uk:'Система нагород BrnoWalkers'},
-  refNote: {
-    ru:'1 реферал, пришедший на 2 платных мероприятия = 2 собственных мероприятия в зачёт. Доказательства предоставляет участник самостоятельно.',
-    en:'1 referral who attends 2 paid events = 2 events credited to your count. Participants provide proof themselves.',
-    cs:'1 doporučený, který přijde na 2 placené akce = 2 akce připsané na váš účet. Doklady předkládá účastník sám.',
-    uk:'1 реферал, що прийшов на 2 платних заходи = 2 заходи в залік. Докази надає учасник самостійно.'
-  },
-  levels: [
-    {
-      medal: '⚪',
-      color: '#ccc',
-      title: {ru:'Следопыт', en:'Scout', cs:'Průzkumník', uk:'Слідопит'},
-      req:   {ru:'5 платных мероприятий', en:'5 paid events', cs:'5 placených akcí', uk:'5 платних заходів'},
-      perks: {
-        ru:['Медаль Следопыта', 'Публичное признание в группе'],
-        en:['Scout medal', 'Public recognition in the group'],
-        cs:['Medaile Průzkumníka', 'Veřejné uznání ve skupině'],
-        uk:['Медаль Слідопита', 'Публічне визнання в групі']
-      }
-    },
-    {
-      medal: '⚫',
-      color: '#444',
-      title: {ru:'Ходок', en:'Walker', cs:'Chodec', uk:'Ходок'},
-      req:   {ru:'15 мероприятий (своих + зачётных)', en:'15 events (own + credited)', cs:'15 akcí (vlastní + připsané)', uk:'15 заходів (власних + зарахованих)'},
-      perks: {
-        ru:['Медаль Ходока', 'Приоритетная запись на лимитированные мероприятия за 48ч до открытия — каноэ, пещеры, выезды'],
-        en:['Walker medal', 'Priority registration for limited events 48h before public opening — canoe, caves, expeditions'],
-        cs:['Medaile Chodce', 'Přednostní přihlášení na limitované akce 48h před otevřením — kanoe, jeskyně, výjezdy'],
-        uk:['Медаль Ходока', 'Пріоритетний запис на лімітовані заходи за 48год до відкриття — каное, печери, виїзди']
-      }
-    },
-    {
-      medal: '🥈',
-      color: '#a0a0b0',
-      title: {ru:'Следопыт Моравии', en:'Moravia Scout', cs:'Průzkumník Moravy', uk:'Слідопит Моравії'},
-      req:   {ru:'30 мероприятий (своих + зачётных)', en:'30 events (own + credited)', cs:'30 akcí (vlastní + připsané)', uk:'30 заходів (власних + зарахованих)'},
-      perks: {
-        ru:['Серебряная медаль', 'Одно бесплатное мероприятие в год на выбор', 'Имя на сайте в разделе участников'],
-        en:['Silver medal', 'One free event per year of your choice', 'Name on the website in the members section'],
-        cs:['Stříbrná medaile', 'Jedna bezplatná akce ročně dle výběru', 'Jméno na webu v sekci členů'],
-        uk:['Срібна медаль', 'Один безкоштовний захід на рік на вибір', "Ім'я на сайті в розділі учасників"]
-      }
-    },
-    {
-      medal: '🥇',
-      color: '#c9a84c',
-      title: {ru:'Хранитель Моравии', en:'Guardian of Moravia', cs:'Strážce Moravy', uk:'Хранитель Моравії'},
-      req:   {ru:'60 мероприятий (своих + зачётных)', en:'60 events (own + credited)', cs:'60 akcí (vlastní + připsané)', uk:'60 заходів (власних + зарахованих)'},
-      perks: {
-        ru:[
-          'Золотая медаль',
-          'Место на любом лимитированном мероприятии зарезервировано автоматически — каноэ, пещеры, выезды',
-          'Одно бесплатное мероприятие каждый год',
-          'Право предложить маршрут или формат мероприятия раз в год — если набирается группа, проводим',
-          'Имя и фото на сайте в разделе «Хранители» — видны всем новым участникам',
-          'Роль старшего в группе по желанию с зачётом мероприятий'
-        ],
-        en:[
-          'Gold medal',
-          'A spot at any limited event reserved automatically — canoe, caves, expeditions',
-          'One free event every year',
-          'Right to propose a route or event format once a year — if a group forms, we run it',
-          'Name and photo on the website in the "Guardians" section — visible to all new members',
-          'Optional senior group role with event credits'
-        ],
-        cs:[
-          'Zlatá medaile',
-          'Místo na jakékoli limitované akci rezervováno automaticky — kanoe, jeskyně, výjezdy',
-          'Jedna bezplatná akce každý rok',
-          'Právo navrhnout trasu nebo formát akce jednou ročně — pokud se sestaví skupina, jedeme',
-          'Jméno a foto na webu v sekci „Strážci" — viditelné pro všechny nové účastníky',
-          'Volitelná role vedoucího skupiny se zápisem akcí'
-        ],
-        uk:[
-          'Золота медаль',
-          'Місце на будь-якому лімітованому заході зарезервоване автоматично — каное, печери, виїзди',
-          'Один безкоштовний захід щороку',
-          'Право запропонувати маршрут або формат заходу раз на рік — якщо набирається група, проводимо',
-          "Ім'я та фото на сайті в розділі «Хранителі» — видні всім новим учасникам",
-          'Роль старшого в групі за бажанням із зарахуванням заходів'
-        ]
-      }
-    }
-  ]
-};
-
-function renderMedals(lang) {
-  const d = MEDALS;
-  const cards = d.levels.map(lvl => `
-    <div class="medal-card">
-      <div class="medal-icon">${lvl.medal}</div>
-      <div class="medal-title">${lvl.title[lang]}</div>
-      <div class="medal-req">${lvl.req[lang]}</div>
-      <ul class="medal-perks">
-        ${lvl.perks[lang].map(p => `<li>${p}</li>`).join('')}
-      </ul>
-    </div>`).join('');
-
-  return `
-  <section id="medals">
-    <div class="wrap">
-      <div class="eyebrow-sm">${d.eyebrow[lang]}</div>
-      <h2 class="anchor-heading">${d.title[lang]}<a class="anchor-link" href="#medals">#</a></h2>
-      <div class="medals-grid">${cards}</div>
-      <p class="medals-ref-note">${d.refNote[lang]}</p>
-    </div>
-  </section>`;
-}
+// MEDALS data + renderMedals() removed 14.09.2026 — confirmed dead code
+// (renderMedals was never called anywhere), ~900 lines of unused rank/medal
+// data. Družina already has its own ranks (I-IV) on /druzina/#ranks; if a
+// site-wide achievement system is wanted later, design it fresh rather than
+// reviving this — it predates the /academy/, /walkers/, /druzina/ split.
 
 function injectEventSchema(events) {
   const existing = document.getElementById('event-schema');
