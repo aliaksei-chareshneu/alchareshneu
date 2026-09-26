@@ -3811,12 +3811,11 @@ if(initHash.section) {
   }, 120);
 }
 
-// Тот же /exec URL, что и для приёма вебхука Tally (см. Шаг 8 гайда) —
-// один Web App, doGet() отдаёт публичные данные о событиях, doPost() принимает регистрации.
+// Публичный Apps Script Web App: doGet() отдаёт ближайшие Active-события для сайта.
+// Регистрация участников идёт через постоянную Google Form, ссылка приходит в данных события.
 // Используем JSONP (<script src=...>), а не fetch(), потому что Apps Script Web App
-// отвечает внутренним редиректом на script.googleusercontent.com, и CORS-заголовок
-// не всегда переживает этот редирект. JSONP не подчиняется CORS в принципе.
-const EVENTS_API_URL = 'ВСТАВЬ_СЮДА_URL_ВЕБ_ПРИЛОЖЕНИЯ/exec';
+// отвечает внутренним редиректом на script.googleusercontent.com; JSONP не зависит от CORS.
+const EVENTS_API_URL = 'https://script.google.com/macros/s/AKfycbzKdIEwIF4gH9Cku3IQPC8uTrvR1CtHjMAOIzexrR3Mz9nDSLQ1znfT8Y2SS873jCtsLg/exec';
 
 (function loadEvents() {
   var cbName = '_evCb_' + Date.now();

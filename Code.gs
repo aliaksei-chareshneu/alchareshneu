@@ -1,23 +1,29 @@
 // ====================== CONFIG ======================
 // Заполни эти значения после Шагов 1-4 из гайда
-var TELEGRAM_BOT_TOKEN      = 'ВСТАВЬ_ТОКЕН_БОТА';
-var TELEGRAM_CHANNEL_ID     = '@имя_канала'; // или числовой -100xxxxxxxxxx
-var TELEGRAM_ADMIN_CHAT_ID  = 'ТВОЙ_ЧИСЛОВОЙ_CHAT_ID';
+var TELEGRAM_BOT_TOKEN = PropertiesService.getScriptProperties().getProperty('TELEGRAM_BOT_TOKEN') || '';
+var TELEGRAM_CHANNEL_DRUZINA      = '@druzinamoravy_news';
+var TELEGRAM_CHANNEL_BRNOWALKERS  = '@pochody_brno_news';
+var TELEGRAM_ADMIN_CHAT_ID = PropertiesService.getScriptProperties().getProperty('TELEGRAM_ADMIN_CHAT_ID') || '';
 
-var CALENDAR_ID             = 'xxxxx@group.calendar.google.com';
-var CALENDAR_PUBLIC_LINK    = 'ССЫЛКА_PUBLIC_URL_КАЛЕНДАРЯ';
+var CALENDAR_ID             = '2b87a4e595671b05f82867969757d6c8500733a05a7ebcc77a3c6102b1644757@group.calendar.google.com';
+var CALENDAR_PUBLIC_LINK    = 'https://calendar.google.com/calendar/embed?src=2b87a4e595671b05f82867969757d6c8500733a05a7ebcc77a3c6102b1644757%40group.calendar.google.com';
 
-var TALLY_FORM_ID           = 'ID_ТВОЕЙ_ФОРМЫ';
-var TALLY_WEBHOOK_SECRET    = 'ПРИДУМАЙ_ДЛИННУЮ_СЛУЧАЙНУЮ_СТРОКУ';
+var TALLY_FORM_ID           = 'ID_ТВОЕЙ_ФОРМЫ'; // не используется — doPost ниже больше не вызывается, оставлено нетронутым
+var TALLY_WEBHOOK_SECRET = PropertiesService.getScriptProperties().getProperty('TALLY_WEBHOOK_SECRET') || ''; // не используется, см. выше
+
+// Живая годовая форма регистрации (Google Form) — ОДНА постоянная ссылка на все события.
+// Список дат/поездок внутри формы поддерживаешь сам через свой FormApp-скрипт,
+// добавляя/убирая чекбоксы по мере того как события появляются/проходят.
+var REGISTRATION_FORM_URL   = 'https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform'; // .../forms/d/e/.../viewform
 
 var FACEBOOK_ENABLED        = false; // включишь после App Review
 var FACEBOOK_PAGE_ID        = '';
-var FACEBOOK_PAGE_TOKEN     = '';
+var FACEBOOK_PAGE_TOKEN = PropertiesService.getScriptProperties().getProperty('FACEBOOK_PAGE_TOKEN') || '';
 var FACEBOOK_GRAPH_VERSION  = 'v25.0'; // актуальная версия на момент написания; проверяй на developers.facebook.com/docs/graph-api/changelog ближе к моменту включения FB (после App Review)
 
 var EVENTS_SHEET_NAME        = 'Events';
 var REGISTRATIONS_SHEET_NAME = 'Registrations';
-var SPREADSHEET_ID           = 'ID_ЭТОЙ_ТАБЛИЦЫ'; // из URL таблицы
+var SPREADSHEET_ID           = '1igxEHQ7wFFCoCA9lg4kzT2OoMrVLgbBogfqTxGeUftY'; // из URL таблицы
 
 var SITE_EVENTS_LIMIT         = 6; // сколько ближайших событий отдавать на сайт
 var SITE_EVENTS_CACHE_SECONDS = 300; // кэш ответа doGet, чтобы не дёргать Sheets на каждого посетителя сайта
@@ -115,6 +121,13 @@ function paymentPhrase(category, isFree, price) {
   return price + ' Kč. Оплата: revolut.me/aliaksj5pq';
 }
 
+// Роутинг канала по клубу — без этого все анонсы уходили бы в один канал.
+function getChannelId(community) {
+  if (community === 'Družina Moravy') return TELEGRAM_CHANNEL_DRUZINA;
+  if (community === 'Brnowalkers') return TELEGRAM_CHANNEL_BRNOWALKERS;
+  return TELEGRAM_CHANNEL_DRUZINA; // fallback, если community не распознан
+}
+
 // ====================== СЦЕНАРИЙ 1: EVENT BROADCASTER ======================
 function onStatusChange(e) {
   try {
@@ -158,18 +171,17 @@ function processEventRow(sheet, row, headerMap, forceRetry) {
   var description   = get('Description');
 
   var isFree = (Number(price) === 0);
-  var tallyUrl = 'https://tally.so/r/' + TALLY_FORM_ID +
-    '?event_id=' + encodeURIComponent(eventId) +
-    '&title=' + encodeURIComponent(title) +
-    '&category=' + encodeURIComponent(category) +
-    '&community=' + encodeURIComponent(community) +
-    '&price=' + encodeURIComponent(price) +
-    '&is_free=' + (isFree ? '1' : '0');
+  // Раньше: индивидуальная ссылка на Tally с параметрами конкретного события в URL.
+  // Форма регистрации теперь другая по устройству — один общий годовой список дат,
+  // который ты сам правишь чекбоксами, а не форма на одно событие. Поэтому здесь просто
+  // одна и та же постоянная ссылка для всех событий, без параметров.
+  // Колонку/переменную не переименовывал (Tally_Form_URL, tallyUrl) — не стоит риска.
+  var tallyUrl = REGISTRATION_FORM_URL;
   set('Tally_Form_URL', tallyUrl);
 
   var ce = colorAndEmoji(category, community);
   // Corporate — внутренний учёт (B2B-бронирование, не публичное событие).
-  // Раньше единственной защитой было "не ставь Trigger_Sync для Corporate" — ручная
+  // Раньше единственной задитой было "не ставь Trigger_Sync для Corporate" — ручная
   // дисциплина, которая рано или поздно нарушится. Теперь Corporate идёт через тот же
   // единый вход Trigger_Sync, что и всё остальное, а публичные каналы подавляются
   // самим кодом ниже (Calendar и админ-буфер — всегда, Telegram-канал и Facebook — нет).
@@ -206,7 +218,7 @@ function processEventRow(sheet, row, headerMap, forceRetry) {
         '🗓 ' + startFormatted + '\n' +
         '💰 ' + price + ' Kč\n\n' +
         escapeHtml(description);
-      var tgResp = sendTelegramMessage(TELEGRAM_CHANNEL_ID, channelText, tallyUrl, '📝 Записаться');
+      var tgResp = sendTelegramMessage(getChannelId(community), channelText, tallyUrl, '📝 Записаться');
       set('Telegram_Post_ID', (tgResp && tgResp.result) ? tgResp.result.message_id : '');
     } catch (err) {
       errors.push('Telegram channel: ' + err.message);
@@ -223,7 +235,7 @@ function processEventRow(sheet, row, headerMap, forceRetry) {
         '\nРегистрация: ' + tallyUrl
       : '=== Corporate (внутреннее, НЕ публикуется) ===\n' +
         title + '\n' + startFormatted + ', ' + locationName + '\n' +
-        'Событие добавлено в календарь для учёта. Публичного анонса не было — это ожидаемо.';
+        'Событие добавлено в календаря для чуёта. Публичного анонса не было — это ожидаемо.';
 
     if (isPublicEvent && !FACEBOOK_ENABLED) {
       bufferText += '\n\n=== Facebook (вставить вручную, автопостинг выключен) ===\n' +
@@ -254,7 +266,7 @@ function processEventRow(sheet, row, headerMap, forceRetry) {
   set('Last_Synced_At', new Date());
   if (errors.length > 0) {
     set('Sync_Error', errors.join(' | '));
-    // Status умышленно НЕ трогаем — остаётся Trigger_Sync, видно что цикл не закрылся чисто
+    // Status умышленно НЕ трогаем — остаётся Trigger_Sync, видно что циклы не закрылся чисто
   } else {
     set('Status', 'Active');
     set('Sync_Error', '');
@@ -292,10 +304,10 @@ function postToFacebookPage(message) {
 
 // ====================== СЦЕНАРИЙ 3: ПУБЛИЧНЫЙ API СОБЫТИЙ ДЛЯ САЙТА ======================
 // GET-запрос на тот же Web App URL (без секрета — это публичные данные, которые и так
-// видны в Telegram-канале и в публичном календаре). Отдаёт ближайшие Active-события,
+// видны в Telegram-канале и в публичном календаре). Отдаетс ближайшие Active-события,
 // сайт сам решает, какой картинкой и как их показать (см. index.html).
 //
-// Формат ответа — JSONP (?callback=имяФункции), а не обычный fetch()+JSON.
+// Формат ответа — JSONP (?callback=имяфункции), а не обычный цetch()+JSON.
 // Причина: Apps Script Web App в реальности отвечает HTTP-редиректом на
 // script.googleusercontent.com, и есть задокументированные случаи, когда заголовок
 // Access-Control-Allow-Origin не переживает этот внутренний редирект при кросс-доменном
@@ -365,7 +377,7 @@ function doGet(e) {
   }
 }
 
-// ====================== СЦЕНАРИЙ 2: ПРИЁМ РЕГИСТРАЦИЙ (Tally → Web App) ======================
+// ====================== СЦЕНАРИЙ 2: ПРИБМ РЕГИСТРАЦИЙ (Tally → Web App) ======================
 function doPost(e) {
   try {
     if (e.parameter.secret !== TALLY_WEBHOOK_SECRET) {
@@ -382,7 +394,7 @@ function doPost(e) {
     var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
     var submissionCol = headers.indexOf('Submission_ID');
 
-    // Tally повторяет доставку вебхука (через 5мин/30мин/1ч/6ч/1день), если не получила
+    // Tally повторяет доставку вебхука (через 5 мин/30мин/1ч/6ч/1день), если не получила
     // ответ 2xx за 10 секунд. Если первая попытка на самом деле уже сохранилась,
     // но ответ не дошёл до Tally — это защита от появления дублирующей строки.
     if (submissionId && submissionCol !== -1) {
@@ -458,10 +470,10 @@ function sendEventReminders() {
   var headerMap = getHeaderMap(sheet);
   var rows = sheet.getRange(2, 1, Math.max(sheet.getLastRow() - 1, 1), sheet.getLastColumn()).getValues();
 
-  // Сравниваем календарные даты (Europe/Prague), а не смещение в часах от текущего момента.
+  // Сравниваем календарные даты (Europe/Prague), а не сментие в часах от текущего момента.
   // Раньше окно было "+44ч...+52ч от now" — при ежедневном триггере в 10:00 это на самом деле
-  // ловило события ПОСЛЕЗАВТРА (Ч+2), а не завтра, при этом текст сообщения говорил "завтра".
-  // Сравнение по календарным суткам не зависит от того, в какой час дня сработал триггер
+  // ловило события ПОСЛЕЗАВТРА (ч+2), а не завтра, при этом текст сообщения говорил "завтра".
+  // Сравнение по календарным суткам не зависит от зависит от того, в какой час дня сработал триггer
   // и в какой час начинается само событие.
   var tz = 'Europe/Prague';
   var tomorrow = new Date(Date.now() + 24 * 3600 * 1000);
@@ -492,14 +504,14 @@ function sendEventReminders() {
     var reminderText =
       '⏰ <b>Напоминание — завтра!</b>\n\n' +
       ce.emoji + ' <b>' + escapeHtml(title) + '</b>\n\n' +
-      '📍 ' + escapeHtml(locationName) +
+      '🐡 ' + escapeHtml(locationName) +
       (locationAddr ? '\n📌 ' + escapeHtml(locationAddr) : '') + '\n' +
       '🕐 ' + startStr + '\n' +
       '💰 ' + paymentPhrase(category, isFree, price) + '\n' +
-      '\n🗓 <a href="' + calLink + '">Добавить в календарь</a>';
+      '\n🗓,<a href="' + calLink + '">Добавить в календарь</a>';
 
     try {
-      sendTelegramMessage(TELEGRAM_CHANNEL_ID, reminderText,
+      sendTelegramMessage(getChannelId(community), reminderText,
         tallyUrl || null,
         tallyUrl ? '📝 Ещё не записался?' : null);
     } catch (err) {
@@ -510,7 +522,7 @@ function sendEventReminders() {
 
 // ====================== ОТМЕНА СОБЫТИЯ ======================
 // Вызывается вручную через меню: выдели строку события → Community Hub → Отменить событие.
-// Публикует объявление об отмене в Telegram и переводит Status в Archived.
+// Публикует обявление об отмене в Telegram и переводит Status в Archived.
 function cancelEventFromMenu() {
   var ui = SpreadsheetApp.getUi();
   var sheet = SpreadsheetApp.getActiveSheet();
@@ -543,7 +555,7 @@ function cancelEventFromMenu() {
     var calEventId = get('Calendar_Event_ID');
     if (calEventId) {
       try { Calendar.Events.remove(CALENDAR_ID, calEventId); }
-      catch (err) { /* событие могло уже быть удалено руками — не блокируем отмену из-за этого */ }
+      catch (err) { /* обытие могло уже быть удалено руками — не блокируем отмену из-за этого */ }
     }
   }
 
@@ -557,14 +569,14 @@ function cancelEventFromMenu() {
 
   try {
     if (isPublicEvent) {
-      sendTelegramMessage(TELEGRAM_CHANNEL_ID, cancelText, null, null);
+      sendTelegramMessage(getChannelId(community), cancelText, null, null);
     }
     set('Status', 'Archived');
     set('Sync_Error', 'CANCELLED ' + new Date().toISOString());
     // Инвалидируем кэш сайта чтобы отменённое событие исчезло
     try { CacheService.getScriptCache().remove('site_events_json'); } catch (e) {}
     ui.alert(isPublicEvent
-      ? 'Объявление об отмене опубликовано, событие удалено из календаря. Статус изменён на Archived.'
+      ? 'Обявление об отмене опубликовано, событие удалено из календаря. Статус изменён на Archived.'
       : 'Событие удалено из календаря (без публичного объявления — Corporate). Статус изменён на Archived.');
   } catch (err) {
     ui.alert('Ошибка при публикации: ' + err.message);
@@ -572,8 +584,8 @@ function cancelEventFromMenu() {
 }
 
 // ====================== ПАКЕТ РЕПЕТИТОРСТВА: ВСЕ ЗАНЯТИЯ В КАЛЕНДАРЬ РАЗОМ ======================
-// Даты/время занятий согласовываются с учеником лично (не через Tally) — этот инструмент
-// просто разом создаёт все N событий в календаре, а не по одному вручную.
+// Даты/время занятий согласовываются с учеником (не через Tally) — этот инструмент
+// просто разом создаёт все N события в календаре, а не по одному вручную.
 function createTutoringPackageEvents() {
   var ui = SpreadsheetApp.getUi();
 
@@ -585,7 +597,7 @@ function createTutoringPackageEvents() {
   if (!label) { ui.alert('Не указано имя/предмет — отменено.'); return; }
 
   var datesResp = ui.prompt('Даты занятий',
-    'Через запятую, формат ГГГГ-ММ-ДД ЧЧ:ММ\nПример: 2026-07-10 15:00, 2026-07-14 15:00, 2026-07-17 15:00',
+    'Через запятую, формат GGGG-MM-DD HH:MM:\ЧЧ:ММ\nПример: 2026-07-10 15:00, 2026-07-14 15:00, 2026-07-17 15:00',
     ui.ButtonSet.OK_CANCEL);
   if (datesResp.getSelectedButton() !== ui.Button.OK) return;
 
@@ -606,8 +618,7 @@ function createTutoringPackageEvents() {
       Calendar.Events.insert({
         summary: '📚 ' + label,
         start: { dateTime: toRFC3339(start), timeZone: 'Europe/Prague' },
-        end:   { dateTime: toRFC3339(end),   timeZone: 'Europe/Prague' },
-        colorId: 6 // Tangerine — репетиторство, отдельно от цветов клубных событий
+        end:   { dateTime: toRFC3339(end),   timeZone: 'Europe/Prague' }
       }, CALENDAR_ID);
       created++;
     } catch (err) {
@@ -632,7 +643,7 @@ function cleanupOldRegistrations() {
     if (new Date(retentionVal) < today) {
       sheet.getRange(i + 1, headerMap['Phone_Number']).setValue('—');
       sheet.getRange(i + 1, headerMap['Payment_Reference']).setValue('—');
-      // Поля опекуна — тоже персональные данные (родителя), чистим вместе с остальными
+      // Поля опекуна — тоже персональные (родителя), чистим вместе с остальными
       if (headerMap['Guardian_Name'])  sheet.getRange(i + 1, headerMap['Guardian_Name']).setValue('—');
       if (headerMap['Guardian_Phone']) sheet.getRange(i + 1, headerMap['Guardian_Phone']).setValue('—');
     }
