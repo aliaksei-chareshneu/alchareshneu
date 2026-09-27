@@ -16,10 +16,15 @@ var TALLY_WEBHOOK_SECRET = PropertiesService.getScriptProperties().getProperty('
 // добавляя/убирая чекбоксы по мере того как события появляются/проходят.
 var REGISTRATION_FORM_URL   = 'https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform'; // .../forms/d/e/.../viewform
 
-var FACEBOOK_ENABLED        = false; // включишь после App Review
-var FACEBOOK_PAGE_ID        = '';
-var FACEBOOK_PAGE_TOKEN = PropertiesService.getScriptProperties().getProperty('FACEBOOK_PAGE_TOKEN') || '';
-var FACEBOOK_GRAPH_VERSION  = 'v25.0'; // актуальная версия на момент написания; проверяй на developers.facebook.com/docs/graph-api/changelog ближе к моменту включения FB (после App Review)
+// Facebook Pages autoposting. Credentials are kept only in Script Properties.
+// Per-community keys:
+//   FACEBOOK_PAGE_ID_BRNOWALKERS / FACEBOOK_PAGE_TOKEN_BRNOWALKERS
+//   FACEBOOK_PAGE_ID_DRUZINA     / FACEBOOK_PAGE_TOKEN_DRUZINA
+//   FACEBOOK_PAGE_ID_SHARED      / FACEBOOK_PAGE_TOKEN_SHARED
+// Optional language overrides: FACEBOOK_LANG_BRNOWALKERS / _DRUZINA / _SHARED.
+// Legacy FACEBOOK_PAGE_ID / FACEBOOK_PAGE_TOKEN are still accepted as a fallback.
+var FACEBOOK_ENABLED = String(PropertiesService.getScriptProperties().getProperty('FACEBOOK_ENABLED') || 'false').toLowerCase() === 'true';
+var FACEBOOK_GRAPH_VERSION = 'v26.0';
 
 var EVENTS_SHEET_NAME        = 'Events';
 var REGISTRATIONS_SHEET_NAME = 'Registrations';
@@ -128,6 +133,110 @@ function getChannelId(community) {
   return TELEGRAM_CHANNEL_DRUZINA; // fallback, если community не распознан
 }
 
+
+function getFacebookRoute(community) {
+  var props = PropertiesService.getScriptProperties();
+  var key = 'SHARED';
+  var defaultLang = 'uk';
+  if (community === 'Brnowalkers') {
+    key = 'BRNOWALKERS';
+    defaultLang = 'en';
+  } else if (community === 'Družina Moravy') {
+    key = 'DRUZINA';
+    defaultLang = 'cs';
+  }
+  var knownPageId = '';
+  if (key === 'BRNOWALKERS') knownPageId = '61572333527769';
+  if (key === 'DRUZINA') knownPageId = '61566659360012';
+  return {
+    key: key,
+    lang: props.getProperty('FACEBOOK_LANG_' + key) || defaultLang,
+    pageId: props.getProperty('FACEBOOK_PAGE_ID_' + key) || knownPageId || props.getProperty('FACEBOOK_PAGE_ID') || '',
+    token: props.getProperty('FACEBOOK_PAGE_TOKEN_' + key) || props.getProperty('FACEBOOK_PAGE_TOKEN') || ''
+  };
+}
+
+function translateForSocial(text, targetLang) {
+  text = String(text || '').trim();
+  if (!text) return '';
+  try {
+    return LanguageApp.translate(text, '', targetLang);
+  } catch (err) {
+    console.error('Translation fallback (' + targetLang + '): ' + err);
+    return text;
+  }
+}
+
+function paymentPhraseLocalized(category, isFree, price, lang) {
+  var revolut = 'revolut.me/aliaksj5pq';
+  if (lang === 'cs') {
+    if (category === 'Board Games') {
+      return isFree
+        ? 'Dobrovolný příspěvek — podle uvážení účastníka, přes Revolut: ' + revolut
+        : 'Dobrovolný příspěvek (orientačně ~' + price + ' Kč), přes Revolut: ' + revolut;
+    }
+    if (isFree) return 'Vstup zdarma 🆓';
+    return price + ' Kč. Platba: ' + revolut;
+  }
+  if (lang === 'uk') {
+    if (category === 'Board Games') {
+      return isFree
+        ? 'Добровільний внесок — на розсуд учасника, через Revolut: ' + revolut
+        : 'Добровільний внесок (орієнтовно ~' + price + ' Kč), через Revolut: ' + revolut;
+    }
+    if (isFree) return 'Вхід вільний 🆓';
+    return price + ' Kč. Оплата: ' + revolut;
+  }
+  if (category === 'Board Games') {
+    return isFree
+      ? 'Voluntary contribution — pay what you like via Revolut: ' + revolut
+      : 'Voluntary contribution (suggested ~' + price + ' Kč) via Revolut: ' + revolut;
+  }
+  if (isFree) return 'Free entry 🆓';
+  return price + ' Kč. Payment: ' + revolut;
+}
+
+function socialLabels(lang) {
+  if (lang === 'cs') {
+    return { when: 'Kdy', where: 'Kde', registration: 'Registrace', allEvents: 'Všechny akce' };
+  }
+  if (lang === 'uk') {
+    return { when: 'Коли', where: 'Де', registration: 'Реєстрація', allEvents: 'Усі події' };
+  }
+  return { when: 'When', where: 'Where', registration: 'Registration', allEvents: 'All events' };
+}
+
+function buildFacebookPost(community, category, title, description, startFormatted, locationName, isFree, price, registerUrl) {
+  var route = getFacebookRoute(community);
+  var lang = route.lang;
+  var labels = socialLabels(lang);
+  var translatedTitle = translateForSocial(title, lang);
+  var translatedDescription = translateForSocial(description, lang);
+  var lines = [
+    translatedTitle + ' — ' + community,
+    translatedDescription,
+    labels.when + ': ' + startFormatted,
+    labels.where + ': ' + locationName,
+    paymentPhraseLocalized(category, isFree, price, lang),
+    labels.registration + ': ' + registerUrl,
+    labels.allEvents + ': ' + CALENDAR_PUBLIC_LINK
+  ];
+  return lines.filter(function (x) { return String(x || '').trim() !== ''; }).join('\n');
+}
+
+function buildWhatsAppCopy(category, title, description, startFormatted, locationName, isFree, price, registerUrl) {
+  var titleEn = translateForSocial(title, 'en');
+  var descriptionEn = translateForSocial(description, 'en');
+  return '=== WhatsApp (copy & paste) ===\n' +
+    titleEn + '\n' +
+    (descriptionEn ? descriptionEn + '\n' : '') +
+    'When: ' + startFormatted + '\n' +
+    'Where: ' + locationName + '\n' +
+    paymentPhraseLocalized(category, isFree, price, 'en') + '\n' +
+    'Registration: ' + registerUrl + '\n' +
+    'All events: ' + CALENDAR_PUBLIC_LINK;
+}
+
 // ====================== СЦЕНАРИЙ 1: EVENT BROADCASTER ======================
 function onStatusChange(e) {
   try {
@@ -228,35 +337,26 @@ function processEventRow(sheet, row, headerMap, forceRetry) {
   // --- Telegram: буфер админу (WhatsApp + Facebook-черновик) — всегда, даже для Corporate,
   //     админ должен знать про событие в любом случае, просто без публичной части ---
   try {
+    var fbCopy = isPublicEvent
+      ? buildFacebookPost(community, category, title, description, startFormatted, locationName, isFree, price, tallyUrl)
+      : '';
     var bufferText = isPublicEvent
-      ? '=== WhatsApp (вставить как есть) ===\n' +
-        ce.emoji + ' ' + title + '\n' + startFormatted + ', ' + locationName + '\n' +
-        paymentPhrase(category, isFree, price) +
-        '\nРегистрация: ' + tallyUrl
-      : '=== Corporate (внутреннее, НЕ публикуется) ===\n' +
-        title + '\n' + startFormatted + ', ' + locationName + '\n' +
-        'Событие добавлено в календаря для чуёта. Публичного анонса не было — это ожидаемо.';
-
-    if (isPublicEvent && !FACEBOOK_ENABLED) {
-      bufferText += '\n\n=== Facebook (вставить вручную, автопостинг выключен) ===\n' +
-        title + ' — ' + community + '\n' + description + '\n' +
-        'Когда: ' + startFormatted + '\nГде: ' + locationName + '\n' +
-        paymentPhrase(category, isFree, price) + '\n' +
-        'Регистрация: ' + tallyUrl + '\nВсе события: ' + CALENDAR_PUBLIC_LINK;
-    }
+      ? buildWhatsAppCopy(category, title, description, startFormatted, locationName, isFree, price, tallyUrl) +
+        '\n\n=== Facebook copy (' + getFacebookRoute(community).lang.toUpperCase() + ') ===\n' + fbCopy
+      : '=== Corporate (internal, not published) ===\n' +
+        translateForSocial(title, 'en') + '\n' + startFormatted + ', ' + locationName + '\n' +
+        'The event was added to the calendar only. No public announcement was published.';
     sendTelegramMessage(TELEGRAM_ADMIN_CHAT_ID, bufferText, null, null);
   } catch (err) {
     errors.push('Telegram admin buffer: ' + err.message);
   }
 
-  // --- Facebook (только если включено И событие публичное) ---
+  // --- Facebook Page autopost (official Pages API; Facebook Groups API is not available) ---
   if (isPublicEvent && FACEBOOK_ENABLED) {
     try {
-      var fbText = title + ' — ' + community + '\n' + description + '\n' +
-        'Когда: ' + startFormatted + '\nГде: ' + locationName + '\n' +
-        paymentPhrase(category, isFree, price) + '\n' +
-        'Регистрация: ' + tallyUrl + '\nВсе события: ' + CALENDAR_PUBLIC_LINK;
-      postToFacebookPage(fbText);
+      var fbText = buildFacebookPost(community, category, title, description, startFormatted, locationName, isFree, price, tallyUrl);
+      var fbResp = postToFacebookPage(fbText, community);
+      if (headerMap['Facebook_Post_ID']) set('Facebook_Post_ID', fbResp && fbResp.id ? fbResp.id : '');
     } catch (err) {
       errors.push('Facebook: ' + err.message);
     }
@@ -290,13 +390,33 @@ function sendTelegramMessage(chatId, text, buttonUrl, buttonText) {
   return JSON.parse(resp.getContentText());
 }
 
-function postToFacebookPage(message) {
-  var url = 'https://graph.facebook.com/' + FACEBOOK_GRAPH_VERSION + '/' + FACEBOOK_PAGE_ID + '/feed';
+function postToFacebookPage(message, community) {
+  var route = getFacebookRoute(community);
+  if (!route.pageId || !route.token) {
+    throw new Error('Facebook Page credentials are not configured for ' + community + ' (' + route.key + ')');
+  }
+  var url = 'https://graph.facebook.com/' + FACEBOOK_GRAPH_VERSION + '/' + route.pageId + '/feed';
   var resp = UrlFetchApp.fetch(url, {
     method: 'post',
-    payload: { message: message, access_token: FACEBOOK_PAGE_TOKEN },
+    payload: { message: message, access_token: route.token },
     muteHttpExceptions: true
   });
+  var json = JSON.parse(resp.getContentText());
+  if (json.error) throw new Error(json.error.message);
+  if (resp.getResponseCode() < 200 || resp.getResponseCode() >= 300) {
+    throw new Error('Facebook HTTP ' + resp.getResponseCode());
+  }
+  return json;
+}
+
+function deleteFacebookPost(postId, community) {
+  if (!postId) return;
+  var route = getFacebookRoute(community);
+  if (!route.token) return;
+  var resp = UrlFetchApp.fetch(
+    'https://graph.facebook.com/' + FACEBOOK_GRAPH_VERSION + '/' + encodeURIComponent(postId),
+    { method: 'delete', payload: { access_token: route.token }, muteHttpExceptions: true }
+  );
   var json = JSON.parse(resp.getContentText());
   if (json.error) throw new Error(json.error.message);
   return json;
@@ -556,6 +676,15 @@ function cancelEventFromMenu() {
     if (calEventId) {
       try { Calendar.Events.remove(CALENDAR_ID, calEventId); }
       catch (err) { /* обытие могло уже быть удалено руками — не блокируем отмену из-за этого */ }
+    }
+  }
+
+  // Удаляем Facebook Page post, если он был создан автопостингом.
+  if (headerMap['Facebook_Post_ID']) {
+    var facebookPostId = get('Facebook_Post_ID');
+    if (facebookPostId) {
+      try { deleteFacebookPost(facebookPostId, community); }
+      catch (err) { console.error('Facebook delete failed: ' + err); }
     }
   }
 
