@@ -8,8 +8,9 @@ var TELEGRAM_ADMIN_CHAT_ID = PropertiesService.getScriptProperties().getProperty
 var CALENDAR_ID             = '2b87a4e595671b05f82867969757d6c8500733a05a7ebcc77a3c6102b1644757@group.calendar.google.com';
 var CALENDAR_PUBLIC_LINK    = 'https://calendar.google.com/calendar/embed?src=2b87a4e595671b05f82867969757d6c8500733a05a7ebcc77a3c6102b1644757%40group.calendar.google.com';
 
-var TALLY_FORM_ID           = 'ID_ТВОЕЙ_ФОРМЫ'; // не используется — doPost ниже больше не вызывается, оставлено нетронутым
-var TALLY_WEBHOOK_SECRET = PropertiesService.getScriptProperties().getProperty('TALLY_WEBHOOK_SECRET') || ''; // не используется, см. выше
+// Legacy Tally webhook compatibility. New public registrations use REGISTRATION_FORM_URL below.
+// Keep the secret in Script Properties only; never commit it.
+var TALLY_WEBHOOK_SECRET = PropertiesService.getScriptProperties().getProperty('TALLY_WEBHOOK_SECRET') || '';
 
 // Живая годовая форма регистрации (Google Form) — ОДНА постоянная ссылка на все события.
 // Список дат/поездок внутри формы поддерживаешь сам через свой FormApp-скрипт,
@@ -256,18 +257,17 @@ function onStatusChange(e) {
 }
 
 function processEventRow(sheet, row, headerMap, forceRetry) {
+  var lock = LockService.getDocumentLock();
+  if (!lock.tryLock(5000)) {
+    if (headerMap['Sync_Error']) sheet.getRange(row, headerMap['Sync_Error']).setValue('Sync already running; retry in a moment.');
+    return;
+  }
+  try {
   var get = function (col) { return sheet.getRange(row, headerMap[col]).getValue(); };
   var set = function (col, val) { sheet.getRange(row, headerMap[col]).setValue(val); };
 
-  // Защита от двойной публикации при случайном повторном Trigger_Sync.
-  // Если событие уже синхронизировано (Calendar_Link заполнен) и это не ручной retry —
-  // молча восстанавливаем Status=Active и выходим. Двойной пост в Telegram и Calendar не нужен.
-  if (!forceRetry && headerMap['Calendar_Link'] && get('Calendar_Link')) {
-    set('Status', 'Active');
-    set('Sync_Error', '');
-    return;
-  }
-
+  // Each downstream channel is idempotent below: successful Calendar/Telegram/Facebook
+  // outputs are reused on retry, while only failed/missing outputs are attempted again.
   var eventId      = get('Event_ID');
   var community     = get('Community');
   var category      = get('Category');
@@ -278,6 +278,17 @@ function processEventRow(sheet, row, headerMap, forceRetry) {
   var locationAddr  = get('Location_Address');
   var price         = get('Price_CZK');
   var description   = get('Description');
+
+  var required = {
+    Event_ID: eventId, Community: community, Category: category, Title: title,
+    Start_DateTime: startDT, End_DateTime: endDT, Location_Name: locationName
+  };
+  var missing = Object.keys(required).filter(function (k) { return required[k] === '' || required[k] == null; });
+  if (missing.length) {
+    set('Last_Synced_At', new Date());
+    set('Sync_Error', 'Missing required fields: ' + missing.join(', '));
+    return;
+  }
 
   var isFree = (Number(price) === 0);
   // Раньше: индивидуальная ссылка на Tally с параметрами конкретного события в URL.
@@ -298,29 +309,31 @@ function processEventRow(sheet, row, headerMap, forceRetry) {
   var errors = [];
 
   // --- Google Calendar ---
-  try {
-    var startDate = parseDate(startDT);
-    var endDate   = parseDate(endDT);
-    var startFormatted = formatDateForPost(startDT); // читаемая строка для сообщений
-    var calEvent = {
-      summary: ce.emoji + ' ' + community + ' | ' + title + ' (' + locationName + ')',
-      description: description + '\n\n💰 Цена: ' + price + ' Kč\n📝 Регистрация: ' + tallyUrl,
-      location: locationAddr || locationName,
-      colorId: ce.colorId,
-      start: { dateTime: toRFC3339(startDate), timeZone: 'Europe/Prague' },
-      end:   { dateTime: toRFC3339(endDate),   timeZone: 'Europe/Prague' }
-    };
-    var created = Calendar.Events.insert(calEvent, CALENDAR_ID);
-    set('Calendar_Link', created.htmlLink);
-    // htmlLink — это ссылка для человека (закодированный eid, не годится для API-вызовов).
-    // Для программного удаления события при отмене нужен raw event ID отдельно.
-    if (headerMap['Calendar_Event_ID']) set('Calendar_Event_ID', created.id);
-  } catch (err) {
-    errors.push('Calendar: ' + err.message);
+  var startFormatted = formatDateForPost(startDT);
+  var hasCalendar = (headerMap['Calendar_Event_ID'] && get('Calendar_Event_ID')) ||
+                    (headerMap['Calendar_Link'] && get('Calendar_Link'));
+  if (!hasCalendar) {
+    try {
+      var startDate = parseDate(startDT);
+      var endDate   = parseDate(endDT);
+      var calEvent = {
+        summary: ce.emoji + ' ' + community + ' | ' + title + ' (' + locationName + ')',
+        description: description + '\n\n💰 Цена: ' + price + ' Kč\n📝 Регистрация: ' + tallyUrl,
+        location: locationAddr || locationName,
+        colorId: ce.colorId,
+        start: { dateTime: toRFC3339(startDate), timeZone: 'Europe/Prague' },
+        end:   { dateTime: toRFC3339(endDate),   timeZone: 'Europe/Prague' }
+      };
+      var created = Calendar.Events.insert(calEvent, CALENDAR_ID);
+      set('Calendar_Link', created.htmlLink);
+      if (headerMap['Calendar_Event_ID']) set('Calendar_Event_ID', created.id);
+    } catch (err) {
+      errors.push('Calendar: ' + err.message);
+    }
   }
 
   // --- Telegram: пост в канал (пропускаем для Corporate — это не публичное событие) ---
-  if (isPublicEvent) {
+  if (isPublicEvent && !(headerMap['Telegram_Post_ID'] && get('Telegram_Post_ID'))) {
     try {
       var channelText = ce.emoji + ' <b>' + escapeHtml(title) + '</b>\n\n' +
         '📍 ' + escapeHtml(locationName) + '\n' +
@@ -328,31 +341,34 @@ function processEventRow(sheet, row, headerMap, forceRetry) {
         '💰 ' + price + ' Kč\n\n' +
         escapeHtml(description);
       var tgResp = sendTelegramMessage(getChannelId(community), channelText, tallyUrl, '📝 Записаться');
-      set('Telegram_Post_ID', (tgResp && tgResp.result) ? tgResp.result.message_id : '');
+      set('Telegram_Post_ID', tgResp.result.message_id);
     } catch (err) {
       errors.push('Telegram channel: ' + err.message);
     }
   }
 
-  // --- Telegram: буфер админу (WhatsApp + Facebook-черновик) — всегда, даже для Corporate,
-  //     админ должен знать про событие в любом случае, просто без публичной части ---
-  try {
-    var fbCopy = isPublicEvent
-      ? buildFacebookPost(community, category, title, description, startFormatted, locationName, isFree, price, tallyUrl)
-      : '';
-    var bufferText = isPublicEvent
-      ? buildWhatsAppCopy(category, title, description, startFormatted, locationName, isFree, price, tallyUrl) +
-        '\n\n=== Facebook copy (' + getFacebookRoute(community).lang.toUpperCase() + ') ===\n' + fbCopy
-      : '=== Corporate (internal, not published) ===\n' +
-        translateForSocial(title, 'en') + '\n' + startFormatted + ', ' + locationName + '\n' +
-        'The event was added to the calendar only. No public announcement was published.';
-    sendTelegramMessage(TELEGRAM_ADMIN_CHAT_ID, bufferText, null, null);
-  } catch (err) {
-    errors.push('Telegram admin buffer: ' + err.message);
+  // --- Telegram: буфер админу (WhatsApp + Facebook-черновик) ---
+  if (!(headerMap['Admin_Buffer_Sent_At'] && get('Admin_Buffer_Sent_At'))) {
+    try {
+      var fbCopy = isPublicEvent
+        ? buildFacebookPost(community, category, title, description, startFormatted, locationName, isFree, price, tallyUrl)
+        : '';
+      var bufferText = isPublicEvent
+        ? buildWhatsAppCopy(category, title, description, startFormatted, locationName, isFree, price, tallyUrl) +
+          '\n\n=== Facebook copy (' + getFacebookRoute(community).lang.toUpperCase() + ') ===\n' + fbCopy
+        : '=== Corporate (internal, not published) ===\n' +
+          translateForSocial(title, 'en') + '\n' + startFormatted + ', ' + locationName + '\n' +
+          'The event was added to the calendar only. No public announcement was published.';
+      sendTelegramMessage(TELEGRAM_ADMIN_CHAT_ID, bufferText, null, null);
+      if (headerMap['Admin_Buffer_Sent_At']) set('Admin_Buffer_Sent_At', new Date());
+    } catch (err) {
+      errors.push('Telegram admin buffer: ' + err.message);
+    }
   }
 
   // --- Facebook Page autopost (official Pages API; Facebook Groups API is not available) ---
-  if (isPublicEvent && FACEBOOK_ENABLED) {
+  var hasFacebookPost = headerMap['Facebook_Post_ID'] && get('Facebook_Post_ID');
+  if (isPublicEvent && FACEBOOK_ENABLED && !hasFacebookPost) {
     try {
       var fbText = buildFacebookPost(community, category, title, description, startFormatted, locationName, isFree, price, tallyUrl);
       var fbResp = postToFacebookPage(fbText, community);
@@ -374,6 +390,9 @@ function processEventRow(sheet, row, headerMap, forceRetry) {
     // не ждёт истечения SITE_EVENTS_CACHE_SECONDS (5 мин)
     try { CacheService.getScriptCache().remove('site_events_json'); } catch (e) {}
   }
+  } finally {
+    lock.releaseLock();
+  }
 }
 
 function sendTelegramMessage(chatId, text, buttonUrl, buttonText) {
@@ -387,7 +406,14 @@ function sendTelegramMessage(chatId, text, buttonUrl, buttonText) {
     'https://api.telegram.org/bot' + TELEGRAM_BOT_TOKEN + '/sendMessage',
     { method: 'post', payload: payload, muteHttpExceptions: true }
   );
-  return JSON.parse(resp.getContentText());
+  var code = resp.getResponseCode();
+  var json;
+  try { json = JSON.parse(resp.getContentText()); }
+  catch (err) { throw new Error('Telegram returned invalid JSON (HTTP ' + code + ')'); }
+  if (code < 200 || code >= 300 || !json.ok) {
+    throw new Error('Telegram HTTP ' + code + ': ' + ((json && json.description) || 'unknown error'));
+  }
+  return json;
 }
 
 function postToFacebookPage(message, community) {
@@ -434,7 +460,9 @@ function deleteFacebookPost(postId, community) {
 // fetch() из браузера. Загрузка через <script src="..."> (JSONP) в принципе не подчиняется
 // политике CORS — это не запасной вариант "на всякий случай", а основной маршрут.
 function doGet(e) {
-  var callback = e.parameter.callback;
+  var callback = (e && e.parameter && e.parameter.callback) ? String(e.parameter.callback) : '';
+  // JSONP is executable JavaScript: only allow a simple global function identifier.
+  if (callback && !/^[A-Za-z_$][0-9A-Za-z_$]{0,63}$/.test(callback)) callback = '';
 
   function respond(jsonString) {
     if (callback) {
@@ -493,7 +521,8 @@ function doGet(e) {
 
     return respond(json);
   } catch (err) {
-    return respond(JSON.stringify({ events: [], error: String(err) }));
+    console.error('doGet: ' + err);
+    return respond(JSON.stringify({ events: [], error: 'temporarily_unavailable' }));
   }
 }
 
@@ -504,6 +533,12 @@ function doPost(e) {
       return ContentService.createTextOutput('forbidden').setMimeType(ContentService.MimeType.TEXT);
     }
 
+    var lock = LockService.getScriptLock();
+    if (!lock.tryLock(5000)) {
+      return ContentService.createTextOutput(JSON.stringify({ ok: false, error: 'busy_retry' }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+    try {
     var data = JSON.parse(e.postData.contents);
     var submissionId = (data.data && data.data.submissionId) || '';
     var byLabel = {};
@@ -563,6 +598,9 @@ function doPost(e) {
 
     return ContentService.createTextOutput(JSON.stringify({ ok: true }))
       .setMimeType(ContentService.MimeType.JSON);
+    } finally {
+      lock.releaseLock();
+    }
   } catch (err) {
     console.error('doPost: ' + err);
     return ContentService.createTextOutput(JSON.stringify({ ok: false, error: String(err) }))

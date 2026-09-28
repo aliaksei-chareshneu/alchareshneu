@@ -1,0 +1,71 @@
+name: Site quality
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  static-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify required public pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f index.html
+          test -f academy/index.html
+          test -f walkers/index.html
+          test -f druzina/index.html
+          test -f calendar/index.html
+          test -f styles.css
+          test -f sitemap.xml
+
+      - name: Reject stale production placeholders
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -RInE 'ВСТАВЬ_СЮДА_URL|\[add phone number\]|\[добавить телефон\]|\[doplnit telefon\]|\[додати телефон\]|pochody_brno_new([^s]|$)|150-230-157-71\.sslip\.io'             -- index.html academy calendar druzina walkers; then
+            echo "Stale production placeholder/content found"
+            exit 1
+          fi
+
+      - name: Verify current Druzina pricing
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q '120 Kč' druzina/index.html
+          grep -q '240 Kč' druzina/index.html
+          grep -q '910 Kč' druzina/index.html
+          grep -q '455 Kč' druzina/index.html
+          grep -Eq '2[, ]870 Kč' druzina/index.html
+          grep -Eq '1[, ]435 Kč' druzina/index.html
+          grep -Eq '8[, ]235 Kč' druzina/index.html
+          grep -Eq '4[, ]120 Kč' druzina/index.html
+
+      - name: Validate inline JavaScript syntax
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const files = ['index.html','academy/index.html','calendar/index.html','druzina/index.html','walkers/index.html'];
+          let failed = false;
+          for (const file of files) {
+            const html = fs.readFileSync(file, 'utf8');
+            const re = /<script([^>]*)>([\s\S]*?)<\/script>/gi;
+            let match;
+            while ((match = re.exec(html))) {
+              if (/application\/ld\+json/i.test(match[1]) || /\bsrc\s*=/.test(match[1])) continue;
+              try { new Function(match[2]); }
+              catch (err) {
+                failed = true;
+                console.error(`${file}: ${err.message}`);
+              }
+            }
+          }
+          if (failed) process.exit(1);
+          NODE
