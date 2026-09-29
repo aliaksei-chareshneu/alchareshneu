@@ -54,8 +54,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Spectral:wght=500;600;700&family=Source+Sans+3:wght=400;500;600;700&family=JetBrains+Mono:wght=500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../styles.css">
 
+<link rel="stylesheet" href="../experience.css">
+<script src="../experience.js" defer></script>
 </head>
 <body>
+<a class="skip-link" href="#page-content" data-exp="skip">Skip to content</a>
 <nav class="nav">
   <div class="wrap">
     <div class="brand"><a href="../" style="color:var(--ink);text-decoration:none;">Aliaksei Chareshneu, PhD</a><small data-i18n="nav.brand">Družina Moravy</small></div>
@@ -83,7 +86,7 @@
   </div>
 </div>
 
-<main>
+<main id="page-content">
 <section class="hero" id="druzina">
     <!-- CHARACTER HERO ART — "the Knight" — kept in sync with the
          matching block on the main index.html druzina hero. The ember
@@ -109,7 +112,7 @@
       <h1 data-i18n="hero.name2">Družina Moravy — HEMA Fencing &amp; LARP Club in Brno</h1>
       <p class="tagline" data-i18n="hero.tagline">A club for historical medieval combat, fencing (HEMA), archery, and LARP re-enactment in Brno.</p>
       <p class="hero-mission" data-i18n="hero.mission">Družina Moravy revives the living tradition of Great Moravia — fellowship, craft, and the path from novice to warrior — so that everyone who joins finds roots, mastery, and their people.</p>
-      <a class="reviews-badge" href="https://maps.app.goo.gl/fEbnJHxiVoAx1v498" target="_blank" rel="noopener">⭐ 50+ Google reviews · 5.0</a>
+      <a class="reviews-badge" href="https://maps.app.goo.gl/fEbnJHxiVoAx1v498" target="_blank" rel="noopener">Read Google reviews ↗</a>
 
       <div class="hero-ctas">
         <a class="btn solid plausible-event-name=Register-Druzina" data-i18n="hero.ctaRegister" href="https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog" target="_blank" rel="noopener">Register for training</a>
@@ -120,10 +123,7 @@
         <a class="btn-quiet plausible-event-name=Announce-TG-Druzina" data-i18n="hero.ctaAnnounceTG" href="https://t.me/druzinamoravy_news" target="_blank" rel="noopener">Announcements · Telegram</a>
       </div>
 
-      <div class="hero-testimonial">
-        <p class="quote" data-i18n="hero.testimonialQuote">"Druzhina training feels demanding and honest. I gained new friends and real skills, not just another story."</p>
-        <div class="author" data-i18n="hero.testimonialAuthor">— Ivan, Druzhina Moravy</div>
-      </div>
+
 
       <div class="free-note" data-i18n="hero.freeNote">Your first training costs 120 Kč — a chance to get to know the club. Before it, we'll always ask whether you're planning to train regularly going forward or this is a one-off try out of curiosity — not a test, it just lets the coach pick the right format from the start.</div>
     </div>
@@ -429,7 +429,7 @@
   (function initDruzinaEmbers() {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     var canvas = document.querySelector('.hero-visuals-druzina__canvas');
-    if (!canvas) return;
+    if (!canvas || getComputedStyle(canvas).display === 'none') return;
     var ctx = canvas.getContext('2d');
     if (!ctx) return;
 
@@ -1245,9 +1245,12 @@ function applyTranslations(lang) {
     if (val) el.innerHTML = val;
   });
   document.documentElement.lang = lang;
+  queueMicrotask(() => document.dispatchEvent(new CustomEvent('site:language')));
 }
 
 function detectLang() {
+  const requested = new URLSearchParams(location.search).get('lang');
+  if (['ru','en','cs','uk'].includes(requested)) return requested;
   try {
     const saved = localStorage.getItem('dm_lang');
     if (saved && T[saved]) return saved;

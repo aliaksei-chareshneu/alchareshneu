@@ -89,11 +89,6 @@
     "postalCode": "614 00",
     "addressCountry": "CZ"
   },
-  "geo": {
-    "@type": "GeoCoordinates",
-    "latitude": 49.212,
-    "longitude": 16.631
-  },
   "sameAs": [
     "https://maps.app.goo.gl/fEbnJHxiVoAx1v498",
     "https://www.facebook.com/alexey.chereshnev.3",
@@ -108,8 +103,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Spectral:wght=500;600;700&family=Source+Sans+3:wght=400;500;600;700&family=JetBrains+Mono:wght=500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
 
+<link rel="stylesheet" href="experience.css">
+<script src="experience.js" defer></script>
 </head>
 <body>
+<a class="skip-link" href="#page-content" data-exp="skip">Skip to content</a>
 <audio id="bgAudio" loop preload="none" src="media/ambient.mp3"></audio>
 <nav class="nav">
   <div class="wrap">
@@ -138,10 +136,10 @@
 </nav>
 
 <div class="tabs-bar">
-  <div class="wrap" id="tabsNav"></div>
+  <div class="wrap" id="tabsNav"><a class="tab-btn active" href="./">Home</a><a class="tab-btn" href="walkers/">BrnoWalkers</a><a class="tab-btn" href="academy/">Academy</a><a class="tab-btn" href="druzina/">Družina Moravy</a><a class="tab-btn" href="calendar/">Calendar</a></div>
 </div>
 
-<main id="static-content">
+<main id="page-content">
 
   <section class="hero" id="main">
     <!-- CHARACTER HERO ART — "the Scholar" (Eternal Learning / Academy).
@@ -153,23 +151,12 @@
          the plain <img> fallback-inside-<video> both point at the same
          frame extracted directly from the video's first frame, so there
          is zero flash-of-different-image while the video loads/decodes. -->
-    <div class="hero-visuals hero-visuals-main" aria-hidden="true">
-      <video class="hero-photo hero-photo--video hero-photo--scholar"
-             autoplay muted loop playsinline preload="none"
-             poster="images/hero-scholar.jpg">
-        <source src="images/hero-scholar.mp4" type="video/mp4">
-      </video>
-      <picture>
-        <source srcset="images/hero-scholar.webp" type="image/webp">
-        <img class="hero-photo hero-photo--static hero-photo--scholar"
-             src="images/hero-scholar.jpg" alt="" loading="eager" fetchpriority="high">
-      </picture>
-      <div class="hero-scrim"></div>
-    </div>
+    <div class="hero-visuals hero-visuals-main" aria-hidden="true"><img class="hero-photo" src="images/walkers_group.webp" alt="" width="1280" height="960" fetchpriority="high"><div class="hero-scrim"></div></div>
+
     <div class="wrap">
       <p class="eyebrow" data-i18n="hero.eyebrow">Brno · Movement · Mind</p>
-      <h1 data-i18n="main.title">Step into Great Moravia</h1>
-      <p class="tagline" data-i18n="main.tagline">Historical swordsmanship, craft, and trail expeditions in Brno — built on real 9th-century Slavic heritage, not costume-party fantasy. Full protective gear provided, no membership required to start.</p>
+      <h1 data-exp="homeTitle">Learn. Explore. Find your people.</h1>
+      <p class="tagline" data-exp="homeIntro">Tutoring with Aliaksei Chareshneu, PhD. Hikes with BrnoWalkers. Historical fencing with Družina Moravy. Your next step starts in Brno.</p>
       <a id="heroCta" class="btn solid plausible-event-name=Hero-CTA" href="druzina/#schedule">Reserve Your First Session</a>
       <a class="reviews-badge" href="https://maps.app.goo.gl/fEbnJHxiVoAx1v498" target="_blank" rel="noopener">
         <span class="star">⭐</span><span data-i18n="reviewsBadge">50+ Google reviews · 5.0</span>
@@ -186,11 +173,7 @@
        owner for review/correction. Added 10.09.2026; previously this
        manifesto content had never been integrated into the site despite an
        earlier claim that it had (see HANDOVER.md if that gets logged). -->
-  <section class="mission-strip" aria-label="Our mission">
-    <div class="wrap">
-      <p class="mission-text" data-i18n="main.missionText">We're building living communities in Brno, where anyone new to the city finds their people — through the trails of Moravia and the fellowship of our ancestors — so Brno becomes home, and acquaintances become family.</p>
-    </div>
-  </section>
+
 
   <!-- Trust strip condensed to one line (was 4 icon+text items stacked
        in a grid) — same facts, none dropped, just far less vertical
@@ -198,7 +181,7 @@
        scrolling" — every section above the venture picker needed to get
        smaller for that to be physically possible on a phone. -->
   <section class="trust-strip" aria-label="Credentials and community size">
-    <p class="trust-line">PhD, Biomolecular Chemistry &amp; Bioinformatics (Masaryk University) · Teaching since 2015 · 230+ combined community</p>
+    <p class="trust-line" data-exp="trust">PhD, Biomolecular Chemistry &amp; Bioinformatics (Masaryk University) · Teaching since 2015 · 230+ combined community</p>
   </section>
 
   <!-- VENTURE PICKER — redesigned this session from icon+text cards into
@@ -215,16 +198,16 @@
        valid HTML and browsers handle it unpredictably. -->
   <section class="venture-picker" id="join" aria-label="Choose what you're here for">
     <div class="wrap">
-      <h2 class="visually-hidden">What we offer</h2>
+      <p class="eyebrow-sm" data-exp="chooseEyebrow">ONE CITY. MANY WAYS TO GROW.</p><h2 data-exp="chooseTitle">What brings you here?</h2>
       <div class="venture-grid">
 
         <div class="venture-card-wrap">
           <a class="venture-card" href="academy/">
-            <div class="venture-photo"><img class="photo-slot" src="images/portrait_face.jpg" data-alt="Aliaksei Chareshneu, PhD" alt="Aliaksei Chareshneu, PhD — tutoring" loading="eager"></div>
+            <div class="venture-photo"><img class="photo-slot" src="images/portrait_face.webp" data-alt="Aliaksei Chareshneu, PhD" alt="Aliaksei Chareshneu, PhD — tutoring" loading="lazy" width="640" height="480"></div>
             <div class="venture-card-body">
-              <h3>🎓 Tutoring &amp; Coaching</h3>
-              <p>PhD-level 1-on-1 lessons: sciences, IT, languages, music.</p>
-              <span class="venture-cta">See prices →</span>
+              <h3 data-exp="card0Title">🎓 Tutoring &amp; Coaching</h3>
+              <p data-exp="card0Intro">PhD-level 1-on-1 lessons: sciences, IT, languages, music.</p>
+              <span class="venture-cta" data-exp="card0Cta">See prices →</span>
             </div>
           </a>
           <div class="venture-channels">
@@ -235,11 +218,11 @@
 
         <div class="venture-card-wrap">
           <a class="venture-card" href="walkers/">
-            <div class="venture-photo"><img class="photo-slot" src="images/walkers_group.jpg" data-alt="BrnoWalkers group hike" alt="BrnoWalkers group hike" loading="eager"></div>
+            <div class="venture-photo"><img class="photo-slot" src="images/walkers_group.webp" data-alt="BrnoWalkers group hike" alt="BrnoWalkers group hike" loading="lazy" width="640" height="480"></div>
             <div class="venture-card-body">
-              <h3>🥾 BrnoWalkers</h3>
-              <p>Guided hikes, cave tours &amp; city walks across Moravia.</p>
-              <span class="venture-cta">See upcoming hikes →</span>
+              <h3 data-exp="card1Title">🥾 BrnoWalkers</h3>
+              <p data-exp="card1Intro">Guided hikes, cave tours &amp; city walks across Moravia.</p>
+              <span class="venture-cta" data-exp="card1Cta">See upcoming hikes →</span>
             </div>
           </a>
           <div class="venture-channels">
@@ -250,11 +233,11 @@
 
         <div class="venture-card-wrap">
           <a class="venture-card" href="druzina/">
-            <div class="venture-photo"><img class="photo-slot" src="images/druzina_train.jpg" data-alt="Družina Moravy HEMA training" alt="Družina Moravy HEMA training" loading="eager"></div>
+            <div class="venture-photo"><img class="photo-slot" src="images/druzina_train.webp" data-alt="Družina Moravy HEMA training" alt="Družina Moravy HEMA training" loading="lazy" width="640" height="480"></div>
             <div class="venture-card-body">
-              <h3>⚔️ Družina Moravy</h3>
-              <p>HEMA &amp; LARP club, training 3× a week. First session <span class="trial-price-auto">120 Kč</span>.</p>
-              <span class="venture-cta">See training schedule →</span>
+              <h3 data-exp="card2Title">⚔️ Družina Moravy</h3>
+              <p data-exp="card2Intro">HEMA &amp; LARP club, training 3× a week. First session <span class="trial-price-auto">120 Kč</span>.</p>
+              <span class="venture-cta" data-exp="card2Cta">See training schedule →</span>
             </div>
           </a>
           <div class="venture-channels">
@@ -265,11 +248,11 @@
 
         <div class="venture-card-wrap">
           <a class="venture-card" href="calendar/">
-            <div class="venture-photo"><img class="photo-slot" src="images/main_hero.png" data-alt="Calendar of upcoming events" alt="Calendar of upcoming events" loading="eager"></div>
+            <div class="venture-photo"><img class="photo-slot" src="images/main_hero.webp" data-alt="Calendar of upcoming events" alt="Calendar of upcoming events" loading="lazy" width="640" height="480"></div>
             <div class="venture-card-body">
-              <h3>📅 Calendar</h3>
-              <p>Every open hike and training session, updated live, in one place.</p>
-              <span class="venture-cta">See what's next →</span>
+              <h3 data-exp="card3Title">📅 Calendar</h3>
+              <p data-exp="card3Intro">Every open hike and training session, updated live, in one place.</p>
+              <span class="venture-cta" data-exp="card3Cta">See what's next →</span>
             </div>
           </a>
         </div>
@@ -299,6 +282,11 @@
        venture-picker above is the real "which one do I want" answer;
        this is just a plain-text safety net for anyone who scrolls past
        it looking for prices directly. -->
+<section class="mission-strip" aria-label="Our mission">
+    <div class="wrap">
+      <p class="mission-text" data-i18n="main.missionText">We're building living communities in Brno, where anyone new to the city finds their people — through the trails of Moravia and the fellowship of our ancestors — so Brno becomes home, and acquaintances become family.</p>
+    </div>
+  </section>
   <section id="quick-links" aria-label="Quick links">
     <div class="wrap" style="text-align:center; padding-top:8px; padding-bottom:8px;">
       <p class="note">Full price lists: <a href="academy/">Academy</a> · <a href="druzina/#tariff">Družina Moravy</a> — Schedules: <a href="walkers/">BrnoWalkers</a> · <a href="druzina/#schedule">Družina Moravy</a> · <a href="calendar/">full calendar</a></p>
@@ -327,7 +315,7 @@
         <div class="card-cta">
           <h3 data-i18n="ambassador.academyH">🎓 Academy</h3>
           <p data-i18n="ambassador.academyText">Refer a friend to tutoring, fitness, or any other service: they get −10% on their first booking, you get −10% on your next one.</p>
-          <a class="btn" href="#pricing-loyalty" data-i18n="ambassador.academyLink">See the loyalty programme →</a>
+          <a class="btn" href="academy/#pricing-loyalty" data-i18n="ambassador.academyLink">See the loyalty programme →</a>
         </div>
       </div>
 
@@ -498,14 +486,14 @@
 
 <script>
 // IMAGE PATHS
-const IMG_MAIN_HERO    = 'images/main_hero.png';
-const IMG_BOARDGAMES   = 'images/boardgames.jpg';
-const IMG_DRUZINA_TRAIN= 'images/druzina_train.jpg';
-const IMG_DRUZINA_LARP = 'images/druzina_larp.jpg';
-const IMG_WALKERS_CAVE = 'images/walkers_cave.jpg';
-const IMG_WALKERS_GROUP= 'images/walkers_group.jpg';
-const IMG_PORTRAIT_FACE = 'images/portrait_face.jpg';
-const IMG_PORTRAIT_CAVE = 'images/portrait_cave.jpg';
+const IMG_MAIN_HERO    = 'images/main_hero.webp';
+const IMG_BOARDGAMES   = 'images/boardgames.webp';
+const IMG_DRUZINA_TRAIN= 'images/druzina_train.webp';
+const IMG_DRUZINA_LARP = 'images/druzina_larp.webp';
+const IMG_WALKERS_CAVE = 'images/walkers_cave.webp';
+const IMG_WALKERS_GROUP= 'images/walkers_group.webp';
+const IMG_PORTRAIT_FACE = 'images/portrait_face.webp';
+const IMG_PORTRAIT_CAVE = 'images/portrait_cave.webp';
 const RANKS = [
   { roman:'I',  color:'var(--r1)', dot:'#3a3c41', dotText:'var(--ink-dim)',
     name:{ru:'Отрок',en:'Recruit',cs:'Otrok',uk:'Отрок'},
@@ -943,7 +931,7 @@ en:{
     cta1:'WhatsApp', cta2:'Telegram',
   },
   main:{
-    title:'Step into Great Moravia',
+    title:'Learn. Explore. Find your people.',
     tagline:'Historical swordsmanship, craft, and trail expeditions in Brno — built on real 9th-century Slavic heritage, not costume-party fantasy. Full protective gear provided, no membership required to start.',
     missionText:'We\'re building living communities in Brno, where anyone new to the city finds their people — through the trails of Moravia and the fellowship of our ancestors — so Brno becomes home, and acquaintances become family.',
     aboutH:'Who is Aliaksei Chareshneu?',
@@ -2037,7 +2025,7 @@ function renderTabsNav(lang){
 // Just toggles which tab-bar button looks active — no DOM rebuild.
 // Static-first migration: switchTab() no longer regenerates #app for the
 // clicked tab. All three ventures' core content already exists in the
-// page (see <main id="static-content">) — this only updates the nav
+// page (see <main id="page-content">) — this only updates the nav
 // highlight and scrolls. See INTEGRATION-GUIDE.md for the full rationale
 // (hidden-vs-visible content SEO research) behind dropping the old
 // "swap tab content" model.
@@ -2114,7 +2102,7 @@ const REVIEWS_BADGE_TEXT = {
 };
 
 function renderMainTab(lang, t) {
-  // TRIMMED for static-first migration: hero (now static, see <main id="static-content">)
+  // TRIMMED for static-first migration: hero (now static, see <main id="page-content">)
   // and renderPricing() (now its own static section) removed from here.
   // TRIMMED AGAIN 14.09.2026 (site-updates: "very simple main page"):
   // renderUpcomingEvents() call removed — that's /calendar/ now.
@@ -2589,7 +2577,7 @@ const PRICING = {
 };
 
 // renderPricing() removed — dead code after the static-first migration (real
-// content now lives in <main id="static-content">, no callers left).
+// content now lives in <main id="page-content">, no callers left).
 // Underlying data object kept, still referenced elsewhere.
 
 
@@ -2609,18 +2597,18 @@ const UPCOMING_SECTION_UI = {
 // Картинка по умолчанию для категории события — это знание о файлах сайта,
 // поэтому живёт здесь, а не в Apps Script (который ничего не знает о images/).
 const CATEGORY_IMAGE = {
-  'City Walk':        'images/walkers_group.jpg',
-  'Hike':             'images/walkers_cave.jpg',
-  'Cave Tour':        'images/portrait_cave.jpg',
-  'HEMA Training':    'images/druzina_train.jpg',
-  'LARP Battle':      'images/druzina_larp.jpg',
-  'Board Games':      'images/boardgames.jpg',
-  'Crafting':         'images/druzina_larp.jpg',
-  "Children's Quest": 'images/druzina_larp.jpg',
-  'Corporate':        'images/walkers_group.jpg',
-  'Free Event':       'images/main_hero.png',
+  'City Walk':        'images/walkers_group.webp',
+  'Hike':             'images/walkers_cave.webp',
+  'Cave Tour':        'images/portrait_cave.webp',
+  'HEMA Training':    'images/druzina_train.webp',
+  'LARP Battle':      'images/druzina_larp.webp',
+  'Board Games':      'images/boardgames.webp',
+  'Crafting':         'images/druzina_larp.webp',
+  "Children's Quest": 'images/druzina_larp.webp',
+  'Corporate':        'images/walkers_group.webp',
+  'Free Event':       'images/main_hero.webp',
 };
-const DEFAULT_EVENT_IMAGE = 'images/main_hero.png';
+const DEFAULT_EVENT_IMAGE = 'images/main_hero.webp';
 
 const COMMUNITY_TAG = {
   'Brnowalkers': {ru:'🥾 Брноходцы', en:'🥾 BrnoWalkers', cs:'🥾 BrnoWalkers', uk:'🥾 Брнохідці'},
@@ -2805,7 +2793,7 @@ const EVENT_TYPES = {
 };
 
 // renderEventTypes() removed — dead code after the static-first migration (real
-// content now lives in <main id="static-content">, no callers left).
+// content now lives in <main id="page-content">, no callers left).
 // Underlying data object kept, still referenced elsewhere.
 
 
@@ -2851,7 +2839,7 @@ const CANOE_SAFETY = {
 };
 
 // renderCanoeSafety() removed — dead code after the static-first migration (real
-// content now lives in <main id="static-content">, no callers left).
+// content now lives in <main id="page-content">, no callers left).
 // Underlying data object kept, still referenced elsewhere.
 
 
@@ -2968,7 +2956,7 @@ const STATIC_ADAPTED_I18N = {
   // even at some cost to this object's original "more SEO-adapted"
   // intent for these two specific keys.
   'main.title': {
-    en: 'Step into Great Moravia',
+    en: 'Learn. Explore. Find your people.',
     ru: 'Возрождаем живую традицию Великой Моравии',
     uk: 'Тут ти не сам',
     cs: 'Naše historie, naše město'
@@ -3114,10 +3102,10 @@ function applyTranslations(lang) {
 // its own small lookup + setter rather than bolting attribute-switching
 // onto the generic data-i18n system for one element.
 const HERO_CTA = {
-  en:{text:'Reserve Your First Session', href:'druzina/#schedule'},
-  cs:{text:'Zjistit, kdy trénujeme', href:'druzina/#schedule'},
-  ru:{text:'Записаться на первое занятие', href:'druzina/#schedule'},
-  uk:{text:'Приєднатися безкоштовно', href:'walkers/'}
+  en:{text:'Find your next step', href:'#join'},
+  cs:{text:'Vyber si svůj směr', href:'#join'},
+  ru:{text:'Выбрать направление', href:'#join'},
+  uk:{text:'Обрати напрям', href:'#join'}
 };
 function updateHeroCta(lang) {
   const el = document.getElementById('heroCta');
@@ -3131,6 +3119,7 @@ function render(lang){
   currentLang = lang;
   const t = T[lang];
   document.documentElement.lang = lang;
+  queueMicrotask(() => document.dispatchEvent(new CustomEvent('site:language')));
   document.title = t.meta.title;
   document.getElementById('navBrand').innerHTML = t.nav.brand + `<small>${t.nav.sub}</small>`;
 
@@ -3217,7 +3206,7 @@ function render(lang){
   // dedicated JS needed.
 
   // observeLadder() removed — the rank ladder is now a static table (see
-  // <main id="static-content">, id="ranks"), not the animated .ladder
+  // <main id="page-content">, id="ranks"), not the animated .ladder
   // element that function watched for.
 }
 
@@ -3438,6 +3427,8 @@ function drawDruzinaParticles(ctx, bounds, particles){
 }
 
 function detectLang(){
+  const requested = new URLSearchParams(location.search).get('lang');
+  if (['ru','en','cs','uk'].includes(requested)) return requested;
   try{
     const saved = localStorage.getItem('dm_lang');
     if(saved && T[saved]) return saved;

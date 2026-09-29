@@ -529,7 +529,7 @@ function doGet(e) {
 // ====================== СЦЕНАРИЙ 2: ПРИБМ РЕГИСТРАЦИЙ (Tally → Web App) ======================
 function doPost(e) {
   try {
-    if (e.parameter.secret !== TALLY_WEBHOOK_SECRET) {
+    if (!TALLY_WEBHOOK_SECRET || !e || !e.parameter || e.parameter.secret !== TALLY_WEBHOOK_SECRET) {
       return ContentService.createTextOutput('forbidden').setMimeType(ContentService.MimeType.TEXT);
     }
 
@@ -539,8 +539,10 @@ function doPost(e) {
         .setMimeType(ContentService.MimeType.JSON);
     }
     try {
+    if (!e.postData || typeof e.postData.contents !== 'string' || e.postData.contents.length > 1000000) throw new Error('Invalid webhook body');
     var data = JSON.parse(e.postData.contents);
     var submissionId = (data.data && data.data.submissionId) || '';
+    if (typeof submissionId !== 'string' || !submissionId || !Array.isArray(data.data.fields)) throw new Error('Missing submission identity or fields');
     var byLabel = {};
     (data.data && data.data.fields || []).forEach(function (f) { byLabel[f.label] = f.value; });
 
@@ -548,6 +550,7 @@ function doPost(e) {
     var sheet = ss.getSheetByName(REGISTRATIONS_SHEET_NAME);
     var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
     var submissionCol = headers.indexOf('Submission_ID');
+    if (submissionCol === -1) throw new Error('Submission_ID column is required for deduplication');
 
     // Tally повторяет доставку вебхука (через 5 мин/30мин/1ч/6ч/1день), если не получила
     // ответ 2xx за 10 секунд. Если первая попытка на самом деле уже сохранилась,
@@ -594,6 +597,10 @@ function doPost(e) {
         default: return '';
       }
     });
+    // Untrusted webhook text must never become a spreadsheet formula.
+    newRow = newRow.map(function (value) {
+      return typeof value === 'string' && /^[=+@-]/.test(value) ? "'" + value : value;
+    });
     sheet.appendRow(newRow);
 
     return ContentService.createTextOutput(JSON.stringify({ ok: true }))
@@ -603,7 +610,7 @@ function doPost(e) {
     }
   } catch (err) {
     console.error('doPost: ' + err);
-    return ContentService.createTextOutput(JSON.stringify({ ok: false, error: String(err) }))
+    return ContentService.createTextOutput(JSON.stringify({ ok: false, error: 'invalid_request' }))
       .setMimeType(ContentService.MimeType.JSON);
   }
 }

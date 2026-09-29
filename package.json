@@ -1,0 +1,13 @@
+{
+  "name": "brno-ecosystem-site",
+  "private": true,
+  "scripts": {
+    "test": "playwright test",
+    "test:dom": "node scripts/dom-check.cjs",
+    "test:security": "node scripts/security-check.cjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.51.1",
+    "jsdom": "^26.0.0"
+  }
+}

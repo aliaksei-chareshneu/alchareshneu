@@ -48,8 +48,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Spectral:wght=500;600;700&family=Source+Sans+3:wght=400;500;600;700&family=JetBrains+Mono:wght=500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../styles.css">
 
+<link rel="stylesheet" href="../experience.css">
+<script src="../experience.js" defer></script>
 </head>
 <body>
+<a class="skip-link" href="#page-content" data-exp="skip">Skip to content</a>
 <nav class="nav">
   <div class="wrap">
     <div class="brand"><a href="../" style="color:var(--ink);text-decoration:none;">Aliaksei Chareshneu, PhD</a><small data-i18n="nav.brand">Eternal Learning Academy</small></div>
@@ -76,14 +79,14 @@
 <div class="tabs-bar">
   <div class="wrap">
     <a class="tab-btn" href="../" data-i18n="tabs.main">Home</a>
-    <a class="tab-btn active" href="./" data-i18n="tabs.walkers">BrnoWalkers</a>
-    <a class="tab-btn" href="../academy/" data-i18n="tabs.academy">Academy</a>
+    <a class="tab-btn" href="../walkers/" data-i18n="tabs.walkers">BrnoWalkers</a>
+    <a class="tab-btn active" aria-current="page" href="../academy/" data-i18n="tabs.academy">Academy</a>
     <a class="tab-btn" href="../druzina/" data-i18n="tabs.druzina">Družina Moravy</a>
     <a class="tab-btn" href="../calendar/" data-i18n="tabs.calendar">Calendar</a>
   </div>
 </div>
 
-<main>
+<main id="page-content">
 <section class="hero" id="academy">
     <!-- CHARACTER HERO ART — "the Scholar" — was previously only on the
          main hub hero (comment there: "Eternal Learning / Academy"); this
@@ -91,7 +94,7 @@
          on desktop, static frame on mobile — see styles.css. -->
     <div class="hero-visuals hero-visuals-main" aria-hidden="true">
       <video class="hero-photo hero-photo--video hero-photo--scholar"
-             autoplay muted loop playsinline preload="none"
+             muted loop playsinline preload="none"
              poster="../images/hero-scholar.jpg">
         <source src="../images/hero-scholar.mp4" type="video/mp4">
       </video>
@@ -107,7 +110,7 @@
       <p class="eyebrow" data-i18n="academy.eyebrow">PhD-Level Tutoring &amp; Coaching</p>
       <h1 data-i18n="academy.title2">Eternal Learning Academy — Tutoring, Fitness &amp; Coaching in Brno</h1>
       <p class="tagline" data-i18n="academy.tagline">Sciences, IT, and languages taught by a PhD — plus fitness, nutrition, life coaching, private guided tours, IT security cleanup and expat support. One person, nine ways to help.</p>
-      <a class="reviews-badge" href="https://maps.app.goo.gl/fEbnJHxiVoAx1v498" target="_blank" rel="noopener">⭐ 50+ Google reviews · 5.0</a>
+      <a class="reviews-badge" href="https://maps.app.goo.gl/fEbnJHxiVoAx1v498" target="_blank" rel="noopener">Read Google reviews ↗</a>
 
       <div class="hero-ctas">
         <a class="btn solid plausible-event-name=Register-Academy" data-i18n="academy.ctaRegister" href="https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog" target="_blank" rel="noopener">Book a session</a>
@@ -517,9 +520,12 @@ function applyTranslations(lang) {
     if (val) el.innerHTML = val;
   });
   document.documentElement.lang = lang;
+  queueMicrotask(() => document.dispatchEvent(new CustomEvent('site:language')));
 }
 
 function detectLang() {
+  const requested = new URLSearchParams(location.search).get('lang');
+  if (['ru','en','cs','uk'].includes(requested)) return requested;
   try {
     const saved = localStorage.getItem('dm_lang');
     if (saved && T[saved]) return saved;

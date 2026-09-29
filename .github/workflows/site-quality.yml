@@ -69,3 +69,25 @@ jobs:
           }
           if (failed) process.exit(1);
           NODE
+
+  browser-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:security
+      - run: npm run test:dom
+      - run: npm test
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: browser-regression
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7

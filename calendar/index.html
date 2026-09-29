@@ -46,8 +46,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Spectral:wght=500;600;700&family=Source+Sans+3:wght=400;500;600;700&family=JetBrains+Mono:wght=500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../styles.css">
 
+<link rel="stylesheet" href="../experience.css">
+<script src="../experience.js" defer></script>
 </head>
 <body>
+<a class="skip-link" href="#page-content" data-exp="skip">Skip to content</a>
 <nav class="nav">
   <div class="wrap">
     <div class="brand"><a href="../" style="color:var(--ink);text-decoration:none;">Aliaksei Chareshneu, PhD</a><small data-i18n="nav.brand">Calendar</small></div>
@@ -74,14 +77,14 @@
 <div class="tabs-bar">
   <div class="wrap">
     <a class="tab-btn" href="../" data-i18n="tabs.main">Home</a>
-    <a class="tab-btn active" href="./" data-i18n="tabs.walkers">BrnoWalkers</a>
+    <a class="tab-btn" href="../walkers/" data-i18n="tabs.walkers">BrnoWalkers</a>
     <a class="tab-btn" href="../academy/" data-i18n="tabs.academy">Academy</a>
     <a class="tab-btn" href="../druzina/" data-i18n="tabs.druzina">Družina Moravy</a>
-    <a class="tab-btn" href="../calendar/" data-i18n="tabs.calendar">Calendar</a>
+    <a class="tab-btn active" aria-current="page" href="../calendar/" data-i18n="tabs.calendar">Calendar</a>
   </div>
 </div>
 
-<main>
+<main id="page-content">
 <section class="hero" id="calendar">
     <div class="wrap">
       <p class="eyebrow" data-i18n="cal.eyebrow">Everything, One Place</p>
@@ -99,7 +102,7 @@
   </section>
 <section id="calendar-events">
     <div class="wrap">
-      <div id="calEventsBody"><div class="events-status">Loading upcoming events…</div></div>
+      <div id="calEventsBody" aria-busy="true"><div class="events-status">Loading upcoming events…</div></div>
     </div>
   </section>
 </main>
@@ -251,9 +254,12 @@ function applyTranslations(lang) {
     if (val) el.innerHTML = val;
   });
   document.documentElement.lang = lang;
+  queueMicrotask(() => document.dispatchEvent(new CustomEvent('site:language')));
 }
 
 function detectLang() {
+  const requested = new URLSearchParams(location.search).get('lang');
+  if (['ru','en','cs','uk'].includes(requested)) return requested;
   try {
     const saved = localStorage.getItem('dm_lang');
     if (saved && T[saved]) return saved;
@@ -295,6 +301,7 @@ function render(lang) {
 //     the subscribe-card + embedded calendar, same as on the main page. ---
 const CALENDAR_SUBSCRIBE_LINK = 'https://calendar.google.com/calendar/u/0/newembed?src=2b87a4e595671b05f82867969757d6c8500733a05a7ebcc77a3c6102b1644757@group.calendar.google.com&ctz=Europe/Prague';
 let LIVE_EVENTS = null;
+let EVENT_STATUS = "loading";
 
 function escapeText(value) {
   return String(value == null ? '' : value)
@@ -313,13 +320,13 @@ function safeImageFile(value) {
 }
 
 const CATEGORY_IMAGE = {
-  'City Walk': '../images/walkers_group.jpg', 'Hike': '../images/walkers_cave.jpg',
-  'Cave Tour': '../images/portrait_cave.jpg', 'HEMA Training': '../images/druzina_train.jpg',
-  'LARP Battle': '../images/druzina_larp.jpg', 'Board Games': '../images/boardgames.jpg',
-  'Crafting': '../images/druzina_larp.jpg', "Children's Quest": '../images/druzina_larp.jpg',
-  'Corporate': '../images/walkers_group.jpg', 'Free Event': '../images/main_hero.png',
+  'City Walk': '../images/walkers_group.webp', 'Hike': '../images/walkers_cave.webp',
+  'Cave Tour': '../images/portrait_cave.webp', 'HEMA Training': '../images/druzina_train.webp',
+  'LARP Battle': '../images/druzina_larp.webp', 'Board Games': '../images/boardgames.webp',
+  'Crafting': '../images/druzina_larp.webp', "Children's Quest": '../images/druzina_larp.webp',
+  'Corporate': '../images/walkers_group.webp', 'Free Event': '../images/main_hero.webp',
 };
-const DEFAULT_EVENT_IMAGE = '../images/main_hero.png';
+const DEFAULT_EVENT_IMAGE = '../images/main_hero.webp';
 const COMMUNITY_TAG = {
   'Brnowalkers': {ru:'🥾 Брноходцы', en:'🥾 BrnoWalkers', cs:'🥾 BrnoWalkers', uk:'🥾 Брнохідці'},
   'Družina Moravy': {ru:'⚔️ Дружина', en:'⚔️ Družina', cs:'⚔️ Družina', uk:'⚔️ Дружина'},
@@ -329,7 +336,7 @@ function formatEventDate(iso, lang) {
   const localeMap = {ru:'ru-RU', en:'en-GB', cs:'cs-CZ', uk:'uk-UA'};
   try {
     return new Intl.DateTimeFormat(localeMap[lang] || 'en-GB', {
-      weekday:'short', day:'numeric', month:'long', timeZone: 'Europe/Prague'
+      weekday:'short', day:'numeric', month:'long', hour:'2-digit', minute:'2-digit', timeZone: 'Europe/Prague'
     }).format(new Date(iso));
   } catch (e) { return iso; }
 }
@@ -341,11 +348,20 @@ function renderEvents(lang) {
   const el = document.getElementById('calEventsBody');
   if (!el) return;
 
+  const emptyCopy = {
+    en:['Your next plan starts here','New dates appear in the calendar and announcement channels. Check regular training or follow the next hike.','The event list is temporarily unavailable. Check the public calendar or announcements for current dates.','Training schedule','BrnoWalkers announcements','Družina announcements'],
+    ru:['Планируй следующую встречу','Новые даты появляются в календаре и каналах анонсов. Посмотри расписание тренировок или подпишись на походы.','Список событий временно недоступен. Актуальные даты — в публичном календаре и анонсах.','Расписание тренировок','Анонсы BrnoWalkers','Анонсы Družina'],
+    cs:['Naplánuj si další setkání','Nové termíny najdeš v kalendáři a oznámeních. Prohlédni si pravidelné tréninky nebo sleduj další výlet.','Seznam akcí je dočasně nedostupný. Aktuální termíny najdeš ve veřejném kalendáři a oznámeních.','Rozvrh tréninků','Oznámení BrnoWalkers','Oznámení Družiny'],
+    uk:['Плануй наступну зустріч','Нові дати з’являються в календарі й каналах анонсів. Переглянь розклад тренувань або підпишись на походи.','Список подій тимчасово недоступний. Актуальні дати — у публічному календарі й анонсах.','Розклад тренувань','Анонси BrnoWalkers','Анонси Družina']
+  }[lang] || [];
+  el.setAttribute('aria-busy', String(LIVE_EVENTS === null));
+  el.dataset.eventStatus = EVENT_STATUS;
   if (LIVE_EVENTS === null) {
     el.innerHTML = `<div class="events-status">${t.cal.loading}</div>`;
   } else if (LIVE_EVENTS.length === 0) {
     el.innerHTML = `
       <div class="events-empty-stack">
+        <div class="events-empty-message"><h2>${emptyCopy[0]}</h2><p role="status">${emptyCopy[EVENT_STATUS === 'error' ? 2 : 1]}</p><div class="events-empty-actions"><a class="btn" href="../druzina/#schedule">${emptyCopy[3]}</a><a class="btn" href="https://t.me/pochody_brno_news" target="_blank" rel="noopener">${emptyCopy[4]}</a><a class="btn" href="https://t.me/druzinamoravy_news" target="_blank" rel="noopener">${emptyCopy[5]}</a></div></div>
         <div class="calendar-cta-empty">
           <a class="btn solid calendar-cta-btn" href="${CALENDAR_SUBSCRIBE_LINK}" target="_blank" rel="noopener">${t.cal.ctaSubscribe}</a>
         </div>
@@ -361,23 +377,23 @@ function renderEvents(lang) {
     const donationLabel = {ru:'🤝 Добровольный взнос', en:'🤝 Voluntary contribution', cs:'🤝 Dobrovolný příspěvek', uk:'🤝 Добровільний внесок'}[lang];
     const cards = LIVE_EVENTS.map(ev => {
       const imageOverride = safeImageFile(ev.imageOverride);
-      const img = imageOverride ? `../images/${imageOverride}` : (CATEGORY_IMAGE[ev.category] || DEFAULT_EVENT_IMAGE);
+      const img = imageOverride ? `../images/${imageOverride}` : (Object.hasOwn(CATEGORY_IMAGE, ev.category) ? CATEGORY_IMAGE[ev.category] : DEFAULT_EVENT_IMAGE);
       const title = escapeText(ev.title);
       const description = escapeText(ev.description);
       const locationName = escapeText(ev.locationName);
-      const registerUrl = safeHttpsUrl(ev.registerUrl, '../');
-      const tag = (COMMUNITY_TAG[ev.community] || COMMUNITY_TAG['Shared'])[lang];
+      const registerUrl = safeHttpsUrl(ev.registerUrl, document.querySelector('#navBookBtn').href);
+      const tag = (Object.hasOwn(COMMUNITY_TAG, ev.community) ? COMMUNITY_TAG[ev.community] : COMMUNITY_TAG['Shared'])[lang];
       const dateStr = formatEventDate(ev.startISO, lang);
       const priceBlock = ev.category === 'Board Games'
         ? `<span class="eu-price donation">${donationLabel}${ev.priceCzk > 0 ? ' (~' + ev.priceCzk + ' Kč)' : ''}</span>`
         : ev.isFree ? `<span class="eu-price free">${freeLabel}</span>`
-        : `<span class="eu-price">${ev.priceCzk} Kč</span>`;
+        : `<span class="eu-price">${ev.priceCzk === null ? ({en:'Confirm price',ru:'Уточни цену',cs:'Ověř cenu',uk:'Уточни ціну'}[lang]) : ev.priceCzk + ' Kč'}</span>`;
       return `
       <div class="event-upcoming-card">
         <div class="eu-img"><img src="${img}" alt="${title}" loading="lazy" decoding="async"></div>
         <div class="eu-body">
           <div class="eu-tag">${tag}</div>
-          <div class="eu-date">${dateStr}</div>
+          <time class="eu-date" datetime="${escapeText(ev.startISO)}">${dateStr}</time>
           <h3 class="eu-title">${title}</h3>
           <p class="eu-desc">${description}</p>
           <div class="eu-price-row">
@@ -386,7 +402,7 @@ function renderEvents(lang) {
           </div>
           <div class="eu-ctas">
             <a class="btn solid" href="${registerUrl}" target="_blank" rel="noopener">${regLabel}</a>
-            <a class="btn" href="https://revolut.me/aliaksj5pq" target="_blank" rel="noopener">${otherServicesLabel}</a>
+            <a class="btn" href="../academy/">${otherServicesLabel}</a>
           </div>
         </div>
       </div>`;
@@ -403,28 +419,34 @@ const EVENTS_API_URL = 'https://script.google.com/macros/s/AKfycbzKdIEwIF4gH9Cku
   var cbName = '_evCb_' + Date.now();
   var script = document.createElement('script');
   var fallbackTimer = setTimeout(function () {
+    EVENT_STATUS = 'error';
     LIVE_EVENTS = [];
     renderEvents(currentLang);
   }, 12000);
   var cleanupTimer = setTimeout(function () {
-    delete window[cbName];
+    window[cbName] = function () {};
     if (script.parentNode) script.parentNode.removeChild(script);
   }, 60000);
   window[cbName] = function (data) {
     clearTimeout(fallbackTimer);
     clearTimeout(cleanupTimer);
-    LIVE_EVENTS = Array.isArray(data && data.events) ? data.events : [];
+    EVENT_STATUS = !data || data.error || !Array.isArray(data.events) ? 'error' : 'ready';
+    LIVE_EVENTS = (Array.isArray(data && data.events) ? data.events : [])
+      .filter(ev => ev && typeof ev === 'object' && typeof ev.title === 'string' && ev.title.trim() && Number.isFinite(Date.parse(ev.startISO)) && Date.parse(ev.startISO) >= Date.now())
+      .map(ev => ({...ev, title:ev.title.slice(0,200), description:String(ev.description || '').slice(0,3000), locationName:String(ev.locationName || '').slice(0,300), priceCzk:ev.priceCzk !== null && ev.priceCzk !== undefined && String(ev.priceCzk).trim() !== '' && Number.isFinite(Number(ev.priceCzk)) && Number(ev.priceCzk)>=0 ? Number(ev.priceCzk) : null, isFree:ev.isFree===true}))
+      .sort((a,b)=>Date.parse(a.startISO)-Date.parse(b.startISO)).slice(0,30);
     renderEvents(currentLang);
-    delete window[cbName];
+    window[cbName] = function () {};
     if (script.parentNode) script.parentNode.removeChild(script);
   };
   script.src = EVENTS_API_URL + '?callback=' + encodeURIComponent(cbName);
   script.onerror = function () {
     clearTimeout(fallbackTimer);
     clearTimeout(cleanupTimer);
+    EVENT_STATUS = 'error';
     LIVE_EVENTS = [];
     renderEvents(currentLang);
-    delete window[cbName];
+    window[cbName] = function () {};
     if (script.parentNode) script.parentNode.removeChild(script);
   };
   document.head.appendChild(script);

@@ -50,8 +50,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Spectral:wght=500;600;700&family=Source+Sans+3:wght=400;500;600;700&family=JetBrains+Mono:wght=500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../styles.css">
 
+<link rel="stylesheet" href="../experience.css">
+<script src="../experience.js" defer></script>
 </head>
 <body>
+<a class="skip-link" href="#page-content" data-exp="skip">Skip to content</a>
 <nav class="nav">
   <div class="wrap">
     <div class="brand"><a href="../" style="color:var(--ink);text-decoration:none;">Aliaksei Chareshneu, PhD</a><small data-i18n="nav.brand">BrnoWalkers</small></div>
@@ -78,14 +81,14 @@
 <div class="tabs-bar">
   <div class="wrap">
     <a class="tab-btn" href="../" data-i18n="tabs.main">Home</a>
-    <a class="tab-btn active" href="./" data-i18n="tabs.walkers">BrnoWalkers</a>
+    <a class="tab-btn active" aria-current="page" href="../walkers/" data-i18n="tabs.walkers">BrnoWalkers</a>
     <a class="tab-btn" href="../academy/" data-i18n="tabs.academy">Academy</a>
     <a class="tab-btn" href="../druzina/" data-i18n="tabs.druzina">Družina Moravy</a>
     <a class="tab-btn" href="../calendar/" data-i18n="tabs.calendar">Calendar</a>
   </div>
 </div>
 
-<main>
+<main id="page-content">
 <section class="hero" id="walkers">
     <!-- CHARACTER HERO ART — "the Ranger" — kept in sync with the
          matching block on the main index.html walkers hero. -->
@@ -103,7 +106,7 @@
       <h1 data-i18n="walkers.title2">BrnoWalkers — Guided Hikes, Cave Tours &amp; City Walks in Moravia</h1>
       <p class="tagline" data-i18n="walkers.tagline">Pedestrian tourism, hiking, rock climbing, and exploring the best spots in Moravia with great company.</p>
       <p class="hero-mission" data-i18n="walkers.missionText">BrnoWalkers make Moravia their own — step by step, we discover the city and the region together, so Brno becomes home and fellow travelers become family.</p>
-      <a class="reviews-badge" href="https://maps.app.goo.gl/fEbnJHxiVoAx1v498" target="_blank" rel="noopener">⭐ 50+ Google reviews · 5.0</a>
+      <a class="reviews-badge" href="https://maps.app.goo.gl/fEbnJHxiVoAx1v498" target="_blank" rel="noopener">Read Google reviews ↗</a>
 
       <div class="hero-ctas">
         <a class="btn solid plausible-event-name=Register-Walkers" data-i18n="hero.ctaRegister" href="https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog" target="_blank" rel="noopener">Register for an event</a>
@@ -114,10 +117,7 @@
         <a class="btn-quiet plausible-event-name=Announce-TG-Walkers" data-i18n="hero.ctaAnnounceTG" href="https://t.me/pochody_brno_news" target="_blank" rel="noopener">Announcements · Telegram</a>
       </div>
 
-      <div class="hero-testimonial">
-        <p class="quote" data-i18n="hero.testimonialQuote">"Great walks, clear guidance, and zero pressure. A perfect weekend reset with people who actually enjoy exploring Moravia."</p>
-        <div class="author" data-i18n="hero.testimonialAuthor">— Marina, BrnoWalkers</div>
-      </div>
+
     </div>
   </section>
 <section id="event-types">
@@ -170,13 +170,13 @@
       <div class="eyebrow-sm">About</div>
       <h3 class="anchor-heading">About BrnoWalkers<a class="anchor-link" href="#walkers-about">#</a></h3>
       <div class="portrait-block">
-        <img class="photo-slot" src="../images/portrait_cave.jpg" alt="Aliaksei — your hiking guide" loading="lazy"
+        <img class="photo-slot" src="../images/portrait_cave.webp" alt="Aliaksei — your hiking guide" loading="lazy"
              onerror="this.setAttribute('data-alt', this.alt); this.classList.add('img-fallback'); this.removeAttribute('src');">
         <p class="portrait-text">I'm Aliaksei — I've been personally leading these hikes for several years. I know every trail, every cave, and exactly what's worth looking up at along the way.</p>
       </div>
       <p>BrnoWalkers is an open community for people who love movement. We regularly organize walking trips around Brno and across the Czech Republic (Babi Lom, Praděd, Moravian Karst, caves, canoe river trips). It's the perfect way to reset your brain and find active friends.</p>
-      <!-- Real site also places a second supporting photo (images/walkers_group.jpg)
-           and a wide banner (images/walkers_cave.jpg) around this section —
+      <!-- Real site also places a second supporting photo (images/walkers_group.webp)
+           and a wide banner (images/walkers_cave.webp) around this section —
            carry those over as-is from the current renderWalkersTab() output,
            not duplicating them here to keep this file focused. -->
     </div>
@@ -363,7 +363,7 @@
       </div>
 
       <div style="text-align:center;margin-top:28px;">
-        <a class="btn" href="https://maps.app.goo.gl/fEbnJHxiVoAx1v498" target="_blank" rel="noopener">⭐ 50+ Google reviews · 5.0 →</a>
+        <a class="btn" href="https://maps.app.goo.gl/fEbnJHxiVoAx1v498" target="_blank" rel="noopener">Read Google reviews ↗ →</a>
       </div>
     </div>
   </section>
@@ -404,7 +404,7 @@
     <div class="wrap" data-i18n="boardgames">
       <p class="eyebrow-sm">Voluntary contribution</p>
       <h3 class="anchor-heading">Board Game Evening<a class="anchor-link" href="#boardgames">#</a></h3>
-      <div class="photo-float"><img src="../images/boardgames.jpg" alt="Board game evening Scythe Brno" loading="lazy"></div>
+      <div class="photo-float"><img src="../images/boardgames.webp" alt="Board game evening Scythe Brno" loading="lazy"></div>
       <p>Every Tuesday (almost weekly — confirm current schedule via contacts) we meet at <strong>Utopia Centre Koblizna</strong> at 18:00. Entry is by voluntary contribution — pay what you feel is fair via Revolut: revolut.me/aliaksj5pq. It helps cover the venue rent.<br><br>We run two tables: one in <strong>Russian</strong>, one in <strong>English</strong>. Want a table in another language? Write to us — we'll set it up.</p>
       <div style="clear:both; margin-top:20px;">
         <p style="font-size:16px; color:var(--ink-dim); line-height:1.8;">Avalon · Scythe · Mafia · Uno · Citadels · Brass · Munchkin · …and much more</p>
@@ -662,7 +662,7 @@ en: {
   about: `<div class="eyebrow-sm">About</div>
       <h3 class="anchor-heading">About BrnoWalkers<a class="anchor-link" href="#walkers-about">#</a></h3>
       <div class="portrait-block">
-        <img class="photo-slot" src="../images/portrait_cave.jpg" alt="Aliaksei — your hiking guide" loading="lazy"
+        <img class="photo-slot" src="../images/portrait_cave.webp" alt="Aliaksei — your hiking guide" loading="lazy"
              onerror="this.setAttribute('data-alt', this.alt); this.classList.add('img-fallback'); this.removeAttribute('src');">
         <p class="portrait-text">I'm Aliaksei — I've been personally leading these hikes for several years. I know every trail, every cave, and exactly what's worth looking up at along the way.</p>
       </div>
@@ -779,7 +779,7 @@ en: {
         </div>
       </div>
       <div style="text-align:center;margin-top:28px;">
-        <a class="btn" href="https://maps.app.goo.gl/fEbnJHxiVoAx1v498" target="_blank" rel="noopener">⭐ 50+ Google reviews · 5.0 →</a>
+        <a class="btn" href="https://maps.app.goo.gl/fEbnJHxiVoAx1v498" target="_blank" rel="noopener">Read Google reviews ↗ →</a>
       </div>`,
   medals: `<p class="eyebrow-sm">Ranks &amp; Medals</p>
       <h3 class="anchor-heading">BrnoWalkers Reward System<a class="anchor-link" href="#medals">#</a></h3>
@@ -804,7 +804,7 @@ en: {
       <p class="medals-ref-note">1 referral who attends 2 paid events = 2 events credited to your count. Participants provide proof themselves.</p>`,
   boardgames: `<p class="eyebrow-sm">Voluntary contribution</p>
       <h3 class="anchor-heading">Board Game Evening<a class="anchor-link" href="#boardgames">#</a></h3>
-      <div class="photo-float"><img src="../images/boardgames.jpg" alt="Board game evening Scythe Brno" loading="lazy"></div>
+      <div class="photo-float"><img src="../images/boardgames.webp" alt="Board game evening Scythe Brno" loading="lazy"></div>
       <p>Every Tuesday (almost weekly — confirm current schedule via contacts) we meet at <strong>Utopia Centre Koblizna</strong> at 18:00. Entry is by voluntary contribution — pay what you feel is fair via Revolut: revolut.me/aliaksj5pq. It helps cover the venue rent.<br><br>We run two tables: one in <strong>Russian</strong>, one in <strong>English</strong>. Want a table in another language? Write to us — we'll set it up.</p>
       <div style="clear:both; margin-top:20px;">
         <p style="font-size:16px; color:var(--ink-dim); line-height:1.8;">Avalon · Scythe · Mafia · Uno · Citadels · Brass · Munchkin · …and much more</p>
@@ -874,7 +874,7 @@ ru: {
   about: `<div class="eyebrow-sm">О нас</div>
       <h3 class="anchor-heading">О Брноходцах<a class="anchor-link" href="#walkers-about">#</a></h3>
       <div class="portrait-block">
-        <img class="photo-slot" src="../images/portrait_cave.jpg" alt="Алексей — твой гид по походам" loading="lazy"
+        <img class="photo-slot" src="../images/portrait_cave.webp" alt="Алексей — твой гид по походам" loading="lazy"
              onerror="this.setAttribute('data-alt', this.alt); this.classList.add('img-fallback'); this.removeAttribute('src');">
         <p class="portrait-text">Я Алексей — веду эти походы лично уже несколько лет. Знаю каждую тропу, каждую пещеру и точно знаю, куда стоит заглянуть по пути.</p>
       </div>
@@ -1016,7 +1016,7 @@ ru: {
       <p class="medals-ref-note">1 приглашённый, который сходит на 2 платных события = 2 события засчитываются в твой счёт. Участники сами предоставляют подтверждение.</p>`,
   boardgames: `<p class="eyebrow-sm">Добровольный взнос</p>
       <h3 class="anchor-heading">Настольные игры по вечерам<a class="anchor-link" href="#boardgames">#</a></h3>
-      <div class="photo-float"><img src="../images/boardgames.jpg" alt="Вечер настольных игр Scythe Брно" loading="lazy"></div>
+      <div class="photo-float"><img src="../images/boardgames.webp" alt="Вечер настольных игр Scythe Брно" loading="lazy"></div>
       <p>Каждый вторник (почти еженедельно — актуальное расписание уточняй через контакты) встречаемся в <strong>Utopia Centre Koblizna</strong> в 18:00. Вход — добровольный взнос, плати сколько считаешь справедливым через Revolut: revolut.me/aliaksj5pq. Это помогает покрыть аренду места.<br><br>У нас два стола: один на <strong>русском</strong>, один на <strong>английском</strong>. Хочешь стол на другом языке? Напиши нам — организуем.</p>
       <div style="clear:both; margin-top:20px;">
         <p style="font-size:16px; color:var(--ink-dim); line-height:1.8;">Avalon · Scythe · Мафия · Уно · Citadels · Brass · Munchkin · …и многое другое</p>
@@ -1086,7 +1086,7 @@ cs: {
   about: `<div class="eyebrow-sm">O nás</div>
       <h3 class="anchor-heading">O BrnoWalkers<a class="anchor-link" href="#walkers-about">#</a></h3>
       <div class="portrait-block">
-        <img class="photo-slot" src="../images/portrait_cave.jpg" alt="Aliaksei — tvůj průvodce na výšlapech" loading="lazy"
+        <img class="photo-slot" src="../images/portrait_cave.webp" alt="Aliaksei — tvůj průvodce na výšlapech" loading="lazy"
              onerror="this.setAttribute('data-alt', this.alt); this.classList.add('img-fallback'); this.removeAttribute('src');">
         <p class="portrait-text">Jsem Aliaksei — tyto výšlapy osobně vedu už několik let. Znám každou stezku, každou jeskyni a přesně vím, co je po cestě stojí za to.</p>
       </div>
@@ -1228,7 +1228,7 @@ cs: {
       <p class="medals-ref-note">1 doporučený, který se zúčastní 2 placených akcí = 2 akce připsány do tvého počtu. Účastníci poskytují důkaz sami.</p>`,
   boardgames: `<p class="eyebrow-sm">Dobrovolný příspěvek</p>
       <h3 class="anchor-heading">Herní večer<a class="anchor-link" href="#boardgames">#</a></h3>
-      <div class="photo-float"><img src="../images/boardgames.jpg" alt="Herní večer Scythe Brno" loading="lazy"></div>
+      <div class="photo-float"><img src="../images/boardgames.webp" alt="Herní večer Scythe Brno" loading="lazy"></div>
       <p>Každé úterý (skoro každý týden — aktuální rozvrh ověř přes kontakty) se scházíme v <strong>Utopia Centre Kobližná</strong> v 18:00. Vstup formou dobrovolného příspěvku — zaplať, kolik uznáš za vhodné, přes Revolut: revolut.me/aliaksj5pq. Pomáhá to pokrýt nájem prostoru.<br><br>Máme dva stoly: jeden v <strong>ruštině</strong>, jeden v <strong>angličtině</strong>. Chceš stůl v jiném jazyce? Napiš nám — zařídíme to.</p>
       <div style="clear:both; margin-top:20px;">
         <p style="font-size:16px; color:var(--ink-dim); line-height:1.8;">Avalon · Scythe · Mafia · Uno · Citadels · Brass · Munchkin · …a mnohem víc</p>
@@ -1298,7 +1298,7 @@ uk: {
   about: `<div class="eyebrow-sm">Про нас</div>
       <h3 class="anchor-heading">Про Брнохідців<a class="anchor-link" href="#walkers-about">#</a></h3>
       <div class="portrait-block">
-        <img class="photo-slot" src="../images/portrait_cave.jpg" alt="Олексій — твій гід у походах" loading="lazy"
+        <img class="photo-slot" src="../images/portrait_cave.webp" alt="Олексій — твій гід у походах" loading="lazy"
              onerror="this.setAttribute('data-alt', this.alt); this.classList.add('img-fallback'); this.removeAttribute('src');">
         <p class="portrait-text">Я Олексій — веду ці походи особисто вже кілька років. Знаю кожну стежку, кожну печеру і точно знаю, куди варто зазирнути дорогою.</p>
       </div>
@@ -1440,7 +1440,7 @@ uk: {
       <p class="medals-ref-note">1 запрошений, який відвідає 2 платні події = 2 події зараховуються до твого рахунку. Учасники самі надають підтвердження.</p>`,
   boardgames: `<p class="eyebrow-sm">Добровільний внесок</p>
       <h3 class="anchor-heading">Настільні ігри ввечері<a class="anchor-link" href="#boardgames">#</a></h3>
-      <div class="photo-float"><img src="../images/boardgames.jpg" alt="Вечір настільних ігор Scythe Брно" loading="lazy"></div>
+      <div class="photo-float"><img src="../images/boardgames.webp" alt="Вечір настільних ігор Scythe Брно" loading="lazy"></div>
       <p>Щовівторка (майже щотижня — актуальний розклад уточнюй через контакти) зустрічаємось у <strong>Utopia Centre Koblizna</strong> о 18:00. Вхід — добровільний внесок, плати скільки вважаєш справедливим через Revolut: revolut.me/aliaksj5pq. Це допомагає покрити оренду приміщення.<br><br>У нас два столи: один російською, один англійською. Хочеш стіл іншою мовою? Напиши нам — організуємо.</p>
       <div style="clear:both; margin-top:20px;">
         <p style="font-size:16px; color:var(--ink-dim); line-height:1.8;">Avalon · Scythe · Мафія · Uno · Citadels · Brass · Munchkin · …і багато іншого</p>
@@ -1484,9 +1484,12 @@ function applyTranslations(lang) {
     if (val) el.innerHTML = val;
   });
   document.documentElement.lang = lang;
+  queueMicrotask(() => document.dispatchEvent(new CustomEvent('site:language')));
 }
 
 function detectLang() {
+  const requested = new URLSearchParams(location.search).get('lang');
+  if (['ru','en','cs','uk'].includes(requested)) return requested;
   try {
     const saved = localStorage.getItem('dm_lang');
     if (saved && T[saved]) return saved;
