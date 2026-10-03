@@ -763,6 +763,7 @@ const ROLES = [
 ];
 
 const REGISTER_FORM = 'https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog';
+const LEAD_FORM = 'https://docs.google.com/forms/d/e/1FAIpQLSfa3qOWpQBfoA877ip9eOTWwFweOrNTib2mq8_C1D9xr55dtQ/viewform';
 
 const BOARDGAMES = {
   title:   {ru:'Настолки',        en:'Board Games',    cs:'Deskové hry',    uk:'Настілки'},
@@ -2040,7 +2041,15 @@ function renderMainTab(lang, t) {
     <div class="wrap">
       <h2>${t.main.ctaH}</h2>
       <p class="lead">${t.main.ctaText}</p>
-      <div class="grid-ctas">        <div class="card-cta">
+      <div class="grid-ctas">
+        <div class="card-cta">
+          <h3>${lang==='ru'?'Корпоративное обучение / консультация':lang==='uk'?'Корпоративне навчання / консультація':lang==='cs'?'Firemní školení / konzultace':'Corporate training / consultation'}</h3>
+          <p>${lang==='ru'?'AI, GitLab CI/CD, GitHub Copilot, Python, экспертные консультации и корпоративный HEMA. Опишите задачу один раз — я отвечу конкретным форматом, сроком и ценой.':lang==='uk'?'AI, GitLab CI/CD, GitHub Copilot, Python, експертні консультації та корпоративний HEMA. Опишіть задачу один раз — я відповім конкретним форматом, терміном і ціною.':lang==='cs'?'AI, GitLab CI/CD, GitHub Copilot, Python, expertní konzultace a firemní HEMA. Pošlete zadání jednou — odpovím konkrétním formátem, termínem a cenou.':'AI, GitLab CI/CD, GitHub Copilot, Python, expert consulting and corporate HEMA. Send the brief once — I will reply with a concrete format, timing and price.'}</p>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <a class="btn solid" href="${LEAD_FORM}" target="_blank" rel="noopener">${lang==='ru'?'Запросить предложение':lang==='uk'?'Запросити пропозицію':lang==='cs'?'Poptat nabídku':'Request a proposal'}</a>
+          </div>
+        </div>
+        <div class="card-cta">
           <h3>${t.main.ctas[0][0]}</h3>
           <p>${t.main.ctas[0][1]}</p>
           <div style="display:flex; gap:8px; flex-wrap:wrap;">
