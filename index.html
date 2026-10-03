@@ -576,6 +576,7 @@ const ROLES = [
 ];
 
 const REGISTER_FORM = 'https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog';
+const LEAD_FORM = 'https://docs.google.com/forms/d/e/1FAIpQLSfa3qOWpQBfoA877ip9eOTWwFweOrNTib2mq8_C1D9xr55dtQ/viewform';
 
 const BOARDGAMES = {
   title:   {ru:'Настолки',        en:'Board Games',    cs:'Deskové hry',    uk:'Настілки'},
@@ -2124,6 +2125,15 @@ function renderMainTab(lang, t) {
         allowfullscreen loading="lazy"></iframe>
     </div>
   </div>
+
+  <section id="corporate-b2b">
+    <div class="wrap">
+      <div class="eyebrow-sm">${lang==='ru'?'Для компаний и экспертов':lang==='uk'?'Для компаній та експертів':lang==='cs'?'Pro firmy a expertní spolupráci':'Corporate & expert work'}</div>
+      <h2>${lang==='ru'?'Корпоративное обучение / консультация':lang==='uk'?'Корпоративне навчання / консультація':lang==='cs'?'Firemní školení / konzultace':'Corporate training / consultation'}</h2>
+      <p class="lead">${lang==='ru'?'AI, GitLab CI/CD, GitHub Copilot, Python, научные и экспертные консультации, корпоративный HEMA. Опишите задачу один раз — я отвечу конкретным форматом, сроком и ценой.':lang==='uk'?'AI, GitLab CI/CD, GitHub Copilot, Python, наукові та експертні консультації, корпоративний HEMA. Опишіть завдання один раз — я відповім конкретним форматом, терміном і ціною.':lang==='cs'?'AI, GitLab CI/CD, GitHub Copilot, Python, vědecké a expertní konzultace a firemní HEMA. Pošlete zadání jednou — odpovím konkrétním formátem, termínem a cenou.':'AI, GitLab CI/CD, GitHub Copilot, Python, scientific and expert consulting, and corporate HEMA. Send the brief once — I will reply with a concrete format, timing and price.'}</p>
+      <a class="btn solid" href="${LEAD_FORM}" target="_blank" rel="noopener">${lang==='ru'?'Запросить предложение':lang==='uk'?'Запросити пропозицію':lang==='cs'?'Poptat nabídku':'Request a proposal'}</a>
+    </div>
+  </section>
 
   ${renderPolicySection(lang)}
 
