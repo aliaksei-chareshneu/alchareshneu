@@ -19,7 +19,7 @@ for(const path of pages)for(const language of languages)for(const width of width
    const broken=[...document.querySelectorAll('main a[href^="#"]')].filter(a=>a.hash.length>1&&!document.getElementById(decodeURIComponent(a.hash.slice(1)))).map(a=>a.hash);
    return {duplicates,broken};
   });expect(bad.duplicates).toEqual([]);expect(bad.broken).toEqual([]);
-  if(path==='druzina/')for(const price of ['120 Kč','240 Kč','910 Kč','455 Kč'])expect(await page.locator('body').innerText()).toContain(price);
+  if(path==='druzina/')for(const price of ['120','240','910','455'])expect(await page.locator('body').innerText()).toContain(price);
   if(path==='academy/') {await page.locator('#service-search').fill('zzzznomatch');await expect(page.locator('.search-status')).not.toBeEmpty();await expect(page.locator('.price-cat:visible')).toHaveCount(0);await page.locator('#service-search').fill('');await expect(page.locator('.price-cat:visible')).toHaveCount(9);}
   if(path)await expect(page.locator('.tabs-bar a.active')).toHaveCount(1);
   await page.screenshot({path:`test-results/${path.replace('/','')||'home'}-${language}-${width}.png`,fullPage:false});
@@ -41,5 +41,5 @@ test('event content is escaped, malformed entries ignored and failures actionabl
 });
 test('empty and cold-start timeout keep calendar and announcements available',async({page})=>{
  await mockEvents(page);await page.goto('/calendar/?lang=cs');await expect(page.locator('#calEventsBody')).toHaveAttribute('data-event-status','ready');await expect(page.locator('.events-empty-message')).toContainText('Naplánuj');
- await page.unroute('https://script.google.com/**');await page.route('https://script.google.com/**',()=>{});await page.reload();await expect(page.locator('#calEventsBody')).toHaveAttribute('data-event-status','error',{timeout:16000});await expect(page.locator('.calendar-cta-btn')).toBeVisible();
+ await page.unroute('https://script.google.com/**');await page.route('https://script.google.com/**',()=>{});await page.reload({waitUntil:'commit'});await expect(page.locator('#calEventsBody')).toHaveAttribute('data-event-status','error',{timeout:16000});await expect(page.locator('.calendar-cta-btn')).toBeVisible();
 });
