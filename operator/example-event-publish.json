@@ -1,0 +1,24 @@
+{
+  "command": "event.publish",
+  "target_worker": "n8n-event-operator",
+  "subject_type": "event",
+  "subject_id": "EVT-DEMO-001",
+  "priority": 100,
+  "idempotency_key": "event.publish:EVT-DEMO-001:v1",
+  "payload": {
+    "approved": true,
+    "event": {
+      "eventId": "EVT-DEMO-001",
+      "community": "Brnowalkers",
+      "category": "Hike",
+      "title": "Example hike",
+      "startDateTime": "2026-10-18T10:00:00+02:00",
+      "endDateTime": "2026-10-18T15:00:00+02:00",
+      "locationName": "Brno",
+      "locationAddress": "Brno, Czechia",
+      "priceCzk": 0,
+      "description": "Example only — do not enqueue this sample.",
+      "imageFilename": ""
+    }
+  }
+}
