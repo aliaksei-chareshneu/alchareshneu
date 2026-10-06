@@ -27,12 +27,43 @@ var REGISTRATION_FORM_URL   = 'https://docs.google.com/forms/d/e/1FAIpQLScEaxLco
 var FACEBOOK_ENABLED = String(PropertiesService.getScriptProperties().getProperty('FACEBOOK_ENABLED') || 'false').toLowerCase() === 'true';
 var FACEBOOK_GRAPH_VERSION = 'v26.0';
 
+// Machine Factory / n8n operator entry point.
+// Secret lives only in Script Properties and is never committed to Git.
+var OPERATOR_SHARED_SECRET = PropertiesService.getScriptProperties().getProperty('OPERATOR_SHARED_SECRET') || '';
+
+// Short-lived per-command capabilities are verified by the server-side Edge worker.
+// No Supabase service-role or long-lived operator secret is required for the normal path.
+var OPERATOR_VERIFY_URL = 'https://cmrknyhnnehyjpreehcf.supabase.co/functions/v1/event-operator-worker/verify';
+
 var EVENTS_SHEET_NAME        = 'Events';
 var REGISTRATIONS_SHEET_NAME = 'Registrations';
 var SPREADSHEET_ID           = '1igxEHQ7wFFCoCA9lg4kzT2OoMrVLgbBogfqTxGeUftY'; // из URL таблицы
 
 var SITE_EVENTS_LIMIT         = 6; // сколько ближайших событий отдавать на сайт
 var SITE_EVENTS_CACHE_SECONDS = 300; // кэш ответа doGet, чтобы не дёргать Sheets на каждого посетителя сайта
+
+// ====================== MACHINE FACTORY HEALTH ======================
+function machineFactoryHealth() {
+  var props = PropertiesService.getScriptProperties();
+  var triggers = ScriptApp.getProjectTriggers().map(function (t) {
+    return {
+      handler: t.getHandlerFunction(),
+      eventType: String(t.getEventType()),
+      triggerSource: String(t.getTriggerSource())
+    };
+  });
+  return {
+    operatorSecretSet: !!props.getProperty('OPERATOR_SHARED_SECRET'),
+    telegramTokenSet: !!props.getProperty('TELEGRAM_BOT_TOKEN'),
+    telegramAdminSet: !!props.getProperty('TELEGRAM_ADMIN_CHAT_ID'),
+    tallySecretSet: !!props.getProperty('TALLY_WEBHOOK_SECRET'),
+    facebookEnabled: String(props.getProperty('FACEBOOK_ENABLED') || 'false').toLowerCase() === 'true',
+    spreadsheetId: SPREADSHEET_ID,
+    calendarIdSet: !!CALENDAR_ID,
+    registrationFormSet: !!REGISTRATION_FORM_URL,
+    triggers: triggers
+  };
+}
 
 // ====================== МЕНЮ ======================
 function onOpen() {
@@ -527,10 +558,260 @@ function doGet(e) {
 }
 
 // ====================== СЦЕНАРИЙ 2: ПРИБМ РЕГИСТРАЦИЙ (Tally → Web App) ======================
+
+// ====================== MACHINE FACTORY OPERATOR API ======================
+function operatorJson(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function operatorFindEventRow(sheet, headerMap, eventId) {
+  if (!eventId || sheet.getLastRow() < 2) return 0;
+  var values = sheet.getRange(2, headerMap['Event_ID'], sheet.getLastRow() - 1, 1).getValues();
+  for (var i = 0; i < values.length; i++) {
+    if (String(values[i][0]) === String(eventId)) return i + 2;
+  }
+  return 0;
+}
+
+function operatorEventEvidence(sheet, row, headerMap) {
+  var get = function (col) {
+    return headerMap[col] ? sheet.getRange(row, headerMap[col]).getValue() : '';
+  };
+  return {
+    eventId: String(get('Event_ID') || ''),
+    status: String(get('Status') || ''),
+    community: String(get('Community') || ''),
+    category: String(get('Category') || ''),
+    title: String(get('Title') || ''),
+    calendarLink: String(get('Calendar_Link') || ''),
+    calendarEventId: String(get('Calendar_Event_ID') || ''),
+    telegramPostId: String(get('Telegram_Post_ID') || ''),
+    facebookPostId: String(get('Facebook_Post_ID') || ''),
+    adminBufferSentAt: get('Admin_Buffer_Sent_At') || '',
+    registrationUrl: String(get('Tally_Form_URL') || ''),
+    lastSyncedAt: get('Last_Synced_At') || '',
+    syncError: String(get('Sync_Error') || '')
+  };
+}
+
+function operatorNormalizeEvent(input) {
+  input = input || {};
+  function pick(a, b) {
+    return input[a] !== undefined ? input[a] : input[b];
+  }
+  var event = {
+    Event_ID: pick('Event_ID', 'eventId'),
+    Community: pick('Community', 'community'),
+    Category: pick('Category', 'category'),
+    Title: pick('Title', 'title'),
+    Start_DateTime: pick('Start_DateTime', 'startDateTime'),
+    End_DateTime: pick('End_DateTime', 'endDateTime'),
+    Location_Name: pick('Location_Name', 'locationName'),
+    Location_Address: pick('Location_Address', 'locationAddress'),
+    Price_CZK: pick('Price_CZK', 'priceCzk'),
+    Description: pick('Description', 'description'),
+    Image_Filename: pick('Image_Filename', 'imageFilename')
+  };
+  if (!event.Event_ID) event.Event_ID = 'EVT-' + Utilities.getUuid().slice(0, 8).toUpperCase();
+  if (!event.Community || !event.Category || !event.Title || !event.Start_DateTime || !event.End_DateTime || !event.Location_Name) {
+    throw new Error('Missing required event fields: Community, Category, Title, Start_DateTime, End_DateTime, Location_Name');
+  }
+  var start = parseDate(event.Start_DateTime);
+  var end = parseDate(event.End_DateTime);
+  if (isNaN(start.getTime()) || isNaN(end.getTime())) throw new Error('Invalid event date/time');
+  if (end <= start) throw new Error('End_DateTime must be after Start_DateTime');
+  event.Start_DateTime = start;
+  event.End_DateTime = end;
+  if (event.Price_CZK === undefined || event.Price_CZK === null || event.Price_CZK === '') event.Price_CZK = 0;
+  return event;
+}
+
+function operatorUpsertEvent(eventInput) {
+  var event = operatorNormalizeEvent(eventInput);
+  var sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(EVENTS_SHEET_NAME);
+  var headerMap = getHeaderMap(sheet);
+  var row = operatorFindEventRow(sheet, headerMap, event.Event_ID);
+
+  if (row) {
+    var currentStatus = String(sheet.getRange(row, headerMap['Status']).getValue() || '');
+    if (currentStatus === 'Active') {
+      throw new Error('Active event cannot be edited with event.upsert; use an approved event.update flow');
+    }
+  } else {
+    row = Math.max(sheet.getLastRow() + 1, 2);
+  }
+
+  var allowed = [
+    'Event_ID','Community','Category','Title','Start_DateTime','End_DateTime',
+    'Location_Name','Location_Address','Price_CZK','Description','Image_Filename'
+  ];
+  allowed.forEach(function (col) {
+    if (headerMap[col] && event[col] !== undefined) sheet.getRange(row, headerMap[col]).setValue(event[col]);
+  });
+  sheet.getRange(row, headerMap['Status']).setValue('Draft');
+  if (headerMap['Sync_Error']) sheet.getRange(row, headerMap['Sync_Error']).setValue('');
+  return { sheet: sheet, row: row, headerMap: headerMap, evidence: operatorEventEvidence(sheet, row, headerMap) };
+}
+
+function operatorPublishEvent(eventInput) {
+  var eventId = String((eventInput && (eventInput.Event_ID || eventInput.eventId)) || '');
+  if (eventId) {
+    var sheet0 = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(EVENTS_SHEET_NAME);
+    var map0 = getHeaderMap(sheet0);
+    var row0 = operatorFindEventRow(sheet0, map0, eventId);
+    if (row0) {
+      var existing = operatorEventEvidence(sheet0, row0, map0);
+      if (existing.status === 'Active' && existing.calendarLink && !existing.syncError) {
+        return { ok: true, idempotent: true, evidence: existing };
+      }
+    }
+  }
+
+  var upserted = operatorUpsertEvent(eventInput);
+  upserted.sheet.getRange(upserted.row, upserted.headerMap['Status']).setValue('Trigger_Sync');
+  processEventRow(upserted.sheet, upserted.row, upserted.headerMap, false);
+  var after = operatorEventEvidence(upserted.sheet, upserted.row, upserted.headerMap);
+  return {
+    ok: after.status === 'Active' && !after.syncError,
+    idempotent: false,
+    evidence: after,
+    error: after.syncError || null
+  };
+}
+
+function cancelEventRow(sheet, row, headerMap) {
+  var get = function (col) { return headerMap[col] ? sheet.getRange(row, headerMap[col]).getValue() : ''; };
+  var set = function (col, val) { if (headerMap[col]) sheet.getRange(row, headerMap[col]).setValue(val); };
+
+  var title = get('Title');
+  var startDT = get('Start_DateTime');
+  var community = get('Community');
+  var category = get('Category');
+  var price = get('Price_CZK');
+  var isPublicEvent = (category !== 'Corporate');
+  var warnings = [];
+
+  var calEventId = get('Calendar_Event_ID');
+  if (calEventId) {
+    try { Calendar.Events.remove(CALENDAR_ID, calEventId); }
+    catch (err) { warnings.push('Calendar delete: ' + err.message); }
+  }
+
+  var facebookPostId = get('Facebook_Post_ID');
+  if (facebookPostId) {
+    try { deleteFacebookPost(facebookPostId, community); }
+    catch (err) { warnings.push('Facebook delete: ' + err.message); }
+  }
+
+  if (isPublicEvent) {
+    var cancelText =
+      '❌ <b>Событие отменено</b>\n\n' +
+      escapeHtml(title) + ' (' + formatDateForPost(startDT) + ')\n\n' +
+      (Number(price) > 0
+        ? '💸 Если вы оплатили участие — напишите организатору для возврата средств.'
+        : 'Ждём вас на следующих событиях!') + '\n\n' +
+      '📅 Следите за расписанием: ' + CALENDAR_PUBLIC_LINK;
+    try { sendTelegramMessage(getChannelId(community), cancelText, null, null); }
+    catch (err) { warnings.push('Telegram cancellation: ' + err.message); }
+  }
+
+  set('Status', 'Archived');
+  set('Sync_Error', 'CANCELLED ' + new Date().toISOString() + (warnings.length ? ' | ' + warnings.join(' | ') : ''));
+  try { CacheService.getScriptCache().remove('site_events_json'); } catch (e) {}
+  return { evidence: operatorEventEvidence(sheet, row, headerMap), warnings: warnings };
+}
+
+function operatorLoadAuthorizedCommand(commandId, capabilityToken) {
+  if (!commandId || !capabilityToken) return null;
+  var resp = UrlFetchApp.fetch(OPERATOR_VERIFY_URL, {
+    method: 'post',
+    contentType: 'application/json',
+    payload: JSON.stringify({
+      commandId: String(commandId),
+      capabilityToken: String(capabilityToken)
+    }),
+    muteHttpExceptions: true
+  });
+  if (resp.getResponseCode() !== 200) return null;
+  try {
+    return JSON.parse(resp.getContentText());
+  } catch (err) {
+    return null;
+  }
+}
+
+function handleOperatorCommand(data, capabilityVerified) {
+  if (!capabilityVerified &&
+      (!OPERATOR_SHARED_SECRET || String(data.secret || '') !== String(OPERATOR_SHARED_SECRET))) {
+    return { ok: false, error: 'forbidden' };
+  }
+
+  var command = String(data.command || '').trim();
+  var approved = data.approved === true || (data.payload && data.payload.approved === true);
+  var payload = data.payload || {};
+  var eventInput = payload.event || payload;
+  var eventId = String(payload.eventId || payload.Event_ID || data.subjectId || '');
+
+  if (!command) return { ok: false, error: 'command required' };
+
+  try {
+    if (command === 'event.upsert') {
+      var upserted = operatorUpsertEvent(eventInput);
+      return { ok: true, command: command, evidence: upserted.evidence };
+    }
+
+    if (command === 'event.publish') {
+      if (!approved) return { ok: false, waitingOwner: true, error: 'event.publish requires approved=true' };
+      var published = operatorPublishEvent(eventInput);
+      return { ok: published.ok, command: command, idempotent: published.idempotent, evidence: published.evidence, error: published.error || null };
+    }
+
+    var sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(EVENTS_SHEET_NAME);
+    var headerMap = getHeaderMap(sheet);
+    var row = operatorFindEventRow(sheet, headerMap, eventId);
+    if (!row) return { ok: false, error: 'Event not found: ' + eventId };
+
+    if (command === 'event.verify') {
+      return { ok: true, command: command, evidence: operatorEventEvidence(sheet, row, headerMap) };
+    }
+
+    if (command === 'event.cancel') {
+      if (!approved) return { ok: false, waitingOwner: true, error: 'event.cancel requires approved=true' };
+      var cancelled = cancelEventRow(sheet, row, headerMap);
+      return { ok: true, command: command, evidence: cancelled.evidence, warnings: cancelled.warnings };
+    }
+
+    return { ok: false, error: 'Unsupported command: ' + command };
+  } catch (err) {
+    return { ok: false, command: command, error: String(err && err.message ? err.message : err) };
+  }
+}
+
 function doPost(e) {
   try {
-    if (e.parameter.secret !== TALLY_WEBHOOK_SECRET) {
+    var rawBody = (e && e.postData && e.postData.contents) ? e.postData.contents : '';
+    var data = null;
+    try { data = JSON.parse(rawBody || '{}'); } catch (parseErr) { data = null; }
+
+    // Machine Factory command route.
+    // Preferred auth: short-lived per-command capability verified against Supabase.
+    // Legacy shared-secret auth remains as a fallback for recovery only.
+    if (data && data.kind === 'operator.command') {
+      if (data.commandId && data.capabilityToken) {
+        var verifiedCommand = operatorLoadAuthorizedCommand(data.commandId, data.capabilityToken);
+        if (!verifiedCommand) return operatorJson({ ok: false, error: 'forbidden' });
+        return operatorJson(handleOperatorCommand(verifiedCommand, true));
+      }
+      return operatorJson(handleOperatorCommand(data, false));
+    }
+
+    if (!e || !e.parameter || e.parameter.secret !== TALLY_WEBHOOK_SECRET) {
       return ContentService.createTextOutput('forbidden').setMimeType(ContentService.MimeType.TEXT);
+    }
+    if (!data) {
+      return ContentService.createTextOutput(JSON.stringify({ ok: false, error: 'invalid_json' }))
+        .setMimeType(ContentService.MimeType.JSON);
     }
 
     var lock = LockService.getScriptLock();
@@ -539,7 +820,6 @@ function doPost(e) {
         .setMimeType(ContentService.MimeType.JSON);
     }
     try {
-    var data = JSON.parse(e.postData.contents);
     var submissionId = (data.data && data.data.submissionId) || '';
     var byLabel = {};
     (data.data && data.data.fields || []).forEach(function (f) { byLabel[f.label] = f.value; });
@@ -696,57 +976,14 @@ function cancelEventFromMenu() {
   );
   if (result !== ui.Button.YES) return;
 
-  var headerMap = getHeaderMap(sheet);
-  var get = function (col) { return sheet.getRange(row, headerMap[col]).getValue(); };
-  var set = function (col, val) { sheet.getRange(row, headerMap[col]).setValue(val); };
-
-  var title     = get('Title');
-  var startDT   = get('Start_DateTime');
-  var community = get('Community');
-  var category  = get('Category');
-  var price     = get('Price_CZK');
-  var isPublicEvent = (category !== 'Corporate');
-
-  // Удаляем событие из Google Calendar — иначе оно останется висеть как "призрак"
-  // во встроенном на сайте календаре, даже после того как карточка на сайте пропадёт.
-  if (headerMap['Calendar_Event_ID']) {
-    var calEventId = get('Calendar_Event_ID');
-    if (calEventId) {
-      try { Calendar.Events.remove(CALENDAR_ID, calEventId); }
-      catch (err) { /* обытие могло уже быть удалено руками — не блокируем отмену из-за этого */ }
-    }
-  }
-
-  // Удаляем Facebook Page post, если он был создан автопостингом.
-  if (headerMap['Facebook_Post_ID']) {
-    var facebookPostId = get('Facebook_Post_ID');
-    if (facebookPostId) {
-      try { deleteFacebookPost(facebookPostId, community); }
-      catch (err) { console.error('Facebook delete failed: ' + err); }
-    }
-  }
-
-  var cancelText =
-    '❌ <b>Событие отменено</b>\n\n' +
-    escapeHtml(title) + ' (' + formatDateForPost(startDT) + ')\n\n' +
-    (Number(price) > 0
-      ? '💸 Если вы оплатили участие — напишите организатору для возврата средств.'
-      : 'Ждём вас на следующих событиях!') + '\n\n' +
-    '📅 Следите за расписанием: ' + CALENDAR_PUBLIC_LINK;
-
   try {
-    if (isPublicEvent) {
-      sendTelegramMessage(getChannelId(community), cancelText, null, null);
-    }
-    set('Status', 'Archived');
-    set('Sync_Error', 'CANCELLED ' + new Date().toISOString());
-    // Инвалидируем кэш сайта чтобы отменённое событие исчезло
-    try { CacheService.getScriptCache().remove('site_events_json'); } catch (e) {}
-    ui.alert(isPublicEvent
-      ? 'Обявление об отмене опубликовано, событие удалено из календаря. Статус изменён на Archived.'
-      : 'Событие удалено из календаря (без публичного объявления — Corporate). Статус изменён на Archived.');
+    var headerMap = getHeaderMap(sheet);
+    var outcome = cancelEventRow(sheet, row, headerMap);
+    ui.alert(outcome.warnings && outcome.warnings.length
+      ? 'Событие переведено в Archived, но есть предупреждения: ' + outcome.warnings.join(' | ')
+      : 'Событие отменено, внешние публикации/календарь обработаны, статус Archived.');
   } catch (err) {
-    ui.alert('Ошибка при публикации: ' + err.message);
+    ui.alert('Ошибка при отмене: ' + err.message);
   }
 }
 
