@@ -7,7 +7,7 @@
     "command": {
       "enum": ["event.upsert", "event.publish", "event.verify", "event.cancel"]
     },
-    "target_worker": { "const": "n8n-event-operator" },
+    "target_worker": { "const": "supabase-event-operator" },
     "subject_type": { "const": "event" },
     "subject_id": { "type": ["string", "null"] },
     "priority": { "type": "integer", "default": 100 },

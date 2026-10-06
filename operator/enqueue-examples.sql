@@ -5,7 +5,7 @@ insert into public.operator_commands(
   'event.upsert',
   'event',
   'EVT-EXAMPLE-001',
-  'n8n-event-operator',
+  'supabase-event-operator',
   '{
     "event":{
       "eventId":"EVT-EXAMPLE-001",

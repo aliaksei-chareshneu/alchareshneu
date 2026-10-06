@@ -1,6 +1,6 @@
 {
   "command": "event.publish",
-  "target_worker": "n8n-event-operator",
+  "target_worker": "supabase-event-operator",
   "subject_type": "event",
   "subject_id": "EVT-DEMO-001",
   "priority": 100,

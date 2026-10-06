@@ -31,12 +31,39 @@ var FACEBOOK_GRAPH_VERSION = 'v26.0';
 // Secret lives only in Script Properties and is never committed to Git.
 var OPERATOR_SHARED_SECRET = PropertiesService.getScriptProperties().getProperty('OPERATOR_SHARED_SECRET') || '';
 
+// Short-lived per-command capabilities are verified by the server-side Edge worker.
+// No Supabase service-role or long-lived operator secret is required for the normal path.
+var OPERATOR_VERIFY_URL = 'https://cmrknyhnnehyjpreehcf.supabase.co/functions/v1/event-operator-worker/verify';
+
 var EVENTS_SHEET_NAME        = 'Events';
 var REGISTRATIONS_SHEET_NAME = 'Registrations';
 var SPREADSHEET_ID           = '1igxEHQ7wFFCoCA9lg4kzT2OoMrVLgbBogfqTxGeUftY'; // из URL таблицы
 
 var SITE_EVENTS_LIMIT         = 6; // сколько ближайших событий отдавать на сайт
 var SITE_EVENTS_CACHE_SECONDS = 300; // кэш ответа doGet, чтобы не дёргать Sheets на каждого посетителя сайта
+
+// ====================== MACHINE FACTORY HEALTH ======================
+function machineFactoryHealth() {
+  var props = PropertiesService.getScriptProperties();
+  var triggers = ScriptApp.getProjectTriggers().map(function (t) {
+    return {
+      handler: t.getHandlerFunction(),
+      eventType: String(t.getEventType()),
+      triggerSource: String(t.getTriggerSource())
+    };
+  });
+  return {
+    operatorSecretSet: !!props.getProperty('OPERATOR_SHARED_SECRET'),
+    telegramTokenSet: !!props.getProperty('TELEGRAM_BOT_TOKEN'),
+    telegramAdminSet: !!props.getProperty('TELEGRAM_ADMIN_CHAT_ID'),
+    tallySecretSet: !!props.getProperty('TALLY_WEBHOOK_SECRET'),
+    facebookEnabled: String(props.getProperty('FACEBOOK_ENABLED') || 'false').toLowerCase() === 'true',
+    spreadsheetId: SPREADSHEET_ID,
+    calendarIdSet: !!CALENDAR_ID,
+    registrationFormSet: !!REGISTRATION_FORM_URL,
+    triggers: triggers
+  };
+}
 
 // ====================== МЕНЮ ======================
 function onOpen() {
@@ -151,8 +178,8 @@ function getFacebookRoute(community) {
     defaultLang = 'cs';
   }
   var knownPageId = '';
-  if (key === 'BRNOWALKERS') knownPageId = '1116999441485637';
-  if (key === 'DRUZINA') knownPageId = '1135309339656732';
+  if (key === 'BRNOWALKERS') knownPageId = '61572333527769';
+  if (key === 'DRUZINA') knownPageId = '61566659360012';
   return {
     key: key,
     lang: props.getProperty('FACEBOOK_LANG_' + key) || defaultLang,
@@ -695,8 +722,28 @@ function cancelEventRow(sheet, row, headerMap) {
   return { evidence: operatorEventEvidence(sheet, row, headerMap), warnings: warnings };
 }
 
-function handleOperatorCommand(data) {
-  if (!OPERATOR_SHARED_SECRET || String(data.secret || '') !== String(OPERATOR_SHARED_SECRET)) {
+function operatorLoadAuthorizedCommand(commandId, capabilityToken) {
+  if (!commandId || !capabilityToken) return null;
+  var resp = UrlFetchApp.fetch(OPERATOR_VERIFY_URL, {
+    method: 'post',
+    contentType: 'application/json',
+    payload: JSON.stringify({
+      commandId: String(commandId),
+      capabilityToken: String(capabilityToken)
+    }),
+    muteHttpExceptions: true
+  });
+  if (resp.getResponseCode() !== 200) return null;
+  try {
+    return JSON.parse(resp.getContentText());
+  } catch (err) {
+    return null;
+  }
+}
+
+function handleOperatorCommand(data, capabilityVerified) {
+  if (!capabilityVerified &&
+      (!OPERATOR_SHARED_SECRET || String(data.secret || '') !== String(OPERATOR_SHARED_SECRET))) {
     return { ok: false, error: 'forbidden' };
   }
 
@@ -747,10 +794,16 @@ function doPost(e) {
     var data = null;
     try { data = JSON.parse(rawBody || '{}'); } catch (parseErr) { data = null; }
 
-    // Machine Factory / n8n command route. The shared secret is sent in the JSON body
-    // rather than the URL, so it does not leak into query-string logs/history.
+    // Machine Factory command route.
+    // Preferred auth: short-lived per-command capability verified against Supabase.
+    // Legacy shared-secret auth remains as a fallback for recovery only.
     if (data && data.kind === 'operator.command') {
-      return operatorJson(handleOperatorCommand(data));
+      if (data.commandId && data.capabilityToken) {
+        var verifiedCommand = operatorLoadAuthorizedCommand(data.commandId, data.capabilityToken);
+        if (!verifiedCommand) return operatorJson({ ok: false, error: 'forbidden' });
+        return operatorJson(handleOperatorCommand(verifiedCommand, true));
+      }
+      return operatorJson(handleOperatorCommand(data, false));
     }
 
     if (!e || !e.parameter || e.parameter.secret !== TALLY_WEBHOOK_SECRET) {

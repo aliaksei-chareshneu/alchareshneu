@@ -2,105 +2,94 @@
 
 Source-controlled operator layer for Community Automation Hub.
 
-## Contract
-
-Every command follows:
-
-INTAKE -> NORMALIZE -> DECIDE -> ACT -> VERIFY -> EVIDENCE -> ESCALATE
-
-Google Sheets `Events` remains the operational event SSoT. n8n is the command router/state machine; it does not duplicate the existing Apps Script business logic.
-
-## Runtime
+## Canonical runtime
 
 ChatGPT / operator
--> Supabase `operator_commands`
--> target worker
-   - `n8n-event-operator` -> Apps Script Community Hub
-   - `chatgpt-browser` -> Browser Bridge for browser-only destinations
--> verification evidence
--> Supabase terminal state
+→ Supabase `operator_commands`
+→ Supabase Edge Function `event-operator-worker`
+→ Apps Script Community Hub
+→ Google Sheets `Events` + Calendar / Telegram / site API.
 
-## Event commands handled by n8n
+Google Sheets `Events` remains the operational event SSoT. The worker routes commands; it does not duplicate Community Hub business logic.
 
-- `event.upsert` — create/update a Draft event only. No public send. Refuses to silently edit an already Active event.
-- `event.publish` — create/sync/publish event through the existing Community Hub logic. Requires explicit `payload.approved=true`.
-- `event.verify` — read back Sheet state and external IDs/links.
-- `event.cancel` — archive/cancel and run external cleanup/notice path. Requires explicit approval.
+The old local n8n worker is retired. The production worker is server-side and does not require Aliaksei's PC to be on.
 
-An approved update flow for already-published events is intentionally not hidden inside `event.upsert`; it should be implemented as a distinct `event.update` command so changed external posts/calendar entries can be reconciled deliberately.
+## Event commands
 
-## Browser distribution commands
+- `event.upsert` — create/update a Draft event only. No public send. Refuses to silently edit an Active event.
+- `event.publish` — publish/sync through Community Hub. Requires `payload.approved=true`.
+- `event.verify` — read back current event evidence.
+- `event.cancel` — cancel/archive through Community Hub. Requires `payload.approved=true`.
 
-Browser-only destinations use `target_worker='chatgpt-browser'`.
+## Queue
 
-Initial contract:
-- `facebook.group.publish`
-- `browser.publish.verify`
+Default target worker: `supabase-event-operator`.
 
-These are executed with Browser Bridge using the canonical loop:
-open/status -> snapshot -> fresh refs -> one narrow action -> snapshot -> verify.
+States:
+`queued → claimed → done | error | waiting_owner | cancelled`.
 
-n8n cannot claim these commands because the Supabase queue is worker-scoped.
+The Edge worker:
+1. recovers expired leases;
+2. atomically claims a queued command;
+3. creates a random per-command capability token;
+4. stores only its SHA-256 hash in Supabase;
+5. sends the raw token once over HTTPS to Apps Script;
+6. Apps Script verifies the capability against Supabase before executing;
+7. worker records result/evidence and clears the capability.
 
-## Queue states
+No Supabase service-role key is stored in Apps Script, Git or Drive.
 
-`queued -> claimed -> done|error|waiting_owner|cancelled`
+## Cron authentication
 
-The queue has:
-- idempotency keys;
-- worker targeting;
-- lease expiry/retry;
-- max attempts;
-- correlation IDs;
-- command audit events;
-- result/evidence storage.
+Supabase Cron runs once per minute and calls `private.kick_event_operator_worker()`.
 
-## Secrets
-
-Never put secrets in workflow JSON, Git, Drive briefs, command payloads, or browser jobs.
-
-n8n runtime needs:
-- `SUPABASE_URL`
-- `SUPABASE_SERVICE_ROLE_KEY`
-- `COMMUNITY_HUB_OPERATOR_URL`
-- `COMMUNITY_HUB_OPERATOR_SECRET`
-
-Apps Script needs the matching Script Property:
-- `OPERATOR_SHARED_SECRET`
+The cron trigger token is generated inside Supabase Vault. Its plaintext value is never committed or copied into Drive/Git. The Edge Function rejects requests without a valid `X-Cron-Token`.
 
 ## Owner gate
 
-Public action is not inferred.
+Public side effects are not inferred.
 
-`event.publish` and `event.cancel` execute only when the queued command contains `payload.approved=true`, which should be set only after Aliaksei explicitly authorizes that concrete external action.
+`event.publish` and `event.cancel` execute only when the queued command contains `payload.approved=true`, after Aliaksei explicitly authorizes that concrete external action.
 
-Drafting, normalization, validation and verification remain safe automatic operations.
+Drafting, validation and verification are safe automatic operations.
+
+## Browser distribution
+
+Browser-only destinations remain separate and use `target_worker='chatgpt-browser'` plus Browser Bridge.
+
+Initial browser contract:
+- `facebook.group.publish`
+- `browser.publish.verify`
 
 ## Evidence / done criterion
 
-A command is DONE only after readback.
-
-For an event publish, evidence should contain:
-- Event_ID
-- Status=Active
-- Calendar link/event ID
-- Telegram post ID for public events
-- Facebook Page post ID when Page publishing is enabled
+A command is DONE only after readback. Event evidence can include:
+- Event_ID / status
+- Calendar link and event ID
+- Telegram post ID
+- Facebook Page post ID
 - registration URL
-- admin-buffer timestamp when the column exists
-- empty Sync_Error
+- last sync timestamp
+- Sync_Error
 
-Facebook groups require separate Browser Bridge evidence such as the final post URL or verified snapshot.
+## Production state — 2026-10-06
 
-## Deployment sequence
+- Apps Script production web app: deployment `AKfycbzKdIEwIF4gH9Cku3IQPC8uTrvR1CtHjMAOIzexrR3Mz9nDSLQ1znfT8Y2SS873jCtsLg`, updated to version 22 during operator rollout.
+- Supabase Edge Function: `event-operator-worker`.
+- Supabase Cron: `event-operator-worker`, every minute.
+- Legacy queued `event.verify` was successfully processed by the new worker.
+- A cron-only smoke test also completed without manual invocation.
 
-1. Validate this package and `Code.gs`.
-2. Push branch; do not merge production blindly.
-3. Copy canonical `Code.gs` into clasp source and push HEAD.
-4. Create a staging Web App deployment for operator tests.
-5. Manually configure the shared operator secret in Apps Script and n8n credential/environment storage.
-6. Import `n8n-event-operator.workflow.json` inactive.
-7. Smoke-test `event.verify` and `event.upsert` first.
-8. With explicit approval, test one `event.publish`; verify every channel and clean up.
-9. Activate workflow.
-10. Only then decide whether to point the canonical production deployment at the tested version.
+## Files
+
+- `event-command.schema.json` — event queue contract.
+- `browser-command.schema.json` — browser-only distribution contract.
+- `enqueue-examples.sql` — safe queue examples.
+- `example-event-publish.json` — publish payload example; do not enqueue blindly.
+- `supabase-event-operator/index.ts` — deployed Edge worker source.
+- `supabase-event-operator/deno.json` — Edge runtime config.
+- `supabase-operator.sql` — database functions and cron setup reference.
+
+## Rule
+
+Do not create another queue/dashboard/worker for event operations. Extend this one or deliberately replace it and update this README plus the automation master brief.
