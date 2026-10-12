@@ -594,38 +594,17 @@ const REGISTER_FORM = 'https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpP
 const LEAD_FORM = 'https://docs.google.com/forms/d/e/1FAIpQLSfa3qOWpQBfoA877ip9eOTWwFweOrNTib2mq8_C1D9xr55dtQ/viewform';
 
 const BOARDGAMES = {
-  title:   {ru:'Настолки',        en:'Board Games',    cs:'Deskové hry',    uk:'Настілки'},
-  eyebrow: {ru:'Добровольный взнос', en:'Voluntary contribution', cs:'Dobrovolný příspěvek', uk:'Добровільний внесок'},
-  tagline: {ru:'Вторник · 18:00 · Утопия Центр Коближна',
-            en:'Tuesday · 18:00 · Utopia Centre Koblizna',
-            cs:'Úterý · 18:00 · Utopia Centre Koblizna',
-            uk:'Вівторок · 18:00 · Utopia Центр Коближна'},
-  aboutH:  {ru:'Вечер настольных игр', en:'Board Game Evening', cs:'Večer deskových her', uk:'Вечір настільних ігор'},
-  aboutText:{
-    ru:'Каждый вторник (практически регулярно — точное расписание уточняй в контактах) собираемся в <strong>Utopia Centre Koblizna</strong> в 18:00. Вход по добровольному взносу — заплати, сколько считаешь честным, через Revolut: revolut.me/aliaksj5pq. Это помогает окупать аренду места.<br><br>Есть два стола: <strong>русскоязычный</strong> и <strong>англоязычный</strong>. Хочешь стол на другом языке — пиши в контакты, создадим.',
-    en:'Every Tuesday (almost weekly — confirm current schedule via contacts) we meet at <strong>Utopia Centre Koblizna</strong> at 18:00. Entry is by voluntary contribution — pay what you feel is fair via Revolut: revolut.me/aliaksj5pq. It helps cover the venue rent.<br><br>We run two tables: one in <strong>Russian</strong>, one in <strong>English</strong>. Want a table in another language? Write to us — we\'ll set it up.',
-    cs:'Každé úterý (téměř pravidelně — aktuální termíny ověř v kontaktech) se scházíme v <strong>Utopia Centre Koblizna</strong> v 18:00. Vstup je na dobrovolný příspěvek — zaplať, kolik uznáš za vhodné, přes Revolut: revolut.me/aliaksj5pq. Pomáhá to hradit nájem prostoru.<br><br>Máme dva stoly: jeden v <strong>ruštině</strong>, jeden v <strong>angličtině</strong>. Chceš stůl v jiném jazyce? Napiš nám — zorganizujeme.',
-    uk:'Кожен вівторок (майже регулярно — точний розклад уточнюй у контактах) збираємось у <strong>Utopia Centre Koblizna</strong> о 18:00. Вхід за добровільним внеском — заплати, скільки вважаєш чесним, через Revolut: revolut.me/aliaksj5pq. Це допомагає окупити оренду місця.<br><br>Є два столи: <strong>російськомовний</strong> та <strong>англомовний</strong>. Хочеш стіл іншою мовою — пиши в контакти, організуємо.'
-  },
-  gamesH:  {ru:'Во что играем', en:'What we play', cs:'Co hrajeme', uk:'У що граємо'},
-  games:   'Avalon · Серп / Scythe · Мафия · Uno · Цитадель · Brass · Манчкин · …и многое другое',
-  gamesEn: 'Avalon · Scythe · Mafia · Uno · Citadels · Brass · Munchkin · …and much more',
-  gamesCs: 'Avalon · Scythe · Mafia · Uno · Citadely · Brass · Munchkin · …a spousta dalšího',
-  gamesUk: 'Avalon · Серп · Мафія · Uno · Цитаделі · Brass · Манчкін · …і багато іншого',
-  bringH:  {ru:'Приноси свои игры!', en:'Bring your own games!', cs:'Přines vlastní hry!', uk:'Приноси свої ігри!'},
-  bringText:{
-    ru:'Мы приветствуем, когда участники приносят собственные настолки — чем разнообразнее, тем веселее.',
-    en:'We love it when players bring their own games — the more variety, the better.',
-    cs:'Vítáme, když hráči přinesou vlastní hry — čím větší výběr, tím lépe.',
-    uk:'Ми вітаємо, коли учасники приносять власні настілки — чим різноманітніше, тим веселіше.'
-  },
-  registerBtn:{ru:'Зарегистрироваться на вечер', en:'Register for the evening', cs:'Zaregistrovat se na večer', uk:'Зареєструватися на вечір'},
-  contactNote:{
-    ru:'Уточнить актуальное расписание или предложить новый языковой стол — через контакты.',
-    en:'To confirm the current schedule or propose a new language table — reach us via contacts.',
-    cs:'Pro potvrzení aktuálního rozvrhu nebo návrh nového jazykového stolu — kontaktujte nás.',
-    uk:'Уточнити актуальний розклад або запропонувати новий мовний стіл — через контакти.'
-  }
+  title: {ru:'Настольные игры',en:'Board Games',cs:'Deskové hry',uk:'Настільні ігри'},
+  eyebrow: {en:'Board games — temporarily paused',ru:'Настольные игры — временная пауза',cs:'Deskové hry — dočasně pozastaveno',uk:'Настільні ігри — тимчасова пауза'},
+  tagline: {en:'Board games — temporarily paused',ru:'Настольные игры — временная пауза',cs:'Deskové hry — dočasně pozastaveno',uk:'Настільні ігри — тимчасова пауза'},
+  aboutH: {en:'Board games — temporarily paused',ru:'Настольные игры — временная пауза',cs:'Deskové hry — dočasně pozastaveno',uk:'Настільні ігри — тимчасова пауза'},
+  aboutText: {en:'Regular board game evenings are currently paused. There is no confirmed weekly Tuesday session or venue. Please do not travel to a previous meeting place without a new confirmed announcement.',ru:'Регулярные вечера настольных игр временно приостановлены. Подтверждённой еженедельной встречи по вторникам и постоянного места сейчас нет. Не приезжайте на прежнюю площадку без нового подтверждённого анонса.',cs:'Pravidelné večery deskových her jsou nyní pozastaveny. Nemáme potvrzené pravidelné úterní setkání ani místo konání. Bez nového potvrzeného oznámení prosím na původní místo nechoďte.',uk:'Регулярні вечори настільних ігор тимчасово призупинено. Наразі немає підтвердженої щотижневої зустрічі у вівторок чи постійної локації. Не приходьте на старе місце без нового підтвердженого анонсу.'},
+  gamesH: {ru:'Текущий статус',en:'Current status',cs:'Aktuální stav',uk:'Поточний статус'},
+  bringH: {ru:'Следите за анонсами',en:'Follow announcements',cs:'Sledujte oznámení',uk:'Стежте за оголошеннями'},
+  bringText: {en:'Follow announcements for any future date:',ru:'Следите за новыми объявлениями:',cs:'Případný nový termín oznámíme zde:',uk:'Стежте за новими оголошеннями:'},
+  registerBtn: {ru:'Канал анонсов',en:'Announcements channel',cs:'Kanál oznámení',uk:'Канал оголошень'},
+  contactNote: {en:'Regular board game evenings are currently paused. There is no confirmed weekly Tuesday session or venue. Please do not travel to a previous meeting place without a new confirmed announcement.',ru:'Регулярные вечера настольных игр временно приостановлены. Подтверждённой еженедельной встречи по вторникам и постоянного места сейчас нет. Не приезжайте на прежнюю площадку без нового подтверждённого анонса.',cs:'Pravidelné večery deskových her jsou nyní pozastaveny. Nemáme potvrzené pravidelné úterní setkání ani místo konání. Bez nového potvrzeného oznámení prosím na původní místo nechoďte.',uk:'Регулярні вечори настільних ігор тимчасово призупинено. Наразі немає підтвердженої щотижневої зустрічі у вівторок чи постійної локації. Не приходьте на старе місце без нового підтвердженого анонсу.'},
+  games: '', gamesEn: '', gamesCs: '', gamesUk: ''
 };
 
 const T = {
@@ -884,12 +863,12 @@ ru:{
     eventAlerts:'Получать анонсы событий',
     stickyRegister:'Записаться',
     forkTutoring:'Репетиторство',
-    walkersNewHere:'Новый здесь? Начни бесплатно — настолки во вторник',
+    walkersNewHere:'Новичок? Выбирай подтверждённые события — настолки пока на паузе',
     druzinaRulesH:'Общие правила участия & Официальный регламент',
     druzinaName:'Дружина Моравы',
     druzinaTagline:'Клуб исторического средневекового боя, фехтования (HEMA), стрельбы и LARP-реконструкции в Брно.',
     druzinaMission:'Дружина Моравы возрождает живую традицию Великой Моравии — товарищество, ремесло и путь от новичка до воина, — чтобы каждый, кто пришёл, обрёл корни, мастерство и своих.',
-    walkersTeaserBtn:'Походы, настолки, экскурсии, спорт и многое другое! Перейти к Брноходцам',
+    walkersTeaserBtn:'Походы, экскурсии, спорт и другие события! Перейти в Брноходцы',
     globalRules:`<h4>1. ОБЛАСТЬ ПРИМЕНЕНИЯ И СОГЛАСИЕ</h4>
     <p><strong>1.1</strong> Настоящие правила распространяются на все мероприятия, занятия, туры и активности, организуемые Алексеем Черешневым (OSVČ, IČO: 23041625) под брендами BrnoWalkers, Дружина Моравы (Družina Moravy), а также индивидуальные услуги.</p>
     <p><strong>1.2</strong> Оплата или бронь участия означает безоговорочное согласие со всеми действующими правилами. Настоящие правила являются публичной офертой (публичным предложением заключить договор) в значении § 1780 и след. Гражданского кодекса ЧР № 89/2012 Sb.; оплатой или бронью происходит её акцепт (принятие).</p>
@@ -1171,12 +1150,12 @@ en:{
     eventAlerts:'Get event alerts',
     stickyRegister:'Register / Book',
     forkTutoring:'Tutoring',
-    walkersNewHere:'New here? Start free — Tuesday Board Game Night',
+    walkersNewHere:'New here? See confirmed events — board games are paused',
     druzinaRulesH:'General Rules & Official Regulations',
     druzinaName:'Druzhina Moravy',
     druzinaTagline:'A club for historical medieval combat, fencing (HEMA), archery, and LARP re-enactment in Brno.',
     druzinaMission:'Družina Moravy revives the living tradition of Great Moravia — fellowship, craft, and the path from novice to warrior — so that everyone who joins finds roots, mastery, and their people.',
-    walkersTeaserBtn:'Hikes, board games, tours, sports and more! Go to BrnoWalkers',
+    walkersTeaserBtn:'Hikes, tours, sports and more! Go to BrnoWalkers',
     globalRules:`<h4>1. SCOPE AND CONSENT</h4>
     <p><strong>1.1</strong> These rules apply to all events, sessions, tours and activities organized by Aliaksei Chareshneu (OSVČ, IČO: 23041625) under the brands BrnoWalkers, Druzhina Moravy, and individual services.</p>
     <p><strong>1.2</strong> Payment or registration for participation constitutes unconditional acceptance of all applicable rules. These rules constitute a public offer (a public proposal to conclude a contract) under §1780 et seq. of Czech Civil Code No. 89/2012 Sb.; payment or registration constitutes its acceptance.</p>
@@ -1458,12 +1437,12 @@ cs:{
     eventAlerts:'Dostat upozornění na akce',
     stickyRegister:'Přihlásit se',
     forkTutoring:'Doučování',
-    walkersNewHere:'Nová? Začni zdarma — úterní večer deskovek',
+    walkersNewHere:'Jsi tu nový? Vyber potvrzenou akci — deskovky jsou pozastaveny',
     druzinaRulesH:'Obecná pravidla účasti & Officiální řád',
     druzinaName:'Družina Moravy',
     druzinaTagline:'Klub historického středověkého boje, šermu (HEMA), střelby a LARP rekonstrukce v Brně.',
     druzinaMission:'Družina Moravy oživuje živou tradici Velké Moravy — kamarádství, řemeslo a cestu od nováčka k válečníkovi, aby každý, kdo přijde, našel kořeny, mistrovství a své lidi.',
-    walkersTeaserBtn:'Výšlapy, deskovky, výlety, sport a mnoho dalšího! Přejít k BrnoWalkers',
+    walkersTeaserBtn:'Výlety, exkurze, sport a další akce! Přejít na BrnoWalkers',
     globalRules:`<h4>1. ROZSAH A SOUHLAS</h4>
     <p><strong>1.1</strong> Tato pravidla se vztahují na všechny akce, tréninky, prohlídky a aktivity organizované Aliakseim Charesneuem (OSVČ, IČO: 23041625) pod značkami BrnoWalkers, Družina Moravy a individuální služby.</p>
     <p><strong>1.2</strong> Zaplacení nebo rezervace účasti znamená bezpodmínečný souhlas se všemi platnými pravidly. Tato pravidla představují veřejnou nabídku (veřejný návrh na uzavření smlouvy) ve smyslu § 1780 a násl. zákona č. 89/2012 Sb., občanský zákoník; zaplacením nebo rezervací dochází k jejímu přijetí.</p>
@@ -1745,12 +1724,12 @@ uk:{
     eventAlerts:'Отримувати сповіщення про заходи',
     stickyRegister:'Записатися',
     forkTutoring:'Репетиторство',
-    walkersNewHere:'Новий тут? Почни безкоштовно — вівторок настілок',
+    walkersNewHere:'Новачок? Обирай підтверджені події — настілки на паузі',
     druzinaRulesH:'Загальні правила участі & Офіційний регламент',
     druzinaName:'Дружина Моравії',
     druzinaTagline:'Клуб історичного середньовічного бою, фехтування (HEMA), стрільби та LARP-реконструкції в Брно.',
     druzinaMission:'Дружина Моравії відроджує живу традицію Великої Моравії — товариство, ремесло і шлях від новачка до воїна, — щоб кожен, хто прийшов, знайшов коріння, майстерність і своїх.',
-    walkersTeaserBtn:'Походи, настільні гри, екскурсії, спорт та багато іншого! Перейти до Брнохідців',
+    walkersTeaserBtn:'Походи, екскурсії, спорт та інші події! До Брнохідців',
     globalRules:`<h4>1. СФЕРА ДІЇ ТА ЗГОДА</h4>
     <p><strong>1.1</strong> Ці правила поширюються на всі заходи, заняття, тури та активності, організовані Олексієм Черешньовим (OSVČ, IČO: 23041625) під брендами BrnoWalkers, Дружина Моравії, а також індивідуальні послуги.</p>
     <p><strong>1.2</strong> Оплата або реєстрація участі означає безумовну згоду з усіма чинними правилами. Ці правила є публічною офертою (публічною пропозицією укласти договір) у розумінні § 1780 і наст. Цивільного кодексу ЧР № 89/2012 Sb.; оплатою або реєстрацією відбувається її прийняття (акцепт).</p>
@@ -3521,7 +3500,7 @@ function buildServiceIndex() {
     { name: 'Canoe Safety Briefing', price: 'See briefing →', category: 'BrnoWalkers', url: 'walkers/#canoe-safety', keywords: 'canoe safety life vest river paddle' },
     { name: 'BrnoWalkers Official Rules', price: 'See rules →', category: 'BrnoWalkers', url: 'walkers/#walkers-rules', keywords: 'rules terms transport dog children' },
     { name: 'BrnoWalkers Ranks & Medals', price: 'See rewards →', category: 'BrnoWalkers', url: 'walkers/#medals', keywords: 'medal rank reward scout guardian loyalty referral' },
-    { name: 'Board Game Evening', price: 'See details →', category: 'BrnoWalkers', url: 'walkers/#boardgames', keywords: 'board games tuesday scythe mafia uno utopia' },
+    { name: 'Board games (currently paused)', price: 'Paused — announcements →', category: 'BrnoWalkers', url: 'walkers/#boardgames', keywords: 'board games paused announcements' },
     { name: 'HEMA Training Price (Junior/Senior)', price: 'See tariff →', category: 'Družina Moravy', url: 'druzina/#tariff', keywords: 'price cost tariff hema training subscription fee kč' },
     { name: 'How Payment Works', price: 'See rules →', category: 'Družina Moravy', url: 'druzina/#druzina-payment', keywords: 'payment revolut deadline surcharge 48 hours' },
     { name: 'Training Schedule & Venue', price: 'See schedule →', category: 'Družina Moravy', url: 'druzina/#schedule', keywords: 'training days monday thursday saturday time venue address dukelska' },
