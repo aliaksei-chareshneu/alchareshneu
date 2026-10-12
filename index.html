@@ -158,6 +158,7 @@
       <h1 data-exp="homeTitle">Learn. Explore. Find your people.</h1>
       <p class="tagline" data-exp="homeIntro">Tutoring with Aliaksei Chareshneu, PhD. Hikes with BrnoWalkers. Historical fencing with Družina Moravy. Your next step starts in Brno.</p>
       <a id="heroCta" class="btn solid plausible-event-name=Hero-CTA" href="druzina/#schedule">Reserve Your First Session</a>
+      <a id="heroCorporateCta" class="btn" href="corporate/">For companies · AI &amp; team experiences</a>
       <a class="reviews-badge" href="https://maps.app.goo.gl/fEbnJHxiVoAx1v498" target="_blank" rel="noopener">
         <span class="star">⭐</span><span data-i18n="reviewsBadge">50+ Google reviews · 5.0</span>
       </a>
@@ -2015,6 +2016,7 @@ function renderTabsNav(lang){
     <button class="tab-btn ${currentTab === 'main' ? 'active' : ''}" data-tab="main">${t.tabs.main}</button>
     <a class="tab-btn" href="walkers/">${t.tabs.walkers}</a>
     <a class="tab-btn" href="academy/">${t.tabs.academy}</a>
+    <a class="tab-btn" href="corporate/">${lang==='ru'?'Для компаний':lang==='uk'?'Для компаній':lang==='cs'?'Pro firmy':'For companies'}</a>
     <a class="tab-btn" href="druzina/">${t.tabs.druzina}</a>
     <a class="tab-btn" href="calendar/">${t.tabs.calendar}</a>
   `;
@@ -3123,6 +3125,8 @@ function updateHeroCta(lang) {
   const d = HERO_CTA[lang] || HERO_CTA.en;
   el.textContent = d.text;
   el.href = d.href;
+  const corp = document.getElementById('heroCorporateCta');
+  if (corp) corp.textContent = ({en:'For companies · AI & team experiences',cs:'Pro firmy · AI a týmové zážitky',ru:'Для компаний · AI и командные мероприятия',uk:'Для компаній · AI та командні події'})[lang] || 'For companies';
 }
 
 function render(lang){
