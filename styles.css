@@ -509,9 +509,10 @@
     overflow:hidden;transition:border-color .15s;
   }
   .event-upcoming-card:hover{border-color:var(--r5);}
-  .eu-img{flex:0 0 180px;align-self:stretch;}
-  .eu-img img{width:100%;height:100%;object-fit:cover;display:block;min-height:160px;}
-  .eu-body{flex:1;padding:18px 20px;display:flex;flex-direction:column;gap:6px;}
+  .eu-img{flex:0 0 180px;align-self:stretch;position:relative;min-height:160px;overflow:hidden;}
+  /* Remove intrinsic photo dimensions from flex sizing, especially for portrait images. */
+  .eu-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
+  .eu-body{flex:1;min-width:0;overflow-wrap:anywhere;padding:18px 20px;display:flex;flex-direction:column;gap:6px;}
   .eu-tag{font-family:var(--font-m);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--r5);}
   .eu-date{font-size:13px;color:var(--ink-dim);font-weight:600;}
   .eu-title{font-family:var(--font-d);font-size:19px;margin:2px 0 4px;color:var(--ink);}
@@ -522,8 +523,7 @@
   .eu-ctas{display:flex;gap:10px;flex-wrap:wrap;margin-top:auto;}
   @media(max-width:560px){
     .event-upcoming-card{flex-direction:column;}
-    .eu-img{flex:0 0 140px;}
-    .eu-img img{min-height:140px;}
+    .eu-img{flex:0 0 140px;height:140px;min-height:140px;}
   }
 
   /* Two separate cards (subscribe CTA, calendar preview) instead of one
