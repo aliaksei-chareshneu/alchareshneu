@@ -168,11 +168,13 @@
     </div>
     <div class="wrap">
       <p class="eyebrow" data-i18n="hero.eyebrow">Brno · Movement · Mind</p>
-      <h1 data-i18n="main.title">Step into Great Moravia</h1>
-      <p class="tagline" data-i18n="main.tagline">Historical swordsmanship, craft, and trail expeditions in Brno — built on real 9th-century Slavic heritage, not costume-party fantasy. Full protective gear provided, no membership required to start.</p>
-      <a id="heroCta" class="btn solid plausible-event-name=Hero-CTA" href="druzina/#schedule">Reserve Your First Session</a>
-      <a id="heroCorporateCta" class="btn" href="corporate/">For companies · AI &amp; team experiences</a>
-      <a class="reviews-badge" href="https://maps.app.goo.gl/fEbnJHxiVoAx1v498" target="_blank" rel="noopener">
+      <h1 data-i18n="main.title">Learn. Solve. Belong.</h1>
+      <p class="tagline" data-i18n="main.tagline">Practical expertise for your team. Learning and shared experiences for you in Brno.</p>
+        <div class="hero-audiences">
+          <a id="heroCorporateCta" class="btn solid" href="corporate/">For companies</a>
+          <a id="heroCta" class="btn plausible-event-name=Hero-CTA" href="#join">For individuals &amp; community</a>
+        </div>
+        <a class="reviews-badge" href="https://maps.app.goo.gl/fEbnJHxiVoAx1v498" target="_blank" rel="noopener">
         <span class="star">⭐</span><span data-i18n="reviewsBadge">50+ Google reviews · 5.0</span>
       </a>
     </div>
@@ -2969,29 +2971,18 @@ function renderDruzinaTab(lang, t) {
 // T[lang] strings verbatim or is intentionally English-only supplementary
 // prose (e.g. venture-picker card blurbs) rather than swapped by language.
 const STATIC_ADAPTED_I18N = {
-  // main.title/main.tagline updated 11.09.2026 to match the new
-  // manifesto-driven hero (see mission-strip work) — these two entries
-  // are what ACTUALLY renders (resolveI18nValue checks this object
-  // before ever touching T[lang]), so leaving them on the old "Your
-  // Guide in Brno — Tutoring..." copy while T[lang].main.title/tagline
-  // held the new text meant the new hero was silently dead: visitors
-  // and crawlers alike would still have seen the old pitch. Copied
-  // verbatim from T[lang].main.title/tagline rather than writing a
-  // separate longer/keyword-dense variant, to remove the drift risk
-  // that caused this bug in the first place — one source of truth,
-  // even at some cost to this object's original "more SEO-adapted"
-  // intent for these two specific keys.
+  // Root audience routing; keep default markup and translated copy aligned.
   'main.title': {
-    en: 'Step into Great Moravia',
-    ru: 'Возрождаем живую традицию Великой Моравии',
-    uk: 'Тут ти не сам',
-    cs: 'Naše historie, naše město'
+    en: 'Learn. Solve. Belong.',
+    cs: 'Učte se. Řešte. Potkávejte se.',
+    ru: 'Учиться. Решать. Находить своих.',
+    uk: 'Вчитися. Вирішувати. Знаходити своїх.'
   },
   'main.tagline': {
-    en: 'Historical swordsmanship, craft, and trail expeditions in Brno — built on real 9th-century Slavic heritage, not costume-party fantasy. Full protective gear provided, no membership required to start.',
-    ru: 'Товарищество, ремесло и путь от новичка до воина — для тех, кто ищет своих.',
-    uk: 'Спільнота у Брно: настільні ігри, чеська мова, спільні прогулянки — перший крок безкоштовний, без жодних умов.',
-    cs: 'Historický šerm, řemeslo a výlety po Moravě — komunitní spolek v Brně, otevřený všem, kdo chtějí objevovat vlastní kraj. Registrovaný spolek (z.s.) — transparentní, komunitní, brněnský.'
+    en: 'Practical expertise for your team. Learning and shared experiences for you in Brno.',
+    cs: 'Praktické znalosti pro váš tým. Vzdělávání a společné zážitky pro vás v Brně.',
+    ru: 'Практические знания для вашей команды. Учёба и совместные увлечения для вас в Брно.',
+    uk: 'Практичні знання для вашої команди. Навчання та спільні захоплення для вас у Брно.'
   },
   'walkers.title2': {
     en: 'BrnoWalkers — Guided Hikes, Cave Tours &amp; City Walks in Moravia',
@@ -3119,28 +3110,19 @@ function applyTranslations(lang) {
   });
 }
 
-// Main-hero CTA — added 10.09.2026 with the mission-strip/manifesto work.
-// Text AND href both change per language (unlike everything else driven
-// by applyTranslations(), which only ever touches innerHTML), because
-// the manifesto brief points 3 of 4 language audiences at Družina's
-// booking flow and the uk audience at BrnoWalkers' free first step
-// instead — a real difference in destination, not just wording. Kept as
-// its own small lookup + setter rather than bolting attribute-switching
-// onto the generic data-i18n system for one element.
+// Both audiences have the same destinations in every language.
 const HERO_CTA = {
-  en:{text:'Reserve Your First Session', href:'druzina/#schedule'},
-  cs:{text:'Zjistit, kdy trénujeme', href:'druzina/#schedule'},
-  ru:{text:'Записаться на первое занятие', href:'druzina/#schedule'},
-  uk:{text:'Приєднатися безкоштовно', href:'walkers/'}
+  en: {text: 'For individuals & community', href: '#join', corporate: 'For companies'},
+  cs: {text: 'Pro jednotlivce a komunitu', href: '#join', corporate: 'Pro firmy'},
+  ru: {text: 'Для себя и сообщества', href: '#join', corporate: 'Для компаний'},
+  uk: {text: 'Для себе та спільноти', href: '#join', corporate: 'Для компаній'}
 };
 function updateHeroCta(lang) {
-  const el = document.getElementById('heroCta');
-  if (!el) return;
   const d = HERO_CTA[lang] || HERO_CTA.en;
-  el.textContent = d.text;
-  el.href = d.href;
+  const el = document.getElementById('heroCta');
+  if (el) { el.textContent = d.text; el.href = d.href; }
   const corp = document.getElementById('heroCorporateCta');
-  if (corp) corp.textContent = ({en:'For companies · AI & team experiences',cs:'Pro firmy · AI a týmové zážitky',ru:'Для компаний · AI и командные мероприятия',uk:'Для компаній · AI та командні події'})[lang] || 'For companies';
+  if (corp) corp.textContent = d.corporate;
 }
 
 function render(lang){
