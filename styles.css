@@ -95,13 +95,15 @@
   .hero .eyebrow{font-family:var(--font-m);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--r5);margin-bottom:14px;}
   .hero h1{font-size:clamp(34px,7vw,52px);line-height:1.05;margin-bottom:14px;}
   .hero .tagline{font-size:18px;color:var(--ink-dim);max-width:520px;margin-bottom:30px;}
-  /* Main hero CTA — added 10.09.2026 alongside the mission-strip work.
-     Text + href both swap per language via updateHeroCta() in the inline
-     script (3 of 4 languages point at Družina's schedule, uk points at
-     BrnoWalkers instead — see that function's comment for why). Reuses
-     the existing .btn.solid look, just needs its own block spacing since
-     it now sits between .tagline and .reviews-badge. */
-  #heroCta{display:inline-block;margin-bottom:18px;}
+  /* Root audience choices reuse existing routes and stay visible on phones. */
+  #main .hero-audiences{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:18px;}
+  #main .hero-audiences .btn{white-space:normal;min-height:44px;display:flex;align-items:center;justify-content:center;}
+  #main .hero-audiences .btn:focus-visible{outline:3px solid var(--ink);outline-offset:4px;}
+  @media(max-width:600px){
+    #main.hero{padding:28px 0 24px;}
+    #main .tagline{font-size:16px;margin-bottom:20px;}
+    #main .hero-audiences{flex-direction:column;align-items:stretch;}
+  }
   /* Sub-mission line for the Družina/Walkers hero sections (index.html's
      embedded id="druzina"/id="walkers" plus their standalone pages) —
      same manifesto-sourced content as .mission-text below, just inline
@@ -823,3 +825,4 @@
   .price-cat-summary-toggle::-webkit-details-marker{display:none;}
   .price-cat-summary-toggle::before{content:'▸';transition:transform .2s ease;font-size:12px;}
   .price-cat-details[open] > .price-cat-summary-toggle::before{transform:rotate(90deg);}
+
