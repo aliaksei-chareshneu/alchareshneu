@@ -17,8 +17,9 @@ c=(ROOT/"corporate"/"index.html").read_text(encoding="utf8")
 a=(ROOT/"academy"/"index.html").read_text(encoding="utf8")
 m=(ROOT/"index.html").read_text(encoding="utf8")
 p=Parser();p.feed(c)
-assert p.lang_buttons==p.locales=={"en","cs","ru"}
+assert p.lang_buttons==p.locales=={"en","cs","ru","uk"}
 assert p.hrefs.count(FORM)>=4
+assert "Request a paid pilot" in c and "Запросити платний пілот" in c
 assert '../corporate/' in a and 'corporate/' in m
 assert 'class="tab-btn active" href="./" data-i18n="tabs.academy"' in a
 assert 'OSVČ, IČO 23041625' in c
