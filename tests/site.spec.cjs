@@ -36,7 +36,7 @@ test('language persistence, catalog anchors, keyboard and back navigation',async
 });
 test('event content is escaped, malformed entries ignored and failures actionable',async({page})=>{
  const valid={title:'<img src=x onerror=alert(1)>',description:'<script>bad()</script>',startISO:'2099-10-01T16:00:00Z',priceCzk:'<img>',registerUrl:'javascript:alert(1)',locationName:'Brno',category:'Hike',community:'Brnowalkers'};
- await mockEvents(page,[null,{},valid]);await page.goto('/calendar/?lang=en');await expect(page.locator('.eu-title')).toHaveText(valid.title);await expect(page.locator('.eu-title img')).toHaveCount(0);await expect(page.locator('.eu-ctas a').first()).toHaveAttribute('href',/https:\/\/docs.google.com\/forms/);await expect(page.locator('.eu-date')).toContainText('18:00');
+ await mockEvents(page,[null,{},valid]);await page.goto('/calendar/?lang=en');await expect(page.locator('.eu-title')).toHaveText(valid.title);await expect(page.locator('.eu-title img')).toHaveCount(0);await expect(page.locator('.eu-ctas a').first()).toHaveAttribute('href',/^https:\/\/wa\.me\/420702914842\?text=/);await expect(page.locator('.eu-date')).toContainText('18:00');
  await page.unroute('https://script.google.com/**');await page.route('https://script.google.com/**',r=>r.abort());await page.reload();await expect(page.locator('#calEventsBody')).toHaveAttribute('data-event-status','error');await expect(page.locator('.events-empty-message')).toContainText('temporarily unavailable');await expect(page.locator('.events-empty-message a')).toHaveCount(3);
 });
 test('empty and cold-start timeout keep calendar and announcements available',async({page})=>{
