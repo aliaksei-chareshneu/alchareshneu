@@ -5,6 +5,14 @@ For any website, offer, lead-generation, forms, conversion, copywriting or site 
 
 This repository is public. **Do not copy private Google Drive master briefs, CRM exports, customer messages, personal data, API keys, signed contracts or nonpublic sales figures into commits or logs.** A link to a private Google Doc in a chat prompt does not establish Codex access. Use the repository handoff for development; obtain confirmation for facts you cannot verify.
 
+## Verified production publication (2026-10-13)
+- **GitHub Pages publishes from `growth-experience` at `/` using a legacy branch build, NOT the default `main` branch.** This was confirmed through the authenticated GitHub Pages API on 2026-10-13. Recheck Settings → Pages before modifying deployment configuration; the source may change later.
+- A green **Site quality** GitHub Actions check proves source checks only; it does **not** deploy Pages.
+- Work in reviewable feature branches. For a public website change, land the approved patch on the *actual Pages source branch* (`growth-experience` as verified above); merging only into `main` will not update the public site.
+- `main` and `growth-experience` have diverged. Do not replace the Pages branch with `main` or force-merge whole histories without auditing their unique changes. Prefer minimal targeted patches and PRs.
+- Verify production after Pages reports `built`: compare the live page to the publishing branch at https://aliaksei-chareshneu.github.io/alchareshneu/ and test the affected CTA/content. Remote machine `zmrzlina` also has an hourly read-only Pages SHA-256 drift check in `state/pages_drift_check.ps1` (outside this repository).
+- Issue #10 / PR #11 record the diagnosed branch mismatch, correction, and verified public rollout.
+
 ## Source and change controls
 - Existing site and its architecture are the implementation target. Do not create a new site or parallel CRM.
 - Start with a separate branch; prefer focused diffs and a reviewable PR. Do not force-push or change payment/registration production backends without review.
