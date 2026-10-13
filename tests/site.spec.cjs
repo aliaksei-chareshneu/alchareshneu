@@ -43,3 +43,34 @@ test('empty and cold-start timeout keep calendar and announcements available',as
  await mockEvents(page);await page.goto('/calendar/?lang=cs');await expect(page.locator('#calEventsBody')).toHaveAttribute('data-event-status','ready');await expect(page.locator('.events-empty-message')).toContainText('Naplánuj');
  await page.unroute('https://script.google.com/**');await page.route('https://script.google.com/**',()=>{});await page.reload({waitUntil:'commit'});await expect(page.locator('#calEventsBody')).toHaveAttribute('data-event-status','error',{timeout:16000});await expect(page.locator('.calendar-cta-btn')).toBeVisible();
 });
+
+test('portrait event photos stay bounded at the mobile breakpoint', async ({page})=>{
+ const events=['portrait','landscape'].map(shape=>({title:'Layout fixture',description:'Short fixture description.',startISO:'2099-10-01T16:00:00Z',priceCzk:100,registerUrl:'https://docs.google.com/forms/',locationName:'Brno',category:'Hike',community:'Brnowalkers',imageOverride:'calendar-test-'+shape+'.svg'}));
+ await mockEvents(page,events);
+ await page.route('**/images/calendar-test-*.svg',route=>{
+  const portrait=route.request().url().includes('portrait');
+  return route.fulfill({contentType:'image/svg+xml',body:`<svg xmlns="http://www.w3.org/2000/svg" width="${portrait?600:4000}" height="${portrait?3000:1200}"><rect width="100%" height="100%" fill="#456"/></svg>`});
+ });
+ for(const width of [360,560,561,768,1440]){
+  await page.setViewportSize({width,height:900});
+  await page.goto('/calendar/?lang=en');
+  await expect(page.locator('.event-upcoming-card')).toHaveCount(2);
+  await page.locator('.eu-img').first().scrollIntoViewIfNeeded();
+  await page.waitForFunction(()=>[...document.querySelectorAll('.eu-img img')].every(i=>i.complete && i.naturalWidth>0));
+  const sizes=await page.locator('.event-upcoming-card').evaluateAll(cards=>cards.map(c=>({card:c.getBoundingClientRect().height,image:c.querySelector('.eu-img').getBoundingClientRect().height})));
+  for(const s of sizes){expect(s.card).toBeLessThan(750);if(width<=560)expect(s.image).toBe(140);}
+  expect(Math.abs(sizes[0].card-sizes[1].card)).toBeLessThan(2);
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+ }
+});
+test('direct enquiries respect language after repeated switches',async({page})=>{
+ await mockEvents(page);await page.goto('/academy/?lang=en');
+ await expect(page.locator('html')).toHaveAttribute('data-enhanced','true');
+ for(const language of ['ru','cs','en','ru','uk','en']){
+  await page.locator(`#langSwitch [data-lang="${language}"]`).click();
+  const expected=language==='ru'?'https://t.me/Chareshneu':'https://wa.me/420702914842';
+  await expect(page.locator('.service-action')).toHaveCount(9);
+  for(const a of await page.locator('.service-action').all())expect(await a.getAttribute('href')).toContain(expected);
+  await expect(page.locator('.mobile-cta-icon')).toHaveAttribute('aria-label',language==='ru'?'Telegram':'WhatsApp');
+ }
+});
