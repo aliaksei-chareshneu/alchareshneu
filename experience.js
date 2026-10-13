@@ -45,6 +45,42 @@
     // Deliberately excludes search text, contact details, full URLs and query parameters.
     document.dispatchEvent(new CustomEvent('ecosystem:conversion',{detail:{name,page,language:lang(),source:document.referrer ? new URL(document.referrer).hostname : 'direct',...details}}));
   }
+
+  // Contact preference is separate from online registration/consent.
+  function routeDirectContacts() {
+    const language=lang();
+    if (!['ru','en','cs'].includes(language)) {
+      document.querySelectorAll('[data-contact-original-href]').forEach(a=>{
+        a.href=a.dataset.contactOriginalHref;
+        if(a.dataset.contactOriginalLabel) a.setAttribute('aria-label',a.dataset.contactOriginalLabel);
+        if(a.classList.contains('mobile-cta-icon') || /^(Telegram|WhatsApp)$/i.test(a.dataset.contactOriginalHtml || '')) a.innerHTML=a.dataset.contactOriginalHtml;
+      });
+      return;
+    }
+    const channel=language==='ru'?'Telegram':'WhatsApp';
+    document.querySelectorAll('a[href]').forEach(a=>{
+      const original=a.dataset.contactOriginalHref || a.href;
+      const u=new URL(original,location.href);
+      const owned=(u.hostname==='wa.me' && u.pathname==='/420702914842') ||
+        (u.hostname==='t.me' && u.pathname.toLowerCase()==='/chareshneu');
+      if(!owned)return;
+      if(!a.dataset.contactOriginalHref){
+        a.dataset.contactOriginalHref=original;
+        a.dataset.contactOriginalLabel=a.getAttribute('aria-label') || '';
+        a.dataset.contactOriginalHtml=a.innerHTML;
+      }
+      a.href=language==='ru'?'https://t.me/Chareshneu':
+        (u.hostname==='wa.me'?original:'https://wa.me/420702914842');
+      if(a.classList.contains('mobile-cta-icon')){
+        a.textContent=language==='ru'?'TG':'WA';
+        a.setAttribute('aria-label',channel);
+      } else if(/^(Telegram|WhatsApp)$/i.test(a.textContent.trim())){
+        a.textContent=channel;
+        a.setAttribute('aria-label',channel);
+      }
+    });
+  }
+
   function enhance() {
     const t=copy[lang()];
     document.body.dataset.page=page;
@@ -95,6 +131,8 @@
     // Keep keyboard focus out of the hidden mobile toolbar.
     const mobile=document.querySelector('#mobileCta');if(mobile)mobile.inert=mobile.getAttribute('aria-hidden')==='true';
     document.querySelectorAll('.mobile-cta-btn').forEach(a=>{a.textContent=page==='druzina'?t.trial:page==='academy'?t.book:t.events;if(page==='walkers'||page==='calendar'||page==='main'){a.href=page==='calendar'?'#calendar-events':base+'calendar/';a.removeAttribute('target');}});
+    document.querySelectorAll('.service-action').forEach(a=>a.textContent=t.ask);
+    routeDirectContacts();
     document.documentElement.dataset.enhanced='true';
   }
   function academy(t) {
