@@ -2,7 +2,7 @@
  * No posting without explicit owner APPROVAL in SocialPublishing tab.
  * Requires existing Code.gs globals; install trigger only after owner review. */
 var SP_TAB='SocialPublishing';
-var SP_COLS=['Job_ID','Event_ID','Channel','Scheduled_At','Status','Caption','Media_URL',
+var SP_COLS=['Duplicate_Checked','Job_ID','Event_ID','Channel','Scheduled_At','Status','Caption','Media_URL',
  'Video_Drive_ID','Post_ID','Post_URL','Attempted_At','Error','Entity',
  'Grant_Funded','Grant_Text','Rights_OK','Approved_At','Visibility','Made_For_Kids'];
 var SP_AUTO=['telegram','facebook_page','instagram','youtube'];
@@ -51,6 +51,7 @@ function spValidate_(e,j){
  if(['YES','NO'].indexOf(String(j.Grant_Funded).toUpperCase())<0)throw Error('Set Grant_Funded YES/NO');
  if(String(j.Grant_Funded).toUpperCase()==='YES'&&!String(j.Grant_Text||'').trim())throw Error('Missing grant attribution');
  if(!String(j.Caption||'').trim())throw Error('Empty caption');
+ if(String(j.Duplicate_Checked).toUpperCase()!=='YES')throw Error('Check live destinations for an existing identical post first; set Duplicate_Checked YES');
  if(j.Channel==='instagram'&& !/^https:\/\/\S+$/i.test(String(j.Media_URL||'')))
   throw Error('Instagram requires public HTTPS image URL');
  if(['instagram','youtube','tiktok'].indexOf(j.Channel)>=0 && String(j.Rights_OK).toUpperCase()!=='YES')
@@ -80,7 +81,7 @@ function spPrepareSelectedEvent(){
     'https://aliaksei-chareshneu.github.io/alchareshneu/images/'+encodeURIComponent(file):'';
   var grant=/morava v pohybu|mládež kraji/i.test(String(e.Description||'')+' '+String(e.Title||''))?'YES':'';
   var entity=e.Community==='Družina Moravy'?'Družina Moravy z.s.':'';
-  var j={Job_ID:Utilities.getUuid(),Event_ID:id,Channel:ch,Scheduled_At:new Date(),
+  var j={Duplicate_Checked:'',Job_ID:Utilities.getUuid(),Event_ID:id,Channel:ch,Scheduled_At:new Date(),
    Status:'DRAFT',Caption:'',Media_URL:image,Video_Drive_ID:e.Video_Drive_ID||'',
    Post_ID:'',Post_URL:'',Attempted_At:'',Error:'',Entity:entity,
    Grant_Funded:grant,Grant_Text:grant==='YES'?SP_GRANT:'',Rights_OK:'',
@@ -109,7 +110,7 @@ function spApproveSelectedJob(){
 }
 /* Only APPROVED jobs at/after scheduled time. Before call set CLAIMED (no blind retries). */
 function spRunDue(){
- var l=LockService.getScriptLock();if(!l.tryLock(1000))return;
+ var l=LockService.getDocumentLock()||LockService.getScriptLock();if(!l.tryLock(1000))return;
  try{
   var s=spJobs_(),m=spMap_(s);
   var jobs=spItems_(s).filter(function(j){
@@ -140,4 +141,24 @@ function spInstallTrigger(){
  var found=ScriptApp.getProjectTriggers().some(function(x){return x.getHandlerFunction()==='spRunDue';});
  if(!found)ScriptApp.newTrigger('spRunDue').timeBased().everyMinutes(15).create();
  ui.alert(found?'Publisher timer already exists':'Publisher timer installed');
+}
+
+
+/* Independent installable onOpen menu; leaves existing Community Hub onOpen unchanged. */
+function spSocialOnOpen() {
+ SpreadsheetApp.getUi().createMenu('Social Publisher')
+  .addItem('1. Prepare drafts from Events row','spPrepareSelectedEvent')
+  .addItem('2. Approve selected SocialPublishing row','spApproveSelectedJob')
+  .addItem('3. Publish approved and due now','spRunDue')
+  .addItem('4. Install 15-minute publisher timer','spInstallTrigger')
+  .addToUi();
+}
+function spInstallMenu() {
+ var ui=SpreadsheetApp.getUi();
+ var exists=ScriptApp.getProjectTriggers().some(function(t){
+  return t.getHandlerFunction()==='spSocialOnOpen';
+ });
+ if(!exists)ScriptApp.newTrigger('spSocialOnOpen').forSpreadsheet(SPREADSHEET_ID).onOpen().create();
+ spSocialOnOpen();
+ ui.alert(exists?'Social Publisher menu already installed':'Social Publisher menu installed. Reload the sheet.');
 }
