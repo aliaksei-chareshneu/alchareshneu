@@ -44,10 +44,15 @@ def run_once(base, limit=2, execute=False, runner=subprocess.run):
               'rendered': 0, 'failed': 0, 'published': 0, 'errors': [],
               'checked_at': datetime.now(timezone.utc).isoformat()}
     try:
+        quarantine_path = root / 'autopilot_quarantine.json'
+        quarantine = json.loads(quarantine_path.read_text(encoding='utf-8')) if quarantine_path.exists() else {}
+        if not isinstance(quarantine, dict):
+            raise ValueError('Invalid quarantine state; operator review required')
         with sqlite3.connect(db.as_uri() + '?mode=ro', uri=True) as con:
             con.row_factory = sqlite3.Row
             rows = con.execute("SELECT * FROM short_jobs WHERE status='QUEUED_SAFE_SOURCE' ORDER BY created_at,job_id").fetchall()
-        rows = [dict(r) for r in rows if eligible(r)][:limit]
+        rows = [dict(r) for r in rows if eligible(r) and r['job_id'] not in quarantine][:limit]
+        result['quarantined'] = len(quarantine)
         result['selected'] = len(rows)
         for row in rows:
             try:
@@ -70,6 +75,11 @@ def run_once(base, limit=2, execute=False, runner=subprocess.run):
                 result['failed'] += 1
                 # No source paths, captions, subprocess output or secrets in report.
                 result['errors'].append({'job_id': row['job_id'], 'kind': type(exc).__name__})
+                if execute:
+                    quarantine[row['job_id']] = {'kind': type(exc).__name__, 'at': result['checked_at']}
+                    qt = root / 'autopilot_quarantine.json.tmp'
+                    qt.write_text(json.dumps(quarantine, indent=2), encoding='utf-8')
+                    os.replace(qt, quarantine_path)
         report = root / 'autopilot_status.json'
         temp = root / 'autopilot_status.json.tmp'
         temp.write_text(json.dumps(result, indent=2), encoding='utf-8')
