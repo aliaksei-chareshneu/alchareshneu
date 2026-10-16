@@ -149,8 +149,10 @@ function spSocialOnOpen() {
  SpreadsheetApp.getUi().createMenu('Social Publisher')
   .addItem('1. Prepare drafts from Events row','spPrepareSelectedEvent')
   .addItem('2. Approve selected SocialPublishing row','spApproveSelectedJob')
-  .addItem('3. Publish approved and due now','spRunDue')
-  .addItem('4. Install 15-minute publisher timer','spInstallTrigger')
+  .addItem('3. Open manual share panel','spOpenManualSelected')
+  .addItem('4. Confirm manual publication','spConfirmManualSelected')
+  .addItem('5. Publish approved and due now','spRunDue')
+  .addItem('6. Install 15-minute publisher timer','spInstallTrigger')
   .addToUi();
 }
 function spInstallMenu() {
