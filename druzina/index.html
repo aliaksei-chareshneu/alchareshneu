@@ -56,6 +56,28 @@
 
 <link rel="stylesheet" href="../experience.css">
 <script src="../experience.js" defer></script>
+
+<style>
+/* Media mentions / editorial vs. directories: standalone Družina page */
+#media{scroll-margin-top:100px;}
+.dm-media-intro{max-width:750px;margin-bottom:24px;}
+.dm-media-feature{background:var(--bg-card);border:1px solid var(--rule);border-left:4px solid var(--r5);border-radius:10px;padding:clamp(18px,3vw,30px);margin:24px 0 32px;}
+.dm-media-meta{display:flex;flex-wrap:wrap;align-items:center;gap:8px 13px;font-family:var(--font-m);font-size:12px;color:var(--ink-faint);margin:0 0 12px;}
+.dm-media-feature h3{font-family:var(--font-d);font-size:clamp(21px,3vw,29px);line-height:1.3;margin:0 0 12px;}
+.dm-media-feature h3 a{color:var(--ink);text-decoration:none;text-underline-offset:4px;}
+.dm-media-feature h3 a:hover,.dm-media-feature h3 a:focus-visible{text-decoration:underline;}
+.dm-media-feature p{max-width:75ch;margin:0 0 14px;}
+.dm-media-sources{display:flex;gap:12px 20px;flex-wrap:wrap;margin-top:14px;}
+.dm-media-sources a{font-weight:600;font-size:14px;text-underline-offset:3px;}
+.dm-media-list{list-style:none;padding:0;margin:16px 0 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:12px;}
+.dm-media-list li{border:1px solid var(--rule);border-radius:9px;padding:16px;background:var(--bg-card);min-width:0;}
+.dm-media-list a{display:inline-block;font-size:16px;font-weight:700;color:var(--ink);text-underline-offset:4px;}
+.dm-media-list span{display:block;margin-top:8px;color:var(--ink-faint);font-size:13px;}
+.dm-media-note{margin-top:16px;font-size:13px;color:var(--ink-faint);max-width:77ch;}
+.dm-media-hero-link{font-size:13px;margin:12px 0 0;}
+.dm-media-hero-link a{text-underline-offset:4px;color:inherit;}
+@media(max-width:480px){.dm-media-feature{padding:17px;}.dm-media-sources{flex-direction:column;gap:10px;}}
+</style>
 </head>
 <body>
 <a class="skip-link" href="#page-content" data-exp="skip">Skip to content</a>
@@ -126,6 +148,7 @@
 
 
       <div class="free-note" data-i18n="hero.freeNote">Your first training costs 120 Kč — a chance to get to know the club. Before it, we'll always ask whether you're planning to train regularly going forward or this is a one-off try out of curiosity — not a test, it just lets the coach pick the right format from the start.</div>
+      <p class="dm-media-hero-link"><a href="#media" data-i18n="media.heroLink">Featured in Brněnský deník — see coverage ↓</a></p>
     </div>
   </section>
 <section id="registration-notice" aria-label="First training booking update"><div class="wrap"><style>
@@ -359,6 +382,33 @@ html[lang="en"] #registration-notice [data-notice-lang="en"],html[lang="cs"] #re
       <p style="margin-top:14px;"><a href="../#terms">📜 Shared conduct &amp; safety rules →</a></p>
     </div>
   </section>
+
+
+<section id="media" aria-labelledby="dm-media-heading">
+  <div class="wrap">
+    <p class="eyebrow-sm" data-i18n="media.eyebrow">External coverage</p>
+    <h2 id="dm-media-heading" class="anchor-heading"><span data-i18n="media.heading">Družina Moravy in the media</span><a class="anchor-link" href="#media" aria-label="Link to media coverage">#</a></h2>
+    <p class="lead dm-media-intro" data-i18n="media.intro">Press reports and public references to our community, with editorial coverage distinguished from event directories.</p>
+    <article class="dm-media-feature">
+      <p class="dm-media-meta"><span data-i18n="media.editorialLabel">Editorial report</span><span aria-hidden="true">·</span><strong>Brněnský deník</strong><span aria-hidden="true">·</span><time datetime="2026-10-11">11. 10. 2026</time></p>
+      <h3 lang="cs"><a href="https://brnensky.denik.cz/zpravy-region/brno-historicky-serm-druzina-moravy-park-luzanky/" target="_blank" rel="noopener noreferrer">Šachový souboj v reálném světě. Nadšenec z Brna přibližuje historický šerm ↗</a></h3>
+      <p data-i18n="media.denikDescription">Brněnský deník covered our historical fencing workshops and their role in helping international students find movement and new friendships in Brno.</p>
+      <div class="dm-media-sources">
+        <a data-i18n="media.originalLink" href="https://brnensky.denik.cz/zpravy-region/brno-historicky-serm-druzina-moravy-park-luzanky/" target="_blank" rel="noopener noreferrer">Read the original on Deník.cz ↗</a>
+        <a data-i18n="media.seznamLink" href="https://www.seznam.cz/komentare/279225879-sachovy-souboj-v-realnem-svete-nadsenec-z-brna-priblizuje-historicky-serm" target="_blank" rel="noopener noreferrer">Discussion on Seznam.cz ↗</a>
+      </div>
+    </article>
+    <h3 data-i18n="media.elsewhereHeading">Also listed on</h3>
+    <p class="note" data-i18n="media.elsewhereIntro">These are public event or group listings, not independent press reviews.</p>
+    <ul class="dm-media-list">
+      <li><a href="https://www.gotobrno.cz/akce/treninky-historickeho-sermu-a-larpu-druzina-moravy/" target="_blank" rel="noopener noreferrer">Go To Brno ↗</a><span data-i18n="media.gotoDescription">Brno's official visitor and event portal</span></li>
+      <li><a href="https://www.sermiri.cz/skupina/druzina-moravy/703" target="_blank" rel="noopener noreferrer">Šermíři.cz ↗</a><span data-i18n="media.sermiriDescription">Historical fencing club catalogue</span></li>
+      <li><a href="https://www.larp.cz/?q=en%2Fskupina%2F49189%2Fdruzina-moravy-moravian-squad" target="_blank" rel="noopener noreferrer">LARP.cz ↗</a><span data-i18n="media.larpDescription">LARP community group profile</span></li>
+      <li><a href="https://www.livinginbrno.cz/exhibitors2026" target="_blank" rel="noopener noreferrer">Brno Expat Fair 2026 ↗</a><span data-i18n="media.expatDescription">Exhibitor directory, Brnowalkers &amp; Družina Moravy</span></li>
+    </ul>
+    <p class="dm-media-note" data-i18n="media.outdatedNote">Event details or tariffs in older external listings may be outdated. Please check current information on this website before booking.</p>
+  </div>
+</section>
 
   <section id="organisation">
     <div class="wrap">
@@ -698,6 +748,7 @@ en: {
         </table>
       </div>
       <p style="margin-top:14px;"><a href="../#terms">📜 Shared conduct &amp; safety rules →</a></p>`,
+  media: { heroLink: "Featured in Brněnský deník — see coverage ↓", eyebrow: "External coverage", heading: "Družina Moravy in the media", intro: "Press reports and public references to our community, with editorial coverage distinguished from event directories.", editorialLabel: "Editorial report", denikDescription: "Brněnský deník covered our historical fencing workshops and their role in helping international students find movement and new friendships in Brno.", originalLink: "Read the original on Deník.cz ↗", seznamLink: "Discussion on Seznam.cz ↗", elsewhereHeading: "Also listed on", elsewhereIntro: "These are public event or group listings, not independent press reviews.", gotoDescription: "Brno’s official visitor and event portal", sermiriDescription: "Historical fencing club catalogue", larpDescription: "LARP community group profile", expatDescription: "Exhibitor directory, Brnowalkers & Družina Moravy", outdatedNote: "Event details or tariffs in older external listings may be outdated. Please check current information on this website before booking." },
   footer: { title: 'Want the full picture?', lead: 'Tutoring, BrnoWalkers hiking, and the complete site live at the main hub.', visitFull: 'Visit the full site ➔', legal: 'Družina Moravy, z. s. · IČO 29876150 · Příkop 838/6, 602 00 Brno · Aliaksei Chareshneu, OSVČ · IČO 23041625 · organiser/payment recipient stated per activity' }
 },
 ru: {
@@ -880,6 +931,7 @@ ru: {
         </table>
       </div>
       <p style="margin-top:14px;"><a href="../#terms">📜 Общие правила поведения и безопасности →</a></p>`,
+  media: { heroLink: "О нас в Brněnský deník — публикация ↓", eyebrow: "Публикации и упоминания", heading: "О нас пишут", intro: "Материалы прессы и открытые упоминания клуба. Редакционные публикации отделены от афиш и каталогов.", editorialLabel: "Редакционная статья", denikDescription: "Brněnský deník рассказал о наших занятиях историческим фехтованием и о том, как они помогают иностранным студентам в Брно заниматься спортом и находить друзей.", originalLink: "Читать статью в Deník.cz ↗", seznamLink: "Обсуждение на Seznam.cz ↗", elsewhereHeading: "Где ещё представлены", elsewhereIntro: "Это афиши и каталоги мероприятий или клубов, а не независимые журналистские отзывы.", gotoDescription: "Официальный туристический и событийный портал Брно", sermiriDescription: "Каталог клубов исторического фехтования", larpDescription: "Карточка клуба в сообществе LARP", expatDescription: "Каталог участников выставки Brno Expat Fair", outdatedNote: "Цены и условия в старых внешних афишах могут устареть. Перед записью сверяйтесь с актуальной информацией на нашем сайте." },
   footer: { title: 'Хочешь увидеть всю картину?', lead: 'Репетиторство, походы Брноходцев и весь сайт целиком — на главном хабе.', visitFull: 'Перейти на весь сайт ➔', legal: 'Družina Moravy, z. s. · IČO 29876150 · Příkop 838/6, 602 00 Brno · Aliaksei Chareshneu, OSVČ · IČO 23041625 · организатор/получатель оплаты указан для каждой активности' }
 },
 cs: {
@@ -1062,6 +1114,7 @@ cs: {
         </table>
       </div>
       <p style="margin-top:14px;"><a href="../#terms">📜 Společná pravidla chování a bezpečnosti →</a></p>`,
+  media: { heroLink: "Psali o nás v Brněnském deníku — přečíst ↓", eyebrow: "Média a veřejné zmínky", heading: "Napsali o nás", intro: "Články a veřejné zmínky o našem klubu. Redakční příspěvky odlišujeme od katalogových záznamů a pozvánek na akce.", editorialLabel: "Redakční článek", denikDescription: "Brněnský deník představil naše workshopy historického šermu, které přivádějí zahraniční studenty k pohybu i novým přátelstvím v Brně.", originalLink: "Přečíst článek v Deníku ↗", seznamLink: "Diskuse na Seznam.cz ↗", elsewhereHeading: "Najdete nás také", elsewhereIntro: "Jde o veřejné katalogy klubů a přehledy akcí, nikoli o nezávislé recenze v médiích.", gotoDescription: "Oficiální brněnský turistický a informační portál", sermiriDescription: "Katalog skupin historického šermu", larpDescription: "Profil skupiny v LARP komunitě", expatDescription: "Seznam vystavovatelů, Brnowalkers & Družina Moravy", outdatedNote: "Informace o cenách a termínech ve starších externích pozvánkách se mohou lišit. Před registrací se řiďte aktuálními údaji na tomto webu." },
   footer: { title: 'Chceš vidět celý obrázek?', lead: 'Doučování, výšlapy BrnoWalkers a celý web najdeš na hlavním hubu.', visitFull: 'Přejít na celý web ➔', legal: 'Družina Moravy, z. s. · IČO 29876150 · Příkop 838/6, 602 00 Brno · Aliaksei Chareshneu, OSVČ · IČO 23041625 · pořadatel/příjemce platby je uveden u každé aktivity' }
 },
 uk: {
@@ -1244,6 +1297,7 @@ uk: {
         </table>
       </div>
       <p style="margin-top:14px;"><a href="../#terms">📜 Спільні правила поведінки та безпеки →</a></p>`,
+  media: { heroLink: "Про нас у Brněnský deník — публікація ↓", eyebrow: "Публікації та згадки", heading: "Про нас пишуть", intro: "Матеріали преси й публічні згадки про клуб. Редакційні статті відокремлені від афіш і каталогів.", editorialLabel: "Редакційна стаття", denikDescription: "Brněnský deník розповів про наші заняття історичним фехтуванням і про те, як вони допомагають іноземним студентам у Брно рухатися та знаходити друзів.", originalLink: "Читати статтю на Deník.cz ↗", seznamLink: "Обговорення на Seznam.cz ↗", elsewhereHeading: "Де нас також можна знайти", elsewhereIntro: "Це каталоги клубів і анонси подій, а не незалежні журналістські відгуки.", gotoDescription: "Офіційний туристичний та подієвий портал Брно", sermiriDescription: "Каталог клубів історичного фехтування", larpDescription: "Профіль групи у спільноті LARP", expatDescription: "Каталог учасників Brno Expat Fair", outdatedNote: "Ціни й умови в старих зовнішніх анонсах можуть бути неактуальними. Перед записом перевіряйте дані на цьому сайті." },
   footer: { title: 'Хочеш побачити всю картину?', lead: 'Репетиторство, походи Брнохідців та весь сайт цілком — на головному хабі.', visitFull: 'Перейти на весь сайт ➔', legal: 'Družina Moravy, z. s. · IČO 29876150 · Příkop 838/6, 602 00 Brno · Aliaksei Chareshneu, OSVČ · IČO 23041625 · організатор/одержувач платежу зазначений для кожної активності' }
 }
 };
