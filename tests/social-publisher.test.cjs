@@ -23,7 +23,7 @@ function event(overrides={}){
   Tally_Form_URL:'https://example.org/registration',...overrides};
 }
 function job(overrides={}){
- return {Channel:'telegram',Entity:'Družina Moravy z.s.',Grant_Funded:'NO',
+ return {Duplicate_Checked:'YES',Channel:'telegram',Entity:'Družina Moravy z.s.',Grant_Funded:'NO',
   Grant_Text:'',Caption:'Only verified contents',Rights_OK:'',
   Visibility:'private',Made_For_Kids:'NO',...overrides};
 }
@@ -31,6 +31,7 @@ test('all public channels require reviewed legal entity and grant decision',()=>
  const s=load();
  assert.equal(s.spValidate_(event(),job()),true);
  assert.throws(()=>s.spValidate_(event(),job({Entity:''})),/legal entity/);
+ assert.throws(()=>s.spValidate_(event(),job({Duplicate_Checked:''})),/Duplicate_Checked/);
  assert.throws(()=>s.spValidate_(event(),job({Grant_Funded:''})),/Grant_Funded/);
  assert.throws(()=>s.spValidate_(event(),job({Grant_Funded:'YES'})),/grant attribution/);
 });
