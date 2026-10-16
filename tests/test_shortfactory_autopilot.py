@@ -27,6 +27,8 @@ class WorkerTests(unittest.TestCase):
     def test_exit_zero_without_db_receipt_is_failure(self):
         r=w.run_once(self.base,execute=True,runner=lambda *a,**k:types.SimpleNamespace(returncode=0))
         self.assertEqual(r['failed'],1)
+        self.assertEqual(w.run_once(self.base)['selected'],0)
+        self.assertEqual(w.run_once(self.base)['quarantined'],1)
     def test_success_requires_output_and_db_state(self):
         def render(*a,**k):
             output=self.base/'result.mp4'; output.write_bytes(b'fixture')
