@@ -87,11 +87,12 @@ function fioNormalizeStatement_(response, expectedAccount) {
     if (seen[tx.id]) throw new Error('Duplicate transaction ID in Fio response');
     seen[tx.id] = true;
   });
-  return {
-    transactions: rows,
-    balance: info.closingBalance === null || info.closingBalance === undefined
-      ? null : Number(info.closingBalance)
-  };
+  var balance = info.closingBalance === null || info.closingBalance === undefined
+    ? null : Number(info.closingBalance);
+  if (balance !== null && !isFinite(balance)) {
+    throw new Error('Invalid bank closing balance');
+  }
+  return { transactions: rows, balance: balance };
 }
 
 /** Match a candidate by exact amount + numeric VS; does NOT verify/settle payment. */
@@ -185,7 +186,7 @@ function fioSyncDruzinaReadOnly() {
       if (isNaN(lastMillis) || (now.getTime() - lastMillis) > 75 * 86400000) {
         throw new Error('Fio history gap: manual backfill review required');
       }
-      from = new Date(Math.max(from.getTime(), lastMillis - 7 * 86400000));
+      from = new Date(lastMillis - 7 * 86400000);
     }
     var startDate = Utilities.formatDate(from, FIO_NGO_TIMEZONE, 'yyyy-MM-dd');
     var endDate = Utilities.formatDate(now, FIO_NGO_TIMEZONE, 'yyyy-MM-dd');
@@ -234,7 +235,10 @@ function fioSyncDruzinaReadOnly() {
       ids[tx.id] = true;
     });
     if (append.length) {
-      bank.getRange(bank.getLastRow() + 1, 1, append.length, FIO_NGO_HEADERS.length)
+      var firstRow = bank.getLastRow() + 1;
+      var overflow = firstRow + append.length - 1 - bank.getMaxRows();
+      if (overflow > 0) bank.insertRowsAfter(bank.getMaxRows(), overflow);
+      bank.getRange(firstRow, 1, append.length, FIO_NGO_HEADERS.length)
         .setValues(append);
     }
     // Advance checkpoint ONLY after successful data write and validations.
