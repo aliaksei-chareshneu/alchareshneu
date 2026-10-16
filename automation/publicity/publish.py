@@ -13,7 +13,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-API = "https://graph.facebook.com/v21.0"
+API = "https://graph.facebook.com/" + os.getenv("GRAPH_API_VERSION", "v26.0")
 QUEUE = HERE / "queue.json"
 
 def parse_date(value):
