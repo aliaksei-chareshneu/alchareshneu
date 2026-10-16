@@ -26,6 +26,11 @@
 
 **Meta brand mapping:** Metricool currently has one connected personal brand `chareshneu` for Facebook / Instagram / YouTube / Google Business, but its 13/16 Oct IG scheduled posts returned `ERROR: You have reached your Metricool account limit`. This code does NOT bypass any Metricool quota or automatically imply corresponding Meta developer authorisation. Do not duplicate earlier successfully published content; check live per-platform links first.
 
+
+### Native Meta cross-share exception (important for the user's large personal Facebook audience)
+
+**Instagram app → personal Facebook profile is sometimes supported natively** via Accounts Center → Connected experiences → Sharing across profiles → choose *personal Facebook profile*, then on a post in the **Instagram app** enable **Also share on Facebook**, or schedule that post inside Instagram. Native Meta can subsequently publish the prepared scheduled Instagram post onto the personal Facebook profile, even though a third-party API cannot post to that Facebook profile. Availability and chosen destination depend on actual linked accounts and UI. **Crucial limitation:** an independent platform test dated 2 Oct 2026 found Instagram posts published by its **API** do *not* trigger Accounts Center auto-sharing, so this feature is NOT a route from our `spInstagram_` adapter to the user profile. For the highest-priority Facebook personal reach, prepare content here and optionally batch-schedule inside the Instagram native app with the cross-share destination set to the correct personal FB profile. Verify one real scheduled post on both networks before relying on it; do not switch existing Page/IG connections blindly.
+
 ## Owner setup: minimum necessary sequence
 
 1. In Google Drive/Apps Script attached to the existing Community Hub workbook, review and add the THREE `.gs` files from this feature branch, without altering original `Code.gs`. Verify local scope, OAuth and source-version alignment before any push/deployment. No secrets in GitHub/public repo or ChatGPT.
