@@ -70,7 +70,7 @@ function spPrepareSelectedEvent(){
  var id=s.getRange(row,getHeaderMap(s).Event_ID).getValue(),e=spEvent_(id);
  if(e.Status!=='Active'||e.Category==='Corporate')throw Error('Only Active public events');
  var dest=['telegram','facebook_page','instagram','facebook_profile','whatsapp'];
- if(e.Video_Drive_ID)dest.push('youtube','tiktok');
+ dest.push('youtube','tiktok'); // video jobs remain DRAFT until Video_Drive_ID, rights and metadata are supplied
  var sheet=spJobs_(),seen=spItems_(sheet).map(function(x){return x.Event_ID+':'+x.Channel;}),n=0;
  dest.forEach(function(ch){
   if(seen.indexOf(id+':'+ch)>=0)return;
