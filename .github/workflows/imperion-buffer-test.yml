@@ -1,0 +1,26 @@
+name: Imperion social bridge - pure tests
+
+on:
+  pull_request:
+    paths:
+      - "automation/social_buffer_bridge.py"
+      - "automation/test_social_buffer_bridge.py"
+      - ".github/workflows/imperion-buffer-test.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install imports
+        run: pip install --disable-pip-version-check "google-auth>=2.30,<3" "requests>=2.31,<3"
+      - name: Run synthetic guardrail tests only
+        run: python -m unittest discover -s automation -p "test_social_buffer_bridge.py" -v
