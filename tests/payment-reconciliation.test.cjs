@@ -1,0 +1,17 @@
+const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const s={};vm.createContext(s);vm.runInContext(fs.readFileSync(__dirname+'/../PaymentReconciliation.gs','utf8'),s);
+const p=(x={})=>({Payment_ID:'p1',Payment_Reference:'00123',Amount_CZK:120,Verification_Status:'PENDING',...x});
+const t=(x={})=>({Bank_Transaction_ID:'1001',VS:'123',Amount_CZK:120,Currency:'CZK',...x});
+const status=(ps=[p()],ts=[t()])=>s.rcPlan_(ps,ts).rows[0].status;
+test('exact amount/reference is candidate, never settled',()=>{let r=s.rcPlan_([p()],[t()]);assert.equal(r.rows[0].status,'CANDIDATE_ONLY');assert.equal(r.settled,0);});
+test('reused reference across closed and pending orders is ambiguous',()=>assert.equal(status([p(),p({Payment_ID:'p2',Verification_Status:'PAID'})]),'AMBIGUOUS_REFERENCE'));
+test('two transfers cannot silently pay one order twice',()=>assert.ok(s.rcPlan_([p()],[t(),t({Bank_Transaction_ID:'1002'})]).rows.every(r=>r.status==='MULTIPLE_TRANSFERS_REVIEW')));
+test('partial and excess payments need review',()=>{assert.equal(status([p()],[t({Amount_CZK:60})]),'PARTIAL_REVIEW');assert.equal(status([p()],[t({Amount_CZK:140})]),'OVERPAYMENT_REVIEW');});
+test('duplicate imported bank ID fails',()=>assert.throws(()=>s.rcPlan_([p()],[t(),t()]),/duplicate/));
+test('duplicate payment ID fails',()=>assert.throws(()=>s.rcPlan_([p(),p()],[t()]),/duplicate/));
+test('missing expected amount cannot become zero',()=>assert.equal(status([p({Amount_CZK:''})]),'INVALID_EXPECTED'));
+test('already verified record not reused',()=>assert.equal(status([p({Verification_Status:'VERIFIED'})]),'EXISTING_STATUS_REVIEW'));
+test('UNVERIFIED does not match VERIFIED substring',()=>assert.equal(status([p({Verification_Status:'UNVERIFIED'})]),'CANDIDATE_ONLY'));
+test('currency and debit are never income matches',()=>{assert.equal(status([p()],[t({Currency:'EUR'})]),'CURRENCY_REVIEW');assert.equal(status([p()],[t({Amount_CZK:-120})]),'DEBIT_OR_ZERO');});
+test('no reference means no guessed matching by amount',()=>assert.equal(status([p()],[t({VS:''})]),'UNMATCHED'));
+test('planning is deterministic and does not mutate input',()=>{let ps=[p()],ts=[t()],before=JSON.stringify([ps,ts]);assert.equal(JSON.stringify(s.rcPlan_(ps,ts)),JSON.stringify(s.rcPlan_(ps,ts)));assert.equal(JSON.stringify([ps,ts]),before);});
