@@ -61,3 +61,6 @@ Observed operational state on 2026-10-17:
 - Automated checks: 25 Node tests + 6 Python tests pass. HTML script syntax parses; live UI and bank integration are not yet tested.
 
 Release checklist: reconnect existing PC; pull current cloud Apps Script source and diff; review staged changes; install add-ons without replacing repaired modules; open console as owner; configure distinct bank profiles privately; verify bank reads/dedup and UI; validate recovery replay and notifications; resolve social quota; run one eligible video end to end. Record evidence before declaring the platform live.
+
+## Payment reconciliation preview
+Add PaymentReconciliation.gs to the same reviewed installation. The console action previewPayments reads Druzina_Payments and Druzina_Fio_Transactions without updating either sheet. Exact numeric VS and CZK amounts yield CANDIDATE_ONLY, never settlement. Reused references, multiple transfers per payment, partial/excess payments, debits, currency mismatches and closed payment records require review. Current result is capped to 100 displayed rows, with total and truncation notice. Bank snapshot freshness is shown. OSVC Leads are not an order ledger and are deliberately excluded. 12 reconciliation fixture tests pass (37 Node tests total). Live banking/console E2E remains unverified.
