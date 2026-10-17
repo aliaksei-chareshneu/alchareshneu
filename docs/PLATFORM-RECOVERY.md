@@ -32,3 +32,32 @@ Keep existing ingest/trends tasks. If adding a draft-render schedule, first chec
 - Python: `python -m unittest discover -s tests -p 'test_*.py' -v` — 6 fixture cases pass.
 - These tests do not prove live Form ingestion, bank connection or social publication.
 - Secrets and private source briefs are excluded from this public repository.
+
+
+## Owner console and two bank profiles — 2026-10-17
+
+New staged files: OperatorConsole.gs, OperatorConsole.html, FioOSVC.gs.
+The owner console reads the existing Hub: Leads, SocialPublishing, Events and Revenue_Config.
+It displays bank profiles separately, excludes marked synthetic leads, and never treats expected revenue or CRM Paid status as verified cash.
+Publication verification shown in the console means a stored PUBLISHED_VERIFIED record with a receipt URL; refreshing the console does not re-query providers.
+
+Install these files in the current bound Apps Script project after reviewing the latest cloud source. Preserve the repaired RevenuePipeline and all other existing files. Do not replace doGet, doPost or onOpen. Run operatorInstallMenu() in an owner session, then open IMPERION. The menu is session-local; add operatorInstallMenu() to the existing onOpen only after inspecting that handler. The HTML is not a standalone public application.
+
+OSVC adapter prerequisites in Script Properties:
+- FIO_OSVC_READ_TOKEN: separate owner-created read-only token.
+- FIO_OSVC_EXPECTED_ACCOUNT_ID: owner-verified account ID.
+- FIO_OSVC_ENTITY_CONFIRMED: true only after account ownership verification.
+Druzina uses the existing FioBank.gs and FIO_DRUZINA_* properties. Never put tokens in source, chat or logs.
+Both account IDs and tokens must differ. OSVC imports only to OSVC_Fio_Transactions, deduplicates bank transaction IDs and does not settle NGO payments or mark orders paid.
+Private owner-only Hub sharing is required. Verify one manual read against the bank and repeat without duplicates before enabling any schedule. No new OSVC banking timer has been installed.
+A bank read-only adapter does not implement checkout, payment requests, invoices or automatic order fulfillment. These remain unfinished.
+
+Observed operational state on 2026-10-17:
+- Existing Form-to-Leads synthetic E2E succeeded after RevenuePipeline repair; alert/replay/history checks remain outstanding.
+- Telegram has a recorded verified publication today.
+- Facebook/Instagram publication remains constrained by Metricool quota.
+- Existing Windows ShortFactory scheduled task was installed and verified on 2026-10-16; it had no eligible queued jobs. Current PC offline prevents execution/deployment checks.
+- New console and OSVC module are committed here, not deployed. No live banking access or balance has been verified.
+- Automated checks: 25 Node tests + 6 Python tests pass. HTML script syntax parses; live UI and bank integration are not yet tested.
+
+Release checklist: reconnect existing PC; pull current cloud Apps Script source and diff; review staged changes; install add-ons without replacing repaired modules; open console as owner; configure distinct bank profiles privately; verify bank reads/dedup and UI; validate recovery replay and notifications; resolve social quota; run one eligible video end to end. Record evidence before declaring the platform live.
