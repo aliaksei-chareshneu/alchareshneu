@@ -47,6 +47,7 @@ function operatorSnapshot(){
 function operatorAction(action){
  ocOwner_();
  // Explicit allow-list: no arbitrary handler execution, mass sending or payment writes.
+ if(action==='previewPayments'){if(typeof paymentReconciliationPreview!=='function')throw Error('Payment reconciliation module not installed');return paymentReconciliationPreview();}
  if(action==='previewRecovery'){if(typeof platformRecoveryPreview!=='function')throw Error('Recovery module not installed');return platformRecoveryPreview();}
  if(action==='pauseRecovery'){if(typeof platformPauseRecovery!=='function')throw Error('Recovery module not installed');return platformPauseRecovery();}
  if(action==='syncOSVC'){if(typeof fioSyncOSVCReadOnly!=='function')throw Error('OSVC bank module not installed');return fioSyncOSVCReadOnly();}
