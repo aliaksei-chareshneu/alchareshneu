@@ -104,11 +104,12 @@
 <link rel="stylesheet" href="styles.css">
 
 <link rel="stylesheet" href="experience.css">
+<link rel="stylesheet" href="quest-theme.css">
 <script src="experience.js" defer></script>
 </head>
-<body>
+<body class="quest-site">
 <a class="skip-link" href="#page-content" data-exp="skip">Skip to content</a>
-<audio id="bgAudio" loop preload="none" src="media/ambient.mp3"></audio>
+<audio id="bgAudio" loop preload="none" src="media/druzina-quest-ambient.mp3"></audio>
 <nav class="nav">
   <div class="wrap">
     <div class="brand" id="navBrand">Aliaksei Chareshneu, PhD | Алексей Черешнев, доктор наук<small id="navSub">Экосистема проектов в Брно</small></div>
@@ -3268,9 +3269,10 @@ function bindAudioToggle(){
   const audio = document.getElementById('bgAudio');
   const button = document.getElementById('audioToggle');
   if(!audio || !button) return;
+  audio.volume = 0.30; // pleasant background level
 
   const stored = localStorage.getItem('bgAudioOn');
-  const enabled = stored === 'true';
+  const enabled = false; // no autoplay and do not display sound as enabled until clicked
   button.setAttribute('aria-pressed', enabled ? 'true' : 'false');
   button.textContent = enabled ? '🔊' : '🔇';
 
