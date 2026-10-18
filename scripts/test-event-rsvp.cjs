@@ -66,7 +66,7 @@ const labelItem = {
     return {value:v};
   }
 };
-const responses = new Set();
+const responses = new Map();
 const form = {
   getItems:()=>[labelItem],
   setAcceptingResponses() {},
@@ -74,7 +74,7 @@ const form = {
     return {toPrefilledUrl:()=> "https://docs.google.com/forms/test?event=" + encodeURIComponent(r.value)};
   }};},
   deleteResponse(id) {responses.delete(id);},
-  getResponses() {return [...responses].map(id=>({getId:()=>id}));}
+  getResponses() {return [...responses.values()];}
 };
 const properties = {EVENT_RSVP_FORM_ID:"form-test"};
 const ctx = {
@@ -121,7 +121,7 @@ function submit(id,eventId,name,contact,answer,minor=false,guardian=false) {
       getItem:()=>({getTitle:()=>key}),getResponse:()=>val
     }))
   };
-  responses.add(id);
+  responses.set(id,response);
   ctx.onEventRsvpSubmit({response});
 }
 submit("resp-1","EVT-SYNC","Adult Test","+420 777 100 100","YES - I plan to come");
@@ -137,6 +137,7 @@ assert.equal(registrations.length,4,"resubmission updates same row");
 rec=registrations[3];
 assert.equal(rec[regHeaders.indexOf("RSVP_Status")],"DECLINED");
 assert.equal(rec[regHeaders.indexOf("Submission_ID")],"resp-2");
+assert(!responses.has("resp-1"),"superseded Google Form answer is deleted immediately");
 
 submit("resp-2","EVT-SYNC","Adult Test","+420 777 100 100","YES - I plan to come");
 assert.equal(registrations[3][regHeaders.indexOf("RSVP_Status")],"DECLINED","replay does not change status");
@@ -150,6 +151,7 @@ assert.equal(registrations[4][regHeaders.indexOf("Payment_Status")],"NOT_REQUIRE
 registrations[3][regHeaders.indexOf("RSVP_Status")]="ATTENDED";
 submit("resp-3","EVT-SYNC","Adult Test","+420 777 100 100","NO - cannot come");
 assert.equal(registrations[3][regHeaders.indexOf("RSVP_Status")],"ATTENDED","real attendance remains authoritative");
+assert(!responses.has("resp-3"),"late RSVP after check-in must not retain unreferenced PII");
 registrations[3][regHeaders.indexOf("Retention_Until")] = new Date(now-86400000);
 const cleaned=ctx.cleanupEventRsvp();
 assert.equal(cleaned,"PURGED=1");
