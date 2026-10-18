@@ -200,7 +200,14 @@ function onEventRsvpSubmit(e) {
     var now = new Date(), retention = new Date(ev.date.getTime() + 90 * 86400000);
     if (target > 0) {
       // Attendance and verified payment are ledger facts, not overwritten by RSVP.
-      if (values[target - 1][ix('RSVP_Status')] === 'ATTENDED') return;
+      if (values[target - 1][ix('RSVP_Status')] === 'ATTENDED') {
+        // A late RSVP is not allowed to reverse an actual check-in. Also avoid
+        // leaving an unreferenced extra Form response full of personal data.
+        try { FormApp.openById(PropertiesService.getScriptProperties().getProperty(EVENT_RSVP_FORM_PROPERTY)).deleteResponse(submissionId); }
+        catch (err) { console.error('Cannot purge irrelevant late RSVP response: ' + String(err)); }
+        return;
+      }
+      var previousSubmissionId = String(values[target - 1][ix('Submission_ID')] || '').trim();
       sheet.getRange(target, ix('RSVP_Status') + 1).setValue(status);
       sheet.getRange(target, ix('RSVP_Status_At') + 1).setValue(now);
       sheet.getRange(target, ix('Submission_ID') + 1).setValue(submissionId);
@@ -208,6 +215,13 @@ function onEventRsvpSubmit(e) {
       if (minor) {
         if (byTitle.Guardian_Name) sheet.getRange(target, ix('Guardian_Name') + 1).setValue(eventRsvpClean_(byTitle.Guardian_Name));
         if (byTitle.Guardian_Contact) sheet.getRange(target, ix('Guardian_Phone') + 1).setValue(eventRsvpClean_(byTitle.Guardian_Contact));
+      }
+      // Keep only the latest full Google Form response for this registration.
+      // If deletion temporarily fails, cleanupEventRsvp also scans all old
+      // responses by event + contact before anonymizing the canonical row.
+      if (previousSubmissionId && previousSubmissionId !== submissionId) {
+        try { FormApp.openById(PropertiesService.getScriptProperties().getProperty(EVENT_RSVP_FORM_PROPERTY)).deleteResponse(previousSubmissionId); }
+        catch (err) { console.error('Old RSVP Form response deletion needs retry: ' + String(err)); }
       }
     } else {
       var record = {};
@@ -257,8 +271,23 @@ function cleanupEventRsvp() {
     var sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(REGISTRATIONS_SHEET_NAME);
     var rows = sheet.getDataRange().getValues(), headers = rows[0];
     var col = function(name) { return headers.indexOf(name); };
-    var required = ['Retention_Until', 'Source_Channel', 'Submission_ID', 'Full_Name', 'Reply_Contact'];
+    var required = ['Event_ID', 'Retention_Until', 'Source_Channel', 'Submission_ID', 'Full_Name', 'Reply_Contact'];
     required.forEach(function(h) { if (col(h) < 0) throw new Error('Missing column ' + h); });
+    // Form stores every re-submission independently. Build a key index so the
+    // GDPR purge catches even older Google Form responses no longer referenced
+    // by the most recent Submission_ID stored in Registrations.
+    var formResponseIndex = {};
+    form.getResponses().forEach(function(response) {
+      var fields = {};
+      response.getItemResponses().forEach(function(ir) {
+        fields[ir.getItem().getTitle()] = ir.getResponse();
+      });
+      var match = /\[([A-Za-z0-9-]+)\]$/.exec(String(fields.Event || ''));
+      if (!match) return;
+      var key = [match[1], eventRsvpNorm_(fields.Full_Name), eventRsvpNorm_(fields.Reply_Contact)].join('|');
+      if (!formResponseIndex[key]) formResponseIndex[key] = [];
+      formResponseIndex[key].push(response.getId());
+    });
     var personal = [
       'Full_Name', 'Telegram_Handle', 'Phone_Number', 'Age',
       'Guardian_Name', 'Guardian_Phone', 'Guardian_Relationship',
@@ -272,19 +301,22 @@ function cleanupEventRsvp() {
       if (row[col('Source_Channel')] !== 'RSVP_FORM') continue;
       var until = row[col('Retention_Until')];
       if (!until || new Date(until).getTime() > Date.now()) continue;
+      var key = [String(row[col('Event_ID')] || '').trim(), eventRsvpNorm_(row[col('Full_Name')]), eventRsvpNorm_(row[col('Reply_Contact')])].join('|');
+      var responseIds = (formResponseIndex[key] || []).slice();
       var responseId = String(row[col('Submission_ID')] || '').trim();
-      if (responseId && responseId !== '—') {
-        try {
-          form.deleteResponse(responseId);
-        } catch (err) {
-          // Some responses may have been manually removed already; verify by ID,
-          // don't silently suppress other authorization/availability errors.
-          var stillExists = form.getResponses().some(function(r) { return r.getId() === responseId; });
-          if (stillExists) {
-            errors.push('row ' + (i + 1) + ': could not delete Form response');
-            continue;
-          }
+      if (responseId && responseId !== '—' && responseIds.indexOf(responseId) < 0) responseIds.push(responseId);
+      var failed = false;
+      responseIds.forEach(function(id) {
+        try { form.deleteResponse(id); }
+        catch (err) {
+          // A missing response may have been purged already; inability to
+          // delete a present response is a blocking privacy error.
+          if (form.getResponses().some(function(r) { return r.getId() === id; })) failed = true;
         }
+      });
+      if (failed) {
+        errors.push('row ' + (i + 1) + ': cannot delete all Form responses');
+        continue;
       }
       personal.forEach(function(h) {
         if (col(h) >= 0 && row[col(h)] !== '' && row[col(h)] !== '—') {
