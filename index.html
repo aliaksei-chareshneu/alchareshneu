@@ -3272,7 +3272,7 @@ function bindAudioToggle(){
   audio.volume = 0.30; // pleasant background level
 
   const stored = localStorage.getItem('bgAudioOn');
-  const enabled = false; // no autoplay and do not display sound as enabled until clicked
+  const enabled = !audio.paused; // live state survives rebinds caused by async page renders; never autoplays
   button.setAttribute('aria-pressed', enabled ? 'true' : 'false');
   button.textContent = enabled ? '🔊' : '🔇';
 
