@@ -77,6 +77,18 @@
 .dm-media-hero-link{font-size:13px;margin:12px 0 0;}
 .dm-media-hero-link a{text-underline-offset:4px;color:inherit;}
 @media(max-width:480px){.dm-media-feature{padding:17px;}.dm-media-sources{flex-direction:column;gap:10px;}}
+/* B2B is a distinct non-binding corporate enquiry path, not a club-class payment form. */
+#dm-team-experience{padding:30px 0;scroll-margin-top:100px;background:linear-gradient(110deg,#18202b,#222c39);color:#f8f4e9}
+#dm-team-experience .dm-team-card{border:1px solid #7c6c57;border-radius:15px;padding:clamp(20px,4vw,32px);background:rgba(10,13,18,.34)}
+#dm-team-experience [data-dm-offer-lang]{display:none}
+html[lang="cs"] #dm-team-experience [data-dm-offer-lang="cs"],html[lang="en"] #dm-team-experience [data-dm-offer-lang="en"],html[lang="ru"] #dm-team-experience [data-dm-offer-lang="ru"],html[lang="uk"] #dm-team-experience [data-dm-offer-lang="uk"]{display:block}
+#dm-team-experience h2{margin:0 0 10px;font:700 clamp(23px,4vw,34px)/1.2 'Spectral',serif;color:#fff}
+#dm-team-experience p{max-width:780px;line-height:1.65;color:#edf0f2;margin:7px 0 16px}
+#dm-team-experience .dm-team-eyebrow{color:#f6ca7a;font-size:13px;letter-spacing:.08em;text-transform:uppercase;font-weight:700}
+#dm-team-experience .dm-team-terms{color:#d2d9e1;font-size:13px}
+#dm-team-experience a.btn{display:inline-block;margin:0;background:#e6bd7b;border-color:#e6bd7b;color:#17212b}
+#dm-team-experience a:focus-visible{outline:3px solid #f6ca7a;outline-offset:4px}
+@media(max-width:520px){#dm-team-experience a.btn{display:block;text-align:center;width:100%}}
 </style>
 </head>
 <body>
@@ -138,7 +150,7 @@
 
       <div class="hero-ctas">
         <a class="btn solid plausible-event-name=Register-Druzina" data-i18n="hero.ctaRegister" href="https://wa.me/420702914842?text=Hello%2C%20I%27d%20like%20to%20book%20my%20first%20Druzina%20Moravy%20HEMA%20training.%20Please%20confirm%20the%20date%2C%20place%2C%20safety%20briefing%20and%20payment%20conditions." target="_blank" rel="noopener">Register for training</a>
-        <a class="btn plausible-event-name=Join-Chat-Druzina" data-i18n="hero.ctaChat" href="https://chat.whatsapp.com/DuTpgF22mxMFy6L1Cfrcvu" target="_blank" rel="noopener">Announcements (WhatsApp)</a>
+        <a class="btn plausible-event-name=Enquire-Druzina-Castle" data-i18n="hero.ctaCorporate" href="teambuilding/">For companies — Castle Defenders →</a>
       </div>
       <div class="hero-ctas-secondary">
         <a class="btn-quiet plausible-event-name=Announce-WA-Druzina" data-i18n="hero.ctaAnnounceWA" href="https://chat.whatsapp.com/DuTpgF22mxMFy6L1Cfrcvu" target="_blank" rel="noopener">Announcements · WhatsApp</a>
@@ -151,6 +163,43 @@
       <p class="dm-media-hero-link"><a href="#media" data-i18n="media.heroLink">Featured in Brněnský deník — see coverage ↓</a></p>
     </div>
   </section>
+<!-- DM-CASTLE-DEFENDERS-B2B-ENTRY-20261018: enquiries only; no paid HEMA checkout activated -->
+<section id="dm-team-experience" aria-label="Corporate Castle Defenders offer">
+  <div class="wrap"><div class="dm-team-card">
+    <div data-dm-offer-lang="cs" lang="cs">
+      <p class="dm-team-eyebrow">PRO FIRMY A SOUKROMÉ SKUPINY · BRNO</p>
+      <h2>Obránci hradu — teambuilding, který vás spojí</h2>
+      <p>90 minut příběhového týmového zážitku s instruktorem vedeným historickým šermem pro 8–20 dospělých. Jednoduché role, signály, měkčené tréninkové meče a společná „obrana brány“; bez tvrdého sparringu a bez nutnosti předchozích zkušeností.</p>
+      <p><strong>Orientačně 7 900 Kč za celou skupinu do 20 lidí</strong> (při plné skupině 395 Kč na osobu).</p>
+      <a class="btn plausible-event-name=Castle-Defenders-Enquiry" href="teambuilding/?lang=cs">Zjistit program a nezávazně poptat termín →</a>
+      <p class="dm-team-terms">Přijímáme pouze nezávazné poptávky; nové placené rezervace zatím neaktivujeme. Před potvrzením ověřujeme zákonné oprávnění poskytovatele, personál, prostor, bezpečnost a pojistné krytí.</p>
+    </div>
+    <div data-dm-offer-lang="en" lang="en">
+      <p class="dm-team-eyebrow">FOR COMPANIES & PRIVATE GROUPS · BRNO</p>
+      <h2>Castle Defenders — teamwork with a story</h2>
+      <p>A supervised 90-minute, beginner-friendly historical-fencing experience for 8–20 adults. Roles, signals, padded practice swords and a cooperative castle-gate challenge. No hard-contact sparring.</p>
+      <p><strong>Indicative CZK 7,900 for the whole group of up to 20</strong> (CZK 395 each at full capacity).</p>
+      <a class="btn plausible-event-name=Castle-Defenders-Enquiry" href="teambuilding/?lang=en">Explore the programme and request a quote →</a>
+      <p class="dm-team-terms">Non-binding enquiries only; new paid bookings are not open. Legal provider eligibility, competent instructors, venue, safety and activity-specific insurance must be checked before commitment.</p>
+    </div>
+    <div data-dm-offer-lang="ru" lang="ru">
+      <p class="dm-team-eyebrow">ДЛЯ КОМПАНИЙ И ЗАКРЫТЫХ ГРУПП · БРНО</p>
+      <h2>Защитники крепости — командная миссия</h2>
+      <p>90 минут сюжетного исторического фехтования для 8–20 взрослых под руководством инструкторов. Роли, сигналы, мягкое тренировочное оружие и совместная защита ворот; жёстких спаррингов нет.</p>
+      <p><strong>Ориентировочно 7 900 Kč за всю группу до 20 человек</strong> (395 Kč на человека при полном составе).</p>
+      <a class="btn plausible-event-name=Castle-Defenders-Enquiry" href="teambuilding/?lang=ru">Программа и запрос предложения →</a>
+      <p class="dm-team-terms">Пока принимаем лишь предварительные запросы, не оплачиваемые бронирования. До подтверждения проверяем право организатора, инструкторов, площадку, безопасность и страхование.</p>
+    </div>
+    <div data-dm-offer-lang="uk" lang="uk">
+      <p class="dm-team-eyebrow">ДЛЯ КОМПАНІЙ І ПРИВАТНИХ ГРУП · БРНО</p>
+      <h2>Захисники фортеці — спільна пригода команди</h2>
+      <p>90 хвилин історичного фехтування для 8–20 дорослих під наглядом інструкторів. Ролі, сигнали, м'які тренувальні мечі та спільний захист брами; без жорстких поєдинків.</p>
+      <p><strong>Орієнтовно 7 900 Kč за всю групу до 20 осіб</strong> (395 Kč на особу за повного складу).</p>
+      <a class="btn plausible-event-name=Castle-Defenders-Enquiry" href="teambuilding/?lang=uk">Програма та запит пропозиції →</a>
+      <p class="dm-team-terms">Поки що лише попередні запити, без платного бронювання. Перед підтвердженням перевіряємо право постачальника, інструкторів, місце, безпеку та страхування.</p>
+    </div>
+  </div></div>
+</section>
 <!-- DM-PRELAUNCH-LEGAL-GATE-20261018 -->
 <section id="registration-notice" aria-label="HEMA enquiries only"><div class="wrap"><style>
 #tariff, #druzina-payment {display:none !important} /* Legacy prices and checkout hidden while noncommercial enquiries remain possible. */
@@ -577,7 +626,7 @@ en: {
     name2: 'Družina Moravy — HEMA Fencing &amp; LARP Club in Brno',
     tagline: 'A club for historical medieval combat, fencing (HEMA), archery, and LARP re-enactment in Brno.',
     mission: 'Družina Moravy revives the living tradition of Great Moravia — fellowship, craft, and the path from novice to warrior — so that everyone who joins finds roots, mastery, and their people.',
-    ctaRegister: 'Enquire about training', ctaChat: 'Announcements · WhatsApp',
+    ctaRegister: 'Enquire about training', ctaCorporate: 'For companies — Castle Defenders →', ctaChat: 'Announcements · WhatsApp',
     ctaAnnounceWA: 'Announcements · WhatsApp', ctaAnnounceTG: 'Announcements · Telegram',
     testimonialQuote: '"Druzhina training feels demanding and honest. I gained new friends and real skills, not just another story."',
     testimonialAuthor: '— Ivan, Druzhina Moravy',
@@ -760,7 +809,7 @@ ru: {
     name2: 'Дружина Моравы — клуб исторического фехтования (HEMA) и LARP в Брно',
     tagline: 'Клуб исторического средневекового боя, фехтования (HEMA), стрельбы и LARP-реконструкции в Брно.',
     mission: 'Дружина Моравы возрождает живую традицию Великой Моравии — товарищество, ремесло и путь от новичка до воина, — чтобы каждый, кто пришёл, обрёл корни, мастерство и своих.',
-    ctaRegister: 'Спросить о тренировке', ctaChat: 'Анонсы · WhatsApp',
+    ctaRegister: 'Спросить о тренировке', ctaCorporate: 'Для компаний — Защитники крепости →', ctaChat: 'Анонсы · WhatsApp',
     ctaAnnounceWA: 'Анонсы · WhatsApp', ctaAnnounceTG: 'Анонсы · Telegram',
     testimonialQuote: '«Тренировки в Дружине — требовательные и честные. Я получил новых друзей и реальные навыки, а не просто ещё одну байку.»',
     testimonialAuthor: '— Иван, Дружина Моравы',
@@ -943,7 +992,7 @@ cs: {
     name2: 'Družina Moravy — klub historického šermu (HEMA) a LARPu v Brně',
     tagline: 'Klub historického středověkého boje, šermu (HEMA), střelby a LARP rekonstrukce v Brně.',
     mission: 'Družina Moravy oživuje živou tradici Velké Moravy — kamarádství, řemeslo a cestu od nováčka k válečníkovi, aby každý, kdo přijde, našel kořeny, mistrovství a své lidi.',
-    ctaRegister: 'Zeptat se na trénink', ctaChat: 'Oznámení · WhatsApp',
+    ctaRegister: 'Zeptat se na trénink', ctaCorporate: 'Pro firmy — Obránci hradu →', ctaChat: 'Oznámení · WhatsApp',
     ctaAnnounceWA: 'Oznámení · WhatsApp', ctaAnnounceTG: 'Oznámení · Telegram',
     testimonialQuote: '„Tréninky v Družině jsou náročné a upřímné. Získal jsem nové přátele a skutečné dovednosti, ne jen další historku."',
     testimonialAuthor: '— Ivan, Družina Moravy',
@@ -1126,7 +1175,7 @@ uk: {
     name2: 'Дружина Моравії — клуб історичного фехтування (HEMA) та LARP у Брно',
     tagline: 'Клуб історичного середньовічного бою, фехтування (HEMA), стрільби та LARP-реконструкції в Брно.',
     mission: 'Дружина Моравії відроджує живу традицію Великої Моравії — товариство, ремесло і шлях від новачка до воїна, — щоб кожен, хто прийшов, знайшов коріння, майстерність і своїх.',
-    ctaRegister: 'Запитати про тренування', ctaChat: 'Анонси · WhatsApp',
+    ctaRegister: 'Запитати про тренування', ctaCorporate: 'Для команд — Захисники фортеці →', ctaChat: 'Анонси · WhatsApp',
     ctaAnnounceWA: 'Анонси · WhatsApp', ctaAnnounceTG: 'Анонси · Telegram',
     testimonialQuote: '«Тренування в Дружині — вимогливі й чесні. Я здобув нових друзів і реальні навички, а не просто ще одну байку.»',
     testimonialAuthor: '— Іван, Дружина Моравії',
