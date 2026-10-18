@@ -4,7 +4,8 @@
   "scripts": {
     "test": "playwright test",
     "test:dom": "node scripts/dom-check.cjs",
-    "test:security": "node scripts/security-check.cjs"
+    "test:security": "node scripts/security-check.cjs",
+    "test:rsvp": "node scripts/test-event-rsvp.cjs"
   },
   "devDependencies": {
     "@playwright/test": "1.51.1",
