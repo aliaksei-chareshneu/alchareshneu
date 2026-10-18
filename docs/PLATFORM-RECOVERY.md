@@ -36,7 +36,7 @@ Keep existing ingest/trends tasks. If adding a draft-render schedule, first chec
 
 ## Owner console and two bank profiles — 2026-10-17
 
-New staged files: OperatorConsole.gs, OperatorConsole.html, FioOSVC.gs.
+New staged files: OperatorConsoleServer.gs, OperatorConsole.html, FioOSVC.gs.
 The owner console reads the existing Hub: Leads, SocialPublishing, Events and Revenue_Config.
 It displays bank profiles separately, excludes marked synthetic leads, and never treats expected revenue or CRM Paid status as verified cash.
 Publication verification shown in the console means a stored PUBLISHED_VERIFIED record with a receipt URL; refreshing the console does not re-query providers.
@@ -64,3 +64,6 @@ Release checklist: reconnect existing PC; pull current cloud Apps Script source 
 
 ## Payment reconciliation preview
 Add PaymentReconciliation.gs to the same reviewed installation. The console action previewPayments reads Druzina_Payments and Druzina_Fio_Transactions without updating either sheet. Exact numeric VS and CZK amounts yield CANDIDATE_ONLY, never settlement. Reused references, multiple transfers per payment, partial/excess payments, debits, currency mismatches and closed payment records require review. Current result is capped to 100 displayed rows, with total and truncation notice. Bank snapshot freshness is shown. OSVC Leads are not an order ledger and are deliberately excluded. 12 reconciliation fixture tests pass (37 Node tests total). Live banking/console E2E remains unverified.
+
+## Verified installation — 2026-10-18
+At 07:24 Europe/Prague, clasp push succeeded for 14 files in the existing bound project. Fresh clasp pull and SHA256 comparisons matched all 14 files. Added console server/HTML, OSVC reader, reconciliation preview and recovery; inserted one IMPERION Operations item in the existing Community Hub menu. Current cloud baseline (including recent Telegram/RevenuePipeline changes) preserved and backed up locally before patching. No new public web-app deployment, banking sync, recovery timer or settlement was invoked. Server filename is OperatorConsoleServer.gs because Apps Script rejects server and HTML files with the same basename. Tests after rename: 37 Node cases pass. CLI operatorSnapshot execution failed with a permission error; authenticated UI opening and runtime data integration remain NOT VERIFIED. Open the existing spreadsheet, reload, choose Community Hub > IMPERION · Operations as the owner. Do not confuse source upload with complete platform activation. Video scheduled task last observed 07:20:58 result0; 07:24 preview selected0/rendered0/published0.
