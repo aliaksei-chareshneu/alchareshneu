@@ -814,6 +814,7 @@ function cleanupOldRegistrations() {
   for (var i = 1; i < data.length; i++) {
     var retentionVal = data[i][headerMap['Retention_Until'] - 1];
     if (!retentionVal) continue;
+    if (headerMap['Source_Channel'] && String(data[i][headerMap['Source_Channel'] - 1]) === 'RSVP_FORM') continue; // Must delete Form originals before anonymizing.
     if (new Date(retentionVal) < today) {
       sheet.getRange(i + 1, headerMap['Phone_Number']).setValue('—');
       sheet.getRange(i + 1, headerMap['Payment_Reference']).setValue('—');

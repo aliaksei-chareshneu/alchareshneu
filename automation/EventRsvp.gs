@@ -210,7 +210,7 @@ function onEventRsvpSubmit(e) {
         // A late RSVP is not allowed to reverse an actual check-in. Also avoid
         // leaving an unreferenced extra Form response full of personal data.
         try { FormApp.openById(PropertiesService.getScriptProperties().getProperty(EVENT_RSVP_FORM_PROPERTY)).deleteResponse(submissionId); }
-        catch (err) { console.error('Cannot purge irrelevant late RSVP response: ' + String(err)); }
+        catch (err) { console.error('Cannot purge irrelevant late RSVP response: ' + String(err)); throw err; }
         return;
       }
       var previousSubmissionId = String(values[target - 1][ix('Submission_ID')] || '').trim();
