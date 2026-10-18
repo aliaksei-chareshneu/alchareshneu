@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="cs">
+<head>
+ <meta charset="utf-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1">
+ <title>Google Organic Results - INIZIO Practical Task</title>
+ <meta name="description" content="Vyhledavani organickych vysledku Google a export do JSON.">
+ <link rel="stylesheet" href="/styles.css">
+ <script src="/app.js" defer></script>
+</head>
+<body>
+ <main class="container">
+ <p class="eyebrow">INIZIO / PRAKTICK&Yacute; TEST</p>
+ <h1>Organick&eacute; v&yacute;sledky Google</h1>
+ <p class="lead">Zadejte kl&iacute;&ccaron;ov&eacute; slovo. Z&iacute;sk&aacute;te pouze p&#345;irozen&eacute; v&yacute;sledky z prvn&iacute; str&aacute;nky vyhled&aacute;v&aacute;n&iacute; a m&#367;&zcaron;ete je ulo&zcaron;it jako JSON.</p>
+ <form id="search-form">
+ <label for="query">Kl&iacute;&ccaron;ov&eacute; slovn&iacute; spojen&iacute;</label>
+ <div class="search-row">
+ <input id="query" name="q" type="search" minlength="2" maxlength="160" required autocomplete="off" placeholder="nap&#345;. v&yacute;voj webov&yacute;ch aplikac&iacute;" aria-describedby="query-help">
+ <button id="submit" type="submit">Vyhledat</button>
+ </div>
+ <p id="query-help" class="hint">Vyhled&aacute;v&aacute;n&iacute;: Google CZ &middot; prvn&iacute; str&aacute;nka &middot; bez reklam</p>
+ </form>
+ <p id="status" role="status" aria-live="polite"></p>
+ <section id="result-section" hidden aria-label="Vysledky vyhledavani">
+ <div class="results-heading">
+ <h2 id="results-label">V&yacute;sledky</h2>
+ <button id="download" type="button" class="secondary">St&aacute;hnout JSON</button>
+ </div>
+ <ol id="results-list"></ol>
+ </section>
+ <footer>V&yacute;stup: strukturovan&yacute; JSON, bez reklam a sponzorovan&yacute;ch odkaz&#367;.</footer>
+ </main>
+</body>
+</html>

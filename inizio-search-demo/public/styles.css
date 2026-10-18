@@ -1,0 +1,27 @@
+:root { color-scheme: light; font-family: Inter, system-ui, -apple-system, Segoe UI, Arial, sans-serif; color: #202c3b; background: #f6f8fb; }
+* { box-sizing: border-box; }
+body { margin: 0; padding: 28px 16px; }
+.container { width: 100%; max-width: 800px; margin: 4vh auto; border: 1px solid #e0e5ed; border-radius: 20px; background: white; padding: clamp(22px, 5vw, 52px); box-shadow: 0 16px 45px rgba(21,37,65,.06); }
+.eyebrow { color: #2d6cdf; font-weight: 750; font-size: .75rem; letter-spacing: .16em; }
+h1 { letter-spacing: -.04em; line-height: 1.1; font-size: clamp(2rem, 5vw, 3.4rem); margin: 14px 0; }
+.lead { color: #526174; font-size: 1.05rem; line-height: 1.65; }
+form { margin-top: 32px; }
+label { font-weight: 650; display: block; margin-bottom: 10px; }
+.search-row { display: flex; gap: 10px; }
+input { flex: 1; min-width: 0; border: 1px solid #b6c0d0; padding: 13px 15px; border-radius: 10px; font: inherit; }
+button { border: 0; border-radius: 10px; padding: 13px 20px; background: #2463e0; color: #fff; font: inherit; font-weight: 700; cursor: pointer; }
+button:disabled { opacity: .55; cursor: wait; }
+button.secondary { background: #eaf1ff; color: #1e55c5; }
+input:focus-visible, button:focus-visible { outline: 3px solid #98b9ff; outline-offset: 2px; }
+.hint, footer { color: #6b788a; font-size: .82rem; }
+#status { min-height: 23px; font-weight: 500; }
+#status.error { color: #b42318; }
+.results-heading { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+h2 { font-size: 1.2rem; }
+ol { padding-left: 27px; }
+li { margin: 0 0 24px; line-height: 1.5; }
+li a { font-weight: 650; color: #124fb6; overflow-wrap: anywhere; }
+li p { margin: 5px 0 0; color: #435268; }
+.result-url { font-size: .8rem; color: #596879; overflow-wrap: anywhere; }
+footer { border-top: 1px solid #e7ebf1; padding-top: 18px; margin-top: 36px; }
+@media (max-width: 540px) { .search-row { flex-direction: column; } button { width: 100%; } .results-heading { align-items: stretch; flex-direction: column; gap: 8px; } }
