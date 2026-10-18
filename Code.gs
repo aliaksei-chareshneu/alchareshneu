@@ -624,58 +624,12 @@ function lookupEventDate(ss, eventId) {
 // Триггер: Time-driven, ежедневно в 10:00 Prague.
 // Ищет Active события с Start_DateTime завтра-послезавтра и шлёт напоминание в канал.
 function sendEventReminders() {
-  var sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(EVENTS_SHEET_NAME);
-  var headerMap = getHeaderMap(sheet);
-  var rows = sheet.getRange(2, 1, Math.max(sheet.getLastRow() - 1, 1), sheet.getLastColumn()).getValues();
-
-  // Сравниваем календарные даты (Europe/Prague), а не сментие в часах от текущего момента.
-  // Раньше окно было "+44ч...+52ч от now" — при ежедневном триггере в 10:00 это на самом деле
-  // ловило события ПОСЛЕЗАВТРА (ч+2), а не завтра, при этом текст сообщения говорил "завтра".
-  // Сравнение по календарным суткам не зависит от зависит от того, в какой час дня сработал триггer
-  // и в какой час начинается само событие.
-  var tz = 'Europe/Prague';
-  var tomorrow = new Date(Date.now() + 24 * 3600 * 1000);
-  var tomorrowStr = Utilities.formatDate(tomorrow, tz, 'yyyy-MM-dd');
-
-  rows.forEach(function (row) {
-    var status = row[headerMap['Status'] - 1];
-    if (status !== 'Active') return;
-    if (row[headerMap['Category'] - 1] === 'Corporate') return; // внутренний учёт, без публичных напоминаний
-
-    var startDate = parseDate(row[headerMap['Start_DateTime'] - 1]);
-    if (isNaN(startDate.getTime())) return;
-    var eventDateStr = Utilities.formatDate(startDate, tz, 'yyyy-MM-dd');
-    if (eventDateStr !== tomorrowStr) return; // событие не "завтра" по календарю Prague — пропускаем
-
-    var title        = row[headerMap['Title'] - 1];
-    var locationName = row[headerMap['Location_Name'] - 1];
-    var locationAddr = row[headerMap['Location_Address'] - 1];
-    var community    = row[headerMap['Community'] - 1];
-    var category     = row[headerMap['Category'] - 1];
-    var price        = row[headerMap['Price_CZK'] - 1];
-    var tallyUrl     = row[headerMap['Tally_Form_URL'] - 1];
-    var calLink      = row[headerMap['Calendar_Link'] - 1];
-    var isFree       = (Number(price) === 0);
-    var ce           = colorAndEmoji(category, community);
-    var startStr     = formatDateForPost(startDate);
-
-    var reminderText =
-      '⏰ <b>Напоминание — завтра!</b>\n\n' +
-      ce.emoji + ' <b>' + escapeHtml(title) + '</b>\n\n' +
-      '🐡 ' + escapeHtml(locationName) +
-      (locationAddr ? '\n📌 ' + escapeHtml(locationAddr) : '') + '\n' +
-      '🕐 ' + startStr + '\n' +
-      '💰 ' + paymentPhrase(category, isFree, price) + '\n' +
-      '\n🗓,<a href="' + calLink + '">Добавить в календарь</a>';
-
-    try {
-      sendTelegramMessage(getChannelId(community), reminderText,
-        tallyUrl || null,
-        tallyUrl ? '📝 Ещё не записался?' : null);
-    } catch (err) {
-      console.error('Reminder failed for ' + title + ': ' + err);
-    }
-  });
+  // Critical regression guard: legacy broadcasts caused duplicate channel posts.
+  // Keep this public trigger name for existing Apps Script installations, but
+  // delegate ONLY to the reviewed single-job, idempotent Telegram publisher.
+  if (typeof p80TgTick === 'function') return p80TgTick();
+  console.error('SAFE_SOCIAL_DELIVERY_ADAPTER_MISSING; no Telegram send');
+  return { ok: false, sent: 0, reason: 'SAFE_ADAPTER_MISSING' };
 }
 
 // ====================== ОТМЕНА СОБЫТИЯ ======================
