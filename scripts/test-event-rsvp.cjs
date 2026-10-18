@@ -103,6 +103,9 @@ assert(!offered.some(x=>x.id==="EVT-CORP"||x.id==="EVT-DRAFT"||x.id==="EVT-PAST"
 const url=ctx.eventRsvpPrefilledUrl("EVT-SYNC");
 assert.match(url,/EVT-SYNC/);
 assert(choices.updateCount>0);
+assert.equal(ctx.syncEventRsvp(),"UPDATED_ACTIVE_EVENTS=2");
+assert.match(events[1][eventHeaders.indexOf("Tally_Form_URL")],/EVT-YES/);
+assert.match(events[2][eventHeaders.indexOf("Tally_Form_URL")],/EVT-SYNC/);
 
 function submit(id,eventId,name,contact,answer,minor=false,guardian=false) {
   const data={
@@ -153,11 +156,22 @@ submit("resp-3","EVT-SYNC","Adult Test","+420 777 100 100","NO - cannot come");
 assert.equal(registrations[3][regHeaders.indexOf("RSVP_Status")],"ATTENDED","real attendance remains authoritative");
 assert(!responses.has("resp-3"),"late RSVP after check-in must not retain unreferenced PII");
 registrations[3][regHeaders.indexOf("Retention_Until")] = new Date(now-86400000);
+// Simulate a legacy/superseded Form response that is no longer referenced by
+// Registrations.Submission_ID. GDPR cleanup must remove it too.
+responses.set("old-orphan",{
+  getId:()=>"old-orphan",
+  getItemResponses:()=>[
+    {getItem:()=>({getTitle:()=>"Event"}),getResponse:()=>ctx.eventRsvpLabel_(offered.find(e=>e.id==="EVT-SYNC"))},
+    {getItem:()=>({getTitle:()=>"Full_Name"}),getResponse:()=>"Adult Test"},
+    {getItem:()=>({getTitle:()=>"Reply_Contact"}),getResponse:()=>"+420 777 100 100"}
+  ]
+});
 const cleaned=ctx.cleanupEventRsvp();
 assert.equal(cleaned,"PURGED=1");
 assert.equal(registrations[3][regHeaders.indexOf("Full_Name")],"—");
 assert.equal(registrations[3][regHeaders.indexOf("Reply_Contact")],"—");
 assert.equal(registrations[3][regHeaders.indexOf("Event_ID")],"EVT-SYNC");
 assert(!responses.has("resp-2"),"Form response deleted");
+assert(!responses.has("old-orphan"),"all superseded Form responses are purged");
 
 console.log("Event RSVP synthetic tests passed");
