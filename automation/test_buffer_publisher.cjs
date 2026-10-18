@@ -7,7 +7,11 @@ global.Utilities={
   return local.toISOString().slice(0,16).replace('T',' ');
  }
 };
-const m=require('./src/BufferPublisher.js');
+const fs=require('node:fs'),path=require('node:path');
+const js=path.join(__dirname,'src','BufferPublisher.js');
+const entry=fs.existsSync(js)?js:path.join(__dirname,'BufferPublisher.gs');
+require.extensions['.gs']=require.extensions['.js'];
+const m=require(entry);
 const entity='Družina Moravy z.s.';
 const channelKey='facebook_page|'+entity;
 const routes={[channelKey]:{id:'CHANNEL-TEST',entity,service:'facebook'}};
