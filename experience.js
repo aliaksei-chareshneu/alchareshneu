@@ -113,7 +113,7 @@
       if(primary){primary.textContent=page==='academy'?t.book:page==='druzina'?t.trial:t.events;primary.href=page==='walkers'?'../calendar/':registration;if(page==='walkers'){primary.removeAttribute('target');primary.removeAttribute('rel');}}
       const secondary=hero?.querySelector('.btn:not(.solid)');
       if(secondary&&page==='academy'){secondary.textContent=t.prices;secondary.href='#service-selector';}
-      if(secondary&&page==='druzina'){if(secondary.classList.contains('plausible-event-name=Enquire-Druzina-Castle')){secondary.href='teambuilding/?lang='+encodeURIComponent(lang());secondary.removeAttribute('target');}else{secondary.textContent=t.prices;secondary.href='#tariff';secondary.removeAttribute('target');}}
+      if(secondary&&page==='druzina'){if(secondary.classList.contains('plausible-event-name=Explore-Druzina-Tree')){secondary.href='cesty/?lang='+encodeURIComponent(lang());secondary.removeAttribute('target');}else if(secondary.classList.contains('plausible-event-name=Enquire-Druzina-Castle')){secondary.href='teambuilding/?lang='+encodeURIComponent(lang());secondary.removeAttribute('target');}else{secondary.textContent=t.prices;secondary.href='#tariff';secondary.removeAttribute('target');}}
       const steps=section('first-steps');steps.append(el('p','eyebrow-sm',t.first),el('h2','',t.steps));
       const list=el('ol','journey-steps');t[page+'Steps'].forEach((text,i)=>{const item=el('li');item.append(el('span','step-number','0'+(i+1)),el('h3','',[t.step1,t.step2,t.step3][i]),el('p','',text));list.append(item);});steps.append(list);
       document.querySelector('.hero').after(steps.parentElement);
