@@ -24,7 +24,7 @@ for(const path of pages)for(const language of languages)for(const width of width
    await expect(page.locator('#registration-notice [data-notice-lang="'+language+'"]')).toBeVisible();
    await expect(page.locator('#tariff')).toBeHidden();
    await expect(page.locator('#druzina-payment')).toBeHidden();
-   await expect(page.locator('#navBookBtn')).toHaveAttribute('href',/^https:\/\/wa\.me\/420702914842\?/);
+   await expect(page.locator('#navBookBtn')).toHaveAttribute('href', language==='ru' ? /^https:\/\/t\.me\/Chareshneu/ : /^https:\/\/wa\.me\/420702914842\?/);
    const message=await page.locator('#registration-notice [data-notice-lang="'+language+'"]').innerText();
    expect(message.length).toBeGreaterThan(80);
   }
