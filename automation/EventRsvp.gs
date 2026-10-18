@@ -26,8 +26,10 @@ function eventRsvpTime_(value) {
 }
 
 function eventRsvpLabel_(item) {
+  var price = item.price == null ? 'Price TBC' : (item.price === 0 ? '0 Kč' : item.price + ' Kč');
+  var where = item.location ? (' | ' + String(item.location).slice(0, 55)) : '';
   return Utilities.formatDate(item.date, EVENT_RSVP_TZ, 'dd.MM.yyyy HH:mm') +
-    ' | ' + item.title + ' [' + item.id + ']';
+    ' | ' + String(item.title).slice(0, 85) + where + ' | ' + price + ' [' + item.id + ']';
 }
 
 function eventRsvpItems_() {
@@ -40,9 +42,13 @@ function eventRsvpItems_() {
     var date = eventRsvpTime_(row[at('Start_DateTime')]);
     if (!id || !['Active', 'Trigger_Sync'].includes(row[at('Status')]) || row[at('Category')] === 'Corporate') continue; // Trigger_Sync: prefilled link must exist before first event announcement.
     if (!isFinite(date.getTime()) || date.getTime() < now || date.getTime() > end) continue;
+    var rawPrice = row[at('Price_CZK')];
+    var price = rawPrice === '' || rawPrice == null ? null : Number(rawPrice);
+    if (price != null && !isFinite(price)) price = null;
     output.push({
       id: id, date: date, title: String(row[at('Title')]),
-      row: i + 1, price: Number(row[at('Price_CZK')] || 0),
+      location: String(row[at('Location_Name')] || ''),
+      row: i + 1, price: price,
       category: String(row[at('Category')] || '')
     });
   }
