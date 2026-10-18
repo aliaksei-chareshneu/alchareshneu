@@ -1,5 +1,5 @@
 const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
-function load(extra={}){let s={Date,String,Number,Object,JSON,Error,isFinite,SPREADSHEET_ID:'fixture',...extra};vm.createContext(s);for(const f of ['OperatorConsole.gs','FioOSVC.gs'])vm.runInContext(fs.readFileSync(__dirname+'/../'+f,'utf8'),s);return s;}
+function load(extra={}){let s={Date,String,Number,Object,JSON,Error,isFinite,SPREADSHEET_ID:'fixture',...extra};vm.createContext(s);for(const f of ['OperatorConsoleServer.gs','FioOSVC.gs'])vm.runInContext(fs.readFileSync(__dirname+'/../'+f,'utf8'),s);return s;}
 test('test records never affect CRM counts',()=>{let s=load(),r=s.ocLeadSummary_([{Full_Name:'TEST-ONLY-NO-CONTACT',Stage:'Paid'},{Lead_ID:'real',Stage:'New'}]);assert.equal(r.count,1);assert.equal(r.excludedTests,1);assert.equal(r.cash,null);});
 test('recorded expected/paid amounts do not become bank cash or contracted',()=>{let s=load(),r=s.ocLeadSummary_([{Stage:'Paid',Paid_CZK:100000,Expected_Value_CZK:900000}]);assert.equal(r.cash,null);assert.equal(r.contracted,null);assert.equal(r.weighted30,null);});
 test('pending social post with provider id is not published',()=>{let s=load(),r=s.ocSocialSummary_([{Status:'SCHEDULED_PENDING',Post_ID:'123',Post_URL:'https://example.org'}]);assert.equal(r[0].verified,false);});
