@@ -99,6 +99,8 @@ const offered = ctx.eventRsvpItems_();
 assert.equal(offered.length,2);
 assert(offered.some(x=>x.id==="EVT-SYNC"));
 assert(!offered.some(x=>x.id==="EVT-CORP"||x.id==="EVT-DRAFT"||x.id==="EVT-PAST"));
+assert.match(ctx.eventRsvpLabel_(offered.find(x=>x.id==="EVT-SYNC")),/120 Kč/);
+assert.match(ctx.eventRsvpLabel_(offered.find(x=>x.id==="EVT-YES")),/0 Kč/);
 
 const url=ctx.eventRsvpPrefilledUrl("EVT-SYNC");
 assert.match(url,/EVT-SYNC/);
