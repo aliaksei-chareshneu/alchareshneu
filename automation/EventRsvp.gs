@@ -38,7 +38,7 @@ function eventRsvpItems_() {
   for (var i = 1; i < data.length; i++) {
     var row = data[i], id = String(row[at('Event_ID')] || '').trim();
     var date = eventRsvpTime_(row[at('Start_DateTime')]);
-    if (!id || row[at('Status')] !== 'Active' || row[at('Category')] === 'Corporate') continue;
+    if (!id || !['Active', 'Trigger_Sync'].includes(row[at('Status')]) || row[at('Category')] === 'Corporate') continue; // Trigger_Sync: prefilled link must exist before first event announcement.
     if (!isFinite(date.getTime()) || date.getTime() < now || date.getTime() > end) continue;
     output.push({
       id: id, date: date, title: String(row[at('Title')]),
@@ -110,6 +110,9 @@ function setupEventRsvp() {
   if (handlers.indexOf('syncEventRsvp') < 0) {
     ScriptApp.newTrigger('syncEventRsvp').timeBased().everyDays(1).atHour(8).create();
   }
+  if (handlers.indexOf('cleanupEventRsvp') < 0) {
+    ScriptApp.newTrigger('cleanupEventRsvp').timeBased().everyDays(1).atHour(9).create();
+  }
   syncEventRsvp();
   Logger.log('RSVP published URL: ' + form.getPublishedUrl());
   return form.getPublishedUrl();
@@ -173,8 +176,8 @@ function onEventRsvpSubmit(e) {
       /^MAYBE\b/.test(answer) ? 'MAYBE' : /^NO\b/.test(answer) ? 'DECLINED' : '';
     if (!status) throw new Error('Invalid RSVP answer');
     var minor = byTitle.Age_Group === 'Under 18';
-    if (minor && (!byTitle.Guardian_Name || !byTitle.Guardian_Contact) && status === 'CONFIRMED') {
-      status = 'REGISTERED'; // Minor needs human approval, never falsely mark cleared.
+    if (minor && status === 'CONFIRMED') {
+      status = 'REGISTERED'; // Guardian details alone are not VERIFIED guardian consent: human clearance required.
     }
     var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
     var sheet = ss.getSheetByName(REGISTRATIONS_SHEET_NAME);
@@ -197,6 +200,11 @@ function onEventRsvpSubmit(e) {
       sheet.getRange(target, ix('RSVP_Status') + 1).setValue(status);
       sheet.getRange(target, ix('RSVP_Status_At') + 1).setValue(now);
       sheet.getRange(target, ix('Submission_ID') + 1).setValue(submissionId);
+      // Preserve the latest optional guardian details without marking them independently verified.
+      if (minor) {
+        if (byTitle.Guardian_Name) sheet.getRange(target, ix('Guardian_Name') + 1).setValue(eventRsvpClean_(byTitle.Guardian_Name));
+        if (byTitle.Guardian_Contact) sheet.getRange(target, ix('Guardian_Phone') + 1).setValue(eventRsvpClean_(byTitle.Guardian_Contact));
+      }
     } else {
       var record = {};
       record.Reg_ID = Utilities.getUuid();
@@ -225,6 +233,65 @@ function onEventRsvpSubmit(e) {
   } catch (err) {
     console.error('onEventRsvpSubmit: ' + String(err));
     throw err; // Make failed submissions visible to the script owner.
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/**
+ * GDPR retention for RSVP Form responses: both the canonical Sheet and the
+ * Form responses must be purged. Other financial ledgers stay separate.
+ * Any failed Form deletion is logged and retried; never silently claim purge.
+ */
+function cleanupEventRsvp() {
+  var formId = PropertiesService.getScriptProperties().getProperty(EVENT_RSVP_FORM_PROPERTY);
+  if (!formId) return 'NOT_CONFIGURED';
+  var lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    var form = FormApp.openById(formId);
+    var sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(REGISTRATIONS_SHEET_NAME);
+    var rows = sheet.getDataRange().getValues(), headers = rows[0];
+    var col = function(name) { return headers.indexOf(name); };
+    var required = ['Retention_Until', 'Source_Channel', 'Submission_ID', 'Full_Name', 'Reply_Contact'];
+    required.forEach(function(h) { if (col(h) < 0) throw new Error('Missing column ' + h); });
+    var personal = [
+      'Full_Name', 'Telegram_Handle', 'Phone_Number', 'Age',
+      'Guardian_Name', 'Guardian_Phone', 'Guardian_Relationship',
+      'Child_Name', 'Child_Age', 'Emergency_Contact_Name', 'Emergency_Contact_Phone',
+      'Medical_Conditions', 'Equipment_Note', 'Payment_Reference',
+      'Reply_Contact', 'Submission_ID', 'Photo_Consent', 'Waiver_Accepted'
+    ];
+    var total = 0, errors = [];
+    for (var i = 3; i < rows.length; i++) {
+      var row = rows[i];
+      if (row[col('Source_Channel')] !== 'RSVP_FORM') continue;
+      var until = row[col('Retention_Until')];
+      if (!until || new Date(until).getTime() > Date.now()) continue;
+      var responseId = String(row[col('Submission_ID')] || '').trim();
+      if (responseId && responseId !== '—') {
+        try {
+          form.deleteResponse(responseId);
+        } catch (err) {
+          // Some responses may have been manually removed already; verify by ID,
+          // don't silently suppress other authorization/availability errors.
+          var stillExists = form.getResponses().some(function(r) { return r.getId() === responseId; });
+          if (stillExists) {
+            errors.push('row ' + (i + 1) + ': could not delete Form response');
+            continue;
+          }
+        }
+      }
+      personal.forEach(function(h) {
+        if (col(h) >= 0 && row[col(h)] !== '' && row[col(h)] !== '—') {
+          sheet.getRange(i + 1, col(h) + 1).setValue('—');
+        }
+      });
+      sheet.getRange(i + 1, col('Retention_Until') + 1).setValue('');
+      total++;
+    }
+    if (errors.length) throw new Error('RSVP deletion incomplete: ' + errors.join('; '));
+    return 'PURGED=' + total;
   } finally {
     lock.releaseLock();
   }
