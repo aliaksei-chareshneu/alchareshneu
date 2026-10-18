@@ -147,8 +147,12 @@ function eventRsvpPrefilledUrl(eventId) {
   if (!formId) return '';
   var form = FormApp.openById(formId);
   var q = eventRsvpQuestion_(form, 'Event').asListItem();
-  var found = eventRsvpItems_().filter(function(x) { return x.id === String(eventId); })[0];
+  var items = eventRsvpItems_();
+  var found = items.filter(function(x) { return x.id === String(eventId); })[0];
   if (!found) return '';
+  // The current Trigger_Sync event may be NEW and absent from yesterday's
+  // Google Form dropdown: update choices BEFORE generating the announcement URL.
+  q.setChoiceValues(items.map(eventRsvpLabel_));
   return form.createResponse().withItemResponse(q.createResponse(eventRsvpLabel_(found))).toPrefilledUrl();
 }
 
