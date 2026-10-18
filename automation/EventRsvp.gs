@@ -17,7 +17,7 @@ function eventRsvpClean_(input) {
 }
 
 function eventRsvpNorm_(input) {
-  return String(input || '').trim().toLowerCase().replace(/\s+/g, '');
+  return String(input || '').trim().replace(/^'/, '').toLowerCase().replace(/\s+/g, '');
 }
 
 function eventRsvpTime_(value) {
