@@ -99,7 +99,7 @@ def adult_public_profiles(rows, today):
                          "photo_alt":p.get("Portrait_Alt","")[:80] if photo else ""}
     return accepted
 
-def approved_evidence(rows, eligible, period):
+def approved_evidence(rows, eligible, period, today):
     metrics=defaultdict(lambda:defaultdict(int))
     active_weeks=defaultdict(set)
     seen=set()
@@ -114,10 +114,10 @@ def approved_evidence(rows, eligible, period):
         track=e.get("Track","").strip().lower()
         key=e.get("Unique_Key","").strip()
         if (mid not in eligible or not when or when.strftime("%Y-%m")!=period
-            or typ not in allowed or e.get("Verification","").strip().lower()!="verified"
+            or when>today or typ not in allowed or e.get("Verification","").strip().lower()!="verified"
             or not yes(e.get("Approved_For_Count"))
             or not key or not e.get("Event_ID") or not e.get("Verified_By")
-            or not as_date(e.get("Verified_At")) or not e.get("Proof_Ref")):
+            or not as_date(e.get("Verified_At")) or as_date(e.get("Verified_At"))>today or not e.get("Proof_Ref")):
             rejected+=1; continue
         canonical=(mid,typ,e["Event_ID"])
         if key in seen or canonical in seen:
@@ -150,7 +150,7 @@ def build(profiles,evidence,period=None,today=None):
     if not re.fullmatch(r"20\d\d-(0[1-9]|1[0-2])",period):
         raise ValueError("month format must be YYYY-MM")
     eligible=adult_public_profiles(profiles,today)
-    metrics,valid,rejected,latest=approved_evidence(evidence,eligible,period)
+    metrics,valid,rejected,latest=approved_evidence(evidence,eligible,period,today)
     results={}
     for category in CATEGORIES:
         rows=[]
