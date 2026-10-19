@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
+<title>Síň družiny — ověřené výsledky | Družina Moravy</title>
+<meta name="description" content="Žebříček Družiny Moravy: tréninky, bitvy, lukostřelba, dobrovolnictví a pomoc nováčkům. Jen ověřené výsledky a dobrovolné veřejné profily.">
+<link rel="canonical" href="https://aliaksei-chareshneu.github.io/alchareshneu/druzina/leaderboard/">
+<meta property="og:title" content="Síň družiny | Družina Moravy">
+<meta property="og:description" content="Více cest, jak pomáhat družině. Trénink, bitvy, lukostřelba, dobrovolnictví a tým.">
+<link rel="stylesheet" href="../../quest-theme.css">
+<style>
+:root{--bg:#10151c;--panel:#192330;--panel2:#222d3c;--gold:#e4ba76;--light:#fff0d8;--muted:#bcc8d5;--line:rgba(186,201,218,.29)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;color:#f6f0e8;background:var(--bg);font:16px/1.58 system-ui,-apple-system,"Segoe UI",sans-serif}
+a{color:#ffdb9e}a:focus-visible,button:focus-visible{outline:3px solid #fff0af;outline-offset:3px}
+.skip{position:absolute;top:-80px;left:12px;background:#e4ba76;color:#111826;padding:10px;z-index:3}.skip:focus{top:12px}
+.wrap{width:min(1110px,calc(100% - 36px));margin:auto}
+.nav{background:rgba(17,25,35,.97);border-bottom:1px solid var(--line)}
+.nav-in{display:flex;align-items:center;justify-content:space-between;min-height:72px;gap:14px}
+.brand{display:flex;align-items:center;gap:9px;text-decoration:none;color:#fff3df;font:700 1.1rem Georgia,serif}
+.brand svg{flex:0 0 34px}.lang{display:flex;gap:5px;align-items:center}
+.lang button{font-size:.76rem;padding:6px 8px;min-width:33px;background:transparent;color:#e3e8ed;border:1px solid #5b6470;border-radius:7px;cursor:pointer}
+.lang button[aria-pressed=true]{background:#e4ba76;color:#18202b;border-color:#e4ba76;font-weight:800}
+.hero{position:relative;overflow:hidden;isolation:isolate;background:radial-gradient(ellipse at 50% 5%,#30415a,#151d2a 55%,#10151c)}
+.hero::before{content:"";position:absolute;inset:0;z-index:-1;background:url("../../images/quest-constellation.svg") center 2%/cover no-repeat;opacity:.27}
+.hero-in{text-align:center;padding:62px 0 65px}
+.eyebrow{color:var(--gold);letter-spacing:.18em;text-transform:uppercase;font-weight:800;font-size:.75rem}
+.hero h1{font:700 clamp(2.6rem,6vw,4.6rem)/1.06 Georgia,serif;max-width:17ch;text-wrap:balance;margin:13px auto 18px;color:var(--light)}
+.hero p{max-width:64ch;margin:0 auto 14px;color:#e2e5e8}
+.pill{display:inline-block;padding:6px 12px;background:#283445;color:#e9cf9d;border:1px solid #847153;border-radius:40px;font-size:.77rem;font-weight:700;margin:9px 4px}
+.hero-link{display:inline-block;margin:15px 5px 0;padding:12px 20px;border:1px solid #e4ba76;border-radius:9px;background:var(--gold);color:#17202b;text-decoration:none;font-weight:800}
+.hero-link.secondary{background:#202c3a;color:#efddc0}.hero-link:hover{filter:brightness(1.09)}
+h2{font:700 clamp(1.75rem,3vw,2.4rem)/1.15 Georgia,serif;margin:0;color:#f4e7d3}
+.intro{margin:43px auto 20px;text-align:center;max-width:740px}
+.intro p{color:var(--muted);margin:10px auto}
+.columns{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin:26px 0 40px}
+.category{min-height:261px;border:1px solid #526070;background:linear-gradient(150deg,#202d3e,#18232f);border-radius:16px;padding:21px 20px;display:flex;flex-direction:column;gap:9px}
+.category .top{display:flex;gap:11px;align-items:center}
+.glyph{height:40px;width:40px;flex:0 0 40px;display:flex;align-items:center;justify-content:center;border-radius:12px;color:#f4d6a1;background:#364151;font-size:1.5rem}
+.category h3{font:700 1.32rem/1.26 Georgia,serif;margin:0;color:#f3ddb9}
+.category .explain{font-size:.86rem;line-height:1.5;color:#bac7d2;margin:0;min-height:2.7em}
+.list{padding:0;margin:0;list-style:none;display:grid;gap:9px}
+.list li{display:flex;align-items:center;gap:9px;padding:7px 9px;border:1px solid rgba(170,186,206,.23);background:#263345;border-radius:8px;min-height:49px}
+.list .place{flex:0 0 23px;text-align:center;color:#f5d5a2;font-size:.78rem;font-weight:800}
+.avatar{width:34px;height:34px;border-radius:50%;flex:0 0 34px;background:#34475c;display:flex;align-items:center;justify-content:center;color:#f5dbaa;overflow:hidden;font-size:.95rem}
+.avatar img{width:100%;height:100%;object-fit:cover}
+.person{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.25}
+.person strong{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.87rem;font-weight:700}
+.person small{font-size:.72rem;color:#b8c7d3}
+.value{margin-left:auto;white-space:nowrap;font-size:.84rem;color:#f6deb0;font-weight:800}
+.wait{border:1px dashed #66778c;border-radius:10px;background:#1d2a3a;color:#becada;padding:15px;font-size:.88rem;line-height:1.5;margin:auto 0}
+.footer-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:48px}
+.info{background:#192330;border:1px solid var(--line);border-radius:13px;padding:22px}
+.info h3{font:700 1.25rem Georgia,serif;color:#f3d7a9;margin:0 0 8px}
+.info p{color:var(--muted);font-size:.92rem;margin:7px 0}
+.info a{display:inline-block;margin-top:5px}
+.footer{padding:21px 0 39px;border-top:1px solid var(--line);font-size:.85rem;color:#a8b5c5}
+.footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.status{margin:9px auto;color:#bac5d4;font-size:.83rem;min-height:20px}
+@media(max-width:970px){.columns{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:620px){.columns,.footer-grid{grid-template-columns:1fr}.hero-in{padding:53px 0}.category{min-height:0}.nav-in{gap:6px}.brand{font-size:.94rem}.brand svg{width:27px}.lang button{padding:6px 5px}.hero h1{font-size:clamp(2.4rem,9vw,3.2rem)}}
+</style>
+</head>
+<body>
+<a class="skip" href="#content" data-t="skip">Přejít na obsah</a>
+<nav class="nav" aria-label="Družina Moravy"><div class="wrap nav-in">
+<a class="brand" href="../"><svg width="34" height="42" viewBox="0 0 38 44" aria-hidden="true"><path d="M19 3 34 8v14c0 10-9 16-15 19C13 38 4 32 4 22V8Z" fill="none" stroke="#e4ba76" stroke-width="2"/><path d="M19 10v23M9 20l10 6 10-6" fill="none" stroke="#f4d8ab" stroke-width="2"/></svg><span>Družina Moravy</span></a>
+<div class="lang" role="group" aria-label="Language / Jazyk"><button type="button" data-lang="cs" aria-pressed="true">CZ</button><button type="button" data-lang="en" aria-pressed="false">EN</button><button type="button" data-lang="ru" aria-pressed="false">RU</button><button type="button" data-lang="uk" aria-pressed="false">UA</button></div>
+</div></nav>
+<main id="content">
+<section class="hero"><div class="wrap hero-in">
+<p class="eyebrow" data-t="eyebrow">Družina Moravy · skutečné výsledky</p>
+<h1 data-t="title">Síň družiny</h1>
+<p data-t="lead">Každý přispívá jinak: tréninkem, bitvami, lukostřelbou, pomocí nováčkům nebo dobrovolnictvím.</p>
+<span class="pill" data-t="fair">Více cest na vrchol</span><span class="pill" data-t="verified">Jen ověřené výsledky</span>
+<div><a class="hero-link" href="../cesty/" id="skillTree" data-t="tree">Prozkoumat strom dovedností →</a><a class="hero-link secondary" href="../safety/" data-t="safe">Bezpečnost a první návštěva</a></div>
+</div></section>
+<div class="wrap">
+<section class="intro" aria-labelledby="boardheading"><span class="eyebrow" data-t="monthLabel">Aktuální měsíc</span><h2 id="boardheading" data-t="boardTitle">Každý má svou cestu</h2><p data-t="boardDesc">Ocenění vychází z potvrzených událostí, nikoli z toho, kdo koupil větší permanentku. Každá kategorie má samostatná pravidla.</p><p class="status" id="syncStatus" role="status" aria-live="polite"></p></section>
+<section class="columns" id="categories" aria-label="Community categories">
+<article class="category" data-category="training"><div class="top"><span class="glyph" aria-hidden="true">🛡</span><h3 data-t="training">Opora štítové linie</h3></div><p class="explain" data-t="trainingDesc">Ověřená účast na trénincích v tomto měsíci.</p><ol class="list" aria-live="polite"></ol></article>
+<article class="category" data-category="battles"><div class="top"><span class="glyph" aria-hidden="true">⚔</span><h3 data-t="battles">Bojová výprava</h3></div><p class="explain" data-t="battlesDesc">Účast na potvrzených LARP bitvách. Neměří to výhry ani bojovou dovednost.</p><ol class="list" aria-live="polite"></ol></article>
+<article class="category" data-category="archery"><div class="top"><span class="glyph" aria-hidden="true">🏹</span><h3 data-t="archery">Lukostřelecká cesta</h3></div><p class="explain" data-t="archeryDesc">Ověřená účast na lukostřeleckém výcviku.</p><ol class="list" aria-live="polite"></ol></article>
+<article class="category" data-category="volunteer"><div class="top"><span class="glyph" aria-hidden="true">♥</span><h3 data-t="volunteer">Srdce družiny</h3></div><p class="explain" data-t="volunteerDesc">Dobrovolná pomoc potvrzená organizátorem, v minutách.</p><ol class="list" aria-live="polite"></ol></article>
+<article class="category" data-category="mentor"><div class="top"><span class="glyph" aria-hidden="true">✦</span><h3 data-t="mentor">Průvodce nováčků</h3></div><p class="explain" data-t="mentorDesc">Ověřené společné návštěvy s nováčky. Nenahrazuje instruktora.</p><ol class="list" aria-live="polite"></ol></article>
+<article class="category" data-category="consistency"><div class="top"><span class="glyph" aria-hidden="true">♜</span><h3 data-t="consistency">Vytrvalost družiníka</h3></div><p class="explain" data-t="consistencyDesc">Počet různých týdnů s ověřeným tréninkem nebo bitvou.</p><ol class="list" aria-live="polite"></ol></article>
+</section>
+<section class="footer-grid">
+<div class="info"><h3 data-t="rightsHead">Ochrana soukromí</h3><p data-t="rights">Veřejná jména, statistiky i portréty jsou dobrovolné a schvalované zvlášť. Účastníky mladší 18 let veřejně nezařazujeme. Bez svolení žádná fotografie.</p><a href="mailto:chereshnev.biochem@gmail.com?subject=Druzina%20Leaderboard" data-t="opt">Požádat o veřejný profil nebo opravu →</a></div>
+<div class="info"><h3 data-t="evidenceHead">Jak se počítá výsledek</h3><p data-t="evidence">Do žebříčku se dostane jen doložená, ručně ověřená účast na klubové akci. Platba, rezervace ani plánovaná událost se nepočítají. Body, hodnosti a bojové dovednosti jsou samostatné.</p><a href="../" data-t="club">Zpět ke klubu →</a></div>
+</section></div></main>
+<footer class="footer"><div class="wrap"><span>Družina Moravy · Brno</span><span data-t="footer">Zveřejňujeme pouze schválené výsledky. Nová placená registrace HEMA je zatím pozastavena.</span></div></footer>
+<script>
+(()=>{
+"use strict";
+const TXT={
+cs:{skip:"Přejít na obsah",eyebrow:"Družina Moravy · skutečné výsledky",title:"Síň družiny",lead:"Každý přispívá jinak: tréninkem, bitvami, lukostřelbou, pomocí nováčkům nebo dobrovolnictvím.",fair:"Více cest na vrchol",verified:"Jen ověřené výsledky",tree:"Prozkoumat strom dovedností →",safe:"Bezpečnost a první návštěva",monthLabel:"Aktuální měsíc",boardTitle:"Každý má svou cestu",boardDesc:"Ocenění vychází z potvrzených událostí, ne z nákupů permanentek. Každá kategorie má své pravidlo.",training:"Opora štítové linie",trainingDesc:"Ověřená účast na trénincích v tomto měsíci.",battles:"Bojová výprava",battlesDesc:"Účast na LARP bitvách; nikoli vítězství či bojová dovednost.",archery:"Lukostřelecká cesta",archeryDesc:"Ověřená účast na lukostřeleckém výcviku.",volunteer:"Srdce družiny",volunteerDesc:"Dobrovolná pomoc potvrzená organizátorem, v minutách.",mentor:"Průvodce nováčků",mentorDesc:"Ověřená pomoc nováčkům pod dohledem trenéra.",consistency:"Vytrvalost družiníka",consistencyDesc:"Počet týdnů se skutečně ověřenou účastí.",rightsHead:"Ochrana soukromí",rights:"Jména, statistiky a fotografie zveřejňujeme jen podle doloženého rozhodnutí účastníka. Nezletilé veřejně nezařazujeme. Profil lze kdykoli odvolat.",opt:"Požádat o veřejný profil nebo opravu →",evidenceHead:"Jak se počítá výsledek",evidence:"Jen doložená, organizátorem potvrzená klubová účast. Rezervace, platba a neúčast se nepočítají. Hodnost a bojová dovednost jsou odlišné.",club:"Zpět ke klubu →",footer:"Nové placené rezervace HEMA zůstávají pozastavené.",waiting:"Zatím žádné schválené veřejné výsledky. Sezónu připravujeme.",loading:"Načítáme potvrzené výsledky…",notReady:"Výsledky zatím nejsou dostupné.",updated:"Aktualizováno:",sessionUnit:"tréninků",battleUnit:"bitev",archeryUnit:"lekcí",volunteerUnit:"min",mentorUnit:"pomocí",consistencyUnit:"týdnů"},
+en:{skip:"Skip to content",eyebrow:"Družina Moravy · verified achievements",title:"Hall of the Company",lead:"There are many ways to contribute: training, LARP battles, archery, helping newcomers or volunteering.",fair:"More than one way to shine",verified:"Verified results only",tree:"Explore the skill tree →",safe:"Safety & first visit",monthLabel:"Current month",boardTitle:"Every path matters",boardDesc:"Recognition is based on confirmed participation, not buying a larger pass. Each category is separate.",training:"Shield-Line Regular",trainingDesc:"Verified training sessions attended this month.",battles:"Battle Campaign",battlesDesc:"Verified LARP battle participation, not win rate or combat skill.",archery:"Archer's Path",archeryDesc:"Verified archery sessions attended.",volunteer:"Heart of the Company",volunteerDesc:"Organizer-confirmed voluntary help, in minutes.",mentor:"Newcomer Guide",mentorDesc:"Supervised and verified help for new members.",consistency:"Steady Companion",consistencyDesc:"Different weeks with verified training or battles.",rightsHead:"Your privacy",rights:"Names, stats and photos are optional and reviewed separately. Minors are not listed publicly. A public profile may be withdrawn.",opt:"Request a public profile or correction →",evidenceHead:"How results are counted",evidence:"Only proven, organizer-verified attendance counts. A booking or payment never counts as participation. Ranks and fighting skill are separate.",club:"Back to the club →",footer:"New paid HEMA bookings remain paused.",waiting:"No approved public results yet. We are opening the season.",loading:"Loading verified results…",notReady:"Results are not available yet.",updated:"Updated:",sessionUnit:"sessions",battleUnit:"battles",archeryUnit:"sessions",volunteerUnit:"min",mentorUnit:"sessions",consistencyUnit:"weeks"},
+ru:{skip:"К содержанию",eyebrow:"Дружина Моравы · подтверждённые достижения",title:"Зал славы дружины",lead:"В команде можно проявить себя по-разному: на тренировках, битвах, в стрельбе из лука, помощи новичкам и добровольных делах.",fair:"Несколько путей в лидеры",verified:"Только подтверждённые результаты",tree:"Дерево навыков →",safe:"Безопасность и первое занятие",monthLabel:"Текущий месяц",boardTitle:"У каждого свой путь",boardDesc:"Отмечаем реальное участие, а не покупку большого абонемента. У каждой номинации свои объективные критерии.",training:"Опора щитовой линии",trainingDesc:"Подтверждённые посещения тренировок в этом месяце.",battles:"Боевой поход",battlesDesc:"Посещённые LARP-битвы, не победы в дуэлях и не оценка техники.",archery:"Путь лучника",archeryDesc:"Подтверждённые занятия по стрельбе из лука.",volunteer:"Сердце дружины",volunteerDesc:"Добровольная помощь, подтверждённая организатором, в минутах.",mentor:"Проводник новичков",mentorDesc:"Подтверждённая помощь новичкам под контролем инструктора.",consistency:"Стойкость дружинника",consistencyDesc:"Недели, в которые человек реально посещал тренировку или битву.",rightsHead:"Твоя приватность",rights:"Имя, статистика и фото — добровольно и согласуются по отдельности. Дети публично не отображаются. Можно отозвать разрешение.",opt:"Запросить публичный профиль или исправление →",evidenceHead:"Как считаем достижения",evidence:"Только подтверждённое организатором участие. Оплата и бронирование не добавляют посещений. Звания и боевое мастерство — отдельно.",club:"Вернуться в клуб →",footer:"Новые платные записи HEMA пока закрыты.",waiting:"Пока нет одобренных публичных результатов. Открываем новый сезон.",loading:"Загружаем подтверждённые результаты…",notReady:"Результаты пока недоступны.",updated:"Обновлено:",sessionUnit:"тренировок",battleUnit:"битв",archeryUnit:"занятий",volunteerUnit:"мин",mentorUnit:"помощей",consistencyUnit:"недель"},
+uk:{skip:"До вмісту",eyebrow:"Дружина Моравії · підтверджені досягнення",title:"Зала слави дружини",lead:"У команді можна проявити себе по-різному: тренування, битви, стрільба з лука, допомога новачкам і добровільні справи.",fair:"Кілька шляхів до вершини",verified:"Лише перевірені результати",tree:"Дерево навичок →",safe:"Безпека й перше тренування",monthLabel:"Поточний місяць",boardTitle:"У кожного свій шлях",boardDesc:"Відзначаємо справжню участь, а не придбання абонемента. У кожної категорії свої критерії.",training:"Опора щитової лінії",trainingDesc:"Підтверджені відвідування тренувань цього місяця.",battles:"Бойовий похід",battlesDesc:"Участь у LARP-битвах, не перемоги чи оцінка вправності.",archery:"Шлях лучника",archeryDesc:"Підтверджені заняття зі стрільби з лука.",volunteer:"Серце дружини",volunteerDesc:"Добровільна допомога, підтверджена організатором, у хвилинах.",mentor:"Провідник новачків",mentorDesc:"Підтверджена допомога новачкам під наглядом інструктора.",consistency:"Стійкість дружинника",consistencyDesc:"Тижні з підтвердженими тренуваннями чи битвами.",rightsHead:"Твоя приватність",rights:"Імена, статистика та фото — добровільні й погоджуються окремо. Дітей публічно не показуємо. Дозвіл можна відкликати.",opt:"Запросити публічний профіль або виправлення →",evidenceHead:"Як рахуємо результати",evidence:"Лише перевірена організатором участь. Оплата й бронювання не зараховуються. Звання та бойова майстерність — окремо.",club:"Назад до клубу →",footer:"Нові платні записи HEMA поки призупинені.",waiting:"Поки немає схвалених публічних результатів. Відкриваємо новий сезон.",loading:"Завантажуємо перевірені результати…",notReady:"Результати поки недоступні.",updated:"Оновлено:",sessionUnit:"тренувань",battleUnit:"битв",archeryUnit:"занять",volunteerUnit:"хв",mentorUnit:"допомог",consistencyUnit:"тижнів"}
+};
+const cats=["training","battles","archery","volunteer","mentor","consistency"];
+const url=new URL(location.href),saved=(function(){try{return localStorage.getItem("dm_lang")}catch(_){return null}})();let locale=Object.hasOwn(TXT,url.searchParams.get("lang"))?url.searchParams.get("lang"):Object.hasOwn(TXT,saved)?saved:"cs";let snapshot=null;
+function applyLocale(){
+ const t=TXT[locale];document.documentElement.lang=locale;document.querySelectorAll("[data-t]").forEach(el=>{const key=el.dataset.t;if(Object.hasOwn(t,key))el.textContent=t[key]});
+ document.querySelectorAll(".lang button").forEach(btn=>btn.setAttribute("aria-pressed",String(btn.dataset.lang===locale)));
+ const a=document.querySelector("#skillTree");a.href="../cesty/?lang="+encodeURIComponent(locale);
+ document.title=t.title+" | Družina Moravy";draw();
+}
+function line(name,n,unit,position,portrait,alt){
+ const li=document.createElement("li"),index=document.createElement("span"),avatar=document.createElement("span"),person=document.createElement("span"),strong=document.createElement("strong"),small=document.createElement("small"),value=document.createElement("span");
+ index.className="place";index.textContent=String(position);avatar.className="avatar";avatar.textContent="✦";avatar.setAttribute("aria-hidden","true");person.className="person";strong.textContent=name;small.textContent=unit;value.className="value";value.textContent=String(n);person.append(strong,small);li.append(index,avatar,person,value);
+ if(typeof portrait==="string" && /^images\/portraits\/[a-z0-9_-]+\.(?:webp|png|jpg)$/.test(portrait)){
+  const img=document.createElement("img");img.src=portrait;img.alt="";img.loading="lazy";img.decoding="async";avatar.textContent="";avatar.append(img);
+ }
+ return li;
+}
+function draw(){
+ const t=TXT[locale],state=document.querySelector("#syncStatus");
+ state.textContent=snapshot?.as_of? t.updated+" "+snapshot.as_of:"";
+ for(const name of cats){
+ const el=document.querySelector('[data-category="'+name+'"] .list');el.replaceChildren();
+ const members=snapshot?.categories?.[name];let entries=Array.isArray(members)?members.filter(e=>e&&typeof e.display_name==="string"&&Number.isInteger(e.count)&&e.count>0):[];
+ entries=entries.slice(0,3);
+ if(!entries.length){const li=document.createElement("li");li.className="wait";li.textContent=t.waiting;el.append(li);continue;}
+ entries.forEach((e,i)=>el.append(line(e.display_name,e.count,t[name+"Unit"],i+1,e.photo_path,e.photo_alt)));
+ }
+}
+async function load(){
+ const state=document.querySelector("#syncStatus");state.textContent=TXT[locale].loading;
+ try{
+  const r=await fetch("../../data/druzina-leaderboard.json",{cache:"no-store",credentials:"omit"});
+  if(!r.ok)throw Error("not found");
+  const o=await r.json();
+  if(o.version!==1||!o.categories||typeof o.categories!=="object")throw Error("schema");
+  snapshot=o;draw();
+ }catch(_){snapshot=null;state.textContent=TXT[locale].notReady;draw();}
+}
+document.querySelectorAll(".lang button").forEach(b=>b.addEventListener("click",()=>{locale=b.dataset.lang;try{localStorage.setItem("dm_lang",locale)}catch(_){ }const u=new URL(location.href);u.searchParams.set("lang",locale);try{history.replaceState(null,"",u)}catch(_){ }applyLocale()}));
+applyLocale();load();
+})();
+</script>
+</body></html>
