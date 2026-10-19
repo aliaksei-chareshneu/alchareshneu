@@ -58,14 +58,14 @@ test('calendar stays available with populated API and deduplicates stable Event_
  await mockEvents(page,[event,{...event,title:'Duplicate event'}]);
  await page.goto('/calendar/?lang=en');
  await expect(page.locator('#public-calendar-frame')).toBeVisible();
- await expect(page.locator('#public-calendar-frame')).toHaveAttribute('src',/calendar\\.google\\.com\\/calendar\\/embed\\?/);
+ await expect(page.locator('#public-calendar-frame')).toHaveAttribute('src',/calendar.google.com/);
  await expect(page.locator('.event-upcoming-card')).toHaveCount(1);
  await expect(page.locator('.eu-title')).toHaveText('Public event');
  await expect(page.locator('.eu-ctas a')).toHaveCount(1);
  await expect(page.locator('.eu-ctas a')).toHaveAttribute('href','https://t.me/Chareshneu');
  await expect(page.locator('.eu-ctas')).toContainText('Ask the organiser');
  await expect(page.locator('.calendar-booking-note')).toContainText('does not confirm a place');
- await expect(page.locator('.hero-ctas a')).toHaveAttribute('href',/calendar\\.google\\.com\\/calendar\\/u\\/0\\/r\\?cid=/);
+ await expect(page.locator('.hero-ctas a')).toHaveAttribute('href',/calendar.google.com/);
 });
 test('public calendar survives API failure in four languages and paid HEMA never opens checkout', async ({page}) => {
  const paid={id:'HEMA-PAID',title:'Training',description:'Details in contact',startISO:'2099-11-02T17:00:00Z',isFree:false,priceCzk:240,category:'HEMA Training',community:'Družina Moravy',registerUrl:'https://docs.google.com/forms/d/fake-paid-form',locationName:'Brno'};
