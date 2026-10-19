@@ -137,7 +137,7 @@ async function load(){
   const o=await r.json();
   if(o.version!==1||!o.categories||typeof o.categories!=="object")throw Error("schema");
   snapshot=o;draw();
- }catch(_){snapshot=null;state.textContent=TXT[locale].notReady;draw();}
+ }catch(_){snapshot=null;draw();state.textContent=TXT[locale].notReady;}
 }
 document.querySelectorAll(".lang button").forEach(b=>b.addEventListener("click",()=>{locale=b.dataset.lang;try{localStorage.setItem("dm_lang",locale)}catch(_){ }const u=new URL(location.href);u.searchParams.set("lang",locale);try{history.replaceState(null,"",u)}catch(_){ }applyLocale()}));
 applyLocale();load();
