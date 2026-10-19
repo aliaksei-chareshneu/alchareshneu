@@ -47,6 +47,9 @@ jobs:
           grep -Eq '8[, ]235 Kč' druzina/index.html
           grep -Eq '4[, ]120 Kč' druzina/index.html
 
+      - name: Verify private-to-public Druzina leaderboard isolation
+        run: python3 -m unittest discover -s tests -p 'test_druzina_leaderboard.py' -v
+
       - name: Validate inline JavaScript syntax
         shell: bash
         run: |
