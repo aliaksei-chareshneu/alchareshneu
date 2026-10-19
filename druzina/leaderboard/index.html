@@ -62,6 +62,11 @@ h2{font:700 clamp(1.75rem,3vw,2.4rem)/1.15 Georgia,serif;margin:0;color:#f4e7d3}
 .status{margin:9px auto;color:#bac5d4;font-size:.83rem;min-height:20px}
 @media(max-width:970px){.columns{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:620px){.columns,.footer-grid{grid-template-columns:1fr}.hero-in{padding:53px 0}.category{min-height:0}.nav-in{gap:6px}.brand{font-size:.94rem}.brand svg{width:27px}.lang button{padding:6px 5px}.hero h1{font-size:clamp(2.4rem,9vw,3.2rem)}}
+.period-switch{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:17px auto 8px}
+.period-switch button{font:700 .84rem system-ui,sans-serif;color:#d9e3ed;background:#1d2a38;border:1px solid #5a6b7c;border-radius:30px;padding:9px 17px;cursor:pointer;min-height:40px}
+.period-switch button[aria-pressed="true"]{color:#1b2430;background:#e7bd80;border-color:#e7bd80}
+.period-switch button:focus-visible{outline:3px solid #a8ddce;outline-offset:3px}
+.period-switch button:disabled{opacity:.5;cursor:not-allowed}
 </style>
 </head>
 <body>
@@ -79,11 +84,15 @@ h2{font:700 clamp(1.75rem,3vw,2.4rem)/1.15 Georgia,serif;margin:0;color:#f4e7d3}
 <div><a class="hero-link" href="../cesty/" id="skillTree" data-t="tree">Prozkoumat strom dovedností →</a><a class="hero-link secondary" href="../safety/" data-t="safe">Bezpečnost a první návštěva</a></div>
 </div></section>
 <div class="wrap">
-<section class="intro" aria-labelledby="boardheading"><span class="eyebrow" data-t="monthLabel">Aktuální měsíc</span><h2 id="boardheading" data-t="boardTitle">Každý má svou cestu</h2><p data-t="boardDesc">Ocenění vychází z potvrzených událostí, nikoli z toho, kdo koupil větší permanentku. Každá kategorie má samostatná pravidla.</p><p class="status" id="syncStatus" role="status" aria-live="polite"></p></section>
+<section class="intro" aria-labelledby="boardheading"><span class="eyebrow" data-t="monthLabel">Aktuální měsíc</span><h2 id="boardheading" data-t="boardTitle">Každý má svou cestu</h2><p data-t="boardDesc">Ocenění vychází z potvrzených událostí, nikoli z toho, kdo koupil větší permanentku. Každá kategorie má samostatná pravidla.</p><div class="period-switch" role="group" aria-label="Leaderboard period">
+  <button type="button" data-period="month" aria-pressed="true">Tento měsíc</button>
+  <button type="button" data-period="all" aria-pressed="false">Za celou dobu</button>
+</div><p class="status" id="syncStatus" role="status" aria-live="polite"></p></section>
 <section class="columns" id="categories" aria-label="Community categories">
 <article class="category" data-category="training"><div class="top"><span class="glyph" aria-hidden="true">🛡</span><h3 data-t="training">Opora štítové linie</h3></div><p class="explain" data-t="trainingDesc">Ověřená účast na trénincích v tomto měsíci.</p><ol class="list" aria-live="polite"></ol></article>
 <article class="category" data-category="battles"><div class="top"><span class="glyph" aria-hidden="true">⚔</span><h3 data-t="battles">Bojová výprava</h3></div><p class="explain" data-t="battlesDesc">Účast na potvrzených LARP bitvách. Neměří to výhry ani bojovou dovednost.</p><ol class="list" aria-live="polite"></ol></article>
 <article class="category" data-category="archery"><div class="top"><span class="glyph" aria-hidden="true">🏹</span><h3 data-t="archery">Lukostřelecká cesta</h3></div><p class="explain" data-t="archeryDesc">Ověřená účast na lukostřeleckém výcviku.</p><ol class="list" aria-live="polite"></ol></article>
+<article class="category" data-category="skills"><div class="top"><span class="glyph" aria-hidden="true">✧</span><h3 data-t="skills">Cesta mistrovství</h3></div><p class="explain" data-t="skillsDesc">Nové dovednosti ověřené instruktorem a schváleným osnovným plánem; nikoli hodnost.</p><ol class="list" aria-live="polite"></ol></article>
 <article class="category" data-category="volunteer"><div class="top"><span class="glyph" aria-hidden="true">♥</span><h3 data-t="volunteer">Srdce družiny</h3></div><p class="explain" data-t="volunteerDesc">Dobrovolná pomoc potvrzená organizátorem, v minutách.</p><ol class="list" aria-live="polite"></ol></article>
 <article class="category" data-category="mentor"><div class="top"><span class="glyph" aria-hidden="true">✦</span><h3 data-t="mentor">Průvodce nováčků</h3></div><p class="explain" data-t="mentorDesc">Ověřené společné návštěvy s nováčky. Nenahrazuje instruktora.</p><ol class="list" aria-live="polite"></ol></article>
 <article class="category" data-category="consistency"><div class="top"><span class="glyph" aria-hidden="true">♜</span><h3 data-t="consistency">Vytrvalost družiníka</h3></div><p class="explain" data-t="consistencyDesc">Počet různých týdnů s ověřeným tréninkem nebo bitvou.</p><ol class="list" aria-live="polite"></ol></article>
@@ -102,11 +111,31 @@ en:{skip:"Skip to content",eyebrow:"Družina Moravy · verified achievements",ti
 ru:{skip:"К содержанию",eyebrow:"Дружина Моравы · подтверждённые достижения",title:"Зал славы дружины",lead:"В команде можно проявить себя по-разному: на тренировках, битвах, в стрельбе из лука, помощи новичкам и добровольных делах.",fair:"Несколько путей в лидеры",verified:"Только подтверждённые результаты",tree:"Дерево навыков →",safe:"Безопасность и первое занятие",monthLabel:"Текущий месяц",boardTitle:"У каждого свой путь",boardDesc:"Отмечаем реальное участие, а не покупку большого абонемента. У каждой номинации свои объективные критерии.",training:"Опора щитовой линии",trainingDesc:"Подтверждённые посещения тренировок в этом месяце.",battles:"Боевой поход",battlesDesc:"Посещённые LARP-битвы, не победы в дуэлях и не оценка техники.",archery:"Путь лучника",archeryDesc:"Подтверждённые занятия по стрельбе из лука.",volunteer:"Сердце дружины",volunteerDesc:"Добровольная помощь, подтверждённая организатором, в минутах.",mentor:"Проводник новичков",mentorDesc:"Подтверждённая помощь новичкам под контролем инструктора.",consistency:"Стойкость дружинника",consistencyDesc:"Недели, в которые человек реально посещал тренировку или битву.",rightsHead:"Твоя приватность",rights:"Имя, статистика и фото — добровольно и согласуются по отдельности. Дети публично не отображаются. Можно отозвать разрешение.",opt:"Запросить публичный профиль или исправление →",evidenceHead:"Как считаем достижения",evidence:"Только подтверждённое организатором участие. Оплата и бронирование не добавляют посещений. Звания и боевое мастерство — отдельно.",club:"Вернуться в клуб →",footer:"Новые платные записи HEMA пока закрыты.",waiting:"Пока нет одобренных публичных результатов. Открываем новый сезон.",loading:"Загружаем подтверждённые результаты…",notReady:"Результаты пока недоступны.",updated:"Обновлено:",sessionUnit:"тренировок",battleUnit:"битв",archeryUnit:"занятий",volunteerUnit:"мин",mentorUnit:"помощей",consistencyUnit:"недель"},
 uk:{skip:"До вмісту",eyebrow:"Дружина Моравії · підтверджені досягнення",title:"Зала слави дружини",lead:"У команді можна проявити себе по-різному: тренування, битви, стрільба з лука, допомога новачкам і добровільні справи.",fair:"Кілька шляхів до вершини",verified:"Лише перевірені результати",tree:"Дерево навичок →",safe:"Безпека й перше тренування",monthLabel:"Поточний місяць",boardTitle:"У кожного свій шлях",boardDesc:"Відзначаємо справжню участь, а не придбання абонемента. У кожної категорії свої критерії.",training:"Опора щитової лінії",trainingDesc:"Підтверджені відвідування тренувань цього місяця.",battles:"Бойовий похід",battlesDesc:"Участь у LARP-битвах, не перемоги чи оцінка вправності.",archery:"Шлях лучника",archeryDesc:"Підтверджені заняття зі стрільби з лука.",volunteer:"Серце дружини",volunteerDesc:"Добровільна допомога, підтверджена організатором, у хвилинах.",mentor:"Провідник новачків",mentorDesc:"Підтверджена допомога новачкам під наглядом інструктора.",consistency:"Стійкість дружинника",consistencyDesc:"Тижні з підтвердженими тренуваннями чи битвами.",rightsHead:"Твоя приватність",rights:"Імена, статистика та фото — добровільні й погоджуються окремо. Дітей публічно не показуємо. Дозвіл можна відкликати.",opt:"Запросити публічний профіль або виправлення →",evidenceHead:"Як рахуємо результати",evidence:"Лише перевірена організатором участь. Оплата й бронювання не зараховуються. Звання та бойова майстерність — окремо.",club:"Назад до клубу →",footer:"Нові платні записи HEMA поки призупинені.",waiting:"Поки немає схвалених публічних результатів. Відкриваємо новий сезон.",loading:"Завантажуємо перевірені результати…",notReady:"Результати поки недоступні.",updated:"Оновлено:",sessionUnit:"тренувань",battleUnit:"битв",archeryUnit:"занять",volunteerUnit:"хв",mentorUnit:"допомог",consistencyUnit:"тижнів"}
 };
-const cats=["training","battles","archery","volunteer","mentor","consistency"];
+Object.assign(TXT.cs,{training:"Pravidelný trénink",trainingDesc:"Ověřené lekce pěchoty a lukostřelby; každá návštěva se počítá jen jednou."});
+Object.assign(TXT.en,{training:"Training Regular",trainingDesc:"Verified infantry and archery practice; the same session counts once."});
+Object.assign(TXT.ru,{training:"Тренировочная регулярность",trainingDesc:"Подтверждённые занятия пехоты и лучников; одно посещение — один зачёт."});
+Object.assign(TXT.uk,{training:"Регулярність тренувань",trainingDesc:"Підтверджені заняття піхоти й лучників; одне відвідування — один залік."});
+Object.assign(TXT.cs,{skills:"Cesta mistrovství",skillsDesc:"Instruktorem ověřené nové dovednosti ve schválené osnově, nikoli bojová hodnost.",skillsUnit:"dovedností"});
+Object.assign(TXT.en,{skills:"Skill Milestones",skillsDesc:"New instructor-verified curriculum skills, not rank or combat win-rate.",skillsUnit:"milestones"});
+Object.assign(TXT.ru,{skills:"Освоенные навыки",skillsDesc:"Новые навыки, подтверждённые инструктором по утверждённой программе, а не победы в бою.",skillsUnit:"навыков"});
+Object.assign(TXT.uk,{skills:"Освоєні навички",skillsDesc:"Нові вміння, підтверджені інструктором за схваленою програмою, а не бойові перемоги.",skillsUnit:"навичок"});
+const cats=["training","battles","archery","skills","volunteer","mentor","consistency"];
+const PERIOD={
+ cs:{month:"Tento měsíc",all:"Za celou dobu"},
+ en:{month:"This month",all:"All time"},
+ ru:{month:"За месяц",all:"За всё время"},
+ uk:{month:"За місяць",all:"За весь час"}
+};
+let periodMode="month";
 const url=new URL(location.href),saved=(function(){try{return localStorage.getItem("dm_lang")}catch(_){return null}})();let locale=Object.hasOwn(TXT,url.searchParams.get("lang"))?url.searchParams.get("lang"):Object.hasOwn(TXT,saved)?saved:"cs";let snapshot=null;
 function applyLocale(){
  const t=TXT[locale];document.documentElement.lang=locale;document.querySelectorAll("[data-t]").forEach(el=>{const key=el.dataset.t;if(Object.hasOwn(t,key))el.textContent=t[key]});
  document.querySelectorAll(".lang button").forEach(btn=>btn.setAttribute("aria-pressed",String(btn.dataset.lang===locale)));
+ document.querySelectorAll(".period-switch button").forEach(b=>{
+  b.textContent=PERIOD[locale][b.dataset.period==="all"?"all":"month"];
+  b.setAttribute("aria-pressed",String(b.dataset.period===periodMode));
+  b.disabled=b.dataset.period==="all" && !!snapshot && snapshot.version<2;
+ });
  const a=document.querySelector("#skillTree");a.href="../cesty/?lang="+encodeURIComponent(locale);
  document.title=t.title+" | Družina Moravy";draw();
 }
@@ -120,10 +149,12 @@ function line(name,n,unit,position,portrait,alt){
 }
 function draw(){
  const t=TXT[locale],state=document.querySelector("#syncStatus");
- state.textContent=snapshot?.as_of? t.updated+" "+snapshot.as_of:"";
+ state.textContent=snapshot?.as_of? t.updated+" "+snapshot.as_of+
+  (periodMode==="month" && snapshot.period?" · "+snapshot.period:""):"";
  for(const name of cats){
  const el=document.querySelector('[data-category="'+name+'"] .list');el.replaceChildren();
- const members=snapshot?.categories?.[name];let entries=Array.isArray(members)?members.filter(e=>e&&typeof e.display_name==="string"&&Number.isInteger(e.count)&&e.count>0):[];
+ const members=(periodMode==="all" && snapshot?.version>=2
+  ? snapshot?.all_time_categories?.[name] : snapshot?.categories?.[name]);let entries=Array.isArray(members)?members.filter(e=>e&&typeof e.display_name==="string"&&Number.isInteger(e.count)&&e.count>0):[];
  entries=entries.slice(0,3);
  if(!entries.length){const li=document.createElement("li");li.className="wait";li.textContent=t.waiting;el.append(li);continue;}
  entries.forEach((e,i)=>el.append(line(e.display_name,e.count,t[name+"Unit"],i+1,e.photo_path,e.photo_alt)));
@@ -135,11 +166,18 @@ async function load(){
   const r=await fetch("results.json",{cache:"no-store",credentials:"omit"});
   if(!r.ok)throw Error("not found");
   const o=await r.json();
-  if(o.version!==1||!o.categories||typeof o.categories!=="object")throw Error("schema");
+  if(![1,2].includes(o.version)||!o.categories||typeof o.categories!=="object"
+    || (o.version===2 && (!o.all_time_categories||typeof o.all_time_categories!=="object")))throw Error("schema");
   snapshot=o;draw();
  }catch(_){snapshot=null;draw();state.textContent=TXT[locale].notReady;}
 }
 document.querySelectorAll(".lang button").forEach(b=>b.addEventListener("click",()=>{locale=b.dataset.lang;try{localStorage.setItem("dm_lang",locale)}catch(_){ }const u=new URL(location.href);u.searchParams.set("lang",locale);try{history.replaceState(null,"",u)}catch(_){ }applyLocale()}));
+document.querySelectorAll(".period-switch button").forEach(b=>b.addEventListener("click",()=>{
+ if(b.disabled)return;
+ periodMode=b.dataset.period;
+ document.querySelectorAll(".period-switch button").forEach(item=>item.setAttribute("aria-pressed",String(item===b)));
+ draw();
+}));
 applyLocale();load();
 })();
 </script>

@@ -68,4 +68,92 @@ class ExportSecurityTest(unittest.TestCase):
         p["Consent_Revoked_At"]="2026-10-19"
         res,_=dm.build([p],[row(1)],today=TODAY)
         self.assertFalse(res["categories"]["training"])
+    def test_month_is_distinct_from_verified_all_time(self):
+        historical=row(20,day="2026-09-30")
+        current=row(21,day="2026-10-17")
+        result,stats=dm.build([profile()],[historical,current],today=TODAY)
+        self.assertEqual(result["version"],2)
+        self.assertEqual(result["categories"]["training"][0]["count"],1)
+        self.assertEqual(result["all_time_categories"]["training"][0]["count"],2)
+        self.assertEqual(stats["records_verified"],2)
+        self.assertEqual(stats["period_records_verified"],1)
+    def test_training_archery_alias_same_session_counted_once(self):
+        original=row(10,typ="TRAINING",track="ARCHERY")
+        double={**row(11,typ="ARCHERY",track="ARCHERY"),"Event_ID":original["Event_ID"]}
+        result,_=dm.build([profile()],[original,double],today=TODAY)
+        self.assertEqual(result["categories"]["training"][0]["count"],1)
+        self.assertEqual(result["categories"]["archery"][0]["count"],1)
+    def test_profile_duplicates_are_private_until_reconciled(self):
+        active=profile()
+        old={**active,"Consent_Revoked_At":"2026-10-19"}
+        result,_=dm.build([active,old],[row(1)],today=TODAY)
+        self.assertFalse(result["categories"]["training"])
+        self.assertFalse(result["all_time_categories"]["training"])
+    def test_verification_cannot_precede_activity(self):
+        suspicious=row(40)
+        suspicious["Verified_At"]="2026-10-16"
+        result,_=dm.build([profile()],[suspicious],today=TODAY)
+        self.assertFalse(result["categories"]["training"])
+    def test_skills_only_after_instructor_pass_and_activated_catalog(self):
+        catalog=[{"Checkpoint_ID":"AR1-01","Track_ID":"ARCHERY","Tier":"1","Status":"DRAFT"}]
+        check={"Check_ID":"CHK1","Member_ID":"adult1","Track_ID":"ARCHERY",
+               "Tier":"1","Checkpoint_ID":"AR1-01","Session_ID":"SESS1",
+               "Demonstrated_On":"2026-10-17","Instructor_Ref":"coach",
+               "Safety_Verified":"TRUE","Skill_Verified":"TRUE",
+               "Assessment_Status":"PASSED","Verified_At":"2026-10-18",
+               "Evidence_Ref":"PRIVATE_PROOF"}
+        result,_=dm.build([profile()],[],today=TODAY,skill_checks=[check],catalog=catalog)
+        self.assertFalse(result["categories"]["skills"])
+        catalog[0]["Status"]="ACTIVE"
+        result,_=dm.build([profile()],[],today=TODAY,skill_checks=[check],catalog=catalog)
+        self.assertEqual(result["categories"]["skills"][0]["count"],1)
+        self.assertEqual(result["all_time_categories"]["skills"][0]["count"],1)
+        self.assertNotIn("PRIVATE_PROOF",str(result))
+        revoked={**check,"Check_ID":"CHK2","Assessment_Status":"REVOKED",
+                 "Verified_At":"2026-10-19"}
+        result,_=dm.build([profile()],[],today=TODAY,skill_checks=[check,revoked],catalog=catalog)
+        self.assertFalse(result["categories"]["skills"])
+    def test_skill_retake_does_not_create_second_milestone(self):
+        cat=[{"Checkpoint_ID":"AR1-01","Track_ID":"ARCHERY","Tier":"1","Status":"ACTIVE"}]
+        old={"Check_ID":"C1","Member_ID":"adult1","Track_ID":"ARCHERY","Tier":"1",
+             "Checkpoint_ID":"AR1-01","Session_ID":"S1","Demonstrated_On":"2026-09-18",
+             "Instructor_Ref":"coach","Safety_Verified":"TRUE","Skill_Verified":"TRUE",
+             "Assessment_Status":"PASSED","Verified_At":"2026-09-20","Evidence_Ref":"private"}
+        retake={**old,"Check_ID":"C2","Session_ID":"S2","Demonstrated_On":"2026-10-17",
+                "Verified_At":"2026-10-18"}
+        result,_=dm.build([profile()],[],today=TODAY,skill_checks=[old,retake],catalog=cat)
+        self.assertFalse(result["categories"]["skills"])
+        self.assertEqual(result["all_time_categories"]["skills"][0]["count"],1)
+    def test_existing_pesak_internal_status_never_grants_public_skill(self):
+        module={"Module_ID":"PESAK-05","Status":"APPROVED_INTERNAL_NOT_PUBLIC"}
+        check={"Progress_ID":"P5","Member_ID":"adult1","Module_ID":"PESAK-05",
+               "Session_ID":"S99","Training_Date":"2026-10-17",
+               "Instructor_Ref":"coach","Attendance_Verified":"TRUE",
+               "Safety_Verified":"TRUE","Skill_Verified":"TRUE",
+               "Module_Status":"PASSED","Checked_At":"2026-10-18",
+               "Evidence_Ref":"private-module-proof"}
+        kw={"today":TODAY,"pesak_checks":[check,check],"pesak_modules":[module]}
+        data,_=dm.build([profile()],[],**kw)
+        self.assertFalse(data["categories"]["skills"])
+        module["Status"]="PUBLIC_APPROVED"
+        data,_=dm.build([profile()],[],**kw)
+        self.assertEqual(data["categories"]["skills"][0]["count"],1)
+        self.assertNotIn("private-module-proof",str(data))
+    def test_pesak_skill_without_attendance_safety_instructor_is_excluded(self):
+        modules=[{"Module_ID":"PESAK-01","Status":"PUBLIC_APPROVED"}]
+        bad={"Progress_ID":"P1","Member_ID":"adult1","Module_ID":"PESAK-01",
+             "Session_ID":"S1","Training_Date":"2026-10-17",
+             "Instructor_Ref":"coach","Attendance_Verified":"FALSE",
+             "Safety_Verified":"TRUE","Skill_Verified":"TRUE",
+             "Module_Status":"PASSED","Checked_At":"2026-10-18",
+             "Evidence_Ref":"private-proof"}
+        result,_=dm.build([profile()],[],today=TODAY,pesak_checks=[bad],pesak_modules=modules)
+        self.assertFalse(result["categories"]["skills"])
+    def test_archery_and_training_alias_are_order_independent(self):
+        normal=row(50,typ="TRAINING")
+        bow={**row(51,typ="ARCHERY",track="ARCHERY"),"Event_ID":normal["Event_ID"]}
+        for rows in ([normal,bow],[bow,normal]):
+            result,_=dm.build([profile()],rows,today=TODAY)
+            self.assertEqual(result["categories"]["training"][0]["count"],1)
+            self.assertEqual(result["categories"]["archery"][0]["count"],1)
 if __name__=="__main__":unittest.main()
