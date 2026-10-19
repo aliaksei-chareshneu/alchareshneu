@@ -22,7 +22,9 @@ ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_OUTPUT = ROOT / "druzina" / "leaderboard" / "results.json"
 PROFILE_TAB = "Druzina_Public_Profiles"
 EVIDENCE_TAB = "Druzina_Achievement_Evidence"
-CATEGORIES = ("training", "battles", "archery", "volunteer", "mentor", "consistency")
+CHECKPOINTS_TAB = "Druzina_Track_Checkpoints"
+PROGRESS_TAB = "Druzina_Track_Progress"
+CATEGORIES = ("training", "battles", "archery", "skills", "volunteer", "mentor", "consistency")
 TRUE = {"true", "yes", "y", "1", "ano", "approved"}
 ALLOWED_AGE = {"adult", "18+", "18plus", "over18", "18_and_over"}
 APPROVED_VISIBILITY = {"public_approved", "approved_public", "approved"}
@@ -155,6 +157,36 @@ def approved_evidence(rows, eligible, period, today):
         metrics[mid]["consistency"]=len(weeks)
     return metrics,valid,rejected,latest
 
+def approved_skill_checks(progress, catalog, eligible, period, today):
+    """Instructor-assessed skills only. Attendance, payments and DRAFT skills do not count."""
+    active=set()
+    for row in catalog:
+        if row.get("Status","").upper()=="ACTIVE" and row.get("Checkpoint_ID"):
+            active.add((row.get("Track_ID","").upper(),row.get("Tier",""),
+                        row["Checkpoint_ID"]))
+    counted=defaultdict(int)
+    seen=set()
+    for p in progress:
+        member=p.get("Member_ID","")
+        check=p.get("Checkpoint_ID","")
+        track=p.get("Track_ID","").upper()
+        tier=p.get("Tier","")
+        checked=as_date(p.get("Verified_At"))
+        demonstrated=as_date(p.get("Demonstrated_On"))
+        key=(member,check)
+        if (member not in eligible or (track,tier,check) not in active
+            or not checked or checked>today or not demonstrated
+            or demonstrated>checked
+            or (period is not None and checked.strftime("%Y-%m")!=period)
+            or p.get("Assessment_Status","").upper()!="PASSED"
+            or not yes(p.get("Safety_Verified")) or not yes(p.get("Skill_Verified"))
+            or not p.get("Instructor_Ref") or not p.get("Session_ID")
+            or not p.get("Evidence_Ref") or not p.get("Check_ID") or key in seen):
+            continue
+        seen.add(key)
+        counted[member]+=1
+    return counted
+
 def leaders(metrics, eligible):
     """Rank participation only; no win-rate, combat strength or purchased hours."""
     results={}
@@ -170,7 +202,7 @@ def leaders(metrics, eligible):
         )[:3]
     return results
 
-def build(profiles,evidence,period=None,today=None):
+def build(profiles,evidence,period=None,today=None,skill_checks=None,catalog=None):
     today=today or datetime.now(ZoneInfo("Europe/Prague")).date()
     period=period or today.strftime("%Y-%m")
     if not re.fullmatch(r"20\d\d-(0[1-9]|1[0-2])",period):
@@ -180,6 +212,12 @@ def build(profiles,evidence,period=None,today=None):
     lifetime,total_valid,rejected,latest=approved_evidence(
         evidence,eligible,None,today
     )
+    skill_checks=skill_checks or []
+    catalog=catalog or []
+    for mid,count in approved_skill_checks(skill_checks,catalog,eligible,period,today).items():
+        current[mid]["skills"]+=count
+    for mid,count in approved_skill_checks(skill_checks,catalog,eligible,None,today).items():
+        lifetime[mid]["skills"]+=count
     month_rows=leaders(current,eligible)
     all_rows=leaders(lifetime,eligible)
     status=("verified_public_results" if any(all_rows.values())
@@ -202,20 +240,31 @@ def main():
     p.add_argument("--profiles-fixture",type=Path)
     p.add_argument("--evidence-fixture",type=Path)
     p.add_argument("--month")
+    p.add_argument("--skills-fixture",type=Path)
+    p.add_argument("--catalog-fixture",type=Path)
     p.add_argument("--output",type=Path,default=DEFAULT_OUTPUT)
     p.add_argument("--dry-run",action="store_true")
     a=p.parse_args()
     if bool(a.profiles_fixture)!=bool(a.evidence_fixture):
         p.error("both fixture inputs required")
+    if bool(a.skills_fixture)!=bool(a.catalog_fixture):
+        p.error("both skills and catalog fixtures are required together")
     if a.profiles_fixture:
         profiles=json.loads(a.profiles_fixture.read_text(encoding="utf-8"))
         evidence=json.loads(a.evidence_fixture.read_text(encoding="utf-8"))
+        skill_checks=(json.loads(a.skills_fixture.read_text(encoding="utf-8"))
+                      if a.skills_fixture else [])
+        catalog=(json.loads(a.catalog_fixture.read_text(encoding="utf-8"))
+                 if a.catalog_fixture else [])
     else:
         if "DRUZINA_GOOGLE_SA_JSON" not in os.environ:
             p.error("DRUZINA_GOOGLE_SA_JSON service-account credential is required")
         profiles=from_private_sheet(PROFILE_TAB)
         evidence=from_private_sheet(EVIDENCE_TAB)
-    result,stats=build(profiles,evidence,period=a.month)
+        skill_checks=from_private_sheet(PROGRESS_TAB)
+        catalog=from_private_sheet(CHECKPOINTS_TAB)
+    result,stats=build(profiles,evidence,period=a.month,
+                       skill_checks=skill_checks,catalog=catalog)
     if not a.dry_run:
         a.output.parent.mkdir(parents=True,exist_ok=True)
         a.output.write_text(json.dumps(result,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
