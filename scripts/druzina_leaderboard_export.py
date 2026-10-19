@@ -24,6 +24,8 @@ PROFILE_TAB = "Druzina_Public_Profiles"
 EVIDENCE_TAB = "Druzina_Achievement_Evidence"
 CHECKPOINTS_TAB = "Druzina_Track_Checkpoints"
 PROGRESS_TAB = "Druzina_Track_Progress"
+PESAK_MODULES_TAB = "Druzina_Pesak_Modules"
+PESAK_PROGRESS_TAB = "Druzina_Pesak_Progress"
 CATEGORIES = ("training", "battles", "archery", "skills", "volunteer", "mentor", "consistency")
 TRUE = {"true", "yes", "y", "1", "ano", "approved"}
 ALLOWED_AGE = {"adult", "18+", "18plus", "over18", "18_and_over"}
@@ -196,6 +198,33 @@ def approved_skill_checks(progress, catalog, eligible, period, today):
             counted[member]+=1
     return counted
 
+def approved_pesak_checks(progress,modules,eligible,period,today):
+    """Legacy Tier-I infantry: internal approval never implies public awards."""
+    public_modules={m.get("Module_ID","") for m in modules
+                    if m.get("Module_ID") and m.get("Status","").upper()=="PUBLIC_APPROVED"}
+    seen=set()
+    counts=defaultdict(int)
+    for item in sorted(progress,key=lambda p:(as_date(p.get("Checked_At")) or date.max,
+                                              p.get("Progress_ID",""))):
+        mid=item.get("Member_ID","")
+        module=item.get("Module_ID","")
+        checked=as_date(item.get("Checked_At"))
+        trained=as_date(item.get("Training_Date"))
+        key=(mid,module)
+        if (mid not in eligible or module not in public_modules or key in seen
+            or not checked or checked>today or not trained or trained>checked
+            or item.get("Module_Status","").upper() not in {"VERIFIED","PASSED"}
+            or not yes(item.get("Attendance_Verified"))
+            or not yes(item.get("Safety_Verified"))
+            or not yes(item.get("Skill_Verified"))
+            or not item.get("Session_ID") or not item.get("Progress_ID")
+            or not item.get("Instructor_Ref") or not item.get("Evidence_Ref")):
+            continue
+        seen.add(key)
+        if period is None or checked.strftime("%Y-%m")==period:
+            counts[mid]+=1
+    return counts
+
 def leaders(metrics, eligible):
     """Rank participation only; no win-rate, combat strength or purchased hours."""
     results={}
@@ -211,7 +240,8 @@ def leaders(metrics, eligible):
         )[:3]
     return results
 
-def build(profiles,evidence,period=None,today=None,skill_checks=None,catalog=None):
+def build(profiles,evidence,period=None,today=None,skill_checks=None,catalog=None,
+          pesak_checks=None,pesak_modules=None):
     today=today or datetime.now(ZoneInfo("Europe/Prague")).date()
     period=period or today.strftime("%Y-%m")
     if not re.fullmatch(r"20\d\d-(0[1-9]|1[0-2])",period):
@@ -226,6 +256,14 @@ def build(profiles,evidence,period=None,today=None,skill_checks=None,catalog=Non
     for mid,count in approved_skill_checks(skill_checks,catalog,eligible,period,today).items():
         current[mid]["skills"]+=count
     for mid,count in approved_skill_checks(skill_checks,catalog,eligible,None,today).items():
+        lifetime[mid]["skills"]+=count
+    # Existing infantry Tier-I modules remain separate and are NEVER public
+    # merely because their curriculum was approved for internal use.
+    pesak_checks=pesak_checks or []
+    pesak_modules=pesak_modules or []
+    for mid,count in approved_pesak_checks(pesak_checks,pesak_modules,eligible,period,today).items():
+        current[mid]["skills"]+=count
+    for mid,count in approved_pesak_checks(pesak_checks,pesak_modules,eligible,None,today).items():
         lifetime[mid]["skills"]+=count
     month_rows=leaders(current,eligible)
     all_rows=leaders(lifetime,eligible)
@@ -272,8 +310,15 @@ def main():
         evidence=from_private_sheet(EVIDENCE_TAB)
         skill_checks=from_private_sheet(PROGRESS_TAB)
         catalog=from_private_sheet(CHECKPOINTS_TAB)
+        pesak_checks=from_private_sheet(PESAK_PROGRESS_TAB)
+        pesak_modules=from_private_sheet(PESAK_MODULES_TAB)
+    if a.profiles_fixture:
+        # Fixture mode defaults to no historic individual checks; no hidden source.
+        pesak_checks=[]
+        pesak_modules=[]
     result,stats=build(profiles,evidence,period=a.month,
-                       skill_checks=skill_checks,catalog=catalog)
+                       skill_checks=skill_checks,catalog=catalog,
+                       pesak_checks=pesak_checks,pesak_modules=pesak_modules)
     if not a.dry_run:
         a.output.parent.mkdir(parents=True,exist_ok=True)
         a.output.write_text(json.dumps(result,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
