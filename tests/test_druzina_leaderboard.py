@@ -156,4 +156,23 @@ class ExportSecurityTest(unittest.TestCase):
             result,_=dm.build([profile()],rows,today=TODAY)
             self.assertEqual(result["categories"]["training"][0]["count"],1)
             self.assertEqual(result["categories"]["archery"][0]["count"],1)
+    def test_two_event_ids_same_day_are_one_verified_battle_day(self):
+        e1=row(201,typ="BATTLE",day="2026-10-17")
+        e2=row(202,typ="BATTLE",day="2026-10-17")
+        e3=row(203,typ="BATTLE",day="2026-10-18")
+        result,stats=dm.build([profile()],[e1,e2,e3],today=TODAY)
+        self.assertEqual(result["categories"]["battles"][0]["count"],2)
+        self.assertEqual(result["all_time_categories"]["battles"][0]["count"],2)
+        self.assertEqual(stats["records_verified"],2)
+        self.assertEqual(result["categories"]["consistency"][0]["count"],1)
+
+    def test_future_public_consent_cannot_prematurely_publish(self):
+        future=profile()
+        future["Approved_At"]="2026-10-20"
+        public,_=dm.build([future],[row(1)],today=TODAY)
+        self.assertFalse(public["categories"]["training"])
+        future["Approved_At"]="2026-10-18"
+        future["Consent_Checked_At"]="2026-10-20"
+        public,_=dm.build([future],[row(1)],today=TODAY)
+        self.assertFalse(public["categories"]["training"])
 if __name__=="__main__":unittest.main()
