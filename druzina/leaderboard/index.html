@@ -132,7 +132,7 @@ function draw(){
 async function load(){
  const state=document.querySelector("#syncStatus");state.textContent=TXT[locale].loading;
  try{
-  const r=await fetch("../../data/druzina-leaderboard.json",{cache:"no-store",credentials:"omit"});
+  const r=await fetch("results.json",{cache:"no-store",credentials:"omit"});
   if(!r.ok)throw Error("not found");
   const o=await r.json();
   if(o.version!==1||!o.categories||typeof o.categories!=="object")throw Error("schema");
