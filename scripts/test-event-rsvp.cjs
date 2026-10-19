@@ -157,6 +157,32 @@ registrations[3][regHeaders.indexOf("RSVP_Status")]="ATTENDED";
 submit("resp-3","EVT-SYNC","Adult Test","+420 777 100 100","NO - cannot come");
 assert.equal(registrations[3][regHeaders.indexOf("RSVP_Status")],"ATTENDED","real attendance remains authoritative");
 assert(!responses.has("resp-3"),"late RSVP after check-in must not retain unreferenced PII");
+// A cancelled/outdated or malformed submission never reaches the canonical
+// sheet. Its raw Google Form response must also be deleted immediately.
+function rejectRaw(id, fields, expectedError) {
+  const response={
+    getId:()=>id,
+    getItemResponses:()=>Object.entries(fields).map(([title,value])=>({
+      getItem:()=>({getTitle:()=>title}),getResponse:()=>value
+    }))
+  };
+  responses.set(id,response);
+  const count=registrations.length;
+  assert.throws(()=>ctx.onEventRsvpSubmit({response}),expectedError);
+  assert(!responses.has(id),"rejected response must not retain Form PII: "+id);
+  assert.equal(registrations.length,count,"invalid RSVP cannot create an attendance row");
+}
+const validFields={
+  Event:ctx.eventRsvpLabel_(offered.find(x=>x.id==="EVT-YES")),
+  Full_Name:"Rejected Test",Reply_Contact:"rejected@example.test",
+  RSVP_Answer:"YES - I plan to come",Age_Group:"18+",Privacy_Ack:["agreed"]
+};
+rejectRaw("bad-expired",{...validFields,Event:"10.10.2026 10:00 | Past [EVT-PAST]"},/outdated/);
+rejectRaw("bad-privacy",{...validFields,Privacy_Ack:[]},/Privacy acknowledgement/);
+rejectRaw("bad-event",{...validFields,Event:"Unknown date with no event ID"},/Event_ID/);
+rejectRaw("bad-answer",{...validFields,RSVP_Answer:"UNKNOWN ANSWER"},/Invalid RSVP answer/);
+rejectRaw("bad-contact",{...validFields,Reply_Contact:""},/Missing name\\/contact/);
+
 registrations[3][regHeaders.indexOf("Retention_Until")] = new Date(now-86400000);
 // Simulate a legacy/superseded Form response that is no longer referenced by
 // Registrations.Submission_ID. GDPR cleanup must remove it too.
