@@ -94,4 +94,34 @@ class ExportSecurityTest(unittest.TestCase):
         suspicious["Verified_At"]="2026-10-16"
         result,_=dm.build([profile()],[suspicious],today=TODAY)
         self.assertFalse(result["categories"]["training"])
+    def test_skills_only_after_instructor_pass_and_activated_catalog(self):
+        catalog=[{"Checkpoint_ID":"AR1-01","Track_ID":"ARCHERY","Tier":"1","Status":"DRAFT"}]
+        check={"Check_ID":"CHK1","Member_ID":"adult1","Track_ID":"ARCHERY",
+               "Tier":"1","Checkpoint_ID":"AR1-01","Session_ID":"SESS1",
+               "Demonstrated_On":"2026-10-17","Instructor_Ref":"coach",
+               "Safety_Verified":"TRUE","Skill_Verified":"TRUE",
+               "Assessment_Status":"PASSED","Verified_At":"2026-10-18",
+               "Evidence_Ref":"PRIVATE_PROOF"}
+        result,_=dm.build([profile()],[],today=TODAY,skill_checks=[check],catalog=catalog)
+        self.assertFalse(result["categories"]["skills"])
+        catalog[0]["Status"]="ACTIVE"
+        result,_=dm.build([profile()],[],today=TODAY,skill_checks=[check],catalog=catalog)
+        self.assertEqual(result["categories"]["skills"][0]["count"],1)
+        self.assertEqual(result["all_time_categories"]["skills"][0]["count"],1)
+        self.assertNotIn("PRIVATE_PROOF",str(result))
+        revoked={**check,"Check_ID":"CHK2","Assessment_Status":"REVOKED",
+                 "Verified_At":"2026-10-19"}
+        result,_=dm.build([profile()],[],today=TODAY,skill_checks=[check,revoked],catalog=catalog)
+        self.assertFalse(result["categories"]["skills"])
+    def test_skill_retake_does_not_create_second_milestone(self):
+        cat=[{"Checkpoint_ID":"AR1-01","Track_ID":"ARCHERY","Tier":"1","Status":"ACTIVE"}]
+        old={"Check_ID":"C1","Member_ID":"adult1","Track_ID":"ARCHERY","Tier":"1",
+             "Checkpoint_ID":"AR1-01","Session_ID":"S1","Demonstrated_On":"2026-09-18",
+             "Instructor_Ref":"coach","Safety_Verified":"TRUE","Skill_Verified":"TRUE",
+             "Assessment_Status":"PASSED","Verified_At":"2026-09-20","Evidence_Ref":"private"}
+        retake={**old,"Check_ID":"C2","Session_ID":"S2","Demonstrated_On":"2026-10-17",
+                "Verified_At":"2026-10-18"}
+        result,_=dm.build([profile()],[],today=TODAY,skill_checks=[old,retake],catalog=cat)
+        self.assertFalse(result["categories"]["skills"])
+        self.assertEqual(result["all_time_categories"]["skills"][0]["count"],1)
 if __name__=="__main__":unittest.main()
