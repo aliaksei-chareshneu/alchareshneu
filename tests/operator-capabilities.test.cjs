@@ -1,0 +1,7 @@
+const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const source=fs.readFileSync(__dirname+'/../OperatorConsoleServer.gs','utf8');
+function cap(extra={},values={}){const s={...extra};vm.createContext(s);vm.runInContext(source,s);return s.ocCapabilities_({getProperty:k=>values[k]||null});}
+const recovery=()=>({platformRecoveryPreview:()=>{},RP:{},rpOnLeadFormSubmit:()=>{},platformPauseRecovery:()=>{}});
+test('no module means no actions',()=>{const c=cap();assert.equal(c.recoveryState,'MODULE_MISSING');assert.ok(Object.values(c.actions).every(v=>v===false));});
+test('distinct recovery states',()=>{assert.equal(cap(recovery()).recoveryState,'NOT_CONFIGURED');assert.equal(cap(recovery(),{PLATFORM_RECOVERY_PAUSED:'true'}).recoveryState,'PAUSED');const c=cap(recovery(),{PLATFORM_RECOVERY_PAUSED:'false'});assert.equal(c.recoveryState,'ENABLED_NOT_VERIFIED');assert.equal(c.actions.pauseRecovery,true);});
+test('bank needs both module and confirmed configuration',()=>{const m={fioSyncOSVCReadOnly:()=>{}},p={FIO_OSVC_READ_TOKEN:'a'.repeat(64),FIO_OSVC_EXPECTED_ACCOUNT_ID:'12345678',FIO_OSVC_ENTITY_CONFIRMED:'true'};assert.equal(cap(m).actions.syncOSVC,false);assert.equal(cap({},p).actions.syncOSVC,false);assert.equal(cap(m,p).actions.syncOSVC,true);assert.equal(cap(m,{...p,FIO_OSVC_ENTITY_CONFIRMED:'false'}).actions.syncOSVC,false);});
