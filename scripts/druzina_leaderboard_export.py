@@ -91,7 +91,9 @@ def adult_public_profiles(rows, today):
             continue
         if not p.get("Consent_Evidence_Ref") or not p.get("Approved_By"):
             continue
-        if as_date(p.get("Consent_Checked_At")) is None or as_date(p.get("Approved_At")) is None:
+        checked=as_date(p.get("Consent_Checked_At"))
+        approved=as_date(p.get("Approved_At"))
+        if not checked or not approved or checked>today or approved>today:
             continue
         expires=as_date(p.get("Consent_Expires_At"))
         if expires and expires<today:
@@ -136,7 +138,9 @@ def approved_evidence(rows, eligible, period, today):
         # ARCHERY and TRAINING are one attended session, not two visits.
         # Staff must classify that event with one canonical record and Track.
         family="practice" if typ in ("archery","training") else typ
-        canonical=(mid,family,e["Event_ID"])
+        # Official B-battle experience and public battle participation are
+        # counted per distinct day, never per multiple event IDs in one day.
+        canonical=(mid,"battle-day",when.isoformat()) if typ=="battle" else (mid,family,e["Event_ID"])
         if key in seen:
             rejected+=1;continue
         if canonical in seen:
