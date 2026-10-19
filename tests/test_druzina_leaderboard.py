@@ -149,4 +149,11 @@ class ExportSecurityTest(unittest.TestCase):
              "Evidence_Ref":"private-proof"}
         result,_=dm.build([profile()],[],today=TODAY,pesak_checks=[bad],pesak_modules=modules)
         self.assertFalse(result["categories"]["skills"])
+    def test_archery_and_training_alias_are_order_independent(self):
+        normal=row(50,typ="TRAINING")
+        bow={**row(51,typ="ARCHERY",track="ARCHERY"),"Event_ID":normal["Event_ID"]}
+        for rows in ([normal,bow],[bow,normal]):
+            result,_=dm.build([profile()],rows,today=TODAY)
+            self.assertEqual(result["categories"]["training"][0]["count"],1)
+            self.assertEqual(result["categories"]["archery"][0]["count"],1)
 if __name__=="__main__":unittest.main()
