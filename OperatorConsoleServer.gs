@@ -33,11 +33,30 @@ function ocBankState_(props,prefix){
  return {configured:!!props.getProperty(prefix+'_READ_TOKEN')&&!!props.getProperty(prefix+'_EXPECTED_ACCOUNT_ID'),
   lastSuccess:last,fresh:verified,balance:verified&&raw!==null&&raw!==''&&isFinite(Number(raw))?Number(raw):null};
 }
+
+/** Local project capabilities only; never infer another project's configuration. */
+function ocCapabilities_(p){
+ var hasRecovery=typeof platformRecoveryPreview==='function' && typeof RP!=='undefined' && typeof rpOnLeadFormSubmit==='function';
+ var recoveryState=!hasRecovery?'MODULE_MISSING':p.getProperty('PLATFORM_RECOVERY_PAUSED')==='true'?'PAUSED':p.getProperty('PLATFORM_RECOVERY_PAUSED')==='false'?'ENABLED_NOT_VERIFIED':'NOT_CONFIGURED';
+ function bankReady(prefix,installed){
+  return installed && /^[A-Za-z0-9]{64}$/.test(p.getProperty(prefix+'_READ_TOKEN')||'') &&
+   /^\d{6,20}$/.test(p.getProperty(prefix+'_EXPECTED_ACCOUNT_ID')||'') &&
+   p.getProperty(prefix+'_ENTITY_CONFIRMED')==='true';
+ }
+ return {recoveryState:recoveryState,actions:{
+  previewRecovery:hasRecovery,
+  pauseRecovery:hasRecovery && typeof platformPauseRecovery==='function' && recoveryState==='ENABLED_NOT_VERIFIED',
+  previewPayments:typeof paymentReconciliationPreview==='function',
+  syncOSVC:bankReady('FIO_OSVC',typeof fioSyncOSVCReadOnly==='function'),
+  syncDruzina:bankReady('FIO_DRUZINA',typeof fioSyncDruzinaReadOnly==='function')
+ }};
+}
+
 function operatorSnapshot(){
  ocOwner_();var ss=SpreadsheetApp.openById(ocId_()),p=PropertiesService.getScriptProperties();
  var leads=ocRows_(ss,'Leads'),social=ocRows_(ss,'SocialPublishing'),events=ocRows_(ss,'Events'),config=ocRows_(ss,'Revenue_Config');
  var cfg={};config.rows.forEach(function(r){cfg[r.Key]=r.Value;});
- return {at:new Date().toISOString(),hub:ss.getUrl(),leads:ocLeadSummary_(leads.rows),leadUrl:leads.url,
+ return {capabilities:ocCapabilities_(p),at:new Date().toISOString(),hub:ss.getUrl(),leads:ocLeadSummary_(leads.rows),leadUrl:leads.url,
   ingestion:cfg.STATUS||'NOT_VERIFIED',social:ocSocialSummary_(social.rows),socialUrl:social.url,
   events:events.rows.filter(function(r){return r.Status==='Active';}).map(function(r){return {id:r.Event_ID,title:r.Title,date:r.Start_DateTime,community:r.Community};}),eventUrl:events.url,
   banks:{osvc:ocBankState_(p,'FIO_OSVC'),druzina:ocBankState_(p,'FIO_DRUZINA')},
