@@ -1,1 +1,23 @@
-{"version":1,"period":"2026-10","as_of":"2026-10-19","categories":{"training":[],"battles":[],"archery":[],"volunteer":[],"mentor":[],"consistency":[]}}
+{
+  "version": 2,
+  "period": "2026-10",
+  "as_of": "2026-10-19",
+  "status": "awaiting_verified_entries",
+  "categories": {
+    "training": [],
+    "battles": [],
+    "archery": [],
+    "volunteer": [],
+    "mentor": [],
+    "consistency": []
+  },
+  "all_time_categories": {
+    "training": [],
+    "battles": [],
+    "archery": [],
+    "volunteer": [],
+    "mentor": [],
+    "consistency": []
+  },
+  "last_verified_event_date": null
+}
