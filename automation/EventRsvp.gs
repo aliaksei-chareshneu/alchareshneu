@@ -162,6 +162,24 @@ function eventRsvpPrefilledUrl(eventId) {
   return form.createResponse().withItemResponse(q.createResponse(eventRsvpLabel_(found))).toPrefilledUrl();
 }
 
+/**
+ * Purge invalid/obsolete submissions from the Form, too: otherwise rejected
+ * responses never reach Registrations and its 90-day retention cleanup.
+ */
+function eventRsvpDiscardInvalid_(response, reason) {
+  var responseId = response && response.getId && response.getId();
+  var formId = PropertiesService.getScriptProperties().getProperty(EVENT_RSVP_FORM_PROPERTY);
+  if (formId && responseId) {
+    try {
+      FormApp.openById(formId).deleteResponse(responseId);
+    } catch (purgeError) {
+      // Failing to erase unlinked personal data must not be logged as success.
+      throw new Error(reason + '; Form response purge FAILED, manual action required: ' + String(purgeError));
+    }
+  }
+  throw new Error(reason);
+}
+
 function onEventRsvpSubmit(e) {
   var lock = LockService.getScriptLock();
   lock.waitLock(20000);
@@ -171,20 +189,20 @@ function onEventRsvpSubmit(e) {
     e.response.getItemResponses().forEach(function(ir) {
       byTitle[ir.getItem().getTitle()] = ir.getResponse();
     });
-    if (!byTitle.Privacy_Ack || !byTitle.Privacy_Ack.length) return;
+    if (!byTitle.Privacy_Ack || !byTitle.Privacy_Ack.length) eventRsvpDiscardInvalid_(e.response, 'Privacy acknowledgement missing');
     var match = /\[([A-Za-z0-9-]+)\]$/.exec(String(byTitle.Event || ''));
-    if (!match) throw new Error('RSVP Event_ID could not be read');
+    if (!match) eventRsvpDiscardInvalid_(e.response, 'RSVP Event_ID could not be read');
     var eventId = match[1], name = String(byTitle.Full_Name || '').trim();
     var contact = String(byTitle.Reply_Contact || '').trim();
-    if (!name || !contact) throw new Error('Missing name/contact');
+    if (!name || !contact) eventRsvpDiscardInvalid_(e.response, 'Missing name/contact');
 
     // Never accept an arbitrary event code or an obsolete choice.
     var ev = eventRsvpItems_().filter(function(x) { return x.id === eventId; })[0];
-    if (!ev) throw new Error('Event is cancelled, outdated or not in the active calendar: ' + eventId);
+    if (!ev) eventRsvpDiscardInvalid_(e.response, 'Event is cancelled, outdated or not in the active calendar: ' + eventId);
     var answer = String(byTitle.RSVP_Answer || '');
     var status = /^YES\b/.test(answer) ? 'CONFIRMED' :
       /^MAYBE\b/.test(answer) ? 'MAYBE' : /^NO\b/.test(answer) ? 'DECLINED' : '';
-    if (!status) throw new Error('Invalid RSVP answer');
+    if (!status) eventRsvpDiscardInvalid_(e.response, 'Invalid RSVP answer');
     var minor = byTitle.Age_Group === 'Under 18';
     if (minor && status === 'CONFIRMED') {
       status = 'REGISTERED'; // Guardian details alone are not VERIFIED guardian consent: human clearance required.
