@@ -113,6 +113,8 @@ def approved_evidence(rows, eligible, period, today):
     metrics=defaultdict(lambda:defaultdict(int))
     active_weeks=defaultdict(set)
     seen=set()
+    event_dates={}
+    archery_credited=set()
     valid=0
     rejected=0
     latest=""
@@ -135,9 +137,20 @@ def approved_evidence(rows, eligible, period, today):
         # Staff must classify that event with one canonical record and Track.
         family="practice" if typ in ("archery","training") else typ
         canonical=(mid,family,e["Event_ID"])
-        if key in seen or canonical in seen:
+        if key in seen:
+            rejected+=1;continue
+        if canonical in seen:
+            # A verified TRAINING record and a verified ARCHERY record
+            # can describe the SAME session. Upgrade its bow tag, not
+            # attendance; do not allow a mismatched date to borrow it.
+            if (family=="practice" and event_dates.get(canonical)==when
+                and (typ=="archery" or track in ("archery","ranged","bow","lucistnik"))
+                and canonical not in archery_credited):
+                metrics[mid]["archery"]+=1
+                archery_credited.add(canonical)
             rejected+=1;continue
         seen.add(key);seen.add(canonical)
+        event_dates[canonical]=when
         valid+=1
         latest=max(latest,when.isoformat())
         if typ in ("training","archery"):
@@ -145,6 +158,7 @@ def approved_evidence(rows, eligible, period, today):
             active_weeks[mid].add(when.isocalendar()[:2])
             if typ=="archery" or track in ("archery","ranged","bow","lucistnik"):
                 metrics[mid]["archery"]+=1
+                archery_credited.add(canonical)
         if typ=="battle":
             metrics[mid]["battles"]+=1
             active_weeks[mid].add(when.isocalendar()[:2])
