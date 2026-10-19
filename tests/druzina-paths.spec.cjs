@@ -33,12 +33,12 @@ for(const lang of languages){
   await page.goto('/druzina/leaderboard/?lang='+lang);
   await expect(page.locator('html')).toHaveAttribute('lang',lang);
   await expect(page.locator('#syncStatus')).toContainText('2026-10-19');
-  await expect(page.locator('article[data-category]')).toHaveCount(6);
-  await expect(page.locator('.category .list li.wait')).toHaveCount(6);
+  await expect(page.locator('article[data-category]')).toHaveCount(7);
+  await expect(page.locator('.category .list li.wait')).toHaveCount(7);
   const toggle=page.locator('button[data-period="all"]');
   await toggle.click();
   await expect(toggle).toHaveAttribute('aria-pressed','true');
-  await expect(page.locator('.category .list li.wait')).toHaveCount(6);
+  await expect(page.locator('.category .list li.wait')).toHaveCount(7);
   await expect(page.locator('button[data-period="month"]')).toHaveAttribute('aria-pressed','false');
   await page.locator('button[data-period="month"]').click();
   await expect(page.locator('#syncStatus')).toContainText('2026-10');
