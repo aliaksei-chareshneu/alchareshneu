@@ -45,3 +45,28 @@ for(const lang of languages){
   expect(errors).toEqual([]);
  });
 }
+
+for(const lang of languages){
+ test('three-week rotation obeys fair Mon/Thu/Sat permutations in '+lang,async({page})=>{
+  const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  for(const width of [360,390,768]){
+   await page.setViewportSize({width,height:850});
+   await page.goto('/druzina/cesty/?lang='+lang);
+   const cards=page.locator('.rotation-week');
+   await expect(cards).toHaveCount(3);
+   for(let i=1;i<=3;i++){
+    const week=page.locator('.rotation-week[data-week="'+i+'"]');
+    await expect(week.locator('.rotation-slot')).toHaveCount(3);
+    const formats=await week.locator('[data-rotcell]').allTextContents();
+    expect(new Set(formats).size).toBe(3);
+    expect(formats.every(text=>text.trim().length>=4)).toBe(true);
+   }
+   const dayLabels=await page.locator('.rotation-week:first-child [data-rotday]').allTextContents();
+   for(const day of dayLabels){expect(day.trim().length).toBeGreaterThan(2);}
+   const ranks=page.locator('#officialRanks');
+   await expect(ranks).toHaveAttribute('href','../ranks.html?lang='+lang);
+   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+  }
+  expect(errors).toEqual([]);
+ });
+}
