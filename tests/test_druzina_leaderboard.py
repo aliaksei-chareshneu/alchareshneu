@@ -124,4 +124,29 @@ class ExportSecurityTest(unittest.TestCase):
         result,_=dm.build([profile()],[],today=TODAY,skill_checks=[old,retake],catalog=cat)
         self.assertFalse(result["categories"]["skills"])
         self.assertEqual(result["all_time_categories"]["skills"][0]["count"],1)
+    def test_existing_pesak_internal_status_never_grants_public_skill(self):
+        module={"Module_ID":"PESAK-05","Status":"APPROVED_INTERNAL_NOT_PUBLIC"}
+        check={"Progress_ID":"P5","Member_ID":"adult1","Module_ID":"PESAK-05",
+               "Session_ID":"S99","Training_Date":"2026-10-17",
+               "Instructor_Ref":"coach","Attendance_Verified":"TRUE",
+               "Safety_Verified":"TRUE","Skill_Verified":"TRUE",
+               "Module_Status":"PASSED","Checked_At":"2026-10-18",
+               "Evidence_Ref":"private-module-proof"}
+        kw={"today":TODAY,"pesak_checks":[check,check],"pesak_modules":[module]}
+        data,_=dm.build([profile()],[],**kw)
+        self.assertFalse(data["categories"]["skills"])
+        module["Status"]="PUBLIC_APPROVED"
+        data,_=dm.build([profile()],[],**kw)
+        self.assertEqual(data["categories"]["skills"][0]["count"],1)
+        self.assertNotIn("private-module-proof",str(data))
+    def test_pesak_skill_without_attendance_safety_instructor_is_excluded(self):
+        modules=[{"Module_ID":"PESAK-01","Status":"PUBLIC_APPROVED"}]
+        bad={"Progress_ID":"P1","Member_ID":"adult1","Module_ID":"PESAK-01",
+             "Session_ID":"S1","Training_Date":"2026-10-17",
+             "Instructor_Ref":"coach","Attendance_Verified":"FALSE",
+             "Safety_Verified":"TRUE","Skill_Verified":"TRUE",
+             "Module_Status":"PASSED","Checked_At":"2026-10-18",
+             "Evidence_Ref":"private-proof"}
+        result,_=dm.build([profile()],[],today=TODAY,pesak_checks=[bad],pesak_modules=modules)
+        self.assertFalse(result["categories"]["skills"])
 if __name__=="__main__":unittest.main()
