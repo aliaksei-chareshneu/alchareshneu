@@ -41,6 +41,6 @@ Inside the EXISTING Community Hub:
 
 **Whenever new sessions are staged:** resolve authoritative local start date; compute format with `plan_for_day()`; look up the existing `Session_ID`; append a single matching content overlay row after verifying uniqueness and date; use a reviewed `Theme` in the same existing `Druzina_Sessions` row. If calendar, qualified instructor or venue is missing, retain `INTERNAL_PLAN_ONLY`. If the planned date is cancelled, record verified cancellation instead of inventing attendance or shifting the 3-week cadence.
 
-**Conflicts observed in the private operator calendar:** individual 2 Nov handover timing, 7 Nov instructor overlap, 14 Nov same-day workshop, 21 Nov tentative away event and 24/26 Dec holidays. These require human confirmations/delegation; no silent calendar cancellations or promises to participants. Keep detailed private notes in Community Hub, not on public webpages.
+**Private scheduling exceptions:** instructor/venue feasibility, holidays and other conflicts are reviewed in the access-controlled Community Hub only. Do not copy calendar details into public website content; do not silently cancel agreed lessons.
 
 **Tests:** `python3 -m unittest discover -s tests -p 'test_druzina_rotation.py' -v` and `npm test` (browser path test). Review after three complete rotation weeks for fairness, instructor load, incidents, repeat attendance and participant feedback. Do not interpret enrolment or site clicks as successful training.
