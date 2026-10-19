@@ -50,6 +50,9 @@ jobs:
       - name: Verify private-to-public Druzina leaderboard isolation
         run: python3 -m unittest discover -s tests -p 'test_druzina_leaderboard.py' -v
 
+      - name: Verify fair three-week Druzina training rotation
+        run: python3 -m unittest discover -s tests -p 'test_druzina_rotation.py' -v
+
       - name: Validate inline JavaScript syntax
         shell: bash
         run: |
