@@ -75,7 +75,7 @@ test('public calendar survives API failure in four languages and paid HEMA never
   await expect(page.locator('#public-calendar-frame')).toBeVisible();
   await expect(page.locator('.calendar-booking-note')).not.toBeEmpty();
   await expect(page.locator('.event-upcoming-card')).toHaveCount(1);
-  await expect(page.locator('.eu-price-note')).not.toBeEmpty();
+  await expect(page.locator('.eu-price-row span.eu-price-note')).not.toBeEmpty();
   const cardHref=await page.locator('.eu-ctas a').getAttribute('href');
   expect(cardHref).toEqual(await page.locator('#navBookBtn').getAttribute('href'));
   expect(cardHref).not.toContain('fake-paid-form');
