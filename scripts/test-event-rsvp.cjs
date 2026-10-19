@@ -181,7 +181,7 @@ rejectRaw("bad-expired",{...validFields,Event:"10.10.2026 10:00 | Past [EVT-PAST
 rejectRaw("bad-privacy",{...validFields,Privacy_Ack:[]},/Privacy acknowledgement/);
 rejectRaw("bad-event",{...validFields,Event:"Unknown date with no event ID"},/Event_ID/);
 rejectRaw("bad-answer",{...validFields,RSVP_Answer:"UNKNOWN ANSWER"},/Invalid RSVP answer/);
-rejectRaw("bad-contact",{...validFields,Reply_Contact:""},/Missing name\\/contact/);
+rejectRaw("bad-contact",{...validFields,Reply_Contact:""},new RegExp("Missing name/contact"));
 
 registrations[3][regHeaders.indexOf("Retention_Until")] = new Date(now-86400000);
 // Simulate a legacy/superseded Form response that is no longer referenced by
