@@ -158,15 +158,23 @@ def approved_evidence(rows, eligible, period, today):
     return metrics,valid,rejected,latest
 
 def approved_skill_checks(progress, catalog, eligible, period, today):
-    """Instructor-assessed skills only. Attendance, payments and DRAFT skills do not count."""
+    """First supervised pass counts once; verified revocation removes that skill."""
     active=set()
-    for row in catalog:
-        if row.get("Status","").upper()=="ACTIVE" and row.get("Checkpoint_ID"):
-            active.add((row.get("Track_ID","").upper(),row.get("Tier",""),
-                        row["Checkpoint_ID"]))
+    for item in catalog:
+        if item.get("Status","").upper()=="ACTIVE" and item.get("Checkpoint_ID"):
+            active.add((item.get("Track_ID","").upper(),item.get("Tier",""),
+                        item["Checkpoint_ID"]))
+    revoked=set()
+    for item in progress:
+        d=as_date(item.get("Verified_At"))
+        if (item.get("Assessment_Status","").upper()=="REVOKED" and d and d<=today
+            and item.get("Instructor_Ref") and item.get("Evidence_Ref")):
+            revoked.add((item.get("Member_ID",""),item.get("Checkpoint_ID","")))
     counted=defaultdict(int)
     seen=set()
-    for p in progress:
+    ordered=sorted(progress,key=lambda item:(
+        as_date(item.get("Verified_At")) or date.max,item.get("Check_ID","")))
+    for p in ordered:
         member=p.get("Member_ID","")
         check=p.get("Checkpoint_ID","")
         track=p.get("Track_ID","").upper()
@@ -175,16 +183,17 @@ def approved_skill_checks(progress, catalog, eligible, period, today):
         demonstrated=as_date(p.get("Demonstrated_On"))
         key=(member,check)
         if (member not in eligible or (track,tier,check) not in active
+            or key in revoked or key in seen
             or not checked or checked>today or not demonstrated
             or demonstrated>checked
-            or (period is not None and checked.strftime("%Y-%m")!=period)
             or p.get("Assessment_Status","").upper()!="PASSED"
             or not yes(p.get("Safety_Verified")) or not yes(p.get("Skill_Verified"))
             or not p.get("Instructor_Ref") or not p.get("Session_ID")
-            or not p.get("Evidence_Ref") or not p.get("Check_ID") or key in seen):
+            or not p.get("Evidence_Ref") or not p.get("Check_ID")):
             continue
         seen.add(key)
-        counted[member]+=1
+        if period is None or checked.strftime("%Y-%m")==period:
+            counted[member]+=1
     return counted
 
 def leaders(metrics, eligible):
