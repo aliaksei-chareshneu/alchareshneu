@@ -119,12 +119,16 @@ Object.assign(TXT.cs,{skills:"Cesta mistrovství",skillsDesc:"Instruktorem ově�
 Object.assign(TXT.en,{skills:"Skill Milestones",skillsDesc:"New instructor-verified curriculum skills, not rank or combat win-rate.",skillsUnit:"milestones"});
 Object.assign(TXT.ru,{skills:"Освоенные навыки",skillsDesc:"Новые навыки, подтверждённые инструктором по утверждённой программе, а не победы в бою.",skillsUnit:"навыков"});
 Object.assign(TXT.uk,{skills:"Освоєні навички",skillsDesc:"Нові вміння, підтверджені інструктором за схваленою програмою, а не бойові перемоги.",skillsUnit:"навичок"});
+TXT.cs.monthLabel="Měsíční souhrn · ověřená data";
+TXT.en.monthLabel="Monthly report · verified data";
+TXT.ru.monthLabel="Отчёт за месяц · подтверждённые данные";
+TXT.uk.monthLabel="Звіт за місяць · підтверджені дані";
 const cats=["training","battles","archery","skills","volunteer","mentor","consistency"];
 const PERIOD={
- cs:{month:"Tento měsíc",all:"Za celou dobu"},
- en:{month:"This month",all:"All time"},
- ru:{month:"За месяц",all:"За всё время"},
- uk:{month:"За місяць",all:"За весь час"}
+ cs:{month:"Vykazovaný měsíc",all:"Za celou dobu"},
+ en:{month:"Reported month",all:"All time"},
+ ru:{month:"Отчётный месяц",all:"За всё время"},
+ uk:{month:"Звітний місяць",all:"За весь час"}
 };
 let periodMode="month";
 const url=new URL(location.href),saved=(function(){try{return localStorage.getItem("dm_lang")}catch(_){return null}})();let locale=Object.hasOwn(TXT,url.searchParams.get("lang"))?url.searchParams.get("lang"):Object.hasOwn(TXT,saved)?saved:"cs";let snapshot=null;
