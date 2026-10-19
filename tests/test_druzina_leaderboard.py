@@ -68,4 +68,30 @@ class ExportSecurityTest(unittest.TestCase):
         p["Consent_Revoked_At"]="2026-10-19"
         res,_=dm.build([p],[row(1)],today=TODAY)
         self.assertFalse(res["categories"]["training"])
+    def test_month_is_distinct_from_verified_all_time(self):
+        historical=row(20,day="2026-09-30")
+        current=row(21,day="2026-10-17")
+        result,stats=dm.build([profile()],[historical,current],today=TODAY)
+        self.assertEqual(result["version"],2)
+        self.assertEqual(result["categories"]["training"][0]["count"],1)
+        self.assertEqual(result["all_time_categories"]["training"][0]["count"],2)
+        self.assertEqual(stats["records_verified"],2)
+        self.assertEqual(stats["period_records_verified"],1)
+    def test_training_archery_alias_same_session_counted_once(self):
+        original=row(10,typ="TRAINING",track="ARCHERY")
+        double={**row(11,typ="ARCHERY",track="ARCHERY"),"Event_ID":original["Event_ID"]}
+        result,_=dm.build([profile()],[original,double],today=TODAY)
+        self.assertEqual(result["categories"]["training"][0]["count"],1)
+        self.assertEqual(result["categories"]["archery"][0]["count"],1)
+    def test_profile_duplicates_are_private_until_reconciled(self):
+        active=profile()
+        old={**active,"Consent_Revoked_At":"2026-10-19"}
+        result,_=dm.build([active,old],[row(1)],today=TODAY)
+        self.assertFalse(result["categories"]["training"])
+        self.assertFalse(result["all_time_categories"]["training"])
+    def test_verification_cannot_precede_activity(self):
+        suspicious=row(40)
+        suspicious["Verified_At"]="2026-10-16"
+        result,_=dm.build([profile()],[suspicious],today=TODAY)
+        self.assertFalse(result["categories"]["training"])
 if __name__=="__main__":unittest.main()
