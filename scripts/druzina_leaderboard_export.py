@@ -68,10 +68,16 @@ def from_private_sheet(tab):
 
 def adult_public_profiles(rows, today):
     accepted={}
+    # Duplicated, conflicting or revoked profile records are never made public.
+    # Staff must reconcile profiles first instead of letting row order pick consent.
+    grouped=defaultdict(list)
     for p in rows:
-        ident=p.get("Member_ID","")
-        if not ident or ident in accepted:
+        if p.get("Member_ID",""):
+            grouped[p["Member_ID"]].append(p)
+    for ident, candidates in grouped.items():
+        if len(candidates)!=1:
             continue
+        p=candidates[0]
         age=p.get("Age_Class","").strip().lower().replace(" ","")
         if age not in ALLOWED_AGE:
             continue
@@ -113,13 +119,18 @@ def approved_evidence(rows, eligible, period, today):
         typ=e.get("Event_Type","").strip().lower()
         track=e.get("Track","").strip().lower()
         key=e.get("Unique_Key","").strip()
-        if (mid not in eligible or not when or when.strftime("%Y-%m")!=period
+        if (mid not in eligible or not when or (period is not None and when.strftime("%Y-%m")!=period)
             or when>today or typ not in allowed or e.get("Verification","").strip().lower()!="verified"
             or not yes(e.get("Approved_For_Count"))
             or not key or not e.get("Event_ID") or not e.get("Verified_By")
-            or not as_date(e.get("Verified_At")) or as_date(e.get("Verified_At"))>today or not e.get("Proof_Ref")):
+            or not as_date(e.get("Verified_At"))
+            or as_date(e.get("Verified_At"))>today
+            or as_date(e.get("Verified_At"))<when or not e.get("Proof_Ref")):
             rejected+=1; continue
-        canonical=(mid,typ,e["Event_ID"])
+        # ARCHERY and TRAINING are one attended session, not two visits.
+        # Staff must classify that event with one canonical record and Track.
+        family="practice" if typ in ("archery","training") else typ
+        canonical=(mid,family,e["Event_ID"])
         if key in seen or canonical in seen:
             rejected+=1;continue
         seen.add(key);seen.add(canonical)
@@ -144,25 +155,47 @@ def approved_evidence(rows, eligible, period, today):
         metrics[mid]["consistency"]=len(weeks)
     return metrics,valid,rejected,latest
 
+def leaders(metrics, eligible):
+    """Rank participation only; no win-rate, combat strength or purchased hours."""
+    results={}
+    for category in CATEGORIES:
+        rows=[]
+        for mid,values in metrics.items():
+            count=values.get(category,0)
+            if not count:
+                continue
+            rows.append({**eligible[mid],"count":count})
+        results[category]=sorted(
+            rows,key=lambda r:(-r["count"],r["display_name"].casefold())
+        )[:3]
+    return results
+
 def build(profiles,evidence,period=None,today=None):
     today=today or datetime.now(ZoneInfo("Europe/Prague")).date()
     period=period or today.strftime("%Y-%m")
     if not re.fullmatch(r"20\d\d-(0[1-9]|1[0-2])",period):
         raise ValueError("month format must be YYYY-MM")
     eligible=adult_public_profiles(profiles,today)
-    metrics,valid,rejected,latest=approved_evidence(evidence,eligible,period,today)
-    results={}
-    for category in CATEGORIES:
-        rows=[]
-        for mid,values in metrics.items():
-            count=values.get(category,0)
-            if not count:continue
-            rows.append({**eligible[mid],"count":count})
-        results[category]=sorted(rows,key=lambda r:(-r["count"],r["display_name"].casefold()))[:3]
-    status="verified_public_results" if any(results.values()) else "awaiting_verified_entries"
-    return {"version":1,"period":period,"as_of":today.isoformat(),"status":status,
-            "categories":results,"last_verified_event_date":latest or None},\
-           {"profiles_eligible":len(eligible),"records_verified":valid,"records_ineligible":rejected}
+    current,month_valid,_,_=approved_evidence(evidence,eligible,period,today)
+    lifetime,total_valid,rejected,latest=approved_evidence(
+        evidence,eligible,None,today
+    )
+    month_rows=leaders(current,eligible)
+    all_rows=leaders(lifetime,eligible)
+    status=("verified_public_results" if any(all_rows.values())
+            else "awaiting_verified_entries")
+    public={
+        "version":2,
+        "period":period,
+        "as_of":today.isoformat(),
+        "status":status,
+        "categories":month_rows,
+        "all_time_categories":all_rows,
+        "last_verified_event_date":latest or None
+    }
+    stats={"profiles_eligible":len(eligible),"records_verified":total_valid,
+           "period_records_verified":month_valid,"records_ineligible":rejected}
+    return public,stats
 
 def main():
     p=argparse.ArgumentParser()
