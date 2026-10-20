@@ -1,16 +1,17 @@
 services:
- - type: web
- name: inizio-organic-search-demo
- runtime: node
- plan: free
- region: frankfurt
- buildCommand: npm install --no-audit --no-fund
- startCommand: npm start
- healthCheckPath: /health
- envVars:
- - key: NODE_VERSION
- value: "22"
- - key: MAX_DAILY_QUERIES
- value: "50"
- - key: SERPER_API_KEY
- sync: false
+  - type: web
+    name: inizio-organic-search-demo
+    runtime: node
+    plan: free
+    region: frankfurt
+    rootDir: inizio-search-demo
+    buildCommand: npm install --no-audit --no-fund
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: MAX_DAILY_QUERIES
+        value: "50"
+      - key: SERPER_API_KEY
+        sync: false
