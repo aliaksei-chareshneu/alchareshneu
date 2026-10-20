@@ -37,9 +37,17 @@ function paymentReconciliationPreview(){
   ocOwner_();var ss=SpreadsheetApp.openById(ocId_());
   var p=ocRows_(ss,'Druzina_Payments'),t=ocRows_(ss,'Druzina_Fio_Transactions');
   if(p.missing||t.missing)throw Error('Existing payment or bank import sheet missing');
+  rcRequireHeaders_(p.headers,['Payment_ID','Payment_Reference','Amount_CZK','Verification_Status']);
+  rcRequireHeaders_(t.headers,['Bank_Transaction_ID','VS','Amount_CZK','Currency']);
   // Read only the verified NGO schema; OSVC Leads are not orders or payment records.
   var result=rcPlan_(p.rows.filter(function(r){return Object.keys(r).some(function(k){return r[k]!=='';});}),t.rows.filter(function(r){return Object.keys(r).some(function(k){return r[k]!=='';});}));
   result.bank=ocBankState_(PropertiesService.getScriptProperties(),'FIO_DRUZINA');
   result.total=result.rows.length;result.rows=result.rows.slice(0,100);result.truncated=result.total>100;
   return result;
 }
+
+function rcRequireHeaders_(actual,required){
+  if(!Array.isArray(actual))throw Error('Payment schema unavailable');
+  required.forEach(function(name){if(actual.filter(function(h){return h===name;}).length!==1)throw Error('Missing or duplicate required column: '+name);});
+}
+
