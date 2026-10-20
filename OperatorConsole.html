@@ -12,7 +12,7 @@
 <script>
 'use strict';
 const $=id=>document.getElementById(id);
-let capabilities=null,busy=false;
+let capabilities=null,busy=false,rpcSequence=0;
 function controls(){document.querySelectorAll('button').forEach(b=>{b.disabled=busy||!!(b.dataset.action&&(!capabilities||capabilities.actions[b.dataset.action]!==true));if(b.dataset.action)b.title=b.disabled&&!busy?'Действие недоступно: проверьте модули и настройки этого проекта.':'';});}
 function recoveryLabel(state){return ({MODULE_MISSING:'модуль не подключён к этой панели',NOT_CONFIGURED:'не настроено',PAUSED:'приостановлено',ENABLED_NOT_VERIFIED:'включено настройкой; выполнение НЕ ПРОВЕРЕНО'})[state]||'НЕ ПРОВЕРЕНО';}
 function message(text,error=false){$('message').style.display='block';$('message').textContent=text;$('message').className='notice'+(error?'':' good');}
@@ -20,6 +20,26 @@ function link(id,url){const a=$(id);if(/^https:\/\/(docs\.google\.com|drive\.goo
 function table(target,heads,rows){const el=$(target);el.replaceChildren();if(!rows.length){el.textContent='Нет записей для отображения.';return;}const t=document.createElement('table'),tr=document.createElement('tr');heads.forEach(h=>{const th=document.createElement('th');th.textContent=h;tr.append(th)});t.append(tr);rows.forEach(row=>{const tr=document.createElement('tr');row.forEach(v=>{const td=document.createElement('td');td.textContent=v==null?'—':String(v);tr.append(td)});t.append(tr)});el.append(t);}
 function bank(prefix,b){$(prefix+'Balance').textContent=b.balance===null?'НЕ ПРОВЕРЕНО':new Intl.NumberFormat('cs-CZ',{style:'currency',currency:'CZK'}).format(b.balance);$(prefix+'State').textContent=(b.configured?'Ключ настроен':'Подключение не настроено')+(b.lastSuccess?' · последняя сверка '+b.lastSuccess:' · сверки нет');}
 function render(d){capabilities=d.capabilities||null;controls();$('updated').textContent='Обновлено: '+new Date(d.at).toLocaleString('ru-RU',{timeZone:'Europe/Prague'})+' · Europe/Prague';bank('osvc',d.banks.osvc);bank('ngo',d.banks.druzina);$('leadCount').textContent=d.leads.count+' записей · тестовых исключено: '+d.leads.excludedTests;$('ingestion').textContent=d.ingestion;table('leadTable',['ID','Услуга','Этап','Следующий шаг'],d.leads.needsAction.map(r=>[r.id,r.service,r.stage,r.next]));table('socialTable',['Канал','Событие','Статус','Подтверждено'],d.social.map(r=>[r.channel,r.event,r.status,r.verified?'Да':'Нет']));table('eventTable',['Событие','Дата','Сообщество'],d.events.map(r=>[r.title,r.date,r.community]));link('leadLink',d.leadUrl);link('socialLink',d.socialUrl);link('eventLink',d.eventUrl);$('recovery').textContent='Восстановление заявок: '+recoveryLabel(capabilities&&capabilities.recoveryState);$('missing').textContent=d.missing.length?'Не найдены листы: '+d.missing.join(', '):'';}
-function rpc(method,arg){busy=true;controls();const done=()=>{busy=false;controls();};if(!(window.google&&google.script&&google.script.run)){done();message('Откройте панель из меню IMPERION в существующем Google Sheet. Локальный файл не подключён к данным.',true);return;}const runner=google.script.run.withSuccessHandler(d=>{done();if(method==='operatorSnapshot')render(d);else if(arg==='previewPayments'){table('paymentTable',['Транзакция','Оплата','Сумма Kč','Результат'],d.rows.map(r=>[r.transaction,r.payment,r.amount,r.status]));$('paymentState').textContent='Сверка загруженной выписки: '+d.total+' операций. Статусы оплаты не изменены.'+(d.truncated?' Показаны первые 100.':'')+(!d.bank.fresh?' Выписка требует обновления.':'');}else {message(JSON.stringify(d));if(arg==='syncOSVC'||arg==='syncDruzina'||arg==='pauseRecovery')rpc('operatorSnapshot');}}).withFailureHandler(()=>{if(method==='operatorSnapshot')capabilities=null;done();message('Действие не выполнено. Проверьте вход владельца, установленные модули и настройки подключения.',true);});if(method==='operatorSnapshot')runner.operatorSnapshot();else runner.operatorAction(arg);}
+function rpc(method,arg){
+ if(busy)return;
+ if(method!=='operatorSnapshot'&&(!capabilities||capabilities.actions[arg]!==true)){message('Действие недоступно в этом проекте.',true);return;}
+ const seq=++rpcSequence;let finished=false,timer;
+ busy=true;controls();$('message').style.display='none';
+ const done=()=>{if(finished||seq!==rpcSequence)return false;finished=true;clearTimeout(timer);busy=false;controls();return true;};
+ const fail=text=>{capabilities=null;if(done()){$('updated').textContent='Обновление не завершено · ранее показанные данные могут быть устаревшими';message(text,true);}};
+ if(!(window.google&&google.script&&google.script.run)){fail('Откройте панель из меню IMPERION в существующем Google Sheet. Локальный файл не подключён к данным.');return;}
+ timer=setTimeout(()=>{if(finished||seq!==rpcSequence)return;fail(method==='operatorSnapshot'?'Google не ответил за 30 секунд. Нажмите «Обновить», чтобы повторить чтение данных.':'Ответ не получен за 90 секунд. Результат действия НЕ ПРОВЕРЕН; не повторяйте его до проверки данных. Сервер мог продолжить выполнение.');},method==='operatorSnapshot'?30000:90000);
+ const runner=google.script.run.withSuccessHandler(d=>{
+  if(finished||seq!==rpcSequence)return;
+  try{
+   if(method==='operatorSnapshot')render(d);
+   else if(arg==='previewPayments'){table('paymentTable',['Транзакция','Оплата','Сумма Kč','Результат'],d.rows.map(r=>[r.transaction,r.payment,r.amount,r.status]));$('paymentState').textContent='Сверка загруженной выписки: '+d.total+' операций. Статусы оплаты не изменены.'+(d.truncated?' Показаны первые 100.':'')+(!d.bank.fresh?' Выписка требует обновления.':'');}
+   else message(JSON.stringify(d));
+  }catch(_){fail('Ответ получен, но данные не удалось отобразить. Нажмите «Обновить».');return;}
+  done();
+  if(method!=='operatorSnapshot'&&(arg==='syncOSVC'||arg==='syncDruzina'||arg==='pauseRecovery'))rpc('operatorSnapshot');
+ }).withFailureHandler(()=>{if(finished||seq!==rpcSequence)return;fail('Действие не выполнено. Проверьте вход владельца, установленные модули и настройки подключения.');});
+ try{if(method==='operatorSnapshot')runner.operatorSnapshot();else runner.operatorAction(arg);}catch(_){fail('Не удалось отправить запрос в Google. Обновите панель.');}
+}
 document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button,section').forEach(n=>n.classList.remove('active'));b.classList.add('active');$(b.dataset.tab).classList.add('active');});document.querySelectorAll('[data-action]').forEach(b=>b.onclick=()=>rpc('operatorAction',b.dataset.action));$('refresh').onclick=()=>rpc('operatorSnapshot');rpc('operatorSnapshot');
 </script></body></html>
