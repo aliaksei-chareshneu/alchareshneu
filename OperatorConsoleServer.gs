@@ -12,7 +12,7 @@ function ocRows_(ss,name){
  var sh=ss.getSheetByName(name);if(!sh)return {missing:true,rows:[],url:''};
  if(sh.getLastRow()>10000)throw Error('Dataset exceeds console read limit');
  var data=sh.getDataRange().getValues(),h=data.shift()||[];
- return {missing:false,url:ss.getUrl()+'#gid='+sh.getSheetId(),rows:data.map(function(r){var x={};h.forEach(function(k,i){x[k]=r[i] instanceof Date?r[i].toISOString():r[i];});return x;})};
+ return {missing:false,headers:h,url:ss.getUrl()+'#gid='+sh.getSheetId(),rows:data.map(function(r){var x={};h.forEach(function(k,i){x[k]=r[i] instanceof Date?r[i].toISOString():r[i];});return x;})};
 }
 function ocIsTest_(r){return /TEST-ONLY|QA TEST|SYNTHETIC|NO.CONTACT/i.test([r.Lead_ID,r.Full_Name,r.Subject_Goal,r.Notes].join(' '));}
 function ocLeadSummary_(rows){
@@ -73,3 +73,4 @@ function operatorAction(action){
  if(action==='syncDruzina'){if(typeof fioSyncDruzinaReadOnly!=='function')throw Error('NGO bank module not installed');return fioSyncDruzinaReadOnly();}
  throw Error('Unsupported action');
 }
+
