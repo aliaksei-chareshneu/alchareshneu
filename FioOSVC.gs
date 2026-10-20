@@ -30,7 +30,7 @@ function fioOsCents_(raw) {
   var value = Number(String(raw).replace(',', '.'));
   if (!isFinite(value)) throw new Error('Invalid bank amount');
   var cents = Math.round(value * 100);
-  if (Math.abs(value * 100 - cents) > 0.00001) {
+  if (!Number.isSafeInteger(cents) || Math.abs(value * 100 - cents) > 0.00001) {
     throw new Error('Unsupported sub-cent bank amount');
   }
   return cents;
@@ -88,7 +88,7 @@ function fioOsNormalizeStatement_(response, expectedAccount) {
     if (seen[tx.id]) throw new Error('Duplicate transaction ID in Fio response');
     seen[tx.id] = true;
   });
-  var balance = info.closingBalance === null || info.closingBalance === undefined
+  var balance = info.closingBalance === null || info.closingBalance === undefined || String(info.closingBalance).trim() === ''
     ? null : Number(info.closingBalance);
   if (balance !== null && !isFinite(balance)) {
     throw new Error('Invalid bank closing balance');
@@ -266,5 +266,6 @@ function fioSyncOSVCReadOnly() {
     lock.releaseLock();
   }
 }
+
 
 
