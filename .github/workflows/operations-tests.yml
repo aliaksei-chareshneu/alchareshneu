@@ -8,6 +8,8 @@ on:
       - 'prepare-console-bank-release.cjs'
       - 'shortfactory_autopilot.py'
       - 'tests/**'
+      - 'CONSOLE-BANK-RELEASE.md'
+      - 'docs/PLATFORM-RECOVERY.md'
       - '.github/workflows/operations-tests.yml'
   pull_request:
     paths:
@@ -16,6 +18,8 @@ on:
       - 'prepare-console-bank-release.cjs'
       - 'shortfactory_autopilot.py'
       - 'tests/**'
+      - 'CONSOLE-BANK-RELEASE.md'
+      - 'docs/PLATFORM-RECOVERY.md'
       - '.github/workflows/operations-tests.yml'
 
 permissions:
@@ -48,6 +52,23 @@ jobs:
         env:
           CONSOLE_BROWSER_ARTIFACTS: ${{ runner.temp }}/console-browser-fixtures
         run: python -m unittest discover -s tests/browser -p 'test_*.py' -v
+      - name: Package reviewed console sources
+        shell: bash
+        run: |
+          set -euo pipefail
+          package_dir="$RUNNER_TEMP/imperion-console-sources"
+          mkdir -p "$package_dir"
+          cp OperatorConsole.html OperatorConsoleServer.gs FioOSVC.gs FioDruzinaConsole.gs PaymentReconciliation.gs prepare-console-bank-release.cjs CONSOLE-BANK-RELEASE.md "$package_dir/"
+          git rev-parse HEAD > "$package_dir/SOURCE_COMMIT"
+          cd "$package_dir"
+          sha256sum SOURCE_COMMIT OperatorConsole.html OperatorConsoleServer.gs FioOSVC.gs FioDruzinaConsole.gs PaymentReconciliation.gs prepare-console-bank-release.cjs CONSOLE-BANK-RELEASE.md > SHA256SUMS
+      - name: Save reviewed console source package
+        uses: actions/upload-artifact@v4
+        with:
+          name: imperion-console-sources-${{ github.sha }}
+          path: ${{ runner.temp }}/imperion-console-sources
+          retention-days: 30
+          if-no-files-found: error
       - name: Save synthetic browser screenshots
         if: always()
         uses: actions/upload-artifact@v4

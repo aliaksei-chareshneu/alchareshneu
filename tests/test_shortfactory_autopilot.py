@@ -45,4 +45,33 @@ class WorkerTests(unittest.TestCase):
         with self.assertRaises(FileExistsError): w.run_once(self.base)
         self.assertEqual(lock.read_text(),'123')
 
+    def test_invalid_limits_fail_before_creating_lock_or_status(self):
+        for limit in [-1, 0, 4, 999, True, 2.5, '2', None]:
+            with self.subTest(limit=limit):
+                with self.assertRaises(ValueError):
+                    w.run_once(self.base, limit=limit)
+                self.assertFalse((self.base/'ShortFactory'/'autopilot.lock').exists())
+                self.assertFalse((self.base/'ShortFactory'/'autopilot_status.json').exists())
+
+    def test_direct_execution_respects_batch_limit_with_more_eligible_jobs(self):
+        with sqlite3.connect(self.db) as c:
+            for i in range(5):
+                c.execute('INSERT INTO short_jobs VALUES(?,?,?,?,?,?,?)',
+                          (f'fixture-{i}', 'QUEUED_SAFE_SOURCE', 'owned', str(self.source),
+                           w.digest(self.source), '2027', ''))
+        rendered=[]
+        def render(args, **kwargs):
+            job_id=args[args.index('--job')+1]
+            rendered.append(job_id)
+            output=self.base/(job_id+'.mp4')
+            output.write_bytes(b'fixture')
+            with sqlite3.connect(self.db) as c:
+                c.execute("UPDATE short_jobs SET status='READY_FOR_REVIEW',output_path=? WHERE job_id=?",
+                          (str(output),job_id))
+            return types.SimpleNamespace(returncode=0)
+        result=w.run_once(self.base, limit=2, execute=True, runner=render)
+        self.assertEqual(result['rendered'],2)
+        self.assertEqual(len(rendered),2)
+        self.assertEqual(result['published'],0)
+
 if __name__=='__main__': unittest.main()

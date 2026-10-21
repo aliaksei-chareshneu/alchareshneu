@@ -31,7 +31,7 @@ function ocBankState_(props,prefix){
  var last=props.getProperty(prefix+'_LAST_OK_AT')||'',raw=props.getProperty(prefix+'_LAST_BANK_BALANCE');
  var age=last?Date.now()-Date.parse(last):NaN,verified=isFinite(age)&&age>=0&&age<2*3600000;
  return {configured:!!props.getProperty(prefix+'_READ_TOKEN')&&!!props.getProperty(prefix+'_EXPECTED_ACCOUNT_ID'),
-  lastSuccess:last,fresh:verified,balance:verified&&raw!==null&&raw!==''&&isFinite(Number(raw))?Number(raw):null};
+  lastSuccess:last,fresh:verified,balance:verified&&raw!==null&&String(raw).trim()!==''&&isFinite(Number(raw))?Number(raw):null};
 }
 
 /** Local project capabilities only; never infer another project's configuration. */

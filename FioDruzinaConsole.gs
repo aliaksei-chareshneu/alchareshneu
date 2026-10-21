@@ -4,7 +4,7 @@
  * No tokens, customer data, bank account numbers or payments in source control.
  * Official Fio API v1.9 (2025-10-16): https://www.fio.cz/docs/cz/API_Bankovnictvi.pdf
  *
- * Requires the existing Code.gs global SPREADSHEET_ID. Intended for the
+ * Uses the existing console Hub binding (RP or Code.gs fallback). Intended for the
  * privately owned Community Hub; not for any public web app response.
  * Install via the CURRENT bound Apps Script project only after code review.
  */
@@ -150,10 +150,10 @@ function fioNgGetOrCreateSheet_(spreadsheet) {
   return sheet;
 }
 
-function fioNgRequirePrivateSpreadsheet_() {
+function fioNgRequirePrivateSpreadsheet_(spreadsheetId) {
   // Highly sensitive: payer names and account numbers must not go into
   // an anonymously accessible or shared Community Hub.
-  var file = DriveApp.getFileById(SPREADSHEET_ID);
+  var file = DriveApp.getFileById(spreadsheetId);
   if (file.getSharingAccess() !== DriveApp.Access.PRIVATE ||
       file.getEditors().length > 0 || file.getViewers().length > 0) {
     throw new Error('Bank sync blocked: Community Hub is no longer owner-only');
@@ -168,14 +168,13 @@ function fioSyncDruzinaReadOnly() {
   if (!/^[A-Za-z0-9]{64}$/.test(token) || !/^\d{6,20}$/.test(expectedAccount)) {
     throw new Error('Fio setup incomplete: owner must configure a read-only token and account ID');
   }
-  if (typeof SPREADSHEET_ID !== 'string' || !SPREADSHEET_ID) {
-    throw new Error('Community Hub binding unavailable');
-  }
   var otherAccount = props.getProperty('FIO_OSVC_EXPECTED_ACCOUNT_ID') || '';
   var otherToken = props.getProperty('FIO_OSVC_READ_TOKEN') || '';
   if (expectedAccount === otherAccount || token === otherToken) throw new Error('OSVC and NGO banking profiles must be distinct');
   if (props.getProperty('FIO_DRUZINA_ENTITY_CONFIRMED') !== 'true') throw new Error('Owner must confirm Druzina account identity');
-  fioNgRequirePrivateSpreadsheet_();
+  var spreadsheetId = ocId_();
+  if (typeof spreadsheetId !== 'string' || !spreadsheetId.trim()) throw new Error('Community Hub binding unavailable');
+  fioNgRequirePrivateSpreadsheet_(spreadsheetId);
   var lock = LockService.getScriptLock();
   if (!lock.tryLock(5000)) throw new Error('Fio sync already running');
   try {
@@ -186,16 +185,17 @@ function fioSyncDruzinaReadOnly() {
     }
     var lastOk = props.getProperty('FIO_DRUZINA_LAST_OK_DATE') || '';
     var from = new Date(now.getTime() - 30 * 86400000);
+    var endDate = Utilities.formatDate(now, FIO_DRUZINA_TIMEZONE, 'yyyy-MM-dd');
     if (lastOk) {
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(lastOk)) throw new Error('Invalid last sync marker');
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(lastOk) || lastOk > endDate) throw new Error('Invalid last sync marker');
       var lastMillis = Date.parse(lastOk + 'T12:00:00Z');
-      if (isNaN(lastMillis) || (now.getTime() - lastMillis) > 75 * 86400000) {
+      if (isNaN(lastMillis) || new Date(lastMillis).toISOString().slice(0, 10) !== lastOk) throw new Error('Invalid last sync marker');
+      if ((now.getTime() - lastMillis) > 75 * 86400000) {
         throw new Error('Fio history gap: manual backfill review required');
       }
       from = new Date(lastMillis - 7 * 86400000);
     }
     var startDate = Utilities.formatDate(from, FIO_DRUZINA_TIMEZONE, 'yyyy-MM-dd');
-    var endDate = Utilities.formatDate(now, FIO_DRUZINA_TIMEZONE, 'yyyy-MM-dd');
     props.setProperty('FIO_DRUZINA_LAST_ATTEMPT_MS', String(now.getTime()));
     // The token is necessarily part of Fio's GET URL; NEVER log the URL,
     // response payload, or raw UrlFetchApp exceptions.
@@ -218,7 +218,9 @@ function fioSyncDruzinaReadOnly() {
     try { payload = JSON.parse(response.getContentText()); }
     catch (_) { throw new Error('Fio returned invalid JSON'); }
     var statement = fioNgNormalizeStatement_(payload, expectedAccount);
-    var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    // Sharing or ownership can change while the external request is in flight.
+    ocOwner_();
+    var ss = SpreadsheetApp.openById(spreadsheetId);
     var bank = fioNgGetOrCreateSheet_(ss);
     // Import only. Matching is performed separately by PaymentReconciliation; never mark orders paid here.
     var payRows = [];
