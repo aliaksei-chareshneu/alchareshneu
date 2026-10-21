@@ -27,7 +27,22 @@ Successful Operations tests runs now publish an `imperion-console-sources-<commi
 
 Both bank adapters now use the same resolved Hub binding as the console's owner check, including projects configured through RP without the legacy SPREADSHEET_ID global. They check owner-only access again after the external bank response, reject future/impossible sync markers, and preserve an unknown balance when its stored value is whitespace. The draft worker enforces its 1–3 job limit on direct function calls as well as CLI calls.
 
-Current local verification: 127 Node tests, eight Python worker fixtures and 24 offline Chromium scenarios pass (159 total). Complete synthetic adapter flows exercise both entities, immediate polling limits, repeated imports without duplicate rows, failed append/retry/checkpoints, RP-only binding and sharing changes during a request. Console tests also cover automatic reads, error recovery, pending bank requests, lead priorities, publication monitoring, the event agenda and recovery diagnostics below. These results do not establish installation or live bank access.
+Current local verification: 127 Node tests, eight Python worker fixtures, 13 Python release fixtures and 24 offline Chromium scenarios pass (172 total). Complete synthetic adapter flows exercise both entities, immediate polling limits, repeated imports without duplicate rows, failed append/retry/checkpoints, RP-only binding and sharing changes during a request. Console tests also cover automatic reads, error recovery, pending bank requests, lead priorities, publication monitoring, the event agenda and recovery diagnostics below. These results do not establish installation or live bank access.
+
+## One local and CI source builder — 21 October 2026
+
+`package_console_release.py` builds the same nine-file package used by Operations tests. Run it from a repository checkout containing the expected commit. The commit must be its full lowercase SHA, obtained from the reviewed PR or successful run, rather than an abbreviated SHA or branch name:
+
+```sh
+python package_console_release.py build --commit FULL_COMMIT_SHA --output-dir NEW_PACKAGE_DIR --zip NEW_PACKAGE.zip
+python package_console_release.py verify --commit FULL_COMMIT_SHA NEW_PACKAGE.zip
+```
+
+The optional ZIP has fixed entry order, timestamps and permissions and stores bytes without compression, so repeated builds of the same commit produce identical ZIP bytes. GitHub's uploaded artifact can use its own ZIP metadata; verification accepts either that ZIP or the extracted package directory. Replace the ZIP argument to `verify` with the directory path to check an extracted download. Both the repository checkout and the expected commit must be available locally for this stronger check; it makes no network requests. `sha256sum -c SHA256SUMS` remains available for standalone integrity checks, but does not independently establish that files match the expected commit.
+
+The builder reads only the seven approved source blobs from Git, then generates SOURCE_COMMIT and SHA256SUMS. Dirty edits, untracked files, private settings, recovery handlers and the live manifest are excluded. Missing or symlinked source files and invalid commits fail before output creation. Existing output destinations are rejected. The verifier compares every byte against the selected commit, including regenerated checksums, and rejects extra/missing entries, duplicate ZIP names, symlinks and oversized files. It reads ZIP entries without extraction. Recomputing a tampered package's checksums does not make it pass this comparison.
+
+Operations tests now build and independently read back this package before uploading it, using the exact checked-out commit. The existing artifact name, nine-file allowlist and preparation helper stay compatible. The builder itself lives in the repository, not in the upload package. Its result records `uploaded: false`; preparing or verifying this source package does not install Apps Script or authorize a live bank read. The reviewed bound-project release procedure above remains necessary. A fixture also runs the packaged preparation helper against a synthetic bound-project pull and verifies preservation of its manifest, binding and unrelated source.
 
 ## Automatic console reads — 21 October 2026
 
