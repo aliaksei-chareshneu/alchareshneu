@@ -140,3 +140,18 @@ test('inconsistent publication counters and unsafe confirmations preserve previo
   assert.equal(t.e.socialQueue.textContent,'previous queue');assert.equal(t.e.osvcBalance.textContent,'100 Kč');
  }
 });
+
+test('inconsistent event counters, intervals and phase labels preserve the previous snapshot',()=>{
+ const changes=[d=>d.eventQueue.total++,d=>d.eventQueue.live=0,d=>d.eventQueue.timeZone='UTC',d=>d.events[0].state='__proto__',
+  d=>d.events[0].endAt='2026-10-21T07:00:00.000Z',d=>delete d.events[0].startAt,d=>d.events[0].startAt='not a date',
+  d=>d.events[0].state='TODAY',d=>d.events[0].reason='START_MISSING'];
+ for(const change of changes){
+  const t=setup(),data=snapshot();
+  data.eventQueue={total:1,live:1,today:0,upcoming:0,review:0,past:0,shown:1,limit:100,truncated:false,timeZone:'Europe/Prague'};
+  data.events=[{id:'fixture',title:'Fixture',community:'Fixture',date:'2026-10-21T08:00Z',end:'2026-10-21T09:00Z',startAt:'2026-10-21T08:00:00.000Z',endAt:'2026-10-21T09:00:00.000Z',state:'LIVE',reason:'RANGE_VALID'}];
+  change(data);t.s.payload=data;
+  t.run('document.getElementById("eventQueue").textContent="previous agenda";document.getElementById("osvcBalance").textContent="100 Kč"');
+  assert.throws(()=>t.run('render(payload)'),/event agenda/);
+  assert.equal(t.e.eventQueue.textContent,'previous agenda');assert.equal(t.e.osvcBalance.textContent,'100 Kč');
+ }
+});

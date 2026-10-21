@@ -76,8 +76,12 @@ def snapshot():
                     'receipt': '', 'scheduled': '2026-10-22T08:00:00Z'}],
         'socialQueue': {'total': 1, 'attention': 0, 'pending': 0, 'draft': 1,
                         'inactive': 0, 'verified': 0, 'shown': 1, 'limit': 100, 'truncated': False},
-        'events': [{'title': 'TEST-ONLY event', 'date': '2026-10-22',
-                    'community': 'Fixture'}],
+        'events': [{'id': 'TEST-ONLY-EVENT', 'title': 'TEST-ONLY event', 'date': '2026-10-22T08:00:00Z',
+                    'end': '2026-10-22T09:00:00Z', 'startAt': '2026-10-22T08:00:00.000Z',
+                    'endAt': '2026-10-22T09:00:00.000Z', 'community': 'Fixture',
+                    'state': 'UPCOMING', 'reason': 'RANGE_VALID'}],
+        'eventQueue': {'total': 1, 'live': 0, 'today': 0, 'upcoming': 1, 'review': 0,
+                       'past': 0, 'shown': 1, 'limit': 100, 'truncated': False, 'timeZone': 'Europe/Prague'},
         'missing': [], 'ingestion': 'TEST_ONLY',
         'leadUrl': '', 'socialUrl': '', 'eventUrl': '',
     }
@@ -288,6 +292,8 @@ class ConsoleBrowserTests(unittest.TestCase):
         data['at'] = '2026-10-22T08:00:00Z'
         data['leads']['queue'].update(upcoming=0, today=1)
         data['leads']['needsAction'][0]['dueState'] = 'TODAY'
+        data['events'][0]['state'] = 'LIVE'
+        data['eventQueue'].update(upcoming=0, live=1)
         self.page.evaluate('fixtureTick(60000)')
         self.respond(1, data)
         self.page.locator('[data-tab="leads"]').click()
@@ -419,6 +425,100 @@ class ConsoleBrowserTests(unittest.TestCase):
         self.page.locator('#refresh').click()
         self.respond(2, snapshot())
         self.assertEqual(self.page.locator('#socialTable').inner_text(), previous)
+
+    def test_event_agenda_shows_phases_totals_and_raw_invalid_dates_safely_on_mobile(self):
+        data = snapshot()
+        template = data['events'][0]
+        data['events'] = [dict(template, id='LIVE-FIRST', title='Fixture live', date='2026-10-21T07:00:00Z',
+                               end='2026-10-21T09:00:00Z', startAt='2026-10-21T07:00:00.000Z',
+                               endAt='2026-10-21T09:00:00.000Z', state='LIVE'),
+                          dict(template, id='TODAY', title='Fixture today', date='2026-10-21T09:00:00Z',
+                               end='2026-10-21T10:00:00Z', startAt='2026-10-21T09:00:00.000Z',
+                               endAt='2026-10-21T10:00:00.000Z', state='TODAY')]
+        data['events'] += [dict(template, id='FUTURE-' + str(i)) for i in range(97)]
+        data['events'].append(dict(template, id='REVIEW', date='<img src="https://example.org/x" onerror="window.injected=true">',
+                                   end='', startAt=None, endAt=None, state='REVIEW', reason='START_INVALID'))
+        data['eventQueue'] = {'total': 130, 'live': 1, 'today': 1, 'upcoming': 97, 'review': 1,
+                              'past': 30, 'shown': 100, 'limit': 100, 'truncated': True, 'timeZone': 'Europe/Prague'}
+        self.page.locator('#refresh').click()
+        self.respond(1, data)
+        self.page.locator('[data-tab="community"]').click()
+        self.page.set_viewport_size({'width': 375, 'height': 812})
+        summary = self.page.locator('#eventQueue').inner_text()
+        self.assertIn('сейчас по расписанию: 1', summary)
+        self.assertIn('интервал прошёл: 30', summary)
+        self.assertIn('Показано 100 из 130 — полный список в Hub', summary)
+        first = self.page.locator('#eventTable tr').nth(1).inner_text()
+        self.assertIn('Идёт по расписанию', first)
+        self.assertIn('LIVE-FIRST', first)
+        self.assertIn('09:00:00 · Прага', first)
+        self.assertIn('Проверьте дату и время начала', self.page.locator('#eventTable').inner_text())
+        self.assertEqual(self.page.locator('#eventTable img').count(), 0)
+        self.assertIsNone(self.page.evaluate('window.injected'))
+        self.assertTrue(self.page.evaluate('document.documentElement.scrollWidth <= window.innerWidth'))
+        self.page.locator('#eventTable').focus()
+        self.page.locator('#eventTable').evaluate('(table) => {table.scrollLeft = table.scrollWidth}')
+        self.assertGreater(self.page.locator('#eventTable').evaluate('(table) => table.scrollLeft'), 0)
+        self.assertEqual(self.calls(), ['snapshot', 'snapshot'])
+
+    def test_automatic_snapshots_move_events_from_future_to_live_and_past_without_actions(self):
+        data = snapshot()
+        data['at'] = '2026-10-22T08:30:00Z'
+        data['events'][0]['state'] = 'LIVE'
+        data['eventQueue'].update(upcoming=0, live=1)
+        data['leads']['queue'].update(upcoming=0, today=1)
+        data['leads']['needsAction'][0]['dueState'] = 'TODAY'
+        self.page.evaluate('fixtureTick(60000)')
+        self.respond(1, data)
+        self.page.locator('[data-tab="community"]').click()
+        self.assertEqual(self.page.locator('#eventTable tr').nth(1).locator('td').first.inner_text(), 'Идёт по расписанию')
+        data['at'] = '2026-10-22T09:00:00Z'
+        data['events'][0]['state'] = 'PAST'
+        data['eventQueue'].update(live=0, past=1)
+        self.page.evaluate('fixtureTick(60000)')
+        self.respond(2, data)
+        self.assertEqual(self.page.locator('#eventTable tr').nth(1).locator('td').first.inner_text(), 'Интервал прошёл')
+        self.assertEqual(self.calls(), ['snapshot', 'snapshot', 'snapshot'])
+
+    def test_missing_events_or_legacy_module_never_invents_a_verified_empty_agenda(self):
+        data = snapshot()
+        del data['eventQueue']
+        data['events'] = [{'title': 'Legacy fixture', 'date': '2026-10-22 10:00', 'community': 'Fixture'}]
+        self.page.locator('#refresh').click()
+        self.respond(1, data)
+        self.page.locator('[data-tab="community"]').click()
+        self.assertIn('недоступна в этой версии', self.page.locator('#eventQueue').inner_text())
+        self.assertEqual(self.page.locator('#eventTable tr').nth(1).locator('td').first.inner_text(), 'Не определено')
+        data['events'] *= 105
+        self.page.locator('#refresh').click()
+        self.respond(2, data)
+        self.assertIn('Показаны первые 100 записей', self.page.locator('#eventQueue').inner_text())
+        self.assertEqual(self.page.locator('#eventTable tr').count(), 101)
+        data['missing'] = ['Events']
+        self.page.locator('#refresh').click()
+        self.respond(3, data)
+        self.assertIn('Повестка недоступна', self.page.locator('#eventQueue').inner_text())
+        self.assertNotIn('Активных записей: 0', self.page.locator('#eventQueue').inner_text())
+        self.assertEqual(self.page.locator('#eventTable td').count(), 0)
+
+    def test_broken_event_interval_preserves_previous_data_and_pauses_automatic_reads(self):
+        self.page.locator('[data-tab="community"]').click()
+        previous = self.page.locator('#eventTable').inner_text()
+        summary = self.page.locator('#eventQueue').inner_text()
+        data = snapshot()
+        data['events'][0]['endAt'] = '2026-10-22T07:00:00.000Z'
+        data['banks']['osvc']['balance'] = 999
+        self.page.locator('#refresh').click()
+        self.respond(1, data)
+        self.assertEqual(self.page.locator('#eventTable').inner_text(), previous)
+        self.assertEqual(self.page.locator('#eventQueue').inner_text(), summary)
+        self.assertNotIn('999', self.page.locator('#osvcBalance').inner_text())
+        self.assertIn('не удалось отобразить', self.page.locator('#message').inner_text())
+        self.page.evaluate('fixtureTick(120000)')
+        self.assertEqual(self.calls(), ['snapshot', 'snapshot'])
+        self.page.locator('#refresh').click()
+        self.respond(2, snapshot())
+        self.assertEqual(self.page.locator('#eventTable').inner_text(), previous)
 
 
 if __name__ == '__main__':
