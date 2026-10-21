@@ -236,3 +236,42 @@ body.dm-ux-home #first-steps{display:none!important} /* Superseded by the access
  .dm-start-photo{height:210px;max-height:46vw;min-height:185px}
  .dm-start-photo img{object-position:center 70%}
 }
+
+/* 2026-10-21: transparent schedules, welcoming first visits and opt-in club roles. */
+.dm-session-slots{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:22px 0 19px}
+.dm-session-slot{min-width:0;border:1px solid #d6c5aa;background:#fff9ee;color:#23394e;border-radius:16px;padding:18px 19px;display:flex;flex-direction:column;gap:6px}
+.dm-session-slot strong{font:700 clamp(1.06rem,2.5vw,1.38rem)/1.25 'Spectral',Georgia,serif;color:#253744}
+.dm-session-slot span{font-weight:750;font-size:.88rem;line-height:1.5;color:#77512b}
+.dm-where{border:1px solid #425c75;background:#162a3e;color:#f7f2e8;border-radius:17px;padding:22px 24px;display:flex;justify-content:space-between;align-items:center;gap:24px}
+.dm-place-label{display:block;text-transform:uppercase;letter-spacing:.105em;font-size:.7rem;font-weight:900;color:#e8c48a;margin:0 0 8px}
+.dm-where strong{display:block;color:#fff;font:700 1.26rem/1.25 'Spectral',Georgia,serif}
+.dm-where p{margin:9px 0 0;max-width:65ch;color:#e2e9ee;font-size:.93rem;line-height:1.65}
+.dm-where>a{display:inline-flex;align-items:center;justify-content:center;min-height:45px;padding:10px 15px;border:1px solid #deb678;border-radius:11px;white-space:nowrap;color:#f5d098;text-decoration:none;font-weight:850;font-size:.91rem}
+.dm-where>a:hover{background:#f0c88b;color:#182b3f}
+.dm-schedule-note{padding-left:16px;border-left:3px solid #b78a52;margin:19px 0 0;max-width:85ch}
+.dm-visit-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:25px 0 20px}
+.dm-visit-card{min-width:0;border:1px solid #dfd6c7;background:#fffcf7;color:#2b3d4d;border-radius:16px;padding:23px 21px}
+.dm-visit-number{font-size:.75rem;font-weight:900;letter-spacing:.11em;color:#8f6533}
+.dm-visit-card h3{font:700 1.28rem/1.25 'Spectral',Georgia,serif;color:#263748;margin:13px 0 9px}
+.dm-visit-card p{font-size:.93rem;line-height:1.7;color:#4d5b66;margin:0}
+.dm-inline-links{display:flex;gap:10px 21px;align-items:center;flex-wrap:wrap;margin:18px 0}
+.dm-inline-links a{display:inline-flex;align-items:center;min-height:44px;font-size:.94rem;font-weight:850;text-underline-offset:4px}
+.dm-role-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:23px 0 15px}
+.dm-role-card{background:#fff9f0;border:1px solid #d7cab5;border-radius:15px;padding:23px 20px;min-width:0}
+.dm-role-serial{color:#8b622d;font-size:.77rem;letter-spacing:.09em;font-weight:850}
+.dm-role-card h3{font:700 1.23rem/1.25 'Spectral',Georgia,serif;color:#273a49;margin:12px 0 9px}
+.dm-role-card p{font-size:.93rem;line-height:1.65;color:#4d5b67;margin:0}
+.dm-old-anchor{display:block;height:0;scroll-margin-top:120px;position:relative}
+@media(max-width:900px){.dm-role-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:690px){
+.dm-session-slots{grid-template-columns:1fr;gap:9px;margin:17px 0}
+.dm-session-slot{flex-direction:row;align-items:center;justify-content:space-between;gap:10px;padding:15px}
+.dm-session-slot strong{font-size:1.17rem}
+.dm-session-slot span{text-align:right;max-width:49%;font-size:.86rem}
+.dm-where{flex-direction:column;align-items:stretch;gap:15px;padding:19px}
+.dm-where>a{align-self:flex-start;white-space:normal}
+.dm-visit-grid{grid-template-columns:1fr;gap:10px}
+.dm-visit-card{padding:18px}
+.dm-role-grid{grid-template-columns:1fr;gap:10px}
+.dm-role-card{padding:18px}
+}
