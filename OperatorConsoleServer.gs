@@ -154,6 +154,37 @@ function ocCapabilities_(p){
  }};
 }
 
+/** Stored settings/markers only. Never inspect Forms or triggers on automatic reads. */
+function ocRecoveryMarker_(value,now){
+ var parsed=ocDateValue_(value);
+ if(parsed.kind==='MISSING')return {state:'MISSING',at:null};
+ if(parsed.kind!=='TIME'||parsed.at>now)return {state:'INVALID',at:null};
+ return {state:'RECORDED',at:new Date(parsed.at).toISOString()};
+}
+function ocRecoveryDiagnostics_(p,now,mode){
+ var bound=typeof RP!=='undefined'&&typeof RP.SPREADSHEET_ID==='string'&&!!RP.SPREADSHEET_ID.trim();
+ var formConfigured=!!String(p.getProperty('RP_LEAD_FORM_ID')||'').trim();
+ var since=ocRecoveryMarker_(p.getProperty('PLATFORM_RECOVERY_SINCE'),now);
+ var lastOk=ocRecoveryMarker_(p.getProperty('PLATFORM_RECOVERY_LAST_OK'),now);
+ var lastError=ocRecoveryMarker_(p.getProperty('PLATFORM_RECOVERY_LAST_ERROR_AT'),now);
+ var reason=mode==='MODULE_MISSING'?'MODULE_MISSING':!bound?'BINDING_MISSING':!formConfigured?'FORM_MISSING':
+  since.state==='MISSING'?'WINDOW_MISSING':[since,lastOk,lastError].some(function(m){return m.state==='INVALID';})?'INVALID_RECORD':
+  lastError.state==='RECORDED'&&(lastOk.state!=='RECORDED'||Date.parse(lastError.at)>=Date.parse(lastOk.at))?'ERROR_RECORDED':
+  lastOk.state!=='RECORDED'?'NO_RUN_RECORD':'RECORDS_PRESENT';
+ return {mode:mode,bound:bound,formConfigured:formConfigured,since:since,lastOk:lastOk,lastError:lastError,reason:reason};
+}
+/** Project the existing read-only preview; never return raw module details or IDs. */
+function ocRecoveryPreview_(){
+ if(typeof platformRecoveryPreview!=='function')throw Error('Recovery module not installed');
+ if(typeof RP==='undefined'||typeof RP.SPREADSHEET_ID!=='string'||!RP.SPREADSHEET_ID.trim())throw Error('Recovery Hub binding missing');
+ var d=platformRecoveryPreview();
+ function count(n){return typeof n==='number'&&isFinite(n)&&Math.floor(n)===n&&n>=0&&n<=9007199254740991;}
+ if(!d||typeof d!=='object'||Array.isArray(d)||d.mode!=='READ_ONLY'||!count(d.responseCount)||!count(d.missingLeads)||d.missingLeads>d.responseCount||
+    !count(d.batchLimit)||d.batchLimit<1||d.batchLimit>50||!count(d.exactFormTriggers)||d.recovered!==0||d.cashVerified!==false||d.publicPostsSent!==0)throw Error('Incomplete recovery preview');
+ return {mode:'READ_ONLY',responseCount:d.responseCount,missingLeads:d.missingLeads,batchLimit:d.batchLimit,exactFormTriggers:d.exactFormTriggers,
+  recovered:0,cashVerified:false,publicPostsSent:0,checkedAt:new Date().toISOString()};
+}
+
 function operatorSnapshot(){
  ocOwner_();var ss=SpreadsheetApp.openById(ocId_()),p=PropertiesService.getScriptProperties();
  var leads=ocRows_(ss,'Leads');
@@ -164,8 +195,8 @@ function operatorSnapshot(){
  if(!events.missing&&['Event_ID','Title','Community','Status','Start_DateTime','End_DateTime'].some(function(k){return events.headers.filter(function(h){return h===k;}).length!==1;}))throw Error('Events schema missing or duplicate required column');
  var config=ocRows_(ss,'Revenue_Config'),publications=ocSocialQueue_(social.rows);
  var cfg={};config.rows.forEach(function(r){cfg[r.Key]=r.Value;});var now=Date.now();
- var agenda=ocEventQueue_(events.rows,now);
- return {capabilities:ocCapabilities_(p),at:new Date(now).toISOString(),hub:ss.getUrl(),leads:ocLeadSummary_(leads.rows,now),leadUrl:leads.url,
+ var agenda=ocEventQueue_(events.rows,now),capabilities=ocCapabilities_(p);
+ return {capabilities:capabilities,recoveryDiagnostics:ocRecoveryDiagnostics_(p,now,capabilities.recoveryState),at:new Date(now).toISOString(),hub:ss.getUrl(),leads:ocLeadSummary_(leads.rows,now),leadUrl:leads.url,
   ingestion:cfg.STATUS||'NOT_VERIFIED',social:publications.rows,socialQueue:publications.queue,socialUrl:social.url,
   events:agenda.rows,eventQueue:agenda.queue,eventUrl:events.url,
   banks:{osvc:ocBankState_(p,'FIO_OSVC'),druzina:ocBankState_(p,'FIO_DRUZINA')},
@@ -176,7 +207,7 @@ function operatorAction(action){
  ocOwner_();
  // Explicit allow-list: no arbitrary handler execution, mass sending or payment writes.
  if(action==='previewPayments'){if(typeof paymentReconciliationPreview!=='function')throw Error('Payment reconciliation module not installed');return paymentReconciliationPreview();}
- if(action==='previewRecovery'){if(typeof platformRecoveryPreview!=='function')throw Error('Recovery module not installed');return platformRecoveryPreview();}
+ if(action==='previewRecovery')return ocRecoveryPreview_();
  if(action==='pauseRecovery'){if(typeof platformPauseRecovery!=='function')throw Error('Recovery module not installed');return platformPauseRecovery();}
  if(action==='syncOSVC'){if(typeof fioSyncOSVCReadOnly!=='function')throw Error('OSVC bank module not installed');return fioSyncOSVCReadOnly();}
  if(action==='syncDruzina'){if(typeof fioSyncDruzinaReadOnly!=='function')throw Error('NGO bank module not installed');return fioSyncDruzinaReadOnly();}

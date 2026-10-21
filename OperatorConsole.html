@@ -8,7 +8,8 @@
 <section id="leads"><div class="card"><h2>Очередь заявок</h2><p id="leadCount"></p><p id="leadQueue" role="status"></p><p class="muted">Сначала просроченные и задачи на сегодня, затем заявки без корректного срока и будущие задачи. Даты без времени действуют весь указанный день по Праге.</p><p id="ingestion" class="muted"></p><div id="leadTable" class="table" tabindex="0" aria-label="Очередь заявок; таблицу можно прокручивать вбок"></div><p><a id="leadLink">Открыть существующую CRM</a></p></div></section>
 <section id="content"><div class="card"><h2>Очередь публикаций</h2><p id="socialQueue" role="status"></p><p class="muted">Сначала записи, требующие внимания. Подтверждение означает статус и ссылку, сохранённые в Hub; панель не проверяет публикацию повторно у сервиса. Обновление не отправляет и не повторяет публикации.</p><div id="socialTable" class="table" tabindex="0" aria-label="Очередь публикаций; таблицу можно прокручивать вбок"></div><p><a id="socialLink">Открыть очередь и медиаматериалы</a></p></div></section>
 <section id="community"><div class="card"><h2>Повестка событий</h2><p id="eventQueue" role="status"></p><p class="muted">Сначала события, идущие по расписанию, затем сегодняшние и будущие; даты для проверки и прошедшие интервалы — ниже. Распознанное время показано по Праге. Прошедший интервал не подтверждает проведение события.</p><div id="eventTable" class="table" tabindex="0" aria-label="Повестка событий; таблицу можно прокручивать вбок"></div><p><a id="eventLink">Регистрации и события в Community Hub</a></p></div></section>
-<section id="system"><div class="card"><h2>Контроль работы</h2><p id="recovery"></p><div class="actions"><button data-action="previewRecovery">Проверить пропущенные заявки</button><button data-action="pauseRecovery">Приостановить восстановление</button></div><p class="muted">Ключи хранятся только в Script Properties. Панель не показывает токены и не изменяет публичные цены, права на медиа или статусы оплаты.</p><div id="missing"></div></div></section>
+<section id="system"><div class="card"><h2>Контроль работы</h2><p id="recovery"></p><p id="recoveryDiagnostics" role="status"></p><p id="recoveryMarkers"></p><p class="muted">Это настройки и сохранённые отметки. Они не подтверждают работу таймера, приём новых заявок или доставку уведомлений.</p><div class="actions"><button data-action="previewRecovery">Проверить пропущенные заявки</button><button data-action="pauseRecovery">Приостановить восстановление</button></div><p id="recoveryActionState" role="status"></p><p class="muted">Ключи хранятся только в Script Properties. Панель не показывает токены и не изменяет публичные цены, права на медиа или статусы оплаты.</p><div id="missing"></div></div>
+<div id="recoveryPreview" class="card" style="display:none"><h2>Проверка пропущенных заявок</h2><p id="recoveryCheckedAt"></p><div class="grid"><div><h3>Ответов проверено</h3><p id="recoveryResponses" class="value"></p></div><div><h3>Не найдены в CRM</h3><p id="recoveryMissing" class="value"></p></div><div><h3>Обработчиков формы</h3><p id="recoveryTriggers" class="value"></p></div></div><p id="recoveryFindings" class="notice"></p><p id="recoveryBatch" class="muted"></p><p class="muted">Проверено настроенное окно на момент запроса и доступные владельцу обработчики формы в этом проекте. Другие проекты не проверены. Это ручной отчёт: автообновление его не повторяет. Проверка не восстанавливает заявки и не отправляет сообщения.</p></div></section>
 <footer>Автообновление читает данные из Community Hub раз в минуту. Для загрузки новой банковской выписки используйте кнопку проверки банка.</footer></main>
 <script>
 'use strict';
@@ -76,7 +77,19 @@ const SOCIAL_REASONS=Object.freeze({
  VERIFIED:'В Hub есть статус подтверждения и ссылка.'
 });
 const EVENT_REASONS=Object.freeze({RANGE_VALID:'',START_MISSING:'Начало не указано.',START_INVALID:'Проверьте дату и время начала.',START_TIME_MISSING:'Время начала не указано.',START_AMBIGUOUS:'Неоднозначное время начала при смене времени.',END_MISSING:'Окончание не указано.',END_INVALID:'Проверьте дату и время окончания.',END_TIME_MISSING:'Время окончания не указано.',END_AMBIGUOUS:'Неоднозначное время окончания при смене времени.',END_NOT_AFTER_START:'Окончание должно быть позже начала.'});
+const RECOVERY_REASONS=Object.freeze({MODULE_MISSING:'Модуль восстановления не подключён к этой панели.',BINDING_MISSING:'Не задана привязка модуля восстановления к Hub.',FORM_MISSING:'Не задана форма для проверки заявок.',WINDOW_MISSING:'Не задано начало окна восстановления.',INVALID_RECORD:'Проверьте даты настроек и отметок: есть некорректное или будущее значение.',ERROR_RECORDED:'Есть отметка ошибки без более поздней успешной отметки.',NO_RUN_RECORD:'Успешное выполнение не отмечено.',RECORDS_PRESENT:'Сохранены отметки выполнения; текущая работа не проверена.'});
 function eventInstant(value){return typeof value==='string'&&/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(value)&&Number.isFinite(Date.parse(value));}
+function recoveryInstant(value){return eventInstant(value)&&new Date(value).toISOString()===value;}
+function validateRecoveryDiagnostics(d,now,mode){
+ const marker=m=>record(m)&&(m.state==='RECORDED'?recoveryInstant(m.at)&&Date.parse(m.at)<=now:['MISSING','INVALID'].includes(m.state)&&m.at===null);
+ if(!record(d)||!['MODULE_MISSING','NOT_CONFIGURED','PAUSED','ENABLED_NOT_VERIFIED'].includes(d.mode)||mode!==undefined&&d.mode!==mode||
+    typeof d.bound!=='boolean'||typeof d.formConfigured!=='boolean'||!Object.hasOwn(RECOVERY_REASONS,d.reason)||![d.since,d.lastOk,d.lastError].every(marker))throw Error('Incomplete recovery diagnostics');
+ const expected=d.mode==='MODULE_MISSING'?'MODULE_MISSING':!d.bound?'BINDING_MISSING':!d.formConfigured?'FORM_MISSING':
+  d.since.state==='MISSING'?'WINDOW_MISSING':[d.since,d.lastOk,d.lastError].some(m=>m.state==='INVALID')?'INVALID_RECORD':
+  d.lastError.state==='RECORDED'&&(d.lastOk.state!=='RECORDED'||Date.parse(d.lastError.at)>=Date.parse(d.lastOk.at))?'ERROR_RECORDED':
+  d.lastOk.state!=='RECORDED'?'NO_RUN_RECORD':'RECORDS_PRESENT';
+ if(d.reason!==expected)throw Error('Inconsistent recovery diagnostics');
+}
 function validEventRow(row,now){
  if(!['id','title','community','date','end','state','reason'].every(k=>typeof row[k]==='string')||!Object.hasOwn(EVENT_REASONS,row.reason)||
     row.startAt!==null&&!eventInstant(row.startAt)||row.endAt!==null&&!eventInstant(row.endAt))return false;
@@ -142,6 +155,26 @@ function validateSnapshot(d){
      !d.events.every(r=>Object.hasOwn(fields,r.state)&&validEventRow(r,Date.parse(d.at))))throw Error('Incomplete event agenda');
   for(const [state,field] of Object.entries(fields))if(d.events.filter(r=>r.state===state).length>q[field])throw Error('Inconsistent event agenda');
  }
+ if(d.recoveryDiagnostics!==undefined)validateRecoveryDiagnostics(d.recoveryDiagnostics,Date.parse(d.at),d.capabilities?d.capabilities.recoveryState:undefined);
+}
+function validateRecoveryPreview(d){
+ const count=n=>Number.isSafeInteger(n)&&n>=0;
+ if(!record(d)||d.mode!=='READ_ONLY'||!count(d.responseCount)||!count(d.missingLeads)||d.missingLeads>d.responseCount||
+    !count(d.batchLimit)||d.batchLimit<1||d.batchLimit>50||!count(d.exactFormTriggers)||d.recovered!==0||d.cashVerified!==false||d.publicPostsSent!==0||!recoveryInstant(d.checkedAt))throw Error('Incomplete recovery preview');
+}
+function renderRecoveryDiagnostics(d){
+ $('recoveryDiagnostics').textContent=d?RECOVERY_REASONS[d.reason]:'Диагностика восстановления недоступна в этой версии модуля.';
+ const marker=m=>m.state==='RECORDED'?new Date(m.at).toLocaleString('ru-RU',{timeZone:'Europe/Prague'}):m.state==='MISSING'?'нет отметки':'проверьте дату';
+ $('recoveryMarkers').textContent=d?'Окно с: '+marker(d.since)+' · Успешная отметка: '+marker(d.lastOk)+' · Отметка ошибки: '+marker(d.lastError)+' · Прага':'';
+}
+function renderRecoveryPreview(d){
+ validateRecoveryPreview(d);
+ $('recoveryCheckedAt').textContent='Ручная проверка: '+new Date(d.checkedAt).toLocaleString('ru-RU',{timeZone:'Europe/Prague'})+' · Прага';
+ $('recoveryResponses').textContent=d.responseCount;$('recoveryMissing').textContent=d.missingLeads;$('recoveryTriggers').textContent=d.exactFormTriggers;
+ $('recoveryFindings').textContent=(d.missingLeads?'Найдены ответы, которых нет в CRM. Для восстановления нужна отдельная проверка.':'Пропусков в проверенном окне не найдено.')+' '+
+  (d.exactFormTriggers===0?'Обработчик этой формы не найден.':d.exactFormTriggers===1?'Найден один обработчик этой формы; приём новых заявок этим не подтверждён.':'Найдено несколько обработчиков этой формы; проверьте дубли.');
+ $('recoveryBatch').textContent='Заявки не изменены. Лимит отдельного запуска восстановления: '+d.batchLimit+' ответов.';
+ $('recoveryPreview').style.display='block';
 }
 function validatePaymentPreview(d){
  if(!record(d)||!Array.isArray(d.rows)||!d.rows.every(record)||!Number.isSafeInteger(d.total)||d.total<d.rows.length||typeof d.truncated!=='boolean'||!record(d.bank)||typeof d.bank.fresh!=='boolean')throw Error('Incomplete payment preview');
@@ -190,7 +223,7 @@ function renderEventQueue(d){
   [r.community,q?EVENT_REASONS[r.reason]:'Откройте исходный список для проверки.'].filter(Boolean).join(' · ')
  ]));
 }
-function render(d){validateSnapshot(d);capabilities=d.capabilities||null;controls();$('updated').textContent='Обновлено: '+new Date(d.at).toLocaleString('ru-RU',{timeZone:'Europe/Prague'})+' · Europe/Prague';bank('osvc',d.banks.osvc);bank('ngo',d.banks.druzina);renderLeadQueue(d.leads,d.missing);$('ingestion').textContent=d.ingestion;renderSocialQueue(d);renderEventQueue(d);link('leadLink',d.leadUrl);link('socialLink',d.socialUrl);link('eventLink',d.eventUrl);$('recovery').textContent='Восстановление заявок: '+recoveryLabel(capabilities&&capabilities.recoveryState);$('missing').textContent=d.missing.length?'Не найдены листы: '+d.missing.join(', '):'';}
+function render(d){validateSnapshot(d);capabilities=d.capabilities||null;controls();$('updated').textContent='Обновлено: '+new Date(d.at).toLocaleString('ru-RU',{timeZone:'Europe/Prague'})+' · Europe/Prague';bank('osvc',d.banks.osvc);bank('ngo',d.banks.druzina);renderLeadQueue(d.leads,d.missing);$('ingestion').textContent=d.ingestion;renderSocialQueue(d);renderEventQueue(d);link('leadLink',d.leadUrl);link('socialLink',d.socialUrl);link('eventLink',d.eventUrl);$('recovery').textContent='Восстановление заявок: '+recoveryLabel(capabilities&&capabilities.recoveryState);renderRecoveryDiagnostics(d.recoveryDiagnostics);$('missing').textContent=d.missing.length?'Не найдены листы: '+d.missing.join(', '):'';}
 function rpc(method,arg){
  if(busy)return;
  if(method!=='operatorSnapshot'&&isBankAction(arg)&&bankRequestPending()){message('Предыдущий банковский запрос ещё не завершён. Дождитесь ответа сервера.',true);return;}
@@ -201,7 +234,7 @@ function rpc(method,arg){
  const fail=text=>{if(finished||seq!==rpcSequence)return;capabilities=null;autoRefreshFailed=true;if(done()){$('updated').textContent='Обновление не завершено · ранее показанные данные могут быть устаревшими';message(text,true);}};
  const releaseBank=()=>{if(pendingBankRequests[arg]!==seq)return false;delete pendingBankRequests[arg];controls();return true;};
  if(!(window.google&&google.script&&google.script.run)){fail('Откройте панель из меню IMPERION в существующем Google Sheet. Локальный файл не подключён к данным.');return;}
- timer=setTimeout(()=>{if(finished||seq!==rpcSequence)return;fail(method==='operatorSnapshot'?'Google не ответил за 30 секунд. Нажмите «Обновить», чтобы повторить чтение данных.':'Ответ не получен за 90 секунд. Результат действия НЕ ПРОВЕРЕН; не повторяйте его до проверки данных. Сервер мог продолжить выполнение.');},method==='operatorSnapshot'?30000:90000);
+ timer=setTimeout(()=>{if(finished||seq!==rpcSequence)return;fail(method==='operatorSnapshot'?'Google не ответил за 30 секунд. Нажмите «Обновить», чтобы повторить чтение данных.':arg==='previewRecovery'?'Отчёт не получен за 90 секунд. Предыдущая проверка остаётся на экране; обновите данные перед повтором проверки.':'Ответ не получен за 90 секунд. Результат действия НЕ ПРОВЕРЕН; не повторяйте его до проверки данных. Сервер мог продолжить выполнение.');},method==='operatorSnapshot'?30000:90000);
  try{
  const runner=google.script.run.withSuccessHandler(d=>{
   const bankCompleted=releaseBank();
@@ -209,6 +242,8 @@ function rpc(method,arg){
   try{
    if(method==='operatorSnapshot'){render(d);lastSnapshotAt=Date.now();autoRefreshFailed=false;}
    else if(arg==='previewPayments'){validatePaymentPreview(d);table('paymentTable',['Транзакция','Оплата','Сумма Kč','Результат'],d.rows.map(r=>[r.transaction,r.payment,r.amount,r.status]));$('paymentState').textContent='Сверка загруженной выписки: '+d.total+' операций. Статусы оплаты не изменены.'+(d.truncated?' Показаны первые 100.':'')+(!d.bank.fresh?' Выписка требует обновления.':'');}
+   else if(arg==='previewRecovery')renderRecoveryPreview(d);
+   else if(arg==='pauseRecovery'){if(!record(d)||d.status!=='PAUSED')throw Error('Incomplete pause receipt');$('recoveryActionState').textContent='Подтверждение паузы получено: '+new Date(Date.now()).toLocaleString('ru-RU',{timeZone:'Europe/Prague'})+' · Прага. Уже запущенное восстановление может продолжить выполнение. Состояние настройки показано выше.';}
    else message(JSON.stringify(d));
   }catch(_){fail('Ответ получен, но данные не удалось отобразить. Нажмите «Обновить».');return;}
   done();
@@ -216,7 +251,7 @@ function rpc(method,arg){
  }).withFailureHandler(()=>{
   const bankCompleted=releaseBank();
   if(finished||seq!==rpcSequence){if(bankCompleted&&!busy){autoRefreshFailed=true;message('Получен ответ с ошибкой на предыдущий банковский запрос. Результат НЕ ПРОВЕРЕН; обновите данные.',true);planAutoRefresh();}return;}
-  fail(method==='operatorSnapshot'?'Не удалось прочитать данные. Проверьте вход владельца и подключение к Google.':'Сервер сообщил об ошибке. Результат действия НЕ ПРОВЕРЕН; обновите данные перед повтором.');
+  fail(method==='operatorSnapshot'?'Не удалось прочитать данные. Проверьте вход владельца и подключение к Google.':arg==='previewRecovery'?'Не удалось получить отчёт проверки. Предыдущий отчёт остаётся на экране; обновите данные перед повтором проверки.':'Сервер сообщил об ошибке. Результат действия НЕ ПРОВЕРЕН; обновите данные перед повтором.');
  });
  if(method!=='operatorSnapshot'&&isBankAction(arg)){pendingBankRequests[arg]=seq;controls();}
  if(method==='operatorSnapshot')runner.operatorSnapshot();else runner.operatorAction(arg);
