@@ -31,6 +31,8 @@ def check_source(row):
         raise ValueError('Source changed since queue approval')
 
 def run_once(base, limit=2, execute=False, runner=subprocess.run):
+    if type(limit) is not int or not 1 <= limit <= 3:
+        raise ValueError('Batch limit must be an integer from 1 to 3')
     base = Path(base).resolve()
     root, db = base / 'ShortFactory', base / 'media_index.sqlite'
     if not db.is_file() or not (root / 'short_factory.py').is_file():
