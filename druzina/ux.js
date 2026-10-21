@@ -15,7 +15,7 @@
       step2Title:'We confirm the details',step2Desc:'We check whether the session can run, venue, organiser, safety requirements and terms. Wait for written confirmation.',
       step3Title:'Learn at your own pace',step3Desc:'Start with STOP, distance and controlled basic movements. You can ask questions or opt out of any sparring.',
       actionTitle:'Not sure which weapon or training suits you?',actionDescription:'Just tell us you are new — we will help you find out what is possible. New paid training bookings are currently paused.',
-      contact:'Ask a question on WhatsApp ↗',linkTree:'Explore the skill tree',linkRanks:'How ranks work',linkMedia:'Our club in the press',linkChatWA:'WhatsApp announcements',linkChatTG:'Telegram news',
+      contact:'Ask a question on WhatsApp ↗',linkTree:'Explore the skill tree',linkJoin:'Ways to participate',linkRanks:'How ranks work',linkMedia:'Our club in the press',linkChatWA:'WhatsApp announcements',linkChatTG:'Telegram news',
       faqOverline:'Good to know',faqTitle:'Questions before your first visit',
       faqLead:'Clear answers, without pretending that an inquiry is already a booking.',
       faq1Q:'I have never fenced. Can I come?',faq1A:'Yes, beginners are welcome to enquire. Your first supervised practice starts with equipment checks, rules, safe distance and the STOP command. The organiser must confirm the actual event and participant eligibility.',
@@ -54,7 +54,7 @@
       step2Title:'Společně ověříme podrobnosti',step2Desc:'Potvrdíme, zda se trénink koná, místo, pořadatele, bezpečnost a podmínky. Počkej na písemné potvrzení.',
       step3Title:'Trénuj vlastním tempem',step3Desc:'Začneme povelem STOP, vzdáleností a kontrolovanými pohyby. Na cokoli se můžeš zeptat a sparring odmítnout.',
       actionTitle:'Nevíš, jaká zbraň nebo forma tréninku ti sedne?',actionDescription:'Stačí napsat, že jsi nováček. Rádi vysvětlíme možnosti. Nové placené rezervace tréninků jsou prozatím pozastavené.',
-      contact:'Nezávazně napsat na WhatsApp ↗',linkTree:'Prohlédnout výcvikové cesty',linkRanks:'Jak fungují hodnosti',linkMedia:'Napsali o nás',linkChatWA:'Novinky na WhatsAppu',linkChatTG:'Novinky na Telegramu',
+      contact:'Nezávazně napsat na WhatsApp ↗',linkTree:'Prohlédnout výcvikové cesty',linkJoin:'Jak se zapojit',linkRanks:'Jak fungují hodnosti',linkMedia:'Napsali o nás',linkChatWA:'Novinky na WhatsAppu',linkChatTG:'Novinky na Telegramu',
       faqOverline:'Dobré vědět',faqTitle:'Než přijdeš poprvé',
       faqLead:'Jasné odpovědi. Nezávazný dotaz není rezervace.',
       faq1Q:'Nikdy jsem nešermoval/a. Můžu přijít?',faq1A:'Ano, začátečníci se mohou nezávazně ozvat. Začíná se kontrolou vybavení, pravidly, bezpečným odstupem a povelem STOP. Konkrétní termín i podmínky účasti musí potvrdit pořadatel.',
@@ -92,7 +92,7 @@
       step2Title:'Мы уточним условия',step2Desc:'Проверим, состоится ли занятие, место, организатора, безопасность и условия. Дождись письменного подтверждения.',
       step3Title:'Осваивай навыки в своём темпе',step3Desc:'Сначала команда STOP, дистанция и контроль движений. Можно спрашивать, снижать темп или отказаться от спарринга.',
       actionTitle:'Не знаешь, какое оружие или направление выбрать?',actionDescription:'Просто скажи, что ты новичок. Объясним варианты. Новые платные бронирования тренировок пока приостановлены.',
-      contact:'Задать вопрос в WhatsApp ↗',linkTree:'Посмотреть пути развития',linkRanks:'Как устроены звания',linkMedia:'Дружина в СМИ',linkChatWA:'Новости в WhatsApp',linkChatTG:'Новости в Telegram',
+      contact:'Написать в Telegram ↗',linkTree:'Посмотреть пути развития',linkJoin:'Как присоединиться',linkRanks:'Как устроены звания',linkMedia:'Дружина в СМИ',linkChatWA:'Новости в WhatsApp',linkChatTG:'Новости в Telegram',
       faqOverline:'Без сюрпризов',faqTitle:'Частые вопросы перед тренировкой',
       faqLead:'Понятные ответы: запрос даты — ещё не запись.',
       faq1Q:'Я никогда не фехтовал. Можно попробовать?',faq1A:'Да, новичкам можно написать и уточнить участие. Начинаем с проверки инвентаря, правил, безопасной дистанции и команды STOP. Дату и допуск должен подтвердить организатор.',
@@ -130,7 +130,7 @@
       step2Title:'Ми уточнимо умови',step2Desc:'Перевіримо, чи відбудеться заняття, місце, організатора, безпеку та правила. Дочекайся письмового підтвердження.',
       step3Title:'Рухайся у своєму темпі',step3Desc:'Спочатку команда STOP, дистанція та контроль рухів. Можна ставити запитання або відмовитися від спарингу.',
       actionTitle:'Не знаєш, яку зброю чи напрям вибрати?',actionDescription:'Просто скажи, що ти новачок. Пояснимо можливості. Нові платні бронювання тренувань наразі призупинені.',
-      contact:'Запитати у WhatsApp ↗',linkTree:'Переглянути шляхи розвитку',linkRanks:'Як працюють звання',linkMedia:'Дружина у ЗМІ',linkChatWA:'Новини у WhatsApp',linkChatTG:'Новини у Telegram',
+      contact:'Запитати у WhatsApp ↗',linkTree:'Переглянути шляхи розвитку',linkJoin:'Як долучитися',linkRanks:'Як працюють звання',linkMedia:'Дружина у ЗМІ',linkChatWA:'Новини у WhatsApp',linkChatTG:'Новини у Telegram',
       faqOverline:'Корисно знати',faqTitle:'Запитання перед першим візитом',
       faqLead:'Чіткі відповіді: запит про дату ще не є бронюванням.',
       faq1Q:'Я ніколи не фехтував/ла. Можна спробувати?',faq1A:'Так, новачки можуть написати й уточнити участь. Початок — перевірка спорядження, правила, безпечна дистанція та команда STOP. Конкретну дату й допуск підтверджує організатор.',
@@ -196,6 +196,8 @@
   }
   const render = () => {
     setPageTitle();
+    const introContact=document.querySelector('.dm-contact-button');
+    if(introContact){const ru=code()==='ru';introContact.href=ru?'https://t.me/Chareshneu':'https://wa.me/420702914842?text='+encodeURIComponent('Hello, I would like to ask about a possible beginner Družina Moravy session. This is an enquiry, not a booking.');introContact.setAttribute('aria-label',get('contact'));}
     document.querySelectorAll('[data-dm-k]').forEach(el => {
       const value=get(el.dataset.dmK);
       if(value) el.textContent=value;
