@@ -43,6 +43,8 @@ Publication verification shown in the console means a stored PUBLISHED_VERIFIED 
 
 Install these files in the current bound Apps Script project after reviewing the latest cloud source. Preserve the repaired RevenuePipeline and all other existing files. Do not replace doGet, doPost or onOpen. Run operatorInstallMenu() in an owner session, then open IMPERION. The menu is session-local; add operatorInstallMenu() to the existing onOpen only after inspecting that handler. The HTML is not a standalone public application.
 
+The checked-in Code.gs now also adds an IMPERION Operations entry to the existing Community Hub menu when operatorOpen is installed. Menu construction does not run the console or request owner/bank data; the owner check still runs on opening the console. Code.gs without console modules retains its existing commands. For a live project, compare its current onOpen first and apply only the conditional menu entry if absent; the source package deliberately omits Code.gs to preserve cloud changes.
+
 OSVC adapter prerequisites in Script Properties:
 - FIO_OSVC_READ_TOKEN: separate owner-created read-only token.
 - FIO_OSVC_EXPECTED_ACCOUNT_ID: owner-verified account ID.

@@ -36,13 +36,16 @@ var SITE_EVENTS_CACHE_SECONDS = 300; // кэш ответа doGet, чтобы н
 
 // ====================== МЕНЮ ======================
 function onOpen() {
-  SpreadsheetApp.getUi()
+  var menu = SpreadsheetApp.getUi()
     .createMenu('Community Hub')
     .addItem('🔄 Повторить синхронизацию для текущей строки', 'retrySyncForActiveRow')
     .addItem('❌ Отменить событие (текущая строка)', 'cancelEventFromMenu')
     .addItem('⏰ Проверить напоминания сейчас', 'sendEventReminders')
-    .addItem('📚 Создать пакет репетиторских занятий', 'createTutoringPackageEvents')
-    .addToUi();
+    .addItem('📚 Создать пакет репетиторских занятий', 'createTutoringPackageEvents');
+  if (typeof operatorOpen === 'function') {
+    menu.addSeparator().addItem('IMPERION · Operations', 'operatorOpen');
+  }
+  menu.addToUi();
 }
 
 function retrySyncForActiveRow() {
