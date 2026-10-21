@@ -6,3 +6,99 @@ test('action timeout never automatically retries a write',()=>{const t=setup();t
 test('double click cannot create concurrent requests',()=>{const t=setup();t.run('rpc("operatorSnapshot");rpc("operatorSnapshot")');assert.deepEqual(t.calls,['read']);});
 test('malformed render ends loading with visible failure',()=>{const t=setup();t.run('rpc("operatorSnapshot")');t.success()({});assert.equal(t.buttons[0].disabled,false);assert.match(t.e.message.textContent,/не удалось отобразить/);});
 test('late prior callback cannot overwrite a newer read',()=>{const t=setup();t.run('rpc("operatorSnapshot")');const old=t.success();t.timers[0]();t.run('rpc("operatorSnapshot");render=()=>{globalThis.rendered=true}');old({});assert.equal(t.s.rendered,undefined);t.success()({});assert.equal(t.s.rendered,true);assert.equal(t.buttons[0].disabled,false);});
+
+test('refresh after a bank timeout cannot enable another bank import',()=>{
+ const t=setup();
+ t.run('capabilities={actions:{syncOSVC:true,syncDruzina:true}};rpc("operatorAction","syncOSVC")');
+ t.timers[0]();
+ t.run('rpc("operatorSnapshot");render=d=>{capabilities=d.capabilities;controls()}');
+ t.success()({capabilities:{actions:{syncOSVC:true,syncDruzina:true}}});
+ assert.equal(t.buttons[0].disabled,false);
+ assert.equal(t.buttons[1].disabled,true);
+ t.run('rpc("operatorAction","syncOSVC");rpc("operatorAction","syncDruzina")');
+ assert.deepEqual(t.calls,['syncOSVC','read']);
+});
+
+test('late bank receipt unlocks imports without overwriting a newer snapshot',()=>{
+ const t=setup();
+ t.run('capabilities={actions:{syncOSVC:true}};rpc("operatorAction","syncOSVC")');
+ const bankReceipt=t.success();
+ t.timers[0]();
+ t.run('rpc("operatorSnapshot");render=d=>{capabilities=d.capabilities;globalThis.renderCount=(globalThis.renderCount||0)+1;controls()}');
+ t.success()({capabilities:{actions:{syncOSVC:true}}});
+ bankReceipt({imported:1});
+ assert.equal(t.s.renderCount,1);
+ assert.equal(t.buttons[1].disabled,false);
+ assert.deepEqual(t.calls,['syncOSVC','read']);
+});
+
+test('malformed snapshot cannot replace the last complete data',()=>{
+ const t=setup();
+ t.run('document.getElementById("updated").textContent="previous snapshot";document.getElementById("osvcBalance").textContent="100 Kč"');
+ assert.throws(()=>t.run('render({at:"2026-10-21T08:00:00Z",banks:{osvc:{balance:0,configured:true,lastSuccess:""},druzina:{balance:null,configured:false,lastSuccess:""}}})'));
+ assert.equal(t.e.updated.textContent,'previous snapshot');
+ assert.equal(t.e.osvcBalance.textContent,'100 Kč');
+});
+
+test('bank failure does not claim that no server side effect occurred',()=>{
+ const t=setup();
+ t.run('capabilities={actions:{syncOSVC:true}};rpc("operatorAction","syncOSVC")');
+ t.failure()();
+ assert.doesNotMatch(t.e.message.textContent,/Действие не выполнено/);
+ assert.match(t.e.message.textContent,/НЕ ПРОВЕРЕН/);
+ assert.equal(t.buttons[0].disabled,false);
+});
+
+test('broken Google bridge ends loading with a visible error',()=>{
+ const t=setup();
+ t.s.google.script.run.withSuccessHandler=()=>{throw Error('bridge unavailable')};
+ assert.doesNotThrow(()=>t.run('rpc("operatorSnapshot")'));
+ assert.equal(t.buttons[0].disabled,false);
+ assert.match(t.e.message.textContent,/Не удалось отправить/);
+});
+
+function snapshot(){return {
+ at:'2026-10-21T08:00:00Z',capabilities:{actions:{syncOSVC:true}},
+ banks:{osvc:{balance:0,configured:true,lastSuccess:''},druzina:{balance:null,configured:false,lastSuccess:''}},
+ leads:{count:1,excludedTests:0,needsAction:[]},social:[],events:[],missing:[],ingestion:'NOT_VERIFIED'
+};}
+
+test('complete snapshot preserves zero and unknown balances as different states',()=>{
+ const t=setup();t.s.payload=snapshot();
+ t.run('table=()=>{};link=()=>{};render(payload)');
+ assert.match(t.e.osvcBalance.textContent,/0/);
+ assert.equal(t.e.ngoBalance.textContent,'НЕ ПРОВЕРЕНО');
+ assert.match(t.e.updated.textContent,/Обновлено:/);
+});
+
+test('invalid financial value or capability cannot partially update a snapshot',()=>{
+ for(const invalid of ['0',NaN,Infinity,undefined]){
+  const t=setup();t.s.payload=snapshot();t.s.payload.banks.osvc.balance=invalid;
+  assert.throws(()=>t.run('render(payload)'),/Incomplete/);
+  assert.equal(t.e.updated,undefined);
+ }
+ const t=setup();t.s.payload=snapshot();t.s.payload.capabilities.actions.syncOSVC='true';
+ assert.throws(()=>t.run('render(payload)'),/Incomplete/);
+ assert.equal(t.e.updated,undefined);
+});
+
+test('incomplete payment preview leaves the previous table and summary intact',()=>{
+ const t=setup();
+ t.run('document.getElementById("paymentState").textContent="previous preview";document.getElementById("paymentTable").textContent="previous rows";capabilities={actions:{previewPayments:true}};rpc("operatorAction","previewPayments")');
+ t.success()({rows:[{transaction:'fixture'}],total:1,truncated:false});
+ assert.equal(t.e.paymentState.textContent,'previous preview');
+ assert.equal(t.e.paymentTable.textContent,'previous rows');
+ assert.match(t.e.message.textContent,/не удалось отобразить/);
+});
+
+test('late bank error releases the pending request without replacing newer data',()=>{
+ const t=setup();
+ t.run('capabilities={actions:{syncOSVC:true}};rpc("operatorAction","syncOSVC")');
+ const bankFailure=t.failure();t.timers[0]();
+ t.run('rpc("operatorSnapshot");render=d=>{capabilities=d.capabilities;globalThis.renderCount=(globalThis.renderCount||0)+1;controls()}');
+ t.success()({capabilities:{actions:{syncOSVC:true}}});bankFailure();
+ assert.equal(t.s.renderCount,1);
+ assert.equal(t.buttons[1].disabled,false);
+ assert.match(t.e.message.textContent,/НЕ ПРОВЕРЕН/);
+ assert.deepEqual(t.calls,['syncOSVC','read']);
+});
