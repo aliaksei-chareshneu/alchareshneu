@@ -1,12 +1,12 @@
 <!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base target="_blank"><title>IMPERION · Operations</title>
-<style>*{box-sizing:border-box}body{margin:0;background:#f4f5f7;color:#15243b;font:15px/1.55 system-ui,sans-serif}header{padding:24px 28px;background:#15243b;color:white;display:flex;justify-content:space-between;align-items:center}header small{color:#b7c6db;letter-spacing:.12em}h1{font-size:26px;margin:4px 0}main{max-width:1100px;margin:auto;padding:24px}nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}button,a.action{font:inherit;border:1px solid #ccd5df;border-radius:8px;padding:9px 14px;background:white;color:#15243b;cursor:pointer;text-decoration:none}button:disabled{opacity:.5;cursor:not-allowed}button.active{background:#176754;color:white;border-color:#176754}section{display:none}section.active{display:block}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.card{background:white;border:1px solid #e0e5eb;border-radius:12px;padding:20px;margin-bottom:16px}.value{font-size:30px;font-weight:650;margin:7px 0}.muted{color:#66778c}h2{font-size:20px}h3{font-size:16px;margin-top:0}.table{overflow-x:auto}#leadTable table{min-width:650px;table-layout:fixed}#leadTable th:first-child{width:115px}#leadTable th:nth-child(2){width:100px}#leadTable th:nth-child(3){width:140px}#leadTable th:nth-child(4){width:95px}#leadTable th:last-child{width:200px}table{border-collapse:collapse;width:100%;text-align:left}th,td{padding:12px 8px;border-bottom:1px solid #e5e9ed;vertical-align:top;overflow-wrap:anywhere}th{font-size:12px;text-transform:uppercase;color:#66778c}a{color:#176754}.notice{padding:12px 16px;border-radius:8px;background:#fff0cc;margin:14px 0;white-space:pre-wrap}.good{background:#e4f4ee}.actions{display:flex;gap:10px;flex-wrap:wrap}#message{display:none}footer{color:#66778c;font-size:12px;padding:14px 0}@media(max-width:650px){.grid{grid-template-columns:1fr}main{padding:14px}header{padding:18px}h1{font-size:22px}th,td{font-size:12px;padding:8px 5px}}</style></head><body>
+<style>*{box-sizing:border-box}body{margin:0;background:#f4f5f7;color:#15243b;font:15px/1.55 system-ui,sans-serif}header{padding:24px 28px;background:#15243b;color:white;display:flex;justify-content:space-between;align-items:center}header small{color:#b7c6db;letter-spacing:.12em}h1{font-size:26px;margin:4px 0}main{max-width:1100px;margin:auto;padding:24px}nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}button,a.action{font:inherit;border:1px solid #ccd5df;border-radius:8px;padding:9px 14px;background:white;color:#15243b;cursor:pointer;text-decoration:none}button:disabled{opacity:.5;cursor:not-allowed}button.active{background:#176754;color:white;border-color:#176754}section{display:none}section.active{display:block}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.card{background:white;border:1px solid #e0e5eb;border-radius:12px;padding:20px;margin-bottom:16px}.value{font-size:30px;font-weight:650;margin:7px 0}.muted{color:#66778c}h2{font-size:20px}h3{font-size:16px;margin-top:0}.table{overflow-x:auto}#socialTable table{min-width:1000px;table-layout:fixed}#socialTable th{width:180px}#socialTable th:nth-child(4){width:280px}#leadTable table{min-width:650px;table-layout:fixed}#leadTable th:first-child{width:115px}#leadTable th:nth-child(2){width:100px}#leadTable th:nth-child(3){width:140px}#leadTable th:nth-child(4){width:95px}#leadTable th:last-child{width:200px}table{border-collapse:collapse;width:100%;text-align:left}th,td{padding:12px 8px;border-bottom:1px solid #e5e9ed;vertical-align:top;overflow-wrap:anywhere}th{font-size:12px;text-transform:uppercase;color:#66778c}a{color:#176754}.notice{padding:12px 16px;border-radius:8px;background:#fff0cc;margin:14px 0;white-space:pre-wrap}.good{background:#e4f4ee}.actions{display:flex;gap:10px;flex-wrap:wrap}#message{display:none}footer{color:#66778c;font-size:12px;padding:14px 0}@media(max-width:650px){.grid{grid-template-columns:1fr}main{padding:14px}header{padding:18px}h1{font-size:22px}th,td{font-size:12px;padding:8px 5px}}</style></head><body>
 <header><div><small>IMPERION / PRIVATE OPERATIONS</small><h1>Заказы, деньги, сообщество</h1></div><button id="refresh">Обновить</button></header>
 <main><nav aria-label="Разделы"><button data-tab="money" class="active">Деньги</button><button data-tab="leads">Заявки</button><button data-tab="content">Публикации</button><button data-tab="community">События</button><button data-tab="system">Система</button></nav>
 <div class="actions"><label><input id="autoRefresh" type="checkbox" checked> Обновлять данные автоматически</label><span id="autoRefreshStatus" class="muted" role="status">Ожидание первой загрузки…</span></div>
 <div id="message" class="notice" role="status" aria-live="polite"></div><div id="bankPending" class="notice" role="status" aria-live="polite" style="display:none"></div><p id="updated" class="muted">Загрузка данных владельца…</p>
 <section id="money" class="active"><div class="grid"><div class="card"><h3>Остаток · OSVČ</h3><div id="osvcBalance" class="value">—</div><div id="osvcState" class="muted">Не проверено</div></div><div class="card"><h3>Остаток · Družina z.s.</h3><div id="ngoBalance" class="value">—</div><div id="ngoState" class="muted">Не проверено</div></div><div class="card"><h3>Подтверждённые заказы</h3><div class="value">—</div><div class="muted">Сумма требует подтверждений заказов</div></div></div><div class="notice">Банковский остаток не равен заработанной выручке, прибыли или свободным средствам гранта. Деньги OSVČ и объединения учитываются отдельно.</div><div class="actions"><button data-action="syncOSVC">Проверить банк OSVČ</button><button data-action="syncDruzina">Проверить банк Družina</button><button data-action="previewPayments">Сверить оплаты Družina</button></div><div class="card"><p id="paymentState" class="muted">Сверка оплат ещё не запускалась.</p><div id="paymentTable" class="table"></div></div></section>
 <section id="leads"><div class="card"><h2>Очередь заявок</h2><p id="leadCount"></p><p id="leadQueue" role="status"></p><p class="muted">Сначала просроченные и задачи на сегодня, затем заявки без корректного срока и будущие задачи. Даты без времени действуют весь указанный день по Праге.</p><p id="ingestion" class="muted"></p><div id="leadTable" class="table" tabindex="0" aria-label="Очередь заявок; таблицу можно прокручивать вбок"></div><p><a id="leadLink">Открыть существующую CRM</a></p></div></section>
-<section id="content"><div class="card"><h2>Очередь публикаций</h2><p class="muted">Запланировано ≠ опубликовано. Подтверждение учитывается по статусу и ссылке.</p><div id="socialTable" class="table"></div><p><a id="socialLink">Открыть очередь и медиаматериалы</a></p></div></section>
+<section id="content"><div class="card"><h2>Очередь публикаций</h2><p id="socialQueue" role="status"></p><p class="muted">Сначала записи, требующие внимания. Подтверждение означает статус и ссылку, сохранённые в Hub; панель не проверяет публикацию повторно у сервиса. Обновление не отправляет и не повторяет публикации.</p><div id="socialTable" class="table" tabindex="0" aria-label="Очередь публикаций; таблицу можно прокручивать вбок"></div><p><a id="socialLink">Открыть очередь и медиаматериалы</a></p></div></section>
 <section id="community"><div class="card"><h2>Активные события</h2><div id="eventTable" class="table"></div><p><a id="eventLink">Регистрации и события в Community Hub</a></p></div></section>
 <section id="system"><div class="card"><h2>Контроль работы</h2><p id="recovery"></p><div class="actions"><button data-action="previewRecovery">Проверить пропущенные заявки</button><button data-action="pauseRecovery">Приостановить восстановление</button></div><p class="muted">Ключи хранятся только в Script Properties. Панель не показывает токены и не изменяет публичные цены, права на медиа или статусы оплаты.</p><div id="missing"></div></div></section>
 <footer>Автообновление читает данные из Community Hub раз в минуту. Для загрузки новой банковской выписки используйте кнопку проверки банка.</footer></main>
@@ -59,9 +59,35 @@ function controls(){
 function recoveryLabel(state){return ({MODULE_MISSING:'модуль не подключён к этой панели',NOT_CONFIGURED:'не настроено',PAUSED:'приостановлено',ENABLED_NOT_VERIFIED:'включено настройкой; выполнение НЕ ПРОВЕРЕНО'})[state]||'НЕ ПРОВЕРЕНО';}
 function message(text,error=false){$('message').style.display='block';$('message').textContent=text;$('message').className='notice'+(error?'':' good');}
 function link(id,url){const a=$(id);if(/^https:\/\/(docs\.google\.com|drive\.google\.com)\//.test(url||'')){a.href=url;a.rel='noopener noreferrer';}else a.removeAttribute('href');}
-function table(target,heads,rows){const el=$(target);el.replaceChildren();if(!rows.length){el.textContent='Нет записей для отображения.';return;}const t=document.createElement('table'),tr=document.createElement('tr');heads.forEach(h=>{const th=document.createElement('th');th.textContent=h;tr.append(th)});t.append(tr);rows.forEach(row=>{const tr=document.createElement('tr');row.forEach(v=>{const td=document.createElement('td');td.textContent=v==null?'—':String(v);tr.append(td)});t.append(tr)});el.append(t);}
+function table(target,heads,rows){const el=$(target);el.replaceChildren();if(!rows.length){el.textContent='Нет записей для отображения.';return;}const t=document.createElement('table'),tr=document.createElement('tr');heads.forEach(h=>{const th=document.createElement('th');th.textContent=h;tr.append(th)});t.append(tr);rows.forEach(row=>{const tr=document.createElement('tr');row.forEach(v=>{const td=document.createElement('td');td.textContent=v==null?'—':String(v);tr.append(td)});t.append(tr)});el.append(t);return t;}
 function bank(prefix,b){$(prefix+'Balance').textContent=b.balance===null?'НЕ ПРОВЕРЕНО':new Intl.NumberFormat('cs-CZ',{style:'currency',currency:'CZK'}).format(b.balance);$(prefix+'State').textContent=(b.configured?'Ключ настроен':'Подключение не настроено')+(b.lastSuccess?' · последняя сверка '+b.lastSuccess:' · сверки нет');}
 function record(value){return value!==null&&typeof value==='object'&&!Array.isArray(value);}
+const SOCIAL_REASONS=Object.freeze({
+ PROVIDER_LIMIT:'Ограничение сервиса; проверьте лимит в очереди.',
+ PUBLISH_ERROR:'В Hub записана ошибка; проверьте подробности перед повтором.',
+ REVIEW_REQUIRED:'Требуется проверка результата перед повторной отправкой.',
+ MISSING_RECEIPT:'Нет корректной ссылки на публикацию.',
+ UNVERIFIED_STATUS:'Результат отмечен без статуса подтверждения.',
+ RECORD_CONFLICT:'Подтверждение и ошибка в одной записи; проверьте результат.',
+ MANUAL_ACTION:'Ожидается ручное действие владельца.',
+ UNKNOWN_STATUS:'Статус не распознан; откройте очередь.',
+ IN_PROGRESS:'Запрос выполняется; дождитесь проверки результата.',
+ WAITING:'Ожидается подтверждение публикации.',DRAFT:'Черновик.',INACTIVE:'Задача неактивна.',
+ VERIFIED:'В Hub есть статус подтверждения и ссылка.'
+});
+function socialReceipt(value){
+ if(typeof value!=='string')return '';
+ const text=value.trim();if(text.length>2048||/[\s\\<>"'\x00-\x1f\x7f]/.test(text))return '';
+ try{
+  const match=text.match(/^https:\/\/([^/?#]+)(?:[/?#].*)?$/i);if(!match)return '';
+  const host=match[1].replace(/:443$/,'').toLowerCase(),labels=host.split('.');
+  if(host.length>253||labels.length<2||!/[a-z]/.test(labels[labels.length-1])||!labels.every(label=>/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(label)))return '';
+  const sensitive=key=>/^(token|access_token|api_?key|authorization|key|secret|sig|signature|x_amz_.*|x_goog_.*)$/.test(key.toLowerCase().replace(/-/g,'_'));
+  const query=[text.split('#')[0].split('?').slice(1).join('?'),text.split('#').slice(1).join('#')].join('&');
+  if(query.split('&').some(part=>sensitive(decodeURIComponent(part.split('=')[0].replace(/\+/g,' ')))))return '';
+  return new URL(text).href;
+ }catch(_){return '';}
+}
 function validLeadQueueRow(row,fields){
  if(!Object.hasOwn(fields,row.dueState)||typeof row.next!=='string')return false;
  if(row.dueState==='NO_DATE')return row.next==='';
@@ -87,6 +113,14 @@ function validateSnapshot(d){
      !d.leads.needsAction.every(r=>validLeadQueueRow(r,fields)))throw Error('Incomplete lead queue');
   for(const [state,field] of Object.entries(fields))if(d.leads.needsAction.filter(r=>r.dueState===state).length>q[field])throw Error('Inconsistent lead queue');
  }
+ if(d.socialQueue!==undefined){
+  const q=d.socialQueue,fields={ATTENTION:'attention',PENDING:'pending',DRAFT:'draft',INACTIVE:'inactive',VERIFIED:'verified'};
+  if(!record(q)||!['total','attention','pending','draft','inactive','verified','shown'].every(k=>count(q[k]))||q.limit!==100||
+     q.total!==q.attention+q.pending+q.draft+q.inactive+q.verified||q.shown!==d.social.length||q.shown!==Math.min(q.total,q.limit)||q.truncated!==(q.total>q.shown)||
+     !d.social.every(r=>['id','event','channel','status','scheduled','reason','state','receipt'].every(k=>typeof r[k]==='string')&&Object.hasOwn(fields,r.state)&&Object.hasOwn(SOCIAL_REASONS,r.reason)&&
+       r.verified===(r.state==='VERIFIED')&&(r.verified?r.status==='PUBLISHED_VERIFIED'&&!String(r.error||'').trim()&&!!socialReceipt(r.receipt):r.receipt==='')))throw Error('Incomplete publication queue');
+  for(const [state,field] of Object.entries(fields))if(d.social.filter(r=>r.state===state).length>q[field])throw Error('Inconsistent publication queue');
+ }
 }
 function validatePaymentPreview(d){
  if(!record(d)||!Array.isArray(d.rows)||!d.rows.every(record)||!Number.isSafeInteger(d.total)||d.total<d.rows.length||typeof d.truncated!=='boolean'||!record(d.bank)||typeof d.bank.fresh!=='boolean')throw Error('Incomplete payment preview');
@@ -105,7 +139,26 @@ function renderLeadQueue(leads,missing){
   'Открытых задач: '+q.total+' · просрочено: '+q.overdue+' · сегодня: '+q.today+' · будущих: '+q.upcoming+' · без даты: '+q.noDate+' · проверьте дату: '+q.invalidDate+'. Показано '+q.shown+' из '+q.total+(q.truncated?' — полный список в CRM.':'.');
  table('leadTable',['Приоритет','ID','Услуга','Этап','Срок · Прага'],unavailable?[]:leads.needsAction.map(r=>[leadDueLabel(r.dueState),r.id,r.service,r.stage,leadDeadline(r)]));
 }
-function render(d){validateSnapshot(d);capabilities=d.capabilities||null;controls();$('updated').textContent='Обновлено: '+new Date(d.at).toLocaleString('ru-RU',{timeZone:'Europe/Prague'})+' · Europe/Prague';bank('osvc',d.banks.osvc);bank('ngo',d.banks.druzina);renderLeadQueue(d.leads,d.missing);$('ingestion').textContent=d.ingestion;table('socialTable',['Канал','Событие','Статус','Подтверждено'],d.social.map(r=>[r.channel,r.event,r.status,r.verified?'Да':'Нет']));table('eventTable',['Событие','Дата','Сообщество'],d.events.map(r=>[r.title,r.date,r.community]));link('leadLink',d.leadUrl);link('socialLink',d.socialUrl);link('eventLink',d.eventUrl);$('recovery').textContent='Восстановление заявок: '+recoveryLabel(capabilities&&capabilities.recoveryState);$('missing').textContent=d.missing.length?'Не найдены листы: '+d.missing.join(', '):'';}
+function socialSchedule(value){
+ if(typeof value==='string'&&/^\d{4}-\d{2}-\d{2}T.*(?:Z|[+-]\d{2}:\d{2})$/.test(value)&&Number.isFinite(Date.parse(value)))return new Date(value).toLocaleString('ru-RU',{timeZone:'Europe/Prague'})+' · Прага';
+ return value||'Не указан';
+}
+function renderSocialQueue(d){
+ const unavailable=d.missing.includes('SocialPublishing'),q=d.socialQueue,rows=unavailable?[]:d.social.slice(0,100);
+ $('socialQueue').textContent=unavailable?'Лист SocialPublishing не найден. Очередь недоступна.':!q?'Диагностика публикаций недоступна в этой версии модуля.'+(d.social.length>100?' Показаны первые 100 записей; полная очередь в Hub.':''):
+  'Всего: '+q.total+' · требуют внимания: '+q.attention+' · ожидают подтверждения: '+q.pending+' · черновики: '+q.draft+' · неактивны: '+q.inactive+' · подтверждено в Hub: '+q.verified+'. Показано '+q.shown+' из '+q.total+(q.truncated?' — полная очередь в Hub.':'.');
+ const labels={ATTENTION:'Требует внимания',PENDING:'Ожидает подтверждения',DRAFT:'Черновик',INACTIVE:'Неактивна',VERIFIED:'Подтверждено в Hub'};
+ const proof=r=>r.status==='PUBLISHED_VERIFIED'&&r.verified===true&&!String(r.error||'').trim()?socialReceipt(r.receipt):'';
+ const rendered=table('socialTable',['Результат','Задача · канал · событие','План из Hub','Что проверить','Подтверждение'],rows.map(r=>[
+  (q?labels[r.state]:proof(r)?labels.VERIFIED:'Не подтверждено')+' · '+(/^[A-Z][A-Z0-9_]{0,79}$/.test(r.status||'')?r.status:'UNKNOWN'),
+  [r.id||'Без ID',r.channel,r.event].filter(Boolean).join(' · '),socialSchedule(r.scheduled),q?SOCIAL_REASONS[r.reason]:'Откройте исходную очередь для проверки.',proof(r)?'Есть ссылка':'Нет подтверждения'
+ ]));
+ if(rendered)rendered.querySelectorAll('tr').forEach((tr,index)=>{
+  if(!index)return;const url=proof(rows[index-1]);if(!url)return;
+  const anchor=document.createElement('a');anchor.href=url;anchor.target='_blank';anchor.rel='noopener noreferrer';anchor.textContent='Открыть публикацию';tr.lastElementChild.replaceChildren(anchor);
+ });
+}
+function render(d){validateSnapshot(d);capabilities=d.capabilities||null;controls();$('updated').textContent='Обновлено: '+new Date(d.at).toLocaleString('ru-RU',{timeZone:'Europe/Prague'})+' · Europe/Prague';bank('osvc',d.banks.osvc);bank('ngo',d.banks.druzina);renderLeadQueue(d.leads,d.missing);$('ingestion').textContent=d.ingestion;renderSocialQueue(d);table('eventTable',['Событие','Дата','Сообщество'],d.events.map(r=>[r.title,r.date,r.community]));link('leadLink',d.leadUrl);link('socialLink',d.socialUrl);link('eventLink',d.eventUrl);$('recovery').textContent='Восстановление заявок: '+recoveryLabel(capabilities&&capabilities.recoveryState);$('missing').textContent=d.missing.length?'Не найдены листы: '+d.missing.join(', '):'';}
 function rpc(method,arg){
  if(busy)return;
  if(method!=='operatorSnapshot'&&isBankAction(arg)&&bankRequestPending()){message('Предыдущий банковский запрос ещё не завершён. Дождитесь ответа сервера.',true);return;}

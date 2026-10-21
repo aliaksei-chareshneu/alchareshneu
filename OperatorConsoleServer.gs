@@ -50,10 +50,46 @@ function ocLeadSummary_(rows,now){
    needsAction:candidates.slice(0,40).map(function(c){var r=c.row;return {id:r.Lead_ID,service:r.Service,stage:r.Stage,next:c.deadline.text,status:r.Action_Status,dueState:c.deadline.state};}),
    cash:null,contracted:null,weighted30:null};
 }
+/** A stored receipt is not a provider recheck. Never expose credential-bearing URLs. */
+function ocSocialReceipt_(value){
+ var text=String(value==null?'':value).trim();
+ if(text.length>2048||/[\s\\<>"'\x00-\x1f\x7f]/.test(text))return '';
+ var match=text.match(/^https:\/\/([^/?#]+)(?:[/?#].*)?$/i);if(!match)return '';
+ var host=match[1].replace(/:443$/,'').toLowerCase(),labels=host.split('.');
+ if(host.length>253||labels.length<2||!/[a-z]/.test(labels[labels.length-1])||!labels.every(function(label){return /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(label);}))return '';
+ var query=[text.split('#')[0].split('?').slice(1).join('?'),text.split('#').slice(1).join('#')].join('&');
+ try{
+  if(query.split('&').some(function(part){var key=decodeURIComponent(part.split('=')[0].replace(/\+/g,' ')).toLowerCase().replace(/-/g,'_');return /^(token|access_token|api_?key|authorization|key|secret|sig|signature|x_amz_.*|x_goog_.*)$/.test(key);}))return '';
+ }catch(_){return '';}
+ return text;
+}
 function ocSocialSummary_(rows){
- return rows.map(function(r){var status=String(r.Status||'DRAFT'),receipt=String(r.Post_URL||'');
-  return {id:r.Job_ID,event:r.Event_ID,channel:r.Channel,status:status,scheduled:r.Scheduled_At||'',
-   verified:status==='PUBLISHED_VERIFIED'&&!!receipt,receipt:receipt,error:r.Error||''};});
+ var pending={APPROVED:'WAITING',BUFFER_APPROVED:'WAITING',SCHEDULED:'WAITING',SCHEDULED_PENDING:'WAITING',BUFFER_QUEUED:'WAITING',QUEUED:'WAITING',CLAIMED:'IN_PROGRESS',BUFFER_SUBMITTING:'IN_PROGRESS',DELIVERY_IN_PROGRESS:'IN_PROGRESS'};
+ var review={REVIEW_REQUIRED:'REVIEW_REQUIRED',DELIVERY_UNVERIFIED:'REVIEW_REQUIRED',READY_MANUAL:'MANUAL_ACTION',PUBLISHED:'UNVERIFIED_STATUS',ALREADY_POSTED:'UNVERIFIED_STATUS',MANUAL_OWNER_CONFIRMED:'UNVERIFIED_STATUS',MANUAL_LINK_RECORDED:'UNVERIFIED_STATUS',MANUAL_VERIFIED:'UNVERIFIED_STATUS'};
+ var rank={ATTENTION:0,PENDING:1,DRAFT:2,INACTIVE:3,VERIFIED:4};
+ return rows.filter(function(r){return Object.keys(r).some(function(k){return r[k]!=null&&String(r[k]).trim()!=='';});}).map(function(r,index){
+  var status=String(r.Status||'').trim().toUpperCase(),error=String(r.Error||'').trim(),receipt=ocSocialReceipt_(r.Post_URL);
+  if(status.length>80)status='UNKNOWN';
+  var state='ATTENTION',reason='UNKNOWN_STATUS';
+  if(status==='PUBLISHED_VERIFIED'){state=receipt&&!error?'VERIFIED':'ATTENTION';reason=error?'RECORD_CONFLICT':receipt?'VERIFIED':'MISSING_RECEIPT';}
+  else if(Object.prototype.hasOwnProperty.call(pending,status)){state='PENDING';reason=pending[status];}
+  else if(Object.prototype.hasOwnProperty.call(review,status))reason=review[status];
+  else if(status==='DRAFT'){state='DRAFT';reason='DRAFT';}
+  else if(/^(CANCELLED|CANCELED|SKIPPED|ARCHIVED)$/.test(status)){state='INACTIVE';reason='INACTIVE';}
+  else if(/^(ERROR|FAILED|BLOCKED)(?:_[A-Z0-9_]+)?$/.test(status)||/^(QUOTA_EXCEEDED|RATE_LIMITED)$/.test(status))reason='PUBLISH_ERROR';
+  else status='UNKNOWN';
+  if(state!=='INACTIVE'&&status!=='UNKNOWN'&&status!=='PUBLISHED_VERIFIED'&&error&&!(state==='PENDING'&&/^QUEUED_ONLY(?:;|$)/i.test(error))){state='ATTENTION';reason='PUBLISH_ERROR';}
+  if(reason==='PUBLISH_ERROR'&&/LIMIT|QUOTA|RATE_LIMIT/.test(status))reason='PROVIDER_LIMIT';
+  if(reason==='PUBLISH_ERROR'&&/quota|rate[_ -]?limit|account[_ -]?limit|too many requests|\b429\b|лимит|квот/i.test(error))reason='PROVIDER_LIMIT';
+  var scheduled=r.Scheduled_At instanceof Date?r.Scheduled_At.toISOString():String(r.Scheduled_At==null?'':r.Scheduled_At);
+  return {id:String(r.Job_ID==null?'':r.Job_ID),event:String(r.Event_ID==null?'':r.Event_ID),channel:String(r.Channel==null?'':r.Channel),status:status,scheduled:scheduled,
+   state:state,reason:reason,verified:state==='VERIFIED',receipt:state==='VERIFIED'?receipt:'',index:index};
+ }).sort(function(a,b){return rank[a.state]-rank[b.state]||a.index-b.index;}).map(function(r){delete r.index;return r;});
+}
+function ocSocialQueue_(rows){
+ var items=ocSocialSummary_(rows),queue={total:items.length,attention:0,pending:0,draft:0,inactive:0,verified:0,shown:Math.min(items.length,100),limit:100,truncated:items.length>100};
+ var fields={ATTENTION:'attention',PENDING:'pending',DRAFT:'draft',INACTIVE:'inactive',VERIFIED:'verified'};
+ items.forEach(function(r){queue[fields[r.state]]++;});return {rows:items.slice(0,100),queue:queue};
 }
 function ocBankState_(props,prefix){
  var last=props.getProperty(prefix+'_LAST_OK_AT')||'',raw=props.getProperty(prefix+'_LAST_BANK_BALANCE');
@@ -84,10 +120,12 @@ function operatorSnapshot(){
  ocOwner_();var ss=SpreadsheetApp.openById(ocId_()),p=PropertiesService.getScriptProperties();
  var leads=ocRows_(ss,'Leads');
  if(!leads.missing&&['Lead_ID','Full_Name','Subject_Goal','Notes','Stage','Next_Action_At','Action_Status','Service'].some(function(k){return leads.headers.filter(function(h){return h===k;}).length!==1;}))throw Error('Leads schema missing or duplicate required column');
- var social=ocRows_(ss,'SocialPublishing'),events=ocRows_(ss,'Events'),config=ocRows_(ss,'Revenue_Config');
+ var social=ocRows_(ss,'SocialPublishing');
+ if(!social.missing&&['Job_ID','Event_ID','Channel','Scheduled_At','Status','Post_URL','Error'].some(function(k){return social.headers.filter(function(h){return h===k;}).length!==1;}))throw Error('SocialPublishing schema missing or duplicate required column');
+ var events=ocRows_(ss,'Events'),config=ocRows_(ss,'Revenue_Config'),publications=ocSocialQueue_(social.rows);
  var cfg={};config.rows.forEach(function(r){cfg[r.Key]=r.Value;});var now=Date.now();
  return {capabilities:ocCapabilities_(p),at:new Date(now).toISOString(),hub:ss.getUrl(),leads:ocLeadSummary_(leads.rows,now),leadUrl:leads.url,
-  ingestion:cfg.STATUS||'NOT_VERIFIED',social:ocSocialSummary_(social.rows),socialUrl:social.url,
+  ingestion:cfg.STATUS||'NOT_VERIFIED',social:publications.rows,socialQueue:publications.queue,socialUrl:social.url,
   events:events.rows.filter(function(r){return r.Status==='Active';}).map(function(r){return {id:r.Event_ID,title:r.Title,date:r.Start_DateTime,community:r.Community};}),eventUrl:events.url,
   banks:{osvc:ocBankState_(p,'FIO_OSVC'),druzina:ocBankState_(p,'FIO_DRUZINA')},
   recoveryPaused:p.getProperty('PLATFORM_RECOVERY_PAUSED')!=='false',

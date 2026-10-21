@@ -124,3 +124,19 @@ test('older snapshot modules clear stale priority counts and label unavailable q
  assert.match(t.e.leadQueue.textContent,/недоступен в этой версии/);
  assert.doesNotMatch(t.e.leadQueue.textContent,/Открытых задач: 0/);
 });
+
+test('inconsistent publication counters and unsafe confirmations preserve previous data',()=>{
+ const changes=[d=>d.socialQueue.total++,d=>d.socialQueue.verified=0,d=>d.socialQueue.shown=0,
+  d=>d.social[0].verified=false,d=>d.social[0].receipt='javascript:alert(1)',
+  d=>d.social[0].receipt='https://example.org/?access_token=FIXTURE',d=>d.social[0].reason='__proto__',
+  d=>d.social[0].status='SCHEDULED_PENDING',d=>d.social[0].error='Unresolved provider error'];
+ for(const change of changes){
+  const t=setup(),data=snapshot();t.s.URL=URL;
+  data.socialQueue={total:1,attention:0,pending:0,draft:0,inactive:0,verified:1,shown:1,limit:100,truncated:false};
+  data.social=[{id:'fixture',event:'fixture',channel:'fixture',scheduled:'',status:'PUBLISHED_VERIFIED',state:'VERIFIED',reason:'VERIFIED',receipt:'https://example.org/posts/fixture',verified:true}];
+  change(data);t.s.payload=data;
+  t.run('document.getElementById("socialQueue").textContent="previous queue";document.getElementById("osvcBalance").textContent="100 Kč"');
+  assert.throws(()=>t.run('render(payload)'),/publication queue/);
+  assert.equal(t.e.socialQueue.textContent,'previous queue');assert.equal(t.e.osvcBalance.textContent,'100 Kč');
+ }
+});
