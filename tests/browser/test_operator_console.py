@@ -13,13 +13,33 @@ CONSOLE = Path(__file__).resolve().parents[2] / 'OperatorConsole.html'
 BRIDGE = r"""
 window.fixtureCalls = [];
 window.fixtureTimers = [];
+window.fixtureSchedules = [];
+window.fixtureNow = Date.now();
+Date.now = () => fixtureNow;
 const nativeTimeout = window.setTimeout.bind(window);
+const nativeClearTimeout = window.clearTimeout.bind(window);
 window.setTimeout = (callback, delay, ...args) => {
-  if (delay === 30000 || delay === 90000) {
+  if (delay >= 1000 && delay <= 90000) {
     window.fixtureTimers.push(callback);
-    return 100000 + window.fixtureTimers.length;
+    const id = 100000 + window.fixtureTimers.length;
+    fixtureSchedules.push({callback, id, at: fixtureNow + delay, canceled: false, fired: false});
+    return id;
   }
   return nativeTimeout(callback, delay, ...args);
+};
+window.clearTimeout = id => {
+  const timer = fixtureSchedules[id - 100001];
+  if (timer) timer.canceled = true;
+  else nativeClearTimeout(id);
+};
+window.fixtureTick = ms => {
+  fixtureNow += ms;
+  for (const timer of [...fixtureSchedules]) {
+    if (!timer.canceled && !timer.fired && timer.at <= fixtureNow) {
+      timer.fired = true;
+      timer.callback();
+    }
+  }
 };
 const runner = (success, failure) => ({
   withSuccessHandler: callback => runner(callback, failure),
@@ -120,6 +140,8 @@ class ConsoleBrowserTests(unittest.TestCase):
         self.assertTrue(self.bank_button().is_disabled())
         self.assertTrue(self.bank_button('syncDruzina').is_disabled())
         self.assertTrue(self.page.locator('#bankPending').is_visible())
+        self.page.evaluate('fixtureTick(120000)')
+        self.assertEqual(self.calls(), ['snapshot', 'syncOSVC', 'snapshot'])
         self.respond(1, {'imported': 0})
         self.assertTrue(self.bank_button().is_enabled())
         self.assertFalse(self.page.locator('#bankPending').is_visible())
@@ -177,6 +199,50 @@ class ConsoleBrowserTests(unittest.TestCase):
         self.assertTrue(self.page.locator('#refresh').is_enabled())
         self.assertIn('Не удалось отправить', self.page.locator('#message').inner_text())
         self.assertTrue(self.bank_button().is_disabled())
+
+    def test_automatic_refresh_only_reads_snapshots(self):
+        self.page.evaluate('fixtureTick(60000)')
+        self.assertEqual(self.calls(), ['snapshot', 'snapshot'])
+        self.respond(1, snapshot())
+        self.page.evaluate('fixtureTick(60000)')
+        self.assertEqual(self.calls(), ['snapshot', 'snapshot', 'snapshot'])
+        self.respond(2, snapshot())
+        self.assertIn('Раз в минуту', self.page.locator('#autoRefreshStatus').inner_text())
+
+    def test_automatic_refresh_toggle_and_visibility_pause(self):
+        self.page.locator('#autoRefresh').uncheck()
+        self.page.evaluate('fixtureTick(120000)')
+        self.assertEqual(self.calls(), ['snapshot'])
+        self.page.locator('#refresh').click()
+        self.respond(1, snapshot())
+        self.page.evaluate('fixtureTick(60000)')
+        self.assertEqual(self.calls(), ['snapshot', 'snapshot'])
+        self.page.locator('#autoRefresh').check()
+        self.page.evaluate('''() => {
+          Object.defineProperty(document, 'visibilityState', {configurable: true, value: 'hidden'});
+          document.dispatchEvent(new Event('visibilitychange'));
+          fixtureTick(120000);
+        }''')
+        self.assertEqual(self.calls(), ['snapshot', 'snapshot'])
+        self.assertIn('неактивна', self.page.locator('#autoRefreshStatus').inner_text())
+        self.page.evaluate('''() => {
+          Object.defineProperty(document, 'visibilityState', {configurable: true, value: 'visible'});
+          document.dispatchEvent(new Event('visibilitychange'));
+          fixtureTick(1000);
+        }''')
+        self.assertEqual(self.calls(), ['snapshot', 'snapshot', 'snapshot'])
+        self.respond(2, snapshot())
+
+    def test_automatic_refresh_stops_on_error_and_manual_refresh_recovers(self):
+        self.page.evaluate('fixtureTick(60000);fixtureCalls[1].failure()')
+        self.page.evaluate('fixtureTick(300000)')
+        self.assertEqual(self.calls(), ['snapshot', 'snapshot'])
+        self.assertIn('после ошибки', self.page.locator('#autoRefreshStatus').inner_text())
+        self.page.locator('#refresh').click()
+        self.respond(2, snapshot())
+        self.page.evaluate('fixtureTick(60000)')
+        self.assertEqual(self.calls(), ['snapshot', 'snapshot', 'snapshot', 'snapshot'])
+        self.respond(3, snapshot())
 
 
 if __name__ == '__main__':
