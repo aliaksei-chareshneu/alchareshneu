@@ -15,22 +15,27 @@ function ocRows_(ss,name){
  return {missing:false,headers:h,url:ss.getUrl()+'#gid='+sh.getSheetId(),rows:data.map(function(r){var x={};h.forEach(function(k,i){x[k]=r[i] instanceof Date?r[i].toISOString():r[i];});return x;})};
 }
 function ocIsTest_(r){return /TEST-ONLY|QA TEST|SYNTHETIC|NO.CONTACT/i.test([r.Lead_ID,r.Full_Name,r.Subject_Goal,r.Notes].join(' '));}
-/** Do not guess a timezone for text timestamps or normalize impossible dates. */
-function ocLeadDeadline_(value,now,today){
+/** Shared strict ISO parsing; local event text has a separate explicit Prague parser. */
+function ocDateValue_(value){
  var text=value instanceof Date?(isFinite(value.getTime())?value.toISOString():'Invalid Date'):String(value==null?'':value).trim();
- if(!text)return {state:'NO_DATE',day:'',at:0,text:''};
+ if(!text)return {kind:'MISSING',day:'',at:0,text:''};
  var day=text.slice(0,10),midnight=Date.parse(day+'T00:00:00Z');
  var validDay=/^\d{4}-\d{2}-\d{2}$/.test(day)&&isFinite(midnight)&&new Date(midnight).toISOString().slice(0,10)===day;
- if(validDay&&text===day)return {state:day<today?'OVERDUE':day===today?'TODAY':'UPCOMING',day:day,at:Infinity,text:text};
+ if(validDay&&text===day)return {kind:'DAY',day:day,at:Infinity,text:text};
  var match=text.match(/^\d{4}-\d{2}-\d{2}T(\d{2}):(\d{2})(?::(\d{2})(?:\.\d{1,3})?)?(Z|[+-](\d{2}):(\d{2}))$/);
  if(!validDay||!match||Number(match[1])>23||Number(match[2])>59||Number(match[3]||0)>59||
     Number(match[5]||0)>14||Number(match[6]||0)>59||Number(match[5]||0)===14&&Number(match[6]||0)!==0){
-  return {state:'INVALID_DATE',day:'',at:0,text:text};
+  return {kind:'INVALID',day:'',at:0,text:text};
  }
  var at=Date.parse(text);
- if(!isFinite(at))return {state:'INVALID_DATE',day:'',at:0,text:text};
- var localDay=Utilities.formatDate(new Date(at),'Europe/Prague','yyyy-MM-dd');
- return {state:at<now?'OVERDUE':localDay===today?'TODAY':'UPCOMING',day:localDay,at:at,text:text};
+ if(!isFinite(at))return {kind:'INVALID',day:'',at:0,text:text};
+ return {kind:'TIME',day:day,at:at,text:text};
+}
+function ocLeadDeadline_(value,now,today){
+ var parsed=ocDateValue_(value);
+ if(parsed.kind==='MISSING'||parsed.kind==='INVALID')return {state:parsed.kind==='MISSING'?'NO_DATE':'INVALID_DATE',day:'',at:0,text:parsed.text};
+ var day=parsed.kind==='DAY'?parsed.day:Utilities.formatDate(new Date(parsed.at),'Europe/Prague','yyyy-MM-dd');
+ return {state:parsed.kind==='DAY'?(day<today?'OVERDUE':day===today?'TODAY':'UPCOMING'):(parsed.at<now?'OVERDUE':day===today?'TODAY':'UPCOMING'),day:day,at:parsed.at,text:parsed.text};
 }
 function ocLeadSummary_(rows,now){
  now=now===undefined?Date.now():Number(now);
@@ -91,6 +96,39 @@ function ocSocialQueue_(rows){
  var fields={ATTENTION:'attention',PENDING:'pending',DRAFT:'draft',INACTIVE:'inactive',VERIFIED:'verified'};
  items.forEach(function(r){queue[fields[r.state]]++;});return {rows:items.slice(0,100),queue:queue};
 }
+function ocEventTime_(value){
+ var parsed=ocDateValue_(value);if(parsed.kind!=='INVALID')return parsed;
+ // Existing Events text format is local Prague time, unlike timezone-free lead deadlines.
+ if(!/^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}(?::\d{2})?$/.test(parsed.text))return parsed;
+ var text=parsed.text.replace('T',' '),pattern=text.length===16?'yyyy-MM-dd HH:mm':'yyyy-MM-dd HH:mm:ss';
+ try{
+  var date=Utilities.parseDate(text,'Europe/Prague',pattern),at=date.getTime();
+  if(!isFinite(at)||Utilities.formatDate(date,'Europe/Prague',pattern)!==text)return parsed;
+  // A second matching instant means the wall-clock time is ambiguous during a rollback.
+  if([-7200000,-3600000,3600000,7200000].some(function(shift){return Utilities.formatDate(new Date(at+shift),'Europe/Prague',pattern)===text;}))return {kind:'AMBIGUOUS',text:parsed.text,day:'',at:0};
+  return {kind:'TIME',text:parsed.text,day:text.slice(0,10),at:at};
+ }catch(_){return parsed;}
+}
+function ocEventQueue_(rows,now){
+ now=now===undefined?Date.now():Number(now);if(!isFinite(now))throw Error('Invalid event agenda clock');
+ var today=Utilities.formatDate(new Date(now),'Europe/Prague','yyyy-MM-dd'),rank={LIVE:0,TODAY:1,UPCOMING:2,REVIEW:3,PAST:4};
+ var items=rows.filter(function(r){return String(r.Status||'').trim().toUpperCase()==='ACTIVE';}).map(function(r,index){
+  var start=ocEventTime_(r.Start_DateTime),end=ocEventTime_(r.End_DateTime),state='REVIEW',reason='RANGE_VALID';
+  var reasons={MISSING:'MISSING',INVALID:'INVALID',DAY:'TIME_MISSING',AMBIGUOUS:'AMBIGUOUS'};
+  if(start.kind!=='TIME')reason='START_'+reasons[start.kind];
+  else if(end.kind!=='TIME')reason='END_'+reasons[end.kind];
+  else if(end.at<=start.at)reason='END_NOT_AFTER_START';
+  else state=end.at<=now?'PAST':start.at<=now?'LIVE':Utilities.formatDate(new Date(start.at),'Europe/Prague','yyyy-MM-dd')===today?'TODAY':'UPCOMING';
+  return {id:String(r.Event_ID==null?'':r.Event_ID),title:String(r.Title||''),community:String(r.Community||''),date:start.text,end:end.text,
+   startAt:start.kind==='TIME'?new Date(start.at).toISOString():null,endAt:end.kind==='TIME'?new Date(end.at).toISOString():null,
+   state:state,reason:reason,index:index,sortAt:state==='LIVE'?end.at:state==='PAST'?-end.at:start.kind==='TIME'?start.at:Infinity};
+ });
+ var queue={total:items.length,live:0,today:0,upcoming:0,review:0,past:0,shown:Math.min(items.length,100),limit:100,truncated:items.length>100,timeZone:'Europe/Prague'};
+ var fields={LIVE:'live',TODAY:'today',UPCOMING:'upcoming',REVIEW:'review',PAST:'past'};
+ items.forEach(function(r){queue[fields[r.state]]++;});
+ items.sort(function(a,b){return rank[a.state]-rank[b.state]||(a.sortAt<b.sortAt?-1:a.sortAt>b.sortAt?1:0)||a.index-b.index;});
+ return {queue:queue,rows:items.slice(0,100).map(function(r){delete r.index;delete r.sortAt;return r;})};
+}
 function ocBankState_(props,prefix){
  var last=props.getProperty(prefix+'_LAST_OK_AT')||'',raw=props.getProperty(prefix+'_LAST_BANK_BALANCE');
  var age=last?Date.now()-Date.parse(last):NaN,verified=isFinite(age)&&age>=0&&age<2*3600000;
@@ -122,11 +160,14 @@ function operatorSnapshot(){
  if(!leads.missing&&['Lead_ID','Full_Name','Subject_Goal','Notes','Stage','Next_Action_At','Action_Status','Service'].some(function(k){return leads.headers.filter(function(h){return h===k;}).length!==1;}))throw Error('Leads schema missing or duplicate required column');
  var social=ocRows_(ss,'SocialPublishing');
  if(!social.missing&&['Job_ID','Event_ID','Channel','Scheduled_At','Status','Post_URL','Error'].some(function(k){return social.headers.filter(function(h){return h===k;}).length!==1;}))throw Error('SocialPublishing schema missing or duplicate required column');
- var events=ocRows_(ss,'Events'),config=ocRows_(ss,'Revenue_Config'),publications=ocSocialQueue_(social.rows);
+ var events=ocRows_(ss,'Events');
+ if(!events.missing&&['Event_ID','Title','Community','Status','Start_DateTime','End_DateTime'].some(function(k){return events.headers.filter(function(h){return h===k;}).length!==1;}))throw Error('Events schema missing or duplicate required column');
+ var config=ocRows_(ss,'Revenue_Config'),publications=ocSocialQueue_(social.rows);
  var cfg={};config.rows.forEach(function(r){cfg[r.Key]=r.Value;});var now=Date.now();
+ var agenda=ocEventQueue_(events.rows,now);
  return {capabilities:ocCapabilities_(p),at:new Date(now).toISOString(),hub:ss.getUrl(),leads:ocLeadSummary_(leads.rows,now),leadUrl:leads.url,
   ingestion:cfg.STATUS||'NOT_VERIFIED',social:publications.rows,socialQueue:publications.queue,socialUrl:social.url,
-  events:events.rows.filter(function(r){return r.Status==='Active';}).map(function(r){return {id:r.Event_ID,title:r.Title,date:r.Start_DateTime,community:r.Community};}),eventUrl:events.url,
+  events:agenda.rows,eventQueue:agenda.queue,eventUrl:events.url,
   banks:{osvc:ocBankState_(p,'FIO_OSVC'),druzina:ocBankState_(p,'FIO_DRUZINA')},
   recoveryPaused:p.getProperty('PLATFORM_RECOVERY_PAUSED')!=='false',
   missing:[leads.missing?'Leads':'',social.missing?'SocialPublishing':'',events.missing?'Events':''].filter(Boolean)};
