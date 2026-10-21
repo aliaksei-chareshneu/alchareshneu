@@ -97,7 +97,7 @@ function render(c){
   const intro={cs:"Dobrý den, rád/a bych se nezávazně zeptal/a na první návštěvu Družiny Moravy. Prosím potvrďte možný termín, místo, bezpečnost a podmínky. Chápu, že nejde o rezervaci.",en:"Hi, I'm interested in a possible first Družina Moravy visit. Please confirm date, venue, organiser and safety terms. I know this is not a booking.",ru:"Здравствуйте! Хочу уточнить возможность первого занятия в Дружине Моравы. Подскажите дату, место и требования безопасности. Понимаю, что это пока не бронирование.",uk:"Вітаю! Хочу запитати про можливий перший візит до Дружини Морави. Підкажіть дату, місце й вимоги безпеки. Розумію, що це не бронювання."};
   const source=new URLSearchParams(location.search).get('src')||'';
   const allowed=['FB_DM','FB_PERSONAL','FRIEND','COMMUNITY_NEWS','ESN','SEO','FAIR','HOBBY','SOC_SHORTS','INSTAGRAM','TIKTOK','YOUTUBE','TELEGRAM_NEWS','WHATSAPP_SHARE','BRNOWALKERS','GMB','NEWSLETTER','REF_MEMBER','SHARE_KIT','OFFLINE'];
-  const accepted=allowed.includes(source)||/^CH[0-9]{3}$/.test(source);
+  const accepted=allowed.includes(source)||/^(CH|NX)[0-9]{3}$/.test(source);
   const safe=accepted?' [Source: '+source+']':'';
   document.getElementById('firstContact').href="https://wa.me/420702914842?text="+encodeURIComponent(intro[c]+safe);
   document.getElementById('firstEmail').href="mailto:chereshnev.biochem@gmail.com?subject="+encodeURIComponent("Družina Moravy - first visit question"+safe)+"&body="+encodeURIComponent(intro[c]+safe);
