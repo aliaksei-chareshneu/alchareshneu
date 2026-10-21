@@ -87,6 +87,26 @@ def snapshot():
     }
 
 
+def recovery_snapshot():
+    data = snapshot()
+    data['capabilities']['recoveryState'] = 'ENABLED_NOT_VERIFIED'
+    data['capabilities']['actions'].update(previewRecovery=True, pauseRecovery=True)
+    data['recoveryDiagnostics'] = {
+        'mode': 'ENABLED_NOT_VERIFIED', 'bound': True, 'formConfigured': True,
+        'since': {'state': 'RECORDED', 'at': '2026-10-01T08:00:00.000Z'},
+        'lastOk': {'state': 'MISSING', 'at': None},
+        'lastError': {'state': 'RECORDED', 'at': '2026-10-21T07:30:00.000Z'},
+        'reason': 'ERROR_RECORDED',
+    }
+    return data
+
+
+def recovery_report(**changes):
+    return {**dict(mode='READ_ONLY', responseCount=60, missingLeads=55, batchLimit=50,
+                   exactFormTriggers=3, recovered=0, cashVerified=False, publicPostsSent=0,
+                   checkedAt='2026-10-21T08:01:00.000Z'), **changes}
+
+
 class ConsoleBrowserTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -137,6 +157,111 @@ class ConsoleBrowserTests(unittest.TestCase):
 
     def bank_button(self, action='syncOSVC'):
         return self.page.locator('button[data-action="' + action + '"]')
+
+    def test_recovery_report_fits_mobile_and_automatic_reads_do_not_rerun_it(self):
+        self.page.set_viewport_size({'width': 375, 'height': 812})
+        self.page.locator('#refresh').click()
+        self.respond(1, recovery_snapshot())
+        self.page.locator('[data-tab="system"]').click()
+        self.assertFalse(self.page.locator('#recoveryPreview').is_visible())
+        self.bank_button('previewRecovery').click()
+        self.respond(2, recovery_report())
+        self.assertEqual(self.page.locator('#recoveryResponses').inner_text(), '60')
+        self.assertEqual(self.page.locator('#recoveryMissing').inner_text(), '55')
+        self.assertEqual(self.page.locator('#recoveryTriggers').inner_text(), '3')
+        self.assertIn('несколько обработчиков', self.page.locator('#recoveryFindings').inner_text())
+        self.assertIn('21.10.2026, 10:01', self.page.locator('#recoveryCheckedAt').inner_text())
+        self.assertIn('50', self.page.locator('#recoveryBatch').inner_text())
+        previous = self.page.locator('#recoveryPreview').inner_text()
+        self.page.evaluate('fixtureTick(60000)')
+        self.respond(3, recovery_snapshot())
+        self.assertEqual(self.calls(), ['snapshot', 'snapshot', 'previewRecovery', 'snapshot'])
+        self.assertEqual(self.page.locator('#recoveryPreview').inner_text(), previous)
+        self.bank_button('previewRecovery').click()
+        self.respond(4, recovery_report(responseCount=0, missingLeads=0, exactFormTriggers=0))
+        self.assertIn('не найдено', self.page.locator('#recoveryFindings').inner_text())
+        self.assertIn('Обработчик этой формы не найден', self.page.locator('#recoveryFindings').inner_text())
+        self.assertTrue(self.page.evaluate('document.documentElement.scrollWidth <= window.innerWidth'))
+
+    def test_malformed_failed_and_late_recovery_reports_keep_the_last_complete_report(self):
+        self.page.locator('#refresh').click()
+        self.respond(1, recovery_snapshot())
+        self.page.locator('[data-tab="system"]').click()
+        self.bank_button('previewRecovery').click()
+        self.respond(2, recovery_report(exactFormTriggers=1))
+        previous = self.page.locator('#recoveryPreview').inner_text()
+        self.assertIn('приём новых заявок этим не подтверждён', previous)
+        self.bank_button('previewRecovery').click()
+        self.respond(3, recovery_report(missingLeads=61, error='<img onerror="window.injected=true">'))
+        self.assertEqual(self.page.locator('#recoveryPreview').inner_text(), previous)
+        self.assertIn('не удалось отобразить', self.page.locator('#message').inner_text())
+        self.page.locator('#refresh').click()
+        self.respond(4, recovery_snapshot())
+        self.bank_button('previewRecovery').click()
+        self.expire()
+        self.assertIn('Отчёт не получен за 90 секунд', self.page.locator('#message').inner_text())
+        self.page.locator('#refresh').click()
+        self.respond(6, recovery_snapshot())
+        self.respond(5, recovery_report(missingLeads=0))
+        self.assertEqual(self.page.locator('#recoveryPreview').inner_text(), previous)
+        self.bank_button('previewRecovery').click()
+        self.page.evaluate('fixtureCalls[7].failure({message: "PRIVATE-FIXTURE"})')
+        self.assertEqual(self.page.locator('#recoveryPreview').inner_text(), previous)
+        self.assertIn('Не удалось получить отчёт', self.page.locator('#message').inner_text())
+        self.assertNotIn('PRIVATE-FIXTURE', self.page.locator('body').inner_text())
+        self.assertIsNone(self.page.evaluate('window.injected'))
+        self.page.evaluate('fixtureTick(120000)')
+        self.assertEqual(self.calls().count('previewRecovery'), 4)
+
+    def test_recovery_markers_update_without_form_queries_and_invalid_metadata_keeps_prior_data(self):
+        self.page.locator('#refresh').click()
+        data = recovery_snapshot()
+        self.respond(1, data)
+        self.page.locator('[data-tab="system"]').click()
+        self.assertIn('отметка ошибки', self.page.locator('#recoveryDiagnostics').inner_text())
+        self.assertIn('21.10.2026, 09:30', self.page.locator('#recoveryMarkers').inner_text())
+        self.assertIn('НЕ ПРОВЕРЕНО', self.page.locator('#recovery').inner_text())
+        data['recoveryDiagnostics']['lastOk'] = {'state': 'RECORDED', 'at': '2026-10-21T07:45:00.000Z'}
+        data['recoveryDiagnostics']['reason'] = 'RECORDS_PRESENT'
+        self.page.evaluate('fixtureTick(60000)')
+        self.respond(2, data)
+        previous = self.page.locator('#recoveryMarkers').inner_text()
+        self.assertIn('текущая работа не проверена', self.page.locator('#recoveryDiagnostics').inner_text())
+        data['recoveryDiagnostics']['lastOk']['at'] = '2026-10-22T07:45:00.000Z'
+        data['banks']['osvc']['balance'] = 999
+        self.page.locator('#refresh').click()
+        self.respond(3, data)
+        self.assertEqual(self.page.locator('#recoveryMarkers').inner_text(), previous)
+        self.assertNotIn('999', self.page.locator('#osvcBalance').inner_text())
+        self.page.locator('#refresh').click()
+        self.respond(4, snapshot())
+        self.assertIn('недоступна в этой версии', self.page.locator('#recoveryDiagnostics').inner_text())
+        self.assertEqual(self.page.locator('#recoveryMarkers').inner_text(), '')
+        self.assertNotIn('previewRecovery', self.calls())
+
+    def test_pause_receipt_survives_snapshot_refresh_and_rejects_incomplete_confirmation(self):
+        self.page.locator('#refresh').click()
+        self.respond(1, recovery_snapshot())
+        self.page.locator('[data-tab="system"]').click()
+        self.bank_button('pauseRecovery').click()
+        self.respond(2, {'status': 'UNKNOWN'})
+        self.assertEqual(self.page.locator('#recoveryActionState').inner_text(), '')
+        self.assertEqual(self.calls(), ['snapshot', 'snapshot', 'pauseRecovery'])
+        self.page.locator('#refresh').click()
+        self.respond(3, recovery_snapshot())
+        self.bank_button('pauseRecovery').click()
+        self.respond(4, {'status': 'PAUSED'})
+        self.assertEqual(self.calls(), ['snapshot', 'snapshot', 'pauseRecovery', 'snapshot', 'pauseRecovery', 'snapshot'])
+        paused = recovery_snapshot()
+        paused['capabilities']['recoveryState'] = 'PAUSED'
+        paused['capabilities']['actions']['pauseRecovery'] = False
+        paused['recoveryDiagnostics']['mode'] = 'PAUSED'
+        self.respond(5, paused)
+        self.assertIn('приостановлено', self.page.locator('#recovery').inner_text())
+        self.assertIn('Подтверждение паузы получено', self.page.locator('#recoveryActionState').inner_text())
+        self.assertIn('может продолжить выполнение', self.page.locator('#recoveryActionState').inner_text())
+        self.assertTrue(self.bank_button('pauseRecovery').is_disabled())
+        self.assertNotIn('{"status"', self.page.locator('body').inner_text())
 
     def test_timeout_refresh_and_late_receipt_never_repeat_bank_request(self):
         self.bank_button().evaluate('(button) => {button.click(); button.click()}')
