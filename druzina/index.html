@@ -92,13 +92,15 @@ html[lang="cs"] #dm-team-experience [data-dm-offer-lang="cs"],html[lang="en"] #d
 #dm-team-experience a:focus-visible{outline:3px solid #f6ca7a;outline-offset:4px}
 @media(max-width:520px){#dm-team-experience a.btn{display:block;text-align:center;width:100%}}
 </style>
+<link rel="stylesheet" href="ux.css">
+<script src="ux.js" defer></script>
 </head>
-<body class="quest-site">
+<body class="quest-site dm-ux-home">
 <a class="skip-link" href="#page-content" data-exp="skip">Skip to content</a>
 <audio id="questAudio" loop preload="none"><source src="../media/druzina-quest-ambient.ogg" type="audio/ogg"><source src="../media/druzina-quest-ambient.mp3" type="audio/mpeg"></audio>
 <nav class="nav">
   <div class="wrap">
-    <div class="brand"><a href="../" style="color:var(--ink);text-decoration:none;">Aliaksei Chareshneu, PhD</a><small data-i18n="nav.brand">Družina Moravy</small></div>
+    <div class="brand"><a href="./" style="color:var(--ink);text-decoration:none;">Družina Moravy</a><small>Brno · HEMA &amp; LARP</small></div>
     <div class="nav-actions">
       <button type="button" class="quest-sound-control" data-quest-audio-toggle aria-label="Play original fantasy ambience" aria-pressed="false" title="Play music">♪</button>
       <div class="langs" id="langSwitch" role="group" aria-label="Language">
@@ -107,7 +109,7 @@ html[lang="cs"] #dm-team-experience [data-dm-offer-lang="cs"],html[lang="en"] #d
         <button data-lang="cs">CZ</button>
         <button data-lang="en">EN</button>
       </div>
-      <a id="navBookBtn" class="btn solid plausible-event-name=Register-Druzina" data-i18n="nav.bookBtn" href="https://wa.me/420702914842?text=Hello%2C%20I%27d%20like%20to%20book%20my%20first%20Druzina%20Moravy%20HEMA%20training.%20Please%20confirm%20the%20date%2C%20place%2C%20safety%20briefing%20and%20payment%20conditions." target="_blank" rel="noopener">Register / Book</a>
+      <a id="navBookBtn" class="btn solid plausible-event-name=Register-Druzina" data-i18n="nav.bookBtn" href="https://wa.me/420702914842?text=Hello%2C%20I%20am%20new%20to%20historical%20fencing%20and%20would%20like%20to%20ask%20about%20a%20possible%20Dru%C5%BEina%20Moravy%20training%20date.%20Please%20confirm%20whether%20it%20can%20take%20place%20and%20the%20safety%20and%20booking%20terms.%20I%20understand%20this%20message%20is%20not%20a%20reservation." target="_blank" rel="noopener">Register / Book</a>
     </div>
   </div>
 </nav>
@@ -147,19 +149,15 @@ html[lang="cs"] #dm-team-experience [data-dm-offer-lang="cs"],html[lang="en"] #d
 
     <div class="wrap">
       <p class="eyebrow">Brno · HEMA · LARP</p>
-      <h1 data-i18n="hero.name2">Družina Moravy — from your first sword to the shield wall</h1>
+      <h1>Družina Moravy</h1>
       <p class="tagline" data-i18n="hero.tagline">Begin with controlled sword-and-shield basics, learn to stand together, then explore a close-combat or archery path in Brno.</p>
       <p class="hero-mission" data-i18n="hero.mission">Not just a one-off sword fight: an evolving beginner training path, supportive teammates, a real shield-wall foundation and optional later roles — with safety and progress explained honestly.</p>
-      <a class="reviews-badge" href="https://maps.app.goo.gl/fEbnJHxiVoAx1v498" target="_blank" rel="noopener">Read Google reviews ↗</a>
 
       <div class="hero-ctas">
-        <a class="btn solid plausible-event-name=Register-Druzina" data-i18n="hero.ctaRegister" href="https://wa.me/420702914842?text=Hello%2C%20I%27d%20like%20to%20book%20my%20first%20Druzina%20Moravy%20HEMA%20training.%20Please%20confirm%20the%20date%2C%20place%2C%20safety%20briefing%20and%20payment%20conditions." target="_blank" rel="noopener">Register for training</a>
+        <a class="btn solid plausible-event-name=Register-Druzina" data-i18n="hero.ctaRegister" href="https://wa.me/420702914842?text=Hello%2C%20I%20am%20new%20to%20historical%20fencing%20and%20would%20like%20to%20ask%20about%20a%20possible%20Dru%C5%BEina%20Moravy%20training%20date.%20Please%20confirm%20whether%20it%20can%20take%20place%20and%20the%20safety%20and%20booking%20terms.%20I%20understand%20this%20message%20is%20not%20a%20reservation." target="_blank" rel="noopener">Register for training</a>
         <a class="btn plausible-event-name=Explore-Druzina-Tree" data-i18n="hero.ctaSkillTree" href="cesty/">Explore your training path →</a>
-      </div>
-      <div class="hero-ctas-secondary">
-        <a class="btn-quiet plausible-event-name=Explore-Druzina-Leaderboard" data-i18n="hero.ctaLeaderboard" href="leaderboard/">🏆 Hall of the Company →</a>
-        <a class="btn-quiet plausible-event-name=Announce-WA-Druzina" data-i18n="hero.ctaAnnounceWA" href="https://chat.whatsapp.com/DuTpgF22mxMFy6L1Cfrcvu" target="_blank" rel="noopener">Announcements · WhatsApp</a>
-        <a class="btn-quiet plausible-event-name=Announce-TG-Druzina" data-i18n="hero.ctaAnnounceTG" href="https://t.me/druzinamoravy_news" target="_blank" rel="noopener">Announcements · Telegram</a>
+
+      <a class="reviews-badge" href="https://maps.app.goo.gl/fEbnJHxiVoAx1v498" target="_blank" rel="noopener">Read Google reviews ↗</a>
       </div>
 
 
@@ -168,42 +166,45 @@ html[lang="cs"] #dm-team-experience [data-dm-offer-lang="cs"],html[lang="en"] #d
       <p class="dm-media-hero-link"><a href="#media" data-i18n="media.heroLink">Featured in Brněnský deník — see coverage ↓</a></p>
     </div>
   </section>
-<!-- DM-CASTLE-DEFENDERS-B2B-ENTRY-20261018: enquiries only; no paid HEMA checkout activated -->
-<section id="dm-team-experience" aria-label="Corporate Castle Defenders offer">
-  <div class="wrap"><div class="dm-team-card">
-    <div data-dm-offer-lang="cs" lang="cs">
-      <p class="dm-team-eyebrow">PRO FIRMY A SOUKROMÉ SKUPINY · BRNO</p>
-      <h2>Obránci hradu — teambuilding, který vás spojí</h2>
-      <p>90 minut příběhového týmového zážitku s instruktorem vedeným historickým šermem pro 8–20 dospělých. Jednoduché role, signály, měkčené tréninkové meče a společná „obrana brány“; bez tvrdého sparringu a bez nutnosti předchozích zkušeností.</p>
-      <p><strong>Orientačně 7 900 Kč za celou skupinu do 20 lidí</strong> (při plné skupině 395 Kč na osobu).</p>
-      <a class="btn plausible-event-name=Castle-Defenders-Enquiry" href="teambuilding/?lang=cs">Zjistit program a nezávazně poptat termín →</a>
-      <p class="dm-team-terms">Přijímáme pouze nezávazné poptávky; nové placené rezervace zatím neaktivujeme. Před potvrzením ověřujeme zákonné oprávnění poskytovatele, personál, prostor, bezpečnost a pojistné krytí.</p>
+
+<nav class="dm-jumpbar" aria-label="Explore Družina Moravy" data-dm-aria="navAria">
+  <div class="wrap">
+    <a href="#start" class="dm-jump-primary" data-dm-k="navStart">Start here</a>
+    <a href="#schedule" data-dm-k="navSchedule">Days & place</a>
+    <a href="cesty/" data-dm-k="navPath">Training paths</a>
+    <a href="ranks.html" data-dm-k="navRanks">Ranks</a>
+    <a href="#faq" data-dm-k="navFaq">Questions</a>
+    <a href="#organisation" data-dm-k="navAbout">Who we are</a>
+  </div>
+</nav>
+<section class="dm-start" id="start" aria-labelledby="dm-start-title">
+  <div class="wrap">
+    <div class="dm-start-intro"><div class="dm-intro-copy"><p class="dm-overline" data-dm-k="startEyebrow">Your first step</p>
+    <h2 id="dm-start-title" data-dm-k="startTitle">Curious about fencing? You belong here.</h2>
+    <p class="dm-start-lead" data-dm-k="startLead">No experience or equipment needed to ask. Every visit requires individual confirmation.</p></div><figure class="dm-start-photo"><picture><source srcset="../images/druzina_train.webp" type="image/webp"><img src="../images/druzina_train.jpg" loading="lazy" decoding="async" alt="Participants practising with padded swords at a Družina Moravy training" data-dm-alt="photoAlt"></picture><figcaption data-dm-k="photoCaption">Real Družina training · Brno</figcaption></figure></div>
+    <div class="dm-facts" aria-label="Practical information" data-dm-aria="factsAria">
+      <div class="dm-fact"><span class="dm-fact-icon" aria-hidden="true">📅</span><span class="dm-fact-label" data-dm-k="fact1Label">Usual days</span><span class="dm-fact-value" data-dm-k="fact1Value">Monday · Thursday · Saturday</span></div>
+      <div class="dm-fact"><span class="dm-fact-icon" aria-hidden="true">◷</span><span class="dm-fact-label" data-dm-k="fact2Label">Usual time</span><span class="dm-fact-value" data-dm-k="fact2Value">18:00 · 90 minutes</span></div>
+      <div class="dm-fact"><span class="dm-fact-icon" aria-hidden="true">⌖</span><span class="dm-fact-label" data-dm-k="fact3Label">Meeting point</span><span class="dm-fact-value" data-dm-k="fact3Value">Dukelská 157/44 · Brno-Husovice</span></div>
     </div>
-    <div data-dm-offer-lang="en" lang="en">
-      <p class="dm-team-eyebrow">FOR COMPANIES & PRIVATE GROUPS · BRNO</p>
-      <h2>Castle Defenders — teamwork with a story</h2>
-      <p>A supervised 90-minute, beginner-friendly historical-fencing experience for 8–20 adults. Roles, signals, padded practice swords and a cooperative castle-gate challenge. No hard-contact sparring.</p>
-      <p><strong>Indicative CZK 7,900 for the whole group of up to 20</strong> (CZK 395 each at full capacity).</p>
-      <a class="btn plausible-event-name=Castle-Defenders-Enquiry" href="teambuilding/?lang=en">Explore the programme and request a quote →</a>
-      <p class="dm-team-terms">Non-binding enquiries only; new paid bookings are not open. Legal provider eligibility, competent instructors, venue, safety and activity-specific insurance must be checked before commitment.</p>
+    <p class="dm-section-caption" data-dm-k="stepsEyebrow">How your first visit works</p>
+    <ol class="dm-steps">
+      <li><h3 class="dm-step-title" data-dm-k="step1Title">Tell us you are interested</h3><p class="dm-step-description" data-dm-k="step1Desc">Ask about a future date. No commitment or payment.</p></li>
+      <li><h3 class="dm-step-title" data-dm-k="step2Title">We confirm the details</h3><p class="dm-step-description" data-dm-k="step2Desc">Wait for written confirmation of time, place and safety conditions.</p></li>
+      <li><h3 class="dm-step-title" data-dm-k="step3Title">Learn at your own pace</h3><p class="dm-step-description" data-dm-k="step3Desc">Start with STOP, safety and controlled movements. No forced sparring.</p></li>
+    </ol>
+    <div class="dm-start-action">
+      <div><strong data-dm-k="actionTitle">Not sure which weapon or training suits you?</strong><p data-dm-k="actionDescription">Just tell us you are new. Paid reservations are currently paused.</p></div>
+      <a class="dm-contact-button" href="https://wa.me/420702914842?text=Hello%2C%20I%27m%20new%20to%20fencing%20and%20would%20like%20to%20ask%20about%20a%20possible%20future%20Druzina%20Moravy%20session.%20I%20understand%20this%20is%20not%20a%20booking." target="_blank" rel="noopener noreferrer" data-dm-k="contact">Ask a question on WhatsApp ↗</a>
     </div>
-    <div data-dm-offer-lang="ru" lang="ru">
-      <p class="dm-team-eyebrow">ДЛЯ КОМПАНИЙ И ЗАКРЫТЫХ ГРУПП · БРНО</p>
-      <h2>Защитники крепости — командная миссия</h2>
-      <p>90 минут сюжетного исторического фехтования для 8–20 взрослых под руководством инструкторов. Роли, сигналы, мягкое тренировочное оружие и совместная защита ворот; жёстких спаррингов нет.</p>
-      <p><strong>Ориентировочно 7 900 Kč за всю группу до 20 человек</strong> (395 Kč на человека при полном составе).</p>
-      <a class="btn plausible-event-name=Castle-Defenders-Enquiry" href="teambuilding/?lang=ru">Программа и запрос предложения →</a>
-      <p class="dm-team-terms">Пока принимаем лишь предварительные запросы, не оплачиваемые бронирования. До подтверждения проверяем право организатора, инструкторов, площадку, безопасность и страхование.</p>
+    <div class="dm-secondary-tiles" aria-label="Explore more about the club" data-dm-aria="moreAria">
+      <a href="cesty/" data-dm-k="linkTree">Explore the skill tree</a>
+      <a href="ranks.html" data-dm-k="linkRanks">How ranks work</a>
+      <a href="#media" data-dm-k="linkMedia">Our club in the press</a>
+      <a href="https://chat.whatsapp.com/DuTpgF22mxMFy6L1Cfrcvu" target="_blank" rel="noopener noreferrer" data-dm-k="linkChatWA">WhatsApp announcements</a>
+      <a href="https://t.me/druzinamoravy_news" target="_blank" rel="noopener noreferrer" data-dm-k="linkChatTG">Telegram news</a>
     </div>
-    <div data-dm-offer-lang="uk" lang="uk">
-      <p class="dm-team-eyebrow">ДЛЯ КОМПАНІЙ І ПРИВАТНИХ ГРУП · БРНО</p>
-      <h2>Захисники фортеці — спільна пригода команди</h2>
-      <p>90 хвилин історичного фехтування для 8–20 дорослих під наглядом інструкторів. Ролі, сигнали, м'які тренувальні мечі та спільний захист брами; без жорстких поєдинків.</p>
-      <p><strong>Орієнтовно 7 900 Kč за всю групу до 20 осіб</strong> (395 Kč на особу за повного складу).</p>
-      <a class="btn plausible-event-name=Castle-Defenders-Enquiry" href="teambuilding/?lang=uk">Програма та запит пропозиції →</a>
-      <p class="dm-team-terms">Поки що лише попередні запити, без платного бронювання. Перед підтвердженням перевіряємо право постачальника, інструкторів, місце, безпеку та страхування.</p>
-    </div>
-  </div></div>
+  </div>
 </section>
 <!-- DM-PRELAUNCH-LEGAL-GATE-20261018 -->
 <section id="registration-notice" aria-label="HEMA enquiries only"><div class="wrap"><style>
@@ -313,12 +314,32 @@ html[lang="en"] #registration-notice [data-notice-lang="en"],html[lang="cs"] #re
       <div class="callout">
         <p><strong>Enquire about a session; never arrive or pay without confirmation.</strong></p>
         <div style="margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-          <a class="btn solid plausible-event-name=Register-Druzina" href="https://wa.me/420702914842?text=Hello%2C%20I%27d%20like%20to%20book%20my%20first%20Druzina%20Moravy%20HEMA%20training.%20Please%20confirm%20the%20date%2C%20place%2C%20safety%20briefing%20and%20payment%20conditions." target="_blank" rel="noopener">Register for training</a>
+          <a class="btn solid plausible-event-name=Register-Druzina" href="https://wa.me/420702914842?text=Hello%2C%20I%20am%20new%20to%20historical%20fencing%20and%20would%20like%20to%20ask%20about%20a%20possible%20Dru%C5%BEina%20Moravy%20training%20date.%20Please%20confirm%20whether%20it%20can%20take%20place%20and%20the%20safety%20and%20booking%20terms.%20I%20understand%20this%20message%20is%20not%20a%20reservation." target="_blank" rel="noopener">Register for training</a>
           <a class="btn plausible-event-name=Join-Chat-Druzina" href="https://chat.whatsapp.com/DuTpgF22mxMFy6L1Cfrcvu" target="_blank" rel="noopener">Announcements (WhatsApp)</a>
         </div>
       </div>
     </div>
   </section>
+
+<section class="dm-faq" id="faq" aria-labelledby="dm-faq-title">
+  <div class="wrap dm-faq-inner">
+    <div>
+      <p class="dm-overline" data-dm-k="faqOverline">Good to know</p>
+      <h2 id="dm-faq-title" data-dm-k="faqTitle">Questions before your first visit</h2>
+      <p class="dm-faq-lead" data-dm-k="faqLead">Clear answers, without pretending an inquiry is a booking.</p>
+    </div>
+    <div class="dm-faq-list">
+      <details><summary data-dm-k="faq1Q">I have never fenced. Can I come?</summary><p data-dm-k="faq1A">Ask the organisers for the current details before attending.</p></details>
+      <details><summary data-dm-k="faq2Q">Do I need my own equipment?</summary><p data-dm-k="faq2A">Ask the organisers for the current details before attending.</p></details>
+      <details><summary data-dm-k="faq3Q">Can I simply turn up?</summary><p data-dm-k="faq3A">Ask the organisers for the current details before attending.</p></details>
+      <details><summary data-dm-k="faq4Q">Can I pay online now?</summary><p data-dm-k="faq4A">Ask the organisers for the current details before attending.</p></details>
+      <details><summary data-dm-k="faq5Q">Can I try archery?</summary><p data-dm-k="faq5A">Ask the organisers for the current details before attending.</p></details>
+      <details><summary data-dm-k="faq6Q">Can I say no to sparring?</summary><p data-dm-k="faq6A">Ask the organisers for the current details before attending.</p></details>
+      <details><summary data-dm-k="faq7Q">How are levels earned?</summary><p data-dm-k="faq7A">Ask the organisers for the current details before attending.</p></details>
+      <details><summary data-dm-k="faq8Q">Can young people participate?</summary><p data-dm-k="faq8A">Ask the organisers for the current details before attending.</p></details>
+    </div>
+  </div>
+</section>
 <section id="ranks"><div class="wrap" data-i18n="ranks"><p class="eyebrow-sm">Ranks · approved 19 Oct 2026</p>
 <h3 class="anchor-heading">Three qualifications. One fellowship.<a class="anchor-link" href="#ranks">#</a></h3>
 <p>The club now has five combat B ranks, five command C qualifications and five craft K qualifications. Operational duties are separate from earned ranks. Achievements A-01—A-10 celebrate verified contributions.</p>
@@ -411,6 +432,44 @@ html[lang="en"] #registration-notice [data-notice-lang="en"],html[lang="cs"] #re
   </div>
 </section>
 
+<!-- DM-CASTLE-DEFENDERS-B2B-ENTRY-20261018: enquiries only; no paid HEMA checkout activated -->
+<section id="dm-team-experience" aria-label="Corporate Castle Defenders offer">
+  <div class="wrap"><div class="dm-team-card">
+    <div data-dm-offer-lang="cs" lang="cs">
+      <p class="dm-team-eyebrow">PRO FIRMY A SOUKROMÉ SKUPINY · BRNO</p>
+      <h2>Obránci hradu — teambuilding, který vás spojí</h2>
+      <p>90 minut příběhového týmového zážitku s instruktorem vedeným historickým šermem pro 8–20 dospělých. Jednoduché role, signály, měkčené tréninkové meče a společná „obrana brány“; bez tvrdého sparringu a bez nutnosti předchozích zkušeností.</p>
+      <p><strong>Orientačně 7 900 Kč za celou skupinu do 20 lidí</strong> (při plné skupině 395 Kč na osobu).</p>
+      <a class="btn plausible-event-name=Castle-Defenders-Enquiry" href="teambuilding/?lang=cs">Zjistit program a nezávazně poptat termín →</a>
+      <p class="dm-team-terms">Přijímáme pouze nezávazné poptávky; nové placené rezervace zatím neaktivujeme. Před potvrzením ověřujeme zákonné oprávnění poskytovatele, personál, prostor, bezpečnost a pojistné krytí.</p>
+    </div>
+    <div data-dm-offer-lang="en" lang="en">
+      <p class="dm-team-eyebrow">FOR COMPANIES & PRIVATE GROUPS · BRNO</p>
+      <h2>Castle Defenders — teamwork with a story</h2>
+      <p>A supervised 90-minute, beginner-friendly historical-fencing experience for 8–20 adults. Roles, signals, padded practice swords and a cooperative castle-gate challenge. No hard-contact sparring.</p>
+      <p><strong>Indicative CZK 7,900 for the whole group of up to 20</strong> (CZK 395 each at full capacity).</p>
+      <a class="btn plausible-event-name=Castle-Defenders-Enquiry" href="teambuilding/?lang=en">Explore the programme and request a quote →</a>
+      <p class="dm-team-terms">Non-binding enquiries only; new paid bookings are not open. Legal provider eligibility, competent instructors, venue, safety and activity-specific insurance must be checked before commitment.</p>
+    </div>
+    <div data-dm-offer-lang="ru" lang="ru">
+      <p class="dm-team-eyebrow">ДЛЯ КОМПАНИЙ И ЗАКРЫТЫХ ГРУПП · БРНО</p>
+      <h2>Защитники крепости — командная миссия</h2>
+      <p>90 минут сюжетного исторического фехтования для 8–20 взрослых под руководством инструкторов. Роли, сигналы, мягкое тренировочное оружие и совместная защита ворот; жёстких спаррингов нет.</p>
+      <p><strong>Ориентировочно 7 900 Kč за всю группу до 20 человек</strong> (395 Kč на человека при полном составе).</p>
+      <a class="btn plausible-event-name=Castle-Defenders-Enquiry" href="teambuilding/?lang=ru">Программа и запрос предложения →</a>
+      <p class="dm-team-terms">Пока принимаем лишь предварительные запросы, не оплачиваемые бронирования. До подтверждения проверяем право организатора, инструкторов, площадку, безопасность и страхование.</p>
+    </div>
+    <div data-dm-offer-lang="uk" lang="uk">
+      <p class="dm-team-eyebrow">ДЛЯ КОМПАНІЙ І ПРИВАТНИХ ГРУП · БРНО</p>
+      <h2>Захисники фортеці — спільна пригода команди</h2>
+      <p>90 хвилин історичного фехтування для 8–20 дорослих під наглядом інструкторів. Ролі, сигнали, м'які тренувальні мечі та спільний захист брами; без жорстких поєдинків.</p>
+      <p><strong>Орієнтовно 7 900 Kč за всю групу до 20 осіб</strong> (395 Kč на особу за повного складу).</p>
+      <a class="btn plausible-event-name=Castle-Defenders-Enquiry" href="teambuilding/?lang=uk">Програма та запит пропозиції →</a>
+      <p class="dm-team-terms">Поки що лише попередні запити, без платного бронювання. Перед підтвердженням перевіряємо право постачальника, інструкторів, місце, безпеку та страхування.</p>
+    </div>
+  </div></div>
+</section>
+
   <section id="organisation">
     <div class="wrap">
       <div class="card" data-i18n="organisation">
@@ -426,7 +485,7 @@ html[lang="en"] #registration-notice [data-notice-lang="en"],html[lang="cs"] #re
 </main>
 
 <div class="mobile-cta" id="mobileCta" aria-hidden="true">
-  <a class="mobile-cta-btn" data-i18n="nav.bookBtn" href="https://wa.me/420702914842?text=Hello%2C%20I%27d%20like%20to%20book%20my%20first%20Druzina%20Moravy%20HEMA%20training.%20Please%20confirm%20the%20date%2C%20place%2C%20safety%20briefing%20and%20payment%20conditions." target="_blank" rel="noopener">Register / Book</a>
+  <a class="mobile-cta-btn" data-i18n="nav.bookBtn" href="https://wa.me/420702914842?text=Hello%2C%20I%20am%20new%20to%20historical%20fencing%20and%20would%20like%20to%20ask%20about%20a%20possible%20Dru%C5%BEina%20Moravy%20training%20date.%20Please%20confirm%20whether%20it%20can%20take%20place%20and%20the%20safety%20and%20booking%20terms.%20I%20understand%20this%20message%20is%20not%20a%20reservation." target="_blank" rel="noopener">Register / Book</a>
   <a class="mobile-cta-icon" href="https://wa.me/420702914842" target="_blank" rel="noopener" aria-label="WhatsApp">
     <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l1.3-4.1A8 8 0 1 1 9 18.6z"/><path d="M9.2 10.3c0 3 2.4 5.4 5.4 5.4"/></svg>
   </a>
@@ -654,7 +713,7 @@ en: {
       <div class="callout">
         <p><strong>Enquire about a session; never arrive or pay without confirmation.</strong></p>
         <div style="margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-          <a class="btn solid plausible-event-name=Register-Druzina" href="https://wa.me/420702914842?text=Hello%2C%20I%27d%20like%20to%20book%20my%20first%20Druzina%20Moravy%20HEMA%20training.%20Please%20confirm%20the%20date%2C%20place%2C%20safety%20briefing%20and%20payment%20conditions." target="_blank" rel="noopener">Register for training</a>
+          <a class="btn solid plausible-event-name=Register-Druzina" href="https://wa.me/420702914842?text=Hello%2C%20I%20am%20new%20to%20historical%20fencing%20and%20would%20like%20to%20ask%20about%20a%20possible%20Dru%C5%BEina%20Moravy%20training%20date.%20Please%20confirm%20whether%20it%20can%20take%20place%20and%20the%20safety%20and%20booking%20terms.%20I%20understand%20this%20message%20is%20not%20a%20reservation." target="_blank" rel="noopener">Register for training</a>
           <a class="btn plausible-event-name=Join-Chat-Druzina" href="https://chat.whatsapp.com/DuTpgF22mxMFy6L1Cfrcvu" target="_blank" rel="noopener">Announcements (WhatsApp)</a>
         </div>
       </div>`,
@@ -798,7 +857,7 @@ ru: {
       <div class="callout">
         <p><strong>Сначала запросите подтверждённую дату; без неё не приезжайте и не платите.</strong></p>
         <div style="margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-          <a class="btn solid plausible-event-name=Register-Druzina" href="https://wa.me/420702914842?text=Hello%2C%20I%27d%20like%20to%20book%20my%20first%20Druzina%20Moravy%20HEMA%20training.%20Please%20confirm%20the%20date%2C%20place%2C%20safety%20briefing%20and%20payment%20conditions." target="_blank" rel="noopener">Записаться на тренировку</a>
+          <a class="btn solid plausible-event-name=Register-Druzina" href="https://wa.me/420702914842?text=Hello%2C%20I%20am%20new%20to%20historical%20fencing%20and%20would%20like%20to%20ask%20about%20a%20possible%20Dru%C5%BEina%20Moravy%20training%20date.%20Please%20confirm%20whether%20it%20can%20take%20place%20and%20the%20safety%20and%20booking%20terms.%20I%20understand%20this%20message%20is%20not%20a%20reservation." target="_blank" rel="noopener">Записаться на тренировку</a>
           <a class="btn plausible-event-name=Join-Chat-Druzina" href="https://chat.whatsapp.com/DuTpgF22mxMFy6L1Cfrcvu" target="_blank" rel="noopener">Анонсы (WhatsApp)</a>
         </div>
       </div>`,
@@ -942,7 +1001,7 @@ cs: {
       <div class="callout">
         <p><strong>Nejdříve si vyžádejte potvrzený termín; bez něj nechoďte ani neplaťte.</strong></p>
         <div style="margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-          <a class="btn solid plausible-event-name=Register-Druzina" href="https://wa.me/420702914842?text=Hello%2C%20I%27d%20like%20to%20book%20my%20first%20Druzina%20Moravy%20HEMA%20training.%20Please%20confirm%20the%20date%2C%20place%2C%20safety%20briefing%20and%20payment%20conditions." target="_blank" rel="noopener">Přihlásit se na trénink</a>
+          <a class="btn solid plausible-event-name=Register-Druzina" href="https://wa.me/420702914842?text=Hello%2C%20I%20am%20new%20to%20historical%20fencing%20and%20would%20like%20to%20ask%20about%20a%20possible%20Dru%C5%BEina%20Moravy%20training%20date.%20Please%20confirm%20whether%20it%20can%20take%20place%20and%20the%20safety%20and%20booking%20terms.%20I%20understand%20this%20message%20is%20not%20a%20reservation." target="_blank" rel="noopener">Přihlásit se na trénink</a>
           <a class="btn plausible-event-name=Join-Chat-Druzina" href="https://chat.whatsapp.com/DuTpgF22mxMFy6L1Cfrcvu" target="_blank" rel="noopener">Oznámení (WhatsApp)</a>
         </div>
       </div>`,
@@ -1086,7 +1145,7 @@ uk: {
       <div class="callout">
         <p><strong>Спершу запитайте підтверджену дату; без неї не приїжджайте й не платіть.</strong></p>
         <div style="margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-          <a class="btn solid plausible-event-name=Register-Druzina" href="https://wa.me/420702914842?text=Hello%2C%20I%27d%20like%20to%20book%20my%20first%20Druzina%20Moravy%20HEMA%20training.%20Please%20confirm%20the%20date%2C%20place%2C%20safety%20briefing%20and%20payment%20conditions." target="_blank" rel="noopener">Записатися на тренування</a>
+          <a class="btn solid plausible-event-name=Register-Druzina" href="https://wa.me/420702914842?text=Hello%2C%20I%20am%20new%20to%20historical%20fencing%20and%20would%20like%20to%20ask%20about%20a%20possible%20Dru%C5%BEina%20Moravy%20training%20date.%20Please%20confirm%20whether%20it%20can%20take%20place%20and%20the%20safety%20and%20booking%20terms.%20I%20understand%20this%20message%20is%20not%20a%20reservation." target="_blank" rel="noopener">Записатися на тренування</a>
           <a class="btn plausible-event-name=Join-Chat-Druzina" href="https://chat.whatsapp.com/DuTpgF22mxMFy6L1Cfrcvu" target="_blank" rel="noopener">Оголошення (WhatsApp)</a>
         </div>
       </div>`,

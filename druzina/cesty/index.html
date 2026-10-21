@@ -69,8 +69,10 @@ section.path{margin:60px auto 55px}section.path>.eyebrow{text-align:center;displ
 @media(max-width:770px){.rotation-weeks{grid-template-columns:1fr}.rotation-week{padding:15px}.rotation-slot{font-size:.87rem}}
 </style>
 <script src="../../quest-audio.js" defer></script>
+<link rel="stylesheet" href="../ux.css">
+<script src="../ux.js" defer></script>
 </head>
-<body data-locale="cs">
+<body class="dm-ux-path" data-locale="cs">
 <audio id="questAudio" loop preload="none"><source src="../../media/druzina-quest-ambient.ogg" type="audio/ogg"><source src="../../media/druzina-quest-ambient.mp3" type="audio/mpeg"></audio>
 <a class="skip" href="#content" data-t="skip">Přejít na obsah</a>
 <header class="site-nav"><div class="wrap nav-inner">
@@ -102,7 +104,21 @@ section.path{margin:60px auto 55px}section.path>.eyebrow{text-align:center;displ
   </div>
 </section>
 <div class="wrap">
-  <section id="strom" aria-labelledby="treeHeading">
+
+<section class="dm-path-bridge" aria-labelledby="dm-path-bridge-heading">
+  <div class="wrap">
+    <p class="dm-overline" data-dm-k="pathEyebrow">Jednoduchý začátek</p>
+    <h2 id="dm-path-bridge-heading" data-dm-k="pathTitle">Tři kroky bez tlaku na soutěžení</h2>
+    <div class="dm-path-steps">
+      <article class="dm-path-step"><b data-dm-k="path1Label">NÁVŠTĚVA 1</b><h3 data-dm-k="path1Title">Bezpečný základ</h3><p data-dm-k="path1Desc">Trénuj vlastním tempem.</p></article>
+<article class="dm-path-step"><b data-dm-k="path2Label">NÁVŠTĚVA 2</b><h3 data-dm-k="path2Title">Poznej svou cestu</h3><p data-dm-k="path2Desc">Trénuj vlastním tempem.</p></article>
+<article class="dm-path-step"><b data-dm-k="path3Label">NÁVŠTĚVA 3</b><h3 data-dm-k="path3Title">Trénink a zpětná vazba</h3><p data-dm-k="path3Desc">Trénuj vlastním tempem.</p></article>
+    </div>
+    <p class="dm-path-note" data-dm-k="pathNote">Výukové cesty jsou pilotní koncept. Tato stránka neumožňuje placenou rezervaci.</p>
+    <div class="dm-path-back"><a href="../#start" data-dm-k="pathHome">← Klub a informace pro návštěvu</a><a href="../ranks.html" data-dm-k="pathRanks">Ověřená pravidla hodností →</a></div>
+  </div>
+</section>
+<section id="strom" aria-labelledby="treeHeading">
     <div class="intro"><p class="eyebrow" data-t="treeEyebrow">Dvě cesty, jedna družina</p><h2 id="treeHeading" data-t="treeHeading">Najdi svou roli</h2></div>
     <div class="tree">
       <div class="tree-head"><span class="overline" data-t="legend">Připravená výuková mapa · veřejný náhled</span></div>
