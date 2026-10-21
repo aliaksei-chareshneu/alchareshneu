@@ -14,10 +14,10 @@ Included changes:
 Release procedure:
 1. Reconnect the authorized device; freshly pull the bound project into a new folder.
 2. Run all tests in this PR. Run `node prepare-console-bank-release.cjs FRESH_PULL_DIR NEW_RELEASE_DIR CONFIRMED_BOUND_SCRIPT_ID`.
-3. Inspect diff: only the console server and bank/reconciliation modules should change. Retain the source pull as the backup. Stop if other work conflicts.
+3. Inspect diff: only the console HTML/server and bank/reconciliation modules should change. Retain the source pull as the backup. Stop if other work conflicts.
 4. Push from NEW_RELEASE_DIR, then pull again into another new directory and compare every source hash.
 5. Owner opens the console. Verify module availability and worksheet schemas before manual bank reading. Configure secrets privately only if actually absent; never put them in source, chat or test logs.
-6. Run one manual read for each configured entity. Verify the intended account response, append deduplication, checkpoints and read-only reconciliation. No automatic timer until this passes.
+6. Run one manual read for each configured entity. Verify the intended account response, append deduplication, checkpoints and read-only reconciliation. No automatic bank-import timer until this passes.
 
 Important: bank module installation is not bank configuration, receipt of money or a verified payment. Existing bank worksheet schemas must match exactly; this package must fail rather than migrate financial records implicitly. The complete platform remains unfinished.
 
@@ -27,4 +27,10 @@ Successful Operations tests runs now publish an `imperion-console-sources-<commi
 
 Both bank adapters now use the same resolved Hub binding as the console's owner check, including projects configured through RP without the legacy SPREADSHEET_ID global. They check owner-only access again after the external bank response, reject future/impossible sync markers, and preserve an unknown balance when its stored value is whitespace. The draft worker enforces its 1–3 job limit on direct function calls as well as CLI calls.
 
-Current local verification: 75 Node tests, eight Python worker fixtures and five offline Chromium scenarios pass. Complete synthetic adapter flows exercise both entities, immediate polling limits, repeated imports without duplicate rows, failed append/retry/checkpoints, RP-only binding and sharing changes during a request. These results do not establish installation or live bank access.
+Current local verification: 81 Node tests, eight Python worker fixtures and eight offline Chromium scenarios pass. Complete synthetic adapter flows exercise both entities, immediate polling limits, repeated imports without duplicate rows, failed append/retry/checkpoints, RP-only binding and sharing changes during a request. Console tests also cover automatic reads, disabling them, hidden-page pauses, error recovery and bank requests still pending after a timeout. These results do not establish installation or live bank access.
+
+## Automatic console reads — 21 October 2026
+
+After the first successful snapshot, the open console reads existing Hub data once per minute. The checkbox above the tabs' content turns automatic reads off for that dialog; manual Refresh remains available. Reads pause while the page is hidden, another request is running or a bank request is still pending, including after a timeout followed by manual Refresh. Errors stop automatic reads until a successful manual Refresh. Returning to a visible page schedules at most one overdue read, without replaying missed intervals.
+
+Automatic reads call only `operatorSnapshot`. They do not fetch bank statements, reconcile or settle payments, publish content, recover leads or install server triggers. Bank imports remain explicit button actions. This source update still requires the reviewed bound-project installation above.

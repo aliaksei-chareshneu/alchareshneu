@@ -2,20 +2,50 @@
 <style>*{box-sizing:border-box}body{margin:0;background:#f4f5f7;color:#15243b;font:15px/1.55 system-ui,sans-serif}header{padding:24px 28px;background:#15243b;color:white;display:flex;justify-content:space-between;align-items:center}header small{color:#b7c6db;letter-spacing:.12em}h1{font-size:26px;margin:4px 0}main{max-width:1100px;margin:auto;padding:24px}nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}button,a.action{font:inherit;border:1px solid #ccd5df;border-radius:8px;padding:9px 14px;background:white;color:#15243b;cursor:pointer;text-decoration:none}button:disabled{opacity:.5;cursor:not-allowed}button.active{background:#176754;color:white;border-color:#176754}section{display:none}section.active{display:block}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.card{background:white;border:1px solid #e0e5eb;border-radius:12px;padding:20px;margin-bottom:16px}.value{font-size:30px;font-weight:650;margin:7px 0}.muted{color:#66778c}h2{font-size:20px}h3{font-size:16px;margin-top:0}.table{overflow-x:auto}table{border-collapse:collapse;width:100%;text-align:left}th,td{padding:12px 8px;border-bottom:1px solid #e5e9ed;vertical-align:top;overflow-wrap:anywhere}th{font-size:12px;text-transform:uppercase;color:#66778c}a{color:#176754}.notice{padding:12px 16px;border-radius:8px;background:#fff0cc;margin:14px 0;white-space:pre-wrap}.good{background:#e4f4ee}.actions{display:flex;gap:10px;flex-wrap:wrap}#message{display:none}footer{color:#66778c;font-size:12px;padding:14px 0}@media(max-width:650px){.grid{grid-template-columns:1fr}main{padding:14px}header{padding:18px}h1{font-size:22px}th,td{font-size:12px;padding:8px 5px}}</style></head><body>
 <header><div><small>IMPERION / PRIVATE OPERATIONS</small><h1>Заказы, деньги, сообщество</h1></div><button id="refresh">Обновить</button></header>
 <main><nav aria-label="Разделы"><button data-tab="money" class="active">Деньги</button><button data-tab="leads">Заявки</button><button data-tab="content">Публикации</button><button data-tab="community">События</button><button data-tab="system">Система</button></nav>
+<div class="actions"><label><input id="autoRefresh" type="checkbox" checked> Обновлять данные автоматически</label><span id="autoRefreshStatus" class="muted" role="status">Ожидание первой загрузки…</span></div>
 <div id="message" class="notice" role="status" aria-live="polite"></div><div id="bankPending" class="notice" role="status" aria-live="polite" style="display:none"></div><p id="updated" class="muted">Загрузка данных владельца…</p>
 <section id="money" class="active"><div class="grid"><div class="card"><h3>Остаток · OSVČ</h3><div id="osvcBalance" class="value">—</div><div id="osvcState" class="muted">Не проверено</div></div><div class="card"><h3>Остаток · Družina z.s.</h3><div id="ngoBalance" class="value">—</div><div id="ngoState" class="muted">Не проверено</div></div><div class="card"><h3>Подтверждённые заказы</h3><div class="value">—</div><div class="muted">Сумма требует подтверждений заказов</div></div></div><div class="notice">Банковский остаток не равен заработанной выручке, прибыли или свободным средствам гранта. Деньги OSVČ и объединения учитываются отдельно.</div><div class="actions"><button data-action="syncOSVC">Проверить банк OSVČ</button><button data-action="syncDruzina">Проверить банк Družina</button><button data-action="previewPayments">Сверить оплаты Družina</button></div><div class="card"><p id="paymentState" class="muted">Сверка оплат ещё не запускалась.</p><div id="paymentTable" class="table"></div></div></section>
 <section id="leads"><div class="card"><h2>Заявки</h2><p id="leadCount"></p><p id="ingestion" class="muted"></p><div id="leadTable" class="table"></div><p><a id="leadLink">Открыть существующую CRM</a></p></div></section>
 <section id="content"><div class="card"><h2>Очередь публикаций</h2><p class="muted">Запланировано ≠ опубликовано. Подтверждение учитывается по статусу и ссылке.</p><div id="socialTable" class="table"></div><p><a id="socialLink">Открыть очередь и медиаматериалы</a></p></div></section>
 <section id="community"><div class="card"><h2>Активные события</h2><div id="eventTable" class="table"></div><p><a id="eventLink">Регистрации и события в Community Hub</a></p></div></section>
 <section id="system"><div class="card"><h2>Контроль работы</h2><p id="recovery"></p><div class="actions"><button data-action="previewRecovery">Проверить пропущенные заявки</button><button data-action="pauseRecovery">Приостановить восстановление</button></div><p class="muted">Ключи хранятся только в Script Properties. Панель не показывает токены и не изменяет публичные цены, права на медиа или статусы оплаты.</p><div id="missing"></div></div></section>
-<footer>Данные запрашиваются из существующего Community Hub при обновлении. Автоматическое обновление страницы не включено.</footer></main>
+<footer>Автообновление читает данные из Community Hub раз в минуту. Для загрузки новой банковской выписки используйте кнопку проверки банка.</footer></main>
 <script>
 'use strict';
 const $=id=>document.getElementById(id);
 let capabilities=null,busy=false,rpcSequence=0;
+const AUTO_REFRESH_MS=60000;
+let autoRefreshTimer=null,autoRefreshVersion=0,lastSnapshotAt=null,autoRefreshFailed=false;
 const pendingBankRequests=Object.create(null);
 const isBankAction=action=>action==='syncOSVC'||action==='syncDruzina';
 function bankRequestPending(){return Object.keys(pendingBankRequests).length>0;}
+function stopAutoRefresh(){
+ if(autoRefreshTimer!==null)clearTimeout(autoRefreshTimer);
+ autoRefreshTimer=null;autoRefreshVersion++;
+}
+function autoRefreshPauseReason(){
+ if(!$('autoRefresh').checked)return 'Автообновление выключено';
+ if(busy)return 'Выполняется запрос…';
+ if(bankRequestPending())return 'Пауза: ожидается ответ банка';
+ if(autoRefreshFailed)return 'Пауза после ошибки: нажмите «Обновить»';
+ if(document.visibilityState==='hidden')return 'Пауза: вкладка неактивна';
+ if(lastSnapshotAt===null)return 'Ожидание первой загрузки…';
+ return '';
+}
+function planAutoRefresh(){
+ stopAutoRefresh();
+ const reason=autoRefreshPauseReason();
+ $('autoRefreshStatus').textContent=reason||'Раз в минуту';
+ if(reason)return;
+ const version=autoRefreshVersion;
+ const delay=Math.max(1000,AUTO_REFRESH_MS-Math.max(0,Date.now()-lastSnapshotAt));
+ autoRefreshTimer=setTimeout(()=>{
+  if(version!==autoRefreshVersion)return;
+  autoRefreshTimer=null;
+  if(autoRefreshPauseReason()){planAutoRefresh();return;}
+  rpc('operatorSnapshot');
+ },delay);
+}
 function controls(){
  const pending=bankRequestPending();
  document.querySelectorAll('button').forEach(b=>{
@@ -53,18 +83,18 @@ function rpc(method,arg){
  if(method!=='operatorSnapshot'&&isBankAction(arg)&&bankRequestPending()){message('Предыдущий банковский запрос ещё не завершён. Дождитесь ответа сервера.',true);return;}
  if(method!=='operatorSnapshot'&&(!capabilities||capabilities.actions[arg]!==true)){message('Действие недоступно в этом проекте.',true);return;}
  const seq=++rpcSequence;let finished=false,timer;
- busy=true;controls();$('message').style.display='none';
- const done=()=>{if(finished||seq!==rpcSequence)return false;finished=true;clearTimeout(timer);busy=false;controls();return true;};
- const fail=text=>{if(finished||seq!==rpcSequence)return;capabilities=null;if(done()){$('updated').textContent='Обновление не завершено · ранее показанные данные могут быть устаревшими';message(text,true);}};
+ busy=true;controls();planAutoRefresh();$('message').style.display='none';
+ const done=()=>{if(finished||seq!==rpcSequence)return false;finished=true;clearTimeout(timer);busy=false;controls();planAutoRefresh();return true;};
+ const fail=text=>{if(finished||seq!==rpcSequence)return;capabilities=null;autoRefreshFailed=true;if(done()){$('updated').textContent='Обновление не завершено · ранее показанные данные могут быть устаревшими';message(text,true);}};
  const releaseBank=()=>{if(pendingBankRequests[arg]!==seq)return false;delete pendingBankRequests[arg];controls();return true;};
  if(!(window.google&&google.script&&google.script.run)){fail('Откройте панель из меню IMPERION в существующем Google Sheet. Локальный файл не подключён к данным.');return;}
  timer=setTimeout(()=>{if(finished||seq!==rpcSequence)return;fail(method==='operatorSnapshot'?'Google не ответил за 30 секунд. Нажмите «Обновить», чтобы повторить чтение данных.':'Ответ не получен за 90 секунд. Результат действия НЕ ПРОВЕРЕН; не повторяйте его до проверки данных. Сервер мог продолжить выполнение.');},method==='operatorSnapshot'?30000:90000);
  try{
  const runner=google.script.run.withSuccessHandler(d=>{
   const bankCompleted=releaseBank();
-  if(finished||seq!==rpcSequence){if(bankCompleted&&!busy)message('Получен запоздавший ответ на банковский запрос. Нажмите «Обновить», чтобы проверить данные.');return;}
+  if(finished||seq!==rpcSequence){if(bankCompleted&&!busy){message('Получен запоздавший ответ на банковский запрос. Нажмите «Обновить», чтобы проверить данные.');planAutoRefresh();}return;}
   try{
-   if(method==='operatorSnapshot')render(d);
+   if(method==='operatorSnapshot'){render(d);lastSnapshotAt=Date.now();autoRefreshFailed=false;}
    else if(arg==='previewPayments'){validatePaymentPreview(d);table('paymentTable',['Транзакция','Оплата','Сумма Kč','Результат'],d.rows.map(r=>[r.transaction,r.payment,r.amount,r.status]));$('paymentState').textContent='Сверка загруженной выписки: '+d.total+' операций. Статусы оплаты не изменены.'+(d.truncated?' Показаны первые 100.':'')+(!d.bank.fresh?' Выписка требует обновления.':'');}
    else message(JSON.stringify(d));
   }catch(_){fail('Ответ получен, но данные не удалось отобразить. Нажмите «Обновить».');return;}
@@ -72,7 +102,7 @@ function rpc(method,arg){
   if(method!=='operatorSnapshot'&&(arg==='syncOSVC'||arg==='syncDruzina'||arg==='pauseRecovery'))rpc('operatorSnapshot');
  }).withFailureHandler(()=>{
   const bankCompleted=releaseBank();
-  if(finished||seq!==rpcSequence){if(bankCompleted&&!busy)message('Получен ответ с ошибкой на предыдущий банковский запрос. Результат НЕ ПРОВЕРЕН; обновите данные.',true);return;}
+  if(finished||seq!==rpcSequence){if(bankCompleted&&!busy){autoRefreshFailed=true;message('Получен ответ с ошибкой на предыдущий банковский запрос. Результат НЕ ПРОВЕРЕН; обновите данные.',true);planAutoRefresh();}return;}
   fail(method==='operatorSnapshot'?'Не удалось прочитать данные. Проверьте вход владельца и подключение к Google.':'Сервер сообщил об ошибке. Результат действия НЕ ПРОВЕРЕН; обновите данные перед повтором.');
  });
  if(method!=='operatorSnapshot'&&isBankAction(arg)){pendingBankRequests[arg]=seq;controls();}
@@ -80,4 +110,7 @@ function rpc(method,arg){
  }catch(_){fail('Не удалось отправить запрос в Google. Результат НЕ ПРОВЕРЕН; обновите данные.');}
 }
 document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button,section').forEach(n=>n.classList.remove('active'));b.classList.add('active');$(b.dataset.tab).classList.add('active');});document.querySelectorAll('[data-action]').forEach(b=>b.onclick=()=>rpc('operatorAction',b.dataset.action));$('refresh').onclick=()=>rpc('operatorSnapshot');rpc('operatorSnapshot');
+$('autoRefresh').onchange=planAutoRefresh;
+document.addEventListener('visibilitychange',planAutoRefresh);
+window.addEventListener('pagehide',stopAutoRefresh);
 </script></body></html>
