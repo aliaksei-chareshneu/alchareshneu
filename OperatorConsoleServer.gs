@@ -15,11 +15,39 @@ function ocRows_(ss,name){
  return {missing:false,headers:h,url:ss.getUrl()+'#gid='+sh.getSheetId(),rows:data.map(function(r){var x={};h.forEach(function(k,i){x[k]=r[i] instanceof Date?r[i].toISOString():r[i];});return x;})};
 }
 function ocIsTest_(r){return /TEST-ONLY|QA TEST|SYNTHETIC|NO.CONTACT/i.test([r.Lead_ID,r.Full_Name,r.Subject_Goal,r.Notes].join(' '));}
-function ocLeadSummary_(rows){
- var valid=rows.filter(function(r){return !ocIsTest_(r);}),stages={};
+/** Do not guess a timezone for text timestamps or normalize impossible dates. */
+function ocLeadDeadline_(value,now,today){
+ var text=value instanceof Date?(isFinite(value.getTime())?value.toISOString():'Invalid Date'):String(value==null?'':value).trim();
+ if(!text)return {state:'NO_DATE',day:'',at:0,text:''};
+ var day=text.slice(0,10),midnight=Date.parse(day+'T00:00:00Z');
+ var validDay=/^\d{4}-\d{2}-\d{2}$/.test(day)&&isFinite(midnight)&&new Date(midnight).toISOString().slice(0,10)===day;
+ if(validDay&&text===day)return {state:day<today?'OVERDUE':day===today?'TODAY':'UPCOMING',day:day,at:Infinity,text:text};
+ var match=text.match(/^\d{4}-\d{2}-\d{2}T(\d{2}):(\d{2})(?::(\d{2})(?:\.\d{1,3})?)?(Z|[+-](\d{2}):(\d{2}))$/);
+ if(!validDay||!match||Number(match[1])>23||Number(match[2])>59||Number(match[3]||0)>59||
+    Number(match[5]||0)>14||Number(match[6]||0)>59||Number(match[5]||0)===14&&Number(match[6]||0)!==0){
+  return {state:'INVALID_DATE',day:'',at:0,text:text};
+ }
+ var at=Date.parse(text);
+ if(!isFinite(at))return {state:'INVALID_DATE',day:'',at:0,text:text};
+ var localDay=Utilities.formatDate(new Date(at),'Europe/Prague','yyyy-MM-dd');
+ return {state:at<now?'OVERDUE':localDay===today?'TODAY':'UPCOMING',day:localDay,at:at,text:text};
+}
+function ocLeadSummary_(rows,now){
+ now=now===undefined?Date.now():Number(now);
+ if(!isFinite(now))throw Error('Invalid lead queue clock');
+ var records=rows.filter(function(r){return Object.keys(r).some(function(k){return r[k]!=null&&String(r[k]).trim()!=='';});});
+ var valid=records.filter(function(r){return !ocIsTest_(r);}),stages={};
  valid.forEach(function(r){var k=String(r.Stage||'Unknown');stages[k]=(stages[k]||0)+1;});
- return {count:valid.length,excludedTests:rows.length-valid.length,stages:stages,
-   needsAction:valid.filter(function(r){return r.Next_Action_At&&!/^(CLOSED|HOLD|DORMANT|WAIT)/.test(r.Action_Status||'')&&r.Stage!=='Lost'&&r.Stage!=='Won';}).slice(0,40).map(function(r){return {id:r.Lead_ID,service:r.Service,stage:r.Stage,next:r.Next_Action_At,status:r.Action_Status};}),
+ var today=Utilities.formatDate(new Date(now),'Europe/Prague','yyyy-MM-dd');
+ var rank={OVERDUE:0,TODAY:1,INVALID_DATE:2,NO_DATE:3,UPCOMING:4};
+ var candidates=valid.filter(function(r){return !/^(CLOSED|HOLD|DORMANT|WAIT)/.test(String(r.Action_Status||'').trim().toUpperCase())&&!/^(LOST|WON)$/.test(String(r.Stage||'').trim().toUpperCase());})
+  .map(function(r,i){return {row:r,index:i,deadline:ocLeadDeadline_(r.Next_Action_At,now,today)};});
+ var queue={total:candidates.length,overdue:0,today:0,upcoming:0,noDate:0,invalidDate:0,shown:Math.min(candidates.length,40),limit:40,truncated:candidates.length>40,timeZone:'Europe/Prague'};
+ var fields={OVERDUE:'overdue',TODAY:'today',UPCOMING:'upcoming',NO_DATE:'noDate',INVALID_DATE:'invalidDate'};
+ candidates.forEach(function(c){queue[fields[c.deadline.state]]++;});
+ candidates.sort(function(a,b){var x=a.deadline,y=b.deadline;return rank[x.state]-rank[y.state]||(x.day<y.day?-1:x.day>y.day?1:0)||(x.at<y.at?-1:x.at>y.at?1:0)||a.index-b.index;});
+ return {count:valid.length,excludedTests:records.length-valid.length,stages:stages,queue:queue,
+   needsAction:candidates.slice(0,40).map(function(c){var r=c.row;return {id:r.Lead_ID,service:r.Service,stage:r.Stage,next:c.deadline.text,status:r.Action_Status,dueState:c.deadline.state};}),
    cash:null,contracted:null,weighted30:null};
 }
 function ocSocialSummary_(rows){
@@ -54,9 +82,11 @@ function ocCapabilities_(p){
 
 function operatorSnapshot(){
  ocOwner_();var ss=SpreadsheetApp.openById(ocId_()),p=PropertiesService.getScriptProperties();
- var leads=ocRows_(ss,'Leads'),social=ocRows_(ss,'SocialPublishing'),events=ocRows_(ss,'Events'),config=ocRows_(ss,'Revenue_Config');
- var cfg={};config.rows.forEach(function(r){cfg[r.Key]=r.Value;});
- return {capabilities:ocCapabilities_(p),at:new Date().toISOString(),hub:ss.getUrl(),leads:ocLeadSummary_(leads.rows),leadUrl:leads.url,
+ var leads=ocRows_(ss,'Leads');
+ if(!leads.missing&&['Lead_ID','Full_Name','Subject_Goal','Notes','Stage','Next_Action_At','Action_Status','Service'].some(function(k){return leads.headers.filter(function(h){return h===k;}).length!==1;}))throw Error('Leads schema missing or duplicate required column');
+ var social=ocRows_(ss,'SocialPublishing'),events=ocRows_(ss,'Events'),config=ocRows_(ss,'Revenue_Config');
+ var cfg={};config.rows.forEach(function(r){cfg[r.Key]=r.Value;});var now=Date.now();
+ return {capabilities:ocCapabilities_(p),at:new Date(now).toISOString(),hub:ss.getUrl(),leads:ocLeadSummary_(leads.rows,now),leadUrl:leads.url,
   ingestion:cfg.STATUS||'NOT_VERIFIED',social:ocSocialSummary_(social.rows),socialUrl:social.url,
   events:events.rows.filter(function(r){return r.Status==='Active';}).map(function(r){return {id:r.Event_ID,title:r.Title,date:r.Start_DateTime,community:r.Community};}),eventUrl:events.url,
   banks:{osvc:ocBankState_(p,'FIO_OSVC'),druzina:ocBankState_(p,'FIO_DRUZINA')},
