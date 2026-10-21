@@ -5,7 +5,7 @@
   const translations = {
     en: {
       pageTitle: 'Ranks & achievements', rankSubtitle: 'Approved rules v1.1 · voluntary pilot from 1 November 2026',
-      photoAlt:'People learning with padded swords and shields at a real Družina training',photoCaption:'Real Družina training · Brno',navAria:'Browse club information',factsAria:'Training at a glance',moreAria:'More about the club',rankAria:'Jump to a rank category',navStart:'Start here', navSchedule:'Days & place', navPath:'Training paths', navRanks:'Ranks', navFaq:'Questions', navAbout:'Who we are',
+      photoAlt:'People learning with padded swords and shields at a real Družina training',photoCaption:'Real Družina training · Brno',navAria:'Browse club information',factsAria:'Training at a glance',moreAria:'More about the club',rankAria:'Jump to a rank category',joinLink:'Join the community',navStart:'Start here', navSchedule:'Days & place', navPath:'Training paths', navRanks:'Ranks', navFaq:'Questions', navAbout:'Who we are',
       startEyebrow:'Your first step', startTitle:'Curious about fencing? You belong here.',
       startLead:'No experience or special equipment needed to ask. We practise with safety, respect and teamwork. Regular dates are indicative — every visit needs individual confirmation.',
       fact1Label:'Usual days',fact1Value:'Monday · Thursday · Saturday',
@@ -44,7 +44,7 @@
     },
     cs: {
       pageTitle:'Hodnosti a úspěchy',rankSubtitle:'Schválená pravidla v1.1 · dobrovolný pilot od 1. listopadu 2026',
-      photoAlt:'Účastníci skutečného tréninku Družiny cvičí s měkčenými meči a štíty',photoCaption:'Skutečný trénink Družiny · Brno',navAria:'Informace o klubu',factsAria:'Trénink v kostce',moreAria:'Další informace o klubu',rankAria:'Přeskočit na kategorii hodností',navStart:'Začínáme',navSchedule:'Kdy a kde',navPath:'Výcvikové cesty',navRanks:'Hodnosti',navFaq:'Otázky',navAbout:'O nás',
+      photoAlt:'Účastníci skutečného tréninku Družiny cvičí s měkčenými meči a štíty',photoCaption:'Skutečný trénink Družiny · Brno',navAria:'Informace o klubu',factsAria:'Trénink v kostce',moreAria:'Další informace o klubu',rankAria:'Přeskočit na kategorii hodností',joinLink:'Zapojit se do družiny',navStart:'Začínáme',navSchedule:'Kdy a kde',navPath:'Výcvikové cesty',navRanks:'Hodnosti',navFaq:'Otázky',navAbout:'O nás',
       startEyebrow:'První krok',startTitle:'Zajímá tě šerm? U nás můžeš začít.',
       startLead:'K nezávaznému dotazu nepotřebuješ zkušenosti ani výbavu. Cvičíme bezpečně, s respektem a jako tým. Rozvrh je orientační — každý termín musí být potvrzen.',
       fact1Label:'Obvyklé dny',fact1Value:'Pondělí · čtvrtek · sobota',
@@ -82,7 +82,7 @@
     },
     ru: {
       pageTitle:'Звания и достижения',rankSubtitle:'Утверждённые правила v1.1 · добровольный пилот с 1 ноября 2026',
-      photoAlt:'Участники настоящей тренировки Дружины учатся с мягкими мечами и щитами',photoCaption:'Настоящая тренировка Дружины · Брно',navAria:'Разделы о клубе',factsAria:'Кратко о занятиях',moreAria:'Подробнее о клубе',rankAria:'Переход к категории званий',navStart:'Новичкам',navSchedule:'Когда и где',navPath:'Пути развития',navRanks:'Звания',navFaq:'Вопросы',navAbout:'О клубе',
+      photoAlt:'Участники настоящей тренировки Дружины учатся с мягкими мечами и щитами',photoCaption:'Настоящая тренировка Дружины · Брно',navAria:'Разделы о клубе',factsAria:'Кратко о занятиях',moreAria:'Подробнее о клубе',rankAria:'Переход к категории званий',joinLink:'Вступить в сообщество',navStart:'Новичкам',navSchedule:'Когда и где',navPath:'Пути развития',navRanks:'Звания',navFaq:'Вопросы',navAbout:'О клубе',
       startEyebrow:'Начать просто',startTitle:'Хочешь попробовать фехтование? Тебе сюда.',
       startLead:'Чтобы спросить о тренировке, не нужны опыт и своё снаряжение. Учимся безопасно, с уважением друг к другу. Расписание ориентировочное: каждый визит подтверждается отдельно.',
       fact1Label:'Обычно тренируемся',fact1Value:'Понедельник · четверг · суббота',
@@ -120,7 +120,7 @@
     },
     uk: {
       pageTitle:'Звання та досягнення',rankSubtitle:'Затверджені правила v1.1 · добровільний пілот з 1 листопада 2026',
-      photoAlt:'Учасники тренування Дружини вправляються з м’якими мечами й щитами',photoCaption:'Справжнє тренування Дружини · Брно',navAria:'Розділи про клуб',factsAria:'Коротко про тренування',moreAria:'Докладніше про клуб',rankAria:'Перейти до категорії звань',navStart:'Новачкам',navSchedule:'Коли та де',navPath:'Шляхи навчання',navRanks:'Звання',navFaq:'Запитання',navAbout:'Про клуб',
+      photoAlt:'Учасники тренування Дружини вправляються з м’якими мечами й щитами',photoCaption:'Справжнє тренування Дружини · Брно',navAria:'Розділи про клуб',factsAria:'Коротко про тренування',moreAria:'Докладніше про клуб',rankAria:'Перейти до категорії звань',joinLink:'Долучитися до спільноти',navStart:'Новачкам',navSchedule:'Коли та де',navPath:'Шляхи навчання',navRanks:'Звання',navFaq:'Запитання',navAbout:'Про клуб',
       startEyebrow:'Перший крок',startTitle:'Хочеш спробувати фехтування? Почни тут.',
       startLead:'Щоб запитати про тренування, не потрібні досвід або власне спорядження. Навчаємося безпечно й з повагою. Розклад орієнтовний — кожен візит підтверджується окремо.',
       fact1Label:'Звичайні дні',fact1Value:'Понеділок · четвер · субота',
@@ -157,7 +157,7 @@
       rankCombat:'Бій',rankCommand:'Командування',rankCraft:'Ремесло',rankAwards:'Досягнення',rankSwipe:'← Таблицю можна гортати вбік →'
     },
     be: {
-      rankAria:'Катэгорыі званняў',pageTitle:'Званні і дасягненні',rankSubtitle:'Зацверджаныя правілы v1.1 · добраахвотны пілот з 1 лістапада 2026',
+      rankAria:'Катэгорыі званняў',joinLink:'Далучыцца да супольнасці',pageTitle:'Званні і дасягненні',rankSubtitle:'Зацверджаныя правілы v1.1 · добраахвотны пілот з 1 лістапада 2026',
       rankSummaryTitle:'Розныя таленты — справядлівая ацэнка',
       rankSummaryLead:'Бой, кіраўніцтва і рамяство — розныя шляхі развіцця. Кваліфікацыю пацвярджаюць рэальнымі навыкамі і доказамі, а не аплатай.',
       rankBTitle:'B · Бой',rankBText:'Правераныя навыкі, трэніроўкі і дні бітваў.',
@@ -168,7 +168,7 @@
       rankCombat:'Бой',rankCommand:'Камандаванне',rankCraft:'Рамяство',rankAwards:'Дасягненні',rankSwipe:'← Табліцу можна гартаць убок →'
     },
     sk: {
-      rankAria:'Kategórie hodností',pageTitle:'Hodnosti a úspechy',rankSubtitle:'Schválené pravidlá v1.1 · dobrovoľný pilot od 1. novembra 2026',
+      rankAria:'Kategórie hodností',joinLink:'Zapojiť sa do komunity',pageTitle:'Hodnosti a úspechy',rankSubtitle:'Schválené pravidlá v1.1 · dobrovoľný pilot od 1. novembra 2026',
       rankSummaryTitle:'Rôzne schopnosti, spravodlivé hodnotenie',
       rankSummaryLead:'Boj, vedenie tímu aj remeslo sú rôzne cesty rozvoja. Kvalifikácia sa overuje reálnymi schopnosťami a dôkazmi, nie platbou.',
       rankBTitle:'B · Boj',rankBText:'Overené zručnosti, tréningy a dni bitiek.',
