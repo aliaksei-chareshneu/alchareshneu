@@ -27,7 +27,7 @@ Successful Operations tests runs now publish an `imperion-console-sources-<commi
 
 Both bank adapters now use the same resolved Hub binding as the console's owner check, including projects configured through RP without the legacy SPREADSHEET_ID global. They check owner-only access again after the external bank response, reject future/impossible sync markers, and preserve an unknown balance when its stored value is whitespace. The draft worker enforces its 1–3 job limit on direct function calls as well as CLI calls.
 
-Current local verification: 93 Node tests, eight Python worker fixtures and 12 offline Chromium scenarios pass (113 total). Complete synthetic adapter flows exercise both entities, immediate polling limits, repeated imports without duplicate rows, failed append/retry/checkpoints, RP-only binding and sharing changes during a request. Console tests also cover automatic reads, disabling them, hidden-page pauses, error recovery, pending bank requests, and the lead queue below. These results do not establish installation or live bank access.
+Current local verification: 104 Node tests, eight Python worker fixtures and 16 offline Chromium scenarios pass (128 total). Complete synthetic adapter flows exercise both entities, immediate polling limits, repeated imports without duplicate rows, failed append/retry/checkpoints, RP-only binding and sharing changes during a request. Console tests also cover automatic reads, error recovery, pending bank requests, the lead queue and publication monitoring below. These results do not establish installation or live bank access.
 
 ## Automatic console reads — 21 October 2026
 
@@ -42,3 +42,13 @@ The Leads tab now sorts all eligible rows before selecting the first 40. Overdue
 Deadlines use Europe/Prague. `YYYY-MM-DD` means the entire local day; timestamps require an explicit `Z` or UTC offset, while native spreadsheet Date cells use the existing ISO conversion. Impossible dates, timezone-free text timestamps and unsupported formats are shown for review rather than assigned guessed deadlines. Each snapshot recalculates priorities without changing CRM cells, contacting leads or creating triggers.
 
 The snapshot rejects missing or duplicate required Leads columns instead of treating a broken schema as missing task dates. No schema migration is performed. The client validates queue totals and displayed rows before replacing the previous snapshot; an absent sheet or older server module is explicitly labeled unavailable rather than shown as a verified zero-task queue.
+
+## Publication monitoring — 21 October 2026
+
+The Publications tab now prioritizes records requiring attention, then pending work, drafts, inactive jobs and stored confirmations. The server classifies the full existing SocialPublishing sheet before returning at most 100 rows. Counters cover all nonempty records; a truncation notice links to the existing Hub queue. No publisher is called, no retry is scheduled and no status is written.
+
+Confirmation means a stored `PUBLISHED_VERIFIED` status, a valid absolute HTTPS receipt and no conflicting error. A provider ID, scheduled/queued status, legacy publication status or missing receipt does not qualify. Receipt links reject embedded credentials, malformed hosts and common token/signature parameters; links open with `noopener noreferrer`. These checks do not fetch a receipt or revalidate publication with a provider.
+
+Raw provider errors are no longer included in the server response. Fixed diagnostic categories explain service limits, errors, manual action, unknown statuses and unverified results. The known `QUEUED_ONLY` note remains pending, while a stored error alongside confirmation requires review. Inspect details privately in the existing Hub before retrying. Explicitly zoned schedule timestamps display in Prague time; other values remain as recorded in Hub, without guessed timezone conversion.
+
+Required publication columns must appear exactly once. The client validates counters, rows and receipt links before replacing its previous snapshot. Missing sheets and older modules show unavailable diagnostics; legacy rows still cannot create unsafe links or confirmations from conflicting errors. The mobile table keeps the result first and scrolls horizontally within the page. All new fixtures are synthetic; this revision still requires reviewed installation in the bound Apps Script project.

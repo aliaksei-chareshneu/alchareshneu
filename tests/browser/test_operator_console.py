@@ -71,8 +71,11 @@ def snapshot():
                   'needsAction': [
             {'id': 'TEST-ONLY', 'service': 'Fixture service',
              'stage': 'New', 'next': '2026-10-22', 'dueState': 'UPCOMING'}]},
-        'social': [{'channel': 'Fixture', 'event': 'TEST-ONLY',
-                    'status': 'DRAFT', 'verified': False}],
+        'social': [{'id': 'TEST-ONLY-JOB', 'channel': 'Fixture', 'event': 'TEST-ONLY',
+                    'status': 'DRAFT', 'verified': False, 'state': 'DRAFT', 'reason': 'DRAFT',
+                    'receipt': '', 'scheduled': '2026-10-22T08:00:00Z'}],
+        'socialQueue': {'total': 1, 'attention': 0, 'pending': 0, 'draft': 1,
+                        'inactive': 0, 'verified': 0, 'shown': 1, 'limit': 100, 'truncated': False},
         'events': [{'title': 'TEST-ONLY event', 'date': '2026-10-22',
                     'community': 'Fixture'}],
         'missing': [], 'ingestion': 'TEST_ONLY',
@@ -324,6 +327,98 @@ class ConsoleBrowserTests(unittest.TestCase):
         self.page.locator('#refresh').click()
         self.respond(2, snapshot())
         self.assertEqual(self.page.locator('#leadQueue').inner_text(), previous)
+
+    def test_publication_monitor_shows_problems_totals_and_safe_receipt_links_on_mobile(self):
+        data = snapshot()
+        template = data['social'][0]
+        data['social'] = [dict(template, id='LIMIT-FIRST', status='ERROR_LIMIT', state='ATTENTION', reason='PROVIDER_LIMIT',
+                               error='Bearer RAW_FIXTURE_SECRET'),
+                          dict(template, id='WAITING', status='SCHEDULED_PENDING', state='PENDING', reason='WAITING')]
+        data['social'] += [dict(template, id='DRAFT-' + str(i)) for i in range(97)]
+        data['social'].append(dict(template, id='CONFIRMED', status='PUBLISHED_VERIFIED', state='VERIFIED', reason='VERIFIED',
+                                   verified=True, receipt='https://example.org/posts/fixture-42'))
+        data['socialQueue'] = {'total': 130, 'attention': 1, 'pending': 1, 'draft': 97,
+                               'inactive': 0, 'verified': 31, 'shown': 100, 'limit': 100, 'truncated': True}
+        self.page.locator('#refresh').click()
+        self.respond(1, data)
+        self.page.locator('[data-tab="content"]').click()
+        self.page.set_viewport_size({'width': 375, 'height': 812})
+        summary = self.page.locator('#socialQueue').inner_text()
+        self.assertIn('требуют внимания: 1', summary)
+        self.assertIn('подтверждено в Hub: 31', summary)
+        self.assertIn('Показано 100 из 130 — полная очередь в Hub', summary)
+        first = self.page.locator('#socialTable tr').nth(1).inner_text()
+        self.assertIn('Требует внимания', first)
+        self.assertIn('LIMIT-FIRST', first)
+        self.assertIn('Ограничение сервиса', first)
+        self.assertIn('10:00:00 · Прага', first)
+        self.assertNotIn('RAW_FIXTURE_SECRET', self.page.locator('#socialTable').inner_text())
+        anchor = self.page.locator('#socialTable a')
+        self.assertEqual(anchor.count(), 1)
+        self.assertEqual(anchor.get_attribute('href'), 'https://example.org/posts/fixture-42')
+        self.assertEqual(anchor.get_attribute('target'), '_blank')
+        self.assertEqual(set(anchor.get_attribute('rel').split()), {'noopener', 'noreferrer'})
+        self.assertTrue(self.page.evaluate('document.documentElement.scrollWidth <= window.innerWidth'))
+        self.page.locator('#socialTable').focus()
+        self.page.locator('#socialTable').evaluate('(table) => {table.scrollLeft = table.scrollWidth}')
+        self.assertGreater(self.page.locator('#socialTable').evaluate('(table) => table.scrollLeft'), 0)
+        self.assertEqual(self.calls(), ['snapshot', 'snapshot'])
+
+    def test_automatic_snapshot_updates_publication_confirmation_without_publishing(self):
+        data = snapshot()
+        data['social'][0].update(status='PUBLISHED_VERIFIED', state='VERIFIED', reason='VERIFIED', verified=True,
+                                  receipt='https://example.org/posts/fixture-42')
+        data['socialQueue'].update(draft=0, verified=1)
+        self.page.evaluate('fixtureTick(60000)')
+        self.respond(1, data)
+        self.page.locator('[data-tab="content"]').click()
+        self.assertIn('подтверждено в Hub: 1', self.page.locator('#socialQueue').inner_text())
+        self.assertEqual(self.page.locator('#socialTable a').count(), 1)
+        self.assertEqual(self.calls(), ['snapshot', 'snapshot'])
+
+    def test_legacy_publication_data_and_missing_sheet_do_not_invent_confirmations(self):
+        data = snapshot()
+        del data['socialQueue']
+        template = {'id': 'LEGACY', 'channel': '<img src="https://example.org/x" onerror="window.injected=true">',
+                    'event': 'TEST-ONLY', 'status': 'PUBLISHED_VERIFIED', 'verified': True, 'scheduled': ''}
+        data['social'] = [dict(template, receipt='javascript:alert(1)', error='RAW_FIXTURE_SECRET'),
+                          dict(template, receipt='https://example.org/posts/conflict', error='RAW_FIXTURE_SECRET'),
+                          dict(template, receipt='https://example.org/posts/confirmed', error='')]
+        self.page.locator('#refresh').click()
+        self.respond(1, data)
+        self.page.locator('[data-tab="content"]').click()
+        self.assertIn('недоступна в этой версии', self.page.locator('#socialQueue').inner_text())
+        self.assertTrue(self.page.locator('#socialTable tr').nth(1).inner_text().startswith('Не подтверждено'))
+        self.assertTrue(self.page.locator('#socialTable tr').nth(2).inner_text().startswith('Не подтверждено'))
+        self.assertEqual(self.page.locator('#socialTable a').count(), 1)
+        self.assertNotIn('RAW_FIXTURE_SECRET', self.page.locator('#socialTable').inner_text())
+        self.assertEqual(self.page.locator('#socialTable img').count(), 0)
+        self.assertIsNone(self.page.evaluate('window.injected'))
+        data['missing'] = ['SocialPublishing']
+        self.page.locator('#refresh').click()
+        self.respond(2, data)
+        self.assertIn('Очередь недоступна', self.page.locator('#socialQueue').inner_text())
+        self.assertNotIn('Всего: 0', self.page.locator('#socialQueue').inner_text())
+        self.assertEqual(self.page.locator('#socialTable td').count(), 0)
+
+    def test_broken_publication_queue_preserves_previous_data_and_pauses_automatic_reads(self):
+        self.page.locator('[data-tab="content"]').click()
+        previous = self.page.locator('#socialTable').inner_text()
+        summary = self.page.locator('#socialQueue').inner_text()
+        data = snapshot()
+        data['socialQueue']['verified'] = 999
+        data['banks']['osvc']['balance'] = 999
+        self.page.locator('#refresh').click()
+        self.respond(1, data)
+        self.assertEqual(self.page.locator('#socialTable').inner_text(), previous)
+        self.assertEqual(self.page.locator('#socialQueue').inner_text(), summary)
+        self.assertNotIn('999', self.page.locator('#osvcBalance').inner_text())
+        self.assertIn('не удалось отобразить', self.page.locator('#message').inner_text())
+        self.page.evaluate('fixtureTick(120000)')
+        self.assertEqual(self.calls(), ['snapshot', 'snapshot'])
+        self.page.locator('#refresh').click()
+        self.respond(2, snapshot())
+        self.assertEqual(self.page.locator('#socialTable').inner_text(), previous)
 
 
 if __name__ == '__main__':
