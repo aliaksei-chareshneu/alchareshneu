@@ -1,0 +1,57 @@
+name: Operations tests
+
+on:
+  push:
+    paths:
+      - '**.gs'
+      - 'OperatorConsole.html'
+      - 'prepare-console-bank-release.cjs'
+      - 'shortfactory_autopilot.py'
+      - 'tests/**'
+      - '.github/workflows/operations-tests.yml'
+  pull_request:
+    paths:
+      - '**.gs'
+      - 'OperatorConsole.html'
+      - 'prepare-console-bank-release.cjs'
+      - 'shortfactory_autopilot.py'
+      - 'tests/**'
+      - '.github/workflows/operations-tests.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  operations-checks:
+    runs-on: ubuntu-latest
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: tests/browser/requirements.txt
+      - name: Test Apps Script modules and console callbacks
+        run: node --test tests/*.test.cjs
+      - name: Test draft worker fixtures
+        run: python -m unittest discover -s tests -p 'test_*.py' -v
+      - name: Install browser test dependencies
+        run: |
+          python -m pip install -r tests/browser/requirements.txt
+          python -m playwright install --with-deps chromium
+      - name: Test console in offline Chromium
+        env:
+          CONSOLE_BROWSER_ARTIFACTS: ${{ runner.temp }}/console-browser-fixtures
+        run: python -m unittest discover -s tests/browser -p 'test_*.py' -v
+      - name: Save synthetic browser screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: console-browser-fixtures-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/console-browser-fixtures
+          if-no-files-found: ignore
