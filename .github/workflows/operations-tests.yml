@@ -6,6 +6,7 @@ on:
       - '**.gs'
       - 'OperatorConsole.html'
       - 'prepare-console-bank-release.cjs'
+      - 'package_console_release.py'
       - 'shortfactory_autopilot.py'
       - 'tests/**'
       - 'CONSOLE-BANK-RELEASE.md'
@@ -16,6 +17,7 @@ on:
       - '**.gs'
       - 'OperatorConsole.html'
       - 'prepare-console-bank-release.cjs'
+      - 'package_console_release.py'
       - 'shortfactory_autopilot.py'
       - 'tests/**'
       - 'CONSOLE-BANK-RELEASE.md'
@@ -42,7 +44,7 @@ jobs:
           cache-dependency-path: tests/browser/requirements.txt
       - name: Test Apps Script modules and console callbacks
         run: node --test tests/*.test.cjs
-      - name: Test draft worker fixtures
+      - name: Test Python worker and release fixtures
         run: python -m unittest discover -s tests -p 'test_*.py' -v
       - name: Install browser test dependencies
         run: |
@@ -53,15 +55,13 @@ jobs:
           CONSOLE_BROWSER_ARTIFACTS: ${{ runner.temp }}/console-browser-fixtures
         run: python -m unittest discover -s tests/browser -p 'test_*.py' -v
       - name: Package reviewed console sources
-        shell: bash
-        run: |
-          set -euo pipefail
-          package_dir="$RUNNER_TEMP/imperion-console-sources"
-          mkdir -p "$package_dir"
-          cp OperatorConsole.html OperatorConsoleServer.gs FioOSVC.gs FioDruzinaConsole.gs PaymentReconciliation.gs prepare-console-bank-release.cjs CONSOLE-BANK-RELEASE.md "$package_dir/"
-          git rev-parse HEAD > "$package_dir/SOURCE_COMMIT"
-          cd "$package_dir"
-          sha256sum SOURCE_COMMIT OperatorConsole.html OperatorConsoleServer.gs FioOSVC.gs FioDruzinaConsole.gs PaymentReconciliation.gs prepare-console-bank-release.cjs CONSOLE-BANK-RELEASE.md > SHA256SUMS
+        env:
+          RELEASE_COMMIT: ${{ github.sha }}
+        run: python package_console_release.py build --commit "$RELEASE_COMMIT" --output-dir "$RUNNER_TEMP/imperion-console-sources"
+      - name: Verify packaged sources against the checked-out commit
+        env:
+          RELEASE_COMMIT: ${{ github.sha }}
+        run: python package_console_release.py verify --commit "$RELEASE_COMMIT" "$RUNNER_TEMP/imperion-console-sources"
       - name: Save reviewed console source package
         uses: actions/upload-artifact@v4
         with:
