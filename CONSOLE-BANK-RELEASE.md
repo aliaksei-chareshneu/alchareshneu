@@ -27,10 +27,18 @@ Successful Operations tests runs now publish an `imperion-console-sources-<commi
 
 Both bank adapters now use the same resolved Hub binding as the console's owner check, including projects configured through RP without the legacy SPREADSHEET_ID global. They check owner-only access again after the external bank response, reject future/impossible sync markers, and preserve an unknown balance when its stored value is whitespace. The draft worker enforces its 1–3 job limit on direct function calls as well as CLI calls.
 
-Current local verification: 81 Node tests, eight Python worker fixtures and eight offline Chromium scenarios pass. Complete synthetic adapter flows exercise both entities, immediate polling limits, repeated imports without duplicate rows, failed append/retry/checkpoints, RP-only binding and sharing changes during a request. Console tests also cover automatic reads, disabling them, hidden-page pauses, error recovery and bank requests still pending after a timeout. These results do not establish installation or live bank access.
+Current local verification: 93 Node tests, eight Python worker fixtures and 12 offline Chromium scenarios pass (113 total). Complete synthetic adapter flows exercise both entities, immediate polling limits, repeated imports without duplicate rows, failed append/retry/checkpoints, RP-only binding and sharing changes during a request. Console tests also cover automatic reads, disabling them, hidden-page pauses, error recovery, pending bank requests, and the lead queue below. These results do not establish installation or live bank access.
 
 ## Automatic console reads — 21 October 2026
 
 After the first successful snapshot, the open console reads existing Hub data once per minute. The checkbox above the tabs' content turns automatic reads off for that dialog; manual Refresh remains available. Reads pause while the page is hidden, another request is running or a bank request is still pending, including after a timeout followed by manual Refresh. Errors stop automatic reads until a successful manual Refresh. Returning to a visible page schedules at most one overdue read, without replaying missed intervals.
 
 Automatic reads call only `operatorSnapshot`. They do not fetch bank statements, reconcile or settle payments, publish content, recover leads or install server triggers. Bank imports remain explicit button actions. This source update still requires the reviewed bound-project installation above.
+
+## Lead deadline queue — 21 October 2026
+
+The Leads tab now sorts all eligible rows before selecting the first 40. Overdue work comes first, followed by today's deadlines, invalid dates, missing dates and future deadlines. Counters include the entire eligible queue, and the console says how many rows are shown with a link to the existing CRM for the full list. Empty rows and synthetic records are excluded; the existing closed/held/dormant/waiting action states and Won/Lost stages are excluded regardless of case or surrounding whitespace.
+
+Deadlines use Europe/Prague. `YYYY-MM-DD` means the entire local day; timestamps require an explicit `Z` or UTC offset, while native spreadsheet Date cells use the existing ISO conversion. Impossible dates, timezone-free text timestamps and unsupported formats are shown for review rather than assigned guessed deadlines. Each snapshot recalculates priorities without changing CRM cells, contacting leads or creating triggers.
+
+The snapshot rejects missing or duplicate required Leads columns instead of treating a broken schema as missing task dates. No schema migration is performed. The client validates queue totals and displayed rows before replacing the previous snapshot; an absent sheet or older server module is explicitly labeled unavailable rather than shown as a verified zero-task queue.

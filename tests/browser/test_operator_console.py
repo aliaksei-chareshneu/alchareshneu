@@ -64,9 +64,13 @@ def snapshot():
             'osvc': {'balance': 0, 'configured': True, 'lastSuccess': ''},
             'druzina': {'balance': None, 'configured': True, 'lastSuccess': ''},
         },
-        'leads': {'count': 1, 'excludedTests': 0, 'needsAction': [
+        'leads': {'count': 1, 'excludedTests': 0,
+                  'queue': {'total': 1, 'overdue': 0, 'today': 0, 'upcoming': 1,
+                            'noDate': 0, 'invalidDate': 0, 'shown': 1, 'limit': 40,
+                            'truncated': False, 'timeZone': 'Europe/Prague'},
+                  'needsAction': [
             {'id': 'TEST-ONLY', 'service': 'Fixture service',
-             'stage': 'New', 'next': '2026-10-22'}]},
+             'stage': 'New', 'next': '2026-10-22', 'dueState': 'UPCOMING'}]},
         'social': [{'channel': 'Fixture', 'event': 'TEST-ONLY',
                     'status': 'DRAFT', 'verified': False}],
         'events': [{'title': 'TEST-ONLY event', 'date': '2026-10-22',
@@ -243,6 +247,83 @@ class ConsoleBrowserTests(unittest.TestCase):
         self.page.evaluate('fixtureTick(60000)')
         self.assertEqual(self.calls(), ['snapshot', 'snapshot', 'snapshot', 'snapshot'])
         self.respond(3, snapshot())
+
+    def test_lead_queue_shows_priority_totals_truncation_and_untrusted_dates(self):
+        data = snapshot()
+        rows = [
+            {'id': 'OVERDUE-FIRST', 'next': '2026-10-20T08:00:00Z', 'dueState': 'OVERDUE'},
+            {'id': 'TODAY', 'next': '2026-10-21', 'dueState': 'TODAY'},
+            {'id': 'REVIEW-DATE', 'next': '<img src="https://example.org/x" onerror="window.injected=true">', 'dueState': 'INVALID_DATE'},
+            {'id': 'NO-DATE', 'next': '', 'dueState': 'NO_DATE'},
+        ] + [{'id': 'FUTURE-' + str(i), 'next': '2026-10-22', 'dueState': 'UPCOMING'} for i in range(36)]
+        data['leads'] = {'count': 45, 'excludedTests': 0, 'needsAction': rows,
+                         'queue': {'total': 45, 'overdue': 1, 'today': 1, 'upcoming': 41,
+                                   'noDate': 1, 'invalidDate': 1, 'shown': 40, 'limit': 40,
+                                   'truncated': True, 'timeZone': 'Europe/Prague'}}
+        self.page.locator('#refresh').click()
+        self.respond(1, data)
+        self.page.set_viewport_size({'width': 375, 'height': 812})
+        self.page.locator('[data-tab="leads"]').click()
+        self.assertIn('Показано 40 из 45 — полный список в CRM', self.page.locator('#leadQueue').inner_text())
+        self.assertIn('просрочено: 1', self.page.locator('#leadQueue').inner_text())
+        cells = self.page.locator('#leadTable tr').nth(1).locator('td').all_text_contents()
+        self.assertEqual(cells[1], 'OVERDUE-FIRST')
+        self.assertIn('10:00:00', cells[4])
+        self.assertEqual(cells[0], 'Просрочено')
+        self.assertIn('21.10.2026 · весь день', self.page.locator('#leadTable').inner_text())
+        self.assertIn('Проверьте дату', self.page.locator('#leadTable').inner_text())
+        self.assertEqual(self.page.locator('#leadTable img').count(), 0)
+        self.assertIsNone(self.page.evaluate('window.injected'))
+        self.assertTrue(self.page.evaluate('document.documentElement.scrollWidth <= window.innerWidth'))
+        self.assertTrue(self.page.locator('#leadTable').evaluate('(table) => table.scrollWidth > table.clientWidth'))
+        self.page.locator('#leadTable').focus()
+        self.page.locator('#leadTable').evaluate('(table) => {table.scrollLeft = table.scrollWidth}')
+        self.assertGreater(self.page.locator('#leadTable').evaluate('(table) => table.scrollLeft'), 0)
+
+    def test_automatic_snapshot_updates_lead_priority_without_actions(self):
+        data = snapshot()
+        data['at'] = '2026-10-22T08:00:00Z'
+        data['leads']['queue'].update(upcoming=0, today=1)
+        data['leads']['needsAction'][0]['dueState'] = 'TODAY'
+        self.page.evaluate('fixtureTick(60000)')
+        self.respond(1, data)
+        self.page.locator('[data-tab="leads"]').click()
+        self.assertIn('сегодня: 1', self.page.locator('#leadQueue').inner_text())
+        self.assertEqual(self.page.locator('#leadTable tr').nth(1).locator('td').first.inner_text(), 'Сегодня')
+        self.assertEqual(self.calls(), ['snapshot', 'snapshot'])
+
+    def test_missing_leads_or_older_module_never_shows_zero_as_a_verified_queue(self):
+        data = snapshot()
+        del data['leads']['queue']
+        del data['leads']['needsAction'][0]['dueState']
+        self.page.locator('#refresh').click()
+        self.respond(1, data)
+        self.page.locator('[data-tab="leads"]').click()
+        self.assertIn('недоступен в этой версии', self.page.locator('#leadQueue').inner_text())
+        data['missing'] = ['Leads']
+        self.page.locator('#refresh').click()
+        self.respond(2, data)
+        self.assertIn('Данные заявок недоступны', self.page.locator('#leadCount').inner_text())
+        self.assertIn('Очередь недоступна', self.page.locator('#leadQueue').inner_text())
+        self.assertNotIn('Открытых задач: 0', self.page.locator('#leadQueue').inner_text())
+        self.assertEqual(self.page.locator('#leadTable td').count(), 0)
+
+    def test_broken_lead_queue_keeps_prior_data_until_manual_recovery(self):
+        self.page.locator('[data-tab="leads"]').click()
+        previous = self.page.locator('#leadQueue').inner_text()
+        data = snapshot()
+        data['leads']['queue']['total'] = 999
+        data['banks']['osvc']['balance'] = 999
+        self.page.locator('#refresh').click()
+        self.respond(1, data)
+        self.assertEqual(self.page.locator('#leadQueue').inner_text(), previous)
+        self.assertNotIn('999', self.page.locator('#osvcBalance').inner_text())
+        self.assertIn('не удалось отобразить', self.page.locator('#message').inner_text())
+        self.page.evaluate('fixtureTick(120000)')
+        self.assertEqual(self.calls(), ['snapshot', 'snapshot'])
+        self.page.locator('#refresh').click()
+        self.respond(2, snapshot())
+        self.assertEqual(self.page.locator('#leadQueue').inner_text(), previous)
 
 
 if __name__ == '__main__':

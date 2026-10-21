@@ -102,3 +102,25 @@ test('late bank error releases the pending request without replacing newer data'
  assert.match(t.e.message.textContent,/НЕ ПРОВЕРЕН/);
  assert.deepEqual(t.calls,['syncOSVC','read']);
 });
+
+test('invalid lead queue metadata or deadlines cannot replace the previous snapshot',()=>{
+ const breakQueue=[d=>d.leads.queue.total++,d=>d.leads.queue.shown=0,d=>d.leads.queue.timeZone='UTC',
+  d=>d.leads.needsAction[0].dueState='__proto__',d=>delete d.leads.needsAction[0].next,
+  d=>d.leads.needsAction[0].next='not a deadline',d=>d.leads.needsAction[0].next='2026-10-22T09:00'];
+ for(const change of breakQueue){
+  const t=setup(),data=snapshot();
+  data.leads.queue={total:1,overdue:0,today:0,upcoming:1,noDate:0,invalidDate:0,shown:1,limit:40,truncated:false,timeZone:'Europe/Prague'};
+  data.leads.needsAction=[{id:'fixture',next:'2026-10-22',dueState:'UPCOMING'}];
+  change(data);t.s.payload=data;
+  t.run('document.getElementById("leadQueue").textContent="previous queue";document.getElementById("osvcBalance").textContent="100 Kč"');
+  assert.throws(()=>t.run('render(payload)'),/lead queue/);
+  assert.equal(t.e.leadQueue.textContent,'previous queue');assert.equal(t.e.osvcBalance.textContent,'100 Kč');
+ }
+});
+
+test('older snapshot modules clear stale priority counts and label unavailable queue data',()=>{
+ const t=setup();t.s.payload=snapshot();
+ t.run('document.getElementById("leadQueue").textContent="previous queue";table=()=>{};link=()=>{};render(payload)');
+ assert.match(t.e.leadQueue.textContent,/недоступен в этой версии/);
+ assert.doesNotMatch(t.e.leadQueue.textContent,/Открытых задач: 0/);
+});
