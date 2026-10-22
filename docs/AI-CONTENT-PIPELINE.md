@@ -40,6 +40,23 @@ node ops/ai-content-pipeline.cjs --input <approved-existing-row.json> --live --t
 
 Validation blocks unknown rights, internal/private material, non-public source approval, already verified publication, missing owner identity and unsupported locales. Outputs are `REVIEW_REQUIRED` or `QA_BLOCKED`, never `PUBLISHED_VERIFIED`.
 
+## Local Ollama CPU fallback (verified on Windows 22 Oct 2026)
+
+The authorised Windows machine `zmrzlina` already has **Ollama 0.40.6** and `qwen3:0.6b` installed. Initially inference returned HTTP 500 due to a CUDA runner crash (`device kernel image is invalid`). The *native* Ollama API successfully generated `PIPELINE_CPU_OK` after setting `options.num_gpu=0`; `ollama ps` independently reported **100% CPU**. A local `imperion-qwen3-cpu:0.6b` alias is also installed as an optional workaround, but the code below uses the portable installed model ID `qwen3:0.6b`, with per-request CPU forcing.
+
+This adds an **optional** translation adapter to the EXISTING `SocialPublishing.Job_ID` process. It uses only `http://127.0.0.1:11434/api/tags` (local existence check) and `http://127.0.0.1:11434/api/generate` (three translations of the synthetic PUBLIC fixture). It does **not** start Ollama, install models, contact Ollama Cloud, read CRM, post content, or call paid providers. It deliberately forces `num_gpu=0` and `think=false` in each request to avoid the verified GPU crash and excessive reasoning. Model ID is pinned to the already-installed local `qwen3:0.6b`; no environment flag can substitute a cloud model.
+
+```powershell
+ollama list
+node ops/ai-local-smoke.cjs                     # remains 100% offline preview
+node ops/ai-local-smoke.cjs --ollama             # local live synthetic only
+node ops/ai-content-pipeline.cjs --input ops/ai-content-synthetic.json --live --translation ollama
+```
+
+Exit `0` and `LOCAL_MODEL_RESPONDED_FACT_TOKENS_PASS` mean **only** that model output preserved the protected numeric/URL tokens, not that the translation is correct or publishable; manual CZ/RU/UK review remains mandatory. Exit `2` / `QA_BLOCKED` means a material fact was omitted. This ~0.6B model is a low-resource fallback, not a substitute for proofreading. Ollama health/version alone never counts as a successful model response. No auto-publication, automatic fallback to paid APIs, or CRM writes are allowed.
+
+The same source and legal gates, existing `Job_ID`, unchanged `source_fingerprint`, and human review apply. If another machine has no local `qwen3:0.6b`, return `LOCAL_MODEL_NOT_QWEN3` instead of downloading anything. For better quality, the independently staged Hy-MT2 translation route remains available but its separate binary/model runtime must be verified before use.
+
 ## Optional paid remote providers (OFF by default)
 
 - Xiaomi MiMo V2.6: `MIMO_API_KEY`, optional `MIMO_MODEL=mimo-v2.6-flash` (or `mimo-v2.6-pro`). Public official API `https://api.xiaomimimo.com/v1/chat/completions`.
