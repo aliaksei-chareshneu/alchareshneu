@@ -57,7 +57,8 @@ async function localModelId(fetchImpl, backend = 'hy-mt2') {
     ? entries.map(x => backend === 'ollama' ? x?.name : x?.id).filter(x => typeof x === 'string' && x.trim())
     : [];
   if (!ids.length) throw Error('LOCAL_MODEL_ID_MISSING');
-  const matched = backend === 'ollama' ? ids.find(id => id === 'qwen3:0.6b')
+  const matched = backend === 'ollama'
+    ? (ids.find(id => id === 'qwen3:4b') || ids.find(id => id === 'qwen3:0.6b'))
     : ids.find(id => /hy[-_]?mt2/i.test(id));
   if (!matched) throw Error(backend === 'ollama' ? 'LOCAL_MODEL_NOT_QWEN3' : 'LOCAL_MODEL_NOT_HYMT2');
   return matched;
@@ -79,7 +80,8 @@ async function smoke(options = {}) {
     };
   }
   const modelId = await localModelId(fetchSafe, backend);
-  const draft = await runPipeline(job, { live: true, translationBackend: backend, env: {}, fetchImpl: fetchSafe });
+  const env = backend === 'ollama' ? { OLLAMA_MODEL: modelId } : {};
+  const draft = await runPipeline(job, { live: true, translationBackend: backend, env, fetchImpl: fetchSafe });
   if (draft.published !== false || draft.post_url !== null ||
       draft.existing_job_id !== EXPECTED_ID ||
       TARGETS.some(lang => typeof draft.translations?.[lang] !== 'string' || !draft.translations[lang].trim())) {
@@ -95,8 +97,8 @@ async function smoke(options = {}) {
     calls_to_public_network: 0, paid_calls: 0, published: false,
     existing_job_id: draft.existing_job_id, fingerprint: draft.source_fingerprint,
     next: status === 'QA_BLOCKED'
-      ? 'Inspect translations and facts; do not approve or publish'
-      : 'Review translation quality manually; then test one approved PUBLIC source using existing SocialPublishing',
+      ? 'Inspect translations and fact/script warnings; do not approve or publish'
+      : 'Script and factual tokens pass only. Review all translations manually before any approved existing SocialPublishing draft',
   };
 }
 
