@@ -1,15 +1,17 @@
 ---
-description: "Diagnose existing lead form -> canonical CRM ingestion without real customer data"
+description: "Read-only regression audit of the previously resolved lead form -> CRM integration"
 ---
 
-Investigate [issue #13](https://github.com/aliaksei-chareshneu/alchareshneu/issues/13) within this existing repository.
+# Revenue form regression audit (issue #13 resolved)
 
-Read `AGENTS.md`, `.github/copilot-instructions.md` and the relevant revenue source and tests first. Do not open a duplicate issue, submit genuine personal contact details, disclose existing customer responses, or modify production Apps Script triggers without specific approval.
+[Issue #13](https://github.com/aliaksei-chareshneu/alchareshneu/issues/13) was **closed 2026-10-17** after owner-authenticated synthetic Form→canonical Leads→Telegram checks and live same-response-ID replay. This is historical evidence, not proof of new production activity. **Do not reopen, rebuild, resubmit Form responses, reconfigure triggers or generate duplicate customer alerts by default.**
 
-Deliver a reviewable PR with:
-1. A grounded diagnosis of form ID, installed trigger source/handler, failure points and idempotency by `Submission_ID`. If live access is unavailable, explicitly label diagnosis NOT VERIFIED.
-2. The smallest safe code/test fix for reconciling installed triggers by **both** handler and form ID and avoiding duplicate CRM appends.
-3. A synthetic test plan: one TEST-only form submission, exactly one corresponding canonical `Leads` row on readback, no duplicate on retry, and a controlled failure surfaced for review.
-4. Evidence for each check; no false claim of live deployment or paid customers.
+Read `AGENTS.md`, `.github/copilot-instructions.md`, the existing issue resolution notes, and the actual current revenue code/tests if accessible. Determine whether a *new* failure or owner-requested regression test exists before proposing any change. If it does not, report `NO_NEW_INCIDENT` with the source and stop.
 
-Never push secrets, Form response PII, account tokens or CRM copies to the public repo. Stop at draft/test PR if account login, owner approval or access to private Apps Script is required.
+If a new regression is documented, provide a **read-only first** diagnosis:
+1. Identify the authorized source Form, current bound Apps Script, installed trigger (handler **and** form ID), validation, and destination CRM `Leads`. Where account access is absent, state `NOT VERIFIED`; never guess runtime state from an old source checkout.
+2. Review immutable `Submission_ID` deduplication, alert acknowledgments/fallback and present source coverage. Never read/commit/export private customer responses into this public repository.
+3. Propose the smallest testable fix **only if the defect is reproduced**. Use offline synthetic fixtures first. A fresh synthetic live submission or trigger write needs explicit appropriate authorization; never contact a QA identity.
+4. Deliver a concise test/acceptance report and, only if warranted, a small reviewable PR. A code diff, green CI or browser thank-you screen does not itself prove a new CRM row or any paid order.
+
+Keep current Academy WhatsApp and corporate email fallbacks until separately reviewed. Do not create a second CRM, new workflow, recurring alerts, paid product, or production release.
