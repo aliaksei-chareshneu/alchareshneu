@@ -161,7 +161,7 @@ def refresh(path, regions=("CZ", "US"), limit=30, key=None, fetcher=fetch_chart,
         return {"status": "SKIPPED_NO_API_KEY", "found": 0, "written": False}
     all_new = []
     for region in regions:
-        all_new.extend(candidates(fetcher(region, key, limit)))
+        all_new.extend(candidates(fetcher(region, key, limit), region))
     old, cols = read_candidates(path)
     merged = merge_rows(old, all_new)
     if not dry_run:
