@@ -54,19 +54,20 @@ def number(value, label):
     return float(value)
 
 
-def validate(spec, source_duration):
+def validate(spec, source_duration, *, require_rights=True):
     if not isinstance(spec, dict) or not isinstance(spec.get("slug"), str) or not SLUG.fullmatch(spec["slug"]):
         raise ValueError("A safe lowercase batch slug is required")
-    if spec.get("rights_status") not in RIGHTS:
-        raise ValueError("Only owned, licensed or public_domain local sources allowed")
+    allowed = RIGHTS if require_rights else RIGHTS | {"unknown"}
+    if spec.get("rights_status") not in allowed:
+        raise ValueError("Unknown rights are allowed for PREVIEW only; rendering requires cleared rights")
     if not isinstance(spec.get("rights_basis"), str) or len(spec["rights_basis"].strip()) < 8:
         raise ValueError("Record a specific rights basis, not just a status")
     for field in ("people_consents_checked", "music_rights_checked", "contains_minors"):
         if type(spec.get(field)) is not bool:
             raise ValueError(f"Explicit boolean required: {field}")
-    if not spec["people_consents_checked"] or not spec["music_rights_checked"]:
+    if require_rights and (not spec["people_consents_checked"] or not spec["music_rights_checked"]):
         raise ValueError("People / music clearance needs manual confirmation")
-    if spec["contains_minors"] and spec.get("guardian_consents_checked") is not True:
+    if require_rights and spec["contains_minors"] and spec.get("guardian_consents_checked") is not True:
         raise ValueError("Guardian consent must be checked for minors")
     clips = spec.get("clips")
     if not isinstance(clips, list) or not 1 <= len(clips) <= 5:
@@ -126,7 +127,7 @@ def execute(spec, source, out_dir, *, render=False, ffmpeg=None, ffprobe=None):
         raise ValueError("Only an existing local video file is accepted; URLs are forbidden")
     ffprobe = tool("ffprobe", ffprobe)
     length = duration_seconds(source, ffprobe)
-    clips = validate(spec, length)
+    clips = validate(spec, length, require_rights=render)
     destination = Path(out_dir).expanduser().resolve() / spec["slug"]
     planned = [destination / f"{i:02d}-{spec['slug']}.mp4" for i in range(1, len(clips) + 1)]
     if not render:
