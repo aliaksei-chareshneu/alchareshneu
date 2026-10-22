@@ -12,7 +12,7 @@ import json
 from datetime import date
 
 PILOT_MONDAY = date(2026, 11, 2)
-WEEKDAY_ORDER = {0: 0, 3: 1, 5: 2}  # Mon, Thu, Sat
+WEEKDAY_ORDER = {0: 0, 5: 2}  # Mon and Sat; offsets match the published training path
 FORMAT_CODES = ("TECH", "GROUP", "SCENARIO")
 
 
@@ -21,7 +21,7 @@ def plan_for_day(day: date) -> dict:
     if not isinstance(day, date) or day < PILOT_MONDAY:
         raise ValueError("Only real dates at/after 2026-11-02 are supported")
     if day.weekday() not in WEEKDAY_ORDER:
-        raise ValueError("The cycle is defined only for Monday/Thursday/Saturday")
+        raise ValueError("The cycle is defined only for Monday/Saturday")
     weeks_since_start = (day - PILOT_MONDAY).days // 7
     phase = weeks_since_start % 3
     offset = WEEKDAY_ORDER[day.weekday()]
@@ -29,7 +29,7 @@ def plan_for_day(day: date) -> dict:
         "local_date": day.isoformat(),
         "week_number": weeks_since_start + 1,
         "cycle_phase": phase + 1,
-        "weekday": ("Mon", "Thu", "Sat")[offset],
+        "weekday": {0: "Mon", 5: "Sat"}[day.weekday()],
         "format_code": FORMAT_CODES[(phase + offset) % 3],
         "core_module_id": f"PESAK-{((weeks_since_start % 12) + 1):02d}",
         "status": "TEACHING_PLAN_ONLY",
