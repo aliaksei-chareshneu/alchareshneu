@@ -42,7 +42,7 @@ footer{background:#0f1c29;color:#d6e0e8;padding:34px 0 44px;border-top:2px solid
 <p class="eyebrow" data-i="eyebrow">Vítej v družině</p>
 <h1 id="heading" data-i="heroTitle">Najdi si v Družině své místo.</h1>
 <p class="intro" data-i="heroText">Začni bezpečným tréninkem nebo se zapoj jako pomocník, tvůrce, organizátor či budoucí regionální partner. Tvoje cesta má více možností než jen souboje.</p>
-<div class="actions"><a class="btn btn-primary" href="#ways" data-i="heroWays">Jak se můžu zapojit? ↓</a><a class="btn" href="../cesty/" data-i="heroProgram">Prohlédnout výcvikové cesty ↗</a></div>
+<div class="actions"><a id="heroContact" class="btn btn-primary" href="https://wa.me/420702914842" target="_blank" rel="noopener noreferrer" data-i="c1a">Zeptat se na první návštěvu ↗</a><a class="btn" href="#ways" data-i="heroWays">Jak se můžu zapojit? ↓</a></div>
 <p class="hero-note" data-i="heroNote">Důležité: nový placený HEMA trénink zatím nelze rezervovat. Termíny a podmínky pouze nezávazně ověřujeme. Neposílej peníze ani necestuj bez písemného potvrzení.</p>
 <p class="hero-follow-links"><a href="../share/" data-i="shareClub">Pošli pozvánku přátelům ↗</a><span aria-hidden="true">·</span><a href="https://t.me/druzinamoravy_news" target="_blank" rel="noopener noreferrer" data-i="newsClub">Novinky a veřejné oznámení ↗</a></p>
 </div></section>
@@ -96,10 +96,11 @@ function render(c){
   document.title=title+" | Družina Moravy · Brno";
   const intro={cs:"Dobrý den, rád/a bych se nezávazně zeptal/a na první návštěvu Družiny Moravy. Prosím potvrďte možný termín, místo, bezpečnost a podmínky. Chápu, že nejde o rezervaci.",en:"Hi, I'm interested in a possible first Družina Moravy visit. Please confirm date, venue, organiser and safety terms. I know this is not a booking.",ru:"Здравствуйте! Хочу уточнить возможность первого занятия в Дружине Моравы. Подскажите дату, место и требования безопасности. Понимаю, что это пока не бронирование.",uk:"Вітаю! Хочу запитати про можливий перший візит до Дружини Морави. Підкажіть дату, місце й вимоги безпеки. Розумію, що це не бронювання."};
   const source=new URLSearchParams(location.search).get('src')||'';
-  const allowed=['FB_DM','FB_PERSONAL','FRIEND','COMMUNITY_NEWS','ESN','SEO','FAIR','HOBBY','SOC_SHORTS','INSTAGRAM','TIKTOK','YOUTUBE','TELEGRAM_NEWS','WHATSAPP_SHARE','BRNOWALKERS','GMB','NEWSLETTER','REF_MEMBER','SHARE_KIT','OFFLINE'];
+  const allowed=['FB_DM','FB_PERSONAL','FRIEND','COMMUNITY_NEWS','ESN','VUT21','GIRLS21','EVENTS_1411','MUNI','BKW','DEMO','SCHOOL','STAFF','CHAPTER','SEO','FAIR','HOBBY','SOC_SHORTS','INSTAGRAM','TIKTOK','YOUTUBE','TELEGRAM_NEWS','WHATSAPP_SHARE','BRNOWALKERS','GMB','NEWSLETTER','REF_MEMBER','SHARE_KIT','OFFLINE'];
   const accepted=allowed.includes(source)||/^(CH|NX)[0-9]{3}$/.test(source);
   const safe=accepted?' [Source: '+source+']':'';
   document.getElementById('firstContact').href="https://wa.me/420702914842?text="+encodeURIComponent(intro[c]+safe);
+  document.getElementById('heroContact').href=document.getElementById('firstContact').href;
   document.getElementById('firstEmail').href="mailto:chereshnev.biochem@gmail.com?subject="+encodeURIComponent("Družina Moravy - first visit question"+safe)+"&body="+encodeURIComponent(intro[c]+safe);
 }
 buttons.forEach(b=>b.addEventListener('click',()=>{render(b.dataset.lang);const u=new URL(location.href);u.searchParams.set('lang',b.dataset.lang);history.replaceState(null,'',u)}));
