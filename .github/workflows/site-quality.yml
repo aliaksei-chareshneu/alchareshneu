@@ -73,6 +73,10 @@ jobs:
       - name: Verify fair three-week Druzina training rotation
         run: python3 -m unittest discover -s tests -p 'test_druzina_rotation.py' -v
 
+      - name: Validate synthetic event RSVP flow
+        shell: bash
+        run: node scripts/test-event-rsvp.cjs
+
       - name: Validate inline JavaScript syntax
         shell: bash
         run: |

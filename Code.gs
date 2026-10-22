@@ -291,12 +291,12 @@ function processEventRow(sheet, row, headerMap, forceRetry) {
   }
 
   var isFree = (Number(price) === 0);
-  // Раньше: индивидуальная ссылка на Tally с параметрами конкретного события в URL.
-  // Форма регистрации теперь другая по устройству — один общий годовой список дат,
-  // который ты сам правишь чекбоксами, а не форма на одно событие. Поэтому здесь просто
-  // одна и та же постоянная ссылка для всех событий, без параметров.
-  // Колонку/переменную не переименовывал (Tally_Form_URL, tallyUrl) — не стоит риска.
-  var tallyUrl = REGISTRATION_FORM_URL;
+  // When the optional EventRsvp.gs adapter is installed, each event gets its
+  // own prefilled date-specific RSVP link. Until then, retain the legacy form.
+  // Keep the existing Tally_Form_URL column name for backwards compatibility.
+  var tallyUrl = (typeof eventRsvpPrefilledUrl === 'function')
+    ? eventRsvpPrefilledUrl(eventId) : '';
+  if (!tallyUrl) tallyUrl = REGISTRATION_FORM_URL;
   set('Tally_Form_URL', tallyUrl);
 
   var ce = colorAndEmoji(category, community);
@@ -814,9 +814,14 @@ function cleanupOldRegistrations() {
   for (var i = 1; i < data.length; i++) {
     var retentionVal = data[i][headerMap['Retention_Until'] - 1];
     if (!retentionVal) continue;
+    if (headerMap['Source_Channel'] && String(data[i][headerMap['Source_Channel'] - 1]) === 'RSVP_FORM') continue; // Must delete Form originals before anonymizing.
     if (new Date(retentionVal) < today) {
       sheet.getRange(i + 1, headerMap['Phone_Number']).setValue('—');
       sheet.getRange(i + 1, headerMap['Payment_Reference']).setValue('—');
+      // RSVP form adds more personal contact columns; erase them at retention expiry.
+      ['Full_Name', 'Telegram_Handle', 'Reply_Contact', 'Source_Channel'].forEach(function(col) {
+        if (headerMap[col]) sheet.getRange(i + 1, headerMap[col]).setValue('—');
+      });
       // Поля опекуна — тоже персональные (родителя), чистим вместе с остальными
       if (headerMap['Guardian_Name'])  sheet.getRange(i + 1, headerMap['Guardian_Name']).setValue('—');
       if (headerMap['Guardian_Phone']) sheet.getRange(i + 1, headerMap['Guardian_Phone']).setValue('—');
