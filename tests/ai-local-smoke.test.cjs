@@ -68,7 +68,7 @@ test('no fallback to paid provider if local translator fails', async () => {
   const calls = [];
   await assert.rejects(smoke({ local: true, fetchImpl: async (url, init) => {
     calls.push(url);
-    if (url.endsWith('/v1/models')) return { ok: true, json: async () => ({ data: [{ id: 'local' }] }) };
+    if (url.endsWith('/v1/models')) return { ok: true, json: async () => ({ data: [{ id: 'tencent/Hy-MT2-1.8B-GGUF' }] }) };
     throw Error('LOCAL_TRANSLATION_FAILED');
   } }), /LOCAL_TRANSLATION_FAILED/);
   assert.ok(calls.every(x => x.startsWith(BASE + '/')));
