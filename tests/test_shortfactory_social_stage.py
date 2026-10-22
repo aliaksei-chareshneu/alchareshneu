@@ -4,7 +4,10 @@ from pathlib import Path
 import tempfile
 import unittest
 
-spec = importlib.util.spec_from_file_location("bridge", Path(__file__).parents[1] / "shortfactory_social_stage.py")
+module_path = Path(__file__).parents[1] / "shortfactory_social_stage.py"
+if not module_path.is_file():
+    module_path = Path(__file__).with_name("shortfactory_social_stage.py")  # local ShortFactory layout
+spec = importlib.util.spec_from_file_location("bridge", module_path)
 b = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(b)
 
