@@ -81,3 +81,17 @@ The `shortfactory_social_stage.py` runner now requires the **existing** `media_i
 `python shortfactory_social_stage.py --manifest publish_manifest.json --entity OSVC --db ../media_index.sqlite --output SocialPublishing-review.csv`
 
 Only the file-creation/gating logic is covered by this patch. It does not write the live CRM or call publisher APIs.
+
+
+## First two verified-event original reel drafts
+
+The existing Community Hub Events sheet (not a separate event or leads DB) confirms both **Active and free** at the time of script creation (2026-10-22):
+
+- `examples/brnowalkers_hady_20261101.json`: Event_ID `PUB-HIKE-20261101`; BrnoWalkers × Morava v pohybu, Sunday **2026-11-01**, meet **12:45** at **Velká Klajdovka**, walk via Hády and Růženin lom to Obřany, finish ca. 16:15, 7–9 km, 0 Kč.
+- `examples/druzina_orel_20261114.json`: Event_ID `PUB-OREL-20261114`; Družina Moravy × Morava v pohybu, Saturday **2026-11-14 12:00–14:30**, Orlovna Husovice, **Vranovská 93**, free beginner HEMA workshop, equipment available.
+
+Both scripts were previewed and rendered locally using the same existing original-reel builder into **12-second 1080×1920 H.264 MP4** files, with SHA-256 sidecars and visual frame review. They are delivered as **human-review-only**, not uploaded to social media or Drive and not yet on the Windows PC. The original MP4 preview contains `ORIGINAL · REVIEW REQUIRED` watermark. No outside footage/music/participant likeness is used.
+
+GitHub's media-only CI validates the two scripts in `--preview` mode. The actual video files belong in the authorized ShortFactory/Drive private review flow after connected access resumes; do not commit their binaries to the public repository. Existing Metricool Facebook posts are already planned for **2026-10-29/31 (hike)** and **2026-11-07 (HEMA)**; cross-check the live `SocialPublishing` and provider queues before any video post to avoid duplicates. The CRM walk registration CTA is WhatsApp while the existing Metricool caption uses Telegram; choose and approve the canonical CTA before publication.
+
+The grant attribution, organizing legal entity, capacity, rights and publication account must be revalidated; these drafts **do not** authorize paid HEMA activity, spending, a live send, or an eligible grant reimbursement. Media drafts expire with their event dates and should never auto-publish after those dates.
