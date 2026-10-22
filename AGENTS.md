@@ -27,3 +27,6 @@ For contributor and volunteer features, apply role-specific, consent-based bound
 - Honor approved effective-date prices, consent/safety, accessible booking and distinct legal entities. Never invent insurance, customer testimonials, earnings or measured outcomes.
 - Make a meaningful test plan, run available checks, describe what was actually tested, and require owner approval for safety, legal, fees, or production rollout.
 - Historical README/START-HERE instructions may predate the current production architecture; check live sources and this handoff before deploying.
+
+## Multi-agent local toolchain (2026-10-22)
+For VS Code / GitHub Copilot use [repository instructions](.github/copilot-instructions.md), the [toolchain runbook](docs/AI-TOOLCHAIN.md) and the existing issue/PR/test process. Local Windows read-only preflight: `ops/ai-toolchain-preflight.ps1`. The existence of those files is not proof that a Copilot licence, Microsoft 365 tenant product or Google Antigravity CLI is installed/active. Do not run an installer or cloud/production side effects merely because an agent proposes them.
