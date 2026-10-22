@@ -1,0 +1,43 @@
+name: ShortFactory integration tests
+
+on:
+  push:
+    paths:
+      - 'youtube_trend_intake.py'
+      - 'shortfactory_social_stage.py'
+      - 'trend_refresh_runner.py'
+      - 'tests/test_youtube_trend_intake.py'
+      - 'tests/test_shortfactory_social_stage.py'
+      - '.github/workflows/media-integration-tests.yml'
+  pull_request:
+    paths:
+      - 'youtube_trend_intake.py'
+      - 'shortfactory_social_stage.py'
+      - 'trend_refresh_runner.py'
+      - 'tests/test_youtube_trend_intake.py'
+      - 'tests/test_shortfactory_social_stage.py'
+      - '.github/workflows/media-integration-tests.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  media-safe-tests:
+    runs-on: ubuntu-latest
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: No-credential YouTube metadata regression
+        run: python -m unittest discover -s tests -p 'test_youtube_trend_intake.py' -v
+      - name: Canonical ShortFactory review / publication safety
+        run: python -m unittest discover -s tests -p 'test_shortfactory_social_stage.py' -v
+      - name: Compile all integration modules
+        run: python -m py_compile youtube_trend_intake.py shortfactory_social_stage.py trend_refresh_runner.py
+      - name: Verify fail-closed no-API-key dry-run
+        run: |
+          test -z "${YOUTUBE_API_KEY:-}"
+          python youtube_trend_intake.py --dry-run
