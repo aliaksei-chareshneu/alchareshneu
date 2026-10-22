@@ -18,10 +18,14 @@ The preview returns targets CZ/EN/RU/UK and a no-text image concept, but perform
 Official Windows llama.cpp model distribution: https://huggingface.co/tencent/Hy-MT2-1.8B-GGUF ; Q4_K_M file ~1.13 GB, Apache-2.0. On a local Windows terminal:
 
 ```powershell
-winget install llama.cpp
-llama serve --help
-llama serve -hf tencent/Hy-MT2-1.8B-GGUF:Q4_K_M --host 127.0.0.1 --port 8000
+# Only after the authorized Windows PC is connected and the script inspected:
+.\ops\hymt2-windows.ps1 -Install     # free llama.cpp package; NO model download yet
+.\ops\hymt2-windows.ps1 -Serve       # starts loopback server; downloads Q4 model if absent
+# In a second terminal:
+.\ops\hymt2-windows.ps1 -Probe
 ```
+
+The script is opt-in and has no automatic scheduled startup. Official manual equivalent: `winget install llama.cpp`, then `llama serve -hf tencent/Hy-MT2-1.8B-GGUF:Q4_K_M --host 127.0.0.1 --port 8000`. Script execution has NOT been tested on Windows, as `zmrzlina` was offline.
 
 Verify the actual version's CLI flags before running. The model is downloaded to the local inference cache only after this launch. Never expose the server port to the public network. Test `http://127.0.0.1:8000/v1/models`; if the installed binary uses a different model identifier set `HYMT2_MODEL` to its reported ID. No weights have been downloaded or installed on zmrzlina by this PR; the machine was offline when checked.
 
