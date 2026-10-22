@@ -15,6 +15,10 @@ Read [AGENTS.md](../AGENTS.md) first. For website, booking, prices, lead generat
 - Media: original/licensed assets only, with rights and consent. Queue is not publication; require public provider permalink before claiming LIVE.
 - Commercial emails, posted content, payments, contracts, subscriptions, legal filings, changes to DNS/MX and public deployment require the correct approval and source verification.
 
+## Available local model and vendor distinction
+
+The repo supports a *guarded* Ollama `qwen3:0.6b` CPU-only drafting backend on `127.0.0.1:11434`. Use `node ops/ai-local-smoke.cjs --ollama` on an authorized Windows machine for synthetic data only and inspect any `QA_BLOCKED` output. This is independent of GitHub Copilot and Google Antigravity account entitlements; do not invoke paid cloud services or assume factual/localization quality from a green unit test.
+
 ## Execution order
 1. Verify actual repo state, relevant issue and active branch; review existing PRs to avoid duplicate/conflicting work.
 2. Prepare a minimal change; show required sources, risks and tests.
