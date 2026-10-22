@@ -107,6 +107,18 @@ def recovery_report(**changes):
                    checkedAt='2026-10-21T08:01:00.000Z'), **changes}
 
 
+def payment_report():
+    return {
+        'mode': 'READ_ONLY', 'entity': 'DRUZINA', 'settled': 0,
+        'rows': [{'transaction': '7001', 'payment': 'TEST-ONLY-PAYMENT',
+                  'amount': 120, 'status': 'CANDIDATE_ONLY'}],
+        'total': 1, 'truncated': False, 'checkedAt': '2026-10-22T08:01:00.000Z',
+        'bank': {'fresh': True, 'lastSuccess': '2026-10-22T10:00:00+02:00'},
+        'queue': {'total': 1, 'candidates': 1, 'review': 0, 'unmatched': 0,
+                  'excluded': 0, 'shown': 1, 'limit': 100, 'truncated': False},
+    }
+
+
 class ConsoleBrowserTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -301,17 +313,107 @@ class ConsoleBrowserTests(unittest.TestCase):
         self.assertTrue(self.bank_button().is_enabled())
 
     def test_incomplete_reconciliation_does_not_replace_previous_preview(self):
-        preview = {'rows': [{'transaction': 'TEST-ONLY', 'payment': '',
+        preview = {'mode': 'READ_ONLY', 'entity': 'DRUZINA', 'settled': 0,
+                   'rows': [{'transaction': '7001', 'payment': '',
                              'amount': 120, 'status': 'UNMATCHED'}],
                    'total': 1, 'truncated': False, 'bank': {'fresh': False}}
         self.page.locator('[data-action="previewPayments"]').click()
         self.respond(1, preview)
         previous = self.page.locator('#paymentTable').inner_text()
+        self.assertIn('7001', previous)
         self.page.locator('[data-action="previewPayments"]').click()
         del preview['bank']
         self.respond(2, preview)
         self.assertEqual(self.page.locator('#paymentTable').inner_text(), previous)
         self.assertIn('не удалось отобразить', self.page.locator('#message').inner_text())
+
+    def test_payment_queue_shows_full_counts_russian_explanations_and_safe_mobile_table(self):
+        self.page.set_viewport_size({'width': 375, 'height': 812})
+        report = payment_report()
+        report['rows'][0]['payment'] = '<img src=x onerror="window.injected=true">'
+        report['rows'].append({'transaction': '7002', 'payment': '', 'amount': None,
+                               'status': 'INVALID_AMOUNT'})
+        report['rows'].extend({'transaction': str(7100+i), 'payment': '', 'amount': -10,
+                               'status': 'DEBIT_OR_ZERO'} for i in range(98))
+        report.update(total=112, truncated=True)
+        report['queue'].update(total=112, review=1, excluded=110, shown=100, truncated=True)
+        self.bank_button('previewPayments').click()
+        self.respond(1, report)
+        self.assertIn('Показано 100 из 112', self.page.locator('#paymentState').inner_text())
+        self.assertIn('расходы или ноль: 110', self.page.locator('#paymentQueue').inner_text())
+        self.assertIn('Совпадение для проверки', self.page.locator('#paymentTable tr').nth(1).inner_text())
+        self.assertIn('Не определена', self.page.locator('#paymentTable tr').nth(2).inner_text())
+        self.assertIn('22.10.2026, 10:01', self.page.locator('#paymentCheckedAt').inner_text())
+        self.assertIn('менее двух часов', self.page.locator('#paymentBankState').inner_text())
+        self.assertEqual(self.page.locator('#paymentTable img').count(), 0)
+        self.assertIsNone(self.page.evaluate('window.injected'))
+        self.assertTrue(self.page.evaluate('document.documentElement.scrollWidth <= innerWidth'))
+        self.assertTrue(self.page.locator('#paymentTable').evaluate('e => e.scrollWidth > e.clientWidth'))
+        self.page.locator('#paymentTable').evaluate('e => e.scrollLeft = e.scrollWidth')
+        self.assertGreater(self.page.locator('#paymentTable').evaluate('e => e.scrollLeft'), 0)
+        self.page.locator('#paymentTable').evaluate('e => e.scrollLeft = 0')
+        if os.environ.get('CONSOLE_BROWSER_ARTIFACTS'):
+            self.page.locator('#paymentState').scroll_into_view_if_needed()
+            self.page.screenshot(path=str(Path(os.environ['CONSOLE_BROWSER_ARTIFACTS']) / 'payment-mobile-viewport.png'))
+
+    def test_automatic_snapshots_keep_payment_report_time_and_bank_evidence_unchanged(self):
+        self.bank_button('previewPayments').click()
+        self.respond(1, payment_report())
+        selectors = ['#paymentState', '#paymentCheckedAt', '#paymentQueue', '#paymentBankState', '#paymentTable']
+        previous = [self.page.locator(selector).inner_text() for selector in selectors]
+        self.page.evaluate('fixtureTick(60000)')
+        data = snapshot()
+        data['at'] = '2026-10-22T09:01:00Z'
+        data['banks']['druzina']['lastSuccess'] = '2026-10-22T11:00:00+02:00'
+        self.respond(2, data)
+        self.assertEqual([self.page.locator(selector).inner_text() for selector in selectors], previous)
+        self.assertEqual(self.calls(), ['snapshot', 'previewPayments', 'snapshot'])
+
+    def test_invalid_failed_and_late_payment_reports_keep_previous_report_without_retries(self):
+        self.bank_button('previewPayments').click()
+        self.respond(1, payment_report())
+        selectors = ['#paymentState', '#paymentCheckedAt', '#paymentQueue', '#paymentBankState', '#paymentTable']
+        previous = [self.page.locator(selector).inner_text() for selector in selectors]
+        self.bank_button('previewPayments').click()
+        invalid = payment_report()
+        invalid.update(entity='OSVC', settled=1)
+        self.respond(2, invalid)
+        self.assertIn('не удалось отобразить', self.page.locator('#message').inner_text())
+        self.page.evaluate('fixtureTick(120000)')
+        self.assertEqual(len(self.calls()), 3)
+        self.page.locator('#refresh').click()
+        self.respond(3, snapshot())
+        self.bank_button('previewPayments').click()
+        self.expire()
+        self.assertIn('90 секунд', self.page.locator('#message').inner_text())
+        self.page.locator('#refresh').click()
+        self.respond(5, snapshot())
+        late = payment_report()
+        late['rows'][0]['payment'] = 'TEST-ONLY-LATE'
+        self.respond(4, late)
+        self.bank_button('previewPayments').click()
+        self.page.evaluate('fixtureCalls[6].failure({message: "PRIVATE-FIXTURE"})')
+        self.page.evaluate('fixtureTick(120000)')
+        self.assertEqual([self.page.locator(selector).inner_text() for selector in selectors], previous)
+        self.assertEqual(self.calls().count('previewPayments'), 4)
+        self.assertNotIn('PRIVATE-FIXTURE', self.page.locator('body').inner_text())
+
+    def test_payment_report_handles_bank_age_boundary_and_legacy_metadata(self):
+        report = payment_report()
+        report['checkedAt'] = '2026-10-22T10:00:00.000Z'
+        self.bank_button('previewPayments').click()
+        self.respond(1, report)
+        self.assertIn('не подтверждена', self.page.locator('#paymentBankState').inner_text())
+        self.assertIn('7001', self.page.locator('#paymentTable').inner_text())
+        report.pop('queue')
+        report.pop('checkedAt')
+        report['bank'] = {'fresh': False, 'lastSuccess': 'PRIVATE-FIXTURE'}
+        self.bank_button('previewPayments').click()
+        self.respond(2, report)
+        self.assertIn('недоступно', self.page.locator('#paymentCheckedAt').inner_text())
+        self.assertIn('недоступны', self.page.locator('#paymentQueue').inner_text())
+        self.assertIn('нет корректной отметки', self.page.locator('#paymentBankState').inner_text())
+        self.assertNotIn('PRIVATE-FIXTURE', self.page.locator('body').inner_text())
 
     def test_mobile_tabs_fit_and_external_values_remain_text(self):
         self.page.set_viewport_size({'width': 375, 'height': 812})
