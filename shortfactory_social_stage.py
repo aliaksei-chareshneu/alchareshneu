@@ -9,6 +9,7 @@ import json
 import os
 from pathlib import Path
 import re
+import sqlite3
 import tempfile
 
 HEADERS = [
@@ -28,15 +29,60 @@ def sheet_safe(value):
         value = "'" + value
     return value
 
-def stage(manifest, entity):
+def verify_existing_job(con, item, media):
+    # The manifest is advisory: an original read-only SQLite review is required.
+    jid = item["job_id"]
+    try:
+        row = con.execute(
+            "SELECT status,rights_status,output_path,transform_path,reviewed_at,"
+            "hook,commentary,target_platforms FROM short_jobs WHERE job_id=?", (jid,)
+        ).fetchone()
+    except sqlite3.Error:
+        raise ValueError("Existing ShortFactory database schema not ready") from None
+    if row is None or row["status"] not in {"APPROVED_FOR_PUBLISH_QUEUE", "PUBLISHED_PARTIAL"}:
+        raise ValueError("Canonical job is not approved for a publish queue")
+    if not row["reviewed_at"] or row["rights_status"] != item["rights_status"]:
+        raise ValueError("Canonical job review or rights mismatch")
+    expected = (row["transform_path"] or row["output_path"] or "").strip()
+    if not expected or Path(expected).resolve() != media.resolve():
+        raise ValueError("Reviewed media path differs from canonical job")
+    if row["rights_status"] == "transformative_review" and not row["transform_path"]:
+        raise ValueError("Transformed commentary layer is required")
+    accepted = {p.strip() for p in (row["target_platforms"] or "").split(",")}
+    if item["platform"] not in accepted:
+        raise ValueError("Destination was not approved in original job")
+    expected_caption = "\n\n".join(
+        x for x in ((row["hook"] or "").strip(), (row["commentary"] or "").strip()) if x
+    )
+    if item.get("caption", "") != expected_caption:
+        raise ValueError("Caption changed after ShortFactory review")
+    try:
+        posted = con.execute(
+            "SELECT 1 FROM short_posts WHERE job_id=? AND platform=?",
+            (jid, item["platform"])
+        ).fetchone()
+    except sqlite3.Error:
+        raise ValueError("Canonical post receipt ledger unavailable") from None
+    if posted:
+        raise ValueError("Publication receipt already exists for this job/platform")
+
+def stage(manifest, entity, db_path):
     if entity not in ENTITIES:
         raise ValueError("Explicit legal entity required")
     if not isinstance(manifest, dict) or not isinstance(manifest.get("items"), list):
         raise ValueError("Bad ShortFactory manifest")
+    db_path = Path(db_path).expanduser().resolve()
+    if not db_path.is_file():
+        raise ValueError("Existing ShortFactory SQLite ledger required")
     items = manifest["items"]
     if len(items) > 500:
         raise ValueError("Excessive manifest size")
     seen, rows = set(), []
+    try:
+        con = sqlite3.connect(db_path.as_uri() + "?mode=ro", uri=True)
+        con.row_factory = sqlite3.Row
+    except sqlite3.Error:
+        raise ValueError("Cannot read canonical ShortFactory database") from None
     for item in items:
         if not isinstance(item, dict):
             raise ValueError("Invalid manifest item")
@@ -60,6 +106,7 @@ def stage(manifest, entity):
         path = Path(media)
         if not path.is_file() or path.stat().st_size == 0:
             raise ValueError("Reviewed media missing")
+        verify_existing_job(con, item, path)
         caption = item.get("caption", "")
         if not isinstance(caption, str) or len(caption) > 8000:
             raise ValueError("Invalid caption")
@@ -74,6 +121,7 @@ def stage(manifest, entity):
         })
         # Deliberately NO approval/rights/duplicate check/media URL/live send.
         rows.append(row)
+    con.close()
     return rows
 
 def write(rows, target):
@@ -99,11 +147,12 @@ def write(rows, target):
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--manifest", type=Path, required=True)
+    ap.add_argument("--db", type=Path, default=Path.home() / "MoravianHost" / "MediaMachine" / "media_index.sqlite")
     ap.add_argument("--entity", required=True, choices=sorted(ENTITIES))
     ap.add_argument("--output", type=Path, required=True)
     args = ap.parse_args()
     data = json.loads(args.manifest.read_text(encoding="utf-8"))
-    rows = stage(data, args.entity)
+    rows = stage(data, args.entity, args.db)
     write(rows, args.output)
     print(json.dumps({
         "status": "DRAFT_STAGED_ONLY", "rows": len(rows),
