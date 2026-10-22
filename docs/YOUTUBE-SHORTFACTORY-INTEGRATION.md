@@ -59,3 +59,25 @@ Official references: https://developers.google.com/youtube/v3/docs/videos/list a
 No real SocialPublishing rows or public posts were created in this work. The staged CSV contains only reviewed caption and route metadata; no private local source paths, secrets, person/customer records, or content exports are sent to GitHub or Google by the adapter.
 
 Offline tests: python -m unittest test_youtube_trend_intake test_shortfactory_social_stage -v ; 11/11 pass on zmrzlina 2026-10-22.
+
+## Original scripts to vertical video (rights-safe input producer)
+
+This component is an INPUT to existing ShortFactory, not a substitute queue/editor/publisher.
+
+1. Place `original_reel_builder.py` next to the existing ShortFactory tools; install the free Pillow Python package in the existing environment and use the existing WinGet FFmpeg.
+2. Start with `examples/original_reel_demo.json`. Write 2–6 original editorial panels; no third-party images, audio, logo or copied video.
+3. Preview the script with `python original_reel_builder.py --script examples/original_reel_demo.json --preview`. This neither renders nor publishes.
+4. Render a review-only draft with `python original_reel_builder.py --script examples/original_reel_demo.json --output C:/Users/chere/MoravianHost/MediaMachine/Drafts/original-demo.mp4`.
+5. The PNG/FFmpeg renderer creates 1080x1920 MP4 and a same-path .mp4.json sidecar with video+script SHA256, creation timestamp and explicit NOT_PUBLISHED status; no overwrite. Review claims, actual seller, organizational media rights and audience suitability.
+6. If approved for ShortFactory source intake, queue the draft using the EXISTING `short_factory.py queue --source ... --start ... --duration ... --rights owned --hook ...` interface only after real editorial review. Continue to the existing batch review, approved-only publisher manifest, SQLite-gated SocialPublishing draft and provider receipt.
+7. **2026-10-22 status:** a real 9-second 1080x1920 example MP4 was rendered and ffprobe-verified in the ChatGPT execution container; `original_reel_builder.py` and its tests are committed in this DRAFT PR. The updated original text renderer and upgraded SQLite-gated social adapter are **NOT YET INSTALLED on zmrzlina** after the PC went offline; do not mistake GitHub source tests for live Windows deployment or scheduled content creation.
+
+The original-video demo contains a generic AI/data workflow concept, no client testimonial and no claim of measured savings. It is not an actual advertisement or published video. No video upload, real contact, payment, or ad budget has occurred.
+
+## Canonical source verification added
+
+The `shortfactory_social_stage.py` runner now requires the **existing** `media_index.sqlite` in read-only mode. It validates stored job status, actual review timestamp, exact approved media path, rights state, approved destination, reviewed caption, and no prior same-platform entry in `short_posts`. A modified manifest with `approved=true` alone cannot authorize a draft. An additional review against the live `SocialPublishing.Job_ID` source is required before importing even draft rows; local database and cloud are not identical duplicate sets.
+
+`python shortfactory_social_stage.py --manifest publish_manifest.json --entity OSVC --db ../media_index.sqlite --output SocialPublishing-review.csv`
+
+Only the file-creation/gating logic is covered by this patch. It does not write the live CRM or call publisher APIs.
