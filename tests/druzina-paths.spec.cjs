@@ -47,20 +47,29 @@ for(const lang of languages){
 }
 
 for(const lang of languages){
- test('three-week rotation obeys fair Mon/Thu/Sat permutations in '+lang,async({page})=>{
+ test('three-week rotation covers all formats on both Mon and Sat in '+lang,async({page})=>{
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
   for(const width of [360,390,768]){
    await page.setViewportSize({width,height:850});
    await page.goto('/druzina/cesty/?lang='+lang);
    const cards=page.locator('.rotation-week');
    await expect(cards).toHaveCount(3);
+   const byDay={mon:[],sat:[]};
    for(let i=1;i<=3;i++){
     const week=page.locator('.rotation-week[data-week="'+i+'"]');
-    await expect(week.locator('.rotation-slot')).toHaveCount(3);
+    await expect(week.locator('.rotation-slot')).toHaveCount(2);
+    const days=await week.locator('[data-rotday]').evaluateAll(nodes=>nodes.map(node=>node.dataset.rotday));
+    expect(days).toEqual(['mon','sat']);
     const formats=await week.locator('[data-rotcell]').allTextContents();
-    expect(new Set(formats).size).toBe(3);
+    expect(new Set(formats).size).toBe(2);
     expect(formats.every(text=>text.trim().length>=4)).toBe(true);
+    byDay.mon.push(formats[0]);
+    byDay.sat.push(formats[1]);
    }
+   for(const day of ['mon','sat']){
+    expect(new Set(byDay[day]).size,'All three formats must rotate through '+day).toBe(3);
+   }
+   await expect(page.locator('[data-rotday="thu"]')).toHaveCount(0);
    const dayLabels=await page.locator('.rotation-week:first-child [data-rotday]').allTextContents();
    for(const day of dayLabels){expect(day.trim().length).toBeGreaterThan(2);}
    const ranks=page.locator('#officialRanks');
