@@ -2,7 +2,7 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const {
-  checkedFixture, loopbackOnly, localModelId, smoke, BASE,
+  checkedFixture, loopbackOnly, localModelId, smoke, BASE, OLLAMA_BASE,
 } = require('../ops/ai-local-smoke.cjs');
 const job = checkedFixture();
 
@@ -80,4 +80,52 @@ test('preflight hash agrees with local run without external drafts', async () =>
   const b = await smoke({ local: true, fetchImpl: fakeFetch(calls) });
   assert.equal(a.fingerprint, b.fingerprint);
   assert.equal(a.existing_job_id, b.existing_job_id);
+});
+
+test('Ollama CPU smoke enforces 127.0.0.1 and refuses cloud model tags', async () => {
+  const calls = [];
+  const mockOllama = async (url, init) => {
+    calls.push({ url, method: init?.method, payload: init?.body ? JSON.parse(init.body) : null });
+    if (url === OLLAMA_BASE + '/api/tags') {
+      return { ok: true, json: async () => ({ models: [{ name: 'qwen3:0.6b' }] }) };
+    }
+    return { ok: true, json: async () => ({
+      model: 'qwen3:0.6b', done: true, response: job.source_text,
+    }) };
+  };
+  const out = await smoke({ backend: 'ollama', local: true, fetchImpl: mockOllama });
+  assert.equal(out.status, 'LOCAL_MODEL_RESPONDED_FACT_TOKENS_PASS');
+  assert.equal(out.local_model_id, 'qwen3:0.6b');
+  assert.equal(out.paid_calls, 0);
+  assert.equal(out.published, false);
+  assert.equal(calls.length, 4);
+  assert.equal(calls[0].url, OLLAMA_BASE + '/api/tags');
+  assert.ok(calls.slice(1).every(x => x.url === OLLAMA_BASE + '/api/generate'));
+  assert.ok(calls.slice(1).every(x => x.payload.options.num_gpu === 0 && x.payload.think === false));
+
+  const guarded = loopbackOnly(() => { throw Error('UNSAFE_CALL'); }, 'ollama');
+  for (const url of ['http://localhost:11434/api/generate',
+    'http://127.0.0.1:11434/api/pull',
+    'https://ollama.com/api/generate',
+    'http://127.0.0.1:8000/api/generate',
+    'http://127.0.0.1:11434/api/generate?unsafe=true']) {
+    assert.throws(() => guarded(url, { method: 'POST' }), /NON_LOCAL_MODEL_REQUEST_BLOCKED/);
+  }
+  await assert.rejects(smoke({ backend: 'ollama', local: true,
+    fetchImpl: async (url) => url.endsWith('/api/tags')
+      ? { ok: true, json: async () => ({ models: [{ name: 'qwen3:cloud' }] }) }
+      : { ok: true, json: async () => ({}) },
+  }), /LOCAL_MODEL_NOT_QWEN3/);
+});
+
+test('Ollama failure does not call a paid model, send posts, or create new queue rows', async () => {
+  const calls = [];
+  await assert.rejects(smoke({ backend: 'ollama', local: true, fetchImpl: async (url) => {
+    calls.push(url);
+    if (url.endsWith('/api/tags')) {
+      return { ok: true, json: async () => ({ models: [{ name: 'qwen3:0.6b' }] }) };
+    }
+    return { ok: false };
+  } }), /PROVIDER_HTTP_ERROR/);
+  assert.ok(calls.every(x => x.startsWith(OLLAMA_BASE + '/')));
 });
