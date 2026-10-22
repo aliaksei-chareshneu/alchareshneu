@@ -10,7 +10,7 @@ Read [AGENTS.md](../AGENTS.md) first. For website, booking, prices, lead generat
 - Never commit, print or transmit private Drive brief text, emails, addresses, personal records, bank data, secrets, signed contracts or nonpublic revenue to this public repository. Use only synthetic test data.
 
 ## Domain-specific gates
-- Academy/revenue: prefer fixing lead ingestion (existing issue #13) before adding advertising. A form confirmation is not an accepted CRM lead. Require exactly one row per `Submission_ID`, a safe failure log and no actual customer data in tests.
+- Academy/revenue: [issue #13](https://github.com/aliaksei-chareshneu/alchareshneu/issues/13) was closed on 2026-10-17 after synthetic Form→Leads/Telegram and same-`Submission_ID` replay verification. Preserve that fix; investigate a *newly evidenced regression* rather than reopening or reimplementing the closed incident. A form confirmation alone still does not prove CRM ingestion. Require exactly one row per `Submission_ID`, safe failure handling and no actual customer data in tests.
 - Družina: observe the current legal/safety gate; do not restore withdrawn HEMA paid booking prices or checkout flows from historical copies. Keep OSVČ services, z.s. services, money and representation separate.
 - Media: original/licensed assets only, with rights and consent. Queue is not publication; require public provider permalink before claiming LIVE.
 - Commercial emails, posted content, payments, contracts, subscriptions, legal filings, changes to DNS/MX and public deployment require the correct approval and source verification.
