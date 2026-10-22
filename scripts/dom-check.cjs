@@ -15,7 +15,24 @@ if(require.main===module)(async()=>{let count=0;for(const path of ['index.html',
  const bad=[...d.querySelectorAll('main a[href^="#"]')].filter(a=>a.hash.length>1&&!d.getElementById(decodeURIComponent(a.hash.slice(1)))).map(a=>a.hash);assert.deepEqual(bad,[],path+' anchors');
  assert.deepEqual(errors,[],path+' runtime errors');
  if(path.startsWith('academy')){const input=d.querySelector('#service-search');input.value='zzzzmissing';input.dispatchEvent(new w.Event('input'));assert.equal(d.querySelectorAll('.price-cat:not([hidden])').length,0);input.value='';input.dispatchEvent(new w.Event('input'));assert.equal(d.querySelectorAll('.price-cat:not([hidden])').length,9);assert.equal(d.querySelectorAll('.service-action').length,9);}
- if(path.startsWith('druzina')){for(const price of ['120','240','910','455','2870','1435','8235','4120'])assert.ok(d.body.textContent.replace(/[ ,]/g,'').includes(price+'Kč'));}
+ if(path.startsWith('druzina')){
+   const notice=d.querySelector('#registration-notice');
+   assert.ok(notice,'HEMA booking safety notice is required');
+   const required={
+     en:'New paid HEMA bookings are paused.',
+     cs:'Nové placené rezervace HEMA jsou pozastaveny.',
+     ru:'Новые платные бронирования HEMA приостановлены.',
+     uk:'Нові платні бронювання HEMA призупинено.'
+   };
+   for(const [code,phrase] of Object.entries(required)){
+     const message=notice.querySelector('[data-notice-lang="'+code+'"]');
+     assert.ok(message&&message.textContent.includes(phrase),'HEMA booking pause missing: '+code);
+   }
+   assert.equal(notice.querySelectorAll('form, input, button').length,0,'HEMA booking pause must not expose payment or booking inputs');
+   for(const price of ['120','240','910','455','2870','1435','8235','4120']){
+     assert.ok(!d.body.textContent.replace(/[ ,]/g,'').includes(price+'Kč'),'Withdrawn HEMA tariff still appears: '+price);
+   }
+ }
  const languageButton=d.querySelector('[data-lang="ru"]');languageButton.click();await new Promise(r=>setTimeout(r,10));assert.equal(d.documentElement.lang,'ru');assert.equal(d.querySelectorAll('h1').length,1);assert.deepEqual(errors,[]);
  console.log('PASS',path,lang);count++;
  }finally{dom.window.close();}
