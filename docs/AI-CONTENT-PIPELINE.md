@@ -8,7 +8,8 @@ The input is a *manually approved PUBLIC snapshot* of one existing SocialPublish
 
 ```powershell
 node ops/ai-content-pipeline.cjs --input ops/ai-content-synthetic.json --image
-node --test tests/ai-content-pipeline.test.cjs
+node ops/ai-local-smoke.cjs                # zero network calls and no new files
+node --test tests/ai-content-pipeline.test.cjs tests/ai-local-smoke.test.cjs
 ```
 
 The preview returns targets CZ/EN/RU/UK and a no-text image concept, but performs zero network requests and produces zero public posts. The output's `source_fingerprint` can be compared with the actual originating row before copying any approved draft back to that same row. Never overwrite an existing result file. `--output <local-private-path>.json` is optional; no file is written without it.
@@ -24,6 +25,8 @@ Official Windows llama.cpp model distribution: https://huggingface.co/tencent/Hy
 # In a second terminal:
 .\ops\hymt2-windows.ps1 -Probe
 ```
+
+Once `-Probe` reports an actual model ID, run a SINGLE local-only end-to-end check: `node ops/ai-local-smoke.cjs --local`. This runs the synthetic public fixture, requests `/v1/models` and then three localhost-only translations. Results include fact-token checks and a mandatory `HUMAN_REVIEW_REQUIRED` label. On malformed responses or missing facts it fails/blocks; no external API key, no billing, no publishing, no customer record. Plain `node ops/ai-local-smoke.cjs` makes ZERO network calls, even if the model is installed. The smoke is deliberately not a translation-quality benchmark and not a production publish trigger.
 
 The script is opt-in and has no automatic scheduled startup. Official manual equivalent: `winget install llama.cpp`, then `llama serve -hf tencent/Hy-MT2-1.8B-GGUF:Q4_K_M --host 127.0.0.1 --port 8000`. Script execution has NOT been tested on Windows, as `zmrzlina` was offline.
 
