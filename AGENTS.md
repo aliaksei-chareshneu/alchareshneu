@@ -28,5 +28,11 @@ For contributor and volunteer features, apply role-specific, consent-based bound
 - Make a meaningful test plan, run available checks, describe what was actually tested, and require owner approval for safety, legal, fees, or production rollout.
 - Historical README/START-HERE instructions may predate the current production architecture; check live sources and this handoff before deploying.
 
+## Optional AI drafting and translation adapters (2026-10-22)
+- For automation of publication text, Czech/English/Russian/Ukrainian translation, illustration backgrounds or AI provider selection, **first read `docs/AI-CONTENT-PIPELINE.md`** and `ops/ai-content-pipeline.cjs`. These are optional drafting helpers, not an alternative CRM or live publisher.
+- Reuse exactly the existing `SocialPublishing.Job_ID` and owning `Events` record. Process only a human-approved PUBLIC source, legal seller/owner and content rights. Never send personal or internal records to remote model providers; never count model output as a verified post.
+- `Hy-MT2` is a loopback-only local option; the Windows helper `ops/hymt2-windows.ps1` is opt-in, not a scheduled job or proof that software/models are installed. MiMo and Qwen remote API calls are blocked by explicit cost/approval flags by default. Preserve the free `LanguageApp.translate` path, existing ShortFactory and safety/duplicate/confirmation gates.
+- AI provider mocked tests and green CI do not prove installed local inference, real external API calls, completed public posts, or any business outcome. Always mark the actual execution/readback state.
+
 ## Multi-agent local toolchain (2026-10-22)
 For VS Code / GitHub Copilot use [repository instructions](.github/copilot-instructions.md), the [toolchain runbook](docs/AI-TOOLCHAIN.md) and the existing issue/PR/test process. Local Windows read-only preflight: `ops/ai-toolchain-preflight.ps1`. The existence of those files is not proof that a Copilot licence, Microsoft 365 tenant product or Google Antigravity CLI is installed/active. Do not run an installer or cloud/production side effects merely because an agent proposes them.
