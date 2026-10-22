@@ -46,8 +46,10 @@ async function localModelId(fetchImpl) {
   const data = await r.json();
   const ids = Array.isArray(data?.data) ? data.data.map(x => x?.id).filter(x => typeof x === 'string' && x.trim()) : [];
   if (!ids.length) throw Error('LOCAL_MODEL_ID_MISSING');
-  // Use model IDs as health evidence, not as proof that a specific translation is correct.
-  return ids[0];
+  const matched = ids.find(id => /hy[-_]?mt2/i.test(id));
+  if (!matched) throw Error('LOCAL_MODEL_NOT_HYMT2');
+  // Model ID is health evidence only, not proof of translation correctness.
+  return matched;
 }
 
 async function smoke(options = {}) {
