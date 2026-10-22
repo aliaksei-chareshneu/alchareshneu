@@ -34,18 +34,19 @@ jobs:
             exit 1
           fi
 
-      - name: Verify current Druzina pricing
+      - name: Verify safe HEMA booking pause (not withdrawn tariffs)
         shell: bash
         run: |
           set -euo pipefail
-          grep -q '120 Kč' druzina/index.html
-          grep -q '240 Kč' druzina/index.html
-          grep -q '910 Kč' druzina/index.html
-          grep -q '455 Kč' druzina/index.html
-          grep -Eq '2[, ]870 Kč' druzina/index.html
-          grep -Eq '1[, ]435 Kč' druzina/index.html
-          grep -Eq '8[, ]235 Kč' druzina/index.html
-          grep -Eq '4[, ]120 Kč' druzina/index.html
+          test "$(grep -c 'DM-PRELAUNCH-LEGAL-GATE-20261018' druzina/index.html)" -eq 1
+          grep -Fq 'New paid HEMA bookings are paused.' druzina/index.html
+          grep -Fq 'Nové placené rezervace HEMA jsou pozastaveny.' druzina/index.html
+          grep -Fq 'Новые платные бронирования HEMA приостановлены.' druzina/index.html
+          grep -Fq 'Нові платні бронювання HEMA призупинено.' druzina/index.html
+          if grep -Eq '(120|240|910|455|2[, ]?870|1[, ]?435|8[, ]?235|4[, ]?120)[[:space:]]*Kč' druzina/index.html; then
+            echo "Withdrawn HEMA tariffs must not reappear during booking pause"
+            exit 1
+          fi
 
       - name: Verify private-to-public Druzina leaderboard isolation
         run: python3 -m unittest discover -s tests -p 'test_druzina_leaderboard.py' -v
