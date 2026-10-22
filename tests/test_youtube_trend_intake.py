@@ -19,6 +19,13 @@ class YouTubeIntakeTests(unittest.TestCase):
         self.addCleanup(self.temp.cleanup)
         self.csv = Path(self.temp.name) / "trend_candidates.auto.csv"
 
+    def test_untrusted_spreadsheet_title_cannot_execute_formula(self):
+        malicious = dict(VIDEO)
+        malicious["snippet"] = {"title": '=HYPERLINK("https://example.invalid", "click")\n'}
+        row = y.candidates([malicious], "CZ")[0]
+        self.assertTrue(row["title_or_topic"].startswith("'=HYPERLINK"))
+        self.assertNotIn("\n", row["title_or_topic"])
+
     def test_rights_always_unknown_even_when_api_says_creative_commons(self):
         row = y.candidates([VIDEO], "CZ", day="2026-10-22")[0]
         self.assertEqual(row["rights_status"], "unknown")
