@@ -17,7 +17,7 @@ Read [AGENTS.md](../AGENTS.md) first. For website, booking, prices, lead generat
 
 ## Available local model and vendor distinction
 
-The repo supports a *guarded* Ollama `qwen3:0.6b` CPU-only drafting backend on `127.0.0.1:11434`. Use `node ops/ai-local-smoke.cjs --ollama` on an authorized Windows machine for synthetic data only and inspect any `QA_BLOCKED` output. This is independent of GitHub Copilot and Google Antigravity account entitlements; do not invoke paid cloud services or assume factual/localization quality from a green unit test.
+For a synthetic PUBLIC translation QA task, the existing Ollama adapter is pinned to `127.0.0.1:11434` with a two-model local allowlist (`qwen3:4b` preferred, `qwen3:0.6b` fallback), explicit CPU-only `num_gpu=0` and strict factual/script QA. Small 0.6B returned actual inference but did not translate Slavic text adequately, so do not confuse technical success with acceptable language output. `node ops/ai-local-smoke.cjs --ollama` never posts or contacts a paid service. This is independent from GitHub Copilot entitlement and Google Antigravity eligibility; see `docs/AI-CONTENT-PIPELINE.md` before using any model output.
 
 ## Execution order
 1. Verify actual repo state, relevant issue and active branch; review existing PRs to avoid duplicate/conflicting work.
