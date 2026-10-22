@@ -77,7 +77,9 @@ def candidates(items, region, day=None):
         snippet = item.get("snippet") or {}
         if not isinstance(snippet, dict):
             continue
-        title = str(snippet.get("title") or "").strip()[:180]
+        title = re.sub(r"[\x00-\x1f\x7f]", " ", str(snippet.get("title") or "")).strip()[:180]
+        if title.startswith(("=", "+", "-", "@")):
+            title = "'" + title  # Prevent spreadsheet formula injection.
         if not title:
             continue
         stats = item.get("statistics") or {}
