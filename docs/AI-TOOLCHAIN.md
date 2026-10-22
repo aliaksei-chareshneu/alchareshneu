@@ -1,0 +1,29 @@
+# AI Toolchain — practical onboarding and execution gates (2026-10-22)
+
+This public page is intentionally free of private Google Drive, CRM, membership, payment, or Microsoft tenant details. Source-of-truth operational statuses and account/subscription records stay in the existing private execution/benefits briefs.
+
+## What already exists
+- `AGENTS.md` contains Codex/agent rules; `.github/copilot-instructions.md` adds GitHub Copilot repository-specific instructions (effective for clients/branches that load this file).
+- GitHub Actions `Operations tests` and `Site quality` already exist. Reuse those instead of creating an extra CI runner.
+- Website repo default branch is `main`; publishing branch may differ. Always verify GitHub Pages configuration before merging a public update.
+- Existing PRs and issues are authoritative for current defects. Do not duplicate an open fix.
+
+## Workstation preflight (Windows)
+On an authorised workstation, run `powershell -NoProfile -File .\ops\ai-toolchain-preflight.ps1` from repository root. This only checks available binaries and VS Code extension IDs; it does not sign into accounts, transmit credentials, install anything or prove subscription entitlements.
+
+If missing, install the official VS Code GitHub Copilot / Copilot Chat extensions and sign into the correct authorised GitHub account. Copilot is subject to real account quotas/permissions; do not presume unlimited premium usage.
+
+Google Antigravity CLI `agy` official Windows installation details: https://antigravity.google/docs/cli/install/ . Download and review the vendor PowerShell installation script before running it on the local workstation, then verify `agy --version`, authenticate, check actual selectable models/quota and repo trust. Never pipe a new script blindly to an elevated shell. Use a disposable/synthetic change before allowing unattended write commands.
+
+Microsoft 365 Copilot and GitHub Copilot are distinct products. Microsoft nonprofit approval, mailbox account identity and free/discounted plan eligibility are **not proof of a provisioned seat**. The organisation's tenant admin must verify actual product and assigned licences, then check Graph read/write permissions and budget/terms before attempting Outlook, OneDrive, Teams or Power Automate integration. Do not accept an annual payment commitment or change domain DNS/MX just to run a pilot.
+
+## Engineering pipeline (review-first)
+Existing issue -> current repo/branch read -> minimal code change with whichever permitted IDE agent is actually available -> local/repo tests -> reviewable PR -> CI readback -> owner authorisation for merge -> inspect the real GitHub Pages publishing branch -> production URL readback -> record only accepted end-user result.
+
+Current high-value example: [form ingestion issue #13](https://github.com/aliaksei-chareshneu/alchareshneu/issues/13). Use `.github/prompts/revenue-form-audit.prompt.md` as the agent task. A delivered browser thank-you page without a CRM row is a failed conversion pipeline, not a captured paying lead. The private CRM and actual customer data never go to GitHub.
+
+## Approved channel pipeline
+Source material created by us or licensed -> written rights/consent check -> original short/copy -> owner preview -> **existing** publisher queue -> verified provider post ID and public permalink -> optional opted-in enquiries in **existing** CRM -> agreed order -> invoicing -> cleared payment. Do not reuse copyrighted third-party trending clips as source files and do not mark queued/error posts as LIVE.
+
+## Acceptance / blocking
+At every handoff, distinguish VERIFIED, DRAFT/PR, BLOCKED, and NOT VERIFIED. AI assistants do not bypass legal-entity separation, contracts, privacy, access approvals or spend authorisation. A script/configuration checked into GitHub does not install an IDE, provision Microsoft, create a schedule, connect a mailbox or deploy production.
