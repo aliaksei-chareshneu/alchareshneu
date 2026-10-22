@@ -8,6 +8,8 @@ on:
       - 'original_reel_builder.py'
       - 'tests/test_original_reel_builder.py'
       - 'examples/original_reel_demo.json'
+      - 'examples/brnowalkers_hady_20261101.json'
+      - 'examples/druzina_orel_20261114.json'
       - 'trend_refresh_runner.py'
       - 'tests/test_youtube_trend_intake.py'
       - 'tests/test_shortfactory_social_stage.py'
@@ -19,6 +21,8 @@ on:
       - 'original_reel_builder.py'
       - 'tests/test_original_reel_builder.py'
       - 'examples/original_reel_demo.json'
+      - 'examples/brnowalkers_hady_20261101.json'
+      - 'examples/druzina_orel_20261114.json'
       - 'trend_refresh_runner.py'
       - 'tests/test_youtube_trend_intake.py'
       - 'tests/test_shortfactory_social_stage.py'
@@ -55,6 +59,10 @@ jobs:
         run: python -m py_compile youtube_trend_intake.py shortfactory_social_stage.py trend_refresh_runner.py original_reel_builder.py
       - name: Original media preview does not publish
         run: python original_reel_builder.py --script examples/original_reel_demo.json --preview
+      - name: Preview verified-event originals without publishing
+        run: |
+          python original_reel_builder.py --script examples/brnowalkers_hady_20261101.json --preview
+          python original_reel_builder.py --script examples/druzina_orel_20261114.json --preview
       - name: Verify fail-closed no-API-key dry-run
         run: |
           test -z "${YOUTUBE_API_KEY:-}"
