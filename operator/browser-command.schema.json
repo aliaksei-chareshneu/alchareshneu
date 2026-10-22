@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Machine Factory Browser Distribution Command",
+  "type": "object",
+  "required": ["command", "target_worker", "payload"],
+  "properties": {
+    "command": { "enum": ["facebook.group.publish", "browser.publish.verify"] },
+    "target_worker": { "const": "chatgpt-browser" },
+    "subject_type": { "const": "event" },
+    "subject_id": { "type": "string" },
+    "payload": {
+      "type": "object",
+      "required": ["approved", "destinationUrl", "text"],
+      "properties": {
+        "approved": { "const": true },
+        "destinationUrl": { "type": "string" },
+        "text": { "type": "string" },
+        "mediaUrl": { "type": ["string", "null"] },
+        "language": { "enum": ["en", "cs", "uk", "ru"] }
+      }
+    }
+  }
+}
