@@ -83,3 +83,45 @@ test('unapproved or missing source is blocked before any paid request', async ()
 test('no silent fallback from offline local model to paid provider', async () => {
   await assert.rejects(runPipeline(sample, { live: true, fetchImpl: async () => { throw Error('OFFLINE'); }, env: { MIMO_API_KEY: 'secret' } }), /OFFLINE/);
 });
+
+test('CPU-only Ollama backend reuses protected public job and cannot publish', async () => {
+  const calls = [];
+  const mockLocal = async (url, req) => {
+    calls.push({ url, method: req.method, auth: req.headers.Authorization, payload: JSON.parse(req.body) });
+    return { ok: true, json: async () => ({ model: 'qwen3:0.6b', done: true, response: sample.source_text }) };
+  };
+  const out = await runPipeline(sample, {
+    live: true, translationBackend: 'ollama', env: {}, fetchImpl: mockLocal,
+  });
+  assert.equal(out.state, 'REVIEW_REQUIRED');
+  assert.equal(out.published, false); assert.equal(out.post_url, null);
+  assert.equal(out.existing_job_id, sample.job_id);
+  assert.equal(out.quality_flags.length, 0);
+  assert.equal(calls.length, 3);
+  assert.ok(calls.every(x => x.url === 'http://127.0.0.1:11434/api/generate'));
+  assert.ok(calls.every(x => x.method === 'POST' && !x.auth));
+  assert.ok(calls.every(x => x.payload.model === 'qwen3:0.6b' && x.payload.think === false));
+  assert.ok(calls.every(x => x.payload.options.num_gpu === 0 && x.payload.stream === false));
+});
+
+test('CPU-only Ollama missing facts, invalid model reply and privacy gates fail closed', async () => {
+  await assert.rejects(runPipeline(sample, {
+    live: true, translationBackend: 'ollama', env: {},
+    fetchImpl: async () => ({ ok: true, json: async () => ({
+      model: 'qwen3:cloud', done: true, response: sample.source_text,
+    }) }),
+  }), /OLLAMA_MODEL_MISMATCH/);
+  const out = await runPipeline(sample, {
+    live: true, translationBackend: 'ollama', env: {},
+    fetchImpl: async () => ({ ok: true, json: async () => ({
+      model: 'qwen3:0.6b', done: true, response: 'Hello only.',
+    }) }),
+  });
+  assert.equal(out.state, 'QA_BLOCKED');
+  assert.equal(out.published, false);
+  assert.ok(out.quality_flags.some(x => x.item === '350'));
+  await assert.rejects(runPipeline({ ...sample, data_classification: 'PRIVATE' }, {
+    live: true, translationBackend: 'ollama',
+    fetchImpl: () => { throw Error('SHOULD_NOT_REACH_NETWORK'); },
+  }), /PRIVATE_OR_UNAPPROVED_SOURCE/);
+});

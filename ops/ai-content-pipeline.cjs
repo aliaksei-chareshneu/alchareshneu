@@ -12,6 +12,7 @@ const LOCALES = Object.freeze({ cs: 'Czech', en: 'English', ru: 'Russian', uk: '
 const OWNERS = new Set(['OSVC', 'DRUZINA_MORAVY_ZS', 'BRNOWALKERS_COMMUNITY', 'EXTERNAL_ORGANIZER']);
 const RIGHTS = new Set(['owned', 'licensed', 'public_domain']);
 const HYMT2_URL = 'http://127.0.0.1:8000/v1/chat/completions';
+const OLLAMA_URL = 'http://127.0.0.1:11434/api/generate';
 const MIMO_URL = 'https://api.xiaomimimo.com/v1/chat/completions';
 const QWEN_URL = 'https://ap-southeast-1.maas.qwencloudapi.com/compatible-mode/v1/images/generations';
 const MAX_TEXT = 5000;
@@ -64,10 +65,10 @@ function imagePrompt(job) {
     'copyrighted characters, weapons in use or inferred safety claims. Public event theme: ' + job.source_text.slice(0, 900);
 }
 
-async function requestJson(fetchImpl, url, key, payload) {
+async function requestJson(fetchImpl, url, key, payload, timeoutMs = 20000) {
   const headers = { 'Content-Type': 'application/json' };
   if (key) headers.Authorization = 'Bearer ' + key;
-  const response = await fetchImpl(url, { method: 'POST', headers, body: JSON.stringify(payload), signal: AbortSignal.timeout(20000) });
+  const response = await fetchImpl(url, { method: 'POST', headers, body: JSON.stringify(payload), signal: AbortSignal.timeout(timeoutMs) });
   if (!response || typeof response.ok !== 'boolean' || !response.ok) throw Error('PROVIDER_HTTP_ERROR');
   const data = await response.json();
   if (!data || typeof data !== 'object') throw Error('PROVIDER_INVALID_JSON');
@@ -111,6 +112,22 @@ async function callHyMT2(job, target, sourceText, options) {
   return chatText(data);
 }
 
+async function callOllama(job, target, sourceText, options) {
+  // Local CPU-only fallback on an existing Ollama installation. Never use
+  // remote/cloud model aliases and never silently route through a billed API.
+  const data = await requestJson(options.fetchImpl, OLLAMA_URL, '', {
+    model: 'qwen3:0.6b',
+    prompt: translationPrompt(job, target, sourceText),
+    stream: false,
+    think: false,
+    options: { num_gpu: 0, num_ctx: 1024, num_predict: 640, temperature: 0.1 },
+  }, 60000);
+  if (typeof data.model !== 'string' || data.model !== 'qwen3:0.6b') throw Error('OLLAMA_MODEL_MISMATCH');
+  if (data.done !== true || typeof data.response !== 'string' ||
+      !data.response.trim() || data.response.length > MAX_TEXT * 3) throw Error('OLLAMA_EMPTY_OR_INVALID_RESPONSE');
+  return data.response.trim();
+}
+
 async function callQwen(job, options) {
   requireRemote(job, options.env);
   if (!job.image_rights_approved) throw Error('IMAGE_RIGHTS_REVIEW_REQUIRED');
@@ -130,7 +147,7 @@ async function runPipeline(job, config = {}) {
   const withImage = config.withImage === true;
   const rewrite = config.rewrite === true;
   const backend = config.translationBackend || 'hy-mt2';
-  if (!['hy-mt2', 'mimo'].includes(backend)) throw Error('INVALID_TRANSLATION_BACKEND');
+  if (!['hy-mt2', 'ollama', 'mimo'].includes(backend)) throw Error('INVALID_TRANSLATION_BACKEND');
   const options = { env: config.env || process.env, fetchImpl: config.fetchImpl || global.fetch };
   const targets = Object.keys(LOCALES).filter((lang) => lang !== job.source_lang);
   const result = {
@@ -157,6 +174,7 @@ async function runPipeline(job, config = {}) {
   for (const target of targets) {
     let translated;
     if (backend === 'hy-mt2') translated = await callHyMT2(job, target, baseText, options);
+    else if (backend === 'ollama') translated = await callOllama(job, target, baseText, options);
     else translated = await callMiMo(job, translationPrompt(job, target, baseText), options);
     result.translations[target] = translated;
     result.model_status[target] = 'MODEL_RESPONSE_UNVERIFIED';
@@ -170,7 +188,7 @@ async function runPipeline(job, config = {}) {
 async function main(argv, env = process.env) {
   const flagValue = (flag) => { const i = argv.indexOf(flag); return i >= 0 ? argv[i + 1] : null; };
   const input = flagValue('--input');
-  if (!input || !/\.json$/i.test(input)) throw Error('USAGE: --input existing-row.json [--output draft.json] [--live] [--rewrite] [--image] [--translation hy-mt2|mimo]');
+  if (!input || !/\.json$/i.test(input)) throw Error('USAGE: --input existing-row.json [--output draft.json] [--live] [--rewrite] [--image] [--translation hy-mt2|ollama|mimo]');
   const job = JSON.parse(fs.readFileSync(input, 'utf8'));
   const outcome = await runPipeline(job, {
     live: argv.includes('--live'), withImage: argv.includes('--image'), rewrite: argv.includes('--rewrite'),
@@ -188,4 +206,4 @@ async function main(argv, env = process.env) {
 }
 
 if (require.main === module) main(process.argv.slice(2)).catch((e) => { console.error(e.message.match(/^[A-Z0-9_:\- .]+$/) ? e.message : 'PIPELINE_ERROR'); process.exitCode = 1; });
-module.exports = { assertJob, fingerprint, protectedTokens, missingFacts, imagePrompt, translationPrompt, runPipeline, callQwen, callMiMo, callHyMT2 };
+module.exports = { assertJob, fingerprint, protectedTokens, missingFacts, imagePrompt, translationPrompt, runPipeline, callQwen, callMiMo, callHyMT2, callOllama };

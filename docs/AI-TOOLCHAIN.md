@@ -17,6 +17,10 @@ Google Antigravity CLI `agy` official Windows installation details: https://anti
 
 Microsoft 365 Copilot and GitHub Copilot are distinct products. Microsoft nonprofit approval, mailbox account identity and free/discounted plan eligibility are **not proof of a provisioned seat**. The organisation's tenant admin must verify actual product and assigned licences, then check Graph read/write permissions and budget/terms before attempting Outlook, OneDrive, Teams or Power Automate integration. Do not accept an annual payment commitment or change domain DNS/MX just to run a pilot.
 
+## Local CPU model is operational but requires editorial QA
+
+On Windows `zmrzlina`, the Ollama API `127.0.0.1:11434` and local `qwen3:0.6b` are installed. The default CUDA runner crashed, but a real `num_gpu=0` native API request succeeded and `ollama ps` confirmed 100% CPU. The existing `ops/ai-content-pipeline.cjs` now has an opt-in `ollama` backend, with `node ops/ai-local-smoke.cjs --ollama` exercising the synthetic PUBLIC fixture only and requiring manual editorial review. This does not unlock Google Antigravity (Google account eligibility blocked), Microsoft Copilot (tenant licence absent/unverified) or a GitHub Copilot paid quota (account sign-in unverified). Codex CLI on the Windows machine is signed in with ChatGPT, but actual agent task success requires a separate readback.
+
 ## Engineering pipeline (review-first)
 Existing issue -> current repo/branch read -> minimal code change with whichever permitted IDE agent is actually available -> local/repo tests -> reviewable PR -> CI readback -> owner authorisation for merge -> inspect the real GitHub Pages publishing branch -> production URL readback -> record only accepted end-user result.
 

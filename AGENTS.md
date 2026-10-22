@@ -28,6 +28,10 @@ For contributor and volunteer features, apply role-specific, consent-based bound
 - Make a meaningful test plan, run available checks, describe what was actually tested, and require owner approval for safety, legal, fees, or production rollout.
 - Historical README/START-HERE instructions may predate the current production architecture; check live sources and this handoff before deploying.
 
+## Optional local Ollama fallback (2026-10-22)
+
+A verified `qwen3:0.6b` Ollama model exists at `127.0.0.1:11434` on the authorized Windows PC. A real CPU-only inference succeeded after default CUDA crashed. For *synthetic PUBLIC* drafting use `node ops/ai-local-smoke.cjs --ollama`; the alternative `--local` flag remains Hy-MT2 on port 8000. The `ollama` translation backend in `ops/ai-content-pipeline.cjs` pins `qwen3:0.6b`, forces `num_gpu=0` and disables thinking; calls must stay on loopback, require no secrets, never auto-publish or read customer data. Expect `QA_BLOCKED` for dropped prices/URLs, with mandatory human QA even for passing output. Do not confuse model installation with end-to-end runtime or accepted business outcomes.
+
 ## Optional AI drafting and translation adapters (2026-10-22)
 - For automation of publication text, Czech/English/Russian/Ukrainian translation, illustration backgrounds or AI provider selection, **first read `docs/AI-CONTENT-PIPELINE.md`** and `ops/ai-content-pipeline.cjs`. These are optional drafting helpers, not an alternative CRM or live publisher.
 - Reuse exactly the existing `SocialPublishing.Job_ID` and owning `Events` record. Process only a human-approved PUBLIC source, legal seller/owner and content rights. Never send personal or internal records to remote model providers; never count model output as a verified post.
