@@ -83,6 +83,9 @@ class OwnedVideoShortsTests(unittest.TestCase):
             self.assertEqual(movie.suffix, ".mp4")
             self.assertEqual(len(o.sha256(movie)), 64)
             self.assertEqual(round(o.duration_seconds(movie, o.tool("ffprobe"))), 2)
+            self.assertAlmostEqual(manifest["clips"][0]["rendered_duration"], 2.0, delta=0.45)
+            with self.assertRaises(RuntimeError):
+                o.verify_render(source, 3, o.tool("ffprobe"))
             streams = subprocess.check_output(["ffprobe", "-v", "error", "-select_streams", "v:0",
                                                "-show_entries", "stream=width,height", "-of", "json", str(movie)], text=True)
             self.assertEqual([(v["width"], v["height"]) for v in json.loads(streams)["streams"]], [(1080, 1920)])
