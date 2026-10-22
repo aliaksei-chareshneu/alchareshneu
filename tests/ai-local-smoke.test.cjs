@@ -87,21 +87,28 @@ test('Ollama CPU smoke enforces 127.0.0.1 and refuses cloud model tags', async (
   const mockOllama = async (url, init) => {
     calls.push({ url, method: init?.method, payload: init?.body ? JSON.parse(init.body) : null });
     if (url === OLLAMA_BASE + '/api/tags') {
-      return { ok: true, json: async () => ({ models: [{ name: 'qwen3:0.6b' }] }) };
+      return { ok: true, json: async () => ({ models: [{ name: 'qwen3:0.6b' }, { name: 'qwen3:4b' }] }) };
     }
+    const prompt = JSON.parse(init.body).prompt;
+    const factTokens = '31.10.2026 at 18:00, 350 CZK. https://example.com/only-test';
+    const translated = prompt.includes('Czech')
+      ? 'Syntetická ukázka: ' + factTokens
+      : prompt.includes('Russian')
+        ? 'Синтетический пример: ' + factTokens
+        : 'Синтетичний приклад: ' + factTokens;
     return { ok: true, json: async () => ({
-      model: 'qwen3:0.6b', done: true, response: job.source_text,
+      model: 'qwen3:4b', done: true, response: translated,
     }) };
   };
   const out = await smoke({ backend: 'ollama', local: true, fetchImpl: mockOllama });
   assert.equal(out.status, 'LOCAL_MODEL_RESPONDED_FACT_TOKENS_PASS');
-  assert.equal(out.local_model_id, 'qwen3:0.6b');
+  assert.equal(out.local_model_id, 'qwen3:4b');
   assert.equal(out.paid_calls, 0);
   assert.equal(out.published, false);
   assert.equal(calls.length, 4);
   assert.equal(calls[0].url, OLLAMA_BASE + '/api/tags');
   assert.ok(calls.slice(1).every(x => x.url === OLLAMA_BASE + '/api/generate'));
-  assert.ok(calls.slice(1).every(x => x.payload.options.num_gpu === 0 && x.payload.think === false));
+  assert.ok(calls.slice(1).every(x => x.payload.options.num_gpu === 0 && x.payload.think === false && x.payload.model === 'qwen3:4b'));
 
   const guarded = loopbackOnly(() => { throw Error('UNSAFE_CALL'); }, 'ollama');
   for (const url of ['http://localhost:11434/api/generate',
@@ -128,4 +135,24 @@ test('Ollama failure does not call a paid model, send posts, or create new queue
     return { ok: false };
   } }), /PROVIDER_HTTP_ERROR/);
   assert.ok(calls.every(x => x.startsWith(OLLAMA_BASE + '/')));
+});
+
+test('Ollama 0.6B fallback is explicitly QA_BLOCKED when it repeats English', async () => {
+  const calls = [];
+  const result = await smoke({ backend: 'ollama', local: true, fetchImpl: async (url) => {
+    calls.push(url);
+    if (url.endsWith('/api/tags')) {
+      return { ok: true, json: async () => ({ models: [{ name: 'qwen3:0.6b' }] }) };
+    }
+    return { ok: true, json: async () => ({
+      model: 'qwen3:0.6b', done: true, response: job.source_text,
+    }) };
+  } });
+  assert.equal(result.local_model_id, 'qwen3:0.6b');
+  assert.equal(result.status, 'QA_BLOCKED');
+  assert.ok(result.fact_token_issues.some(x => x.kind === 'TARGET_SCRIPT_MISSING' && x.target === 'ru'));
+  assert.ok(result.fact_token_issues.some(x => x.kind === 'CZECH_LANGUAGE_UNVERIFIED' && x.target === 'cs'));
+  assert.equal(result.published, false);
+  assert.equal(result.paid_calls, 0);
+  assert.ok(calls.every(url => url.startsWith(OLLAMA_BASE + '/')));
 });

@@ -13,6 +13,7 @@ const OWNERS = new Set(['OSVC', 'DRUZINA_MORAVY_ZS', 'BRNOWALKERS_COMMUNITY', 'E
 const RIGHTS = new Set(['owned', 'licensed', 'public_domain']);
 const HYMT2_URL = 'http://127.0.0.1:8000/v1/chat/completions';
 const OLLAMA_URL = 'http://127.0.0.1:11434/api/generate';
+const OLLAMA_ALLOWED_MODELS = new Set(['qwen3:4b', 'qwen3:0.6b']);
 const MIMO_URL = 'https://api.xiaomimimo.com/v1/chat/completions';
 const QWEN_URL = 'https://ap-southeast-1.maas.qwencloudapi.com/compatible-mode/v1/images/generations';
 const MAX_TEXT = 5000;
@@ -43,6 +44,21 @@ function protectedTokens(text) {
 
 function missingFacts(original, draft) {
   return protectedTokens(original).filter((token) => !draft.includes(token));
+}
+
+function translationScriptIssues(sourceText, translated, target) {
+  // Conservative language sanity checks. Cyrillic is essential for an actual
+  // Russian/Ukrainian translation of substantive English input. For Czech,
+  // missing diacritics means not enough evidence to trust a tiny model output.
+  // These are human-review stop gates, NOT guarantees of correct translation.
+  if (!/[A-Za-z]{3}/.test(sourceText)) return [];
+  if (['ru', 'uk'].includes(target) && !/[\u0400-\u052f]/u.test(translated)) {
+    return [{ target, kind: 'TARGET_SCRIPT_MISSING', item: 'CYRILLIC' }];
+  }
+  if (target === 'cs' && !/[áčďéěíňóřšťúůýž]/iu.test(translated)) {
+    return [{ target, kind: 'CZECH_LANGUAGE_UNVERIFIED', item: 'DIACRITIC_EVIDENCE_MISSING' }];
+  }
+  return [];
 }
 
 function translationPrompt(job, target, sourceText) {
@@ -115,14 +131,16 @@ async function callHyMT2(job, target, sourceText, options) {
 async function callOllama(job, target, sourceText, options) {
   // Local CPU-only fallback on an existing Ollama installation. Never use
   // remote/cloud model aliases and never silently route through a billed API.
+  const model = options.env.OLLAMA_MODEL || 'qwen3:4b';
+  if (!OLLAMA_ALLOWED_MODELS.has(model)) throw Error('OLLAMA_MODEL_NOT_ALLOWED');
   const data = await requestJson(options.fetchImpl, OLLAMA_URL, '', {
-    model: 'qwen3:0.6b',
+    model,
     prompt: translationPrompt(job, target, sourceText),
     stream: false,
     think: false,
     options: { num_gpu: 0, num_ctx: 1024, num_predict: 640, temperature: 0.1 },
   }, 60000);
-  if (typeof data.model !== 'string' || data.model !== 'qwen3:0.6b') throw Error('OLLAMA_MODEL_MISMATCH');
+  if (typeof data.model !== 'string' || data.model !== model) throw Error('OLLAMA_MODEL_MISMATCH');
   if (data.done !== true || typeof data.response !== 'string' ||
       !data.response.trim() || data.response.length > MAX_TEXT * 3) throw Error('OLLAMA_EMPTY_OR_INVALID_RESPONSE');
   return data.response.trim();
@@ -179,6 +197,7 @@ async function runPipeline(job, config = {}) {
     result.translations[target] = translated;
     result.model_status[target] = 'MODEL_RESPONSE_UNVERIFIED';
     result.quality_flags.push(...missingFacts(job.source_text, translated).map((item) => ({ target, kind: 'FACT_TOKEN_MISSING', item })));
+    if (backend === 'ollama') result.quality_flags.push(...translationScriptIssues(job.source_text, translated, target));
   }
   if (withImage) result.image = { state: 'ASSET_URL_REVIEW_REQUIRED', ...(await callQwen(job, options)) };
   if (result.quality_flags.length) result.state = 'QA_BLOCKED';
@@ -206,4 +225,4 @@ async function main(argv, env = process.env) {
 }
 
 if (require.main === module) main(process.argv.slice(2)).catch((e) => { console.error(e.message.match(/^[A-Z0-9_:\- .]+$/) ? e.message : 'PIPELINE_ERROR'); process.exitCode = 1; });
-module.exports = { assertJob, fingerprint, protectedTokens, missingFacts, imagePrompt, translationPrompt, runPipeline, callQwen, callMiMo, callHyMT2, callOllama };
+module.exports = { assertJob, fingerprint, protectedTokens, missingFacts, translationScriptIssues, imagePrompt, translationPrompt, runPipeline, callQwen, callMiMo, callHyMT2, callOllama };

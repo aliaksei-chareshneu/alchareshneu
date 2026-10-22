@@ -40,22 +40,25 @@ node ops/ai-content-pipeline.cjs --input <approved-existing-row.json> --live --t
 
 Validation blocks unknown rights, internal/private material, non-public source approval, already verified publication, missing owner identity and unsupported locales. Outputs are `REVIEW_REQUIRED` or `QA_BLOCKED`, never `PUBLISHED_VERIFIED`.
 
-## Local Ollama CPU fallback (verified on Windows 22 Oct 2026)
+## Local Ollama CPU models and conservative language QA (22 October 2026)
 
-The authorised Windows machine `zmrzlina` already has **Ollama 0.40.6** and `qwen3:0.6b` installed. Initially inference returned HTTP 500 due to a CUDA runner crash (`device kernel image is invalid`). The *native* Ollama API successfully generated `PIPELINE_CPU_OK` after setting `options.num_gpu=0`; `ollama ps` independently reported **100% CPU**. A local `imperion-qwen3-cpu:0.6b` alias is also installed as an optional workaround, but the code below uses the portable installed model ID `qwen3:0.6b`, with per-request CPU forcing.
+Verified on authorised Windows `zmrzlina`: Ollama 0.40.6, local `qwen3:0.6b`, and a true CPU-only native request that replied `PIPELINE_CPU_OK`. The CUDA auto-selected runner had failed (`device kernel image is invalid`), so this adapter **always** sends `options.num_gpu=0` and `think=false`. An optional local CPU alias `imperion-qwen3-cpu:0.6b` also exists, but the adapter uses only the explicit Ollama model allowlist, not that alias.
 
-This adds an **optional** translation adapter to the EXISTING `SocialPublishing.Job_ID` process. It uses only `http://127.0.0.1:11434/api/tags` (local existence check) and `http://127.0.0.1:11434/api/generate` (three translations of the synthetic PUBLIC fixture). It does **not** start Ollama, install models, contact Ollama Cloud, read CRM, post content, or call paid providers. It deliberately forces `num_gpu=0` and `think=false` in each request to avoid the verified GPU crash and excessive reasoning. Model ID is pinned to the already-installed local `qwen3:0.6b`; no environment flag can substitute a cloud model.
+**Independent real language QA found a serious limitation:** the 0.6B model produced outputs containing the original date, price and URL but almost no Czech/Russian/Ukrainian translation. Fact-token preservation alone is NOT language acceptance. The new `translationScriptIssues` checks only for this Ollama fallback: substantive Russian/Ukrainian output must include Cyrillic; Czech output must contain some Czech diacritic evidence. These conservative heuristics can fail valid short texts; a human must verify EVERY approved draft and cannot treat a token/script pass as publishable. `QA_BLOCKED` prevents promoting weak drafts.
+
+Model preference: the existing `node ops/ai-local-smoke.cjs --ollama` checks `/api/tags` only on `127.0.0.1:11434`, prefers installed **`qwen3:4b`** (Apache-2.0, ~2.5 GB) for improved multilingual drafting, and falls back to installed `qwen3:0.6b` only when 4B is unavailable. The backend defaults to 4B for explicit `--translation ollama` calls; only the two local names are allowed through `OLLAMA_MODEL` (no `:cloud` or custom external identifiers). If not installed, it fails rather than automatically pulling model weights. A new model must pass a real synthetic inference and independent language QA before being described as useful; an install/pull attempt is NOT proof.
+
+Official release and licence: https://ollama.com/library/qwen3:4b . This implementation is CPU-only to avoid observed CUDA failure and remains offline/local: 1 GET `http://127.0.0.1:11434/api/tags` plus 3 POST `http://127.0.0.1:11434/api/generate` on the synthetic-only smoke. It never accesses CRM, posts to social channels, sends email, enables model cloud use, or pays an API.
 
 ```powershell
 ollama list
-node ops/ai-local-smoke.cjs                     # remains 100% offline preview
-node ops/ai-local-smoke.cjs --ollama             # local live synthetic only
+node ops/ai-local-smoke.cjs                 # zero network/no inference
+node ops/ai-local-smoke.cjs --ollama         # real SYNTHETIC local translations only
 node ops/ai-content-pipeline.cjs --input ops/ai-content-synthetic.json --live --translation ollama
+# For an explicitly chosen lower-quality fallback, optionally set OLLAMA_MODEL=qwen3:0.6b
 ```
 
-Exit `0` and `LOCAL_MODEL_RESPONDED_FACT_TOKENS_PASS` mean **only** that model output preserved the protected numeric/URL tokens, not that the translation is correct or publishable; manual CZ/RU/UK review remains mandatory. Exit `2` / `QA_BLOCKED` means a material fact was omitted. This ~0.6B model is a low-resource fallback, not a substitute for proofreading. Ollama health/version alone never counts as a successful model response. No auto-publication, automatic fallback to paid APIs, or CRM writes are allowed.
-
-The same source and legal gates, existing `Job_ID`, unchanged `source_fingerprint`, and human review apply. If another machine has no local `qwen3:0.6b`, return `LOCAL_MODEL_NOT_QWEN3` instead of downloading anything. For better quality, the independently staged Hy-MT2 translation route remains available but its separate binary/model runtime must be verified before use.
+Acceptance: factual tokens AND script checks, human review of CS/RU/UK grammar/meaning, unchanged source fingerprint and existing SocialPublishing.Job_ID. Never auto-publish or equate model inference to sales. Hy-MT2 on port 8000 and billed MiMo/Qwen remain independent opt-in routes; nothing here starts these services, changes legal authority or approves content.
 
 ## Optional paid remote providers (OFF by default)
 
