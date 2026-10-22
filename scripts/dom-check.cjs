@@ -15,7 +15,29 @@ if(require.main===module)(async()=>{let count=0;for(const path of ['index.html',
  const bad=[...d.querySelectorAll('main a[href^="#"]')].filter(a=>a.hash.length>1&&!d.getElementById(decodeURIComponent(a.hash.slice(1)))).map(a=>a.hash);assert.deepEqual(bad,[],path+' anchors');
  assert.deepEqual(errors,[],path+' runtime errors');
  if(path.startsWith('academy')){const input=d.querySelector('#service-search');input.value='zzzzmissing';input.dispatchEvent(new w.Event('input'));assert.equal(d.querySelectorAll('.price-cat:not([hidden])').length,0);input.value='';input.dispatchEvent(new w.Event('input'));assert.equal(d.querySelectorAll('.price-cat:not([hidden])').length,9);assert.equal(d.querySelectorAll('.service-action').length,9);}
- if(path.startsWith('druzina')){for(const price of ['120','240','910','455','2870','1435','8235','4120'])assert.ok(d.body.textContent.replace(/[ ,]/g,'').includes(price+'Kč'));}
+ if(path.startsWith('druzina')){
+  const notice=d.querySelector('#registration-notice');
+  if(notice){
+   const paused={
+    en:'New paid HEMA bookings are paused',
+    ru:'Новые платные бронирования HEMA приостановлены',
+    cs:'Nové placené rezervace HEMA jsou pozastaveny',
+    uk:'Нові платні бронювання HEMA призупинено'
+   };
+   const activeNotice=notice.querySelector('[data-notice-lang="'+lang+'"]');
+   assert.ok(activeNotice?.textContent.includes(paused[lang]),path+' missing '+lang+' paused-booking notice');
+   assert.equal(d.querySelector('#tariff')?.getAttribute('aria-hidden'),'true','retired pricing anchor must be hidden');
+   assert.equal(d.querySelector('#druzina-payment')?.getAttribute('aria-hidden'),'true','retired payment anchor must be hidden');
+   const booking=d.querySelector('#navBookBtn')?.getAttribute('href')||'';
+   assert.ok(booking.startsWith(lang==='ru'?'https://t.me/Chareshneu':'https://wa.me/420702914842'),path+' '+lang+' booking CTA must be an enquiry');
+   const retired=[...d.querySelectorAll('a[href]')].filter(a=>/docs[.]google[.]com[/]forms[/]d[/]e|revolut[.]me[/]/i.test(a.href));
+   assert.equal(retired.length,0,'paused HEMA page must not link to retired payment/booking forms');
+  } else {
+   const text=d.body.textContent.replace(/[ ,]/g,'');
+   for(const price of ['120','240','910','455','2870','1435','8235','4120'])
+    assert.ok(text.includes(price+'Kč'),path+' missing active price '+price+' Kč');
+  }
+ }
  const languageButton=d.querySelector('[data-lang="ru"]');languageButton.click();await new Promise(r=>setTimeout(r,10));assert.equal(d.documentElement.lang,'ru');assert.equal(d.querySelectorAll('h1').length,1);assert.deepEqual(errors,[]);
  console.log('PASS',path,lang);count++;
  }finally{dom.window.close();}
