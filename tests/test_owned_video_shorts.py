@@ -49,6 +49,15 @@ class OwnedVideoShortsTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             o.validate(spec, 5)
 
+    def test_untested_claude_proposal_can_preview_but_not_render(self):
+        idea = copy.deepcopy(BASE)
+        idea.update(rights_status="unknown", rights_basis="UNVERIFIED",
+                    people_consents_checked=False, music_rights_checked=False,
+                    contains_minors=True)
+        self.assertEqual(len(o.validate(idea, 5, require_rights=False)), 1)
+        with self.assertRaises(ValueError):
+            o.validate(idea, 5, require_rights=True)
+
     def test_srt_is_local_timestamped_text(self):
         result = o.subtitle_file(BASE["clips"][0]["subtitles"])
         self.assertIn("00:00:00,000 --> 00:00:01,500", result)
