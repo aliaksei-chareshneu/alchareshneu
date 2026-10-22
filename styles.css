@@ -823,3 +823,20 @@
   .price-cat-summary-toggle::-webkit-details-marker{display:none;}
   .price-cat-summary-toggle::before{content:'▸';transition:transform .2s ease;font-size:12px;}
   .price-cat-details[open] > .price-cat-summary-toggle::before{transform:rotate(90deg);}
+
+/* Shared public calendar: always accessible, independent of optional Events API cards. */
+#calendar-board { padding-top: 34px; }
+.calendar-panel-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; flex-wrap: wrap; margin-bottom: 18px; }
+.calendar-panel-heading > div { flex: 1 1 350px; min-width: 0; }
+.calendar-panel-heading h2 { margin: 0 0 12px; }
+.calendar-booking-note { max-width: 770px; color: var(--ink-dim); line-height: 1.55; margin: 0; }
+.calendar-panel-heading .calendar-cta-btn { flex: 0 1 auto; font-size: 14px; padding: 12px 18px; }
+#public-calendar-frame { display: block; width: 100%; max-width: 100%; border: 0; }
+#calendar-events .wrap > h2 { margin: 32px 0 14px; }
+@media (max-width: 640px) {
+  #calendar-board { padding-top: 20px; }
+  .calendar-panel-heading { gap: 14px; flex-direction: column; align-items: stretch; }
+  .calendar-panel-heading > div { flex: auto; }
+  .calendar-panel-heading .calendar-cta-btn { display: block; width: 100%; text-align: center; }
+  #public-calendar-frame { height: 550px; }
+}
