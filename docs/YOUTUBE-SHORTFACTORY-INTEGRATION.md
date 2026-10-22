@@ -44,3 +44,18 @@ No license/consent or cross-platform publication can be inferred from an API cha
 5. Verified bank receipts for CASH; an ad click or view is not a paid client.
 
 Official references: https://developers.google.com/youtube/v3/docs/videos/list and https://www.youtube.com/t/terms
+
+
+## Approved ShortFactory -> canonical SocialPublishing handoff
+
+1. From existing ShortFactory folder run: python distribution_bridge.py manifest
+2. Choose the **real** legal entity for the asset and campaign, separately for OSVC or DRUZINA_ZS.
+3. Run: python shortfactory_social_stage.py --manifest publish_manifest.json --entity DRUZINA_ZS --output SocialPublishing-review.csv
+4. A local CSV with the **exact existing 20 SocialPublishing column names** is staged, never pushed to the cloud automatically. No new spreadsheet/CRM is created.
+5. The mapping is fail-closed. Every row is DRAFT/private. Channel is only an alias, not an authenticated recipient. Blank fields include Rights_OK, Duplicate_Checked, Approved_At, Media_URL, Video_Drive_ID, Scheduled_At, Made_For_Kids, Post_ID and Post_URL.
+6. Operator must use the existing Community Hub SocialPublishing sheet to verify whether Job_ID already exists, check channel permissions (canonical distribution register), map the actual publisher account, secure file hosting, audience and consent, explicit grant/sponsor terms, campaign date/budget, then obtain explicit release approval. Never bulk-import a staging CSV as approved/scheduled content.
+7. Only after a permitted sender reports live public permalink can a post be marked PUBLISHED_VERIFIED and recorded in the existing ShortFactory distribution_bridge.py record-post flow; client conversions remain with the same Community Hub CRM.
+
+No real SocialPublishing rows or public posts were created in this work. The staged CSV contains only reviewed caption and route metadata; no private local source paths, secrets, person/customer records, or content exports are sent to GitHub or Google by the adapter.
+
+Offline tests: python -m unittest test_youtube_trend_intake test_shortfactory_social_stage -v ; 11/11 pass on zmrzlina 2026-10-22.
