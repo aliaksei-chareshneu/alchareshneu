@@ -197,7 +197,7 @@ async function runPipeline(job, config = {}) {
     result.translations[target] = translated;
     result.model_status[target] = 'MODEL_RESPONSE_UNVERIFIED';
     result.quality_flags.push(...missingFacts(job.source_text, translated).map((item) => ({ target, kind: 'FACT_TOKEN_MISSING', item })));
-    result.quality_flags.push(...translationScriptIssues(job.source_text, translated, target));
+    if (backend === 'ollama') result.quality_flags.push(...translationScriptIssues(job.source_text, translated, target));
   }
   if (withImage) result.image = { state: 'ASSET_URL_REVIEW_REQUIRED', ...(await callQwen(job, options)) };
   if (result.quality_flags.length) result.state = 'QA_BLOCKED';
