@@ -88,7 +88,13 @@ test('CPU-only Ollama backend reuses protected public job and cannot publish', a
   const calls = [];
   const mockLocal = async (url, req) => {
     calls.push({ url, method: req.method, auth: req.headers.Authorization, payload: JSON.parse(req.body) });
-    return { ok: true, json: async () => ({ model: 'qwen3:0.6b', done: true, response: sample.source_text }) };
+    const prompt = JSON.parse(req.body).prompt;
+    const localized = prompt.includes('Czech')
+      ? 'Ukázka 31.10.2026 v 18:00. Cena 350 CZK. https://example.com/only-test'
+      : prompt.includes('Russian')
+        ? 'Пример 31.10.2026 в 18:00. Цена 350 CZK. https://example.com/only-test'
+        : 'Приклад 31.10.2026 о 18:00. Ціна 350 CZK. https://example.com/only-test';
+    return { ok: true, json: async () => ({ model: 'qwen3:4b', done: true, response: localized }) };
   };
   const out = await runPipeline(sample, {
     live: true, translationBackend: 'ollama', env: {}, fetchImpl: mockLocal,
@@ -100,7 +106,7 @@ test('CPU-only Ollama backend reuses protected public job and cannot publish', a
   assert.equal(calls.length, 3);
   assert.ok(calls.every(x => x.url === 'http://127.0.0.1:11434/api/generate'));
   assert.ok(calls.every(x => x.method === 'POST' && !x.auth));
-  assert.ok(calls.every(x => x.payload.model === 'qwen3:0.6b' && x.payload.think === false));
+  assert.ok(calls.every(x => x.payload.model === 'qwen3:4b' && x.payload.think === false));
   assert.ok(calls.every(x => x.payload.options.num_gpu === 0 && x.payload.stream === false));
 });
 
@@ -114,7 +120,7 @@ test('CPU-only Ollama missing facts, invalid model reply and privacy gates fail 
   const out = await runPipeline(sample, {
     live: true, translationBackend: 'ollama', env: {},
     fetchImpl: async () => ({ ok: true, json: async () => ({
-      model: 'qwen3:0.6b', done: true, response: 'Hello only.',
+      model: 'qwen3:4b', done: true, response: 'Hello only.',
     }) }),
   });
   assert.equal(out.state, 'QA_BLOCKED');
@@ -124,4 +130,22 @@ test('CPU-only Ollama missing facts, invalid model reply and privacy gates fail 
     live: true, translationBackend: 'ollama',
     fetchImpl: () => { throw Error('SHOULD_NOT_REACH_NETWORK'); },
   }), /PRIVATE_OR_UNAPPROVED_SOURCE/);
+});
+
+test('Ollama language-script quality gates flag un-translated output even when numbers pass', async () => {
+  const sameEnglish = await runPipeline(sample, {
+    live: true, translationBackend: 'ollama', env: {},
+    fetchImpl: async () => ({ ok: true, json: async () => ({
+      model: 'qwen3:4b', done: true, response: sample.source_text,
+    }) }),
+  });
+  assert.equal(sameEnglish.state, 'QA_BLOCKED');
+  assert.equal(sameEnglish.published, false);
+  assert.ok(sameEnglish.quality_flags.some(x => x.kind === 'TARGET_SCRIPT_MISSING' && x.target === 'ru'));
+  assert.ok(sameEnglish.quality_flags.some(x => x.kind === 'TARGET_SCRIPT_MISSING' && x.target === 'uk'));
+  assert.ok(sameEnglish.quality_flags.some(x => x.kind === 'CZECH_LANGUAGE_UNVERIFIED' && x.target === 'cs'));
+  await assert.rejects(runPipeline(sample, {
+    live: true, translationBackend: 'ollama', env: { OLLAMA_MODEL: 'qwen3:cloud' },
+    fetchImpl: () => { throw Error('UNEXPECTED_NETWORK_CALL'); },
+  }), /OLLAMA_MODEL_NOT_ALLOWED/);
 });
