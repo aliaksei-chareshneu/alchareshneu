@@ -1,0 +1,12 @@
+{
+  "job_id": "PUB-SYNTHETIC-001",
+  "owner_entity": "OSVC",
+  "rights_status": "owned",
+  "data_classification": "PUBLIC_APPROVED",
+  "public_source_approved": true,
+  "external_ai_approved": false,
+  "image_rights_approved": false,
+  "existing_status": "DRAFT",
+  "source_lang": "en",
+  "source_text": "SYNTHETIC DEMO only: 31.10.2026 at 18:00, 350 CZK. https://example.com/only-test"
+}
