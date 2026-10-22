@@ -10,7 +10,7 @@ function fakeFetch(calls, translated = job.source_text, opts = {}) {
   return async (url, init) => {
     calls.push({ url, method: init?.method });
     if (url === BASE + '/v1/models') {
-      return { ok: opts.failHealth !== true, json: async () => ({ data: opts.emptyIds ? [] : [{ id: 'tencent/Hy-MT2-1.8B-GGUF' }] }) };
+      return { ok: opts.failHealth !== true, json: async () => ({ data: opts.emptyIds ? [] : [{ id: opts.wrongId ? 'other-llm-2B' : 'tencent/Hy-MT2-1.8B-GGUF' }] }) };
     }
     return { ok: true, json: async () => ({ choices: [{ message: { content: translated } }] }) };
   };
@@ -61,6 +61,7 @@ test('factual omissions fail closed as QA_BLOCKED', async () => {
 test('offline, unhealthy or model-less localhost cannot be mistaken for successful inference', async () => {
   await assert.rejects(smoke({ local: true, fetchImpl: fakeFetch([], undefined, { failHealth: true }) }), /LOCAL_MODEL_SERVER_UNAVAILABLE/);
   await assert.rejects(smoke({ local: true, fetchImpl: fakeFetch([], undefined, { emptyIds: true }) }), /LOCAL_MODEL_ID_MISSING/);
+  await assert.rejects(smoke({ local: true, fetchImpl: fakeFetch([], undefined, { wrongId: true }) }), /LOCAL_MODEL_NOT_HYMT2/);
 });
 
 test('no fallback to paid provider if local translator fails', async () => {
