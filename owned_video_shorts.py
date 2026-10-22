@@ -46,6 +46,24 @@ def duration_seconds(source, ffprobe):
     return seconds
 
 
+def verify_render(path, expected, ffprobe):
+    result = subprocess.run(
+        [ffprobe, "-v", "error", "-select_streams", "v:0",
+         "-show_entries", "stream=codec_name,width,height:format=duration",
+         "-of", "json", str(path)], capture_output=True, text=True,
+        timeout=30, check=True,
+    )
+    data = json.loads(result.stdout)
+    streams = data.get("streams", [])
+    video = streams[0] if streams else {}
+    actual = float(data.get("format", {}).get("duration", 0))
+    if (video.get("codec_name") != "h264" or
+            (video.get("width"), video.get("height")) != (W, H) or
+            not math.isfinite(actual) or abs(actual - expected) > 0.45):
+        raise RuntimeError("Rendered output failed codec, dimensions or duration QA")
+    return round(actual, 3)
+
+
 def number(value, label):
     if isinstance(value, bool) or not isinstance(value, (int, float)):
         raise ValueError(f"{label} must be a number")
@@ -158,12 +176,14 @@ def execute(spec, source, out_dir, *, render=False, ffmpeg=None, ffprobe=None):
             )
             if not working.is_file() or working.stat().st_size < 100:
                 raise RuntimeError("Empty FFmpeg output")
+            actual_length = verify_render(working, item["duration"], ffprobe)
             working.replace(target)
         finally:
             working.unlink(missing_ok=True)
         record = {"clip": i, "file": str(target), "file_sha256": sha256(target),
                   "title": item["title"], "caption": item["caption"], "cta": item["cta"],
                   "start": item["start"], "duration": item["duration"],
+                  "rendered_duration": actual_length,
                   "source_sha256": source_hash, "rights_status": spec["rights_status"],
                   "rights_basis": spec["rights_basis"], "status": "DRAFT_NEEDS_EDITORIAL_REVIEW",
                   "approved": False, "published": False, "post_url": None}
