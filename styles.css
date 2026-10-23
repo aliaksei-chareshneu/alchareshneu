@@ -378,6 +378,8 @@
       position:relative;inset:auto;
       width:100%;height:clamp(210px,58vw,330px);
     }
+    /* The compact Druzina landing keeps key facts close to the top. */
+    #druzina.hero>.hero-visuals{height:clamp(170px,45vw,240px);}
     #walkers.hero>.wrap,#druzina.hero>.wrap{padding-top:24px;}
     .hero-visuals-walkers .hero-photo,
     .hero-visuals-druzina .hero-photo{
