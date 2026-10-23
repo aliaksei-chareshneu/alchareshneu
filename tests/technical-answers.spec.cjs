@@ -81,3 +81,12 @@ test('technical answers: language switching and corporate referral are usable',a
   await expect(page.locator('html')).toHaveAttribute('lang','en');
   await expect(page.locator('h1')).toContainText('Stop hunting');
 });
+
+test('homepage prioritizes B2B pilot and preserves separate community choice',async({page})=>{
+  for(const lang of ['cs','en','ru','uk']){
+    await page.goto('/?lang='+lang);
+    await expect(page.locator('#heroCta')).toHaveAttribute('href','corporate/technical-answers/?lang='+lang);
+    await expect(page.locator('#heroCorporateCta')).toHaveAttribute('href','#join');
+    await expect(page.locator('#heroCta')).toContainText('14 900');
+  }
+});
