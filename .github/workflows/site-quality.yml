@@ -24,6 +24,7 @@ jobs:
           test -f calendar/index.html
           test -f styles.css
           test -f sitemap.xml
+          test -f corporate/index.html
 
       - name: Reject stale production placeholders
         shell: bash
@@ -52,7 +53,7 @@ jobs:
         run: |
           node <<'NODE'
           const fs = require('fs');
-          const files = ['index.html','academy/index.html','calendar/index.html','druzina/index.html','walkers/index.html'];
+          const files = ['index.html','academy/index.html','corporate/index.html','calendar/index.html','druzina/index.html','walkers/index.html'];
           let failed = false;
           for (const file of files) {
             const html = fs.readFileSync(file, 'utf8');
@@ -69,3 +70,6 @@ jobs:
           }
           if (failed) process.exit(1);
           NODE
+
+      - name: Check corporate inquiry CTA and languages
+        run: python3 check_revenue_landing.py

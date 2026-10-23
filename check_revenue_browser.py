@@ -14,9 +14,11 @@ with sync_playwright() as p:
         assert cta.is_visible(),"primary CTA invisible"
         assert not overflow,"horizontal overflow at %dpx"%width
         page.locator("[data-lang='cs']").click()
-        assert page.locator("h1:visible").inner_text().startswith("Firemní")
+        assert page.locator("h1:visible").inner_text().startswith("Méně")
         page.locator("[data-lang='ru']").click()
-        assert page.locator("h1:visible").inner_text().startswith("Корпоративное")
+        assert page.locator("h1:visible").inner_text().startswith("Меньше")
+        page.locator("[data-lang='uk']").click()
+        assert page.locator("h1:visible").inner_text().startswith("Менше")
         assert page.locator("h1:visible").bounding_box()["width"]<=width
         print("PASS viewport",width,"no-overflow + languages + CTA")
         page.close()
