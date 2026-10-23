@@ -275,3 +275,52 @@ body.dm-ux-home #first-steps{display:none!important} /* Superseded by the access
 .dm-role-grid{grid-template-columns:1fr;gap:10px}
 .dm-role-card{padding:18px}
 }
+
+
+/* DM-COMPACT-FIRST-FOLD-20261023: all essentials visible; full details one click away. */
+body.dm-ux-home #druzina>.wrap{max-width:1120px;padding-top:clamp(28px,4vw,48px);padding-bottom:clamp(32px,4.5vw,55px)}
+body.dm-ux-home #druzina h1{font-size:clamp(2.7rem,6.4vw,5rem);margin:.08em 0 .17em}
+body.dm-ux-home #druzina .dm-hero-deck{max-width:52ch;color:#f4e7d6;font-size:clamp(1.05rem,2vw,1.38rem);line-height:1.4;margin:0 0 21px;font-weight:650}
+body.dm-ux-home .dm-hero-essentials{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;max-width:1020px}
+body.dm-ux-home .dm-hero-key{padding:18px 21px;min-width:0;border:1px solid rgba(247,215,173,.26);border-radius:14px;background:rgba(10,23,36,.88);box-shadow:0 8px 28px rgba(0,0,0,.1)}
+body.dm-ux-home .dm-hero-key-label{display:block;font:850 .78rem/1.4 'Source Sans 3',sans-serif;letter-spacing:.14em;color:#f6c785;margin-bottom:6px}
+body.dm-ux-home .dm-hero-key strong{display:block;font-size:clamp(.99rem,1.7vw,1.17rem);line-height:1.36;color:#fff8ed;overflow-wrap:anywhere}
+body.dm-ux-home .dm-hero-key strong a{color:inherit;text-decoration:underline;text-decoration-color:#dcb270;text-underline-offset:4px}
+body.dm-ux-home .dm-hero-key strong a:hover{color:#ffd9a0}
+body.dm-ux-home .dm-hero-key small{display:block;color:#d6e0e9;font-size:.88rem;line-height:1.45;margin-top:6px}
+body.dm-ux-home #druzina .dm-hero-ctas{margin-top:18px}
+body.dm-ux-home #druzina .dm-hero-register{background:#edc47f;color:#172434;font-size:1.03rem;padding:14px 26px;box-shadow:0 12px 30px rgba(3,8,15,.21)}
+body.dm-ux-home #druzina .dm-hero-register:hover{background:#ffdc9b;color:#142338}
+body.dm-ux-home #druzina .dm-compact-legal{max-width:1000px;margin-top:12px;padding:8px 12px;font-size:.85rem;background:rgba(4,16,27,.79)}
+body.dm-ux-home .dm-accordion-shell{max-width:1170px;margin:22px auto 52px;padding:0 clamp(16px,3vw,26px);display:grid;gap:12px}
+body.dm-ux-home .dm-disclosure{border:1px solid #d7c9b5;border-radius:15px;background:#fffdf9;color:#183043;overflow:clip;min-width:0}
+body.dm-ux-home .dm-disclosure>summary{display:flex;align-items:center;justify-content:space-between;gap:18px;list-style:none;cursor:pointer;min-height:72px;padding:18px clamp(17px,3vw,28px);font:800 clamp(1.05rem,1.8vw,1.25rem)/1.38 'Source Sans 3',sans-serif;color:#1d3347}
+body.dm-ux-home .dm-disclosure>summary::-webkit-details-marker{display:none}
+body.dm-ux-home .dm-disclosure>summary:after{content:'+';display:grid;flex:0 0 38px;place-items:center;width:38px;height:38px;border-radius:11px;background:#f2e7d7;color:#6e441d;font:800 1.7rem/1 system-ui,sans-serif}
+body.dm-ux-home .dm-disclosure[open]>summary{background:#eee3d1}
+body.dm-ux-home .dm-disclosure[open]>summary:after{content:'−'}
+body.dm-ux-home .dm-disclosure>summary:hover{background:#f6ebd9}
+body.dm-ux-home .dm-disclosure-body{padding:0 0 14px}
+body.dm-ux-home .dm-disclosure-body>section{scroll-margin-top:110px}
+body.dm-ux-home .dm-expanded-intro{padding:20px clamp(18px,3vw,30px) 8px;max-width:1050px;color:#334d61;line-height:1.6}
+body.dm-ux-home .dm-expanded-intro p{margin:0 0 12px}
+body.dm-ux-home .dm-expanded-links a{font-weight:700}
+body.dm-ux-home .dm-accordion-shell .dm-start{padding-top:28px}
+body.dm-ux-home .dm-accordion-shell .dm-jumpbar{border-top:1px solid #eee1ce}
+body.dm-ux-home .dm-accordion-shell #registration-notice .wrap{padding-top:28px;padding-bottom:24px}
+body.dm-ux-home .dm-footer-details{border-bottom:1px solid rgba(255,255,255,.2);padding-bottom:12px;margin-bottom:12px}
+body.dm-ux-home .dm-footer-details>summary{cursor:pointer;font-weight:800;padding:8px 0 15px}
+body.dm-ux-home .dm-footer-details>summary:hover{text-decoration:underline}
+@media(max-width:650px){
+ body.dm-ux-home #druzina>.wrap{padding-top:28px;padding-bottom:30px}
+ body.dm-ux-home #druzina h1{font-size:clamp(2.48rem,11vw,3.35rem)}
+ body.dm-ux-home .dm-hero-essentials{grid-template-columns:1fr;gap:8px}
+ body.dm-ux-home .dm-hero-key{padding:12px 16px}
+ body.dm-ux-home .dm-hero-key-label{font-size:.71rem;margin:0 0 3px}
+ body.dm-ux-home .dm-hero-key strong{font-size:1rem}
+ body.dm-ux-home .dm-hero-key small{font-size:.83rem;margin-top:4px}
+ body.dm-ux-home #druzina .dm-hero-ctas{margin-top:13px}
+ body.dm-ux-home #druzina .dm-hero-ctas .btn{width:100%}
+ body.dm-ux-home .dm-accordion-shell{margin-top:12px;gap:9px}
+ body.dm-ux-home .dm-disclosure>summary{min-height:65px}
+}
