@@ -1,5 +1,9 @@
 # Codex / agent instructions for this repository
 
+## Human operator entrypoint
+
+Windows one-click launch: `ops/IMPERION-AI.cmd` (from this repo), or `node ops/imperion-ai.cjs status` to inspect local CLIs, Ollama and model status. Russian guide: `docs/AI-QUICKSTART-RU.md`; equivalent explicit VS Code tasks: `.vscode/tasks.json`. The launcher never publishes, pays, installs or authorizes AI services automatically; model input in the smoke is strictly synthetic. Codex begins in read-only mode and Antigravity in plan+sandbox; accounts and paid quotas must be verified independently. The Windows device might be offline: no GitHub commit alone executes programs on a PC.
+
 ## Required first read
 For any website, offer, lead-generation, forms, conversion, copywriting or site navigation task, read **[docs/CODEX-SITE-CONVERSION.md](docs/CODEX-SITE-CONVERSION.md)** before changing code. It is the self-contained, approved site-repositioning implementation handoff dated 2026-10-12.
 

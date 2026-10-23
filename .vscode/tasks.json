@@ -1,0 +1,96 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "IMPERION AI: 1 Status",
+      "type": "shell",
+      "command": "node",
+      "args": [
+        "ops/imperion-ai.cjs",
+        "status"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "IMPERION AI: 2 Offline tests",
+      "type": "shell",
+      "command": "node",
+      "args": [
+        "ops/imperion-ai.cjs",
+        "test"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "IMPERION AI: 3 Zero-network preview",
+      "type": "shell",
+      "command": "node",
+      "args": [
+        "ops/imperion-ai.cjs",
+        "preview"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "IMPERION AI: 4 Local Qwen smoke (review only)",
+      "type": "shell",
+      "command": "node",
+      "args": [
+        "ops/imperion-ai.cjs",
+        "smoke"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "IMPERION AI: 6 Codex read-only",
+      "type": "shell",
+      "command": "node",
+      "args": [
+        "ops/imperion-ai.cjs",
+        "codex"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "IMPERION AI: 7 Antigravity plan-only",
+      "type": "shell",
+      "command": "node",
+      "args": [
+        "ops/imperion-ai.cjs",
+        "agy"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "IMPERION AI: 9 Optional Qwen3 4B download (confirm)",
+      "type": "shell",
+      "command": "node",
+      "args": [
+        "ops/imperion-ai.cjs",
+        "setup-model"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    }
+  ]
+}
