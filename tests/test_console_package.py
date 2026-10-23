@@ -44,11 +44,11 @@ class ConsolePackageTests(unittest.TestCase):
         result = release.build_release(self.repo, self.commit, output, archive)
         return output, archive, result
 
-    def test_build_preserves_nine_file_allowlist_and_checksums_without_private_configuration(self):
+    def test_build_preserves_allowlist_and_checksums_without_private_configuration(self):
         output, archive, result = self.build()
         self.assertTrue(result['verified'])
         self.assertFalse(result['uploaded'])
-        self.assertEqual(result['files'], 9)
+        self.assertEqual(result['files'], 11)
         self.assertEqual(set(p.name for p in output.iterdir()), set(release.PACKAGE_NAMES))
         self.assertEqual((output / 'SOURCE_COMMIT').read_text(), self.commit + '\n')
         for line in (output / 'SHA256SUMS').read_text().splitlines():
@@ -59,6 +59,29 @@ class ConsolePackageTests(unittest.TestCase):
             self.assertTrue(all(b'TEST-ONLY-PRIVATE-FIXTURE' not in bundle.read(name) for name in bundle.namelist()))
         self.assertTrue(release.verify_release(self.repo, self.commit, output)['verified'])
         self.assertTrue(release.verify_release(self.repo, self.commit, archive)['verified'])
+
+    def test_legacy_commit_keeps_nine_file_format_and_rejects_extra_parser_entries(self):
+        for name in release.PARSER_SOURCES:
+            (self.repo / name).unlink()
+        self.commit = self.commit_all()
+        output, archive, result = self.build()
+        self.assertEqual(result['files'], 9)
+        self.assertEqual(release.verify_release(self.repo, self.commit, archive)['files'], 9)
+        (output / release.PARSER_SOURCES[0]).write_text('TEST-ONLY unexpected parser')
+        with self.assertRaisesRegex(ValueError, 'approved files'):
+            release.verify_release(self.repo, self.commit, output)
+
+    def test_missing_parser_or_license_cannot_downgrade_a_new_helper_to_legacy(self):
+        for missing in ((release.PARSER_SOURCES[0],), (release.PARSER_SOURCES[1],), release.PARSER_SOURCES):
+            for name in release.PARSER_SOURCES:
+                (self.repo / name).write_text('TEST-ONLY dependency')
+            (self.repo / 'prepare-console-bank-release.cjs').write_text("require('./console-release-acorn.cjs');")
+            for name in missing:
+                (self.repo / name).unlink()
+            commit = self.commit_all()
+            with self.assertRaisesRegex(ValueError, 'missing'):
+                release.build_release(self.repo, commit, self.root / 'missing-parser')
+            self.assertFalse((self.root / 'missing-parser').exists())
 
     def test_selected_commit_ignores_dirty_untracked_and_newer_worktree_contents(self):
         original = (self.repo / release.SOURCES[0]).read_bytes()

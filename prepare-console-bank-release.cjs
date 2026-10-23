@@ -1,5 +1,38 @@
 // Prepare an isolated, reviewable clasp directory. Does not push or run banking.
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
+const {parse}=require('./console-release-acorn.cjs');
+function globalBindings(text,filename){
+ let tree;
+ try{new vm.Script(text,{filename});tree=parse(text,{ecmaVersion:'latest',sourceType:'script'});}
+ catch(_){throw Error('Invalid Apps Script source: '+filename);}
+ const bindings=[],strict=tree.body.some(node=>node.directive==='use strict');
+ function pattern(node,kind){
+  if(!node)return;
+  if(node.type==='Identifier')bindings.push({name:node.name,kind});
+  else if(node.type==='RestElement')pattern(node.argument,kind);
+  else if(node.type==='AssignmentPattern')pattern(node.left,kind);
+  else if(node.type==='ArrayPattern')node.elements.forEach(item=>pattern(item,kind));
+  else if(node.type==='ObjectPattern')node.properties.forEach(item=>pattern(item.type==='RestElement'?item.argument:item.value,kind));
+ }
+ function visit(node,parent){
+  if(node.type==='FunctionDeclaration'){
+   // Sloppy-script block functions can also create global bindings (Annex B).
+   if(parent===tree||!strict)pattern(node.id,'function');
+   return;
+  }
+  if(node.type==='FunctionExpression'||node.type==='ArrowFunctionExpression'||node.type==='ClassExpression')return;
+  if(node.type==='ClassDeclaration'){if(parent===tree)pattern(node.id,'lexical');return;}
+  if(node.type==='VariableDeclaration'){
+   if(node.kind==='var'||parent===tree)node.declarations.forEach(item=>pattern(item.id,node.kind==='var'?'var':'lexical'));
+   return;
+  }
+  for(const child of Object.values(node)){
+   if(Array.isArray(child))child.forEach(item=>{if(item&&typeof item.type==='string')visit(item,node);});
+   else if(child&&typeof child.type==='string')visit(child,node);
+  }
+ }
+ visit(tree,null);return bindings;
+}
 function prepare(source,out,expectedId){
  source=path.resolve(source);out=path.resolve(out);
  if(!expectedId)throw Error('Explicit confirmed bound script ID required');
@@ -17,13 +50,16 @@ function prepare(source,out,expectedId){
  }
  if(!files['appsscript.json'])throw Error('Manifest missing');
  for(const [dest,src] of Object.entries(replacements))files[dest]=fs.readFileSync(path.join(__dirname,src),'utf8');
- const names=new Set(),bases=new Set();
+ const names=new Map(),bases=new Set();
  for(const [name,text] of Object.entries(files)){
   if(!/\.(js|gs|html)$/.test(name))continue;
   const base=name.replace(/\.[^.]+$/,'');if(bases.has(base))throw Error('Duplicate Apps Script filename: '+base);bases.add(base);
   if(/\.(js|gs)$/.test(name)){
-   new vm.Script(text,{filename:name});
-   for(const m of text.matchAll(/^function\s+(\w+)\s*\(/gm)){if(names.has(m[1]))throw Error('Duplicate function: '+m[1]);names.add(m[1]);}
+   for(const binding of globalBindings(text,name)){
+    const previous=names.get(binding.name);
+    if(previous&&!(previous==='var'&&binding.kind==='var'))throw Error('Duplicate global declaration: '+binding.name);
+    names.set(binding.name,binding.kind);
+   }
   }
  }
  new vm.Script(files['OperatorConsole.html'].match(/<script>([\s\S]*?)<\/script>/)[1]);
