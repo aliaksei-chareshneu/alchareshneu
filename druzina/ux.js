@@ -49,7 +49,7 @@
       startLead:'K nezávaznému dotazu nepotřebuješ zkušenosti ani výbavu. Cvičíme bezpečně, s respektem a jako tým. Rozvrh je orientační — každý termín musí být potvrzen.',
       fact1Label:'Obvyklé dny',fact1Value:'Pondělí · sobota',
       fact2Label:'Obvyklý čas',fact2Value:'18:00 · délku potvrdíme',
-      fact3Label:'Místo srazu',fact3Value:'Brno · exact venue confirmed individually',
+      fact3Label:'Místo srazu',fact3Value:'Brno · přesné místo předem potvrdíme',
       stepsEyebrow:'Jak probíhá první návštěva',step1Title:'Napiš, že máš zájem',step1Desc:'Zeptej se na budoucí termín. Samotnou zprávou nic neplatíš ani nerezervuješ.',
       step2Title:'Společně ověříme podrobnosti',step2Desc:'Potvrdíme, zda se trénink koná, místo, pořadatele, bezpečnost a podmínky. Počkej na písemné potvrzení.',
       step3Title:'Trénuj vlastním tempem',step3Desc:'Začneme povelem STOP, vzdáleností a kontrolovanými pohyby. Na cokoli se můžeš zeptat a sparring odmítnout.',
