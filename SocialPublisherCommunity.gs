@@ -83,8 +83,7 @@ function spCommunityCopy_(key,lang,channel){
 }
 function spCommunityCaption_(key,channel){
  if(channel==='telegram')return spCommunityCopy_(key,'ru',channel);
- if(channel==='facebook_page'||channel==='facebook_profile')
-  return spCommunityCopy_(key,'cs',channel)+'\n\n'+spCommunityCopy_(key,'en',channel);
+ if(channel==='facebook_page')return spCommunityCopy_(key,'cs',channel);
  return spCommunityCopy_(key,'en',channel);
 }
 /* Creates no duplicate (community, platform) row, even if an earlier one is a draft.
