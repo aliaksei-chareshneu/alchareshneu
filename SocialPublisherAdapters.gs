@@ -36,7 +36,7 @@ function spSend_(event,job) {
    if(!page || !page.id)throw Error('Page API returned no post ID; check actual Page before retry');
    spSetEventReceipt_(event,'Facebook_Post_ID',page.id);
    return {id:String(page.id),url:'https://www.facebook.com/'+encodeURIComponent(String(page.id))};
-  case 'instagram':return spInstagram_(job);
+  case 'instagram':return spInstagram_(event,job);
   case 'youtube':return spYoutube_(event,job);
   default:throw Error('Automatic publishing not supported for '+job.Channel);
  }
@@ -56,12 +56,17 @@ function spMeta_(path,body,token) {
  }
  return v;
 }
-function spInstagram_(job){
+function spInstagram_(event,job){
  var p=PropertiesService.getScriptProperties();
  if(p.getProperty('SOCIAL_INSTAGRAM_ENABLED')!=='true')
    throw Error('SOCIAL_INSTAGRAM_ENABLED not configured');
- var id=p.getProperty('SOCIAL_IG_USER_ID'),tok=p.getProperty('SOCIAL_IG_ACCESS_TOKEN');
- if(!id||!tok)throw Error('Connect authorized professional Instagram and set credentials in Script Properties');
+ // Never cross-post a club image to a different connected personal account.
+ var key=event.Community==='Brnowalkers'?'BRNOWALKERS':
+   event.Community==='Družina Moravy'?'DRUZINA':'';
+ if(!key)throw Error('Instagram community has no authorised brand route');
+ var id=p.getProperty('SOCIAL_IG_USER_ID_'+key);
+ var tok=p.getProperty('SOCIAL_IG_ACCESS_TOKEN_'+key);
+ if(!id||!tok)throw Error('Brand-specific Instagram credentials missing for '+key);
  var container=spMeta_(encodeURIComponent(id)+'/media',
   {image_url:String(job.Media_URL),caption:String(job.Caption)},tok);
  if(!container.id)throw Error('Meta media container missing; verify before retry');
