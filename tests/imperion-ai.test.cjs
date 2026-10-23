@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
-const { ROOT, LOOPBACK, ALLOWED_MODELS, ACTIONS, selectLocalModel, readLocalModels, showStatus, localChat } = require('../ops/imperion-ai.cjs');
+const { ROOT, LOOPBACK, ALLOWED_MODELS, ACTIONS, selectLocalModel, readLocalModels, showStatus, localChat, setupLocalModel } = require('../ops/imperion-ai.cjs');
 
 test('launcher stays inside the existing source repository', () => {
   assert.equal(ROOT, path.resolve(__dirname, '..'));
@@ -13,6 +13,7 @@ test('launcher stays inside the existing source repository', () => {
   assert.ok(!ACTIONS.includes('install'));
   assert.ok(!ACTIONS.includes('publish'));
   assert.ok(!ACTIONS.includes('pay'));
+  assert.ok(ACTIONS.includes('setup-model'));
 });
 
 test('local Qwen selection prefers installed 4B and rejects cloud aliases', () => {
@@ -68,10 +69,11 @@ test('no-arg preview remains offline and preserves synthetic job ID', () => {
 
 test('Windows menu includes only explicit safe actions and no implicit service activation', () => {
   const content = fs.readFileSync(path.join(ROOT, 'ops', 'IMPERION-AI.cmd'), 'utf8');
-  assert.match(content, /choice \/C 012345678/i);
+  assert.match(content, /choice \/C 0123456789/i);
   assert.match(content, /imperion-ai\.cjs" status/i);
   assert.match(content, /imperion-ai\.cjs" editor/i);
   assert.match(content, /imperion-ai\.cjs" codex/i);
   assert.match(content, /imperion-ai\.cjs" agy/i);
+  assert.match(content, /imperion-ai\.cjs" setup-model/i);
   assert.doesNotMatch(content, /winget install|npm install|--dangerously|auto[- ]publish/i);
 });
