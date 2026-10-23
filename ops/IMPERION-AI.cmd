@@ -21,9 +21,10 @@ echo 5  Open this project in VS Code
 echo 6  Open Codex - read-only sandbox
 echo 7  Open Antigravity - plan and sandbox
 echo 8  Chat with local CPU model
+echo 9  Download better Qwen3 4B (explicit confirmation)
 echo 0  Exit
 echo.
-choice /C 012345678 /N /M "Choose 0-8: "
+choice /C 0123456789 /N /M "Choose 0-9: "
 set "selected=%errorlevel%"
 if "%selected%"=="1" exit /b 0
 if "%selected%"=="2" node "%~dp0imperion-ai.cjs" status
@@ -34,9 +35,10 @@ if "%selected%"=="6" node "%~dp0imperion-ai.cjs" editor
 if "%selected%"=="7" node "%~dp0imperion-ai.cjs" codex
 if "%selected%"=="8" node "%~dp0imperion-ai.cjs" agy
 if "%selected%"=="9" node "%~dp0imperion-ai.cjs" chat
+if "%selected%"=="10" node "%~dp0imperion-ai.cjs" setup-model
 echo.
 echo If a smoke check reports QA_BLOCKED, the translation is NOT publishable.
-echo This launcher never publishes, submits forms, buys plans or grants access.
+echo No automatic publication, software install, plans or account access.
 echo.
 pause
 goto menu
