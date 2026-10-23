@@ -67,6 +67,15 @@ test('no-arg preview remains offline and preserves synthetic job ID', () => {
   assert.equal(result.existing_job_id, 'PUB-SYNTHETIC-001');
 });
 
+test('optional 4B model setup is a no-op when the model is already installed', async () => {
+  const result = await setupLocalModel({ fetchImpl: async (url, options) => {
+    assert.equal(url, LOOPBACK + '/api/tags');
+    assert.equal(options.method, 'GET');
+    return { ok: true, json: async () => ({ models: [{ name: 'qwen3:4b' }] }) };
+  } });
+  assert.equal(result, 0);
+});
+
 test('Windows menu includes only explicit safe actions and no implicit service activation', () => {
   const content = fs.readFileSync(path.join(ROOT, 'ops', 'IMPERION-AI.cmd'), 'utf8');
   assert.match(content, /choice \/C 0123456789/i);
