@@ -78,6 +78,19 @@
         "cwd": "${workspaceFolder}"
       },
       "problemMatcher": []
+    },
+    {
+      "label": "IMPERION AI: 9 Optional Qwen3 4B download (confirm)",
+      "type": "shell",
+      "command": "node",
+      "args": [
+        "ops/imperion-ai.cjs",
+        "setup-model"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
     }
   ]
 }
