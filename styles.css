@@ -272,6 +272,20 @@
   .hero-photo--ranger{object-position:72% 32%;}
   .hero-photo--knight{object-position:70% 46%;}
 
+  /* The original paintings reserve a large black margin on the left.
+     On wide screens this pushed the ranger/knight too far off to the
+     right. Enlarge toward the left, while keeping both faces in frame.
+     The scholar artwork and other image components are unchanged. */
+  @media (min-width:900px){
+    .hero-visuals-walkers .hero-photo,
+    .hero-visuals-druzina .hero-photo{
+      left:-30%;width:130%;max-width:none;
+    }
+    .hero-visuals-walkers .hero-photo--ranger{object-position:center 10%;}
+    .hero-visuals-druzina .hero-photo--knight{object-position:center 25%;}
+  }
+
+
   /* Slow Ken Burns drift for the two static portraits (ranger, knight)
      — the scholar doesn't need this, its own video loop already
      supplies motion (rising embers off the book, ambient flicker).
@@ -347,6 +361,34 @@
     .hero-scrim{
       background:
         linear-gradient(180deg, rgba(22,23,26,.72) 0%, rgba(22,23,26,.5) 45%, rgba(22,23,26,.85) 100%);
+    }
+  }
+
+  /* The portrait backgrounds used to be cropped to a tall full-hero
+     box on phones and dimmed to 50%, making the people look cut off at
+     the right edge and almost invisible under the text. On small and
+     medium screens give ranger/knight a short, readable art strip above
+     the copy instead. Keeping artwork in normal flow also prevents the
+     title, registration links and painting from fighting for space. */
+  @media (max-width:899px){
+    #walkers.hero,#druzina.hero{padding-top:0;}
+    #walkers.hero>.hero-visuals,
+    #druzina.hero>.hero-visuals{
+      position:relative;inset:auto;
+      width:100%;height:clamp(210px,58vw,330px);
+    }
+    /* The compact Druzina landing keeps key facts close to the top. */
+    #druzina.hero>.hero-visuals{height:clamp(170px,45vw,240px);}
+    #walkers.hero>.wrap,#druzina.hero>.wrap{padding-top:24px;}
+    .hero-visuals-walkers .hero-photo,
+    .hero-visuals-druzina .hero-photo{
+      left:-40%;width:140%;max-width:none;opacity:1;
+    }
+    .hero-visuals-walkers .hero-photo--ranger{object-position:center 10%;}
+    .hero-visuals-druzina .hero-photo--knight{object-position:center 22%;}
+    .hero-visuals-walkers .hero-scrim,
+    .hero-visuals-druzina .hero-scrim{
+      background:linear-gradient(180deg, transparent 68%,rgba(22,23,26,.78) 100%);
     }
   }
 
