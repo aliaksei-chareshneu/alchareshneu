@@ -2,6 +2,12 @@
 
 This public page is intentionally free of private Google Drive, CRM, membership, payment, or Microsoft tenant details. Source-of-truth operational statuses and account/subscription records stay in the existing private execution/benefits briefs.
 
+## Start here: one-click operator launcher (23.10.2026)
+
+Follow **[Russian quickstart](AI-QUICKSTART-RU.md)**. On a Windows machine with this repository and Node.js available, double-click `ops/IMPERION-AI.cmd`. It offers read-only **Status**, **Tests**, zero-network **Preview**, local-only synthetic **Ollama smoke**, **Open VS Code**, interactive **Codex read-only**, interactive **Antigravity plan+sandbox**, and CPU-only local chat. It creates no CRM, post, account, subscription, provider API key or background agent. In VS Code the equivalent manually launched commands are available under **Terminal → Run Task… → IMPERION AI** in `.vscode/tasks.json`. It intentionally does not auto-run anything on repository open.
+
+The worktree must be updated to the merged main branch for this launcher to exist locally. GitHub updates cannot wake an offline Windows PC. Read actual auth, model quality and legal constraints below; even a 0.6B local reply is not permission to publish.
+
 ## What already exists
 - `AGENTS.md` contains Codex/agent rules; `.github/copilot-instructions.md` adds GitHub Copilot repository-specific instructions (effective for clients/branches that load this file).
 - GitHub Actions `Operations tests` and `Site quality` already exist. Reuse those instead of creating an extra CI runner.
@@ -13,7 +19,7 @@ On an authorised workstation, run `powershell -NoProfile -File .\ops\ai-toolchai
 
 VS Code 1.116+ bundles GitHub Copilot Chat by default; no separate Copilot/Copilot Chat extension install is required. On the verified Windows workstation, VS Code 1.136.1 reports built-in Copilot Chat 0.64.1; a legacy standalone extension attempted to downgrade this built-in dependency and was correctly rejected. Do NOT force a downgrade or treat an empty `code --list-extensions` as proof Copilot is absent. In VS Code select **Use AI Features**, sign in to the correct GitHub account, verify current plan/remaining quota in Copilot status; authentication and entitlement require an owner-authorized interactive session.
 
-Google Antigravity CLI `agy` official Windows installation details: https://antigravity.google/docs/cli/install/ . Download and review the vendor PowerShell installation script before running it on an authorized workstation. The verified installer uses a vendor manifest and SHA-512 verification. On 2026-10-22 a Windows attempt was BLOCKED by a manifest endpoint timeout: `agy.exe` was NOT installed/verified. Retry only once connectivity to the vendor release endpoint is available; then check `agy --version`, authenticate, verify selectable models/quota and repo trust. Never pipe a new installer blindly to an elevated shell. Use a disposable/synthetic change before unattended write commands.
+Google Antigravity CLI `agy` v1.4.5 was INSTALLED in Windows user scope on 2026-10-22 from the vendor manifest after SHA-512 binary verification. The initial PowerShell manifest request timed out, but the verified `curl` release retrieval succeeded. The binary and version were checked on the actual workstation and user PATH was set. `agy models` listed six names, but **real inference FAILED at Google's account eligibility check**; model usability, credits and personal sign-in remain BLOCKED, not a completed AI integration. Official vendor docs: https://antigravity.google/docs/cli/install/ . Do not bypass account verification, MFA or use unsafe unattended approval flags.
 
 Microsoft 365 Copilot and GitHub Copilot are distinct products. Microsoft nonprofit approval, mailbox account identity and free/discounted plan eligibility are **not proof of a provisioned seat**. The organisation's tenant admin must verify actual product and assigned licences, then check Graph read/write permissions and budget/terms before attempting Outlook, OneDrive, Teams or Power Automate integration. Do not accept an annual payment commitment or change domain DNS/MX just to run a pilot.
 
