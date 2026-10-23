@@ -158,8 +158,8 @@
       <p class="eyebrow" data-i18n="hero.eyebrow">Brno · Movement · Mind</p>
       <h1 data-exp="homeTitle">Learn. Explore. Find your people.</h1>
       <p class="tagline" data-exp="homeIntro">Tutoring with Aliaksei Chareshneu, PhD. Hikes with BrnoWalkers. Historical fencing with Družina Moravy. Your next step starts in Brno.</p>
-      <a id="heroCta" class="btn solid plausible-event-name=Hero-CTA" href="druzina/#schedule">Reserve Your First Session</a>
-      <a id="heroCorporateCta" class="btn" href="corporate/">For companies · AI &amp; team experiences</a>
+      <a id="heroCta" class="btn solid plausible-event-name=Hero-CTA" href="corporate/technical-answers/?lang=en">For companies · AI pilot from 14,900 Kč</a>
+      <a id="heroCorporateCta" class="btn" href="#join">Explore learning &amp; communities</a>
       <a class="reviews-badge" href="https://maps.app.goo.gl/fEbnJHxiVoAx1v498" target="_blank" rel="noopener">
         <span class="star">⭐</span><span data-i18n="reviewsBadge">50+ Google reviews · 5.0</span>
       </a>
@@ -3095,10 +3095,10 @@ function applyTranslations(lang) {
 // its own small lookup + setter rather than bolting attribute-switching
 // onto the generic data-i18n system for one element.
 const HERO_CTA = {
-  en:{text:'Find your next step', href:'#join'},
-  cs:{text:'Vyber si svůj směr', href:'#join'},
-  ru:{text:'Выбрать направление', href:'#join'},
-  uk:{text:'Обрати напрям', href:'#join'}
+  en:{text:'For companies · AI pilot from 14,900 Kč', href:'corporate/technical-answers/?lang=en'},
+  cs:{text:'Pro firmy · AI pilot od 14 900 Kč', href:'corporate/technical-answers/?lang=cs'},
+  ru:{text:'Компаниям · AI-пилот от 14 900 Kč', href:'corporate/technical-answers/?lang=ru'},
+  uk:{text:'Компаніям · AI-пілот від 14 900 Kč', href:'corporate/technical-answers/?lang=uk'}
 };
 function updateHeroCta(lang) {
   const el = document.getElementById('heroCta');
@@ -3106,8 +3106,11 @@ function updateHeroCta(lang) {
   const d = HERO_CTA[lang] || HERO_CTA.en;
   el.textContent = d.text;
   el.href = d.href;
-  const corp = document.getElementById('heroCorporateCta');
-  if (corp) corp.textContent = ({en:'For companies · AI & team experiences',cs:'Pro firmy · AI a týmové zážitky',ru:'Для компаний · AI и командные мероприятия',uk:'Для компаній · AI та командні події'})[lang] || 'For companies';
+  const others = document.getElementById('heroCorporateCta');
+  if (others) {
+    others.textContent = ({en:'Explore learning & communities',cs:'Pro jednotlivce a komunity',ru:'Обучение и сообщества',uk:'Навчання і спільноти'})[lang] || 'Explore learning & communities';
+    others.href = '#join';
+  }
 }
 
 function render(lang){
