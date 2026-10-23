@@ -1,0 +1,75 @@
+name: ShortFactory integration tests
+
+on:
+  push:
+    paths:
+      - 'youtube_trend_intake.py'
+      - 'shortfactory_social_stage.py'
+      - 'owned_video_shorts.py'
+      - 'original_reel_builder.py'
+      - 'tests/test_original_reel_builder.py'
+      - 'examples/original_reel_demo.json'
+      - 'examples/brnowalkers_hady_20261101.json'
+      - 'examples/druzina_join_interest_20261022.json'
+      - 'trend_refresh_runner.py'
+      - 'tests/test_youtube_trend_intake.py'
+      - 'tests/test_shortfactory_social_stage.py'
+      - 'tests/test_owned_video_shorts.py'
+      - '.github/workflows/media-integration-tests.yml'
+  pull_request:
+    paths:
+      - 'youtube_trend_intake.py'
+      - 'shortfactory_social_stage.py'
+      - 'owned_video_shorts.py'
+      - 'original_reel_builder.py'
+      - 'tests/test_original_reel_builder.py'
+      - 'examples/original_reel_demo.json'
+      - 'examples/brnowalkers_hady_20261101.json'
+      - 'examples/druzina_join_interest_20261022.json'
+      - 'trend_refresh_runner.py'
+      - 'tests/test_youtube_trend_intake.py'
+      - 'tests/test_shortfactory_social_stage.py'
+      - 'tests/test_owned_video_shorts.py'
+      - '.github/workflows/media-integration-tests.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  media-safe-tests:
+    runs-on: ubuntu-latest
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: No-credential YouTube metadata regression
+        run: python -m unittest discover -s tests -p 'test_youtube_trend_intake.py' -v
+      - name: Canonical ShortFactory review / publication safety
+        run: python -m unittest discover -s tests -p 'test_shortfactory_social_stage.py' -v
+      - name: Install free image-generation dependency and verify FFmpeg
+        run: |
+          python -m pip install 'Pillow>=10,<13'
+          if ! command -v ffmpeg >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y ffmpeg
+          fi
+          ffprobe -version | head -n 1
+      - name: Real original vertical MP4 render and no-publication checks
+        run: python -m unittest discover -s tests -p 'test_original_reel_builder.py' -v
+      - name: Real rights-cleared footage timecode-to-Shorts / SRT smoke test
+        run: python -m unittest discover -s tests -p 'test_owned_video_shorts.py' -v
+      - name: Compile all integration modules
+        run: python -m py_compile youtube_trend_intake.py shortfactory_social_stage.py trend_refresh_runner.py original_reel_builder.py owned_video_shorts.py
+      - name: Original media preview does not publish
+        run: python original_reel_builder.py --script examples/original_reel_demo.json --preview
+      - name: Preview verified-event originals without publishing
+        run: |
+          python original_reel_builder.py --script examples/brnowalkers_hady_20261101.json --preview
+          python original_reel_builder.py --script examples/druzina_join_interest_20261022.json --preview
+      - name: Verify fail-closed no-API-key dry-run
+        run: |
+          test -z "${YOUTUBE_API_KEY:-}"
+          python youtube_trend_intake.py --dry-run
