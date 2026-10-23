@@ -16,6 +16,17 @@ if(require.main===module)(async()=>{let count=0;for(const path of ['index.html',
  assert.deepEqual(errors,[],path+' runtime errors');
  if(path.startsWith('academy')){const input=d.querySelector('#service-search');input.value='zzzzmissing';input.dispatchEvent(new w.Event('input'));assert.equal(d.querySelectorAll('.price-cat:not([hidden])').length,0);input.value='';input.dispatchEvent(new w.Event('input'));assert.equal(d.querySelectorAll('.price-cat:not([hidden])').length,9);assert.equal(d.querySelectorAll('.service-action').length,9);}
  if(path.startsWith('druzina')){
+  const essentials=d.querySelector('.dm-hero-essentials');
+  assert.ok(essentials,'key facts must remain visible');
+  assert.equal(essentials.querySelectorAll('.dm-hero-key').length,4,'what / where / when / registration');
+  assert.ok(essentials.textContent.includes('18:00'),'usual start time');
+  assert.ok(essentials.textContent.includes('48'),'advance registration 48h');
+  const spoilers=[...d.querySelectorAll('.dm-accordion-shell > details.dm-disclosure')];
+  assert.equal(spoilers.length,3,'three collapsed information sections');
+  assert.ok(spoilers.every(x=>!x.open),'details closed by default');
+  for(const id of ['start','registration-notice','schedule','onboarding','faq','ranks','roles','conduct','media','dm-team-experience','organisation']){
+   assert.ok(d.getElementById(id)?.closest('details.dm-disclosure'),id+' content must remain available inside a spoiler');
+  }
   const notice=d.querySelector('#registration-notice');
   if(notice){
    const paused={

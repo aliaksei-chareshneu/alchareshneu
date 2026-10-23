@@ -20,6 +20,11 @@ for(const path of pages)for(const language of languages)for(const width of width
    return {duplicates,broken};
   });expect(bad.duplicates).toEqual([]);expect(bad.broken).toEqual([]);
   if(path==='druzina/') {
+   await expect(page.locator('.dm-hero-essentials .dm-hero-key')).toHaveCount(4);
+   await expect(page.locator('.dm-hero-essentials')).toBeVisible();
+   await expect(page.locator('#visit-details')).not.toHaveAttribute('open', '');
+   await expect(page.locator('#registration-notice')).toBeHidden();
+   await page.locator('#visit-details > summary').click();
    await expect(page.locator('#registration-notice')).toBeVisible();
    await expect(page.locator('#registration-notice [data-notice-lang="'+language+'"]')).toBeVisible();
    await expect(page.locator('#tariff')).toBeHidden();
@@ -27,6 +32,8 @@ for(const path of pages)for(const language of languages)for(const width of width
    await expect(page.locator('#navBookBtn')).toHaveAttribute('href', language==='ru' ? /^https:\/\/t\.me\/Chareshneu/ : /^https:\/\/wa\.me\/420702914842\?/);
    const message=await page.locator('#registration-notice [data-notice-lang="'+language+'"]').innerText();
    expect(message.length).toBeGreaterThan(80);
+   await page.locator('#visit-details > summary').click();
+   await expect(page.locator('#registration-notice')).toBeHidden();
   }
   if(path==='academy/') {await page.locator('#service-search').fill('zzzznomatch');await expect(page.locator('.search-status')).not.toBeEmpty();await expect(page.locator('.price-cat:visible')).toHaveCount(0);await page.locator('#service-search').fill('');await expect(page.locator('.price-cat:visible')).toHaveCount(9);}
   if(path)await expect(page.locator('.tabs-bar a.active')).toHaveCount(1);

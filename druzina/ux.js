@@ -8,7 +8,7 @@
       photoAlt:'People learning with padded swords and shields at a real Družina training',photoCaption:'Real Družina training · Brno',navAria:'Browse club information',factsAria:'Training at a glance',moreAria:'More about the club',rankAria:'Jump to a rank category',joinLink:'Join the community',navStart:'Start here', navSchedule:'Days & place', navPath:'Training paths', navRanks:'Ranks', navFaq:'Questions', navAbout:'Who we are',
       startEyebrow:'Your first step', startTitle:'Curious about fencing? You belong here.',
       startLead:'No experience or special equipment needed to ask. We practise with safety, respect and teamwork. Regular dates are indicative — every visit needs individual confirmation.',
-      fact1Label:'Usual days',fact1Value:'Monday · Thursday · Saturday',
+      fact1Label:'Usual days',fact1Value:'Monday · Saturday',
       fact2Label:'Usual time',fact2Value:'18:00 · 90 minutes',
       fact3Label:'Meeting point',fact3Value:'Dukelská 157/44 · Brno-Husovice',
       stepsEyebrow:'How your first visit works',step1Title:'Tell us you are interested',step1Desc:'Ask about a future date. No account, payment or commitment from your message.',
@@ -20,7 +20,7 @@
       faqLead:'Clear answers, without pretending that an inquiry is already a booking.',
       faq1Q:'I have never fenced. Can I come?',faq1A:'Yes, beginners are welcome to enquire. Your first supervised practice starts with equipment checks, rules, safe distance and the STOP command. The organiser must confirm the actual event and participant eligibility.',
       faq2Q:'Do I need my own sword, armour or sports kit?',faq2A:'Ask first: basic club practice equipment may be available for a confirmed session. Usually comfortable sportswear, closed shoes and water are enough to start. The instructor will check any equipment before use.',
-      faq3Q:'Can I simply arrive on Monday, Thursday or Saturday?',faq3A:'Please do not travel without an explicit date and venue confirmation. The regular 18:00 timetable is an indication, not proof that a session is going ahead. Your message is not a booking.',
+      faq3Q:'Can I simply arrive on Monday or Saturday?',faq3A:'Please do not travel without an explicit date and venue confirmation. The regular 18:00 timetable is an indication, not proof that a session is going ahead. Your message is not a booking.',
       faq4Q:'Can I pay and register online right now?',faq4A:'No new paid HEMA reservations are open yet. Before any future payment, we must confirm the legal organiser, price, booking terms and activity-specific safety arrangements. Please do not transfer money without that confirmation.',
       faq5Q:'Can I try archery or a different weapon?',faq5A:'The foundation begins with safe movement, a controlled sword and shield, and teamwork. The archer route can be explored after the basic introduction and a safety check, in a separate supervised range.',
       faq6Q:'What if I do not want to spar?',faq6A:'You may refuse any bout, ask to slow down and call STOP at any time. Respect and controlled practice matter more than winning.',
@@ -47,7 +47,7 @@
       photoAlt:'Účastníci skutečného tréninku Družiny cvičí s měkčenými meči a štíty',photoCaption:'Skutečný trénink Družiny · Brno',navAria:'Informace o klubu',factsAria:'Trénink v kostce',moreAria:'Další informace o klubu',rankAria:'Přeskočit na kategorii hodností',joinLink:'Zapojit se do družiny',navStart:'Začínáme',navSchedule:'Kdy a kde',navPath:'Výcvikové cesty',navRanks:'Hodnosti',navFaq:'Otázky',navAbout:'O nás',
       startEyebrow:'První krok',startTitle:'Zajímá tě šerm? U nás můžeš začít.',
       startLead:'K nezávaznému dotazu nepotřebuješ zkušenosti ani výbavu. Cvičíme bezpečně, s respektem a jako tým. Rozvrh je orientační — každý termín musí být potvrzen.',
-      fact1Label:'Obvyklé dny',fact1Value:'Pondělí · čtvrtek · sobota',
+      fact1Label:'Obvyklé dny',fact1Value:'Pondělí · sobota',
       fact2Label:'Obvyklý čas',fact2Value:'18:00 · 90 minut',
       fact3Label:'Místo srazu',fact3Value:'Dukelská 157/44 · Brno-Husovice',
       stepsEyebrow:'Jak probíhá první návštěva',step1Title:'Napiš, že máš zájem',step1Desc:'Zeptej se na budoucí termín. Samotnou zprávou nic neplatíš ani nerezervuješ.',
@@ -59,7 +59,7 @@
       faqLead:'Jasné odpovědi. Nezávazný dotaz není rezervace.',
       faq1Q:'Nikdy jsem nešermoval/a. Můžu přijít?',faq1A:'Ano, začátečníci se mohou nezávazně ozvat. Začíná se kontrolou vybavení, pravidly, bezpečným odstupem a povelem STOP. Konkrétní termín i podmínky účasti musí potvrdit pořadatel.',
       faq2Q:'Potřebuji vlastní meč nebo zbroj?',faq2A:'Nejdřív se zeptej. Základní klubové vybavení může být pro potvrzený trénink dostupné. Obvykle stačí sportovní oblečení, pevné uzavřené boty a voda. Vybavení před použitím kontroluje instruktor.',
-      faq3Q:'Stačí přijít v pondělí, čtvrtek nebo sobotu?',faq3A:'Bez výslovného potvrzení termínu a místa prosím necestuj. Běžný rozvrh od 18:00 je orientační. Odeslaná zpráva neznamená rezervaci.',
+      faq3Q:'Stačí přijít v pondělí nebo sobotu?',faq3A:'Bez výslovného potvrzení termínu a místa prosím necestuj. Běžný rozvrh od 18:00 je orientační. Odeslaná zpráva neznamená rezervaci.',
       faq4Q:'Můžu teď zaplatit a zaregistrovat se online?',faq4A:'Nové placené rezervace HEMA zatím nejsou otevřené. Před případnou platbou musí být potvrzen pořadatel, cena, rezervační podmínky a bezpečnost pro danou akci. Bez toho peníze neposílej.',
       faq5Q:'Můžu si vyzkoušet luk nebo jinou zbraň?',faq5A:'Společný začátek tvoří bezpečný pohyb, kontrolovaný meč a štít a spolupráce. Cestu lučištníka lze prozkoumat po úvodu a bezpečnostní kontrole na oddělené střelnici pod dohledem.',
       faq6Q:'Co když nechci sparrovat?',faq6A:'Souboj můžeš odmítnout, požádat o nižší intenzitu nebo kdykoli říct STOP. Respekt a kontrola mají přednost před vítězstvím.',
@@ -85,7 +85,7 @@
       photoAlt:'Участники настоящей тренировки Дружины учатся с мягкими мечами и щитами',photoCaption:'Настоящая тренировка Дружины · Брно',navAria:'Разделы о клубе',factsAria:'Кратко о занятиях',moreAria:'Подробнее о клубе',rankAria:'Переход к категории званий',joinLink:'Вступить в сообщество',navStart:'Новичкам',navSchedule:'Когда и где',navPath:'Пути развития',navRanks:'Звания',navFaq:'Вопросы',navAbout:'О клубе',
       startEyebrow:'Начать просто',startTitle:'Хочешь попробовать фехтование? Тебе сюда.',
       startLead:'Чтобы спросить о тренировке, не нужны опыт и своё снаряжение. Учимся безопасно, с уважением друг к другу. Расписание ориентировочное: каждый визит подтверждается отдельно.',
-      fact1Label:'Обычно тренируемся',fact1Value:'Понедельник · четверг · суббота',
+      fact1Label:'Обычно тренируемся',fact1Value:'Понедельник · суббота',
       fact2Label:'Время',fact2Value:'18:00 · 90 минут',
       fact3Label:'Место встречи',fact3Value:'Dukelská 157/44 · Брно-Гусовице',
       stepsEyebrow:'Как попасть на первое занятие',step1Title:'Напиши нам',step1Desc:'Спроси о ближайшей подходящей дате. Сообщение ни к чему не обязывает и ничего не бронирует.',
@@ -97,7 +97,7 @@
       faqLead:'Понятные ответы: запрос даты — ещё не запись.',
       faq1Q:'Я никогда не фехтовал. Можно попробовать?',faq1A:'Да, новичкам можно написать и уточнить участие. Начинаем с проверки инвентаря, правил, безопасной дистанции и команды STOP. Дату и допуск должен подтвердить организатор.',
       faq2Q:'Нужен свой меч, доспех или форма?',faq2A:'Сначала уточни: на подтверждённом занятии может быть доступно базовое клубное снаряжение. Обычно достаточно спортивной одежды, закрытой обуви и воды. Всё используемое оружие проверяет инструктор.',
-      faq3Q:'Можно просто прийти в понедельник, четверг или субботу?',faq3A:'Не приезжай без явного подтверждения даты и места. Время 18:00 — обычный ориентир, а не гарантия занятия. Одно сообщение не создаёт бронь.',
+      faq3Q:'Можно просто прийти в понедельник или субботу?',faq3A:'Не приезжай без явного подтверждения даты и места. Время 18:00 — обычный ориентир, а не гарантия занятия. Одно сообщение не создаёт бронь.',
       faq4Q:'Можно сейчас оплатить и записаться через сайт?',faq4A:'Новые платные бронирования HEMA пока закрыты. Перед будущей оплатой должны быть подтверждены организатор, цена, правила записи и безопасность мероприятия. До этого деньги не переводи.',
       faq5Q:'Можно попробовать лук или другое оружие?',faq5A:'Начальный общий блок — безопасное движение, контроль меча и щита, командная работа. Стрельбу из лука можно изучать после вводного инструктажа и проверки безопасности, отдельно от общего боя и под наблюдением.',
       faq6Q:'А если я не хочу драться в спарринге?',faq6A:'Можно отказаться от боя без объяснений, попросить снизить интенсивность и в любой момент сказать STOP. Безопасность и уважение важнее победы.',
@@ -123,7 +123,7 @@
       photoAlt:'Учасники тренування Дружини вправляються з м’якими мечами й щитами',photoCaption:'Справжнє тренування Дружини · Брно',navAria:'Розділи про клуб',factsAria:'Коротко про тренування',moreAria:'Докладніше про клуб',rankAria:'Перейти до категорії звань',joinLink:'Долучитися до спільноти',navStart:'Новачкам',navSchedule:'Коли та де',navPath:'Шляхи навчання',navRanks:'Звання',navFaq:'Запитання',navAbout:'Про клуб',
       startEyebrow:'Перший крок',startTitle:'Хочеш спробувати фехтування? Почни тут.',
       startLead:'Щоб запитати про тренування, не потрібні досвід або власне спорядження. Навчаємося безпечно й з повагою. Розклад орієнтовний — кожен візит підтверджується окремо.',
-      fact1Label:'Звичайні дні',fact1Value:'Понеділок · четвер · субота',
+      fact1Label:'Звичайні дні',fact1Value:'Понеділок · субота',
       fact2Label:'Звичайний час',fact2Value:'18:00 · 90 хвилин',
       fact3Label:'Місце зустрічі',fact3Value:'Dukelská 157/44 · Брно-Гусовиці',
       stepsEyebrow:'Як проходить перший візит',step1Title:'Напиши нам',step1Desc:'Запитай про зручну дату. Повідомлення ні до чого не зобов’язує та не бронює місце.',
@@ -135,7 +135,7 @@
       faqLead:'Чіткі відповіді: запит про дату ще не є бронюванням.',
       faq1Q:'Я ніколи не фехтував/ла. Можна спробувати?',faq1A:'Так, новачки можуть написати й уточнити участь. Початок — перевірка спорядження, правила, безпечна дистанція та команда STOP. Конкретну дату й допуск підтверджує організатор.',
       faq2Q:'Потрібен власний меч чи обладунки?',faq2A:'Спочатку уточни: для підтвердженого тренування може бути доступне базове клубне спорядження. Зазвичай достатньо спортивного одягу, закритого взуття та води. Обладнання перевіряє інструктор.',
-      faq3Q:'Можна просто прийти у понеділок, четвер чи суботу?',faq3A:'Без підтвердження дати й місця не приїжджай. Звичайний початок о 18:00 — орієнтир, а не гарантія заняття. Повідомлення не є бронюванням.',
+      faq3Q:'Можна просто прийти у понеділок чи суботу?',faq3A:'Без підтвердження дати й місця не приїжджай. Звичайний початок о 18:00 — орієнтир, а не гарантія заняття. Повідомлення не є бронюванням.',
       faq4Q:'Можна вже сплатити й записатися онлайн?',faq4A:'Нові платні бронювання HEMA поки закриті. Перед майбутньою оплатою мають бути підтверджені організатор, ціна, правила запису та безпека заходу. До того гроші не переказуй.',
       faq5Q:'Можна спробувати лук чи іншу зброю?',faq5A:'Спільна основа — безпечний рух, контроль меча та щита, робота команди. Стрільбу з лука вивчають після вступу та перевірки безпеки, окремо від загального бою під наглядом.',
       faq6Q:'А якщо я не хочу спарингу?',faq6A:'Можна відмовитися від бою, попросити меншу інтенсивність і в будь-який момент сказати STOP. Безпека та повага важливіші за перемогу.',
@@ -196,6 +196,10 @@
   }
   const render = () => {
     setPageTitle();
+    const heroContact=document.querySelector('#druzina .dm-hero-register');
+    if(heroContact){
+      heroContact.href=code()==='ru'?'https://t.me/Chareshneu':'https://wa.me/420702914842?text='+encodeURIComponent('Hello! I would like to ask about a possible Druzina Moravy session at least 48 hours in advance. Please confirm the exact date, time, venue, organiser, conditions and safety in writing. My message is an enquiry, not a booking.');
+    }
     const introContact=document.querySelector('.dm-contact-button');
     if(introContact){const ru=code()==='ru';introContact.href=ru?'https://t.me/Chareshneu':'https://wa.me/420702914842?text='+encodeURIComponent('Hello, I would like to ask about a possible beginner Družina Moravy session. This is an enquiry, not a booking.');introContact.setAttribute('aria-label',get('contact'));}
     document.querySelectorAll('[data-dm-k]').forEach(el => {
@@ -226,8 +230,28 @@
     const dest=panel?.querySelector('#dm-rank-'+panel.dataset.locale+'-'+button.dataset.dmRankTo);
     if(dest){dest.setAttribute('tabindex','-1');dest.scrollIntoView({block:'start',behavior:window.matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth'});try{dest.focus({preventScroll:true})}catch(_){}}
   };
+  function revealHiddenAnchor(){
+    if(!document.body.classList.contains('dm-ux-home') || !location.hash)return;
+    let id;try{id=decodeURIComponent(location.hash.slice(1));}catch(_){return;}
+    const target=document.getElementById(id);
+    const parent=target?.closest('details.dm-disclosure');
+    if(parent && !parent.open){
+      parent.open=true;
+      requestAnimationFrame(()=>target.scrollIntoView({block:'start'}));
+    }
+  }
   function init(){
     rankHeads();
+    revealHiddenAnchor();
+    window.addEventListener('hashchange',revealHiddenAnchor);
+    document.addEventListener('click',e=>{
+      const a=e.target.closest('a[href^="#"]');
+      if(!a)return;
+      let id;try{id=decodeURIComponent(a.hash.slice(1));}catch(_){return;}
+      const target=document.getElementById(id);
+      const parent=target?.closest('details.dm-disclosure');
+      if(parent)parent.open=true;
+    });
     render();
     document.addEventListener('site:language',render);
     document.addEventListener('click',e=>{
