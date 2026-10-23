@@ -1,7 +1,8 @@
 'use strict';
 /**
  * IMPERION on-device AI launcher.
- * No install, login bypass, paid API, remote model, CRM mutation or publication.
+ * No automatic install, login bypass, paid API, remote model, CRM mutation or publication.
+ * An optional Qwen3 4B download requires a separate typed INSTALL confirmation.
  * Status probes only installed CLIs and Ollama on literal 127.0.0.1:11434.
  * Interactive provider clients start ONLY when selected by a human.
  */
