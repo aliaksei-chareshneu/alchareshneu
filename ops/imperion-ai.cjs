@@ -13,7 +13,7 @@ const readline = require('node:readline/promises');
 const ROOT = path.resolve(__dirname, '..');
 const LOOPBACK = 'http://127.0.0.1:11434';
 const ALLOWED_MODELS = Object.freeze(['qwen3:4b', 'qwen3:0.6b']);
-const ACTIONS = Object.freeze(['help', 'status', 'test', 'preview', 'smoke', 'editor', 'codex', 'agy', 'chat']);
+const ACTIONS = Object.freeze(['help', 'status', 'test', 'preview', 'smoke', 'editor', 'codex', 'agy', 'chat', 'setup-model']);
 
 function findCommand(name, settings = {}) {
   const platform = settings.platform || process.platform;
@@ -75,6 +75,7 @@ function printHelp() {
     'node ops/imperion-ai.cjs codex    | Interactive Codex in read-only sandbox',
     'node ops/imperion-ai.cjs agy      | Interactive Antigravity, sandbox+plan only',
     'node ops/imperion-ai.cjs chat     | Interactive local CPU-only Qwen, no logs',
+    'node ops/imperion-ai.cjs setup-model | Explicit opt-in download of Qwen3 4B (~2.5 GB)',
     'None of these commands posts, emails, edits a CRM, installs software, or subscribes.',
     'Important: smoke may exit 2 = QA_BLOCKED; that means unsafe drafts were rejected.',
   ].join('\n'));
@@ -146,6 +147,30 @@ async function localChat(settings = {}) {
   }
 }
 
+async function setupLocalModel(settings = {}) {
+  const { ids } = await readLocalModels(settings.fetchImpl || globalThis.fetch);
+  if (ids.includes('qwen3:4b')) {
+    console.log('qwen3:4b already installed locally; no download needed.');
+    return 0;
+  }
+  const exe = findCommand('ollama', settings);
+  if (!exe) throw Error('OLLAMA_NOT_INSTALLED');
+  console.log('Optional one-time download: qwen3:4b approximately 2.5 GB, requires internet/disk.');
+  console.log('Model license, quota and language quality must be reviewed. No paid API or CRM.');
+  const rl = readline.createInterface({
+    input: settings.input || process.stdin,
+    output: settings.output || process.stdout,
+  });
+  let answer;
+  try { answer = (await rl.question('Type INSTALL to start Ollama pull (anything else cancels): ')).trim(); }
+  finally { rl.close(); }
+  if (answer !== 'INSTALL') {
+    console.log('Cancelled. No model downloaded.');
+    return 2;
+  }
+  return runLocalProcess(exe, ['pull', 'qwen3:4b']);
+}
+
 async function main(argv = process.argv.slice(2), settings = {}) {
   const action = argv[0] || 'help';
   if (argv.length > 1 || !ACTIONS.includes(action)) {
@@ -173,6 +198,8 @@ async function main(argv = process.argv.slice(2), settings = {}) {
       return runLocalProcess(findCommand('agy', settings), ['--mode', 'plan', '--sandbox']);
     case 'chat':
       return localChat(settings);
+    case 'setup-model':
+      return setupLocalModel(settings);
   }
   return 2;
 }
@@ -184,4 +211,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { ROOT, LOOPBACK, ALLOWED_MODELS, ACTIONS, findCommand, selectLocalModel, readLocalModels, showStatus, localChat, main };
+module.exports = { ROOT, LOOPBACK, ALLOWED_MODELS, ACTIONS, findCommand, selectLocalModel, readLocalModels, showStatus, localChat, setupLocalModel, main };
