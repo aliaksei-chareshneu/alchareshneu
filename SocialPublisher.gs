@@ -50,6 +50,7 @@ function spValidate_(e,j){
  if(!String(j.Entity||'').trim())throw Error('Select responsible legal entity');
  if(['YES','NO'].indexOf(String(j.Grant_Funded).toUpperCase())<0)throw Error('Set Grant_Funded YES/NO');
  if(String(j.Grant_Funded).toUpperCase()==='YES'&&!String(j.Grant_Text||'').trim())throw Error('Missing grant attribution');
+ if(e.Category==='Community Info')spCommunityPreflight_(e,j);
  if(!String(j.Caption||'').trim())throw Error('Empty caption');
  if(String(j.Duplicate_Checked).toUpperCase()!=='YES')throw Error('Check live destinations for an existing identical post first; set Duplicate_Checked YES');
  if(j.Channel==='instagram'&& !/^https:\/\/\S+$/i.test(String(j.Media_URL||'')))
@@ -97,7 +98,7 @@ function spApproveSelectedJob(){
  if(s.getName()!==SP_TAB||r<2)throw Error('Select a SocialPublishing draft');
  var m=spMap_(s),j=spItems_(s).filter(function(x){return x.row===r;})[0];
  if(!j||j.Status!=='DRAFT')throw Error('Only DRAFT can be approved');
- var e=spEvent_(j.Event_ID);spValidate_(e,j);
+ var e=spSource_(j);spValidate_(e,j);
  var ui=SpreadsheetApp.getUi();
  if(ui.alert('Approve '+j.Channel+'?',String(e.Title)+'\n'+String(j.Entity),ui.ButtonSet.YES_NO)!==ui.Button.YES)return;
  s.getRange(r,m.Status).setValue(spManual_(j.Channel)?'READY_MANUAL':'APPROVED');
@@ -120,7 +121,7 @@ function spRunDue(){
   }).slice(0,6);
   jobs.forEach(function(j){
    try{
-    var e=spEvent_(j.Event_ID);spValidate_(e,j);
+    var e=spSource_(j);spValidate_(e,j);
     s.getRange(j.row,m.Status).setValue('CLAIMED');
     s.getRange(j.row,m.Attempted_At).setValue(new Date());SpreadsheetApp.flush();
     var result=spSend_(e,j);
@@ -148,6 +149,8 @@ function spInstallTrigger(){
 function spSocialOnOpen() {
  SpreadsheetApp.getUi().createMenu('Social Publisher')
   .addItem('1. Prepare drafts from Events row','spPrepareSelectedEvent')
+  .addItem('1a. Prepare BrnoWalkers evergreen community','spPrepareBrnoWalkersCommunity')
+  .addItem('1b. Prepare Družina evergreen community','spPrepareDruzinaCommunity')
   .addItem('2. Approve selected SocialPublishing row','spApproveSelectedJob')
   .addItem('3. Open manual share panel','spOpenManualSelected')
   .addItem('4. Confirm manual publication','spConfirmManualSelected')
