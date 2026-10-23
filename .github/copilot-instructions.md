@@ -1,5 +1,8 @@
 # GitHub Copilot instructions — IMPERION public repository
 
+For humans: [one-click AI quickstart](../docs/AI-QUICKSTART-RU.md) and `.vscode/tasks.json` provide explicit read-only/status/synthetic local tasks. No task runs on checkout, CI success does not authorize deployment, and a model answer must pass language+rights+factual QA.
+
+
 Read [AGENTS.md](../AGENTS.md) first. For website, booking, prices, lead generation, CRM or calls-to-action, also read [docs/CODEX-SITE-CONVERSION.md](../docs/CODEX-SITE-CONVERSION.md). This file complements, not replaces, the existing owner instructions.
 
 ## Definition of done
