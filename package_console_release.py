@@ -14,11 +14,13 @@ import subprocess
 import zipfile
 
 
-SOURCES = (
+BASE_SOURCES = (
     'OperatorConsole.html', 'OperatorConsoleServer.gs', 'FioOSVC.gs',
     'FioDruzinaConsole.gs', 'PaymentReconciliation.gs',
     'prepare-console-bank-release.cjs', 'CONSOLE-BANK-RELEASE.md',
 )
+PARSER_SOURCES = ('console-release-acorn.cjs', 'console-release-acorn-LICENSE.txt')
+SOURCES = (*BASE_SOURCES, *PARSER_SOURCES)
 PACKAGE_NAMES = (*SOURCES, 'SOURCE_COMMIT', 'SHA256SUMS')
 MAX_FILE_BYTES = 2 * 1024 * 1024
 
@@ -47,42 +49,47 @@ def committed_package(repo, commit):
         if mode not in (b'100644', b'100755') or kind != b'blob':
             raise ValueError('Release sources must be committed regular files')
         regular.add(name.decode())
-    if regular != set(SOURCES):
+    helper = _git(repo, 'cat-file', 'blob', commit + ':prepare-console-bank-release.cjs')
+    uses_parser = b'console-release-acorn.cjs' in helper
+    # Old releases contain nine files; select their original allowlist by commit.
+    sources = SOURCES if uses_parser or regular.intersection(PARSER_SOURCES) else BASE_SOURCES
+    if regular != set(sources):
         raise ValueError('A required release source is missing from the commit')
-    entries = {name: _git(repo, 'cat-file', 'blob', commit + ':' + name) for name in SOURCES}
+    entries = {name: _git(repo, 'cat-file', 'blob', commit + ':' + name) for name in sources}
     if any(len(data) > MAX_FILE_BYTES for data in entries.values()):
         raise ValueError('A release source exceeds the file size limit')
     entries['SOURCE_COMMIT'] = (commit + '\n').encode()
     entries['SHA256SUMS'] = ''.join(
         hashlib.sha256(entries[name]).hexdigest() + '  ' + name + '\n'
-        for name in ('SOURCE_COMMIT', *SOURCES)).encode()
+        for name in ('SOURCE_COMMIT', *sources)).encode()
     return entries
 
 
-def _read_package(source):
+def _read_package(source, expected_names):
     source = Path(source)
+    names = set(expected_names)
     if source.is_symlink():
         raise ValueError('The package must not be a symbolic link')
     if source.is_dir():
-        if {item.name for item in source.iterdir()} != set(PACKAGE_NAMES):
+        if {item.name for item in source.iterdir()} != names:
             raise ValueError('The package must contain exactly the approved files')
-        for name in PACKAGE_NAMES:
+        for name in names:
             item = source / name
             if item.is_symlink() or not item.is_file() or item.stat().st_size > MAX_FILE_BYTES:
                 raise ValueError('Package entries must be bounded regular files')
-        return {name: (source / name).read_bytes() for name in PACKAGE_NAMES}
+        return {name: (source / name).read_bytes() for name in names}
     if not stat.S_ISREG(source.stat().st_mode):
         raise ValueError('Expected a package directory or ZIP file')
     with zipfile.ZipFile(source) as bundle:
         members = bundle.infolist()
-        if len(members) != len(PACKAGE_NAMES) or {m.filename for m in members} != set(PACKAGE_NAMES):
+        if len(members) != len(names) or {m.filename for m in members} != names:
             raise ValueError('The ZIP must contain exactly the approved files once')
         for member in members:
             kind = stat.S_IFMT(member.external_attr >> 16)
             if member.is_dir() or kind not in (0, stat.S_IFREG) or member.file_size > MAX_FILE_BYTES:
                 raise ValueError('ZIP entries must be bounded regular files')
         # No extraction: untrusted names can never write paths on disk.
-        return {name: bundle.read(name) for name in PACKAGE_NAMES}
+        return {name: bundle.read(name) for name in names}
 
 
 def _compare(actual, expected):
@@ -91,8 +98,9 @@ def _compare(actual, expected):
 
 
 def verify_release(repo, commit, source):
-    _compare(_read_package(source), committed_package(repo, commit))
-    return {'commit': commit, 'files': len(PACKAGE_NAMES), 'verified': True}
+    expected = committed_package(repo, commit)
+    _compare(_read_package(source, expected), expected)
+    return {'commit': commit, 'files': len(expected), 'verified': True}
 
 
 def build_release(repo, commit, output, archive=None):
@@ -109,7 +117,7 @@ def build_release(repo, commit, output, archive=None):
     for name, data in entries.items():
         with (output / name).open('xb') as stream:
             stream.write(data)
-    _compare(_read_package(output), entries)
+    _compare(_read_package(output, entries), entries)
     if archive is not None:
         archive.parent.mkdir(parents=True, exist_ok=True)
         with zipfile.ZipFile(archive, 'x', compression=zipfile.ZIP_STORED) as bundle:
@@ -120,7 +128,7 @@ def build_release(repo, commit, output, archive=None):
                 info.create_system = 3
                 info.external_attr = (stat.S_IFREG | 0o644) << 16
                 bundle.writestr(info, data)
-        _compare(_read_package(archive), entries)
+        _compare(_read_package(archive, entries), entries)
     return {'commit': commit, 'files': len(entries), 'verified': True,
             'output': str(output), 'archive': str(archive) if archive else None,
             'uploaded': False}
