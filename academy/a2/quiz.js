@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded",function(){
    document.documentElement.lang=lang;
    document.querySelectorAll("[data-t]").forEach(function(el){el.textContent=tr(el.dataset.t);});
    langButtons.forEach(function(el){el.setAttribute("aria-pressed",String(el.dataset.lang===lang));});
-   if(!byId("quiz").hidden){renderQuestion();}
+   if(!byId("quiz").hidden){const prior=chosen[position];renderQuestion();if(Number.isInteger(prior))answer(prior);}
    if(!byId("results").hidden){renderResults();}
  }
  langButtons.forEach(function(button){button.addEventListener("click",function(){lang=button.dataset.lang;renderTranslations();});});
@@ -34,7 +34,7 @@ document.addEventListener("DOMContentLoaded",function(){
    quiz=makeQuiz();chosen=[];position=0;locked=false;
    byId("intro").hidden=true;byId("results").hidden=true;byId("quiz").hidden=false;
    renderQuestion();
-   byId("quiz").scrollIntoView({block:"start",behavior:"instant"});
+   byId("quiz").scrollIntoView({block:"start",behavior:"auto"});
  }
  function createChoice(text,index){
    const button=document.createElement("button");button.type="button";button.className="choice";button.dataset.index=String(index);
@@ -73,7 +73,7 @@ document.addEventListener("DOMContentLoaded",function(){
    byId("next").disabled=false;
  }
  function advance(){if(!locked)return;if(position===quiz.length-1){finish();return;}position++;renderQuestion();byId("question").focus();}
- function finish(){byId("quiz").hidden=true;byId("results").hidden=false;byId("progress").setAttribute("aria-valuenow",String(quiz.length));renderResults();byId("results").scrollIntoView({block:"start",behavior:"instant"});}
+ function finish(){byId("quiz").hidden=true;byId("results").hidden=false;byId("progress").setAttribute("aria-valuenow",String(quiz.length));renderResults();byId("results").scrollIntoView({block:"start",behavior:"auto"});}
  function renderResults(){
    if(!quiz.length)return;
    const correct=quiz.reduce(function(n,q,i){return n+(chosen[i]===q.a?1:0);},0);
