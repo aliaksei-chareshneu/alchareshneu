@@ -81,3 +81,30 @@ Do not upload participant, minor, lead, HR, financial, grant or private event in
 **REEVALUATE:** REA/reverse-engineering tool has no link to the current outbound publication goal; do not install or run on untrusted software without a specific authorized security task.
 
 Sources: https://mimo.mi.com/docs/quick-start/model ; https://huggingface.co/tencent/Hy-MT2-1.8B-GGUF ; https://docs.qwencloud.com/developer-guides/image-generation/text-to-image .
+
+
+## Optional OFFLINE PhotoCraft media finishing stage — experimental, 2026-10-22
+
+This is a **local finishing/conversion step for an existing SocialPublishing.Job_ID**, not another generator, publishing queue, cloud provider or CRM. It accepts the same PUBLIC_APPROVED synthetic/owner-reviewed job contract as ops/ai-content-pipeline.cjs. The image_rights_approved=true gate is required. Supported input extensions: PNG, JPG, JPEG, PSD; output: a **new PNG** inside one private staging directory. The Node wrapper makes no network requests. PhotoCraft remains early alpha and its real binary is NOT installed/tested on offline zmrzlina as of 22 Oct 2026.
+
+Official upstream syntax: photocraft-cli convert IN OUT (confirm --help on the actual binary): https://github.com/storytold/photocraft/blob/main/book/src/automation/cli.md . Install from reviewed official releases with verified checksums: https://github.com/storytold/photocraft/blob/main/book/src/getting-started/installation.md .
+
+**Dry preview first** on an authorized local device, with an existing approved job snapshot, rights-cleared image and a private staging directory. All paths must be absolute and remain inside the staging directory:
+
+    node ops/ai-media-local.cjs --root PRIVATE_ABSOLUTE_STAGE --job PUBLIC_APPROVED_JOB.json --input OWNED_IMAGE.png --output NEW_DRAFT.png
+
+After verifying a real PhotoCraft CLI (not via automatic installer), opt into exactly one conversion:
+
+    node ops/ai-media-local.cjs --root PRIVATE_ABSOLUTE_STAGE --job PUBLIC_APPROVED_JOB.json --input OWNED_IMAGE.png --output NEW_DRAFT.png --run --cli ABSOLUTE_PATH_TO_VERIFIED_PHOTOCRAFT_CLI
+
+The stage blocks path traversal, symlink escapes, missing public approval/media rights, previously published jobs, non-PNG final files, invalid dimensions, and overwrite of existing output. It stages a temporary file, then performs exclusive-copy finalization; reports only filename, SHA256, dimensions, bytes and MEDIA_QA_REQUIRED. It **does not** publish, send, schedule, upload or modify any CRM; human visual review and verified SocialPublishing source fingerprint are mandatory. The subprocess receives a reduced environment without cloud model/API keys, but the executable and inputs still need independent security review.
+
+Run: node --test tests/ai-media-local.test.cjs . These tests use a **mock PhotoCraft CLI**, and cover preview, approval gates, safe paths, no clobber, mocked conversion and cleanup after failures. A passing test is NOT proof of an installed or production-capable PhotoCraft binary.
+
+## Alook and REA scope (not activated)
+
+Alook provides hosted rooms and messaging to reach local coding agents. It can create an additional external trust/permission boundary and persistent communications layer; it is **not** the owner of agent jobs, CRM or any business outcomes. The authorized PC is offline, so no Alook daemon, room, token or agent permission was configured. If accepted later, test only with a sandbox agent with NO access to Gmail, Drive private files, production Supabase/admin tokens or destructive commands. Always keep the existing IMPERION_Agent_Jobs and Execution_Receipts as canonical. Official source: https://github.com/alookai/alook .
+
+REA reverse-engineering tooling is not installed or executed: no authorized bounded binary analysis task exists in this pipeline. Do not add it to marketing or publication by default. Official source: https://github.com/morluto/rea .
+
+These gates intentionally prevent unreviewed systems; they are not a claim of installed or live inference.
