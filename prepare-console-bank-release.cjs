@@ -38,7 +38,7 @@ function prepare(source,out,expectedId){
  if(!expectedId)throw Error('Explicit confirmed bound script ID required');
  if(fs.existsSync(out))throw Error('Output already exists; choose a new directory');
  if(out===source||out.startsWith(source+path.sep))throw Error('Output must be outside source');
- const config=JSON.parse(fs.readFileSync(path.join(source,'.clasp.json'),'utf8'));
+ const config=JSON.parse(fs.readFileSync(path.join(source,'.clasp.json'),'utf8').replace(/^\uFEFF/,''));
  if(config.scriptId!==expectedId||!['.',undefined].includes(config.rootDir))throw Error('Wrong script target or unexpected rootDir');
  const replacements={'OperatorConsoleServer.js':'OperatorConsoleServer.gs','OperatorConsole.html':'OperatorConsole.html','FioOSVC.js':'FioOSVC.gs','FioDruzinaConsole.js':'FioDruzinaConsole.gs','PaymentReconciliation.js':'PaymentReconciliation.gs'};
  const files={};

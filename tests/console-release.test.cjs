@@ -54,3 +54,14 @@ test('duplicate retained globals fail without executing source or exposing sourc
  assert.throws(()=>prepare(f.src,f.out,'bound-fixture'),err=>/Invalid Apps Script source: Second.js/.test(err.message)&&!err.message.includes('SYNTHETIC_PRIVATE_SOURCE'));
  assert.equal(fs.existsSync(f.out),false);
 });
+
+
+test('Windows UTF-8 BOM config preserves bytes and still enforces the exact target',t=>{
+ const f=fixture(t),config='\uFEFF'+fs.readFileSync(path.join(f.src,'.clasp.json'),'utf8');
+ fs.writeFileSync(path.join(f.src,'.clasp.json'),config);
+ assert.throws(()=>prepare(f.src,f.out,'wrong'),/Wrong script target/);
+ assert.equal(fs.existsSync(f.out),false);
+ assert.equal(prepare(f.src,f.out,'bound-fixture').uploaded,false);
+ assert.equal(fs.readFileSync(path.join(f.out,'.clasp.json'),'utf8'),config);
+ assert.equal(fs.readFileSync(path.join(f.src,'.clasp.json'),'utf8'),config);
+});
