@@ -1,5 +1,7 @@
 # Platform recovery and media worker — 2026-10-16
 
+Latest installation state (23 October 2026): the reviewed console/bank/reconciliation sources from `7d6358f6e8f69d54c48abe5c793adc02704b34c2` are now installed in the confirmed Hub-bound project, with all seven cloud file hashes independently verified. Existing handlers and manifest were preserved, and the existing menu already references `operatorOpen`. This supersedes historical statements below that the console has not been uploaded. See [the live installation readback](../CONSOLE-BANK-RELEASE.md#live-installation-readback--23-october-2026) for verified headers, runtime limitations and remaining ecosystem acceptance checks. Full ecosystem operation is not yet verified.
+
 This extends the existing Community Hub and MediaMachine. No second CRM, public site, bank ledger or paid subscription.
 
 ## Components and actual boundaries
