@@ -43,7 +43,7 @@ function spCommunityPreflight_(event,job){
  if(!text.includes('https://'))throw Error('Community invitation requires one public CTA');
  if(/Dukelsk[aá]|čtvrtek|Thursday|четверг|четвер|paid HEMA|placen[ée] sportovn[ií]/i.test(text))
   throw Error('Stale venue/day or paid sports promise in community copy');
- if(/\b\d{1,2}[.\/]\d{1,2}[.\/]20\d{2}\b|\b\d{2,6}\s*(?:Kč|CZK|EUR|€)\b/i.test(text))
+ if(/\b\d{1,2}[.\/]\d{1,2}[.\/]20\d{2}\b|\b\d{2,6}\s*(?:Kč|CZK|EUR|€)(?=$|[\s.,;])/i.test(text))
   throw Error('Community-only promotion must not claim an event date or price');
  if(key==='DRUZINA'&&!/Družina Moravy/.test(text))
   throw Error('Družina brand missing from invitation');
