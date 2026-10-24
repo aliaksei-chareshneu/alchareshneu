@@ -137,6 +137,25 @@ test('Ollama failure does not call a paid model, send posts, or create new queue
   assert.ok(calls.every(x => x.startsWith(OLLAMA_BASE + '/')));
 });
 
+test('Ollama HTTP 500/503 reports numeric status only, without reading error body or paid fallback', async () => {
+  const calls = [];
+  for (const status of [500, 503]) {
+    await assert.rejects(smoke({ backend: 'ollama', local: true, fetchImpl: async (url) => {
+      calls.push(url);
+      if (url.endsWith('/api/tags')) {
+        return { ok: true, json: async () => ({ models: [{ name: 'qwen3:4b' }] }) };
+      }
+      return {
+        ok: false, status,
+        text: async () => { throw Error('PRIVATE_PROVIDER_RESPONSE_MUST_NOT_BE_READ'); },
+        json: async () => { throw Error('PRIVATE_PROVIDER_RESPONSE_MUST_NOT_BE_READ'); },
+      };
+    } }), new RegExp('PROVIDER_HTTP_STATUS_' + status));
+  }
+  assert.ok(calls.every(url => url.startsWith(OLLAMA_BASE + '/')));
+  assert.equal(calls.length, 4);
+});
+
 test('Ollama 0.6B fallback is explicitly QA_BLOCKED when it repeats English', async () => {
   const calls = [];
   const result = await smoke({ backend: 'ollama', local: true, fetchImpl: async (url) => {
