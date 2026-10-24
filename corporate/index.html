@@ -144,11 +144,14 @@
 var buttons=Array.from(document.querySelectorAll('[data-lang]'));
 var blocks=Array.from(document.querySelectorAll('[data-locale]'));
 function setLang(lang){if(['en','cs','ru','uk'].indexOf(lang)<0)lang='en';document.documentElement.lang=lang;
+try{localStorage.setItem('dm_lang',lang);}catch(e){}
+var url=new URL(location.href);url.searchParams.set('lang',lang);history.replaceState(null,'',url);
 buttons.forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.lang===lang));});
 blocks.forEach(function(el){var effective=lang;if(lang==='uk'&&el.dataset.locale==='en'&&!el.parentElement.querySelector(':scope > [data-locale="uk"]'))effective='en';el.hidden=el.dataset.locale!==effective;});
 }
 buttons.forEach(function(b){b.addEventListener('click',function(){setLang(b.dataset.lang);});});
-setLang(new URLSearchParams(location.search).get('lang')||(navigator.language||'en').slice(0,2).toLowerCase());
+var saved;try{saved=localStorage.getItem('dm_lang');}catch(e){}
+setLang(new URLSearchParams(location.search).get('lang')||saved||(navigator.language||'en').slice(0,2).toLowerCase());
 })();
 </script>
 </body>

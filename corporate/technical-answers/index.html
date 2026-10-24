@@ -74,6 +74,7 @@ h1{font-size:clamp(2.35rem,5vw,4.7rem);line-height:1.09;letter-spacing:-.048em;m
 .brief-wrap p{color:var(--sub)}
 .brief-form{background:white;border:1px solid var(--edge);padding:27px;border-radius:17px;box-shadow:var(--shadow);display:grid;gap:18px}
 .brief-form .cta{width:100%}
+.brief-form [hidden],#copy-status:empty{display:none}
 .hint{font-size:.83rem;color:#4e676b;margin:0}
 .mail{font-weight:700;overflow-wrap:anywhere}
 .footer{padding:26px 0;background:#102b33;color:#cbe1d9;font-size:.84rem}
@@ -141,10 +142,13 @@ h1{font-size:clamp(2.35rem,5vw,4.7rem);line-height:1.09;letter-spacing:-.048em;m
 <div class="field"><label for="company" data-t="company">Firma / tým *</label><input id="company" name="company" autocomplete="organization" maxlength="100" required></div>
 <div class="field"><label for="problem" data-t="problem">Jaký opakující se problém řešíte? *</label><textarea id="problem" name="problem" maxlength="900" required></textarea></div>
 <div class="field"><label for="budget" data-t="budget">Rámec rozpočtu</label><select id="budget" name="budget"><option value="not specified" data-t="budget0">Zatím nevím</option><option value="up to 14900 CZK" data-t="budget1">Do 14 900 Kč</option><option value="14900-30000 CZK" data-t="budget2">14 900–30 000 Kč</option><option value="over 30000 CZK" data-t="budget3">Nad 30 000 Kč</option></select></div>
-<div class="field"><label for="timing" data-t="timing">Požadovaný termín (nepovinné)</label><input id="timing" name="timing" maxlength="80" placeholder="např. listopad 2026"></div>
+<div class="field"><label for="timing" data-t="timing">Požadovaný termín (nepovinné)</label><input id="timing" name="timing" maxlength="80" placeholder="např. příští měsíc"></div>
 <button type="submit" class="cta light" data-t="send">Otevřít připravený e-mail →</button>
 <p class="hint" data-t="sendNote">Kliknutí otevře vaši poštovní aplikaci. Zprávu si zkontrolujete a odešlete sami; formulář ji automaticky neodesílá.</p>
 <p class="hint"><span data-t="fallback">Nefunguje poštovní aplikace?</span> <a id="fallback-email" href="mailto:chereshnev.biochem@gmail.com?subject=AI%20Knowledge%20Pilot%20-%20web">chereshnev.biochem@gmail.com</a></p>
+<button type="button" class="cta light" id="copy-brief" data-t="copyBrief" hidden>Zkopírovat zadání</button>
+<p class="hint" id="copy-status" role="status" aria-live="polite"></p>
+<div class="field" id="copy-fallback" hidden><label for="brief-copy" data-t="copyLabel">Zadání pro ruční odeslání</label><textarea id="brief-copy" rows="12" readonly></textarea></div>
 </form></div></section>
 </main>
 <footer class="footer"><div class="shell"><span>Aliaksei Chareshneu, PhD · OSVČ · IČO 23041625</span><span><a href="../" data-t="allServicesFooter">Firemní služby</a> · <a href="../../#contacts" data-t="contacts">Kontakt</a> · <a href="../../#terms" data-t="terms">Podmínky</a></span></div></footer>
@@ -160,18 +164,29 @@ uk:{skip:'До вмісту',brand:'AI · Дані · Дослідження · 
 var buttons=document.querySelectorAll('[data-lang]');
 var items=document.querySelectorAll('[data-t]');
 var lang='cs';
+var copyText={
+ cs:{copyBrief:'Zkopírovat zadání',copyLabel:'Zadání pro ruční odeslání',copied:'Zadání je ve schránce. Vložte je do své pošty a odešlete na uvedenou adresu; zatím nebylo nic odesláno.',manual:'Zkopírujte vybraný text níže a odešlete jej ze své pošty. Zatím nebylo nic odesláno.'},
+ en:{copyBrief:'Copy enquiry',copyLabel:'Enquiry to send yourself',copied:'Enquiry copied. Paste it into your email and send it to the address shown; nothing has been sent yet.',manual:'Copy the selected text below and send it from your email. Nothing has been sent yet.'},
+ ru:{copyBrief:'Скопировать заявку',copyLabel:'Заявка для самостоятельной отправки',copied:'Заявка скопирована. Вставьте её в письмо и отправьте на указанный адрес; пока ничего не отправлено.',manual:'Скопируйте выделенный текст ниже и отправьте его со своей почты. Пока ничего не отправлено.'},
+ uk:{copyBrief:'Скопіювати заявку',copyLabel:'Заявка для самостійного надсилання',copied:'Заявку скопійовано. Вставте її в лист і надішліть на вказану адресу; поки нічого не надіслано.',manual:'Скопіюйте виділений текст нижче й надішліть зі своєї пошти. Поки нічого не надіслано.'}
+};
+Object.keys(copyText).forEach(function(code){Object.assign(t[code],copyText[code])});
+var copyState='';
 function setLang(value){
  lang=t[value]?value:'cs';document.documentElement.lang=lang;
+ try{localStorage.setItem('dm_lang',lang)}catch(e){}
+ var url=new URL(location.href);url.searchParams.set('lang',lang);history.replaceState(null,'',url);
  Array.prototype.forEach.call(items,function(el){var key=el.getAttribute('data-t');if(t[lang][key])el.textContent=t[lang][key]});
  Array.prototype.forEach.call(buttons,function(el){el.setAttribute('aria-pressed',String(el.getAttribute('data-lang')===lang))});
+ if(copyState)document.getElementById('copy-status').textContent=t[lang][copyState];
+ document.getElementById('timing').placeholder={cs:'např. příští měsíc',en:'e.g. next month',ru:'Например, следующий месяц',uk:'Наприклад, наступний місяць'}[lang];
  renderHours();
 }
 function boundedInt(id){var el=document.getElementById(id),n=Number(el.value);return Number.isFinite(n)&&n>=0&&n<=Number(el.max)?n:0}
 function renderHours(){var h=boundedInt('volume')*boundedInt('minutes')/60;document.getElementById('monthly-hours').textContent=new Intl.NumberFormat(lang==='uk'?'uk-UA':lang==='ru'?'ru-RU':lang==='en'?'en-GB':'cs-CZ',{maximumFractionDigits:1}).format(h)+' h'}
 Array.prototype.forEach.call(buttons,function(b){b.addEventListener('click',function(){setLang(b.getAttribute('data-lang'))})});
 ['volume','minutes'].forEach(function(id){document.getElementById(id).addEventListener('input',renderHours)});
-document.getElementById('brief-form').addEventListener('submit',function(e){
- e.preventDefault();if(!e.target.reportValidity())return;
+function buildBrief(){
  var v=function(id){return document.getElementById(id).value.trim().slice(0,900)};
  var getClean=function(key){var x=new URLSearchParams(location.search).get(key)||'';return /^[a-zA-Z0-9_-]{1,48}$/.test(x)?x:'unspecified'};
  var details=[
@@ -189,11 +204,26 @@ document.getElementById('brief-form').addEventListener('submit',function(e){
  'Campaign: '+getClean('utm_campaign'),
  'This is a nonbinding enquiry, not an order or payment. No attachments or customer personal data.'
  ];
- location.href='mailto:chereshnev.biochem@gmail.com?subject='+encodeURIComponent('AI Knowledge Pilot | website enquiry')+'&body='+encodeURIComponent(details.join('\n'));
+ return details.join('\n');
+}
+document.getElementById('brief-form').addEventListener('submit',function(e){
+ e.preventDefault();if(!e.target.reportValidity())return;
+ location.href='mailto:chereshnev.biochem@gmail.com?subject='+encodeURIComponent('AI Knowledge Pilot | website enquiry')+'&body='+encodeURIComponent(buildBrief());
+});
+var copyButton=document.getElementById('copy-brief');copyButton.hidden=false;
+copyButton.addEventListener('click',async function(){
+ if(!document.getElementById('brief-form').reportValidity())return;
+ var output=document.getElementById('brief-copy');
+ output.value='To: chereshnev.biochem@gmail.com\nSubject: AI Knowledge Pilot | website enquiry\n\n'+buildBrief();
+ document.getElementById('copy-fallback').hidden=false;
+ try{await navigator.clipboard.writeText(output.value);copyState='copied'}
+ catch(e){copyState='manual';output.focus();output.select()}
+ document.getElementById('copy-status').textContent=t[lang][copyState];
 });
 var requested=new URLSearchParams(location.search).get('lang');
+var saved;try{saved=localStorage.getItem('dm_lang')}catch(e){}
 var browser=(navigator.language||'cs').toLowerCase().slice(0,2);
-setLang(t[requested]?requested:(t[browser]?browser:'cs'));
+setLang(t[requested]?requested:(t[saved]?saved:(t[browser]?browser:'cs')));
 })();
 </script>
 </body>
