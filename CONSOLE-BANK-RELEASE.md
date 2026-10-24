@@ -1,6 +1,6 @@
 # Console bank integration — 20 October 2026
 
-Status: code prepared and fixture-tested; NOT uploaded to Apps Script. The owner's remote device was offline during preparation. No tokens inspected or transferred; no bank requests, payments, schedules or public posts executed.
+Status updated 23 October 2026: console sources from commit `7d6358f6e8f69d54c48abe5c793adc02704b34c2` are installed in the confirmed Hub-bound project. Independent API readback matched all seven project files. Runtime, bank configuration and end-to-end automation remain unverified; installation is not full ecosystem readiness. No bank requests, payments, schedules or public posts were executed by this release.
 
 Live metadata checked on 23 October confirms that the spreadsheet-bound project is distinct from the standalone automation project. The workspace root configuration selects the standalone project; resolve the intended bound target from `projects.get` and require its `parentId` to match the configured Hub before preparing a release. Do not push standalone project files wholesale into the bound project. Existing Form handlers and recovery triggers remain in their current project pending an owner-authorized live trigger audit.
 
@@ -20,6 +20,18 @@ Release procedure:
 6. Run one manual read for each configured entity. Verify the intended account response, append deduplication, checkpoints and read-only reconciliation. No automatic bank-import timer until this passes.
 
 Important: bank module installation is not bank configuration, receipt of money or a verified payment. Existing bank worksheet schemas must match exactly; this package must fail rather than migrate financial records implicitly. The complete platform remains unfinished.
+
+## Live installation readback — 23 October 2026
+
+The observable acceptance criteria for this release were: preserve the correct private Hub binding and existing handlers; install only the five reviewed console/bank/reconciliation files with an independent source readback; check the existing Hub headers without reading customer rows. These criteria passed at 20:39 Prague time. The owner remains responsible for bank account identity, runtime authorization and public actions. No saved time, revenue or other business impact is inferred.
+
+The authorized Windows device retained a fresh private source backup. Immediately before upload, live project metadata, private owner access and every original source hash were checked again. The prepared release preserved the manifest and unrelated source; the cloud readback matched all seven files after upload. Existing `onOpen` already contains an `operatorOpen` menu item, so no menu handler was replaced. The source revision passed 199 Node, 23 Python and 28 offline Chromium tests; both main-branch workflows passed.
+
+The connected Google Drive readback confirmed the required headers in Leads, Events, SocialPublishing, Revenue_Config and Druzina_Payments. Neither bank transaction sheet was present in spreadsheet metadata. No financial sheets or records were created or migrated. The current clasp credentials could manage script sources but received HTTP 403 from the Sheets API; the connected Drive reader could inspect the existing Hub. No scopes or credentials were changed.
+
+Remaining acceptance evidence: owner-session console snapshot and actions; private per-entity bank configuration followed by explicit read/deduplication checks; intake/recovery execution in its existing separate project; verified provider receipts for social publication. The bound project has no API executable, and no existing browser debugging session was available for the owner UI test. Source presence and a menu reference do not prove successful runtime authorization. Do not move standalone handlers or install timers merely to hide these unavailable capabilities.
+
+The existing Windows ShortFactory draft/trends tasks reported last result 0 and Ollama reported the approved `qwen3:4b` model available. These are availability observations only: no draft, publication or business outcome was verified in this readback. The website was outside this release.
 
 ## Source package and integration fixes — 21 October 2026
 
