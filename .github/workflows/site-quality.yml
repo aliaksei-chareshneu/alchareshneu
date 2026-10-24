@@ -99,7 +99,9 @@ jobs:
           NODE
 
   browser-regression:
-    runs-on: ubuntu-latest
+    # Playwright 1.51.1 does not support the ubuntu-26.04 image selected by ubuntu-latest in Oct 2026.
+    # Pin the browser test runner to a supported LTS image; static checks remain on latest.
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
