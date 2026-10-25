@@ -1,7 +1,7 @@
 'use strict';
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
-const {report}=require('../ops/deal-proof-gate.cjs');
+const {report,economics}=require('../ops/deal-proof-gate.cjs');
 const qualified={
   entity:'OSVC',buyer_source:'Buyer reply evidence',problem:'Document manual workflow',
   authority:'Authorized buyer named',budget_source:'Budget in buyer email',
@@ -43,4 +43,20 @@ test('NGO and regulated sport are separate legal gates',()=>{
 test('no buyer or opportunity values echoed by default',()=>{
  const result=report({...qualified,private_message:'Confidential client details'});
  assert.ok(!JSON.stringify(result).includes('Confidential'));
+});
+
+test('economics are labeled scenarios, not revenue',()=>{
+ const x=economics({economics:{quoted_czk:14900,external_cost_czk:2900,founder_hours:8,
+  probability:0.4,probability_source:'Reviewed qualification evidence',expected_payment_days:21}});
+ assert.equal(x.net_per_founder_hour_scenario_czk,1500);
+ assert.equal(x.weighted30_scenario_czk,5960);
+ assert.equal(report(qualified).verified_cash,false);
+});
+test('missing basis or payment beyond thirty days has no weighted scenario',()=>{
+ const a=economics({economics:{quoted_czk:14900,external_cost_czk:0,founder_hours:5,
+   probability:0.4,expected_payment_days:14}});
+ assert.equal(a.weighted30_scenario_czk,null);
+ const b=economics({economics:{quoted_czk:14900,external_cost_czk:0,founder_hours:5,
+   probability:0.4,probability_source:'Buyer message',expected_payment_days:31}});
+ assert.equal(b.weighted30_scenario_czk,null);
 });
