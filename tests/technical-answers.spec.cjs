@@ -86,7 +86,7 @@ test('homepage prioritizes B2B pilot and preserves separate community choice',as
   for(const lang of ['cs','en','ru','uk']){
     await page.goto('/?lang='+lang);
     await expect(page.locator('#heroCta')).toHaveAttribute('href','corporate/technical-answers/?lang='+lang);
-    await expect(page.locator('#heroCorporateCta')).toHaveAttribute('href','#join');
+    await expect(page.locator('#heroCorporateCta')).toHaveAttribute('href','start/?lang='+lang);
     await expect(page.locator('#heroCta')).toContainText(lang==='en'?'14,900':'14 900');
   }
 });
