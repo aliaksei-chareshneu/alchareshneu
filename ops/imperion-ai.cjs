@@ -14,7 +14,7 @@ const readline = require('node:readline/promises');
 const ROOT = path.resolve(__dirname, '..');
 const LOOPBACK = 'http://127.0.0.1:11434';
 const ALLOWED_MODELS = Object.freeze(['qwen3:4b', 'qwen3:0.6b']);
-const ACTIONS = Object.freeze(['help', 'status', 'test', 'preview', 'smoke', 'editor', 'codex', 'agy', 'chat', 'setup-model']);
+const ACTIONS = Object.freeze(['help', 'status', 'test', 'preview', 'smoke', 'editor', 'codex', 'agy', 'chat', 'setup-model', 'audit']);
 
 function findCommand(name, settings = {}) {
   const platform = settings.platform || process.platform;
@@ -77,6 +77,7 @@ function printHelp() {
     'node ops/imperion-ai.cjs agy      | Interactive Antigravity, sandbox+plan only',
     'node ops/imperion-ai.cjs chat     | Interactive local CPU-only Qwen, no logs',
     'node ops/imperion-ai.cjs setup-model | Explicit opt-in download of Qwen3 4B (~2.5 GB)',
+    'node ops/imperion-ai.cjs audit    | Local-only JSON access audit; no cloud calls',
     'None of these commands posts, emails, edits a CRM, installs software, or subscribes.',
     'Important: smoke may exit 2 = QA_BLOCKED; that means unsafe drafts were rejected.',
   ].join('\n'));
@@ -102,6 +103,61 @@ async function showStatus(settings = {}) {
   output('Antigravity: Google account eligibility must be confirmed interactively.');
   output('Microsoft 365/Copilot: license and Graph permissions require tenant admin.');
   output('No user account, billing or production change performed.');
+}
+
+
+/** Only literal Ollama loopback is probed; never infer cloud quota or expose API key. */
+async function auditAccess(settings = {}) {
+  const env = settings.env || process.env;
+  const getCommand = settings.getCommand || (name => findCommand(name, settings));
+  const tools = {};
+  for (const name of ['git', 'code', 'codex', 'agy', 'ollama']) {
+    tools[name] = getCommand(name) ? 'BINARY_FOUND_AUTH_UNVERIFIED' : 'NOT_FOUND';
+  }
+  const report = {
+    schema: 1,
+    scope: 'LOCAL_READ_ONLY',
+    external_requests: 0,
+    paid_model_calls: 0,
+    purchases_or_activations: 0,
+    tools,
+    ollama: { endpoint: LOOPBACK, server: 'NOT_VERIFIED',
+      installed_allowed_models: [], preferred_model: null,
+      inference: 'NOT_TESTED', output_review: 'HUMAN_REVIEW_REQUIRED' },
+    antigravity: {
+      eligibility: 'NOT_VERIFIED', live_model_access: 'NOT_TESTED',
+      gemini_api_key_present: typeof env.GEMINI_API_KEY === 'string' && env.GEMINI_API_KEY.trim().length > 0,
+      gemini_api_billing_tier: 'NOT_VERIFIED',
+      alternate_auth: 'OFFICIAL_API_KEY_ROUTE_MANUAL_ONLY',
+      docs: 'https://antigravity.google/docs/cli/install/',
+    },
+    benefits: {
+      google_cloud_trial_remaining_credit: 'NOT_VERIFIED_IN_PROVIDER_CONSOLE',
+      google_for_nonprofits_products: 'ACTIVATION_CHECK_IN_PROVIDER_DASHBOARD',
+      github_copilot_seat_and_quota: 'NOT_VERIFIED',
+      microsoft_copilot_seat_and_quota: 'NOT_VERIFIED',
+      firecrawl_and_tinyfish_balances: 'NOT_QUERIED_ON_LOCAL_DEVICE',
+    },
+    provider_dashboards: {
+      google_for_nonprofits: 'https://www.google.com/nonprofits/',
+      google_cloud_billing: 'https://console.cloud.google.com/billing',
+      gemini_api: 'https://aistudio.google.com/',
+      github_copilot: 'https://github.com/settings/copilot',
+    },
+    next: 'Confirm quotas and account identity interactively; no automatic paid billing.',
+  };
+  try {
+    const { ids, selected } = await readLocalModels(settings.fetchImpl || globalThis.fetch);
+    report.ollama.server = 'RESPONDING_LOOPBACK_TAGS_ONLY';
+    report.ollama.installed_allowed_models = ids.filter(id => ALLOWED_MODELS.includes(id));
+    report.ollama.preferred_model = selected;
+  } catch {
+    report.ollama.server = 'OFFLINE_OR_UNVERIFIED';
+  }
+  report.readiness = report.ollama.preferred_model
+    ? 'LOCAL_MODEL_LISTED_CLOUD_UNVERIFIED'
+    : 'NO_VERIFIED_LOCAL_MODEL_CLOUD_UNVERIFIED';
+  return report;
 }
 
 async function localChat(settings = {}) {
@@ -201,6 +257,9 @@ async function main(argv = process.argv.slice(2), settings = {}) {
       return localChat(settings);
     case 'setup-model':
       return setupLocalModel(settings);
+    case 'audit':
+      console.log(JSON.stringify(await auditAccess(settings), null, 2));
+      return 0;
   }
   return 2;
 }
@@ -212,4 +271,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { ROOT, LOOPBACK, ALLOWED_MODELS, ACTIONS, findCommand, selectLocalModel, readLocalModels, showStatus, localChat, setupLocalModel, main };
+module.exports = { ROOT, LOOPBACK, ALLOWED_MODELS, ACTIONS, findCommand, selectLocalModel, readLocalModels, showStatus, auditAccess, localChat, setupLocalModel, main };
