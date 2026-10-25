@@ -190,10 +190,10 @@ $('event').addEventListener('change',fillDetails);
 $('age').addEventListener('change',function(){
  var minor=$('age').value==='under18';$('guardian').classList.toggle('hide',!minor);
  $('guardianName').required=minor;$('guardianPhone').required=minor;
- if(minor){$('photoConsent').checked=false;$('photoConsent').disabled=true;}else $('photoConsent').disabled=false;
+ if(minor){$('photoConsent').checked=false;$('photoConsent').disabled=true;$('future').checked=false;$('future').disabled=true;}else{$('photoConsent').disabled=false;$('future').disabled=false;}
 });
 $('again').addEventListener('click',function(){
- $('regform').reset();$('photoConsent').disabled=false;$('thanks').classList.add('hide');$('regform').classList.remove('hide');
+ $('regform').reset();$('photoConsent').disabled=false;$('future').disabled=false;$('thanks').classList.add('hide');$('regform').classList.remove('hide');
  $('message').classList.add('hide');$('guardian').classList.add('hide');$('event').value=activeEvent?activeEvent.id:'';
  fillDetails();
 });
