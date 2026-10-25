@@ -29,6 +29,9 @@ p{color:#cededc;line-height:1.65}a{color:#c0f3d7}
 <script>
 (function(){
 'use strict';
+// Fail closed: the existing production Apps Script does not yet serve regpPage.
+// Switch only after an approved, verified backend deployment + real CRM E2E.
+var PORTAL_ACTIVE=false;
 var ENDPOINT='https://script.google.com/macros/s/AKfycbzKdIEwIF4gH9Cku3IQPC8uTrvR1CtHjMAOIzexrR3Mz9nDSLQ1znfT8Y2SS873jCtsLg/exec';
 var params=new URLSearchParams(location.search);
 var url=new URL(ENDPOINT);
@@ -37,9 +40,25 @@ var eventId=params.get('event')||'';
 if(/^[A-Za-z0-9-]{2,100}$/.test(eventId))url.searchParams.set('event',eventId);
 var lang=params.get('lang')||'en';
 if(/^(en|cs|ru|uk)$/.test(lang))url.searchParams.set('lang',lang);
-document.getElementById('open').href=url.toString();
-if(params.get('preview')!=='1')window.location.replace(url.toString());
-else document.getElementById('message').textContent='Preview of the registration gateway; the form itself requires an approved Apps Script deployment.';
+var btn=document.getElementById('open');
+if(params.get('preview')==='1'){
+  btn.href=url.toString();
+  document.getElementById('message').textContent='Preview only: the actual registration backend is NOT live yet.';
+}else if(!PORTAL_ACTIVE){
+  var fallback=new URL('../calendar/',location.href);
+  fallback.searchParams.set('lang',/^(en|cs|ru|uk)$/.test(lang)?lang:'en');
+  var copy={
+    en:['Registration is not yet active. Please use a verified event contact link; an enquiry is not a booking.','See current events →'],
+    cs:['Online registrace zatím není aktivní. Použijte kontakt u konkrétní potvrzené akce; dotaz není rezervace.','Zobrazit aktuální akce →'],
+    ru:['Онлайн-форма ещё не запущена. Используйте контакт конкретного подтверждённого события; запрос не равен бронированию.','Посмотреть мероприятия →'],
+    uk:['Онлайн-форма ще не запущена. Використовуйте контакт конкретної підтвердженої події; запит не є бронюванням.','Переглянути події →']
+  };
+  var chosen=copy[lang]||copy.en;
+  btn.href=fallback.toString();btn.textContent=chosen[1];
+  document.getElementById('message').textContent=chosen[0];
+}else{
+  btn.href=url.toString();window.location.replace(url.toString());
+}
 })();
 </script>
 </body>
