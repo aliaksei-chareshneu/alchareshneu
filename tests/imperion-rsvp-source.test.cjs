@@ -18,4 +18,6 @@ assert.ok(fn.includes("origin!==ALLOWED_ORIGIN"));
 assert.ok(front.includes('id="safety" type="checkbox" required'));
 const s=front.match(/<script>\s*([\s\S]*?)\s*<\/script>/);
 assert.ok(s);new vm.Script(s[1]);
+const start=fs.readFileSync('start/index.html','utf8');
+for(const l of ['en','cs','ru','uk']) assert.ok(start.includes('event=PUB-HIKE-20261101&amp;lang='+l),'No registration CTA '+l);
 console.log('PASS: event form language, legal links, identity safety, no privileged keys in browser');
