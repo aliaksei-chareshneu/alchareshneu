@@ -161,13 +161,19 @@ function regpSubmit(payload) {
         target=i+1;break;
       }
     }
-    if(target>0 && String(values[target-1][at('RSVP_Status')])==='ATTENDED')
-      throw new Error('This event already has a recorded check-in. Contact the organizer');
+    // This public form has no email verification. A second request identifying
+    // an existing person cannot prove that it came from the same participant.
+    // Do not modify someone else's RSVP, contact details or opt-in permissions.
+    // Return the SAME public response as a new submission (no existence oracle).
+    var publicReceipt={ok:true,recorded:true,updated:false,status:'RECEIVED',
+      needsGuardian:isMinor,
+      message:'Your request was received. The organizer will confirm separately. For changes, contact the organizer directly.'};
+    if(target>0)return publicReceipt;
     var now=new Date();
     var eventExpiry=new Date(eventDate.getTime()+90*86400000);
     var newsletterExpiry=new Date(now.getTime()+365*86400000);
     var retention=market && newsletterExpiry>eventExpiry?newsletterExpiry:eventExpiry;
-    var old=target>0?values[target-1]:[];
+    // New submissions only: existing rows cannot be updated anonymously.
     var fields={
       Event_ID:id, Full_Name:regpClean_(name,170), First_Name:first,Last_Name:last,
       Email:email,Phone_Number:phone,Age:isMinor?'Under 18':'18+',
@@ -179,22 +185,17 @@ function regpSubmit(payload) {
       Retention_Until:retention,RSVP_Status:status,RSVP_Status_At:now,
       Reply_Contact:email,Source_Channel:PORTAL_SOURCE
     };
-    if(target<0){
-      fields.Reg_ID=Utilities.getUuid();
-      fields.Timestamp=now;
-      fields.Submission_ID='WEB-'+Utilities.getUuid();
-      fields.Payment_Status=Number(erow[eh.indexOf('Price_CZK')])===0?'NOT_REQUIRED':'PENDING';
-    }
-    // A new RSVP is NOT a signed sports waiver or a verified payment.
-    var out=heads.map(function(h,index){
-      return Object.prototype.hasOwnProperty.call(fields,h)?fields[h]:(target>0?old[index]:'');
+    fields.Reg_ID=Utilities.getUuid();
+    fields.Timestamp=now;
+    fields.Submission_ID='WEB-'+Utilities.getUuid();
+    fields.Payment_Status=Number(erow[eh.indexOf('Price_CZK')])===0?'NOT_REQUIRED':'PENDING';
+    // The public success receipt never exposes whether the person existed.
+    var out=heads.map(function(h){
+      return Object.prototype.hasOwnProperty.call(fields,h)?fields[h]:'';
     });
-    if(target>0)sh.getRange(target,1,1,heads.length).setValues([out]);
-    else sh.getRange(Math.max(4,sh.getLastRow()+1),1,1,heads.length).setValues([out]);
+    sh.getRange(Math.max(4,sh.getLastRow()+1),1,1,heads.length).setValues([out]);
     SpreadsheetApp.flush();
-    return {ok:true,recorded:true,updated:target>0,reference:String(fields.Submission_ID || old[at('Submission_ID')]),
-      status:status,needsGuardian:isMinor,marketingSubscribed:market,
-      message:'Your RSVP was recorded. The organizer will confirm the exact terms and meeting point separately.'};
+    return publicReceipt;
   } finally {lock.releaseLock();}
 }
 
@@ -248,9 +249,11 @@ function cleanupUniversalRegistrations(){
     if(expired){
       written[idx('Source_Channel')]='WEBSITE_RSVP_PURGED';
       written[idx('Retention_Until')]='';
+      written[idx('Event_ID')]='';
       purged++;
     }else{
       written[idx('Source_Channel')]='WEBSITE_RSVP_MARKETING_ONLY';
+      written[idx('Event_ID')]=''; // No event-participation history in invitations-only record.
       minimized++;
     }
     sh.getRange(i+1,1,1,h.length).setValues([written]);
