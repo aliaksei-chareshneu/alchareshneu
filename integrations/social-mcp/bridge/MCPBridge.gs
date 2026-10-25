@@ -60,6 +60,41 @@ function imperionMcpEvent_(book, eventId) {
   heads.forEach(function(h,i){ev[h]=hits[0].row[i];});
   return ev;
 }
+function imperionMcpTargetChat_(event) {
+  // Never silently fall back to another legal entity's channel.
+  var community = String(event.Community);
+  var chat = '';
+  if (community === 'Družina Moravy') chat = TELEGRAM_CHANNEL_DRUZINA;
+  else if (community === 'Brnowalkers') chat = TELEGRAM_CHANNEL_BRNOWALKERS;
+  else throw new Error('UNRECOGNISED_COMMUNITY');
+  if (!/^@[a-zA-Z0-9_]{5,32}$/.test(String(chat))) throw new Error('INVALID_TARGET_CHANNEL');
+  return String(chat);
+}
+function imperionMcpHistoricalTelegram_(sheet, job, event) {
+  // Event.Telegram_Post_ID can be empty for messages published by older n8n,
+  // Community Hub, or manually reconciled historical jobs. Check the SAME CRM.
+  var heads = sheet.getRange(1,1,1,sheet.getLastColumn()).getValues()[0];
+  ['Job_ID','Event_ID','Channel','Status','Post_ID','Post_URL'].forEach(function(k) {
+    if (heads.indexOf(k) < 0) throw new Error('SocialPublishing column missing: '+k);
+  });
+  var target = imperionMcpTargetChat_(event).toLowerCase();
+  var rows = sheet.getRange(2,1,sheet.getLastRow()-1,sheet.getLastColumn()).getValues();
+  for (var i=0;i<rows.length;i++) {
+    var row=rows[i];
+    if (String(row[heads.indexOf('Job_ID')]) === String(job.Job_ID)) continue;
+    if (String(row[heads.indexOf('Event_ID')]) !== String(job.Event_ID)) continue;
+    if (!/^telegram(?:$|[_:])/.test(String(row[heads.indexOf('Channel')]).trim().toLowerCase())) continue;
+    var url=String(row[heads.indexOf('Post_URL')]||'').trim();
+    var postId=String(row[heads.indexOf('Post_ID')]||'').trim();
+    var status=String(row[heads.indexOf('Status')]||'').trim().toUpperCase();
+    var uncertain=/^(SENDING_RECONCILE_IF_INTERRUPTED|RECONCILIATION_REQUIRED|DELIVERY_UNVERIFIED)$/.test(status);
+    if (!url && !postId && !uncertain) continue;
+    var m=/^https:\/\/t\.me\/([a-zA-Z0-9_]{5,32})\/\d+(?:[?#].*)?$/.exec(url);
+    if (m && '@'+m[1].toLowerCase()!==target) continue; // a known DIFFERENT channel
+    return true; // same target or unknown: require reconciliation, never blind send
+  }
+  return false;
+}
 function imperionMcpCheck_(job, event, channel) {
   var errors = [];
   if (String(job.Channel).trim().toLowerCase() !== channel) errors.push('CHANNEL_MISMATCH');
@@ -100,13 +135,7 @@ function imperionMcpCheck_(job, event, channel) {
 }
 function imperionMcpSendTelegram_(job, event) {
   if (!TELEGRAM_BOT_TOKEN) throw new Error('TELEGRAM_TOKEN_NOT_SET');
-  var community = String(event.Community);
-  // No fallback to the wrong club. Reuse existing routes, but validate first.
-  var chat = '';
-  if (community === 'Družina Moravy') chat = TELEGRAM_CHANNEL_DRUZINA;
-  else if (community === 'Brnowalkers') chat = TELEGRAM_CHANNEL_BRNOWALKERS;
-  else throw new Error('UNRECOGNISED_COMMUNITY');
-  if (!/^@[a-zA-Z0-9_]{5,32}$/.test(String(chat))) throw new Error('INVALID_TARGET_CHANNEL');
+  var chat = imperionMcpTargetChat_(event);
   var text = String(job.Caption).trim();
   var payload = {chat_id: chat};
   var method = 'sendMessage';
@@ -142,6 +171,7 @@ function imperionMcpHandle_(e) {
     var channel = action === 'preview_whatsapp' ? 'whatsapp':'telegram';
     var event = imperionMcpEvent_(book,job.Event_ID);
     var blocks = imperionMcpCheck_(job,event,channel);
+    if (channel === 'telegram' && imperionMcpHistoricalTelegram_(sheet, job, event)) blocks.push('HISTORICAL_TELEGRAM_POST_OR_UNCERTAIN_SEND');
     if (action === 'preview_telegram' || action === 'preview_whatsapp') {
       var publicApproved = blocks.length === 0;
       return imperionMcpResponse_({ok:true,job_id:body.job_id,channel:channel,status:String(job.Status),
@@ -164,9 +194,10 @@ function imperionMcpHandle_(e) {
     set('Post_ID',sent.messageId);
     set('Post_URL',sent.postUrl);
     set('Error','');
-    set('Status','PUBLISHED_VERIFIED');
+    // Telegram API message_id is provider evidence; the public permalink was NOT independently fetched.
+    set('Status','PUBLISHED_PROVIDER_CONFIRMED');
     SpreadsheetApp.flush();
-    return imperionMcpResponse_({ok:true,job_id:body.job_id,status:'PUBLISHED_VERIFIED',message_id:sent.messageId,url:sent.postUrl});
+    return imperionMcpResponse_({ok:true,job_id:body.job_id,status:'PUBLISHED_PROVIDER_CONFIRMED',publicUrlIndependentlyVerified:false,message_id:sent.messageId,url:sent.postUrl});
   } catch (err) {
     // Do not leak sensitive content, secrets or row values in public Web App errors.
     console.error('Imperion MCP bridge failure: '+(err && err.message));
