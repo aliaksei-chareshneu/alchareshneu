@@ -86,6 +86,9 @@ jobs:
       - name: Check public RSVP frontend, consent and server contract
         run: node tests/imperion-rsvp-source.test.cjs
 
+      - name: Verify Apps Script universal registration and retention isolation
+        run: node tests/universal-rsvp.test.cjs
+
       - name: Verify legal identity and direct public customer paths
         run: node ops/imperion-public-gates.cjs --json
 
