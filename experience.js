@@ -69,8 +69,10 @@
         a.dataset.contactOriginalLabel=a.getAttribute('aria-label') || '';
         a.dataset.contactOriginalHtml=a.innerHTML;
       }
-      a.href=language==='ru'?'https://t.me/Chareshneu':
-        (u.hostname==='wa.me'?original:'https://wa.me/420702914842');
+      const destination=new URL(language==='ru'?'https://t.me/Chareshneu':'https://wa.me/420702914842');
+      const message=u.searchParams.get('text');
+      if(message)destination.searchParams.set('text',message);
+      a.href=u.hostname===destination.hostname?original:destination.href;
       if(a.classList.contains('mobile-cta-icon')){
         a.textContent=language==='ru'?'TG':'WA';
         a.setAttribute('aria-label',channel);
@@ -83,6 +85,7 @@
 
   function enhance() {
     const t=copy[lang()];
+    try{localStorage.setItem('dm_lang',lang());}catch(e){}
     document.body.dataset.page=page;
     document.querySelectorAll('[data-exp]').forEach(n=>{if(t[n.dataset.exp])n.textContent=t[n.dataset.exp];});
     document.querySelectorAll('footer a').forEach(a=>{const path=new URL(a.href).pathname;if(path.endsWith('/academy/'))a.textContent=t.academy+' →';if(path.endsWith('/calendar/'))a.textContent=t.calendar+' →';});
@@ -104,7 +107,7 @@
     if(page==='main') {
       // Old quick links referenced a moved catalogue; keep every real destination.
       const q=document.querySelector('#quick-links .wrap');
-      if(q){q.replaceChildren();const row=el('div','events-empty-actions');row.append(link(t.card0Cta,'academy/'),link(t.prices+' · Družina','druzina/#tariff'),link(t.events,'calendar/'));q.append(row);const notes={en:'Brno iD vouchers: ask about eligibility and current support when registering for children’s activities.',ru:'Ваучеры Brno iD: уточни доступность и размер поддержки при записи ребёнка.',cs:'Poukazy Brno iD: při přihlašování dítěte se zeptej na nárok a aktuální výši podpory.',uk:'Ваучери Brno iD: уточни доступність і розмір підтримки під час запису дитини.'};q.append(el('p','note',notes[lang()]));}
+      if(q){q.replaceChildren();const row=el('div','events-empty-actions');row.append(link(t.card0Cta,'academy/'),link(t.card2Cta,'druzina/#registration-notice'),link(t.events,'calendar/'));q.append(row);const notes={en:'Brno iD vouchers: ask about eligibility and current support when registering for children’s activities.',ru:'Ваучеры Brno iD: уточни доступность и размер поддержки при записи ребёнка.',cs:'Poukazy Brno iD: při přihlašování dítěte se zeptej na nárok a aktuální výši podpory.',uk:'Ваучери Brno iD: уточни доступність і розмір підтримки під час запису дитини.'};q.append(el('p','note',notes[lang()]));}
       const badge=document.querySelector('#main .reviews-badge'); if(badge)badge.textContent=t.reviews;
     }
     if(['academy','druzina','walkers'].includes(page)) {

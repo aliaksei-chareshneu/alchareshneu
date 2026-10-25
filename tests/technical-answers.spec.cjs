@@ -90,3 +90,76 @@ test('homepage prioritizes B2B pilot and preserves separate community choice',as
     await expect(page.locator('#heroCta')).toContainText(lang==='en'?'14,900':'14 900');
   }
 });
+
+for (const lang of ['cs', 'en', 'ru', 'uk']) {
+  test(`technical answers: copy enquiry in ${lang} without sending or storing the brief`, async ({page}) => {
+    await page.setViewportSize({width:390, height:844});
+    await page.addInitScript(() => {
+      window.copiedEnquiries = [];
+      Object.defineProperty(navigator, 'clipboard', {configurable:true, value:{
+        writeText: async text => { window.copiedEnquiries.push(text); }
+      }});
+    });
+    await page.goto('/corporate/technical-answers/?lang=' + lang + '&utm_source=website-test&utm_campaign=copy-test');
+    await expect(page.locator('#timing')).toHaveAttribute('placeholder', {cs:'např. příští měsíc',en:'e.g. next month',ru:'Например, следующий месяц',uk:'Наприклад, наступний місяць'}[lang]);
+    await page.locator('#copy-brief').click();
+    await expect(page.locator('#copy-fallback')).toBeHidden();
+    expect(await page.evaluate(() => window.copiedEnquiries)).toEqual([]);
+    await page.locator('#company').fill('Synthetic test team');
+    await page.locator('#problem').fill('Synthetic documentation task\nSecond line');
+    await page.locator('#budget').selectOption('14900-30000 CZK');
+    await page.locator('#timing').fill('Synthetic preferred date');
+    const requests = [];
+    page.on('request', request => requests.push(request.url()));
+    await page.locator('#copy-brief').click();
+    await expect(page.locator('#copy-fallback')).toBeVisible();
+    await expect(page.locator('#copy-status')).not.toBeEmpty();
+    const copied = await page.evaluate(() => window.copiedEnquiries);
+    expect(copied).toHaveLength(1);
+    expect(copied[0]).toContain('To: chereshnev.biochem@gmail.com');
+    expect(copied[0]).toContain('Language: ' + lang);
+    expect(copied[0]).toContain('Synthetic test team');
+    expect(copied[0]).toContain('Synthetic documentation task\nSecond line');
+    expect(copied[0]).toContain('Budget: 14900-30000 CZK');
+    expect(copied[0]).toContain('Campaign source: website-test');
+    expect(copied[0]).toContain('Campaign: copy-test');
+    expect(copied[0]).toContain('not an order or payment');
+    await expect(page.locator('#brief-copy')).toHaveValue(copied[0]);
+    expect(await page.evaluate(() => JSON.stringify([localStorage, sessionStorage]))).not.toContain('Synthetic');
+    expect(requests).toEqual([]);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+  });
+}
+
+for (const clipboard of ['denied', 'unavailable']) {
+  test(`technical answers: selectable manual fallback when clipboard is ${clipboard}`, async ({page}) => {
+    await page.addInitScript(mode => {
+      Object.defineProperty(navigator, 'clipboard', {configurable:true, value:mode === 'unavailable' ? undefined : {
+        writeText: async () => { throw new DOMException('Clipboard denied', 'NotAllowedError'); }
+      }});
+    }, clipboard);
+    await page.goto('/corporate/technical-answers/?lang=en');
+    await page.locator('#company').fill('Synthetic test team');
+    await page.locator('#problem').fill('Synthetic task');
+    await page.locator('#copy-brief').click();
+    await expect(page.locator('#copy-status')).toContainText('Copy the selected text');
+    await expect(page.locator('#copy-status')).toContainText('Nothing has been sent');
+    await expect(page.locator('#brief-copy')).toBeFocused();
+    const selected = await page.locator('#brief-copy').evaluate(el => el.value.slice(el.selectionStart, el.selectionEnd));
+    expect(selected).toContain('Synthetic task');
+    await page.locator('button[data-lang="ru"]').click();
+    await expect(page.locator('#copy-status')).toContainText('Пока ничего не отправлено');
+    await expect(page.locator('#company')).toHaveValue('Synthetic test team');
+  });
+}
+
+test('technical answers: native email fallback remains available without JavaScript', async ({browser}) => {
+  const context = await browser.newContext({javaScriptEnabled:false});
+  const page = await context.newPage();
+  await page.goto('http://127.0.0.1:8000/corporate/technical-answers/');
+  await expect(page.locator('#copy-brief')).toBeHidden();
+  await expect(page.locator('#copy-fallback')).toBeHidden();
+  await expect(page.locator('#fallback-email')).toBeVisible();
+  await expect(page.locator('#brief-form')).toHaveAttribute('action', 'mailto:chereshnev.biochem@gmail.com');
+  await context.close();
+});
