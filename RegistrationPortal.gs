@@ -89,7 +89,8 @@ function regpClean_(value, maxLength) {
 
 function regpEmail_(value) {
   var email = String(value || '').trim().toLowerCase();
-  if (email.length < 5 || email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email))
+  if (email.length < 5 || email.length > 254 || /^[=+\-@]/.test(email)
+      || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email))
     throw new Error('Please enter a valid email address');
   return email;
 }
