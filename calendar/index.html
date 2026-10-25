@@ -384,7 +384,7 @@ function renderEvents(lang) {
       const directHike = String(ev.id || '') === 'PUB-HIKE-20261101';
       const registerUrl = directHike
         ? '../register/' + (lang === 'cs' ? '' : lang + '/') + '?event=PUB-HIKE-20261101&lang=' + encodeURIComponent(lang) + '&src=calendar'
-        : safeHttpsUrl(ev.registerUrl, document.querySelector('#navBookBtn').href);
+        : safeHttpsUrl(ev.registerUrl, document.querySelector('#navBookBtn').getAttribute('href'));
       const tag = (Object.hasOwn(COMMUNITY_TAG, ev.community) ? COMMUNITY_TAG[ev.community] : COMMUNITY_TAG['Shared'])[lang];
       const dateStr = formatEventDate(ev.startISO, lang);
       const priceBlock = ev.category === 'Board Games'
