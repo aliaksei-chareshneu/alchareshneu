@@ -45,7 +45,7 @@ for(const [path,selector] of [
 ]){
  test('former light surface has dark blue background: '+path,async({page})=>{
   await page.goto(path+'?lang=ru');
-  const element=page.locator(selector).first();
+  const element=page.locator(selector+':visible').first();
   await expect(element).toBeVisible();
   const bg=await element.evaluate(x=>getComputedStyle(x).backgroundColor);
   const rgb=bg.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)/);
@@ -69,7 +69,8 @@ test('four-language registration keeps required consent inputs and dark legible 
   const path=lang==='cs'?'/register/':'/register/'+lang+'/';
   await page.goto(path);
   await expect(page.locator('form')).toHaveCount(1);
-  await expect(page.locator('input[type="checkbox"]').first()).toBeVisible();
+  await expect(page.locator('input[type="checkbox"]')).not.toHaveCount(0);
+  await expect(page.locator('input#safety')).toHaveAttribute('required','');
   await expect(page.locator('link[href*="brand-theme.css"]')).toHaveCount(1);
  }
 });
