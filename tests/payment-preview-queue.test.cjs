@@ -97,7 +97,12 @@ test('actual preview refuses non-owner or shared Hub before opening sheets',()=>
   }
 });
 test('actual preview preserves missing and duplicate schema checks before reading bank state',()=>{
-  for(const options of [{missing:'Druzina_Payments'},{missing:'Druzina_Fio_Transactions'},{paymentHeaders:paymentHeaders.filter(key=>key!=='Payment_ID')},{bankHeaders:[...bankHeaders,'VS']}]){
+  for(const options of [{missing:'Druzina_Payments'},{missing:'Druzina_Fio_Transactions'},{paymentHeaders:paymentHeaders.filter(key=>key!=='Payment_ID')},{bankHeaders:[...bankHeaders,'VS']},
+    {paymentHeaders:[...paymentHeaders,'Expected_Amount_CZK']}]){
     const f=fixture(options);assert.throws(()=>f.s.paymentReconciliationPreview(),/missing|column/);assert.ok(!f.calls.includes('properties'));
   }
+});
+test('legacy payment sheets without the optional expected amount still produce a review candidate',()=>{
+  const result=fixture({paymentHeaders:paymentHeaders.filter(key=>key!=='Expected_Amount_CZK')}).s.paymentReconciliationPreview();
+  assert.equal(result.rows[0].status,'CANDIDATE_ONLY');assert.equal(result.rows[0].amount,120);assert.equal(result.settled,0);
 });

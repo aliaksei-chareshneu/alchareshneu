@@ -26,13 +26,18 @@ function fioNgCell_(entry, column) {
 }
 
 function fioNgCents_(raw) {
-  if (raw === null || raw === undefined || !String(raw).trim()) throw new Error('Missing bank amount');
-  var value = Number(String(raw).replace(',', '.'));
-  if (!isFinite(value)) throw new Error('Invalid bank amount');
-  var cents = Math.round(value * 100);
-  if (!Number.isSafeInteger(cents) || Math.abs(value * 100 - cents) > 0.00001) {
-    throw new Error('Unsupported sub-cent bank amount');
+  if (raw === null || raw === undefined) throw new Error('Missing bank amount');
+  if (typeof raw !== 'number' && typeof raw !== 'string') throw new Error('Invalid bank amount');
+  var text = String(raw).trim();
+  if (!text) throw new Error('Missing bank amount');
+  function parse(value) {
+    var match = /^([+-]?)(\d+)(?:[.,](\d{1,2}))?$/.exec(value);
+    return match ? Number(match[1] + match[2] + ((match[3] || '') + '00').slice(0, 2)) : NaN;
   }
+  // Match reconciliation's exact decimal contract; do not round sub-cent input.
+  var cents = parse(text);
+  if (!isFinite(cents)) throw new Error('Invalid bank amount');
+  if (!Number.isSafeInteger(cents) || parse(String(cents / 100)) !== cents) throw new Error('Unsupported sub-cent bank amount');
   return cents;
 }
 
@@ -88,33 +93,32 @@ function fioNgNormalizeStatement_(response, expectedAccount) {
     if (seen[tx.id]) throw new Error('Duplicate transaction ID in Fio response');
     seen[tx.id] = true;
   });
-  var balance = info.closingBalance === null || info.closingBalance === undefined || String(info.closingBalance).trim() === ''
-    ? null : Number(info.closingBalance);
-  if (balance !== null && !isFinite(balance)) {
-    throw new Error('Invalid bank closing balance');
-  }
+  var balance = info.closingBalance === null || info.closingBalance === undefined || typeof info.closingBalance === 'string' && info.closingBalance.trim() === ''
+    ? null : fioNgCents_(info.closingBalance) / 100;
   return { transactions: rows, balance: balance };
 }
 
 /** Match a candidate by exact amount + numeric VS; does NOT verify/settle payment. */
 function fioNgMatchCandidate_(tx, paymentRows) {
   if (tx.cents <= 0) return { status: 'DEBIT_REVIEW', paymentId: '' };
-  if (!/^\d+$/.test(tx.vs)) return { status: 'UNMATCHED', paymentId: '' };
-  var vs = tx.vs.replace(/^0+/, '') || '0';
+  var reference = String(tx.vs == null ? '' : tx.vs).trim();
+  if (!/^\d{1,10}$/.test(reference)) return { status: 'UNMATCHED', paymentId: '' };
+  var vs = reference.replace(/^0+/, '') || '0';
+  // Reference uniqueness includes historical/closed rows and all amounts.
   var matches = paymentRows.filter(function (row) {
-    var status = String(row[7] || '').toUpperCase();
-    if (/CANCEL|REJECT|VOID/.test(status)) return false;
     var ref = String(row[9] || '').trim();
-    if (!/^\d+$/.test(ref)) return false;
-    if ((ref.replace(/^0+/, '') || '0') !== vs) return false;
-    var expected = row[13] !== '' && row[13] != null ? row[13] : row[3];
-    try { return fioNgCents_(expected) === tx.cents; }
-    catch (_) { return false; }
+    return /^\d{1,10}$/.test(ref) && (ref.replace(/^0+/, '') || '0') === vs;
   });
-  if (matches.length === 1 && String(matches[0][0] || '').trim()) {
-    return { status: 'CANDIDATE_ONLY', paymentId: String(matches[0][0]) };
-  }
-  return { status: matches.length > 1 ? 'AMBIGUOUS_REVIEW' : 'UNMATCHED', paymentId: '' };
+  if (matches.length !== 1) return { status: matches.length > 1 ? 'AMBIGUOUS_REVIEW' : 'UNMATCHED', paymentId: '' };
+  var row = matches[0], id = String(row[0] || '').trim();
+  if (!id) return { status: 'UNMATCHED', paymentId: '' };
+  if (/^(VERIFIED|PAID|SETTLED|CANCELLED|CANCELED|REJECTED|VOID)$/i.test(String(row[7] || '').trim())) return { status: 'EXISTING_STATUS_REVIEW', paymentId: '' };
+  var expected;
+  try { expected = fioNgCents_(row[13] !== '' && row[13] != null ? row[13] : row[3]); }
+  catch (_) { return { status: 'INVALID_EXPECTED', paymentId: '' }; }
+  if (expected <= 0) return { status: 'INVALID_EXPECTED', paymentId: '' };
+  if (tx.cents !== expected) return { status: tx.cents < expected ? 'PARTIAL_REVIEW' : 'OVERPAYMENT_REVIEW', paymentId: '' };
+  return { status: 'CANDIDATE_ONLY', paymentId: id };
 }
 
 function fioNgSafeText_(raw) {

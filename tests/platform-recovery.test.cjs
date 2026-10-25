@@ -11,7 +11,28 @@ test('unknown schema fails rather than imports duplicates',()=>assert.throws(()=
 test('anonymous and nonowner cannot run interactive functions',()=>{for(let active of ['', 'other@example.org']) {let s=load({RP:{SPREADSHEET_ID:'test'},Session:{getActiveUser:()=>({getEmail:()=>active}),getEffectiveUser:()=>({getEmail:()=>active})},DriveApp:{getFileById:()=>({getOwner:()=>({getEmail:()=> 'owner@example.org'})})}});assert.throws(()=>s.prOwner_(),/Owner/);}});
 test('paused scheduled job has no data access',()=>{let s=load({PropertiesService:{getScriptProperties:()=>({getProperty:()=> 'true'})}});assert.equal(s.platformRecoveryTick_().status,'PAUSED');});
 test('forged scheduled invocation is rejected',()=>{let s=load({PropertiesService:{getScriptProperties:()=>({getProperty:k=>k==='PLATFORM_RECOVERY_PAUSED'?'false':'real'})}});assert.throws(()=>s.platformRecoveryTick_({triggerUid:'fake'}),/identity/);});
-test('repair keeps one matching trigger and preserves unrelated handlers',()=>{let deleted=[],triggers=[['right','a','rpOnLeadFormSubmit'],['right','b','rpOnLeadFormSubmit'],['wrong','c','rpOnLeadFormSubmit'],['right','d','other']].map(([source,id,fn])=>({getTriggerSourceId:()=>source,getUniqueId:()=>id,getHandlerFunction:()=>fn,getEventType:()=> 'FORM'}));let s=load({ScriptApp:{EventType:{ON_FORM_SUBMIT:'FORM'},getProjectTriggers:()=>triggers.filter(t=>!deleted.includes(t.getUniqueId())),deleteTrigger:t=>deleted.push(t.getUniqueId())}});s.prOwner_=()=>{};s.prConfig_=()=>({form:{getId:()=> 'right'}});assert.equal(s.platformRepairFormTrigger().exactFormTriggers,1);assert.deepEqual(deleted,['b','c']);});
+test('repair keeps one matching trigger and preserves unrelated handlers',()=>{let deleted=[],released=0,triggers=[['right','a','rpOnLeadFormSubmit'],['right','b','rpOnLeadFormSubmit'],['wrong','c','rpOnLeadFormSubmit'],['right','d','other']].map(([source,id,fn])=>({getTriggerSourceId:()=>source,getUniqueId:()=>id,getHandlerFunction:()=>fn,getEventType:()=> 'FORM'}));let s=load({LockService:{getUserLock:()=>({tryLock:()=>true,releaseLock:()=>released++})},ScriptApp:{EventType:{ON_FORM_SUBMIT:'FORM'},getProjectTriggers:()=>triggers.filter(t=>!deleted.includes(t.getUniqueId())),deleteTrigger:t=>deleted.push(t.getUniqueId())}});s.prOwner_=()=>{};s.prConfig_=()=>({form:{getId:()=> 'right'}});assert.equal(s.platformRepairFormTrigger().exactFormTriggers,1);assert.deepEqual(deleted,['b','c']);assert.equal(released,1);});
+test('overlapping trigger repairs cannot create competing replacements or delete one another',()=>{
+ let held=false,reentered=false,created=0,released=0;const triggers=[],deleted=[];
+ const lock={tryLock:()=>{if(held)return false;held=true;return true;},releaseLock:()=>{held=false;released++;}};
+ const s=load({LockService:{getUserLock:()=>lock},ScriptApp:{EventType:{ON_FORM_SUBMIT:'FORM'},getProjectTriggers:()=>{
+   if(!reentered){reentered=true;assert.throws(()=>s.platformRepairFormTrigger(),/already running/);}
+   return triggers.filter(t=>!deleted.includes(t.getUniqueId()));
+ },deleteTrigger:t=>deleted.push(t.getUniqueId()),newTrigger:()=>({forForm:()=>({onFormSubmit:()=>({create:()=>{
+   const id='synthetic-'+(++created),t={getHandlerFunction:()=> 'rpOnLeadFormSubmit',getTriggerSourceId:()=> 'right',getEventType:()=> 'FORM',getUniqueId:()=>id};triggers.push(t);return t;
+ }})})})}});
+ s.prOwner_=()=>{};s.prConfig_=()=>({form:{getId:()=> 'right'}});
+ assert.equal(s.platformRepairFormTrigger().exactFormTriggers,1);assert.equal(created,1);assert.deepEqual(deleted,[]);assert.equal(released,1);assert.equal(held,false);
+ assert.equal(s.platformRepairFormTrigger().exactFormTriggers,1);assert.equal(created,1);assert.equal(released,2);
+});
+test('trigger repair releases its lock after configuration or readback failure',()=>{
+ let released=0;const s=load({LockService:{getUserLock:()=>({tryLock:()=>true,releaseLock:()=>released++})}});
+ s.prOwner_=()=>{};s.prConfig_=()=>{throw Error('synthetic configuration failure');};
+ assert.throws(()=>s.platformRepairFormTrigger(),/configuration failure/);assert.equal(released,1);
+ s.prConfig_=()=>({form:{getId:()=> 'right'}});
+ s.ScriptApp.getProjectTriggers=()=>{throw Error('synthetic readback failure');};
+ assert.throws(()=>s.platformRepairFormTrigger(),/readback failure/);assert.equal(released,2);
+});
 test('failed ingestion never writes success checkpoint and releases lock',()=>{let released=false,s=load({LockService:{getUserLock:()=>({tryLock:()=>true,releaseLock:()=>released=true})},rpOnLeadFormSubmit:()=>{throw Error('write failed')}});s.prInspect_=()=>({plan:{batch:[response('a')]}});assert.throws(()=>s.prRecover_(),/write failed/);assert.equal(released,true);});
 test('timer blocked until E2E verified',()=>{let s=load();s.prOwner_=()=>{};s.prConfig_=()=>({props:{getProperty:()=>null}});assert.throws(()=>s.platformInstallRecoveryTimer(),/actual Form/);});
 test('recovery window rejects ambiguous, normalized and invalid offset timestamps',()=>{
