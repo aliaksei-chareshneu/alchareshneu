@@ -7,6 +7,11 @@ on:
       - cinematic_shorts.py
       - examples/roman_motion_free_20261025.json
       - .github/workflows/media-cinematic-shorts.yml
+  pull_request:
+    paths:
+      - cinematic_shorts.py
+      - examples/roman_motion_free_20261025.json
+      - .github/workflows/media-cinematic-shorts.yml
   workflow_dispatch:
 
 permissions:
