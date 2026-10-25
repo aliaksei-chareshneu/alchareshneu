@@ -8,7 +8,7 @@ function setup() {
  paths.forEach(name=>vm.runInContext(fs.readFileSync(path.join(__dirname,'..',name),'utf8'),ctx,{filename:name}));
  const SHEETS={QUOTES:'quotes',MEMBERS:'members',PAYMENTS:'payments',PAYMENT_ITEMS:'payment_items',
    BOOKINGS:'bookings',HOLDS:'holds',AUDIT:'audit'};
- const future=new Date(Date.now()+72*3600000).toISOString();
+ const future='2026-11-16T17:00:00.000Z'; // November-only product fixture, not a pre-Nov test date
  const quote={_row:2,Quote_ID:'Q-1',Member_ID:'M-1',Status:'OPEN',
    Payment_Reference:'1234567890',Expires_At:'2099-01-01T00:00:00Z',
    Expected_Amount_CZK:240,Policy_Version:'DRU-2026-11-v2',
