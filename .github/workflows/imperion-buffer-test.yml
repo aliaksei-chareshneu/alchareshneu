@@ -1,0 +1,32 @@
+name: Imperion Buffer bridges - synthetic guard tests
+
+on:
+  pull_request:
+    paths:
+      - "automation/social_buffer_bridge.py"
+      - "automation/test_social_buffer_bridge.py"
+      - "automation/BufferPublisher.gs"
+      - "automation/test_buffer_publisher.cjs"
+      - ".github/workflows/imperion-buffer-test.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  synthetic-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Python imports
+        run: pip install --disable-pip-version-check "google-auth>=2.30,<3" "requests>=2.31,<3"
+      - name: Python safety tests (legacy service-account adapter)
+        run: python -m unittest discover -s automation -p "test_social_buffer_bridge.py" -v
+      - name: Apps Script syntax check (recommended owner-bound adapter)
+        run: node --check --input-type=commonjs < automation/BufferPublisher.gs
+      - name: Apps Script synthetic safety tests (no credentials, no network)
+        run: node --test automation/test_buffer_publisher.cjs
