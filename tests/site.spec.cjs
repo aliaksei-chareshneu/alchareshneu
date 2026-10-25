@@ -59,6 +59,42 @@ test('empty and cold-start timeout keep calendar and announcements available',as
  await page.unroute('https://script.google.com/**');await page.route('https://script.google.com/**',()=>{});await page.reload({waitUntil:'commit'});await expect(page.locator('#calEventsBody')).toHaveAttribute('data-event-status','error',{timeout:16000});await expect(page.locator('.calendar-cta-btn')).toBeVisible();
 });
 
+
+test('calendar stays available with populated API and deduplicates stable Event_IDs', async ({page}) => {
+ const event={id:'EVT-20261019-A',title:'Public event',description:'Please confirm attendance',startISO:'2099-11-01T11:00:00Z',isFree:true,priceCzk:0,category:'Hike',community:'Brnowalkers',registerUrl:'https://t.me/Chareshneu',locationName:'Brno'};
+ await mockEvents(page,[event,{...event,title:'Duplicate event'}]);
+ await page.goto('/calendar/?lang=en');
+ await expect(page.locator('#public-calendar-frame')).toBeVisible();
+ await expect(page.locator('#public-calendar-frame')).toHaveAttribute('src',/calendar.google.com/);
+ await expect(page.locator('.event-upcoming-card')).toHaveCount(1);
+ await expect(page.locator('.eu-title')).toHaveText('Public event');
+ await expect(page.locator('.eu-ctas a')).toHaveCount(1);
+ await expect(page.locator('.eu-ctas a')).toHaveAttribute('href','https://t.me/Chareshneu');
+ await expect(page.locator('.eu-ctas')).toContainText('Ask the organiser');
+ await expect(page.locator('.calendar-booking-note')).toContainText('does not confirm a place');
+ await expect(page.locator('.hero-ctas a')).toHaveAttribute('href',/calendar.google.com/);
+});
+test('public calendar survives API failure in four languages and paid HEMA never opens checkout', async ({page}) => {
+ const paid={id:'HEMA-PAID',title:'Training',description:'Details in contact',startISO:'2099-11-02T17:00:00Z',isFree:false,priceCzk:240,category:'HEMA Training',community:'Družina Moravy',registerUrl:'https://docs.google.com/forms/d/fake-paid-form',locationName:'Brno'};
+ await mockEvents(page,[paid]);
+ for(const lang of ['en','cs','ru','uk']) {
+  await page.goto('/calendar/?lang='+lang);
+  await expect(page.locator('#public-calendar-frame')).toBeVisible();
+  await expect(page.locator('.calendar-booking-note')).not.toBeEmpty();
+  await expect(page.locator('.event-upcoming-card')).toHaveCount(1);
+  await expect(page.locator('.eu-price-row span.eu-price-note')).not.toBeEmpty();
+  const cardHref=await page.locator('.eu-ctas a').getAttribute('href');
+  expect(cardHref).toEqual(await page.locator('#navBookBtn').getAttribute('href'));
+  expect(cardHref).not.toContain('fake-paid-form');
+ }
+ await page.unroute('https://script.google.com/**');
+ await page.route('https://script.google.com/**',r=>r.abort());
+ await page.reload();
+ await expect(page.locator('#calEventsBody')).toHaveAttribute('data-event-status','error');
+ await expect(page.locator('#public-calendar-frame')).toBeVisible();
+ await expect(page.locator('#public-calendar-frame')).toHaveCount(1);
+});
+
 test('portrait event photos stay bounded at the mobile breakpoint', async ({page})=>{
  const events=['portrait','landscape'].map(shape=>({title:'Layout fixture',description:'Short fixture description.',startISO:'2099-10-01T16:00:00Z',priceCzk:100,registerUrl:'https://docs.google.com/forms/',locationName:'Brno',category:'Hike',community:'Brnowalkers',imageOverride:'calendar-test-'+shape+'.svg'}));
  await mockEvents(page,events);

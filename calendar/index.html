@@ -89,10 +89,10 @@
     <div class="wrap">
       <p class="eyebrow" data-i18n="cal.eyebrow">Everything, One Place</p>
       <h1 data-i18n="cal.title2">Calendar — Upcoming Hikes, Training &amp; Events</h1>
-      <p class="tagline" data-i18n="cal.tagline">Every open BrnoWalkers hike and Družina Moravy training session, updated live. Subscribe once and never miss what's next.</p>
+      <p class="tagline" data-i18n="cal.tagline">Explore the shared public calendar and ask the organiser to confirm exact details and your place.</p>
 
       <div class="hero-ctas">
-        <a class="btn solid plausible-event-name=Calendar-Subscribe" data-i18n="cal.ctaSubscribe" href="https://calendar.google.com/calendar/u/0/newembed?src=2b87a4e595671b05f82867969757d6c8500733a05a7ebcc77a3c6102b1644757@group.calendar.google.com&amp;ctz=Europe/Prague" target="_blank" rel="noopener">📅 Subscribe to the calendar</a>
+        <a class="btn solid plausible-event-name=Calendar-Subscribe" data-i18n="cal.ctaSubscribe" href="https://calendar.google.com/calendar/u/0/r?cid=2b87a4e595671b05f82867969757d6c8500733a05a7ebcc77a3c6102b1644757%40group.calendar.google.com" target="_blank" rel="noopener">📅 Subscribe to the calendar</a>
       </div>
       <div class="hero-ctas-secondary">
         <a class="btn-quiet" data-i18n="cal.linkWalkers" href="../walkers/">🥾 BrnoWalkers schedule →</a>
@@ -100,8 +100,23 @@
       </div>
     </div>
   </section>
+<section id="calendar-board" aria-labelledby="calendar-board-title">
+  <div class="wrap">
+    <div class="calendar-panel-heading">
+      <div>
+        <h2 id="calendar-board-title" data-i18n="cal.liveTitle">Full public calendar</h2>
+        <p class="calendar-booking-note" data-i18n="cal.bookingNote">Choose a date and open an event for details. A calendar entry is not a confirmed reservation; please check availability, meeting point and conditions with the organiser before travelling.</p>
+      </div>
+      <a class="btn calendar-cta-btn" href="https://calendar.google.com/calendar/u/0/newembed?src=2b87a4e595671b05f82867969757d6c8500733a05a7ebcc77a3c6102b1644757@group.calendar.google.com&amp;ctz=Europe/Prague" data-i18n="cal.openCalendar" target="_blank" rel="noopener">Open full calendar</a>
+    </div>
+    <div class="calendar-embed-card">
+      <iframe id="public-calendar-frame" src="https://calendar.google.com/calendar/embed?src=2b87a4e595671b05f82867969757d6c8500733a05a7ebcc77a3c6102b1644757%40group.calendar.google.com&amp;ctz=Europe%2FPrague&amp;mode=AGENDA&amp;showTitle=0&amp;showNav=1&amp;showDate=1&amp;showPrint=0&amp;showTabs=0&amp;showCalendars=0&amp;showTz=0&amp;wkst=2" title="Public events schedule, Europe/Prague" width="100%" height="580" frameborder="0" scrolling="auto" loading="lazy" referrerpolicy="no-referrer"></iframe>
+    </div>
+  </div>
+</section>
 <section id="calendar-events">
     <div class="wrap">
+      <h2 data-i18n="cal.featuredTitle">Upcoming events accepting enquiries</h2>
       <div id="calEventsBody" aria-busy="true"><div class="events-status">Loading upcoming events…</div></div>
     </div>
   </section>
@@ -191,9 +206,9 @@ en: {
   nav: { brand: "Calendar", bookBtn: "Register / Book" },
   tabs: {main:'Home', walkers:'BrnoWalkers', academy:'Academy', druzina:'Družina Moravy', calendar:'Calendar', ambassador:'Become an Ambassador', contacts:'Contacts'},
   cal: {
-    eyebrow: "Everything, One Place", title2: "Calendar — Upcoming Hikes, Training &amp; Events", tagline: "Every open BrnoWalkers hike and Družina Moravy training session, updated live. Subscribe once and never miss what's next.",
-    ctaSubscribe: "📅 Subscribe to the calendar", linkWalkers: "🥾 BrnoWalkers schedule →", linkDruzina: "⚔️ Družina training days →",
-    loading: "Loading upcoming events…"
+    eyebrow: "Everything, One Place", title2: "Calendar — Upcoming Hikes, Training &amp; Events", tagline: "Explore the shared public calendar and ask the organiser to confirm exact details and your place.",
+    ctaSubscribe: "📅 Subscribe in Google Calendar", linkWalkers: "🥾 BrnoWalkers schedule →", linkDruzina: "⚔️ Družina training days →",
+    loading: "Loading upcoming events…","liveTitle":"Full public calendar","bookingNote":"Choose a date for event details. A listing does not confirm a place or payment; verify the meeting point and participation conditions with the organiser before travelling.","openCalendar":"Open full calendar","featuredTitle":"Upcoming events accepting enquiries"
   },
   footer: { title: "Want the full picture?", lead: "Tutoring, BrnoWalkers hikes, and Družina Moravy HEMA/LARP — the complete site lives at the main hub.", visitFull: "Visit the full site ➔" }
 },
@@ -201,9 +216,9 @@ ru: {
   nav: { brand: "Календарь", bookBtn: "Записаться" },
   tabs: {main:'Home', walkers:'BrnoWalkers', academy:'Academy', druzina:'Družina Moravy', calendar:'Calendar', ambassador:'Become an Ambassador', contacts:'Contacts'},
   cal: {
-    eyebrow: "Всё в одном месте", title2: "Календарь — ближайшие походы, тренировки и события", tagline: "Все открытые походы BrnoWalkers и тренировки Дружины Моравии — обновляется вживую. Подпишись один раз и не пропускай ничего.",
-    ctaSubscribe: "📅 Подписаться на календарь", linkWalkers: "🥾 Расписание BrnoWalkers →", linkDruzina: "⚔️ Дни тренировок Дружины →",
-    loading: "Загружаем ближайшие события…"
+    eyebrow: "Всё в одном месте", title2: "Календарь — ближайшие походы, тренировки и события", tagline: "Общий календарь мероприятий: выбери дату и уточни детали и возможность участия у организатора.",
+    ctaSubscribe: "📅 Подписаться в Google Calendar", linkWalkers: "🥾 Расписание BrnoWalkers →", linkDruzina: "⚔️ Дни тренировок Дружины →",
+    loading: "Загружаем ближайшие события…","liveTitle":"Общий календарь мероприятий","bookingNote":"Нажми на дату, чтобы узнать подробности. Запись в календаре не означает подтверждённого места или оплаты: уточни вход и условия у организатора перед поездкой.","openCalendar":"Открыть весь календарь","featuredTitle":"Ближайшие мероприятия — уточнить участие"
   },
   footer: { title: "Хочешь увидеть всю картину?", lead: "Репетиторство, походы BrnoWalkers и Дружина Моравии (HEMA/LARP) — весь сайт целиком на главном хабе.", visitFull: "Перейти на весь сайт ➔" }
 },
@@ -211,9 +226,9 @@ cs: {
   nav: { brand: "Kalendář", bookBtn: "Rezervovat" },
   tabs: {main:'Home', walkers:'BrnoWalkers', academy:'Academy', druzina:'Družina Moravy', calendar:'Calendar', ambassador:'Become an Ambassador', contacts:'Contacts'},
   cal: {
-    eyebrow: "Vše na jednom místě", title2: "Kalendář — nadcházející výlety, tréninky a akce", tagline: "Všechny otevřené výlety BrnoWalkers a tréninky Družiny Moravy — aktualizováno živě. Přihlas se k odběru jednou a nic ti neunikne.",
-    ctaSubscribe: "📅 Přihlásit se k odběru kalendáře", linkWalkers: "🥾 Rozvrh BrnoWalkers →", linkDruzina: "⚔️ Tréninkové dny Družiny →",
-    loading: "Načítáme nejbližší akce…"
+    eyebrow: "Vše na jednom místě", title2: "Kalendář — nadcházející výlety, tréninky a akce", tagline: "Veřejný přehled akcí: vyber termín a před cestou si u pořadatele ověř podrobnosti a účast.",
+    ctaSubscribe: "📅 Odebírat v Google Kalendáři", linkWalkers: "🥾 Rozvrh BrnoWalkers →", linkDruzina: "⚔️ Tréninkové dny Družiny →",
+    loading: "Načítáme nejbližší akce…","liveTitle":"Veřejný kalendář akcí","bookingNote":"Klikni na termín pro podrobnosti. Záznam v kalendáři nepotvrzuje rezervaci ani platbu: před cestou ověř místo srazu a podmínky u pořadatele.","openCalendar":"Otevřít celý kalendář","featuredTitle":"Nadcházející akce — dotaz na účast"
   },
   footer: { title: "Chceš vidět celý obrázek?", lead: "Doučování, výlety BrnoWalkers a Družina Moravy HEMA/LARP — celý web na hlavním hubu.", visitFull: "Přejít na celý web ➔" }
 },
@@ -221,9 +236,9 @@ uk: {
   nav: { brand: "Календар", bookBtn: "Записатися" },
   tabs: {main:'Home', walkers:'BrnoWalkers', academy:'Academy', druzina:'Družina Moravy', calendar:'Calendar', ambassador:'Become an Ambassador', contacts:'Contacts'},
   cal: {
-    eyebrow: "Все в одному місці", title2: "Календар — найближчі походи, тренування та події", tagline: "Усі відкриті походи BrnoWalkers і тренування Дружини Моравії — оновлюється наживо. Підпишись один раз і нічого не пропустиш.",
-    ctaSubscribe: "📅 Підписатися на календар", linkWalkers: "🥾 Розклад BrnoWalkers →", linkDruzina: "⚔️ Дні тренувань Дружини →",
-    loading: "Завантажуємо найближчі події…"
+    eyebrow: "Все в одному місці", title2: "Календар — найближчі походи, тренування та події", tagline: "Спільний календар подій: вибери дату та уточни деталі й участь у організатора.",
+    ctaSubscribe: "📅 Підписатися в Google Календарі", linkWalkers: "🥾 Розклад BrnoWalkers →", linkDruzina: "⚔️ Дні тренувань Дружини →",
+    loading: "Завантажуємо найближчі події…","liveTitle":"Спільний календар подій","bookingNote":"Обери дату, щоб переглянути деталі. Подія в календарі не підтверджує місце чи оплату: уточни місце зустрічі та умови в організатора перед поїздкою.","openCalendar":"Відкрити весь календар","featuredTitle":"Найближчі події — уточнити участь"
   },
   footer: { title: "Хочеш побачити всю картину?", lead: "Репетиторство, походи BrnoWalkers і Дружина Моравії (HEMA/LARP) — весь сайт цілком на головному хабі.", visitFull: "Перейти на весь сайт ➔" }
 }
@@ -299,7 +314,6 @@ function render(lang) {
 //     a placeholder until that endpoint is actually deployed, see
 //     HANDOVER.md known limitations. Until then this always falls back to
 //     the subscribe-card + embedded calendar, same as on the main page. ---
-const CALENDAR_SUBSCRIBE_LINK = 'https://calendar.google.com/calendar/u/0/newembed?src=2b87a4e595671b05f82867969757d6c8500733a05a7ebcc77a3c6102b1644757@group.calendar.google.com&ctz=Europe/Prague';
 let LIVE_EVENTS = null;
 let EVENT_STATUS = "loading";
 
@@ -343,8 +357,9 @@ function formatEventDate(iso, lang) {
 
 function renderEvents(lang) {
   const t = T[lang] || T.en;
-  const regLabel = {ru:'Записаться на мероприятие', en:'Register for the event', cs:'Přihlásit se na akci', uk:'Записатися на подію'}[lang];
-  const otherServicesLabel = {ru:'Другие услуги', en:'Other services', cs:'Další služby', uk:'Інші послуги'}[lang];
+  const regLabel = {ru:'Отправить заявку', en:'Request a place', cs:'Požádat o místo', uk:'Надіслати заявку'}[lang];
+  const askLabel = {ru:'Уточнить участие', en:'Ask the organiser', cs:'Ověřit účast u pořadatele', uk:'Уточнити участь'}[lang];
+  const paidHoldLabel = {ru:'Новые платные записи на HEMA приостановлены', en:'New paid HEMA bookings are on hold', cs:'Nové placené rezervace HEMA jsou pozastaveny', uk:'Нові платні записи на HEMA призупинені'}[lang];
   const el = document.getElementById('calEventsBody');
   if (!el) return;
 
@@ -362,15 +377,6 @@ function renderEvents(lang) {
     el.innerHTML = `
       <div class="events-empty-stack">
         <div class="events-empty-message"><h2>${emptyCopy[0]}</h2><p role="status">${emptyCopy[EVENT_STATUS === 'error' ? 2 : 1]}</p><div class="events-empty-actions"><a class="btn" href="../druzina/#schedule">${emptyCopy[3]}</a><a class="btn" href="https://t.me/pochody_brno_news" target="_blank" rel="noopener">${emptyCopy[4]}</a><a class="btn" href="https://t.me/druzinamoravy_news" target="_blank" rel="noopener">${emptyCopy[5]}</a></div></div>
-        <div class="calendar-cta-empty">
-          <a class="btn solid calendar-cta-btn" href="${CALENDAR_SUBSCRIBE_LINK}" target="_blank" rel="noopener">${t.cal.ctaSubscribe}</a>
-        </div>
-        <div class="calendar-embed-card">
-          <iframe
-            src="https://calendar.google.com/calendar/embed?src=2b87a4e595671b05f82867969757d6c8500733a05a7ebcc77a3c6102b1644757%40group.calendar.google.com&amp;ctz=Europe%2FPrague&amp;mode=AGENDA&amp;showTitle=0&amp;showNav=1&amp;showDate=1&amp;showPrint=0&amp;showTabs=0&amp;showCalendars=0&amp;showTz=0&amp;wkst=2"
-            style="border:0" width="100%" height="480" frameborder="0" scrolling="no" loading="lazy"
-            title="Brnowalkers & Družina Moravy schedule"></iframe>
-        </div>
       </div>`;
   } else {
     const freeLabel = {ru:'🆓 Бесплатно', en:'🆓 Free entry', cs:'🆓 Vstup zdarma', uk:'🆓 Безкоштовно'}[lang];
@@ -382,9 +388,13 @@ function renderEvents(lang) {
       const description = escapeText(ev.description);
       const locationName = escapeText(ev.locationName);
       const registerUrl = safeHttpsUrl(ev.registerUrl, document.querySelector('#navBookBtn').href);
+      const paidHemaHold = ev.category === 'HEMA Training' && !ev.isFree;
+      const contactLink = /^(https:\/\/)(t\.me|wa\.me)\//i.test(registerUrl);
+      const actionUrl = paidHemaHold ? document.querySelector('#navBookBtn').href : registerUrl;
+      const actionLabel = paidHemaHold || contactLink ? askLabel : regLabel;
       const tag = (Object.hasOwn(COMMUNITY_TAG, ev.community) ? COMMUNITY_TAG[ev.community] : COMMUNITY_TAG['Shared'])[lang];
       const dateStr = formatEventDate(ev.startISO, lang);
-      const priceBlock = ev.category === 'Board Games'
+      const priceBlock = paidHemaHold ? `<span class="eu-price-note">${paidHoldLabel}</span>` : ev.category === 'Board Games'
         ? `<span class="eu-price donation">${donationLabel}${ev.priceCzk > 0 ? ' (~' + ev.priceCzk + ' Kč)' : ''}</span>`
         : ev.isFree ? `<span class="eu-price free">${freeLabel}</span>`
         : `<span class="eu-price">${ev.priceCzk === null ? ({en:'Confirm price',ru:'Уточни цену',cs:'Ověř cenu',uk:'Уточни ціну'}[lang]) : ev.priceCzk + ' Kč'}</span>`;
@@ -401,8 +411,7 @@ function renderEvents(lang) {
             ${locationName ? `<a class="eu-price-note" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ev.locationName)}" target="_blank" rel="noopener">📍 ${locationName}</a>` : ''}
           </div>
           <div class="eu-ctas">
-            <a class="btn solid" href="${registerUrl}" target="_blank" rel="noopener">${regLabel}</a>
-            <a class="btn" href="../academy/">${otherServicesLabel}</a>
+            <a class="btn solid" href="${actionUrl}" target="_blank" rel="noopener">${actionLabel}</a>
           </div>
         </div>
       </div>`;
@@ -432,7 +441,8 @@ const EVENTS_API_URL = 'https://script.google.com/macros/s/AKfycbzKdIEwIF4gH9Cku
     clearTimeout(cleanupTimer);
     EVENT_STATUS = !data || data.error || !Array.isArray(data.events) ? 'error' : 'ready';
     LIVE_EVENTS = (Array.isArray(data && data.events) ? data.events : [])
-      .filter(ev => ev && typeof ev === 'object' && typeof ev.title === 'string' && ev.title.trim() && Number.isFinite(Date.parse(ev.startISO)) && Date.parse(ev.startISO) >= Date.now())
+      .filter(ev => ev && typeof ev === 'object' && typeof ev.title === 'string' && ev.title.trim() && Number.isFinite(Date.parse(ev.startISO)) && Date.parse(ev.startISO) >= Date.now() && (!ev.status || ev.status === 'Active'))
+      .filter((ev, index, rows) => !ev.id || rows.findIndex(item => item.id === ev.id) === index)
       .map(ev => ({...ev, title:ev.title.slice(0,200), description:String(ev.description || '').slice(0,3000), locationName:String(ev.locationName || '').slice(0,300), priceCzk:ev.priceCzk !== null && ev.priceCzk !== undefined && String(ev.priceCzk).trim() !== '' && Number.isFinite(Number(ev.priceCzk)) && Number(ev.priceCzk)>=0 ? Number(ev.priceCzk) : null, isFree:ev.isFree===true}))
       .sort((a,b)=>Date.parse(a.startISO)-Date.parse(b.startISO)).slice(0,30);
     renderEvents(currentLang);
