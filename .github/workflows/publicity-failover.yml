@@ -1,0 +1,35 @@
+name: Publicity failover (Instagram)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "15 6,16 * * *"
+  pull_request:
+    paths:
+      - ".github/workflows/publicity-failover.yml"
+      - "automation/publicity/**"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publicity-instagram
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify fail-closed policy
+        run: python3 automation/publicity/publish.py --self-test
+      - name: Process approved public-event posts
+        if: github.event_name != 'pull_request'
+        env:
+          PUBLICITY_ENABLED: ${{ vars.PUBLICITY_ENABLED }}
+          PUBLICITY_INSURANCE_VERIFIED: ${{ vars.PUBLICITY_INSURANCE_VERIFIED }}
+          IG_BUSINESS_ID: ${{ secrets.IG_BUSINESS_ID }}
+          IG_GRAPH_TOKEN: ${{ secrets.IG_GRAPH_TOKEN }}
+          GRAPH_API_VERSION: v26.0
+        run: python3 automation/publicity/publish.py
