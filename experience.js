@@ -130,7 +130,7 @@
     document.querySelectorAll('.faq-q').forEach(b=>b.setAttribute('aria-expanded',String(b.closest('.faq-item')?.classList.contains('open')||false)));
     // Keep keyboard focus out of the hidden mobile toolbar.
     const mobile=document.querySelector('#mobileCta');if(mobile)mobile.inert=mobile.getAttribute('aria-hidden')==='true';
-    document.querySelectorAll('.mobile-cta-btn').forEach(a=>{a.textContent=page==='druzina'?t.trial:page==='academy'?t.book:t.events;if(page==='walkers'||page==='calendar'||page==='main'){a.href=page==='calendar'?'#calendar-events':base+'calendar/';a.removeAttribute('target');}});
+    document.querySelectorAll('.mobile-cta-btn').forEach(a=>{if(page==='main'){const labels={en:'Choose a service',cs:'Vybrat službu',ru:'Выбрать решение',uk:'Обрати послугу'};a.textContent=labels[lang()]||labels.en;a.href=base+'start/?lang='+encodeURIComponent(lang());a.removeAttribute('target');return;}a.textContent=page==='druzina'?t.trial:page==='academy'?t.book:t.events;if(page==='walkers'||page==='calendar'){a.href=page==='calendar'?'#calendar-events':base+'calendar/';a.removeAttribute('target');}});
     document.querySelectorAll('.service-action').forEach(a=>a.textContent=t.ask);
     routeDirectContacts();
     document.documentElement.dataset.enhanced='true';
