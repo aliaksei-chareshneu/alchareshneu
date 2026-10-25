@@ -531,6 +531,9 @@ function doGet(e) {
 
 // ====================== СЦЕНАРИЙ 2: ПРИБМ РЕГИСТРАЦИЙ (Tally → Web App) ======================
 function doPost(e) {
+  // Optional signed MCP publication bridge; routes before the existing Tally webhook.
+  // No second Apps Script deployment or scheduler is created by this source change.
+  if (e && e.parameter && e.parameter.mcp === '1') return imperionMcpHandle_(e);
   try {
     if (e.parameter.secret !== TALLY_WEBHOOK_SECRET) {
       return ContentService.createTextOutput('forbidden').setMimeType(ContentService.MimeType.TEXT);
