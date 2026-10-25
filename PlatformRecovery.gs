@@ -74,7 +74,14 @@ function prInspect_() {
     recovered:0, cashVerified:false, publicPostsSent:0}};
 }
 function platformRecoveryPreview() {
-  prOwner_(); return prInspect_().summary;
+  prOwner_(); var summary = prInspect_().summary;
+  // Editor runs do not display return values. Log only the bounded summary,
+  // never the inspection context, response objects, identifiers or properties.
+  console.log(JSON.stringify({event:'RECOVERY_PREVIEW',checkedAt:new Date().toISOString(),
+    mode:summary.mode,responseCount:summary.responseCount,missingLeads:summary.missingLeads,
+    batchLimit:summary.batchLimit,exactFormTriggers:summary.exactFormTriggers,
+    recovered:summary.recovered,cashVerified:summary.cashVerified,publicPostsSent:summary.publicPostsSent}));
+  return summary;
 }
 function platformRepairFormTrigger() {
   prOwner_(); var c=prConfig_(), triggers=ScriptApp.getProjectTriggers();
