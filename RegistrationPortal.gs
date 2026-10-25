@@ -64,10 +64,11 @@ function regpEvents_() {
       price:price === '' || price === null ? 'Check event details' :
         (Number(price) === 0 ? 'Free' : String(price) + ' Kč (subject to confirmation)'),
       dataController:controller.slice(0,180), rulesUrl:rulesUrl,
-      additionalSafety:isContact
+      additionalSafety:isContact,sortKey:dt.getTime()
     });
   });
-  events.sort(function(a,b){ return new Date(a.date) - new Date(b.date); });
+  events.sort(function(a,b){ return a.sortKey - b.sortKey; });
+  events.forEach(function(item){ delete item.sortKey; });
   return events;
 }
 
