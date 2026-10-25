@@ -16,6 +16,8 @@ for(const language of ['en','cs','ru','uk']) assert.ok(html.includes("data-lang=
 assert.ok(html.includes('google.script.run'),'Private submission must use authenticated Apps Script RPC');
 assert.ok(!gateway.includes('encodeURIComponent(email)'),'Do not place personal data in URLs');
 assert.ok(gateway.includes('view'), 'Gateway must explicitly request Apps Script registration route');
+assert.ok(gateway.includes('var PORTAL_ACTIVE=false;'), 'Public gateway must default to fail-closed before live backend QA');
+assert.ok(gateway.includes("new URL('../calendar/',location.href)"), 'Closed portal must give a usable public events fallback');
 assert.ok(privacy.includes('12 months')&&privacy.includes('90 days'),'Retention disclosure missing');
 assert.ok(safety.includes('guardian'),'Guardian safety disclaimer missing');
 assert.ok(server.includes("category === 'Corporate'"),'Corporate events must not be publicly listed');
@@ -94,6 +96,7 @@ assert.equal(rows.Registrations[4][RH.indexOf('Photo_Consent')],'no');
 assert.equal(rows.Registrations[4][RH.indexOf('Marketing_Consent')],'no');
 assert.throws(()=>context.regpSubmit({...good,safety:false}),/safety/i);
 assert.throws(()=>context.regpSubmit({...good,email:'invalid'}),/email/i);
+assert.throws(()=>context.regpSubmit({...good,email:'=SUM(1)@example.test'}),/email/i);
 assert.throws(()=>context.regpSubmit({...good,phone:'xyz'}),/phone/i);
 assert.equal(context.regpSubmit({...good,photo:''}).ok,true);
 assert.equal(rows.Registrations[3][RH.indexOf('Photo_Consent')],'no');
