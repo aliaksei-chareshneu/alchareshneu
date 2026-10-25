@@ -24,6 +24,17 @@ jobs:
           test -f calendar/index.html
           test -f styles.css
           test -f sitemap.xml
+          test -f register/index.html
+          test -f register/privacy/index.html
+          test -f register/safety/index.html
+          grep -q 'PUB-HIKE-20261101' register/index.html
+          grep -q 'PUB-OREL-20261114' register/index.html
+          grep -q 'id="email"' register/index.html
+          grep -q 'id="phone"' register/index.html
+          grep -q 'id="photo"' register/index.html
+          grep -q 'id="future"' register/index.html
+          grep -q 'data-lang="ru"' register/index.html
+          grep -q 'manual' register/privacy/index.html
 
       - name: Reject stale production placeholders
         shell: bash
@@ -52,7 +63,7 @@ jobs:
         run: |
           node <<'NODE'
           const fs = require('fs');
-          const files = ['index.html','academy/index.html','calendar/index.html','druzina/index.html','walkers/index.html'];
+          const files = ['index.html','academy/index.html','calendar/index.html','druzina/index.html','walkers/index.html','register/index.html'];
           let failed = false;
           for (const file of files) {
             const html = fs.readFileSync(file, 'utf8');
