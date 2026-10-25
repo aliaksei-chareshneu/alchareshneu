@@ -199,29 +199,63 @@ function regpSubmit(payload) {
 }
 
 function cleanupUniversalRegistrations(){
-  var sh=SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(REGISTRATIONS_SHEET_NAME);
+  var ss=SpreadsheetApp.openById(SPREADSHEET_ID);
+  var sh=ss.getSheetByName(REGISTRATIONS_SHEET_NAME);
+  var ev=ss.getSheetByName(EVENTS_SHEET_NAME);
+  if(!sh||!ev)throw new Error('Required registration sheets unavailable');
   var d=sh.getDataRange().getValues(),h=d[0]||[],idx=function(n){return h.indexOf(n);};
+  var ed=ev.getDataRange().getValues(),eh=ed[0]||[];
+  var evId=eh.indexOf('Event_ID'),evDate=eh.indexOf('Start_DateTime');
+  if(evId<0||evDate<0)throw new Error('Missing Events date columns');
+  ['Source_Channel','Retention_Until','Event_ID','Marketing_Consent'].forEach(function(n){
+    if(idx(n)<0)throw new Error('Missing registration retention field: '+n);
+  });
+  var dates={};
+  ed.slice(1).forEach(function(row){
+    var dt=regpDate_(row[evDate]);
+    if(row[evId]&&isFinite(dt.getTime()))dates[String(row[evId])]=dt.getTime();
+  });
   var personal=['Full_Name','Phone_Number','Telegram_Handle','Age','Guardian_Name',
     'Guardian_Phone','Guardian_Relationship','Child_Name','Child_Age',
     'Emergency_Contact_Name','Emergency_Contact_Phone','Medical_Conditions',
     'Equipment_Note','Photo_Consent','Waiver_Accepted','Payment_Reference',
     'Submission_ID','Reply_Contact','Email','First_Name','Last_Name',
     'Safety_Acknowledged','Rules_Version','Consent_Recorded_At',
-    'Marketing_Consent','Marketing_Consent_At','Data_Controller','Registration_Locale'];
-  var cleaned=0;
+    'Marketing_Consent','Marketing_Consent_At','Data_Controller','Registration_Locale',
+    'RSVP_Status','RSVP_Status_At','Payment_Status','Last_Reminder_At','Check_In_At'];
+  // After event +90d, a person opting in to future invitations retains only
+  // minimal email/contact + consent evidence, not age, guardian, photo or sports data.
+  var keepForMarketing={Email:true,First_Name:true,Marketing_Consent:true,
+    Marketing_Consent_At:true,Consent_Recorded_At:true,Data_Controller:true,
+    Registration_Locale:true};
+  var now=Date.now(),purged=0,minimized=0;
   for(var i=3;i<d.length;i++){
-    var row=d[i];
-    if(String(row[idx('Source_Channel')])!==PORTAL_SOURCE)continue;
-    var until=row[idx('Retention_Until')];
-    if(!until || new Date(until).getTime()>Date.now())continue;
+    var row=d[i],source=String(row[idx('Source_Channel')]||'');
+    if(source!==PORTAL_SOURCE&&source!=='WEBSITE_RSVP_MARKETING_ONLY')continue;
+    var until=row[idx('Retention_Until')],untilMs=new Date(until).getTime();
+    if(!until||!isFinite(untilMs))continue;
+    var expired=untilMs<=now;
+    var eventMs=dates[String(row[idx('Event_ID')])]||null;
+    var minimize=source===PORTAL_SOURCE&&!expired&&
+      String(row[idx('Marketing_Consent')]).toLowerCase()==='yes'&&
+      eventMs!==null&&eventMs+90*86400000<=now;
+    if(!expired&&!minimize)continue;
     var written=row.slice();
-    personal.forEach(function(n){var j=idx(n);if(j>=0)written[j]='';});
-    written[idx('Source_Channel')]='WEBSITE_RSVP_PURGED';
-    written[idx('Retention_Until')]='';
+    personal.forEach(function(n){
+      var j=idx(n);
+      if(j>=0&&(expired||!keepForMarketing[n]))written[j]='';
+    });
+    if(expired){
+      written[idx('Source_Channel')]='WEBSITE_RSVP_PURGED';
+      written[idx('Retention_Until')]='';
+      purged++;
+    }else{
+      written[idx('Source_Channel')]='WEBSITE_RSVP_MARKETING_ONLY';
+      minimized++;
+    }
     sh.getRange(i+1,1,1,h.length).setValues([written]);
-    cleaned++;
   }
-  return {purged:cleaned};
+  return {purged:purged,minimized:minimized};
 }
 
 function activateUniversalRegistration(){
