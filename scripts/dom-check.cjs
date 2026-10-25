@@ -49,7 +49,7 @@ if(require.main===module)(async()=>{let count=0;for(const path of ['index.html',
    assert.equal(d.querySelector('#druzina-payment')?.getAttribute('aria-hidden'),'true','retired payment anchor must be hidden');
    const booking=d.querySelector('#navBookBtn')?.getAttribute('href')||'';
    assert.ok(booking.startsWith('start/'),path+' '+lang+' primary navigation must enter club, never falsely book a paid session');
-   assert.ok(d.querySelector('.dm-hero-register')?.getAttribute('href')?.startsWith('start/'),'hero first/next-battle action should enter club onboarding');
+   assert.equal(new URL(d.querySelector('.dm-hero-register')?.href||'',d.location.href).pathname,'/alchareshneu/druzina/start/','hero first/next-battle action should enter club onboarding');
    assert.ok(d.querySelector('.dm-trust-line')?.textContent.length>20,'club participation and trust statement visible');
    const retired=[...d.querySelectorAll('a[href]')].filter(a=>/docs[.]google[.]com[/]forms[/]d[/]e|revolut[.]me[/]/i.test(a.href));
    assert.equal(retired.length,0,'paused HEMA page must not link to retired payment/booking forms');
