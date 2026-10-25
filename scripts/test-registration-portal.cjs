@@ -55,6 +55,7 @@ let uuid=0,locked=0;
 const context={
  SPREADSHEET_ID:'synthetic', EVENTS_SHEET_NAME:'Events',REGISTRATIONS_SHEET_NAME:'Registrations',
  SpreadsheetApp:{openById(){return {getSheetByName:sheet}},flush(){}},
+ PropertiesService:{getScriptProperties(){return {getProperty(name){return name==='UNIVERSAL_PORTAL_LIVE'?'true':''}}}},
  Utilities:{formatDate(dt){return dt.toISOString()},getUuid(){return String(++uuid).padStart(6,'0')}},
  LockService:{getScriptLock(){return {tryLock(){locked++;return true},releaseLock(){locked--}}}},
  ScriptApp:{getProjectTriggers(){return []},newTrigger(){return {timeBased(){return this},everyDays(){return this},atHour(){return this},create(){return true}}}},
