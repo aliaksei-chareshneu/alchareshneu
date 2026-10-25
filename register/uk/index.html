@@ -124,6 +124,59 @@ function renderMatches(){
  }
  list.hidden=false;$('eventSearch').setAttribute('aria-expanded','true');
 }
+const query=new URLSearchParams(location.search);
+const pathLanguage=(location.pathname.match(/\/register\/(en|ru|uk)\/(?:index\.html)?$/)||[])[1];
+const preferred=query.get('lang')||pathLanguage||'cs';
+const policyBase=pathLanguage?'../':'./';
+if (Object.prototype.hasOwnProperty.call(translations,preferred))lang=preferred;
+function t(k){return translations[lang][k]||translations.en[k]||k}
+function setLang(next){lang=next;document.documentElement.lang=lang;
+  for(const b of document.querySelectorAll('[data-lang]'))b.setAttribute('aria-pressed',String(b.dataset.lang===lang));
+  for(const el of document.querySelectorAll('[data-i18n]')){
+    const key=el.dataset.i18n,html=t(key);
+    if(key==='hero')el.innerHTML=html;else if(key==='privacy')el.textContent=html;else el.textContent=html;
+  }
+  // The privacy sentence is followed by a separate persistent link.
+  const privacy=$('rsvpForm').querySelector('[data-i18n=privacy]');
+  if(privacy){const l=document.createElement('a');l.href=policyBase+'privacy/';l.textContent=' '+t('privacyLink')+' ↗';privacy.append(l)}
+  renderEvents();
+}
+
+
+function renderEvents(){
+ const select=$('eventId'),selected=select.value||query.get('event')||(events.length===1?events[0].event_id:'');select.replaceChildren();
+ const blank=document.createElement('option');blank.value='';blank.textContent=t('select');select.append(blank);
+ for(const e of events){const opt=document.createElement('option');opt.value=e.event_id;opt.textContent=eventLabel(e)+' · '+statusLabel(e);select.append(opt)}
+ if(events.some(e=>e.event_id===selected))select.value=selected;
+ const e=events.find(v=>v.event_id===select.value);$('eventSearch').value=e?eventLabel(e):'';
+ $('eventSearch').placeholder=ct('search');$('eventSearch').setAttribute('aria-label',t('event'));$('optionalConsentLabel').textContent=ct('options');
+ const modes=events.map(eventMode);
+ $('catalogSummary').textContent=ct('total')+': '+events.length+' · '+ct('open')+': '+modes.filter(m=>m==='FORM').length+' · '+ct('manual')+': '+modes.filter(m=>m==='CONTACT').length+' · '+ct('planned')+': '+modes.filter(m=>m==='PLANNED').length;
+ closeMatches();showEvent();
+}
+function showEvent(){
+ const e=events.find(v=>v.event_id===$('eventId').value),info=$('eventInfo'),mode=eventMode(e);
+ info.replaceChildren();$('rsvpDetails').hidden=mode!=='FORM';$('submit').disabled=mode!=='FORM';
+ if(!e){info.hidden=true;return}info.hidden=false;
+ const top=document.createElement('p');const strong=document.createElement('strong');strong.textContent=e.title;top.append(strong);info.append(top);
+ const meta=document.createElement('p');meta.textContent=eventDate(e)+' · '+e.venue+' · '+(Number(e.price_czk)===0?t('free'):Number(e.price_czk)+' Kč');info.append(meta);
+ const status=document.createElement('p');status.className='event-state';status.textContent=statusLabel(e);info.append(status);
+ const note=document.createElement('p');note.textContent=mode==='FORM'?t('unconfirmed'):(lang==='ru'&&e.public_note?e.public_note:ct(mode==='CONTACT'?'manualNote':'planNote'));info.append(note);
+ if(mode==='FORM'){const owner=document.createElement('p');owner.className='owner-line';owner.textContent=t('controller')+' '+e.data_controller;info.append(owner)}
+ if(mode==='CONTACT'){
+  const href=String(e.action_url||'');
+  if(/^https:\/\/wa\.me\/420702914842(?:\?|$)/.test(href)||/^https:\/\/t\.me\/Chareshneu(?:\?|$)/.test(href)||/^mailto:chereshnev\.biochem@gmail\.com(?:\?|$)/.test(href)){
+   const a=document.createElement('a');a.href=href;a.textContent=ct('ask');a.className='button contact-cta';a.rel='noopener noreferrer';if(href.startsWith('https:'))a.target='_blank';info.append(a);
+  }
+ }
+ const safe=String(e.rules_url||'');$('rulesLink').href=/^https:\/\/aliaksei-chareshneu\.github\.io\/alchareshneu\//.test(safe)?safe:policyBase+'safety/';
+}
+$('eventSearch').addEventListener('focus',renderMatches);
+$('eventSearch').addEventListener('input',()=>{const e=events.find(v=>v.event_id===$('eventId').value);if(e&&$('eventSearch').value!==eventLabel(e)){$('eventId').value='';showEvent()}renderMatches()});
+$('eventSearch').addEventListener('keydown',e=>{if(e.key==='Escape'){closeMatches();return}if(e.key==='ArrowDown'){e.preventDefault();if($('eventMatches').hidden)renderMatches();$('eventMatches').querySelector('.match-option')?.focus()}if(e.key==='Enter'&&!$('eventMatches').hidden){e.preventDefault();$('eventMatches').querySelector('.match-option')?.click()}});
+$('eventMatches').addEventListener('keydown',e=>{if(e.key==='Escape'){closeMatches();$('eventSearch').focus()}const opts=[...$('eventMatches').querySelectorAll('.match-option')],i=opts.indexOf(document.activeElement);if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();opts[Math.max(0,Math.min(opts.length-1,i+(e.key==='ArrowDown'?1:-1)))]?.focus()}});
+document.addEventListener('click',e=>{if(!$('eventPicker').contains(e.target))closeMatches()});
+
 for(const btn of document.querySelectorAll('[data-lang]'))btn.addEventListener('click',()=>setLang(btn.dataset.lang));
 $('eventId').addEventListener('change',()=>{const e=events.find(v=>v.event_id===$('eventId').value);$('eventSearch').value=e?eventLabel(e):'';closeMatches();showEvent()});
 function updateGuardian(){const minor=document.querySelector('input[name=age]:checked')?.value==='under18';
