@@ -4,10 +4,10 @@ async function load(path,language){
  w.matchMedia=()=>({matches:true,addEventListener(){},removeEventListener(){}});w.IntersectionObserver=class{observe(){}disconnect(){}unobserve(){}};w.ResizeObserver=class{observe(){}disconnect(){}};w.scrollTo=()=>{};w.HTMLElement.prototype.scrollIntoView=()=>{};w.HTMLCanvasElement.prototype.getContext=()=>null;w.HTMLMediaElement.prototype.play=()=>Promise.resolve();w.HTMLMediaElement.prototype.pause=()=>{};
  const errors=[];w.addEventListener('error',e=>errors.push(e.message));
  for(const script of w.document.querySelectorAll('script:not([src])')){if(script.type==='application/ld+json'){JSON.parse(script.textContent);continue;}w.eval(script.textContent);}
- w.eval(fs.readFileSync('experience.js','utf8'));await new Promise(r=>setTimeout(r,20));return {dom,w,d:w.document,errors};
+ if(w.document.querySelector('#navBookBtn'))w.eval(fs.readFileSync('experience.js','utf8'));await new Promise(r=>setTimeout(r,20));return {dom,w,d:w.document,errors};
 }
 module.exports={load};
-if(require.main===module)(async()=>{let count=0;for(const path of ['index.html','academy/index.html','druzina/index.html','walkers/index.html','calendar/index.html'])for(const lang of ['en','ru','cs','uk']){
+if(require.main===module)(async()=>{let count=0;for(const path of ['index.html','academy/index.html','druzina/index.html','druzina/start/index.html','walkers/index.html','calendar/index.html'])for(const lang of ['en','ru','cs','uk']){
  const {dom,w,d,errors}=await load(path,lang);
  try{
  assert.equal(d.documentElement.lang,lang,path);assert.equal(d.querySelectorAll('h1').length,1,path);
@@ -15,7 +15,15 @@ if(require.main===module)(async()=>{let count=0;for(const path of ['index.html',
  const bad=[...d.querySelectorAll('main a[href^="#"]')].filter(a=>a.hash.length>1&&!d.getElementById(decodeURIComponent(a.hash.slice(1)))).map(a=>a.hash);assert.deepEqual(bad,[],path+' anchors');
  assert.deepEqual(errors,[],path+' runtime errors');
  if(path.startsWith('academy')){const input=d.querySelector('#service-search');input.value='zzzzmissing';input.dispatchEvent(new w.Event('input'));assert.equal(d.querySelectorAll('.price-cat:not([hidden])').length,0);input.value='';input.dispatchEvent(new w.Event('input'));assert.equal(d.querySelectorAll('.price-cat:not([hidden])').length,9);assert.equal(d.querySelectorAll('.service-action').length,9);}
- if(path.startsWith('druzina')){
+ if(path==='druzina/start/index.html'){
+   assert.equal(d.querySelectorAll('#action').length,1,'one primary club action');
+   assert.equal(d.querySelectorAll('form').length,0,'no forced form to join club');
+   assert.ok(d.querySelector('[data-k="membership"]').textContent.length>45,'club participation separate from legal z.s. member status');
+   assert.ok((d.querySelector('#action').href||'').startsWith(lang==='ru'?'https://t.me/druzinamoravy_news':'https://chat.whatsapp.com/'),'language-appropriate opt-in club updates');
+   assert.ok((d.querySelector('#question').href||'').startsWith(lang==='ru'?'https://t.me/Chareshneu':'https://wa.me/420702914842'),'separate human enquiry');
+   assert.ok(/paused|pozastaveny|приостановлены|призупинені/i.test(d.querySelector('[data-k="safety"]').textContent),'current booking pause preserved');
+  }
+ if(path==='druzina/index.html'){
   const essentials=d.querySelector('.dm-hero-essentials');
   assert.ok(essentials,'key facts must remain visible');
   assert.equal(essentials.querySelectorAll('.dm-hero-key').length,4,'what / where / when / registration');
@@ -40,7 +48,9 @@ if(require.main===module)(async()=>{let count=0;for(const path of ['index.html',
    assert.equal(d.querySelector('#tariff')?.getAttribute('aria-hidden'),'true','retired pricing anchor must be hidden');
    assert.equal(d.querySelector('#druzina-payment')?.getAttribute('aria-hidden'),'true','retired payment anchor must be hidden');
    const booking=d.querySelector('#navBookBtn')?.getAttribute('href')||'';
-   assert.ok(booking.startsWith(lang==='ru'?'https://t.me/Chareshneu':'https://wa.me/420702914842'),path+' '+lang+' booking CTA must be an enquiry');
+   assert.ok(booking.startsWith('start/'),path+' '+lang+' primary navigation must enter club, never falsely book a paid session');
+   assert.equal(new URL(d.querySelector('.dm-hero-register')?.href||'',d.location.href).pathname,'/alchareshneu/druzina/start/','hero first/next-battle action should enter club onboarding');
+   assert.ok(d.querySelector('.dm-trust-line')?.textContent.length>20,'club participation and trust statement visible');
    const retired=[...d.querySelectorAll('a[href]')].filter(a=>/docs[.]google[.]com[/]forms[/]d[/]e|revolut[.]me[/]/i.test(a.href));
    assert.equal(retired.length,0,'paused HEMA page must not link to retired payment/booking forms');
   } else {

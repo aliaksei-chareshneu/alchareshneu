@@ -197,9 +197,12 @@
   const render = () => {
     setPageTitle();
     const heroContact=document.querySelector('#druzina .dm-hero-register');
-    if(heroContact){
-      heroContact.href=code()==='ru'?'https://t.me/Chareshneu':'https://wa.me/420702914842?text='+encodeURIComponent('Hello! I would like to ask about a possible Druzina Moravy session at least 48 hours in advance. Please confirm the exact date, time, venue, organiser, conditions and safety in writing. My message is an enquiry, not a booking.');
-    }
+    const clubStart='./start/?lang='+encodeURIComponent(code());
+    if(heroContact) heroContact.href=clubStart;
+    const navClubStart=document.querySelector('#navBookBtn');
+    if(navClubStart) navClubStart.href=clubStart;
+    const mobileClubStart=document.querySelector('.mobile-cta-btn');
+    if(mobileClubStart) mobileClubStart.href=clubStart;
     const introContact=document.querySelector('.dm-contact-button');
     if(introContact){const ru=code()==='ru';introContact.href=ru?'https://t.me/Chareshneu':'https://wa.me/420702914842?text='+encodeURIComponent('Hello, I would like to ask about a possible beginner Družina Moravy session. This is an enquiry, not a booking.');introContact.setAttribute('aria-label',get('contact'));}
     document.querySelectorAll('[data-dm-k]').forEach(el => {
