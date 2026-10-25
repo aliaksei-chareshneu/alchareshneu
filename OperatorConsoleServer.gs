@@ -137,18 +137,22 @@ function ocBankState_(props,prefix){
 }
 
 /** Local project capabilities only; never infer another project's configuration. */
-function ocCapabilities_(p){
+function ocCapabilities_(p,ss){
  var hasRecovery=typeof platformRecoveryPreview==='function' && typeof RP!=='undefined' && typeof rpOnLeadFormSubmit==='function';
  var recoveryState=!hasRecovery?'MODULE_MISSING':p.getProperty('PLATFORM_RECOVERY_PAUSED')==='true'?'PAUSED':p.getProperty('PLATFORM_RECOVERY_PAUSED')==='false'?'ENABLED_NOT_VERIFIED':'NOT_CONFIGURED';
+ // Sheet existence only: automatic refresh must not read financial rows or run a preview.
+ var paymentPreviewState=typeof paymentReconciliationPreview!=='function'?'MODULE_MISSING':!ss?'NOT_CHECKED':
+  !ss.getSheetByName('Druzina_Payments')?'PAYMENTS_SHEET_MISSING':
+  !ss.getSheetByName('Druzina_Fio_Transactions')?'BANK_SHEET_MISSING':'READY';
  function bankReady(prefix,installed){
   return installed && /^[A-Za-z0-9]{64}$/.test(p.getProperty(prefix+'_READ_TOKEN')||'') &&
    /^\d{6,20}$/.test(p.getProperty(prefix+'_EXPECTED_ACCOUNT_ID')||'') &&
    p.getProperty(prefix+'_ENTITY_CONFIRMED')==='true';
  }
- return {recoveryState:recoveryState,actions:{
+ return {recoveryState:recoveryState,paymentPreviewState:paymentPreviewState,actions:{
   previewRecovery:hasRecovery,
   pauseRecovery:hasRecovery && typeof platformPauseRecovery==='function' && recoveryState==='ENABLED_NOT_VERIFIED',
-  previewPayments:typeof paymentReconciliationPreview==='function',
+  previewPayments:paymentPreviewState==='READY',
   syncOSVC:bankReady('FIO_OSVC',typeof fioSyncOSVCReadOnly==='function'),
   syncDruzina:bankReady('FIO_DRUZINA',typeof fioSyncDruzinaReadOnly==='function')
  }};
@@ -195,7 +199,7 @@ function operatorSnapshot(){
  if(!events.missing&&['Event_ID','Title','Community','Status','Start_DateTime','End_DateTime'].some(function(k){return events.headers.filter(function(h){return h===k;}).length!==1;}))throw Error('Events schema missing or duplicate required column');
  var config=ocRows_(ss,'Revenue_Config'),publications=ocSocialQueue_(social.rows);
  var cfg={};config.rows.forEach(function(r){cfg[r.Key]=r.Value;});var now=Date.now();
- var agenda=ocEventQueue_(events.rows,now),capabilities=ocCapabilities_(p);
+ var agenda=ocEventQueue_(events.rows,now),capabilities=ocCapabilities_(p,ss);
  return {capabilities:capabilities,recoveryDiagnostics:ocRecoveryDiagnostics_(p,now,capabilities.recoveryState),at:new Date(now).toISOString(),hub:ss.getUrl(),leads:ocLeadSummary_(leads.rows,now),leadUrl:leads.url,
   ingestion:cfg.STATUS||'NOT_VERIFIED',social:publications.rows,socialQueue:publications.queue,socialUrl:social.url,
   events:agenda.rows,eventQueue:agenda.queue,eventUrl:events.url,

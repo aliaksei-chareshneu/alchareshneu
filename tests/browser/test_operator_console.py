@@ -356,6 +356,44 @@ class ConsoleBrowserTests(unittest.TestCase):
             self.page.locator('#paymentState').scroll_into_view_if_needed()
             self.page.screenshot(path=str(Path(os.environ['CONSOLE_BROWSER_ARTIFACTS']) / 'payment-mobile-viewport.png'))
 
+    def test_missing_payment_sheets_disable_preview_and_preserve_previous_report(self):
+        self.bank_button('previewPayments').click()
+        self.respond(1, payment_report())
+        previous = self.page.locator('#paymentTable').inner_text()
+        for state, text in [('MODULE_MISSING', 'Модуль сверки'),
+                            ('PAYMENTS_SHEET_MISSING', 'Не найдена таблица оплат'),
+                            ('BANK_SHEET_MISSING', 'Нет таблицы банковских операций')]:
+            self.page.locator('#refresh').click()
+            data = snapshot()
+            data['capabilities']['paymentPreviewState'] = state
+            data['capabilities']['actions']['previewPayments'] = False
+            self.respond(len(self.calls()) - 1, data)
+            self.assertTrue(self.bank_button('previewPayments').is_disabled())
+            self.assertIn(text, self.page.locator('#paymentAvailability').inner_text())
+            self.assertEqual(self.page.locator('#paymentTable').inner_text(), previous)
+        self.assertEqual(self.calls().count('previewPayments'), 1)
+        self.page.locator('#refresh').click()
+        data = snapshot()
+        data['capabilities']['paymentPreviewState'] = 'READY'
+        self.respond(len(self.calls()) - 1, data)
+        self.assertTrue(self.bank_button('previewPayments').is_enabled())
+        self.assertIn('Таблицы найдены', self.page.locator('#paymentAvailability').inner_text())
+        self.assertEqual(self.page.locator('#paymentTable').inner_text(), previous)
+
+    def test_inconsistent_payment_availability_rejects_snapshot_and_legacy_clears_reason(self):
+        for state in ['READY', '__proto__', 123]:
+            self.page.locator('#refresh').click()
+            data = snapshot()
+            data['capabilities']['paymentPreviewState'] = state
+            data['capabilities']['actions']['previewPayments'] = False
+            self.respond(len(self.calls()) - 1, data)
+            self.assertTrue(self.bank_button('previewPayments').is_disabled())
+            self.assertIn('не удалось отобразить', self.page.locator('#message').inner_text())
+        self.page.locator('#refresh').click()
+        self.respond(len(self.calls()) - 1, snapshot())
+        self.assertTrue(self.bank_button('previewPayments').is_enabled())
+        self.assertIn('не сообщает', self.page.locator('#paymentAvailability').inner_text())
+
     def test_automatic_snapshots_keep_payment_report_time_and_bank_evidence_unchanged(self):
         self.bank_button('previewPayments').click()
         self.respond(1, payment_report())
