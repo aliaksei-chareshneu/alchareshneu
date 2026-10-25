@@ -83,6 +83,10 @@ jobs:
       - name: Check public RSVP frontend, consent and server contract
         run: node tests/imperion-rsvp-source.test.cjs
 
+      - name: Validate synthetic event RSVP flow
+        shell: bash
+        run: node scripts/test-event-rsvp.cjs
+
       - name: Validate inline JavaScript syntax
         shell: bash
         run: |
