@@ -89,6 +89,9 @@ jobs:
       - name: Verify Fio JSON intake, numeric VS and merchant safety gates
         run: node --test tests/druzina-fio-bridge.test.cjs
 
+      - name: Verify Fio settled credit creates one safe booking
+        run: node --test tests/druzina-fio-commit.test.cjs
+
       - name: Verify private Druzina OTP account projection
         run: node --test tests/druzina-member-account.test.cjs
 
