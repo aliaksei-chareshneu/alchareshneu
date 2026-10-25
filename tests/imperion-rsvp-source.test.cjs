@@ -43,6 +43,13 @@ for(const locale of locales){
 const sitemap=fs.readFileSync('sitemap.xml','utf8');
 for(const [path,url] of Object.values(pages))assert.ok(sitemap.includes('<loc>'+url+'</loc>'),'sitemap '+url);
 for(const path of ['register/privacy/index.html','register/safety/index.html']) assert.ok(fs.readFileSync(path,'utf8').includes('content="noindex,follow"'),'legal noindex '+path);
+// Only the approved 1 November public hike routes through the canonical RSVP intake.
+const calendar=fs.readFileSync('calendar/index.html','utf8');
+assert.ok(/id="navBookBtn"[^>]+href="\.\.\/register\/"/.test(calendar),'calendar header does not link to live registration');
+assert.ok(/class="mobile-cta-btn"[^>]+href="\.\.\/register\/"/.test(calendar),'calendar mobile CTA does not link to live registration');
+assert.ok(calendar.includes("String(ev.id || '') === 'PUB-HIKE-20261101'"),'approved hike routing gate missing');
+assert.ok(calendar.includes("?event=PUB-HIKE-20261101&lang="),'locale-preserving event URL missing');
+assert.ok(calendar.includes("safeHttpsUrl(ev.registerUrl, document.querySelector('#navBookBtn').href)"),'other event links must remain unmodified');
 const walkers=fs.readFileSync('walkers/index.html','utf8');
 assert.ok(walkers.includes('a[href^="../register/"]'),'walker locale-aware signup');
 assert.ok(!walkers.includes('href="https://wa.me/420702914842?text=Hello%2C%20I%27d%20like%20to%20ask%20about%20a%20BrnoWalkers%20event.'),'walker legacy CTA');
