@@ -4,7 +4,7 @@ async function load(path,language){
  w.matchMedia=()=>({matches:true,addEventListener(){},removeEventListener(){}});w.IntersectionObserver=class{observe(){}disconnect(){}unobserve(){}};w.ResizeObserver=class{observe(){}disconnect(){}};w.scrollTo=()=>{};w.HTMLElement.prototype.scrollIntoView=()=>{};w.HTMLCanvasElement.prototype.getContext=()=>null;w.HTMLMediaElement.prototype.play=()=>Promise.resolve();w.HTMLMediaElement.prototype.pause=()=>{};
  const errors=[];w.addEventListener('error',e=>errors.push(e.message));
  for(const script of w.document.querySelectorAll('script:not([src])')){if(script.type==='application/ld+json'){JSON.parse(script.textContent);continue;}w.eval(script.textContent);}
- w.eval(fs.readFileSync('experience.js','utf8'));await new Promise(r=>setTimeout(r,20));return {dom,w,d:w.document,errors};
+ if(w.document.querySelector('#navBookBtn'))w.eval(fs.readFileSync('experience.js','utf8'));await new Promise(r=>setTimeout(r,20));return {dom,w,d:w.document,errors};
 }
 module.exports={load};
 if(require.main===module)(async()=>{let count=0;for(const path of ['index.html','academy/index.html','druzina/index.html','druzina/start/index.html','walkers/index.html','calendar/index.html'])for(const lang of ['en','ru','cs','uk']){
