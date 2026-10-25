@@ -43,13 +43,13 @@ for(const locale of locales){
 const sitemap=fs.readFileSync('sitemap.xml','utf8');
 for(const [path,url] of Object.values(pages))assert.ok(sitemap.includes('<loc>'+url+'</loc>'),'sitemap '+url);
 for(const path of ['register/privacy/index.html','register/safety/index.html']) assert.ok(fs.readFileSync(path,'utf8').includes('content="noindex,follow"'),'legal noindex '+path);
-// Only the approved 1 November public hike routes through the canonical RSVP intake.
+// Every PUB event gets a canonical localized deep link; the backend alone decides if its registration is open.
 const calendar=fs.readFileSync('calendar/index.html','utf8');
 assert.ok(/id="navBookBtn"[^>]+href="\.\.\/register\/"/.test(calendar),'calendar header does not link to live registration');
 assert.ok(/class="mobile-cta-btn"[^>]+href="\.\.\/register\/"/.test(calendar),'calendar mobile CTA does not link to live registration');
-assert.ok(calendar.includes("String(ev.id || '') === 'PUB-HIKE-20261101'"),'approved hike routing gate missing');
-assert.ok(calendar.includes("?event=PUB-HIKE-20261101&lang="),'locale-preserving event URL missing');
-assert.ok(calendar.includes("safeHttpsUrl(ev.registerUrl, document.querySelector('#navBookBtn').getAttribute('href'))"),'other event links must remain unmodified');
+assert.ok(calendar.includes("/^PUB-[A-Z0-9-]{4,90}$/.test(String(ev.id || ''))"),'public event ID gate missing');
+assert.ok(calendar.includes("'?event=' + encodeURIComponent(ev.id) + '&lang='"),'localized per-event deep link missing');
+assert.ok(calendar.includes("safeHttpsUrl(ev.registerUrl, document.querySelector('#navBookBtn').getAttribute('href'))"),'fallback non-public event links not retained');
 const walkers=fs.readFileSync('walkers/index.html','utf8');
 assert.ok(walkers.includes('a[href^="../register/"]'),'walker locale-aware signup');
 assert.ok(!walkers.includes('href="https://wa.me/420702914842?text=Hello%2C%20I%27d%20like%20to%20ask%20about%20a%20BrnoWalkers%20event.'),'walker legacy CTA');
@@ -60,3 +60,7 @@ console.log('PASS: 4 indexable, canonical, hreflang and self-contained registrat
 // sessions and must not invite people to paused Tuesday board game sessions.
 for(const t of ['Some events are free and others are paid','Есть бесплатные и платные мероприятия','Pořádáme bezplatné i placené akce','Є безкоштовні й платні заходи']) assert.ok(walkers.includes(t),'price disclosure missing '+t);
 for(const outdated of ['Activities are paid.','Мероприятия платные.','Akce jsou placené.','Заходи платні.','настольные игры по вторникам','úterní herní večer','настільні ігри по вівторках','Payment confirms your spot — without payment your place is not reserved.'])assert.ok(!walkers.includes(outdated),'contradictory FAQ copy '+outdated);
+
+for(const locale of locales){const page=fs.readFileSync(pages[locale][0],'utf8');assert.ok(page.includes("e.price_verified===false?t('payment')"),'unknown price incorrectly shown as free '+locale)}
+assert.ok(fn.includes(".eq('source_active',true)"),'withdrawn feed entries must reject POST');
+assert.ok(fn.includes(".eq('price_verified',true)"),'unverified price must reject POST');

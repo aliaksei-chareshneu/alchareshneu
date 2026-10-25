@@ -382,9 +382,9 @@ function renderEvents(lang) {
       const title = escapeText(ev.title);
       const description = escapeText(ev.description);
       const locationName = escapeText(ev.locationName);
-      const directHike = String(ev.id || '') === 'PUB-HIKE-20261101';
-      const registerUrl = directHike
-        ? '../register/' + (lang === 'cs' ? '' : lang + '/') + '?event=PUB-HIKE-20261101&lang=' + encodeURIComponent(lang) + '&src=calendar'
+      const nativeEvent = /^PUB-[A-Z0-9-]{4,90}$/.test(String(ev.id || ''));
+      const registerUrl = nativeEvent
+        ? '../register/' + (lang === 'cs' ? '' : lang + '/') + '?event=' + encodeURIComponent(ev.id) + '&lang=' + encodeURIComponent(lang) + '&src=calendar'
         : safeHttpsUrl(ev.registerUrl, document.querySelector('#navBookBtn').getAttribute('href'));
       const tag = (Object.hasOwn(COMMUNITY_TAG, ev.community) ? COMMUNITY_TAG[ev.community] : COMMUNITY_TAG['Shared'])[lang];
       const dateStr = formatEventDate(ev.startISO, lang);
