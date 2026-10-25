@@ -103,3 +103,33 @@ test('No live paid flow unless owner, beneficiary and each session gate is indep
  assert.equal(drufCanLaunch(config,flags,[{...gate,BOOKABLE_TRAINING_PAX_FAIL_CLOSED_FORMULA:0}]).code,'PER_DATE_SAFETY_GATE_UNVERIFIED');
  assert.equal(drufCanLaunch({...config,SAFETY_FORM_VERSION:''},flags,[gate]).code,'SAFETY_CONSENTS_UNVERIFIED');
 });
+
+test('Bank payment instructions create local Czech QR string only for authorized payee',()=>{
+  const iban='CZ6508000000192000145399';
+  assert.equal(env.drufCzIbanValid(iban),true);
+  assert.equal(env.drufCzIbanValid('CZ6508000000192000145398'),false);
+  const merchant={iban,verifiedLegalPayee:true,
+    verifiedReadOnlyBankAccount:true,paidBookingLiveApproved:true};
+  const result=env.drufBankInstructions(expected,merchant);
+  assert.equal(result.ok,true);
+  assert.equal(result.spd,'SPD*1.0*ACC:'+iban+'*AM:300.00*CC:CZK*X-VS:1234567890');
+  assert.equal(result.confirmedBooking,false);
+  assert.equal(result.status,'PENDING_BANK_SETTLEMENT_NOT_PAID');
+  assert.equal(env.drufBankInstructions(expected,{...merchant,verifiedLegalPayee:false}).code,
+    'PAYMENT_BENEFICIARY_OR_LAUNCH_UNVERIFIED');
+  assert.equal(env.drufBankInstructions({...expected,Payment_Reference:'DRU12345'},merchant).code,
+    'INVALID_BANK_INSTRUCTIONS');
+  assert.equal(env.drufBankInstructions({...expected,Expires_At:'2020-01-01'},merchant).code,
+    'QUOTE_EXPIRED_OR_NOT_OPEN');
+});
+test('new numeric quote wrapper is fail-closed before old createQuote is ever called',()=>{
+  let called=false;
+  env.PropertiesService={getScriptProperties:()=>({getProperty:()=>''})};
+  env.configMap_=()=>({SAFETY_FORM_VERSION:'',RULES_VERSION:''});
+  env.rows_=()=>[];
+  env.createQuote=()=>{called=true;throw Error('should not be reached')};
+  assert.throws(()=>env.drufCreateQuoteWithVS_({
+    items:[{sessionId:'SES-20261102',productCode:'DRU-JUNIOR-DROPIN'}]
+  }),/not yet enabled/);
+  assert.equal(called,false);
+});
