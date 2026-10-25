@@ -487,12 +487,19 @@ function doGet(e) {
       var rows = sheet.getRange(2, 1, Math.max(sheet.getLastRow() - 1, 1), sheet.getLastColumn()).getValues();
       var now = new Date();
 
+      var portalOn = PropertiesService.getScriptProperties().getProperty('UNIVERSAL_PORTAL_LIVE') === 'true';
       var events = [];
       rows.forEach(function (row) {
         var status = row[headerMap['Status'] - 1];
         var startRaw = row[headerMap['Start_DateTime'] - 1];
         var title = row[headerMap['Title'] - 1];
         var registerUrl = row[headerMap['Tally_Form_URL'] - 1];
+        var portalMode = headerMap['Registration_Mode'] && row[headerMap['Registration_Mode'] - 1];
+        var portalController = headerMap['Data_Controller'] && row[headerMap['Data_Controller'] - 1];
+        var portalEventId = String(row[headerMap['Event_ID'] - 1] || '');
+        if (portalOn && String(portalMode).toUpperCase() === 'OPEN' && portalController && /^[A-Za-z0-9-]{2,100}$/.test(portalEventId)) {
+          registerUrl = 'https://aliaksei-chareshneu.github.io/alchareshneu/register/?event=' + encodeURIComponent(portalEventId);
+        }
         if (status !== 'Active') return;
         if (row[headerMap['Category'] - 1] === 'Corporate') return; // внутренний учёт, не публичное событие
         if (!startRaw || !title || !registerUrl) return;
