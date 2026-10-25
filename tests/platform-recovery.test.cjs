@@ -14,3 +14,25 @@ test('forged scheduled invocation is rejected',()=>{let s=load({PropertiesServic
 test('repair keeps one matching trigger and preserves unrelated handlers',()=>{let deleted=[],triggers=[['right','a','rpOnLeadFormSubmit'],['right','b','rpOnLeadFormSubmit'],['wrong','c','rpOnLeadFormSubmit'],['right','d','other']].map(([source,id,fn])=>({getTriggerSourceId:()=>source,getUniqueId:()=>id,getHandlerFunction:()=>fn,getEventType:()=> 'FORM'}));let s=load({ScriptApp:{EventType:{ON_FORM_SUBMIT:'FORM'},getProjectTriggers:()=>triggers.filter(t=>!deleted.includes(t.getUniqueId())),deleteTrigger:t=>deleted.push(t.getUniqueId())}});s.prOwner_=()=>{};s.prConfig_=()=>({form:{getId:()=> 'right'}});assert.equal(s.platformRepairFormTrigger().exactFormTriggers,1);assert.deepEqual(deleted,['b','c']);});
 test('failed ingestion never writes success checkpoint and releases lock',()=>{let released=false,s=load({LockService:{getUserLock:()=>({tryLock:()=>true,releaseLock:()=>released=true})},rpOnLeadFormSubmit:()=>{throw Error('write failed')}});s.prInspect_=()=>({plan:{batch:[response('a')]}});assert.throws(()=>s.prRecover_(),/write failed/);assert.equal(released,true);});
 test('timer blocked until E2E verified',()=>{let s=load();s.prOwner_=()=>{};s.prConfig_=()=>({props:{getProperty:()=>null}});assert.throws(()=>s.platformInstallRecoveryTimer(),/actual Form/);});
+test('recovery window rejects ambiguous, normalized and invalid offset timestamps',()=>{
+ const s=load();
+ for(const value of ['2024-01-01','2024-01-01T00:00:00','2024-02-30T00:00:00Z','2023-02-29T00:00:00Z','2024-01-01T24:00:00Z','2024-01-01T00:60:00Z','2024-01-01T00:00:60Z','2024-01-01T00:00:00+14:01','2024-01-01T00:00:00+15:00','2024-01-01T00:00:00+02:60','2999-01-01T00:00:00Z'])
+  assert.throws(()=>s.prSince_({getProperty:()=>value}),/Invalid recovery start timestamp/,value);
+});
+test('explicit Prague offset and UTC recovery windows identify the same instant',()=>{
+ const s=load();
+ assert.equal(s.prSince_({getProperty:()=> '2026-09-25T00:00:00+02:00'}).toISOString(),'2026-09-24T22:00:00.000Z');
+ assert.equal(s.prSince_({getProperty:()=> '2024-02-29T00:00:00.123Z'}).toISOString(),'2024-02-29T00:00:00.123Z');
+});
+test('duplicate submission columns stop inspection before reading form responses',()=>{
+ let reads=0;const s=load();
+ s.prConfig_=()=>({ss:{getSheetByName:()=>({getDataRange:()=>({getValues:()=>[['Submission_ID','Submission_ID'],['','already-saved']]})})},form:{getResponses:()=>{reads++;return [response('already-saved')];}}});
+ s.RP={LEADS_SHEET:'Leads'};
+ assert.throws(()=>s.prInspect_(),/Duplicate Submission_ID/);assert.equal(reads,0);
+});
+test('invalid recovery window stops inspection before reading form responses',()=>{
+ let reads=0;const s=load();
+ s.prConfig_=()=>({props:{getProperty:()=> '2024-02-30T00:00:00Z'},ss:{getSheetByName:()=>({getDataRange:()=>({getValues:()=>[['Submission_ID']]})})},form:{getResponses:()=>{reads++;return [];}}});
+ s.RP={LEADS_SHEET:'Leads'};
+ assert.throws(()=>s.prInspect_(),/Invalid recovery start timestamp/);assert.equal(reads,0);
+});

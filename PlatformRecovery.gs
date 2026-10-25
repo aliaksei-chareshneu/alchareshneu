@@ -34,6 +34,7 @@ function prKnown_(sheet) {
   var data = sheet.getDataRange().getValues(), h = data[0] || [];
   var col = h.indexOf('Submission_ID');
   if (col < 0) throw Error('Submission_ID column missing');
+  if (h.lastIndexOf('Submission_ID') !== col) throw Error('Duplicate Submission_ID column');
   var known = Object.create(null);
   data.slice(1).forEach(function(row) { if (row[col]) known[String(row[col])] = true; });
   return known;
@@ -51,6 +52,14 @@ function prPlanRecovery_(responses, known, limit) {
 function prSince_(props) {
   var marker = props.getProperty('PLATFORM_RECOVERY_SINCE');
   if (!marker) throw Error('Set reviewed PLATFORM_RECOVERY_SINCE ISO timestamp; no implicit historical import');
+  // Require an explicit timezone and a real calendar date; Date alone normalizes
+  // impossible dates and interprets timezone-free input in the runtime timezone.
+  var m = String(marker).match(/^(\d{4}-\d{2}-\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d{1,3})?(Z|[+-](\d{2}):(\d{2}))$/);
+  var day = m ? new Date(m[1] + 'T00:00:00Z') : null;
+  if (!m || !isFinite(day.getTime()) || day.toISOString().slice(0,10) !== m[1] ||
+      Number(m[2]) > 23 || Number(m[3]) > 59 || Number(m[4]) > 59 ||
+      Number(m[6] || 0) > 14 || Number(m[7] || 0) > 59 ||
+      Number(m[6] || 0) === 14 && Number(m[7] || 0) !== 0) throw Error('Invalid recovery start timestamp');
   var d = new Date(marker);
   if (!isFinite(d.getTime()) || d.getTime() > Date.now()) throw Error('Invalid recovery start timestamp');
   return d;
