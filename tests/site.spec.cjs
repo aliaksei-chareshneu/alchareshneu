@@ -29,7 +29,8 @@ for(const path of pages)for(const language of languages)for(const width of width
    await expect(page.locator('#registration-notice [data-notice-lang="'+language+'"]')).toBeVisible();
    await expect(page.locator('#tariff')).toBeHidden();
    await expect(page.locator('#druzina-payment')).toBeHidden();
-   await expect(page.locator('#navBookBtn')).toHaveAttribute('href', language==='ru' ? /^https:\/\/t\.me\/Chareshneu/ : /^https:\/\/wa\.me\/420702914842\?/);
+   await expect(page.locator('#navBookBtn')).toHaveAttribute('href', `./start/?lang=${language}`);
+    await expect(page.locator('.dm-hero-register')).toHaveAttribute('href', `./start/?lang=${language}`);
    const message=await page.locator('#registration-notice [data-notice-lang="'+language+'"]').innerText();
    expect(message.length).toBeGreaterThan(80);
    await page.locator('#visit-details > summary').click();
@@ -38,6 +39,22 @@ for(const path of pages)for(const language of languages)for(const width of width
   if(path==='academy/') {await page.locator('#service-search').fill('zzzznomatch');await expect(page.locator('.search-status')).not.toBeEmpty();await expect(page.locator('.price-cat:visible')).toHaveCount(0);await page.locator('#service-search').fill('');await expect(page.locator('.price-cat:visible')).toHaveCount(9);}
   if(path)await expect(page.locator('.tabs-bar a.active')).toHaveCount(1);
   await page.screenshot({path:`test-results/${path.replace('/','')||'home'}-${language}-${width}.png`,fullPage:false});
+  expect(errors).toEqual([]);
+ });
+}
+
+for(const language of languages)for(const width of [360,768,1440]){
+ test('club start '+language+' '+width,async({page})=>{
+  const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  await page.setViewportSize({width,height:900});await page.goto('/druzina/start/?lang='+language);
+  await expect(page.locator('html')).toHaveAttribute('lang',language);
+  await expect(page.locator('h1')).toHaveCount(1);
+  await expect(page.locator('#action')).toHaveCount(1);
+  await expect(page.locator('#action')).toHaveAttribute('href',language==='ru'?/^https:\\/\\/t\\.me\\/druzinamoravy_news$/ : /^https:\\/\\/chat\\.whatsapp\\.com\\//);
+  await expect(page.locator('#question')).toHaveAttribute('href',language==='ru'?/^https:\\/\\/t\\.me\\/Chareshneu$/ : /^https:\\/\\/wa\\.me\\/420702914842/);
+  await expect(page.locator('form')).toHaveCount(0);
+  await expect(page.locator('[data-k="membership"]')).not.toBeEmpty();
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
   expect(errors).toEqual([]);
  });
 }
