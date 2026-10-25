@@ -103,7 +103,7 @@ function setLang(next){lang=next;document.documentElement.lang=lang;
   if(privacy){const l=document.createElement('a');l.href=policyBase+'privacy/';l.textContent=' '+t('privacyLink')+' ↗';privacy.append(l)}
   renderEvents();
 }
-function renderEvents(){const select=$('eventId'),selected=select.value||query.get('event')||'';select.replaceChildren();
+function renderEvents(){const select=$('eventId'),selected=select.value||query.get('event')||(events.length===1?events[0].event_id:'');select.replaceChildren();
   let option=document.createElement('option');option.textContent=t('select');option.value='';select.append(option);
   for(const ev of events){option=document.createElement('option');option.value=ev.event_id;option.textContent=ev.title;select.append(option)}
   if(events.some(e=>e.event_id===selected))select.value=selected;

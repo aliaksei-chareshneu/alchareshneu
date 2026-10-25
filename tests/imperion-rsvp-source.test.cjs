@@ -19,7 +19,7 @@ assert.ok(front.includes('id="safety" type="checkbox" required'));
 const s=front.match(/<script>\s*('use strict';[\s\S]*?)\s*<\/script>/);
 assert.ok(s,'inline application script missing');new vm.Script(s[1]);
 const start=fs.readFileSync('start/index.html','utf8');
-for(const l of ['en','cs','ru','uk']) assert.ok(start.includes('event=PUB-HIKE-20261101&amp;lang='+l),'No registration CTA '+l);
+for(const l of ['en','cs','ru','uk']) assert.ok(start.includes('href="../register/'+(l==='cs'?'':l+'/')+'?event=PUB-HIKE-20261101"'),'No localized hike CTA '+l);
 const root='https://aliaksei-chareshneu.github.io/alchareshneu/register/';
 const pages={cs:['register/index.html',root,'Registrace na akce v Brně'],en:['register/en/index.html',root+'en/','Register for Brno hikes'],ru:['register/ru/index.html',root+'ru/','Регистрация на походы'],uk:['register/uk/index.html',root+'uk/','Реєстрація на походи']};
 const locales=Object.keys(pages),scriptSource=s[1];

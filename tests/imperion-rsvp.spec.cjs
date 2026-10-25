@@ -84,6 +84,13 @@ test('mobile registration remains readable without horizontal overflow',async({p
  await page.locator('.mobile-jump').click();
  await expect.poll(()=>page.evaluate(()=>location.hash)).toBe('#form');
 });
+test('single open event is selected automatically without extra tap',async({page})=>{
+ await page.route(url,route=>route.fulfill({status:200,contentType:'application/json',headers:cors(),body:JSON.stringify({events:[example]})}));
+ await page.goto('/register/en/');
+ await expect(page.locator('#rsvpForm')).toBeVisible();
+ await expect(page.locator('#eventId')).toHaveValue('PUB-HIKE-20261101');
+ await expect(page.locator('#eventInfo')).toContainText('Hády');
+});
 test('failed event fetch can be retried successfully',async({page})=>{
  let gets=0;
  await page.route(url,route=>{gets++;return route.fulfill({status:gets===1?503:200,contentType:'application/json',headers:cors(),body:gets===1?JSON.stringify({error:'down'}):JSON.stringify({events:[example]})});});
