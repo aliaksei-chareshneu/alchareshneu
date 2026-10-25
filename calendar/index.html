@@ -61,7 +61,7 @@
         <button data-lang="cs">CZ</button>
         <button data-lang="en">EN</button>
       </div>
-      <a id="navBookBtn" class="btn solid plausible-event-name=Register-Walkers" data-i18n="nav.bookBtn" href="https://wa.me/420702914842?text=Hello%2C%20I%27d%20like%20to%20register%20for%20a%20community%20event.%20Please%20confirm%20the%20specific%20event%2C%20date%2C%20price%20and%20booking%20details." target="_blank" rel="noopener">Register / Book</a>
+      <a id="navBookBtn" class="btn solid plausible-event-name=Register-Walkers" data-i18n="nav.bookBtn" href="../register/" target="_blank" rel="noopener">Register / Book</a>
     </div>
   </div>
 </nav>
@@ -108,7 +108,7 @@
 </main>
 
 <div class="mobile-cta" id="mobileCta" aria-hidden="true">
-  <a class="mobile-cta-btn" data-i18n="nav.bookBtn" href="https://wa.me/420702914842?text=Hello%2C%20I%27d%20like%20to%20register%20for%20a%20community%20event.%20Please%20confirm%20the%20specific%20event%2C%20date%2C%20price%20and%20booking%20details." target="_blank" rel="noopener">Register / Book</a>
+  <a class="mobile-cta-btn" data-i18n="nav.bookBtn" href="../register/" target="_blank" rel="noopener">Register / Book</a>
   <a class="mobile-cta-icon" href="https://wa.me/420702914842" target="_blank" rel="noopener" aria-label="WhatsApp">
     <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l1.3-4.1A8 8 0 1 1 9 18.6z"/><path d="M9.2 10.3c0 3 2.4 5.4 5.4 5.4"/></svg>
   </a>
@@ -381,7 +381,10 @@ function renderEvents(lang) {
       const title = escapeText(ev.title);
       const description = escapeText(ev.description);
       const locationName = escapeText(ev.locationName);
-      const registerUrl = safeHttpsUrl(ev.registerUrl, document.querySelector('#navBookBtn').href);
+      const directHike = String(ev.id || '') === 'PUB-HIKE-20261101';
+      const registerUrl = directHike
+        ? '../register/' + (lang === 'cs' ? '' : lang + '/') + '?event=PUB-HIKE-20261101&lang=' + encodeURIComponent(lang) + '&src=calendar'
+        : safeHttpsUrl(ev.registerUrl, document.querySelector('#navBookBtn').href);
       const tag = (Object.hasOwn(COMMUNITY_TAG, ev.community) ? COMMUNITY_TAG[ev.community] : COMMUNITY_TAG['Shared'])[lang];
       const dateStr = formatEventDate(ev.startISO, lang);
       const priceBlock = ev.category === 'Board Games'
