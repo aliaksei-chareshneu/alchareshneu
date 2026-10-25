@@ -46,7 +46,7 @@ test('no buyer or opportunity values echoed by default',()=>{
 });
 
 test('economics are labeled scenarios, not revenue',()=>{
- const x=economics({economics:{quoted_czk:14900,external_cost_czk:2900,founder_hours:8,
+ const x=economics({...qualified,economics:{quoted_czk:14900,external_cost_czk:2900,founder_hours:8,
   probability:0.4,probability_source:'Reviewed qualification evidence',expected_payment_days:21}});
  assert.equal(x.net_per_founder_hour_scenario_czk,1500);
  assert.equal(x.weighted30_scenario_czk,5960);
@@ -56,7 +56,15 @@ test('missing basis or payment beyond thirty days has no weighted scenario',()=>
  const a=economics({economics:{quoted_czk:14900,external_cost_czk:0,founder_hours:5,
    probability:0.4,expected_payment_days:14}});
  assert.equal(a.weighted30_scenario_czk,null);
- const b=economics({economics:{quoted_czk:14900,external_cost_czk:0,founder_hours:5,
+ const b=economics({...qualified,economics:{quoted_czk:14900,external_cost_czk:0,founder_hours:5,
    probability:0.4,probability_source:'Buyer message',expected_payment_days:31}});
  assert.equal(b.weighted30_scenario_czk,null);
+});
+
+test('unqualified leads never get weighted thirty-day scenarios',()=>{
+ const scenario=economics({entity:'OSVC',economics:{
+   quoted_czk:14900,external_cost_czk:0,founder_hours:5,probability:0.5,
+   probability_source:'Synthetic assumption',expected_payment_days:12
+ }});
+ assert.equal(scenario.weighted30_scenario_czk,null);
 });
