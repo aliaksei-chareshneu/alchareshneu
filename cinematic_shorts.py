@@ -54,8 +54,7 @@ def overlay_png(out,shot,variant):
     accent=(251,202,117,255) if variant=="documentary" else (96,239,204,255)
     d.rounded_rectangle((60,120,1020,207),radius=16,fill=(4,12,20,187))
     d.text((84,135),"BATTLE MYTHS LAB  /  HISTORY",font=ImageFont.truetype(file,36),fill=accent)
-    d.rounded_rectangle((58,260,1020,620),radius=30,fill=(4,12,20,126))
-    f=ImageFont.truetype(file,84); lines=[]; current=""
+    f=ImageFont.truetype(file,68); lines=[]; current=""
     for word in shot["headline"].split():
         t=(current+" "+word).strip()
         if d.textbbox((0,0),t,font=f)[2]<880: current=t
@@ -64,9 +63,11 @@ def overlay_png(out,shot,variant):
             current=word
     if current: lines.append(current)
     if len(lines)>3: raise ValueError("Too many headline lines")
-    y=310
+    boxheight=32+len(lines)*89
+    d.rounded_rectangle((58,264,1020,264+boxheight),radius=15,fill=(4,12,20,108))
+    y=285
     for line in lines:
-        d.text((91,y),line,font=f,fill="white",stroke_width=2,stroke_fill=(0,0,0,255)); y+=107
+        d.text((91,y),line,font=f,fill="white",stroke_width=2,stroke_fill=(0,0,0,255)); y+=89
     label=ImageFont.truetype(file,27)
     d.rounded_rectangle((60,1643,1020,1714),radius=15,fill=(2,8,16,191))
     d.text((78,1660),"ILLUSTRATIVE RECONSTRUCTION",font=label,fill=(235,240,243))
@@ -147,7 +148,7 @@ def render(cfg,media,voice,subtitles,outdir):
             final=outdir/f"roman_motion_{variant}_DRAFT.mp4"
             subs_posix=subs.resolve().as_posix().replace(":","\\:").replace("'","\\'")
             vf=("subtitles='"+subs_posix+"':force_style="
-                "'FontName=DejaVu Sans,FontSize=19,Bold=1,Outline=2,Shadow=1,Alignment=2,MarginV=50'")
+                "'FontName=DejaVu Sans,FontSize=16,Bold=1,Outline=2,Shadow=1,Alignment=2,MarginV=64'")
             cmd([FFMPEG,"-hide_banner","-loglevel","error","-nostdin","-y",
                  "-i",str(mute),"-vf",vf,"-c:v","libx264","-preset","veryfast",
                  "-crf","24","-c:a","copy","-pix_fmt","yuv420p",
