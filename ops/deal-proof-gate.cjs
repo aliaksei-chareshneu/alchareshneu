@@ -31,4 +31,41 @@ function report(input) {
     no_data_sent:true
   };
 }
-module.exports={report};
+
+function economics(input) {
+  const e=input && input.economics;
+  const valid = e && Number.isFinite(e.quoted_czk) && e.quoted_czk > 0 &&
+    Number.isFinite(e.external_cost_czk) && e.external_cost_czk >= 0 &&
+    Number.isFinite(e.founder_hours) && e.founder_hours > 0 &&
+    e.founder_hours <= 10000;
+  if(!valid) return {net_per_founder_hour_scenario_czk:null,weighted30_scenario_czk:null};
+  const net=Math.round((e.quoted_czk-e.external_cost_czk)/e.founder_hours*100)/100;
+  const weighted = e.probability_source && typeof e.probability === 'number' &&
+    e.probability >= 0 && e.probability <= 1 &&
+    Number.isInteger(e.expected_payment_days) && e.expected_payment_days >= 0 &&
+    e.expected_payment_days <= 30
+      ? Math.round(e.quoted_czk*e.probability*100)/100 : null;
+  return {net_per_founder_hour_scenario_czk:net,weighted30_scenario_czk:weighted};
+}
+function main(args=process.argv.slice(2)) {
+  if(args.length===0) {
+    process.stdout.write('Usage: node ops/deal-proof-gate.cjs --stdin (reads one JSON record from stdin)\\n');
+    return 0;
+  }
+  if(args.length!==1 || args[0]!=='--stdin') return 2;
+  try {
+    const fs=require('node:fs');
+    const data=fs.readFileSync(0,'utf8');
+    if(data.length>16000) return 2;
+    const input=JSON.parse(data);
+    const output={...report(input),...economics(input)};
+    process.stdout.write(JSON.stringify(output,null,2)+'\\n');
+    return 0;
+  }catch (_) {
+    process.stderr.write('INVALID_INPUT; no private values echoed\\n');
+    return 2;
+  }
+}
+if(require.main===module) process.exitCode=main();
+module.exports={report,economics,main};
+
