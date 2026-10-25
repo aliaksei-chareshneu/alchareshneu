@@ -31,6 +31,18 @@ jobs:
         run: |
           python -m pip install --disable-pip-version-check 'kokoro-onnx>=0.5,<0.7' 'soundfile>=0.12,<0.14' 'Pillow>=10,<13'
           ffmpeg -version | head -n 1
+      - name: Install static FFmpeg and ffprobe for narrated video mux
+        run: |
+          curl --fail --location --retry 3 --silent --show-error \
+            'https://github.com/BtbN/FFmpeg-Builds/releases/latest/download/ffmpeg-master-latest-linux64-gpl.tar.xz' -o ffmpeg-static.tar.xz
+          mkdir -p "$HOME/.local/bin"
+          tar -xJf ffmpeg-static.tar.xz --strip-components=2 -C "$HOME/.local/bin" \
+            --wildcards '*/bin/ffmpeg' '*/bin/ffprobe'
+          chmod +x "$HOME/.local/bin/ffmpeg" "$HOME/.local/bin/ffprobe"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          "$HOME/.local/bin/ffmpeg" -version | head -n 1
+          "$HOME/.local/bin/ffprobe" -version | head -n 1
+
       - name: Verify original script and syntax without network
         run: |
           python -m py_compile shortfactory_voice_kokoro.py original_reel_builder.py
