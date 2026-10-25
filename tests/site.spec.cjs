@@ -21,7 +21,12 @@ for(const path of pages)for(const language of languages)for(const width of width
   });expect(bad.duplicates).toEqual([]);expect(bad.broken).toEqual([]);
   if(path==='druzina/') {
    await expect(page.locator('.dm-hero-essentials .dm-hero-key')).toHaveCount(4);
+   await expect(page.locator('.dm-v2-facts')).not.toHaveAttribute('open','');
+   await expect(page.locator('.dm-hero-essentials')).toBeHidden();
+   await page.locator('.dm-v2-facts > summary').click();
    await expect(page.locator('.dm-hero-essentials')).toBeVisible();
+   await page.locator('.dm-v2-facts > summary').click();
+   await expect(page.locator('.dm-v2-facts')).not.toHaveAttribute('open','');
    await expect(page.locator('#visit-details')).not.toHaveAttribute('open', '');
    await expect(page.locator('#registration-notice')).toBeHidden();
    await page.locator('#visit-details > summary').click();
@@ -29,8 +34,8 @@ for(const path of pages)for(const language of languages)for(const width of width
    await expect(page.locator('#registration-notice [data-notice-lang="'+language+'"]')).toBeVisible();
    await expect(page.locator('#tariff')).toBeHidden();
    await expect(page.locator('#druzina-payment')).toBeHidden();
-   await expect(page.locator('#navBookBtn')).toHaveAttribute('href', `./start/?lang=${language}`);
-    await expect(page.locator('.dm-hero-register')).toHaveAttribute('href', `./start/?lang=${language}`);
+   await expect(page.locator('#navBookBtn')).toHaveAttribute('href', `prihlaska/?lang=${language}`);
+   await expect(page.locator('.dm-hero-register')).toHaveAttribute('href', `prihlaska/?lang=${language}`);
    const message=await page.locator('#registration-notice [data-notice-lang="'+language+'"]').innerText();
    expect(message.length).toBeGreaterThan(80);
    await page.locator('#visit-details > summary').click();
