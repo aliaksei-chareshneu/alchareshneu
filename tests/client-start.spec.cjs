@@ -30,7 +30,7 @@ test('client start language chooser and accessible controls', async ({ page }) =
   await expect(page.locator('html')).toHaveAttribute('lang', 'ru');
   await expect(page.locator('[data-lang="ru"]')).toHaveAttribute('aria-current', 'page');
   await expect(page.locator('.locale:visible .card')).toHaveCount(4);
-  await expect(page.locator('footer a')).toHaveAttribute('href', '../');
+  await expect(page.locator('.locale:visible footer a')).toHaveAttribute('href', '../');
 });
 
 test('home hero and sticky customer path keep active language', async ({ page }) => {
