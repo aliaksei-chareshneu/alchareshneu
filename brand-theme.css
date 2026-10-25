@@ -502,3 +502,18 @@ body[data-imperion-scope="ranks"].dm-ux-ranks .langs button{
 body[data-imperion-scope="ranks"].dm-ux-ranks .langs button[aria-pressed=true]{
  background:#e6bf80;color:#101b2d;border-color:#e6bf80
 }
+
+
+/* One-click direct HEMA conversion from the site-wide service chooser.
+   Preserve the main Druzina card as a separate informational path. */
+.dm-root-fast-entry{display:flex;margin:0 0 10px;min-width:0}
+.dm-root-fast-entry>a{display:none;flex:1;align-items:center;justify-content:center;
+ min-height:52px;padding:12px 17px;border-radius:12px;
+ background:#e6bf80;color:#101b2d!important;font-weight:900;
+ text-decoration:none;line-height:1.3;text-align:center;
+ border:1px solid #e6bf80;box-shadow:0 3px 0 #7f6240}
+.dm-root-fast-entry>a:hover{background:#f5d6a1;color:#101b2d!important}
+html[lang="cs"] .dm-root-fast-entry>[data-quick-lang="cs"],
+html[lang="en"] .dm-root-fast-entry>[data-quick-lang="en"],
+html[lang="ru"] .dm-root-fast-entry>[data-quick-lang="ru"],
+html[lang="uk"] .dm-root-fast-entry>[data-quick-lang="uk"]{display:flex}
