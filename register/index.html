@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,follow">
+<meta name="referrer" content="no-referrer">
+<title>Register for an event | BrnoWalkers · Družina Moravy</title>
+<meta name="description" content="Fast registration for verified community hikes and events in Brno.">
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}
+body{min-height:100vh;display:grid;place-items:center;margin:0;background:radial-gradient(circle at 25% 15%,#255c4a,transparent 50%),#0c1720;color:#f3f9f6;font:16px/1.5 system-ui,sans-serif;padding:24px}
+.card{max-width:550px;padding:clamp(24px,6vw,50px);border-radius:24px;border:1px solid #3c6560;background:#152833;box-shadow:0 22px 75px #020a0f85}
+small{color:#c6d8d1;letter-spacing:.14em;font-weight:800}
+h1{font-size:clamp(32px,6vw,49px);line-height:1.08;letter-spacing:-.035em}
+p{color:#cededc;line-height:1.65}a{color:#c0f3d7}
+.cta{display:block;padding:15px 20px;background:#bcebd7;color:#0b2f22;text-decoration:none;border-radius:12px;font-weight:800;text-align:center;margin-top:25px}
+.cta:focus-visible{outline:3px solid #eecb86;outline-offset:3px}
+</style>
+</head>
+<body>
+<main class="card"><small>BRNO · COMMUNITY EVENTS</small>
+<h1>You're one click away from joining.</h1>
+<p id="message">Opening our short, secure event registration form…</p>
+<a id="open" class="cta" href="#" rel="noreferrer">Open registration →</a>
+<p><small style="letter-spacing:0;font-weight:400">Name, email, phone, RSVP and separate safety, photo and updates preferences. No Google account needed.</small></p>
+<p><a href="./privacy/">Privacy</a> · <a href="./safety/">Safety</a> · <a href="../">Back to site</a></p>
+</main>
+<script>
+(function(){
+'use strict';
+var ENDPOINT='https://script.google.com/macros/s/AKfycbzKdIEwIF4gH9Cku3IQPC8uTrvR1CtHjMAOIzexrR3Mz9nDSLQ1znfT8Y2SS873jCtsLg/exec';
+var params=new URLSearchParams(location.search);
+var url=new URL(ENDPOINT);
+url.searchParams.set('view','register');
+var eventId=params.get('event')||'';
+if(/^[A-Za-z0-9-]{2,100}$/.test(eventId))url.searchParams.set('event',eventId);
+var lang=params.get('lang')||'en';
+if(/^(en|cs|ru|uk)$/.test(lang))url.searchParams.set('lang',lang);
+document.getElementById('open').href=url.toString();
+if(params.get('preview')!=='1')window.location.replace(url.toString());
+else document.getElementById('message').textContent='Preview of the registration gateway; the form itself requires an approved Apps Script deployment.';
+})();
+</script>
+</body>
+</html>
