@@ -54,13 +54,26 @@ function druaPrivateView(auth,source) {
   (Array.isArray(source.sessions)?source.sessions:[]).forEach(function(r){
     if(r && r.Session_ID) sessions[String(r.Session_ID)]=r;
   });
+  var validPaymentById={};
+  own(source.payments).forEach(function(p){
+    if(String(p.Verification_Status)==='VERIFIED'&&!!p.Verified_At&&
+      druaSafeInt(p.Expected_Amount_CZK)>0&&
+      druaSafeInt(p.Received_Amount_CZK)===druaSafeInt(p.Expected_Amount_CZK))
+      validPaymentById[String(p.Payment_ID)]=true;
+  });
+  var gateBySession={};
+  (Array.isArray(source.capacityGates)?source.capacityGates:[]).forEach(function(g){
+    if(g&&g.Session_ID)gateBySession[String(g.Session_ID)]=g;
+  });
   var bookings=own(source.bookings).map(function(r){
     var s=sessions[String(r.Session_ID)]||{};
     var time=String(s.Start_DateTime||s.Starts_At||'');
     return {bookingId:druaText(r.Booking_ID,120),sessionId:druaText(r.Session_ID,120),
       starts:time&&/^\d{4}-\d{2}-\d{2}/.test(time)?druaText(time,40):'UNCONFIRMED',
       status:druaText(r.Status,60),attendance:druaText(r.Attendance_Status,40),
-      appliedPriceCZK:druaSafeInt(r.Applied_Price_CZK)};
+      appliedPriceCZK:druaSafeInt(r.Applied_Price_CZK),
+      googleCalendarUrl:String(r.Status)==='VERIFIED'&&validPaymentById[String(r.Payment_ID)]?
+        druaGoogleCalendarLink_(s,gateBySession[String(r.Session_ID)]):null};
   }).slice(0,30);
   var checkpoints={};
   (Array.isArray(source.checkpoints)?source.checkpoints:[]).forEach(function(r){
@@ -95,4 +108,31 @@ function druaPrivateView(auth,source) {
     paymentProofIsNotSettlement:true
   };
   return {ok:true,viewVersion:DRUA_VIEW_VERSION,account:profile};
+}
+
+/* A member-initiated Google Calendar add-link. NEVER created for a
+ * provisional booking, missing per-date venue approval, old fixed venues,
+ * unverified bank payment, cancelled session or another member's booking.
+ * No attendee email or internal CRM ID is included in the URL. */
+function druaGoogleCalendarLink_(session,gate) {
+  if(!session||String(session.Status)!=='OPEN'||!gate||
+      String(gate.Slot_State)!=='CONFIRMED'||String(gate.Publish_Confirmed_Only)!=='YES')
+    return null;
+  var flags=['Venue_Permission_Verified','Instructor_Verified',
+    'Activity_Insurance_Verified','Equipment_Check','Participant_Safety_Form_Valid'];
+  if(!flags.every(function(k){return String(gate[k]).toUpperCase()==='VERIFIED';}))
+    return null;
+  var location=druaText(session.Location,160);
+  if(!location||/Dukelsk[aá].*157\/44/i.test(location))return null;
+  var start=new Date(session.Start_DateTime),end=new Date(session.End_DateTime);
+  if(!isFinite(start.getTime())||!isFinite(end.getTime())||end<=start)return null;
+  var stamp=function(d){return d.toISOString().replace(/[-:]/g,'').replace(/\.\d{3}Z$/,'Z');};
+  var title=druaText(session.Theme,70)||'Družina Moravy — confirmed session';
+  var param=function(k,v){return k+'='+encodeURIComponent(v);};
+  return 'https://calendar.google.com/calendar/render?'+[
+    param('action','TEMPLATE'),param('text',title),
+    param('dates',stamp(start)+'/'+stamp(end)),param('ctz','Europe/Prague'),
+    param('location',location),
+    param('details','Confirmed paid participant booking. Check current safety instructions before travel.')
+  ].join('&');
 }
