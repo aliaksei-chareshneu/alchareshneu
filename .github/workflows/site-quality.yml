@@ -2,6 +2,7 @@ name: Site quality
 
 on:
   push:
+    branches: [main, growth-experience]
   pull_request:
 
 permissions:
