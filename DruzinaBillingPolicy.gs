@@ -180,3 +180,30 @@ function drubMatchBankTransfer(movement,expected,usedTransactionIds) {
     amountCZK:movement.amountCZK,currency:'CZK',
     policyVersion:DRUB_POLICY_VERSION};
 }
+
+/* Projected Senior price eligibility for target month M. This does not
+ * modify Member.Tier: only the real attendance ledger may approve it.
+ * FOUR distinct instructor-verified ATTENDED sessions in month M-1.
+ * A club-cancellation retention exception requires an explicit owner
+ * approved audit record; it is never fabricated by this function.
+ */
+function drubSeniorEligibility(sessionStartsAt, attendanceRecords) {
+  var start=drubTime(sessionStartsAt);
+  if (!isFinite(start)||!Array.isArray(attendanceRecords)) return drubFail('INVALID_EVIDENCE');
+  var parts=drubPragueParts(start),y=Number(parts.year),m=Number(parts.month);
+  var prevY=m===1?y-1:y,prevM=m===1?12:m-1;
+  var prev=String(prevY)+'-'+String(prevM).padStart(2,'0');
+  var counted={},count=0;
+  attendanceRecords.forEach(function(r){
+    if (!r||r.verified!==true||r.instructorVerified!==true
+        ||r.status!=='ATTENDED'||typeof r.sessionId!=='string'
+        ||!/^[A-Za-z0-9_-]{3,120}$/.test(r.sessionId)) return;
+    var t=drubTime(r.attendedAt);
+    if (!isFinite(t)||t>=start||drubPolicyDate(t).slice(0,7)!==prev
+        ||counted[r.sessionId]) return;
+    counted[r.sessionId]=true; count++;
+  });
+  return {ok:true,seniorEligible:count>=4,verifiedVisitsPreviousMonth:count,
+    previousMonth:prev,pricingMonth:drubPolicyDate(start).slice(0,7),
+    effectiveNextMonthOnly:true,policyVersion:DRUB_POLICY_VERSION};
+}
