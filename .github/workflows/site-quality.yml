@@ -30,6 +30,9 @@ jobs:
           test -f register/index.html
           test -f register/privacy/index.html
           test -f register/safety/index.html
+          test -f register/en/index.html
+          test -f register/ru/index.html
+          test -f register/uk/index.html
           test -f supabase/functions/imperion-register/index.ts
 
       - name: Reject stale production placeholders
@@ -88,7 +91,7 @@ jobs:
         run: |
           node <<'NODE'
           const fs = require('fs');
-          const files = ['index.html','academy/index.html','calendar/index.html','druzina/index.html','walkers/index.html','corporate/index.html','corporate/technical-answers/index.html','start/index.html','register/index.html'];
+          const files = ['index.html','academy/index.html','calendar/index.html','druzina/index.html','walkers/index.html','corporate/index.html','corporate/technical-answers/index.html','start/index.html','register/index.html','register/en/index.html','register/ru/index.html','register/uk/index.html'];
           let failed = false;
           for (const file of files) {
             const html = fs.readFileSync(file, 'utf8');

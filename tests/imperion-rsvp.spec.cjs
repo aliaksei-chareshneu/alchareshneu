@@ -20,6 +20,7 @@ test('public registration sends one private request with independent consents',a
   await page.locator('#safety').check();
   await page.locator('#submit').click();
   await expect(page.locator('#result')).toContainText('Přihláška byla přijata');
+  await expect(page.locator('#result')).toBeFocused();
   expect(submitted).toMatchObject({eventId:'PUB-HIKE-20261101',email:'synthetic-rsvp@example.test',safety:true,photo:'NO',futureUpdates:false,language:'cs'});
   expect(page.url()).not.toContain('synthetic-rsvp');
 });
@@ -39,4 +40,65 @@ test('registration backend outage gives direct organiser contact without collect
  await expect(page.locator('#fallback')).toBeVisible();
  await expect(page.locator('#rsvpForm')).toBeHidden();
  await expect(page.locator('#contactLink')).toHaveAttribute('href',/^https:\/\/wa\.me\//);
+});
+
+
+const variants=[
+ {lang:'cs',path:'/register/',title:'Registrace na akce v Brně'},
+ {lang:'en',path:'/register/en/',title:'Register for Brno hikes'},
+ {lang:'ru',path:'/register/ru/',title:'Регистрация на походы'},
+ {lang:'uk',path:'/register/uk/',title:'Реєстрація на походи'},
+];
+for(const v of variants){
+ test('locale '+v.lang+' has crawlable title, canonical, same-page form and privacy link',async({page})=>{
+  await page.route(url,route=>route.fulfill({status:200,contentType:'application/json',headers:cors(),body:JSON.stringify({events:[example]})}));
+  await page.goto(v.path+'?event=PUB-HIKE-20261101');
+  await expect(page).toHaveTitle(new RegExp(v.title));
+  await expect(page.locator('html')).toHaveAttribute('lang',v.lang);
+  await expect(page.locator('link[rel=canonical]')).toHaveAttribute('href',new RegExp('/register/'+(v.lang==='cs'?'':v.lang+'/')+'$'));
+  await expect(page.locator('#rsvpForm')).toBeVisible();
+  await expect(page.locator('#eventId')).toHaveValue('PUB-HIKE-20261101');
+  await expect(page.locator('a[data-i18n=privacyLink]')).toHaveAttribute('href',v.lang==='cs'?'./privacy/':'../privacy/');
+  await expect(page.locator('#rulesLink')).toHaveAttribute('href',new RegExp('/register/safety/$'));
+ });
+}
+test('language switch keeps typed data and toggles legal descriptions',async({page})=>{
+ await page.route(url,route=>route.fulfill({status:200,contentType:'application/json',headers:cors(),body:JSON.stringify({events:[example]})}));
+ await page.goto('/register/en/');
+ await expect(page.locator('#rsvpForm')).toBeVisible();
+ await page.locator('#firstName').fill('Anna');
+ await page.locator('#email').fill('anna@example.test');
+ await page.locator('button[data-lang=ru]').click();
+ await expect(page.locator('html')).toHaveAttribute('lang','ru');
+ await expect(page.locator('#firstName')).toHaveValue('Anna');
+ await expect(page.locator('#email')).toHaveValue('anna@example.test');
+ await expect(page.locator('button[data-lang=ru]')).toHaveAttribute('aria-pressed','true');
+});
+test('mobile registration remains readable without horizontal overflow',async({page})=>{
+ await page.setViewportSize({width:375,height:667});
+ await page.route(url,route=>route.fulfill({status:200,contentType:'application/json',headers:cors(),body:JSON.stringify({events:[example]})}));
+ await page.goto('/register/ru/');
+ await expect(page.locator('#rsvpForm')).toBeVisible();
+ await expect(page.locator('.mobile-jump')).toBeVisible();
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+1)).toBeTruthy();
+ await page.locator('.mobile-jump').click();
+ await expect.poll(()=>page.evaluate(()=>location.hash)).toBe('#form');
+});
+test('single open event is selected automatically without extra tap',async({page})=>{
+ await page.route(url,route=>route.fulfill({status:200,contentType:'application/json',headers:cors(),body:JSON.stringify({events:[example]})}));
+ await page.goto('/register/en/');
+ await expect(page.locator('#rsvpForm')).toBeVisible();
+ await expect(page.locator('#eventId')).toHaveValue('PUB-HIKE-20261101');
+ await expect(page.locator('#eventInfo')).toContainText('Hády');
+});
+test('failed event fetch can be retried successfully',async({page})=>{
+ let gets=0;
+ await page.route(url,route=>{gets++;return route.fulfill({status:gets===1?503:200,contentType:'application/json',headers:cors(),body:gets===1?JSON.stringify({error:'down'}):JSON.stringify({events:[example]})});});
+ await page.goto('/register/en/');
+ await expect(page.locator('#fallback')).toBeVisible();
+ await expect(page.locator('#retry')).toBeVisible();
+ await page.locator('#retry').click();
+ await expect(page.locator('#rsvpForm')).toBeVisible();
+ await expect(page.locator('#fallback')).toBeHidden();
+ expect(gets).toBe(2);
 });
