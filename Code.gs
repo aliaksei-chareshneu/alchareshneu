@@ -31,7 +31,7 @@ var EVENTS_SHEET_NAME        = 'Events';
 var REGISTRATIONS_SHEET_NAME = 'Registrations';
 var SPREADSHEET_ID           = '1igxEHQ7wFFCoCA9lg4kzT2OoMrVLgbBogfqTxGeUftY'; // из URL таблицы
 
-var SITE_EVENTS_LIMIT         = 6; // сколько ближайших событий отдавать на сайт
+var SITE_EVENTS_LIMIT         = 80; // сколько ближайших событий отдавать на сайт
 var SITE_EVENTS_CACHE_SECONDS = 300; // кэш ответа doGet, чтобы не дёргать Sheets на каждого посетителя сайта
 
 // ====================== МЕНЮ ======================
@@ -508,8 +508,8 @@ function doGet(e) {
           description: row[headerMap['Description'] - 1] || '',
           startISO: startDate.toISOString(),
           locationName: row[headerMap['Location_Name'] - 1] || '',
-          priceCzk: row[headerMap['Price_CZK'] - 1] || 0,
-          isFree: Number(row[headerMap['Price_CZK'] - 1] || 0) === 0,
+          priceCzk: row[headerMap['Price_CZK'] - 1] === '' ? null : Number(row[headerMap['Price_CZK'] - 1]),
+          isFree: row[headerMap['Price_CZK'] - 1] !== '' && Number(row[headerMap['Price_CZK'] - 1]) === 0,
           registerUrl: registerUrl,
           imageOverride: headerMap['Image_Filename'] ? (row[headerMap['Image_Filename'] - 1] || '') : ''
         });
