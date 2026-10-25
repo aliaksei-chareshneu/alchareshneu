@@ -181,3 +181,91 @@ function drufUniqueVSForQuote_(){
   var p=rows_(SHEETS.PAYMENTS).map(function(x){return x.Payment_Reference;});
   return drufNumericVS(q.concat(p));
 }
+
+/* Czech QR payment string: no third-party QR API is called. Only server
+ * provided and independently verified merchant IBAN/quote may enter this.
+ * The frontend can render the SPD locally with an offline QR encoder.
+ */
+function drufCzIbanValid(value){
+  var iban=String(value||'').replace(/\s+/g,'').toUpperCase();
+  if(!/^CZ\d{22}$/.test(iban))return false;
+  var shifted=iban.slice(4)+iban.slice(0,4).replace(/[A-Z]/g,function(c){
+    return String(c.charCodeAt(0)-55);
+  });
+  var mod=0;
+  for(var i=0;i<shifted.length;i++){
+    var ch=shifted.charAt(i),n=Number(ch);
+    if(!Number.isInteger(n))return false;
+    mod=(mod*10+n)%97;
+  }
+  return mod===1;
+}
+function drufBankInstructions(quote,merchant){
+  if(!quote||!merchant||merchant.verifiedLegalPayee!==true||
+      merchant.verifiedReadOnlyBankAccount!==true||
+      merchant.paidBookingLiveApproved!==true)
+    return {ok:false,code:'PAYMENT_BENEFICIARY_OR_LAUNCH_UNVERIFIED'};
+  var vs=drufVS(quote.Payment_Reference),iban=String(merchant.iban||'').replace(/\s+/g,'').toUpperCase();
+  var amountHal=drufMoneyHalers(quote.Expected_Amount_CZK);
+  if(!drufCzIbanValid(iban)||!vs||!amountHal||amountHal<=0||
+      !Number.isInteger(amountHal)||amountHal>100000000)
+    return {ok:false,code:'INVALID_BANK_INSTRUCTIONS'};
+  if(String(quote.Status)!=='OPEN'||!quote.Expires_At||
+      new Date(quote.Expires_At).getTime()<=Date.now())
+    return {ok:false,code:'QUOTE_EXPIRED_OR_NOT_OPEN'};
+  var amount=(amountHal/100).toFixed(2);
+  return {ok:true,bankIban:iban,amountCZK:amountHal/100,
+    variableSymbol:vs,expiresAt:String(quote.Expires_At),
+    spd:'SPD*1.0*ACC:'+iban+'*AM:'+amount+'*CC:CZK*X-VS:'+vs,
+    status:'PENDING_BANK_SETTLEMENT_NOT_PAID',confirmedBooking:false};
+}
+/* Upgrade adapter. Must be called ONLY by the existing authenticated portal
+ * server code after its p10 OTP checks; underscore prevents google.script.run
+ * public direct invocation. Never call legacy createQuote() directly from
+ * public checkout UI after upgrading its payment reference format.
+ */
+function drufCreateQuoteWithVS_(payload){
+  var p=PropertiesService.getScriptProperties();
+  var cfg=configMap_(),flags={
+    DRU_FIO_READONLY_CONFIRMED:p.getProperty('DRU_FIO_READONLY_CONFIRMED'),
+    DRU_FIO_SETTLEMENT_SELLER_CONFIRMED:p.getProperty('DRU_FIO_SETTLEMENT_SELLER_CONFIRMED'),
+    DRU_PAID_BOOKING_APPROVED:p.getProperty('DRU_PAID_BOOKING_APPROVED'),
+    DRU_LEGAL_SELLER_CONFIRMED:p.getProperty('DRU_LEGAL_SELLER_CONFIRMED')
+  };
+  var items=(payload&&Array.isArray(payload.items))?payload.items:[];
+  var ids=[];
+  items.forEach(function(it){
+    if(it.sessionId)ids.push(String(it.sessionId));
+    if(Array.isArray(it.sessionIds))ids=ids.concat(it.sessionIds.map(String));
+  });
+  if(!ids.length)throw Error('No verified session dates');
+  var gateRows=rows_('Druzina_Training_Capacity_Gate'),gates=ids.map(function(id){
+    return gateRows.filter(function(r){return String(r.Session_ID)===id;})[0];
+  });
+  var release=drufCanLaunch(cfg,flags,gates);
+  if(!release.ok)throw Error('Paid bookings are not yet enabled: '+release.code);
+  if(!drufCzIbanValid(p.getProperty('DRU_FIO_IBAN')))
+    throw Error('Verified Fio IBAN is not configured');
+  // createQuote() is the existing p10 authenticated, locked, price-resolving
+  // function. This adapter does not bypass its identity/price/capacity gates.
+  var result=createQuote(payload);
+  return withLock_(function(){
+    var q=quoteById_(result.quoteId);
+    if(!q||String(q.Status)!=='OPEN')throw Error('Quote unavailable');
+    if(!drufVS(q.Payment_Reference)){
+      var numeric=drufUniqueVSForQuote_();
+      patchRow_(SHEETS.QUOTES,q._row,{Payment_Reference:numeric});
+      q.Payment_Reference=numeric;
+    }
+    var payment=drufBankInstructions(q,{
+      iban:p.getProperty('DRU_FIO_IBAN'),verifiedLegalPayee:true,
+      verifiedReadOnlyBankAccount:true,paidBookingLiveApproved:true
+    });
+    if(!payment.ok)throw Error('Payment instructions not available');
+    result.paymentReference=q.Payment_Reference;
+    result.paymentUrl=''; // legacy generic Revolut link is not the verified payee.
+    result.bankTransfer=payment;
+    result.confirmedBooking=false;
+    return result;
+  });
+}
