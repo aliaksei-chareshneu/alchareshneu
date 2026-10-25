@@ -2,6 +2,7 @@ name: Site quality
 
 on:
   push:
+    branches: [main, growth-experience]
   pull_request:
 
 permissions:
@@ -82,6 +83,21 @@ jobs:
 
       - name: Verify fair three-week Druzina training rotation
         run: python3 -m unittest discover -s tests -p 'test_druzina_rotation.py' -v
+
+      - name: Verify Druzina 48h payment policy and read-only Fio match
+        run: node --test tests/druzina-payment-policy.test.cjs
+
+      - name: Verify Fio JSON intake, numeric VS and merchant safety gates
+        run: node --test tests/druzina-fio-bridge.test.cjs
+
+      - name: Verify Fio settled credit creates one safe booking
+        run: node --test tests/druzina-fio-commit.test.cjs
+
+      - name: Verify delayed Fio settlement of already-submitted proof without duplicate booking
+        run: node --test tests/druzina-fio-proof-reconcile.test.cjs
+
+      - name: Verify private Druzina OTP account projection
+        run: node --test tests/druzina-member-account.test.cjs
 
       - name: Check public RSVP frontend, consent and server contract
         run: node tests/imperion-rsvp-source.test.cjs
