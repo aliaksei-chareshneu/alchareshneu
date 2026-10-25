@@ -159,7 +159,7 @@ function showEvent(){
  info.replaceChildren();$('rsvpDetails').hidden=mode!=='FORM';$('submit').disabled=mode!=='FORM';
  if(!e){info.hidden=true;return}info.hidden=false;
  const top=document.createElement('p');const strong=document.createElement('strong');strong.textContent=e.title;top.append(strong);info.append(top);
- const meta=document.createElement('p');meta.textContent=eventDate(e)+' · '+e.venue+' · '+(Number(e.price_czk)===0?t('free'):Number(e.price_czk)+' Kč');info.append(meta);
+ const meta=document.createElement('p');meta.textContent=eventDate(e)+' · '+e.venue+' · '+(e.price_verified===false?t('payment'):Number(e.price_czk)===0?t('free'):Number(e.price_czk)+' Kč');info.append(meta);
  const status=document.createElement('p');status.className='event-state';status.textContent=statusLabel(e);info.append(status);
  const note=document.createElement('p');note.textContent=mode==='FORM'?t('unconfirmed'):(lang==='ru'&&e.public_note?e.public_note:ct(mode==='CONTACT'?'manualNote':'planNote'));info.append(note);
  if(mode==='FORM'){const owner=document.createElement('p');owner.className='owner-line';owner.textContent=t('controller')+' '+e.data_controller;info.append(owner)}
