@@ -6,20 +6,20 @@
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://script.google.com https://script.googleusercontent.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https:; media-src 'self'; frame-src https://www.youtube.com https://calendar.google.com; object-src 'none'; base-uri 'self'; form-action 'self' https://docs.google.com; upgrade-insecure-requests">
 <title>Družina Moravy — HEMA Fencing &amp; LARP Club in Brno</title>
-<meta name="description" content="Historical-fencing and LARP community in Brno. Training enquiries only; exact venue and dates must be confirmed.">
+<meta name="description" content="Historical European martial arts (HEMA) and LARP club in Brno. Training date enquiries only; advance confirmation required. Rank ladder, roles, schedule and how to join Družina Moravy.">
 <link rel="canonical" href="https://aliaksei-chareshneu.github.io/alchareshneu/druzina/">
 
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://aliaksei-chareshneu.github.io/alchareshneu/druzina/">
 <meta property="og:site_name" content="Družina Moravy">
 <meta property="og:title" content="Družina Moravy — HEMA Fencing &amp; LARP Club in Brno">
-<meta property="og:description" content="HEMA and LARP club in Brno. Ask about training; no payment or travel before confirmation.">
+<meta property="og:description" content="Historical European martial arts (HEMA) and LARP club in Brno. Training date enquiries only; advance confirmation required.">
 <meta property="og:image" content="https://aliaksei-chareshneu.github.io/alchareshneu/images/og-cover.jpg">
 <meta property="og:locale" content="en_US">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Družina Moravy — HEMA &amp; LARP Club in Brno">
-<meta name="twitter:description" content="HEMA and LARP in Brno. Individual confirmation required for every session.">
+<meta name="twitter:description" content="Historical European martial arts (HEMA) and LARP club in Brno. Training dates confirmed on request.">
 <meta name="twitter:image" content="https://aliaksei-chareshneu.github.io/alchareshneu/images/og-cover.jpg">
 
 <link rel="icon" type="image/x-icon" href="../favicon.ico">
@@ -27,37 +27,91 @@
 <link rel="manifest" href="../site.webmanifest">
 <meta name="theme-color" content="#16171a">
 
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"Družina Moravy, z. s.","url":"https://aliaksei-chareshneu.github.io/alchareshneu/druzina/","description":"Community historical fencing and LARP activities in Brno; dates confirmed individually."}</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SportsOrganization",
+  "name": "Družina Moravy — HEMA Fencing & LARP Club",
+  "url": "https://aliaksei-chareshneu.github.io/alchareshneu/druzina/",
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Brno",
+    "addressCountry": "CZ"
+  },
+  "sport": "Historical European Martial Arts (HEMA)",
+  "provider": {
+    "@type": "LocalBusiness",
+    "@id": "https://aliaksei-chareshneu.github.io/alchareshneu/#localbusiness",
+    "name": "Aliaksei Chareshneu — Tutoring, BrnoWalkers, Družina Moravy"
+  }
+}
+</script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Spectral:wght=500;600;700&family=Source+Sans+3:wght=400;500;600;700&family=JetBrains+Mono:wght=500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../styles.css">
 
+<link rel="stylesheet" href="../experience.css">
+<link rel="stylesheet" href="../quest-theme.css">
+<script src="../quest-audio.js" defer></script>
+<script src="../experience.js" defer></script>
+
+<style>
+/* Media mentions / editorial vs. directories: standalone Družina page */
+#media{scroll-margin-top:100px;}
+.dm-media-intro{max-width:750px;margin-bottom:24px;}
+.dm-media-feature{background:var(--bg-card);border:1px solid var(--rule);border-left:4px solid var(--r5);border-radius:10px;padding:clamp(18px,3vw,30px);margin:24px 0 32px;}
+.dm-media-meta{display:flex;flex-wrap:wrap;align-items:center;gap:8px 13px;font-family:var(--font-m);font-size:12px;color:var(--ink-faint);margin:0 0 12px;}
+.dm-media-feature h3{font-family:var(--font-d);font-size:clamp(21px,3vw,29px);line-height:1.3;margin:0 0 12px;}
+.dm-media-feature h3 a{color:var(--ink);text-decoration:none;text-underline-offset:4px;}
+.dm-media-feature h3 a:hover,.dm-media-feature h3 a:focus-visible{text-decoration:underline;}
+.dm-media-feature p{max-width:75ch;margin:0 0 14px;}
+.dm-media-sources{display:flex;gap:12px 20px;flex-wrap:wrap;margin-top:14px;}
+.dm-media-sources a{font-weight:600;font-size:14px;text-underline-offset:3px;}
+.dm-media-list{list-style:none;padding:0;margin:16px 0 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:12px;}
+.dm-media-list li{border:1px solid var(--rule);border-radius:9px;padding:16px;background:var(--bg-card);min-width:0;}
+.dm-media-list a{display:inline-block;font-size:16px;font-weight:700;color:var(--ink);text-underline-offset:4px;}
+.dm-media-list span{display:block;margin-top:8px;color:var(--ink-faint);font-size:13px;}
+.dm-media-note{margin-top:16px;font-size:13px;color:var(--ink-faint);max-width:77ch;}
+.dm-media-hero-link{font-size:13px;margin:12px 0 0;}
+.dm-media-hero-link a{text-underline-offset:4px;color:inherit;}
+@media(max-width:480px){.dm-media-feature{padding:17px;}.dm-media-sources{flex-direction:column;gap:10px;}}
+/* B2B is a distinct non-binding corporate enquiry path, not a club-class payment form. */
+#dm-team-experience{padding:30px 0;scroll-margin-top:100px;background:linear-gradient(110deg,#18202b,#222c39);color:#f8f4e9}
+#dm-team-experience .dm-team-card{border:1px solid #7c6c57;border-radius:15px;padding:clamp(20px,4vw,32px);background:rgba(10,13,18,.34)}
+#dm-team-experience [data-dm-offer-lang]{display:none}
+html[lang="cs"] #dm-team-experience [data-dm-offer-lang="cs"],html[lang="en"] #dm-team-experience [data-dm-offer-lang="en"],html[lang="ru"] #dm-team-experience [data-dm-offer-lang="ru"],html[lang="uk"] #dm-team-experience [data-dm-offer-lang="uk"]{display:block}
+#dm-team-experience h2{margin:0 0 10px;font:700 clamp(23px,4vw,34px)/1.2 'Spectral',serif;color:#fff}
+#dm-team-experience p{max-width:780px;line-height:1.65;color:#edf0f2;margin:7px 0 16px}
+#dm-team-experience .dm-team-eyebrow{color:#f6ca7a;font-size:13px;letter-spacing:.08em;text-transform:uppercase;font-weight:700}
+#dm-team-experience .dm-team-terms{color:#d2d9e1;font-size:13px}
+#dm-team-experience a.btn{display:inline-block;margin:0;background:#e6bd7b;border-color:#e6bd7b;color:#17212b}
+#dm-team-experience a:focus-visible{outline:3px solid #f6ca7a;outline-offset:4px}
+@media(max-width:520px){#dm-team-experience a.btn{display:block;text-align:center;width:100%}}
+</style>
+<link rel="stylesheet" href="ux.css">
+<script src="ux.js" defer></script>
+<style>.dm-trust-line{font-weight:730;color:#ffe5b5;max-width:760px;font-size:clamp(15px,1.35vw,18px);margin:.75rem 0 1.15rem}</style>
 </head>
-<body>
+<body class="quest-site dm-ux-home">
+<a class="skip-link" href="#page-content" data-exp="skip">Skip to content</a>
+<audio id="questAudio" loop preload="none"><source src="../media/druzina-quest-ambient.ogg" type="audio/ogg"><source src="../media/druzina-quest-ambient.mp3" type="audio/mpeg"></audio>
 <nav class="nav">
   <div class="wrap">
-    <div class="brand"><a href="../" style="color:var(--ink);text-decoration:none;">Aliaksei Chareshneu, PhD</a><small data-i18n="nav.brand">Družina Moravy</small></div>
+    <div class="brand"><a href="./" style="color:var(--ink);text-decoration:none;">Družina Moravy</a><small>Brno · HEMA &amp; LARP</small></div>
     <div class="nav-actions">
+      <button type="button" class="quest-sound-control" data-quest-audio-toggle aria-label="Play original fantasy ambience" aria-pressed="false" title="Play music">♪</button>
       <div class="langs" id="langSwitch" role="group" aria-label="Language">
         <button data-lang="ru">RU</button>
         <button data-lang="uk">UA</button>
         <button data-lang="cs">CZ</button>
         <button data-lang="en">EN</button>
       </div>
-      <a id="navBookBtn" class="btn solid plausible-event-name=Register-Druzina" data-i18n="nav.bookBtn" href="mailto:chereshnev.biochem@gmail.com?subject=Druzina%20Moravy%20-%20nezavazny%20dotaz" target="_blank" rel="noopener">Register / Book</a>
+      <a id="navBookBtn" class="btn solid plausible-event-name=Register-Druzina" data-i18n="nav.bookBtn" href="start/">Meet the club</a>
     </div>
   </div>
 </nav>
-
-<!-- Provisional 14 November interest notice. Safety/operational GO is not yet confirmed. -->
-<section id="orelhusovice14-provisional" class="wrap" aria-label="Předběžný termín ukázkové lekce" style="margin-top:1rem;margin-bottom:1rem;padding:1rem 1.25rem;border:1px solid #9b8a59;border-radius:12px;background:rgba(145,119,57,.08)">
-  <p style="margin:0 0 .25rem;font-weight:700;letter-spacing:.02em">⚔️ 14. 11. 2026 — PŘEDBĚŽNÝ TERMÍN / PROVISIONAL DATE</p>
-  <h2 style="margin:.15rem 0 .5rem;font-size:1.1rem">Historický šerm pro začátečníky / Beginner HEMA in Brno</h2>
-  <p style="margin:.2rem 0 .6rem">Plánovaná bezplatná úvodní lekce, sobota 12:00–14:30, Orlovna Husovice, Vranovská 93. <strong>Prostor je potvrzen, samotný program a registrace zatím NEJSOU potvrzeny</strong> — čekáme na definitivní zajištění instruktorů, bezpečnosti a kapacity. Nejde o rezervaci místa. / Planned free taster; venue confirmed but session, instructors, safety arrangements and capacity are still pending. No booking is confirmed.</p>
-  <p style="margin:.2rem 0 0"><a class="btn" href="https://t.me/Chareshneu" target="_blank" rel="noopener">Napsat „OREL 14“ / Ask about interest</a></p>
-</section>
 
 <!-- Same 7-item nav as the root page and /walkers/ — see the comment
      there. "Družina Moravy" marked active since that's this page. -->
@@ -71,7 +125,138 @@
   </div>
 </div>
 
-<main>
+<main id="page-content">
+<!-- 26 October 2026: organizer-confirmed training. This banner self-expires on the day. -->
+<style>
+#dm-oct26-banner{display:none;max-width:74rem;margin:1rem auto;padding:1rem 1.25rem;border:2px solid #ba8543;border-radius:12px;background:#f9f0db;color:#30251a}
+#dm-oct26-banner p{margin:.6rem 0;line-height:1.6;max-width:78ch}
+#dm-oct26-banner strong{color:#55320d}
+#dm-oct26-banner a{display:inline-block;margin-top:6px;padding:11px 18px;border-radius:10px;color:#fff;background:#16483c;text-decoration:none;font-weight:800}
+#dm-oct26-banner a:focus-visible{outline:3px solid #16483c;outline-offset:3px}
+#dm-oct26-banner [data-oct26-lang]{display:none}
+html[lang="en"] #dm-oct26-banner [data-oct26-lang="en"],html[lang="cs"] #dm-oct26-banner [data-oct26-lang="cs"],html[lang="ru"] #dm-oct26-banner [data-oct26-lang="ru"],html[lang="uk"] #dm-oct26-banner [data-oct26-lang="uk"]{display:block}
+</style>
+<aside id="dm-oct26-banner" role="region" aria-label="Confirmed 26 October training; individual RSVP needed">
+<div lang="en" data-oct26-lang="en"><strong>MON 26 OCT — CONFIRMED BY THE ORGANISER</strong><p>Historical fencing / HEMA, 18:00–19:30. Meet at <b>Dukelská tř. 157/44, Brno</b> to collect padded training gear; then we move as a group to the outdoor practice area at Nová Zbrojovka. Ask for your individual place confirmation and any applicable fee/conditions before travelling. No advance online payment.</p><a href="https://wa.me/420702914842?text=HEMA%2026%20Oct%20Druzina%20Moravy%3A%20I%20would%20like%20a%20confirmed%20place%2C%20please%20send%20details" target="_blank" rel="noopener noreferrer">Ask to join 26 October →</a></div>
+<div lang="cs" data-oct26-lang="cs"><strong>PO 26. 10. — POTVRZENO POŘADATELEM</strong><p>Historický šerm / HEMA 18:00–19:30. Sraz <b>Dukelská tř. 157/44, Brno</b>, vyzvednutí měkčené výzbroje, poté společný přesun na venkovní plochu Nová Zbrojovka. Před cestou si nechte osobně potvrdit místo, případnou cenu a podmínky. Bez online platby předem.</p><a href="https://wa.me/420702914842?text=HEMA%2026%20Oct%20Druzina%20Moravy%3A%20I%20would%20like%20a%20confirmed%20place%2C%20please%20send%20details" target="_blank" rel="noopener noreferrer">Požádat o místo 26. 10. →</a></div>
+<div lang="ru" data-oct26-lang="ru"><strong>ПН 26 ОКТЯБРЯ — ПОДТВЕРЖДЕНО ОРГАНИЗАТОРОМ</strong><p>Историческое фехтование / HEMA 18:00–19:30. Сбор <b>Dukelská tř. 157/44, Брно</b>, выдача мягкого снаряжения, затем вместе идём на уличную площадку Nová Zbrojovka. До поездки получи личное подтверждение места, возможной цены и условий. Онлайн-предоплаты нет.</p><a href="https://wa.me/420702914842?text=HEMA%2026%20Oct%20Druzina%20Moravy%3A%20I%20would%20like%20a%20confirmed%20place%2C%20please%20send%20details" target="_blank" rel="noopener noreferrer">Запросить место 26 октября →</a></div>
+<div lang="uk" data-oct26-lang="uk"><strong>ПН 26 ЖОВТНЯ — ПІДТВЕРДЖЕНО ОРГАНІЗАТОРОМ</strong><p>Історичне фехтування / HEMA 18:00–19:30. Збір <b>Dukelská tř. 157/44, Брно</b>, отримання м'якого спорядження, потім спільний перехід на вуличний майданчик Nová Zbrojovka. Перед дорогою отримайте особисте підтвердження місця, можливої ціни та умов. Онлайн-передоплати немає.</p><a href="https://wa.me/420702914842?text=HEMA%2026%20Oct%20Druzina%20Moravy%3A%20I%20would%20like%20a%20confirmed%20place%2C%20please%20send%20details" target="_blank" rel="noopener noreferrer">Запитати про місце 26 жовтня →</a></div>
+</aside>
+<script>(function(){var b=document.getElementById('dm-oct26-banner');if(b&&Date.now()<new Date('2026-10-26T19:30:00+01:00').getTime())b.style.display='block';})();</script>
+
+<aside id="dm-2026-11-07-cancellation-notice" role="status" aria-labelledby="dm-2026-11-07-title" style="max-width:74rem;margin:1rem auto;padding:1rem 1.25rem;background:#fff3ed;color:#4b2117;border-left:4px solid #b23c24;border-radius:8px">
+  <h2 id="dm-2026-11-07-title" style="font-size:1.15rem;margin:.1rem 0 .6rem">⚠️ 7 November 2026 — regular Družina training cancelled</h2>
+  <p lang="cs"><strong>Sobota 7. 11. v 18:00: pravidelný trénink je ZRUŠEN.</strong> Nejezděte na Dukelskou ani na Novou Zbrojovku. Již potvrzené uhrazené účasti a balíčky zůstávají chráněny; vhodný náhradní termín či vrácení peněz se řeší podle platných podmínek.</p>
+  <p lang="en"><strong>Saturday 7 Nov, 18:00: regular training is CANCELLED.</strong> Please do not travel. Existing prepaid rights remain protected. The free beginner HEMA workshop on 14 November is confirmed by its organiser, but attendance is only by mandatory direct registration and the organiser's personal confirmation. It is not an automatic replacement booking. Do not travel without that confirmation.</p>
+  <details style="margin:.55rem 0"><summary>Русский / Українська</summary>
+    <p lang="ru"><strong>7 ноября в 18:00 тренировка ОТМЕНЕНА.</strong> Не приезжайте на Dukelská или Nová Zbrojovka. Уже оплаченные права сохраняются; перенос или возврат — по применимым условиям.</p>
+    <p lang="uk"><strong>7 листопада о 18:00 тренування СКАСОВАНО.</strong> Не приїжджайте. Раніше оплачені права зберігаються; перенесення або повернення коштів — за чинними умовами.</p>
+  </details>
+  <p style="margin:.3rem 0 0"><a href="./join/?lang=cs">Aktuální potvrzení / Ask the organisers →</a> · No new paid HEMA booking is being opened by this announcement.</p>
+</aside>
+
+
+<!-- OREL-14-NOV-2026: free workshop; no archery; owner-gated admission, separate from paid club sessions -->
+<aside id="dm-orel14-rsvp" role="region" aria-label="14 November beginner HEMA — mandatory personal registration" style="max-width:74rem;margin:1rem auto;padding:1rem 1.25rem;border:2px solid #b7d7bc;border-radius:12px;background:#f1f8f2;color:#123425">
+<style>
+#dm-orel14-rsvp [data-orel-lang]{display:none}#dm-orel14-rsvp h2{font-size:1.25rem;line-height:1.35;margin:.2rem 0 .6rem;color:#123425}#dm-orel14-rsvp p{margin:.3rem 0 .65rem;line-height:1.5;color:#123425}#dm-orel14-rsvp a{color:#174a33;font-weight:700;text-decoration:underline}
+html[lang="cs"] #dm-orel14-rsvp [data-orel-lang="cs"],html[lang="en"] #dm-orel14-rsvp [data-orel-lang="en"],html[lang="ru"] #dm-orel14-rsvp [data-orel-lang="ru"],html[lang="uk"] #dm-orel14-rsvp [data-orel-lang="uk"]{display:block}
+</style>
+<div data-orel-lang="cs" lang="cs"><h2>14. 11. · Historický šerm / HEMA zdarma — pouze po potvrzené registraci</h2><p>Sobota 12:00–14:30, Orlovna Husovice, Vranovská 93, Brno. Akci pořadatel potvrzuje. Bez lukostřelby, pro začátečníky, s měkčeným vybavením. <strong>Povinná registrace přímo u Aliakseie Chareshneua; místo platí až po jeho osobním potvrzení.</strong> Samotná zpráva, starý formulář nebo vstup do chatu není rezervace. Nejezděte bez potvrzení. Kapacita, instruktor, kontrola výbavy a případný souhlas zákonného zástupce se ověřují před schválením účasti.</p><p><a href="https://wa.me/420702914842?text=OREL%2014%20-%20registrace%20prosim" rel="noopener noreferrer" target="_blank">Registrace přes WhatsApp +420 702 914 842 ↗</a> · <a href="https://t.me/Chareshneu" target="_blank" rel="noopener noreferrer">nebo soukromou zprávou Telegram ↗</a> · <a href="mailto:chereshnev.biochem@gmail.com?subject=OREL%2014%20-%20registrace">nebo e-mailem ↗</a></p></div>
+<div data-orel-lang="en" lang="en"><h2>14 November · FREE beginner HEMA — advance personal confirmation required</h2><p>Saturday 12:00–14:30, Orlovna Husovice, Vranovská 93, Brno. The organiser confirms the event. Padded equipment, no archery. <strong>Register directly with Aliaksei Chareshneu; a place is valid ONLY after his personal confirmation.</strong> Sending a message, using an old form or joining a chat does not book a place. Do not travel without confirmation. Safe capacity, instructor, equipment checks and any guardian consent are verified before a place is approved.</p><p><a href="https://wa.me/420702914842?text=OREL%2014%20-%20registrace%20prosim" rel="noopener noreferrer" target="_blank">Register via WhatsApp +420 702 914 842 ↗</a> · <a href="https://t.me/Chareshneu" target="_blank" rel="noopener noreferrer">or private Telegram ↗</a> · <a href="mailto:chereshnev.biochem@gmail.com?subject=OREL%2014%20-%20registrace">or email ↗</a></p></div>
+<div data-orel-lang="ru" lang="ru"><h2>14 ноября · Бесплатный HEMA для новичков — обязательная запись</h2><p>Суббота, 12:00–14:30, Orlovna Husovice, Vranovská 93, Брно. Организатор подтверждает проведение. Мягкое снаряжение, без стрельбы из лука. <strong>Запись напрямую к Aliaksei Chareshneu; место действительно ТОЛЬКО после его личного подтверждения.</strong> Сообщение, старая форма и вступление в чат не являются бронью. Не приезжайте без подтверждения. Вместимость, инструктор, снаряжение и согласие родителей для несовершеннолетних проверяются до допуска.</p><p><a href="https://wa.me/420702914842?text=OREL%2014%20-%20registrace%20prosim" rel="noopener noreferrer" target="_blank">Записаться в WhatsApp +420 702 914 842 ↗</a> · <a href="https://t.me/Chareshneu" target="_blank" rel="noopener noreferrer">или личный Telegram ↗</a> · <a href="mailto:chereshnev.biochem@gmail.com?subject=OREL%2014%20-%20registrace">или по email ↗</a></p></div>
+<div data-orel-lang="uk" lang="uk"><h2>14 листопада · Безкоштовний HEMA для початківців — обов'язкова реєстрація</h2><p>Субота 12:00–14:30, Orlovna Husovice, Vranovská 93, Брно. Організатор підтверджує подію. М'яке спорядження, без стрільби з лука. <strong>Реєструйтеся безпосередньо в Aliaksei Chareshneu; місце дійсне ЛИШЕ після його особистого підтвердження.</strong> Повідомлення, стара форма чи вступ до чату не є бронюванням. Не приїжджайте без підтвердження. Місткість, інструктор, спорядження та згода батьків для неповнолітніх перевіряються до допуску.</p><p><a href="https://wa.me/420702914842?text=OREL%2014%20-%20registrace%20prosim" rel="noopener noreferrer" target="_blank">Реєстрація у WhatsApp +420 702 914 842 ↗</a> · <a href="https://t.me/Chareshneu" target="_blank" rel="noopener noreferrer">або особистий Telegram ↗</a> · <a href="mailto:chereshnev.biochem@gmail.com?subject=OREL%2014%20-%20registrace">або електронною поштою ↗</a></p></div>
+</aside>
+<!-- DM-SAFETY-20261024-PRIORITY: house soft-combat rules; public copy only, no internal inventory -->
+<style>
+#dm-safety-priority{max-width:74rem;margin:1rem auto;padding:1rem clamp(14px,3vw,26px);border:2px solid #d8ae72;border-left:8px solid #d88f65;border-radius:12px;background:#1a2634;color:#f7f6f2}
+#dm-safety-priority h2{font:700 clamp(1.2rem,3vw,1.7rem)/1.25 Georgia,serif;margin:.15rem 0 .65rem;color:#fff0c8}
+#dm-safety-priority p{margin:.5rem 0;color:#f6f7fa;line-height:1.55}
+#dm-safety-priority a{color:#ffe1ae;text-decoration:underline;text-underline-offset:3px;font-weight:650}
+#dm-safety-priority [data-safety-locale]{display:none}
+html[lang="cs"] #dm-safety-priority [data-safety-locale="cs"],html[lang="en"] #dm-safety-priority [data-safety-locale="en"],html[lang="ru"] #dm-safety-priority [data-safety-locale="ru"],html[lang="uk"] #dm-safety-priority [data-safety-locale="uk"]{display:block}
+</style>
+<section id="dm-safety-priority" role="region" aria-label="Safety comes first — club rules from 1 November 2026">
+  <div data-safety-locale="cs" lang="cs"><h2>Bezpečnost především · závazná pravidla měkčeného boje</h2>
+    <p><strong>Žádné zásahy do hlavy, krku, rukou, chodidel či třísel.</strong> Jen kontrolované údery, nikdy plnou silou. Každý si přiznává zásah sám; hraniční a nejasné zásahy neplatí. Na STOP okamžitě přerušte akci.</p>
+    <p><a href="rules/">Přečíst úplná pravidla bezpečného boje →</a> · <a href="arsenal/">Veřejný přehled klubového arzenálu zdarma →</a></p></div>
+  <div data-safety-locale="en" lang="en"><h2>Safety first · mandatory club soft-combat rules</h2>
+    <p><strong>No strikes to head, neck, hands, feet or groin.</strong> Controlled blows only, never full force. You call your own received hits; borderline or unclear strikes do not count. Stop immediately on STOP.</p>
+    <p><a href="rules/">Read full safety and scoring rules →</a> · <a href="arsenal/">Browse free club arsenal categories →</a></p></div>
+  <div data-safety-locale="ru" lang="ru"><h2>Безопасность прежде всего · правила мягкого боя</h2>
+    <p><strong>Не бить в голову, шею, кисти, стопы и пах.</strong> Только контролируемые удары, не в полную силу. Полученные удары каждый оценивает сам; все пограничные случаи не считаются. На STOP бой немедленно прекращается.</p>
+    <p><a href="rules/">Полные правила безопасности и зачёта ударов →</a> · <a href="arsenal/">Категории бесплатного клубного арсенала →</a></p></div>
+  <div data-safety-locale="uk" lang="uk"><h2>Безпека передусім · правила м’якого бою</h2>
+    <p><strong>Не бити в голову, шию, кисті, стопи чи пах.</strong> Лише контрольовані удари, ніколи на повну силу. Кожен сам визнає отримані влучання; сумнівні контакти не зараховують. На STOP негайно зупиняємося.</p>
+    <p><a href="rules/">Повні правила безпеки та підрахунку →</a> · <a href="arsenal/">Безкоштовний клубний арсенал — категорії →</a></p></div>
+</section>
+
+<!-- DM-TARIFF-ENQUIRIES-OWNER-APPROVED-24OCT: public indicative offers, not online payment -->
+<aside class="dm-permanentky-offer" role="complementary" style="max-width:74rem;margin:1rem auto;padding:15px 22px;border:2px solid #d9b780;border-radius:12px;background:#193047;color:#f7f5f0">
+<h2 style="font:700 1.45rem/1.3 Georgia,serif;margin:0 0 .5rem">Nové permanentky / New training passes / Новые абонементы</h2>
+<p style="margin:0 0 .6rem">Dlouhodobé vstupy (4 / 12 / 24 lekcí) a 30 / 90 / 180denní bezlimity. <strong>Nezávazné poptávky již přijímáme.</strong> Konkrétní termín, bezpečné místo, cena a poskytovatel musí být písemně potvrzeny před platbou.</p>
+<p style="margin:0 0 .65rem" lang="ru">4 / 12 / 24 занятий или безлимит на 30 / 90 / 180 дней. <strong>Заявки принимаются</strong>, но оплата и место — только после подтверждения организатором.</p>
+<a style="color:#ffe4a0;font-weight:750" href="permanentky/">Prohlédnout nabídku a zeptat se → Посмотреть цены и отправить заявку →</a></aside>
+<!-- DM-NOV-2026-RULES-20261024: public policy notice, NOT a paid-booking launch -->
+<style>
+#dm-nov-rules{max-width:74rem;margin:1rem auto;padding:clamp(1rem,2vw,1.5rem);border-radius:12px;background:#14283d;color:#f6f7fc;border:1px solid #8298aa}
+#dm-nov-rules h2{font:700 clamp(1.1rem,3vw,1.5rem)/1.3 system-ui,sans-serif;color:#ffe0ab;margin:.2rem 0}
+#dm-nov-rules p,#dm-nov-rules li{color:#f6f7fc;line-height:1.55}#dm-nov-rules a{color:#ffe1a4;text-decoration:underline}
+#dm-nov-rules ul{padding-left:1.4rem}#dm-nov-rules li+li{margin-top:.4rem}
+#dm-nov-rules [data-nov-rule-lang]{display:none}
+html[lang="en"] #dm-nov-rules [data-nov-rule-lang="en"],html[lang="cs"] #dm-nov-rules [data-nov-rule-lang="cs"],html[lang="ru"] #dm-nov-rules [data-nov-rule-lang="ru"],html[lang="uk"] #dm-nov-rules [data-nov-rule-lang="uk"]{display:block}
+</style>
+<section id="dm-nov-rules" role="region" aria-label="Družina Moravy: rules from November 2026">
+  <div lang="cs" data-nov-rule-lang="cs">
+    <h2>Od 1. listopadu — nový výcvik a klubový arzenál zdarma</h2>
+    <p><strong>Pravidla platí pro všechny na pravidelném tréninku, nejen pro nováčky.</strong> Pondělí a sobota od 18:00, plánovaná délka 120 minut; skutečný termín, místo a bezpečnost musí být písemně potvrzeny.</p>
+    <ul>
+      <li><strong>12 průběžně se opakujících témat Pěšák</strong> pro všechny úrovně ve společném tréninku. Každý má individuální úkoly a uznané dovednosti se nenulují ani při vynechání termínu. Dřívější hodnosti, docházka a předplacená práva zůstávají. Dobrovolný buddy pilot je oddělený.</li>
+      <li><strong>Arzenál zdarma:</strong> vhodné zkontrolované měkčené jednoruční meče a štíty na schváleném tréninku i při individuálně dohodnutém výjezdu LARP. Žádné placené sady, příplatky ani peněžní kauce. Ostatní výbava jen podle skutečné dostupnosti, bezpečnosti, souhlasu k zapůjčení a pravidel konkrétní akce.</li>
+      <li><strong>2–4 herní HP</strong> podle celkové kvality, sourodosti a pokrytí celého kostýmu; helma a prošívanice jsou jen příklady, nikoli povinné položky. Zásahy do hlavy zakázány, na cizích LARP platí jejich pravidla.</li>
+      <li><strong>Až kolem 100 osob je plánovaný organizační rozsah</strong> — nikoli garantovaná bezpečná místa pro každou událost.</li>
+    </ul>
+    <p><strong>7. 11. trénink ZRUŠEN.</strong> Workshop v Orlovně Husovice 14. 11., 12:00–14:30 pořadatel potvrdil jako bezplatnou akci; <strong>povinné přihlášení přímo pořadateli a jeho osobní potvrzení každého místa</strong> je však podmínkou účasti. Nové <strong>placené rezervace HEMA zůstávají pozastaveny</strong> do právních, pojistných, personálních a technických ověření. Neplaťte ani necestujte bez potvrzení.</p>
+    <p><a href="join/?lang=cs">Nezávazně se zeptat na účast →</a></p>
+  </div>
+  <div lang="en" data-nov-rule-lang="en">
+    <h2>From 1 November — new training and free club arsenal</h2>
+    <p><strong>For everyone on regular club sessions, not just newcomers.</strong> Monday and Saturday, normally 18:00, with a planned 120-minute format; each date, venue and safety clearance requires written confirmation.</p>
+    <ul>
+      <li><strong>12 recurring Pěšák training themes</strong> shared by all skill levels, with personal goals and observed skill checks. Missing a date does not reset learned or recognised skills. Existing ranks, attendance and prepaid rights remain. The optional buddy pilot is separate.</li>
+      <li><strong>Free club arsenal:</strong> suitable inspected padded one-handed swords and shields in approved sessions or individually approved off-site LARP outings. No paid rental sets, item charges or cash deposit. Other items depend on availability, safe fit, individual borrowing approval and event rules.</li>
+      <li><strong>2–4 scenario HP</strong> from the whole costume's overall quality, coherence and coverage, not a compulsory item checklist. Helmet and gambeson are examples only. No head strikes; external LARP uses its own rules.</li>
+      <li><strong>Up to around 100 participants is the club's planning scale</strong>, not a verified safe or bookable capacity on every date.</li>
+    </ul>
+    <p><strong>7 November training CANCELLED.</strong> The separate free HEMA workshop at Orel Husovice on 14 November, 12:00–14:30 is confirmed by its organiser; <strong>direct advance registration and the organiser's personal confirmation for each attendee are mandatory</strong>. <strong>New paid HEMA bookings remain paused</strong> pending legal, staffing, venue, insurance and technical checks. Do not pay or travel without written confirmation.</p>
+    <p><a href="join/?lang=en">Ask about joining, without booking →</a></p>
+  </div>
+  <div lang="ru" data-nov-rule-lang="ru">
+    <h2>С 1 ноября — новая программа и бесплатный арсенал клуба</h2>
+    <p><strong>Для всех регулярных тренировок, не только для новичков.</strong> Понедельник и суббота с 18:00, плановая длительность 120 минут; конкретную дату, площадку и безопасность организатор подтверждает письменно.</p>
+    <ul>
+      <li><strong>12 повторяющихся общих тем Pěšák</strong> для участников любого уровня. Каждый выполняет свои задания и сдаёт навыки по факту; пропуски не обнуляют освоенное или признанный опыт. Прежние звания, посещения и оплаченные права сохраняются. Добровольная buddy-программа отдельно.</li>
+      <li><strong>Арсенал бесплатно:</strong> исправные проверенные мягкие одноручные мечи и щиты на подтверждённых тренировках и индивидуально согласованных выездах LARP. Нет платных комплектов, доплат или денежных залогов. Другое снаряжение — по наличию, исправности, индивидуальному согласованию выдачи и правилам мероприятия.</li>
+      <li><strong>2–4 игровых HP</strong> по общей оценке всего костюма, а не по подсчёту предметов. Шлем и гамбезон — только примеры. Удары в голову запрещены; внешние LARP устанавливают собственные правила.</li>
+      <li><strong>Масштаб — примерно до 100 участников</strong>, однако реальные безопасные места подтверждаются отдельно на каждой площадке.</li>
+    </ul>
+    <p><strong>7 ноября тренировка ОТМЕНЕНА.</strong> Бесплатный мастер-класс в Orel Husovice 14 ноября, 12:00–14:30 подтверждён организатором; <strong>обязательна предварительная запись напрямую к организатору и его личное подтверждение места</strong>. <strong>Новая платная запись HEMA пока закрыта</strong> до правовой, кадровой, страховой и технической проверки. Не платите и не приезжайте без подтверждения.</p>
+    <p><a href="join/?lang=ru">Уточнить участие без бронирования →</a></p>
+  </div>
+  <div lang="uk" data-nov-rule-lang="uk">
+    <h2>З 1 листопада — новий курс та безкоштовний клубний арсенал</h2>
+    <p><strong>Для всіх регулярних занять, а не лише новачків.</strong> Понеділок і субота з 18:00, планова тривалість 120 хвилин; точну дату, місце й безпеку організатор підтверджує письмово.</p>
+    <ul>
+      <li><strong>12 повторюваних спільних тем Pěšák</strong> для учасників усіх рівнів. Кожен виконує власні завдання; пропуски не обнуляють уже засвоєні чи визнані навички. Попередні звання, відвідування та оплачені права зберігаються. Добровільна buddy-програма окремо.</li>
+      <li><strong>Арсенал безкоштовно:</strong> справні перевірені м'які одноручні мечі та щити на підтверджених заняттях і погоджених виїздах LARP. Без платних наборів, доплат чи застави. Інше спорядження — за наявності, безпечною придатністю, погодженням видачі й правилами заходу.</li>
+      <li><strong>2–4 ігрових HP</strong> за цілісністю та якістю всього костюма, а не кількістю частин обладунку. Шолом і гамбезон — лише приклади. Удари в голову заборонені.</li>
+      <li><strong>Планований масштаб — приблизно до 100 людей</strong>, але фактична безпечна місткість підтверджується для кожного заходу.</li>
+    </ul>
+    <p><strong>Тренування 7 листопада СКАСОВАНО.</strong> Безкоштовний майстер-клас Orel Husovice 14 листопада, 12:00–14:30 підтверджений організатором; <strong>потрібна попередня реєстрація безпосередньо в організатора та його особисте підтвердження місця</strong>. <strong>Нове платне бронювання HEMA призупинене</strong> до всіх перевірок. Не сплачуйте й не приїжджайте без підтвердження.</p>
+    <p><a href="join/?lang=uk">Запитати про участь без бронювання →</a></p>
+  </div>
+</section>
+
 <section class="hero" id="druzina">
     <!-- CHARACTER HERO ART — "the Knight" — kept in sync with the
          matching block on the main index.html druzina hero. The ember
@@ -94,61 +279,119 @@
 
     <div class="wrap">
       <p class="eyebrow">Brno · HEMA · LARP</p>
-      <h1 data-i18n="hero.name2">Družina Moravy — HEMA Fencing &amp; LARP Club in Brno</h1>
-      <p class="tagline" data-i18n="hero.tagline">A club for historical medieval combat, fencing (HEMA), archery, and LARP re-enactment in Brno.</p>
-      <p class="hero-mission" data-i18n="hero.mission">Družina Moravy revives the living tradition of Great Moravia — fellowship, craft, and the path from novice to warrior — so that everyone who joins finds roots, mastery, and their people.</p>
-      <a class="reviews-badge" href="https://maps.app.goo.gl/fEbnJHxiVoAx1v498" target="_blank" rel="noopener">⭐ 50+ Google reviews · 5.0</a>
-
-      <div class="hero-ctas">
-        <a class="btn solid plausible-event-name=Register-Druzina" data-i18n="hero.ctaRegister" href="mailto:chereshnev.biochem@gmail.com?subject=Druzina%20Moravy%20-%20nezavazny%20dotaz" target="_blank" rel="noopener">Register for training</a>
-        <a class="btn plausible-event-name=Join-Chat-Druzina" data-i18n="hero.ctaChat" href="https://chat.whatsapp.com/JzeXAQF8I2XE3zQ2OqWsPz" target="_blank" rel="noopener">Join the chat</a>
+      <h1 data-i18n="quick.clubHeadline">Your first battle or the next one?</h1>
+      <p class="dm-hero-deck" data-i18n="quick.intro">Safe historical fencing and archery in Brno — beginners welcome.</p>
+      <p class="dm-trust-line" data-i18n="quick.trustNote">Club participation does not require legal association membership. Friendships grow through repeated meetings.</p>
+       <div class="dm-hero-essentials" aria-label="Training essentials">
+        <article class="dm-hero-key"><span class="dm-hero-key-label" data-i18n="quick.whatLabel">WHAT</span><strong data-i18n="quick.what">Supervised historical fencing and archery with an emphasis on safety.</strong><small data-i18n="quick.whatNote">The programme depends on the confirmed session.</small></article>
+        <article class="dm-hero-key"><span class="dm-hero-key-label" data-i18n="quick.whereLabel">WHERE</span><strong><a href="https://www.google.com/maps/search/?api=1&amp;query=Nov%C3%A1%20Zbrojovka%2C%20Brno" target="_blank" rel="noopener noreferrer">Nová Zbrojovka, Brno (outdoors) ↗</a></strong><small data-i18n="quick.whereNote">Confirm the exact meeting spot before travelling.</small></article>
+        <article class="dm-hero-key"><span class="dm-hero-key-label" data-i18n="quick.whenLabel">WHEN</span><strong data-i18n="quick.when">Usually Monday &amp; Saturday · 18:00</strong><small data-i18n="quick.whenNote">Check the actual date, time and venue for each session.</small></article>
+        <article class="dm-hero-key dm-hero-key-booking"><span class="dm-hero-key-label" data-i18n="quick.registerLabel">REGISTRATION</span><strong data-i18n="quick.register">Contact us at least 48 hours in advance.</strong><small data-i18n="quick.registerNote">Advance confirmation is required. An enquiry alone is not a reservation.</small></article>
       </div>
-      <div class="hero-ctas-secondary">
-        <a class="btn-quiet plausible-event-name=Announce-WA-Druzina" data-i18n="hero.ctaAnnounceWA" href="https://chat.whatsapp.com/DuTpgF22mxMFy6L1Cfrcvu" target="_blank" rel="noopener">Announcements · WhatsApp</a>
-        <a class="btn-quiet plausible-event-name=Announce-TG-Druzina" data-i18n="hero.ctaAnnounceTG" href="https://t.me/druzinamoravy_news" target="_blank" rel="noopener">Announcements · Telegram</a>
+      <div class="hero-ctas dm-hero-ctas">
+        <a class="btn solid dm-hero-register plausible-event-name=Register-Druzina" data-i18n="quick.cta" href="start/">Meet the Družina crew →</a>
       </div>
-
-      <div class="hero-testimonial">
-        <p class="quote" data-i18n="hero.testimonialQuote">"Druzhina training feels demanding and honest. I gained new friends and real skills, not just another story."</p>
-        <div class="author" data-i18n="hero.testimonialAuthor">— Ivan, Druzhina Moravy</div>
-      </div>
-
-      <div class="free-note" data-i18n="hero.freeNote">Enquiries are open; no confirmed booking or payment until the exact session and venue are confirmed.</div>
+      <p class="free-note dm-compact-legal" data-i18n="quick.legal">New paid HEMA bookings are paused. Enquiries only; do not pay or travel without written confirmation.</p>
     </div>
   </section>
-<style>#dm-launch{max-width:72rem;margin:1.5rem auto;padding:1rem 1.4rem;border:2px solid #c8a66f;border-radius:12px;background:#172c3c;color:#fff8ed}#dm-launch a{color:#ffdfa2}#dm-launch p{line-height:1.55}#dm-launch [data-launch-lang]{display:none}html[lang="en"] #dm-launch [data-launch-lang="en"]{display:block}html[lang="cs"] #dm-launch [data-launch-lang="cs"]{display:block}html[lang="ru"] #dm-launch [data-launch-lang="ru"]{display:block}html[lang="uk"] #dm-launch [data-launch-lang="uk"]{display:block}</style>
-<section id="schedule"><div class="wrap" id="dm-launch" role="region" aria-label="Current training availability">
-<div lang="en" data-launch-lang="en"><h2>Training enquiries only — not a booking</h2><p><strong>Planned Mondays and Saturdays 18:00–20:00; 12 recurring common themes and individual practice. Thursdays discontinued, 7 Nov cancelled, 14 Nov Orel workshop ON HOLD.</strong></p><p>Actual date, permitted outdoor area, lighting, responsible leader, inspected equipment, insurance fit and capacity need written confirmation. Dukelská is not a confirmed indoor hall. Do not travel or pay before confirmation.</p><p>Previously paid rights stay valid. Prices and packages are indicative until a written offer. Approved, inspected padded club gear may be borrowed without a separate fee.</p><p><a href="mailto:chereshnev.biochem@gmail.com?subject=Druzina%20Moravy%20-%20training%20enquiry"><strong>Ask about participating →</strong></a></p></div>
-<div lang="cs" data-launch-lang="cs"><h2>Nezávazné dotazy — nejedná se o rezervaci</h2><p><strong>Plán: pondělí a sobota 18:00–20:00; 12 společných opakujících se témat s individuálními úkoly. Čtvrtky zrušeny, 7. 11. se nekoná, samostatný workshop 14. 11. Orel je ON HOLD.</strong></p><p>Termín, přesná povolená venkovní plocha, osvětlení, vedoucí, prověřená výbava, pojistné krytí a kapacita musí být potvrzeny písemně. Dukelská není potvrzený sál. Bez potvrzení nejezděte ani neplaťte.</p><p>Dříve uhrazená práva zůstávají. Ceník a balíčky jsou orientační do konkrétní nabídky. Schválené a kontrolované měkčené vybavení lze užívat bez zvláštního poplatku.</p><p><a href="mailto:chereshnev.biochem@gmail.com?subject=Druzina%20Moravy%20-%20training%20enquiry"><strong>Zeptat se na účast →</strong></a></p></div>
-<div lang="ru" data-launch-lang="ru"><h2>Принимаем запросы — это ещё не бронирование</h2><p><strong>План: понедельник и суббота 18:00–20:00, 12 повторяющихся общих тем с индивидуальными заданиями. Четвергов нет, 7 ноября отменено, отдельный Orel 14 ноября — ON HOLD.</strong></p><p>Конкретная дата, разрешённая открытая площадка, освещение, ведущий, инвентарь, страховое покрытие и вместимость требуют письменного подтверждения. Dukelská не является подтверждённым залом. Не приезжайте и не платите без подтверждения.</p><p>Ранее оплаченные права сохраняются. Цены и пакеты предварительны до письменного предложения. Проверенный разрешённый мягкий инвентарь предоставляется без отдельной платы.</p><p><a href="mailto:chereshnev.biochem@gmail.com?subject=Druzina%20Moravy%20-%20training%20enquiry"><strong>Запросить участие →</strong></a></p></div>
-<div lang="uk" data-launch-lang="uk"><h2>Приймаємо запити — це ще не бронювання</h2><p><strong>План: понеділок і субота 18:00–20:00, 12 повторюваних тем з індивідуальними завданнями. Четверги скасовано, 7 листопада не проводиться, окремий Orel 14 листопада — ON HOLD.</strong></p><p>Конкретна дата, дозволений майданчик, освітлення, ведучий, перевірений інвентар, страхування і місткість потребують письмового підтвердження. Dukelská не є підтвердженою залою. Не приїжджайте й не сплачуйте без підтвердження.</p><p>Раніше оплачені права зберігаються. Ціни й пакети попередні. Дозволений та перевірений м’який інвентар доступний без окремої плати.</p><p><a href="mailto:chereshnev.biochem@gmail.com?subject=Druzina%20Moravy%20-%20training%20enquiry"><strong>Запитати про участь →</strong></a></p></div>
-</div></section><div id="tariff"></div><div id="druzina-payment"></div><div id="onboarding"></div>
-<section id="ranks"><div class="wrap" data-i18n="ranks"><p class="eyebrow-sm">Ranks · approved 19 Oct 2026</p>
+
+<div class="dm-accordion-shell" id="more" aria-label="Detailed Družina Moravy information">
+  <details class="dm-disclosure" id="visit-details">
+    <summary><span data-i18n="quick.detailsVisit">First visit, timetable, equipment &amp; safety</span></summary>
+    <div class="dm-disclosure-body">
+      <div class="wrap dm-expanded-intro">
+        <p data-i18n="hero.tagline">Begin with controlled sword-and-shield basics, learn to stand together, then explore a close-combat or archery path in Brno.</p>
+        <p data-i18n="hero.mission">Not just a one-off sword fight: an evolving beginner training path, supportive teammates, a real shield-wall foundation and optional later roles — with safety and progress explained honestly.</p>
+        <p class="dm-expanded-links"><a data-i18n="hero.ctaSkillTree" href="cesty/">Explore your training path →</a> · <a href="https://maps.app.goo.gl/fEbnJHxiVoAx1v498" target="_blank" rel="noopener noreferrer">Google reviews ↗</a> · <a href="#media" data-i18n="media.heroLink">Featured in Brněnský deník — see coverage ↓</a></p>
+      </div>
+<nav class="dm-jumpbar" aria-label="Explore Družina Moravy" data-dm-aria="navAria">
+  <div class="wrap">
+    <a href="#start" class="dm-jump-primary" data-dm-k="navStart">Start here</a>
+    <a href="join/" data-dm-k="joinLink">Join the community</a>
+    <a href="#schedule" data-dm-k="navSchedule">Days & place</a>
+    <a href="cesty/" data-dm-k="navPath">Training paths</a>
+    <a href="ranks.html" data-dm-k="navRanks">Ranks</a>
+    <a href="#faq" data-dm-k="navFaq">Questions</a>
+    <a href="#organisation" data-dm-k="navAbout">Who we are</a>
+  </div>
+</nav>
+<section class="dm-start" id="start" aria-labelledby="dm-start-title">
+  <div class="wrap">
+    <div class="dm-start-intro"><div class="dm-intro-copy"><p class="dm-overline" data-dm-k="startEyebrow">Your first step</p>
+    <h2 id="dm-start-title" data-dm-k="startTitle">Curious about fencing? You belong here.</h2>
+    <p class="dm-start-lead" data-dm-k="startLead">No experience or equipment needed to ask. Every visit requires individual confirmation.</p></div><figure class="dm-start-photo"><picture><source srcset="../images/druzina_train.webp" type="image/webp"><img src="../images/druzina_train.jpg" loading="lazy" decoding="async" alt="Participants practising with padded swords at a Družina Moravy training" data-dm-alt="photoAlt"></picture><figcaption data-dm-k="photoCaption">Real Družina training · Brno</figcaption></figure></div>
+    <div class="dm-facts" aria-label="Practical information" data-dm-aria="factsAria">
+      <div class="dm-fact"><span class="dm-fact-icon" aria-hidden="true">📅</span><span class="dm-fact-label" data-dm-k="fact1Label">Usual days</span><span class="dm-fact-value" data-dm-k="fact1Value">Monday · Saturday</span></div>
+      <div class="dm-fact"><span class="dm-fact-icon" aria-hidden="true">◷</span><span class="dm-fact-label" data-dm-k="fact2Label">Usual time</span><span class="dm-fact-value" data-dm-k="fact2Value">18:00 · duration confirmed per date</span></div>
+      <div class="dm-fact"><span class="dm-fact-icon" aria-hidden="true">⌖</span><span class="dm-fact-label" data-dm-k="fact3Label">Meeting point</span><span class="dm-fact-value" data-dm-k="fact3Value">Nová Zbrojovka · Brno (outdoors)</span></div>
+    </div>
+    <p class="dm-section-caption" data-dm-k="stepsEyebrow">How your first visit works</p>
+    <ol class="dm-steps">
+      <li><h3 class="dm-step-title" data-dm-k="step1Title">Tell us you are interested</h3><p class="dm-step-description" data-dm-k="step1Desc">Ask about a future date. No commitment or payment.</p></li>
+      <li><h3 class="dm-step-title" data-dm-k="step2Title">We confirm the details</h3><p class="dm-step-description" data-dm-k="step2Desc">Wait for written confirmation of time, place and safety conditions.</p></li>
+      <li><h3 class="dm-step-title" data-dm-k="step3Title">Learn at your own pace</h3><p class="dm-step-description" data-dm-k="step3Desc">Start with STOP, safety and controlled movements. No forced sparring.</p></li>
+    </ol>
+    <div class="dm-start-action">
+      <div><strong data-dm-k="actionTitle">Not sure which weapon or training suits you?</strong><p data-dm-k="actionDescription">Just tell us you are new. Paid reservations are currently paused.</p></div>
+      <a class="dm-contact-button" href="https://wa.me/420702914842?text=Hello%2C%20I%27m%20new%20to%20fencing%20and%20would%20like%20to%20ask%20about%20a%20possible%20future%20Druzina%20Moravy%20session.%20I%20understand%20this%20is%20not%20a%20booking." target="_blank" rel="noopener noreferrer" data-dm-k="contact">Ask a question on WhatsApp ↗</a>
+    </div>
+    <div class="dm-secondary-tiles" aria-label="Explore more about the club" data-dm-aria="moreAria">
+      <a href="join/" data-dm-k="joinLink">Join the community</a>
+      <a href="cesty/" data-dm-k="linkTree">Explore the skill tree</a><a href="join/" data-dm-k="linkJoin">Ways to participate</a>
+      <a href="ranks.html" data-dm-k="linkRanks">How ranks work</a>
+      <a href="#media" data-dm-k="linkMedia">Our club in the press</a>
+      <a href="https://chat.whatsapp.com/DuTpgF22mxMFy6L1Cfrcvu" target="_blank" rel="noopener noreferrer" data-dm-k="linkChatWA">WhatsApp announcements</a>
+      <a href="https://t.me/druzinamoravy_news" target="_blank" rel="noopener noreferrer" data-dm-k="linkChatTG">Telegram news</a>
+    </div>
+  </div>
+</section>
+<!-- DM-PRELAUNCH-LEGAL-GATE-20261018 -->
+<section id="registration-notice" aria-label="HEMA enquiries only"><div class="wrap"><span id="tariff" class="dm-old-anchor" aria-hidden="true"></span><span id="druzina-payment" class="dm-old-anchor" aria-hidden="true"></span><style>
+/* Historical pricing withdrawn from active public information. */
+#registration-notice [data-notice-lang]{display:none}
+html[lang="en"] #registration-notice [data-notice-lang="en"],html[lang="cs"] #registration-notice [data-notice-lang="cs"],html[lang="ru"] #registration-notice [data-notice-lang="ru"],html[lang="uk"] #registration-notice [data-notice-lang="uk"]{display:block}
+</style>
+<h3 class="anchor-heading">HEMA · Safety &amp; booking / Bezpečnost a přihlášení</h3>
+<p data-notice-lang="en" lang="en" class="note"><strong>New paid HEMA bookings are paused.</strong> Legal supplier qualification, payment beneficiary and live booking tests are not yet cleared. The old form is retired. Ask about a date first: a message is not a reservation or request for payment. Do not pay or travel without written confirmation of the organiser, place, time, current terms and safety conditions. Existing confirmed contractual rights remain valid.</p>
+<p data-notice-lang="cs" lang="cs" class="note"><strong>Nové placené rezervace HEMA jsou pozastaveny.</strong> Odborné oprávnění poskytovatele, příjemce plateb a ostré rezervační testy zatím nejsou doložené. Starý formulář nepoužívejte. Nejprve se nezávazně zeptejte na termín; zpráva není rezervace ani výzva k platbě. Bez písemného potvrzení pořadatele, místa, času, podmínek a bezpečnosti neplaťte ani necestujte. Dřívější potvrzené smluvní závazky zůstávají platné.</p>
+<p data-notice-lang="ru" lang="ru" class="note"><strong>Новые платные бронирования HEMA приостановлены.</strong> Квалификация и разрешение поставщика услуги, получатель платежа и полные тесты записи пока не подтверждены. Старая форма не используется. Сначала уточните дату: сообщение не является записью или требованием оплаты. Не платите и не приезжайте без письменного подтверждения организатора, места, времени, условий и безопасности. Ранее подтверждённые договорные права сохраняются.</p>
+<p data-notice-lang="uk" lang="uk" class="note"><strong>Нові платні бронювання HEMA призупинено.</strong> Кваліфікацію й дозвіл постачальника, отримувача платежу та повні тести запису ще не підтверджено. Стару форму не використовуйте. Спершу запитайте дату: повідомлення не є бронюванням чи вимогою оплати. Не сплачуйте й не приїжджайте без письмового підтвердження організатора, місця, часу, умов і безпеки. Раніше підтверджені договірні права зберігаються.</p>
+<p><a class="btn" href="safety/" target="_blank" rel="noopener">CZ · EN · UA · RU — HEMA safety / Bezpečnost / Безопасность →</a></p>
+</div></section>
+<section id="schedule"><div class="wrap" data-i18n="schedule"><p class="eyebrow-sm">Typical training times · confirm first</p><h2 class="anchor-heading">When and where we usually train<a class="anchor-link" href="#schedule" aria-label="Schedule link">#</a></h2><p class="lead">Training is normally planned two evenings a week. Every session depends on the instructor, venue and safety conditions.</p><p class="note dm-schedule-note"><strong>Schedule update — 22 October 2026:</strong> Thursday 18:00 training is permanently discontinued.</p><div class="dm-session-slots" role="list"><div class="dm-session-slot" role="listitem"><strong>Monday</strong><span>18:00 · duration confirmed per date</span></div><div class="dm-session-slot" role="listitem"><strong>Saturday</strong><span>18:00 · duration confirmed per date</span></div></div><div class="dm-where"><div><span class="dm-place-label">Usual meeting point</span><strong>Nová Zbrojovka, Brno</strong><p>Regular sessions are planned outdoors in the Nová Zbrojovka area. There is no permanent hall; ask for written confirmation of the actual meeting point, permitted space and event before travelling.</p></div><a href="https://www.google.com/maps/search/?api=1&amp;query=Nov%C3%A1%20Zbrojovka%2C%20Brno" target="_blank" rel="noopener noreferrer">Get directions ↗</a></div><p class="note dm-schedule-note">These are usual days, not confirmed events or reservations. Do not travel or pay without written confirmation of the date, place, organiser and terms. LARP outings are announced separately.</p></div></section>
+<section id="onboarding"><div class="wrap" data-i18n="onboarding"><p class="eyebrow-sm">Your first visit</p><h2 class="anchor-heading">What to bring and expect<a class="anchor-link" href="#onboarding" aria-label="First visit link">#</a></h2><p class="lead">Start with an introduction and safety briefing, not a compulsory duel.</p><div class="dm-visit-grid"><article class="dm-visit-card"><span class="dm-visit-number" aria-hidden="true">01</span><h3>Wear</h3><p>Comfortable sportswear and stable, closed shoes.</p></article><article class="dm-visit-card"><span class="dm-visit-number" aria-hidden="true">02</span><h3>Bring</h3><p>Water and your questions. Ask whether suitable club equipment is available for the specific session.</p></article><article class="dm-visit-card"><span class="dm-visit-number" aria-hidden="true">03</span><h3>Practice</h3><p>STOP and safety → distance and footwork → controlled sword-and-shield movements → optional drills.</p></article><article class="dm-visit-card"><span class="dm-visit-number" aria-hidden="true">04</span><h3>Safety</h3><p>The instructor checks equipment. You can refuse sparring. Minors require guardian consent and event-specific approval.</p></article></div><p class="dm-inline-links"><a href="safety/">Read the full safety information →</a><a href="join/">See ways to join →</a></p></div></section>
+
+<section class="dm-faq" id="faq" aria-labelledby="dm-faq-title">
+  <div class="wrap dm-faq-inner">
+    <div>
+      <p class="dm-overline" data-dm-k="faqOverline">Good to know</p>
+      <h2 id="dm-faq-title" data-dm-k="faqTitle">Questions before your first visit</h2>
+      <p class="dm-faq-lead" data-dm-k="faqLead">Clear answers, without pretending an inquiry is a booking.</p>
+    </div>
+    <div class="dm-faq-list">
+      <details><summary data-dm-k="faq1Q">I have never fenced. Can I come?</summary><p data-dm-k="faq1A">Ask the organisers for the current details before attending.</p></details>
+      <details><summary data-dm-k="faq2Q">Do I need my own equipment?</summary><p data-dm-k="faq2A">Ask the organisers for the current details before attending.</p></details>
+      <details><summary data-dm-k="faq3Q">Can I simply turn up?</summary><p data-dm-k="faq3A">Ask the organisers for the current details before attending.</p></details>
+      <details><summary data-dm-k="faq4Q">Can I pay online now?</summary><p data-dm-k="faq4A">Ask the organisers for the current details before attending.</p></details>
+      <details><summary data-dm-k="faq5Q">Can I try archery?</summary><p data-dm-k="faq5A">Ask the organisers for the current details before attending.</p></details>
+      <details><summary data-dm-k="faq6Q">Can I say no to sparring?</summary><p data-dm-k="faq6A">Ask the organisers for the current details before attending.</p></details>
+      <details><summary data-dm-k="faq7Q">How are levels earned?</summary><p data-dm-k="faq7A">Ask the organisers for the current details before attending.</p></details>
+      <details><summary data-dm-k="faq8Q">Can young people participate?</summary><p data-dm-k="faq8A">Ask the organisers for the current details before attending.</p></details>
+    </div>
+  </div>
+</section>
+    </div>
+  </details>
+  <details class="dm-disclosure" id="progress-details">
+    <summary><span data-i18n="quick.detailsProgress">Training paths, ranks &amp; club rules</span></summary>
+    <div class="dm-disclosure-body">
+<section id="ranks"><div class="wrap" data-i18n="ranks"><p class="eyebrow-sm">Ranks · updated 24 Oct 2026</p>
 <h3 class="anchor-heading">Three qualifications. One fellowship.<a class="anchor-link" href="#ranks">#</a></h3>
-<p>The club now has five combat B ranks, five command C qualifications and five craft K qualifications. Operational duties are separate from earned ranks. Achievements A-01—A-10 celebrate verified contributions.</p>
+<p>The club now has seven combat B ranks, seven command C qualifications and seven craft K qualifications. Operational duties are separate from earned ranks. Achievements A-01—A-10 celebrate verified contributions.</p>
 <p style="margin:16px 0"><a class="btn solid" href="./ranks.html" style="display:inline-block;text-decoration:none">See the complete rank system · six languages →</a></p>
-<p class="note">Combat bands: B-I none, B-II red, B-III blue, B-IV orange, B-V black/gold. A thin removable green ribbon indicates current Senior participation; it is not a rank. Previously earned levels are respected. Any instructor permission needs separate authorization.</p>
-<p class="note"><strong>B-I—B-V · C-I—C-V · K-I—K-V · A-01—A-10</strong></p></div></section>
-<section id="roles">
-    <div class="wrap" data-i18n="roles">
-      <p class="eyebrow-sm">Roles in the Senior tier</p>
-      <h3 class="anchor-heading">Pick at Least One<a class="anchor-link" href="#roles">#</a></h3>
-      <p>Every Senior-tier member picks at least one role below from day one.</p>
-
-      <div class="tbl-wrap">
-        <table>
-          <thead><tr><th>Role</th><th>What it does</th><th>Reward</th></tr></thead>
-          <tbody>
-            <tr><td><strong>Recruiter</strong></td><td>Brings in new members</td><td>Status and visibility in the club + a +5-session rank bonus for every retained referral</td></tr>
-            <tr><td><strong>Tournament fighter</strong></td><td>Represents the club at tournaments and battles as a fighter</td><td>"Face of the club" status: priority placement in photos/videos for social media</td></tr>
-            <tr><td><strong>Assistant commander-trainer</strong></td><td>Helps lead part of a training session</td><td>Title + a faster track toward becoming a candidate deputy</td></tr>
-            <tr><td><strong>Craftsman</strong></td><td>Repairs and maintains the club's shared gear</td><td>Barter: repair hours are exchanged for free training sessions</td></tr>
-            <tr><td><strong>Logistics</strong></td><td>Transport, routes, distributing gear/food/tents for trips</td><td>Status + priority spot in the car/tent on trips</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </section>
+<p class="note">Combat bands: B-I none, B-II red, B-III blue, B-IV orange, B-V black/gold; B-VI/VII honor insignia await a safe optional design. A thin removable green ribbon indicates current Senior participation; it is not a rank. Previously earned levels are respected. Any instructor permission needs separate authorization.</p>
+<p class="note"><strong>B-I—B-VII · C-I—C-VII · K-I—K-VII · A-01—A-10</strong></p><p class="note"><strong>1 November 2026:</strong> Member pilot opens on 1 November 2026: voluntary review of verified progress, mentoring and achievements. Approved ranks remain; existing fees and safety restrictions are unchanged. Personal online accounts are not live yet. <a href="./ranks.html#pilot">Pilot →</a></p></div></section>
+<section id="roles"><div class="wrap" data-i18n="roles"><p class="eyebrow-sm">More ways to contribute</p><h2 class="anchor-heading">You belong here beyond the battlefield<a class="anchor-link" href="#roles" aria-label="Volunteer roles link">#</a></h2><p class="lead">Helping the club is voluntary. You do not need a rank or a volunteer duty to enquire about a first session.</p><div class="dm-role-grid"><article class="dm-role-card"><span aria-hidden="true" class="dm-role-serial">01</span><h3>Welcome friends</h3><p>Help newcomers understand the club and its safety-first approach.</p></article><article class="dm-role-card"><span aria-hidden="true" class="dm-role-serial">02</span><h3>Join events</h3><p>Take part in suitable LARP outings after the organiser confirms eligibility and rules.</p></article><article class="dm-role-card"><span aria-hidden="true" class="dm-role-serial">03</span><h3>Support beginners</h3><p>Help with supervised introductions and mentoring within your competence.</p></article><article class="dm-role-card"><span aria-hidden="true" class="dm-role-serial">04</span><h3>Craft &amp; care</h3><p>Help maintain or repair equipment subject to the safety checks.</p></article><article class="dm-role-card"><span aria-hidden="true" class="dm-role-serial">05</span><h3>Help organise</h3><p>Assist with transport, setup or an agreed event task.</p></article></div><p class="note">Real volunteer contributions may be recognised with evidence and consent. They never automatically replace combat training or grant a qualification.</p><p class="dm-inline-links"><a href="join/#ways">Find your way to participate →</a></p></div></section>
 <section id="conduct">
     <div class="wrap" data-i18n="conduct">
       <p class="eyebrow-sm">Rules and code</p>
@@ -168,7 +411,7 @@
         <li>The right to refuse a bout — no explanation needed.</li>
         <li>Gear check is mandatory before use.</li>
         <li>Newcomers get a briefing before their first bout.</li>
-        <li>Children from age 7, with written parental consent.</li>
+        <li>Minors may attend only with guardian consent and confirmation of a suitable event, instructor and safety arrangements.</li>
       </ul>
 
       <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:24px 0 8px;">Discipline</h4>
@@ -184,13 +427,97 @@
         </table>
       </div>
 
-      <p style="margin-top:14px;"><a href="../#terms">📜 Full legal terms of participation →</a></p>
+      <p style="margin-top:14px;"><a href="../#terms">📜 Shared conduct &amp; safety rules →</a></p>
     </div>
   </section>
+    </div>
+  </details>
+  <details class="dm-disclosure" id="community-details">
+    <summary><span data-i18n="quick.detailsCommunity">Community, media, team-building &amp; contacts</span></summary>
+    <div class="dm-disclosure-body">
+<section id="media" aria-labelledby="dm-media-heading">
+  <div class="wrap">
+    <p class="eyebrow-sm" data-i18n="media.eyebrow">External coverage</p>
+    <h2 id="dm-media-heading" class="anchor-heading"><span data-i18n="media.heading">Družina Moravy in the media</span><a class="anchor-link" href="#media" aria-label="Link to media coverage">#</a></h2>
+    <p class="lead dm-media-intro" data-i18n="media.intro">Press reports and public references to our community, with editorial coverage distinguished from event directories.</p>
+    <article class="dm-media-feature">
+      <p class="dm-media-meta"><span data-i18n="media.editorialLabel">Editorial report</span><span aria-hidden="true">·</span><strong>Brněnský deník</strong><span aria-hidden="true">·</span><time datetime="2026-10-11">11. 10. 2026</time></p>
+      <h3 lang="cs"><a href="https://brnensky.denik.cz/zpravy-region/brno-historicky-serm-druzina-moravy-park-luzanky/" target="_blank" rel="noopener noreferrer">Šachový souboj v reálném světě. Nadšenec z Brna přibližuje historický šerm ↗</a></h3>
+      <p data-i18n="media.denikDescription">Brněnský deník covered our historical fencing workshops and their role in helping international students find movement and new friendships in Brno.</p>
+      <div class="dm-media-sources">
+        <a data-i18n="media.originalLink" href="https://brnensky.denik.cz/zpravy-region/brno-historicky-serm-druzina-moravy-park-luzanky/" target="_blank" rel="noopener noreferrer">Read the original on Deník.cz ↗</a>
+        <a data-i18n="media.seznamLink" href="https://www.seznam.cz/komentare/279225879-sachovy-souboj-v-realnem-svete-nadsenec-z-brna-priblizuje-historicky-serm" target="_blank" rel="noopener noreferrer">Discussion on Seznam.cz ↗</a>
+      </div>
+    </article>
+    <h3 data-i18n="media.elsewhereHeading">Also listed on</h3>
+    <p class="note" data-i18n="media.elsewhereIntro">These are public event or group listings, not independent press reviews.</p>
+    <ul class="dm-media-list">
+      <li><a href="https://www.gotobrno.cz/akce/treninky-historickeho-sermu-a-larpu-druzina-moravy/" target="_blank" rel="noopener noreferrer">Go To Brno ↗</a><span data-i18n="media.gotoDescription">Brno's official visitor and event portal</span></li>
+      <li><a href="https://www.sermiri.cz/skupina/druzina-moravy/703" target="_blank" rel="noopener noreferrer">Šermíři.cz ↗</a><span data-i18n="media.sermiriDescription">Historical fencing club catalogue</span></li>
+      <li><a href="https://www.larp.cz/?q=en%2Fskupina%2F49189%2Fdruzina-moravy-moravian-squad" target="_blank" rel="noopener noreferrer">LARP.cz ↗</a><span data-i18n="media.larpDescription">LARP community group profile</span></li>
+      <li><a href="https://www.livinginbrno.cz/exhibitors2026" target="_blank" rel="noopener noreferrer">Brno Expat Fair 2026 ↗</a><span data-i18n="media.expatDescription">Exhibitor directory, Brnowalkers &amp; Družina Moravy</span></li>
+    </ul>
+    <p class="dm-media-note" data-i18n="media.outdatedNote">Event details or tariffs in older external listings may be outdated. Please check current information on this website before booking.</p>
+  </div>
+</section>
+
+<!-- DM-CASTLE-DEFENDERS-B2B-ENTRY-20261018: enquiries only; no paid HEMA checkout activated -->
+<section id="dm-team-experience" aria-label="Corporate Castle Defenders offer">
+  <div class="wrap"><div class="dm-team-card">
+    <div data-dm-offer-lang="cs" lang="cs">
+      <p class="dm-team-eyebrow">PRO FIRMY A SOUKROMÉ SKUPINY · BRNO</p>
+      <h2>Obránci hradu — teambuilding, který vás spojí</h2>
+      <p>90 minut příběhového týmového zážitku s instruktorem vedeným historickým šermem pro 8–20 dospělých. Jednoduché role, signály, měkčené tréninkové meče a společná „obrana brány“; bez tvrdého sparringu a bez nutnosti předchozích zkušeností.</p>
+      <p><strong>Orientačně 7 900 Kč za celou skupinu do 20 lidí</strong> (při plné skupině 395 Kč na osobu).</p>
+      <a class="btn plausible-event-name=Castle-Defenders-Enquiry" href="teambuilding/?lang=cs">Zjistit program a nezávazně poptat termín →</a>
+      <p class="dm-team-terms">Přijímáme pouze nezávazné poptávky; nové placené rezervace zatím neaktivujeme. Před potvrzením ověřujeme zákonné oprávnění poskytovatele, personál, prostor, bezpečnost a pojistné krytí.</p>
+    </div>
+    <div data-dm-offer-lang="en" lang="en">
+      <p class="dm-team-eyebrow">FOR COMPANIES & PRIVATE GROUPS · BRNO</p>
+      <h2>Castle Defenders — teamwork with a story</h2>
+      <p>A supervised 90-minute, beginner-friendly historical-fencing experience for 8–20 adults. Roles, signals, padded practice swords and a cooperative castle-gate challenge. No hard-contact sparring.</p>
+      <p><strong>Indicative CZK 7,900 for the whole group of up to 20</strong> (CZK 395 each at full capacity).</p>
+      <a class="btn plausible-event-name=Castle-Defenders-Enquiry" href="teambuilding/?lang=en">Explore the programme and request a quote →</a>
+      <p class="dm-team-terms">Non-binding enquiries only; new paid bookings are not open. Legal provider eligibility, competent instructors, venue, safety and activity-specific insurance must be checked before commitment.</p>
+    </div>
+    <div data-dm-offer-lang="ru" lang="ru">
+      <p class="dm-team-eyebrow">ДЛЯ КОМПАНИЙ И ЗАКРЫТЫХ ГРУПП · БРНО</p>
+      <h2>Защитники крепости — командная миссия</h2>
+      <p>90 минут сюжетного исторического фехтования для 8–20 взрослых под руководством инструкторов. Роли, сигналы, мягкое тренировочное оружие и совместная защита ворот; жёстких спаррингов нет.</p>
+      <p><strong>Ориентировочно 7 900 Kč за всю группу до 20 человек</strong> (395 Kč на человека при полном составе).</p>
+      <a class="btn plausible-event-name=Castle-Defenders-Enquiry" href="teambuilding/?lang=ru">Программа и запрос предложения →</a>
+      <p class="dm-team-terms">Пока принимаем лишь предварительные запросы, не оплачиваемые бронирования. До подтверждения проверяем право организатора, инструкторов, площадку, безопасность и страхование.</p>
+    </div>
+    <div data-dm-offer-lang="uk" lang="uk">
+      <p class="dm-team-eyebrow">ДЛЯ КОМПАНІЙ І ПРИВАТНИХ ГРУП · БРНО</p>
+      <h2>Захисники фортеці — спільна пригода команди</h2>
+      <p>90 хвилин історичного фехтування для 8–20 дорослих під наглядом інструкторів. Ролі, сигнали, м'які тренувальні мечі та спільний захист брами; без жорстких поєдинків.</p>
+      <p><strong>Орієнтовно 7 900 Kč за всю групу до 20 осіб</strong> (395 Kč на особу за повного складу).</p>
+      <a class="btn plausible-event-name=Castle-Defenders-Enquiry" href="teambuilding/?lang=uk">Програма та запит пропозиції →</a>
+      <p class="dm-team-terms">Поки що лише попередні запити, без платного бронювання. Перед підтвердженням перевіряємо право постачальника, інструкторів, місце, безпеку та страхування.</p>
+    </div>
+  </div></div>
+</section>
+
+  <section id="organisation">
+    <div class="wrap">
+      <div class="card" data-i18n="organisation">
+        <p class="eyebrow-sm">About the organisation</p>
+        <h3>Družina Moravy, z. s.</h3>
+        <p><strong>IČO:</strong> 29876150<br><strong>Registered seat:</strong> Příkop 838/6, 602 00 Brno, Czech Republic<br><strong>Registered with:</strong> Krajský soud v Brně, sp. zn. L 32290</p>
+        <p>Community, youth, historical martial arts, living-history, cultural and educational activities.</p>
+        <p><strong>Operating model:</strong> activities may be operated either by Družina Moravy, z. s. or by Aliaksei Chareshneu, OSVČ (IČO 23041625). The specific organiser and payment recipient are stated for each event, service, registration or payment. Grants and association projects are handled by the association; commercial coaching, teaching and other services may be provided by the OSVČ.</p>
+        <p><strong>Contact:</strong> chereshnev.biochem@gmail.com · +420 702 914 842</p>
+      </div>
+    </div>
+  </section>
+    </div>
+  </details>
+</div>
 </main>
 
 <div class="mobile-cta" id="mobileCta" aria-hidden="true">
-  <a class="mobile-cta-btn" data-i18n="nav.bookBtn" href="mailto:chereshnev.biochem@gmail.com?subject=Druzina%20Moravy%20-%20nezavazny%20dotaz" target="_blank" rel="noopener">Register / Book</a>
+  <a class="mobile-cta-btn" data-i18n="nav.bookBtn" href="start/">Meet the club</a>
   <a class="mobile-cta-icon" href="https://wa.me/420702914842" target="_blank" rel="noopener" aria-label="WhatsApp">
     <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l1.3-4.1A8 8 0 1 1 9 18.6z"/><path d="M9.2 10.3c0 3 2.4 5.4 5.4 5.4"/></svg>
   </a>
@@ -198,13 +525,16 @@
 
 <footer>
   <div class="wrap">
+    <details class="dm-footer-details">
+      <summary data-i18n="quick.footer">Other projects &amp; contacts</summary>
     <h2 data-i18n="footer.title">Want the full picture?</h2>
     <p class="lead" data-i18n="footer.lead">Tutoring, BrnoWalkers hiking, and the complete site live at the main hub.</p>
     <div class="footer-contacts">
       <a class="btn solid" data-i18n="footer.visitFull" href="../">Visit the full site ➔</a>
       <a class="btn" href="../walkers/">BrnoWalkers ➔</a>
     </div>
-    <div class="footer-fine">Aliaksei Chareshneu, PhD · Brno, Czech Republic · OSVČ IČO: 23041625</div>
+    </details>
+    <div class="footer-fine" data-i18n="footer.legal">Družina Moravy, z. s. · IČO 29876150 · Příkop 838/6, 602 00 Brno · Aliaksei Chareshneu, OSVČ · IČO 23041625 · organiser/payment recipient stated per activity</div>
   </div>
 </footer>
 
@@ -268,7 +598,7 @@
   (function initDruzinaEmbers() {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     var canvas = document.querySelector('.hero-visuals-druzina__canvas');
-    if (!canvas) return;
+    if (!canvas || getComputedStyle(canvas).display === 'none') return;
     var ctx = canvas.getContext('2d');
     if (!ctx) return;
 
@@ -334,114 +664,32 @@
 
 const T = {
 en: {
-  nav: { brand: 'Družina Moravy', bookBtn: 'Register / Book' },
+  quick: {"clubHeadline":"Your first battle or the next one?","trustNote":"Club participation does not require legal association membership. Friendships grow through repeated meetings.","intro":"Historical fencing, real teammates and a reason to meet again in Brno.","whatLabel":"WHAT","what":"Controlled historical fencing and archery with safety-first instruction.","whatNote":"Archery and individual weapons depend on the confirmed session.","whereLabel":"WHERE","whereNote":"Confirm the exact meeting point before travelling.","whenLabel":"WHEN","when":"Usually Monday & Saturday · 18:00","whenNote":"Confirm the date, time and venue for each session.","registerLabel":"REGISTRATION","register":"Contact us at least 48 hours in advance.","registerNote":"Advance confirmation is mandatory; an enquiry is not a reservation.","cta":"Meet the Družina crew →","legal":"New paid HEMA bookings are paused. Enquiries only. Do not pay or travel without written confirmation.","detailsVisit":"First visit, timetable, equipment & safety","detailsProgress":"Training paths, ranks & club rules","detailsCommunity":"Community, media, team-building & contacts","footer":"Other projects & contacts"},
+  nav: { brand: 'Družina Moravy', bookBtn: 'Meet the club' },
   tabs: {main:'Home', walkers:'BrnoWalkers', academy:'Academy', druzina:'Družina Moravy', calendar:'Calendar', ambassador:'Become an Ambassador', contacts:'Contacts'},
   hero: {
-    name2: 'Družina Moravy — HEMA Fencing &amp; LARP Club in Brno',
-    tagline: 'A club for historical medieval combat, fencing (HEMA), archery, and LARP re-enactment in Brno.',
-    mission: 'Družina Moravy revives the living tradition of Great Moravia — fellowship, craft, and the path from novice to warrior — so that everyone who joins finds roots, mastery, and their people.',
-    ctaRegister: 'Register for training', ctaChat: 'Join the chat',
+    name2: 'Družina Moravy — from your first sword to the shield wall',
+    tagline: 'Begin with controlled sword-and-shield basics, learn to stand together, then explore a close-combat or archery path in Brno.',
+    mission: 'Not just a one-off sword fight: an evolving beginner training path, supportive teammates, a real shield-wall foundation and optional later roles — with safety and progress explained honestly.',
+    ctaRegister: 'Enquire about training', ctaSkillTree: 'Explore your training path →', ctaLeaderboard: '🏆 Hall of the Company →', ctaChat: 'Announcements · WhatsApp',
     ctaAnnounceWA: 'Announcements · WhatsApp', ctaAnnounceTG: 'Announcements · Telegram',
     testimonialQuote: '"Druzhina training feels demanding and honest. I gained new friends and real skills, not just another story."',
     testimonialAuthor: '— Ivan, Druzhina Moravy',
-    freeNote: 'Your first training costs 120 Kč — a chance to get to know the club. Before it, we\u2019ll always ask whether you\u2019re planning to train regularly going forward or this is a one-off try out of curiosity — not a test, it just lets the coach pick the right format from the start.'
+    freeNote: 'New paid HEMA bookings are not yet open. Enquire about a confirmed date and terms; do not pay without confirmation.'
   },
-  schedule: `<p class="eyebrow-sm">Schedule &amp; venue</p>
-      <h3 class="anchor-heading">When &amp; Where<a class="anchor-link" href="#schedule">#</a></h3>
-      <p>Venue: Dukelská třída 157/44, Brno. Training outdoors. Duration: 1 hour 30 minutes. Call the trainer upon arrival.</p>
-      <div class="tbl-wrap">
-        <table>
-          <thead><tr><th>Day</th><th>Time</th><th>Format</th></tr></thead>
-          <tbody>
-            <tr><td><strong>Monday</strong></td><td>18:00</td><td>Training</td></tr>
-            <tr><td><strong>Thursday</strong></td><td>18:00</td><td>Training</td></tr>
-            <tr><td><strong>Saturday</strong></td><td>18:00</td><td>Training</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <p class="note">LARP events happen irregularly, announced separately on Telegram and WhatsApp. Training is cancelled if no participant has registered (paid session, a registered trial training, or an active subscription).</p>`,
-  tariff: `<p class="eyebrow-sm">Membership &amp; payment</p>
-      <h3 class="anchor-heading">Tariff Is Not Rank<a class="anchor-link" href="#tariff">#</a></h3>
-      <p>This is about how you pay — it has nothing to do with rank progression.</p>
-      <div class="tbl-wrap">
-        <table>
-          <thead><tr><th>Parameter</th><th>Junior tier</th><th>Senior tier</th></tr></thead>
-          <tbody>
-            <tr><td><strong>Who</strong></td><td>Occasional, irregular guests</td><td>Those training regularly</td></tr>
-            <tr><td><strong>Payment (single visit)</strong></td><td>240 Kč / session</td><td>120 Kč / session</td></tr>
-            <tr><td><strong>Condition</strong></td><td>At least 1 session a month</td><td>4+ sessions every month</td></tr>
-            <tr><td><strong>Standard subscription (up to 4/month)</strong></td><td>910 Kč</td><td>455 Kč</td></tr>
-            <tr><td><strong>Unlimited subscription (3+/week)</strong></td><td>2,870 Kč</td><td>1,435 Kč</td></tr>
-            <tr><td><strong>3-month subscription (90 days)</strong></td><td>8,235 Kč</td><td>4,120 Kč</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <p class="note" style="margin-top:10px">Subscriptions include free weapon rental (swords, axes, spears, bows). Armour (cuirass, helmet) rents separately. Valid 30 days from payment (quarterly — 90 days), refund only before activation. First person to buy the quarterly subscription in the current cycle gets a handmade weapon as a gift. Standard is specific days, not a walk-in-whenever pass — you tell the coach in advance which of the Mon/Thu/Sat sessions you\u2019ll attend that cycle.</p>
-      <div class="callout" style="margin-top:18px;">
-        <p><strong>Starter Package (Junior tier)</strong> — for those training 2×/week or more who haven\u2019t yet reached Senior status.</p>
-        <div class="tbl-wrap" style="margin-top:10px;">
-          <table>
-            <thead><tr><th>Package</th><th>Price</th><th>Per session</th></tr></thead>
-            <tbody>
-              <tr><td>10 lessons</td><td>2,300 Kč</td><td>230 Kč</td></tr>
-              <tr><td>20 lessons</td><td>4,200 Kč</td><td>210 Kč</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <p class="note" style="margin-top:10px">Weapon rental included. Valid 4 months from purchase. Buying a package doesn\u2019t grant Senior status on its own — that still requires 4+ sessions in a calendar month; once reached, renew at Senior rates.</p>
-      </div>
-      <p style="margin-top:18px"><strong>Senior tier is a status you reconfirm every month, not a one-time threshold.</strong> If you stop keeping up 4+ sessions a month, you automatically drop back to Junior tier and the 240 Kč/session rate. Rank doesn\u2019t reset.</p>
-      <p class="note">Your first training costs 120 Kč — a chance to get to know the club. Before it, we\u2019ll always ask: are you planning to train regularly going forward (a subscription from 455 Kč/month, or 120–240 Kč per visit), or is this a one-off try out of curiosity? It\u2019s not a test — it just lets the coach pick the right format from the start, so nobody\u2019s time gets wasted.</p>`,
-  payment: `<p class="eyebrow-sm">Payment</p>
-      <h3 class="anchor-heading">How Payment Works<a class="anchor-link" href="#druzina-payment">#</a></h3>
-      <ul class="plain">
-        <li>Registration and payment must be completed at least 48 hours before the start of training, via Revolut: revolut.me/aliaksj5pq.</li>
-        <li>Payment later than 48 hours before, or on the day — a 25% surcharge on the session price.</li>
-        <li>Need to borrow/rent club gear (weapons, armour)? Tell us at least 48 hours before training, same as payment. Later — the same 25% surcharge on the session price.</li>
-        <li>Payment (including any late surcharge) must be received before the training starts — without it, you won\u2019t be admitted to that session.</li>
-        <li>Training takes place only if at least one participant has a paid session (including a first-time trial) or an active subscription. If no one qualifies — the session is cancelled.</li>
-      </ul>`,
-  onboarding: `<p class="eyebrow-sm">First time here</p>
-      <h3 class="anchor-heading">What to Expect<a class="anchor-link" href="#onboarding">#</a></h3>
-      <div class="tbl-wrap">
-        <table>
-          <tbody>
-            <tr><td><strong>Clothing</strong></td><td>Comfortable sportswear, closed shoes. Gear provided.</td></tr>
-            <tr><td><strong>Bring</strong></td><td>A bottle of water. First training costs 120 Kč.</td></tr>
-            <tr><td><strong>Structure</strong></td><td>Briefing → stances → weapons testing → light sparring.</td></tr>
-            <tr><td><strong>Liability</strong></td><td>Waiver signing. No insurance provided.</td></tr>
-            <tr><td><strong>Next step</strong></td><td>After 4 sessions/month, move to Senior tier.</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="callout">
-        <p><strong>First training — 120 Kč, just show up.</strong></p>
-        <div style="margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-          <a class="btn solid plausible-event-name=Register-Druzina" href="mailto:chereshnev.biochem@gmail.com?subject=Druzina%20Moravy%20-%20nezavazny%20dotaz" target="_blank" rel="noopener">Register for training</a>
-          <a class="btn plausible-event-name=Join-Chat-Druzina" href="https://chat.whatsapp.com/JzeXAQF8I2XE3zQ2OqWsPz" target="_blank" rel="noopener">Join the chat</a>
-        </div>
-      </div>`,
-  ranks: `<p class="eyebrow-sm">Ranks · approved 19 Oct 2026</p>
+  organisation: `<p class="eyebrow-sm">About the organisation</p><h3>Družina Moravy, z. s.</h3><p><strong>IČO:</strong> 29876150<br><strong>Registered seat:</strong> Příkop 838/6, 602 00 Brno, Czech Republic<br><strong>Registered with:</strong> Krajský soud v Brně, sp. zn. L 32290</p><p>Community, youth, historical martial arts, living-history, cultural and educational activities.</p><p><strong>Operating model:</strong> activities may be operated either by Družina Moravy, z. s. or by Aliaksei Chareshneu, OSVČ (IČO 23041625). The specific organiser and payment recipient are stated for each event, service, registration or payment. Grants and association projects are handled by the association; commercial coaching, teaching and other services may be provided by the OSVČ.</p><p><strong>Contact:</strong> chereshnev.biochem@gmail.com · +420 702 914 842</p>`,
+  schedule: `<p class="eyebrow-sm">Typical training times · confirm first</p><h2 class="anchor-heading">When and where we usually train<a class="anchor-link" href="#schedule" aria-label="Schedule link">#</a></h2><p class="lead">Training is normally planned two evenings a week. Every session depends on the instructor, venue and safety conditions.</p><p class="note dm-schedule-note"><strong>Schedule update — 22 October 2026:</strong> Thursday 18:00 training is permanently discontinued.</p><div class="dm-session-slots" role="list"><div class="dm-session-slot" role="listitem"><strong>Monday</strong><span>18:00 · duration confirmed per date</span></div><div class="dm-session-slot" role="listitem"><strong>Saturday</strong><span>18:00 · duration confirmed per date</span></div></div><div class="dm-where"><div><span class="dm-place-label">Usual meeting point</span><strong>Nová Zbrojovka, Brno</strong><p>Regular sessions are planned outdoors in the Nová Zbrojovka area. There is no permanent hall; ask for written confirmation of the actual meeting point, permitted space and event before travelling.</p></div><a href="https://www.google.com/maps/search/?api=1&amp;query=Nov%C3%A1%20Zbrojovka%2C%20Brno" target="_blank" rel="noopener noreferrer">Get directions ↗</a></div><p class="note dm-schedule-note">These are usual days, not confirmed events or reservations. Do not travel or pay without written confirmation of the date, place, organiser and terms. LARP outings are announced separately.</p>`,
+
+
+  onboarding: `<p class="eyebrow-sm">Your first visit</p><h2 class="anchor-heading">What to bring and expect<a class="anchor-link" href="#onboarding" aria-label="First visit link">#</a></h2><p class="lead">Start with an introduction and safety briefing, not a compulsory duel.</p><div class="dm-visit-grid"><article class="dm-visit-card"><span class="dm-visit-number" aria-hidden="true">01</span><h3>Wear</h3><p>Comfortable sportswear and stable, closed shoes.</p></article><article class="dm-visit-card"><span class="dm-visit-number" aria-hidden="true">02</span><h3>Bring</h3><p>Water and your questions. Ask whether suitable club equipment is available for the specific session.</p></article><article class="dm-visit-card"><span class="dm-visit-number" aria-hidden="true">03</span><h3>Practice</h3><p>STOP and safety → distance and footwork → controlled sword-and-shield movements → optional drills.</p></article><article class="dm-visit-card"><span class="dm-visit-number" aria-hidden="true">04</span><h3>Safety</h3><p>The instructor checks equipment. You can refuse sparring. Minors require guardian consent and event-specific approval.</p></article></div><p class="dm-inline-links"><a href="safety/">Read the full safety information →</a><a href="join/">See ways to join →</a></p>`,
+  ranks: `<p class="eyebrow-sm">Ranks · updated 24 Oct 2026</p>
 <h3 class="anchor-heading">Three qualifications. One fellowship.<a class="anchor-link" href="#ranks">#</a></h3>
-<p>The club now has five combat B ranks, five command C qualifications and five craft K qualifications. Operational duties are separate from earned ranks. Achievements A-01—A-10 celebrate verified contributions.</p>
+<p>The club now has seven combat B ranks, seven command C qualifications and seven craft K qualifications. Operational duties are separate from earned ranks. Achievements A-01—A-10 celebrate verified contributions.</p>
 <p style="margin:16px 0"><a class="btn solid" href="./ranks.html" style="display:inline-block;text-decoration:none">See the complete rank system · six languages →</a></p>
-<p class="note">Combat bands: B-I none, B-II red, B-III blue, B-IV orange, B-V black/gold. A thin removable green ribbon indicates current Senior participation; it is not a rank. Previously earned levels are respected. Any instructor permission needs separate authorization.</p>
-<p class="note"><strong>B-I—B-V · C-I—C-V · K-I—K-V · A-01—A-10</strong></p>`,
-  roles: `<p class="eyebrow-sm">Roles in the Senior tier</p>
-      <h3 class="anchor-heading">Pick at Least One<a class="anchor-link" href="#roles">#</a></h3>
-      <p>Every Senior-tier member picks at least one role below from day one.</p>
-      <div class="tbl-wrap">
-        <table>
-          <thead><tr><th>Role</th><th>What it does</th><th>Reward</th></tr></thead>
-          <tbody>
-            <tr><td><strong>Recruiter</strong></td><td>Brings in new members</td><td>Status and visibility in the club + a +5-session rank bonus for every retained referral</td></tr>
-            <tr><td><strong>Tournament fighter</strong></td><td>Represents the club at tournaments and battles as a fighter</td><td>"Face of the club" status: priority placement in photos/videos for social media</td></tr>
-            <tr><td><strong>Assistant commander-trainer</strong></td><td>Helps lead part of a training session</td><td>Title + a faster track toward becoming a candidate deputy</td></tr>
-            <tr><td><strong>Craftsman</strong></td><td>Repairs and maintains the club\u2019s shared gear</td><td>Barter: repair hours are exchanged for free training sessions</td></tr>
-            <tr><td><strong>Logistics</strong></td><td>Transport, routes, distributing gear/food/tents for trips</td><td>Status + priority spot in the car/tent on trips</td></tr>
-          </tbody>
-        </table>
-      </div>`,
+<p class="note">Combat bands: B-I none, B-II red, B-III blue, B-IV orange, B-V black/gold; B-VI/VII honor insignia await a safe optional design. A thin removable green ribbon indicates current Senior participation; it is not a rank. Previously earned levels are respected. Any instructor permission needs separate authorization.</p>
+<p class="note"><strong>B-I—B-VII · C-I—C-VII · K-I—K-VII · A-01—A-10</strong></p>
+<p class="note"><strong>1 Nov / 1.11.2026:</strong> Member pilot opens on 1 November 2026: voluntary review of verified progress, mentoring and achievements. Approved ranks remain; existing fees and safety restrictions are unchanged. Personal online accounts are not live yet. <a href="./ranks.html#pilot">Pilot →</a></p>`,
+  roles: `<p class="eyebrow-sm">More ways to contribute</p><h2 class="anchor-heading">You belong here beyond the battlefield<a class="anchor-link" href="#roles" aria-label="Volunteer roles link">#</a></h2><p class="lead">Helping the club is voluntary. You do not need a rank or a volunteer duty to enquire about a first session.</p><div class="dm-role-grid"><article class="dm-role-card"><span aria-hidden="true" class="dm-role-serial">01</span><h3>Welcome friends</h3><p>Help newcomers understand the club and its safety-first approach.</p></article><article class="dm-role-card"><span aria-hidden="true" class="dm-role-serial">02</span><h3>Join events</h3><p>Take part in suitable LARP outings after the organiser confirms eligibility and rules.</p></article><article class="dm-role-card"><span aria-hidden="true" class="dm-role-serial">03</span><h3>Support beginners</h3><p>Help with supervised introductions and mentoring within your competence.</p></article><article class="dm-role-card"><span aria-hidden="true" class="dm-role-serial">04</span><h3>Craft &amp; care</h3><p>Help maintain or repair equipment subject to the safety checks.</p></article><article class="dm-role-card"><span aria-hidden="true" class="dm-role-serial">05</span><h3>Help organise</h3><p>Assist with transport, setup or an agreed event task.</p></article></div><p class="note">Real volunteer contributions may be recognised with evidence and consent. They never automatically replace combat training or grant a qualification.</p><p class="dm-inline-links"><a href="join/#ways">Find your way to participate →</a></p>`,
   conduct: `<p class="eyebrow-sm">Rules and code</p>
       <h3 class="anchor-heading">Conduct &amp; Safety<a class="anchor-link" href="#conduct">#</a></h3>
       <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:0 0 8px;">Conduct</h4>
@@ -457,7 +705,7 @@ en: {
         <li>The right to refuse a bout — no explanation needed.</li>
         <li>Gear check is mandatory before use.</li>
         <li>Newcomers get a briefing before their first bout.</li>
-        <li>Children from age 7, with written parental consent.</li>
+        <li>Minors may attend only with guardian consent and confirmation of a suitable event, instructor and safety arrangements.</li>
       </ul>
       <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:24px 0 8px;">Discipline</h4>
       <div class="tbl-wrap">
@@ -471,118 +719,37 @@ en: {
           </tbody>
         </table>
       </div>
-      <p style="margin-top:14px;"><a href="../#terms">📜 Full legal terms of participation →</a></p>`,
-  footer: { title: 'Want the full picture?', lead: 'Tutoring, BrnoWalkers hiking, and the complete site live at the main hub.', visitFull: 'Visit the full site ➔' }
+      <p style="margin-top:14px;"><a href="../#terms">📜 Shared conduct &amp; safety rules →</a></p>`,
+  media: { heroLink: "Featured in Brněnský deník — see coverage ↓", eyebrow: "External coverage", heading: "Družina Moravy in the media", intro: "Press reports and public references to our community, with editorial coverage distinguished from event directories.", editorialLabel: "Editorial report", denikDescription: "Brněnský deník covered our historical fencing workshops and their role in helping international students find movement and new friendships in Brno.", originalLink: "Read the original on Deník.cz ↗", seznamLink: "Discussion on Seznam.cz ↗", elsewhereHeading: "Also listed on", elsewhereIntro: "These are public event or group listings, not independent press reviews.", gotoDescription: "Brno’s official visitor and event portal", sermiriDescription: "Historical fencing club catalogue", larpDescription: "LARP community group profile", expatDescription: "Exhibitor directory, Brnowalkers & Družina Moravy", outdatedNote: "Event details or tariffs in older external listings may be outdated. Please check current information on this website before booking." },
+  footer: { title: 'Want the full picture?', lead: 'Tutoring, BrnoWalkers hiking, and the complete site live at the main hub.', visitFull: 'Visit the full site ➔', legal: 'Družina Moravy, z. s. · IČO 29876150 · Příkop 838/6, 602 00 Brno · Aliaksei Chareshneu, OSVČ · IČO 23041625 · organiser/payment recipient stated per activity' }
 },
 ru: {
-  nav: { brand: 'Дружина Моравы', bookBtn: 'Записаться' },
+  quick: {"clubHeadline":"Твой первый бой — или следующий?","trustNote":"Чтобы участвовать в клубе, не нужно юридически вступать в z. s. Доверие растёт через повторные встречи.","intro":"Фехтование, настоящая команда и встречи, на которые хочется возвращаться.","whatLabel":"ЧТО","what":"Фехтование и стрельба из лука под присмотром инструктора, с упором на безопасность.","whatNote":"Лучная программа и виды оружия зависят от конкретного занятия.","whereLabel":"ГДЕ","whereNote":"Уточни точное место встречи перед выездом.","whenLabel":"КОГДА","when":"Обычно пн и сб · 18:00","whenNote":"Проверь дату, время и площадку конкретной тренировки.","registerLabel":"РЕГИСТРАЦИЯ","register":"Обращайся минимум за 48 часов до занятия.","registerNote":"Предварительное подтверждение обязательно. Сообщение — ещё не запись.","cta":"Познакомиться с Дружиной →","legal":"Новая платная запись на HEMA приостановлена. Только запрос даты; не плати и не приезжай без письменного подтверждения.","detailsVisit":"Первый визит, расписание, экипировка и безопасность","detailsProgress":"Обучение, звания и правила Дружины","detailsCommunity":"Сообщество, публикации, тимбилдинг и контакты","footer":"Другие проекты и контакты"},
+  nav: { brand: 'Дружина Моравы', bookBtn: 'Познакомиться' },
   tabs: {main:'Главная', walkers:'Брноходцы', academy:'Академия', druzina:'Дружина Моравы', calendar:'Календарь', ambassador:'Стать послом', contacts:'Контакты'},
   hero: {
-    name2: 'Дружина Моравы — клуб исторического фехтования (HEMA) и LARP в Брно',
-    tagline: 'Клуб исторического средневекового боя, фехтования (HEMA), стрельбы и LARP-реконструкции в Брно.',
-    mission: 'Дружина Моравы возрождает живую традицию Великой Моравии — товарищество, ремесло и путь от новичка до воина, — чтобы каждый, кто пришёл, обрёл корни, мастерство и своих.',
-    ctaRegister: 'Записаться на тренировку', ctaChat: 'Присоединиться к чату',
+    name2: 'Дружина Моравы — от первого меча к щитовой линии',
+    tagline: 'Познакомься с безопасными основами меча и щита, научись действовать в строю, затем выбери свой путь: ближний бой или лук.',
+    mission: 'Мы готовим путь обучения, а не просто разовые бои: первые навыки, напарник, своя команда, постепенный прогресс и будущие роли. Наши условия безопасности и записи всегда объясняем заранее.',
+    ctaRegister: 'Спросить о тренировке', ctaSkillTree: 'Дерево навыков: выбери свой путь →', ctaLeaderboard: '🏆 Зал славы дружины →', ctaChat: 'Анонсы · WhatsApp',
     ctaAnnounceWA: 'Анонсы · WhatsApp', ctaAnnounceTG: 'Анонсы · Telegram',
     testimonialQuote: '«Тренировки в Дружине — требовательные и честные. Я получил новых друзей и реальные навыки, а не просто ещё одну байку.»',
     testimonialAuthor: '— Иван, Дружина Моравы',
-    freeNote: 'Первая тренировка стоит 120 крон — возможность познакомиться с клубом. Перед ней мы всегда спросим, планируешь ли ты тренироваться регулярно дальше или это разовая проба из любопытства — это не тест, просто помогает тренеру сразу выбрать правильный формат.'
+    freeNote: 'Новая платная запись на HEMA пока не открыта. Сначала уточните подтверждённую дату и условия; без подтверждения не платите.'
   },
-  schedule: `<p class="eyebrow-sm">Расписание и место</p>
-      <h3 class="anchor-heading">Когда и где<a class="anchor-link" href="#schedule">#</a></h3>
-      <p>Место: Dukelská třída 157/44, Брно. Тренировки на улице. Длительность: 1 час 30 минут. По прибытии позвони тренеру.</p>
-      <div class="tbl-wrap">
-        <table>
-          <thead><tr><th>День</th><th>Время</th><th>Формат</th></tr></thead>
-          <tbody>
-            <tr><td><strong>Понедельник</strong></td><td>18:00</td><td>Тренировка</td></tr>
-            <tr><td><strong>Четверг</strong></td><td>18:00</td><td>Тренировка</td></tr>
-            <tr><td><strong>Суббота</strong></td><td>18:00</td><td>Тренировка</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <p class="note">LARP-мероприятия проходят нерегулярно, анонсируются отдельно в Telegram и WhatsApp. Тренировка отменяется, если ни один участник не зарегистрировался (оплаченное занятие, записанная пробная тренировка или активный абонемент).</p>`,
-  tariff: `<p class="eyebrow-sm">Членство и оплата</p>
-      <h3 class="anchor-heading">Тариф — это не ранг<a class="anchor-link" href="#tariff">#</a></h3>
-      <p>Это про то, как ты платишь — к прогрессу в рангах отношения не имеет.</p>
-      <div class="tbl-wrap">
-        <table>
-          <thead><tr><th>Параметр</th><th>Тариф Junior</th><th>Тариф Senior</th></tr></thead>
-          <tbody>
-            <tr><td><strong>Кто</strong></td><td>Нерегулярные, случайные гости</td><td>Те, кто тренируется регулярно</td></tr>
-            <tr><td><strong>Оплата (разовое посещение)</strong></td><td>240 крон / занятие</td><td>120 крон / занятие</td></tr>
-            <tr><td><strong>Условие</strong></td><td>Минимум 1 занятие в месяц</td><td>4+ занятий каждый месяц</td></tr>
-            <tr><td><strong>Стандартный абонемент (до 4/мес)</strong></td><td>910 крон</td><td>455 крон</td></tr>
-            <tr><td><strong>Безлимитный абонемент (3+/нед)</strong></td><td>2 870 крон</td><td>1 435 крон</td></tr>
-            <tr><td><strong>3-месячный абонемент (90 дней)</strong></td><td>8 235 крон</td><td>4 120 крон</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <p class="note" style="margin-top:10px">В абонементы включена бесплатная аренда оружия (мечи, топоры, копья, луки). Броня (кираса, шлем) арендуется отдельно. Действует 30 дней с оплаты (квартальный — 90 дней), возврат только до активации. Первый, кто купит квартальный абонемент в текущем цикле, получает оружие ручной работы в подарок. Стандартный — это конкретные дни, а не проход когда угодно: ты заранее говоришь тренеру, на какие из тренировок Пн/Чт/Сб придёшь в этом цикле.</p>
-      <div class="callout" style="margin-top:18px;">
-        <p><strong>Стартовый пакет (тариф Junior)</strong> — для тех, кто тренируется 2+ раз в неделю, но ещё не достиг статуса Senior.</p>
-        <div class="tbl-wrap" style="margin-top:10px;">
-          <table>
-            <thead><tr><th>Пакет</th><th>Цена</th><th>За занятие</th></tr></thead>
-            <tbody>
-              <tr><td>10 занятий</td><td>2 300 крон</td><td>230 крон</td></tr>
-              <tr><td>20 занятий</td><td>4 200 крон</td><td>210 крон</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <p class="note" style="margin-top:10px">Аренда оружия включена. Действует 4 месяца с покупки. Покупка пакета сама по себе не даёт статус Senior — для этого всё равно нужно 4+ занятия в календарный месяц; после достижения — продление по тарифу Senior.</p>
-      </div>
-      <p style="margin-top:18px"><strong>Статус Senior подтверждается каждый месяц заново, а не даётся один раз навсегда.</strong> Если перестаёшь держать 4+ занятия в месяц — автоматически откатываешься на тариф Junior и ставку 240 крон/занятие. Ранг при этом не сбрасывается.</p>
-      <p class="note">Первая тренировка стоит 120 крон — возможность познакомиться с клубом. Перед ней мы всегда спросим: планируешь ли ты тренироваться регулярно (абонемент от 455 крон/месяц, либо 120–240 крон за визит), или это разовая проба из любопытства? Это не тест — просто помогает тренеру сразу выбрать правильный формат, чтобы никто не терял время.</p>`,
-  payment: `<p class="eyebrow-sm">Оплата</p>
-      <h3 class="anchor-heading">Как устроена оплата<a class="anchor-link" href="#druzina-payment">#</a></h3>
-      <ul class="plain">
-        <li>Регистрация и оплата должны быть завершены минимум за 48 часов до начала тренировки, через Revolut: revolut.me/aliaksj5pq.</li>
-        <li>Оплата позже, чем за 48 часов, или в день тренировки — надбавка 25% к стоимости занятия.</li>
-        <li>Нужно одолжить/арендовать снаряжение клуба (оружие, броню)? Сообщи минимум за 48 часов до тренировки, как и с оплатой. Позже — та же надбавка 25% к стоимости занятия.</li>
-        <li>Оплата (включая любую надбавку за опоздание) должна поступить до начала тренировки — без неё на занятие не допустят.</li>
-        <li>Тренировка состоится только если хотя бы у одного участника есть оплаченное занятие (включая первую пробную) или активный абонемент. Если таких нет — тренировка отменяется.</li>
-      </ul>`,
-  onboarding: `<p class="eyebrow-sm">Впервые здесь</p>
-      <h3 class="anchor-heading">Чего ожидать<a class="anchor-link" href="#onboarding">#</a></h3>
-      <div class="tbl-wrap">
-        <table>
-          <tbody>
-            <tr><td><strong>Одежда</strong></td><td>Удобная спортивная одежда, закрытая обувь. Снаряжение предоставляется.</td></tr>
-            <tr><td><strong>Взять с собой</strong></td><td>Бутылку воды. Первая тренировка стоит 120 крон.</td></tr>
-            <tr><td><strong>Структура</strong></td><td>Инструктаж → стойки → проба оружия → лёгкий спарринг.</td></tr>
-            <tr><td><strong>Ответственность</strong></td><td>Подписание расписки об ответственности. Страховка не предоставляется.</td></tr>
-            <tr><td><strong>Следующий шаг</strong></td><td>После 4 занятий в месяц — переход на тариф Senior.</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="callout">
-        <p><strong>Первая тренировка — 120 крон, просто приходи.</strong></p>
-        <div style="margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-          <a class="btn solid plausible-event-name=Register-Druzina" href="mailto:chereshnev.biochem@gmail.com?subject=Druzina%20Moravy%20-%20nezavazny%20dotaz" target="_blank" rel="noopener">Записаться на тренировку</a>
-          <a class="btn plausible-event-name=Join-Chat-Druzina" href="https://chat.whatsapp.com/JzeXAQF8I2XE3zQ2OqWsPz" target="_blank" rel="noopener">Присоединиться к чату</a>
-        </div>
-      </div>`,
-  ranks: `<p class="eyebrow-sm">Звания · утверждено 19.10.2026</p>
+  organisation: `<p class="eyebrow-sm">Об организации</p><h3>Družina Moravy, z. s.</h3><p><strong>IČO:</strong> 29876150<br><strong>Юридический адрес:</strong> Příkop 838/6, 602 00 Brno, Czech Republic<br><strong>Регистрация:</strong> Krajský soud v Brně, sp. zn. L 32290</p><p>Общественная, молодёжная, историко-фехтовальная, living-history, культурная и образовательная деятельность.</p><p><strong>Модель работы:</strong> отдельные активности могут проводиться либо Družina Moravy, z. s., либо Aliaksei Chareshneu, OSVČ (IČO 23041625). Конкретный организатор и получатель оплаты указываются для каждого мероприятия, услуги, регистрации или платежа. Грантовые и ассоциационные проекты ведутся через spolek; коммерческие тренировки, обучение и другие услуги могут предоставляться OSVČ.</p><p><strong>Контакт:</strong> chereshnev.biochem@gmail.com · +420 702 914 842</p>`,
+  schedule: `<p class="eyebrow-sm">Обычное расписание · уточняй</p><h2 class="anchor-heading">Когда и где обычно тренируемся<a class="anchor-link" href="#schedule" aria-label="Schedule link">#</a></h2><p class="lead">Обычно занятия планируются на два вечера в неделю. Каждая дата зависит от инструктора, площадки и условий безопасности.</p><p class="note dm-schedule-note"><strong>Изменение с 22.10.2026:</strong> тренировки по четвергам в 18:00 отменены на постоянной основе.</p><div class="dm-session-slots" role="list"><div class="dm-session-slot" role="listitem"><strong>Понедельник</strong><span>18:00 · длительность уточняется</span></div><div class="dm-session-slot" role="listitem"><strong>Суббота</strong><span>18:00 · длительность уточняется</span></div></div><div class="dm-where"><div><span class="dm-place-label">Обычное место встречи</span><strong>Nová Zbrojovka, Brno</strong><p>Обычно занимаемся на улице в районе Nová Zbrojovka. Постоянного зала нет; конкретную точку встречи, право использовать площадку и дату подтверждаем письменно.</p></div><a href="https://www.google.com/maps/search/?api=1&amp;query=Nov%C3%A1%20Zbrojovka%2C%20Brno" target="_blank" rel="noopener noreferrer">Открыть маршрут ↗</a></div><p class="note dm-schedule-note">Это ориентир, а не подтверждённая тренировка и не бронь. Не приезжай и не переводи деньги без письменного подтверждения даты, места, организатора и условий. LARP-выезды объявляем отдельно.</p>`,
+
+
+  onboarding: `<p class="eyebrow-sm">Первый визит</p><h2 class="anchor-heading">Что взять и чего ожидать<a class="anchor-link" href="#onboarding" aria-label="First visit link">#</a></h2><p class="lead">Начинаем со знакомства и инструктажа, а не с обязательной дуэли.</p><div class="dm-visit-grid"><article class="dm-visit-card"><span class="dm-visit-number" aria-hidden="true">01</span><h3>Одежда</h3><p>Удобная спортивная одежда и устойчивая закрытая обувь.</p></article><article class="dm-visit-card"><span class="dm-visit-number" aria-hidden="true">02</span><h3>С собой</h3><p>Вода и вопросы. Наличие клубного снаряжения уточняй для конкретного занятия.</p></article><article class="dm-visit-card"><span class="dm-visit-number" aria-hidden="true">03</span><h3>Занятие</h3><p>Команда STOP и безопасность → дистанция и шаги → контроль меча и щита → упражнения по желанию.</p></article><article class="dm-visit-card"><span class="dm-visit-number" aria-hidden="true">04</span><h3>Безопасность</h3><p>Инструктор проверяет инвентарь. От боя можно отказаться. Для несовершеннолетних нужен допуск с согласием родителей.</p></article></div><p class="dm-inline-links"><a href="safety/">Полные правила безопасности →</a><a href="join/">Как присоединиться →</a></p>`,
+  ranks: `<p class="eyebrow-sm">Звания · расширено 24.10.2026</p>
 <h3 class="anchor-heading">Три квалификации. Одна Дружина.<a class="anchor-link" href="#ranks">#</a></h3>
-<p>Пять боевых рангов B, пять командных квалификаций C и пять ремесленных K. Оперативное командование назначается отдельно. Десять достижений A-01—A-10 отмечают реальный вклад.</p>
+<p>Семь боевых рангов B, семь командных квалификаций C и семь ремесленных K. Оперативное командование назначается отдельно. Десять достижений A-01—A-10 отмечают реальный вклад.</p>
 <p style="margin:16px 0"><a class="btn solid" href="./ranks.html" style="display:inline-block;text-decoration:none">Открыть полный регламент званий · шесть языков →</a></p>
 <p class="note">Браслеты: B-I нет, B-II красный, B-III синий, B-IV оранжевый, B-V чёрный с золотом. Тонкая съёмная зелёная лента — текущий тариф Senior, а не ранг. Прежние заслуги сохранены. Право преподавать выдаётся отдельно.</p>
-<p class="note"><strong>B-I—B-V · C-I—C-V · K-I—K-V · A-01—A-10</strong></p>`,
-  roles: `<p class="eyebrow-sm">Роли в тарифе Senior</p>
-      <h3 class="anchor-heading">Выбери минимум одну<a class="anchor-link" href="#roles">#</a></h3>
-      <p>Каждый участник тарифа Senior выбирает минимум одну роль ниже с первого дня.</p>
-      <div class="tbl-wrap">
-        <table>
-          <thead><tr><th>Роль</th><th>Что делает</th><th>Награда</th></tr></thead>
-          <tbody>
-            <tr><td><strong>Рекрутер</strong></td><td>Приводит новых участников</td><td>Статус и видимость в клубе + бонус +5 занятий к рангу за каждого удержанного приглашённого</td></tr>
-            <tr><td><strong>Турнирный боец</strong></td><td>Представляет клуб на турнирах и сражениях как боец</td><td>Статус «лица клуба»: приоритет в фото/видео для соцсетей</td></tr>
-            <tr><td><strong>Помощник командира-тренера</strong></td><td>Помогает вести часть тренировки</td><td>Титул + ускоренный путь к статусу кандидата в заместители</td></tr>
-            <tr><td><strong>Мастеровой</strong></td><td>Ремонтирует и обслуживает общее снаряжение клуба</td><td>Бартер: часы ремонта обмениваются на бесплатные тренировки</td></tr>
-            <tr><td><strong>Логистика</strong></td><td>Транспорт, маршруты, распределение снаряжения/еды/палаток для выездов</td><td>Статус + приоритетное место в машине/палатке на выездах</td></tr>
-          </tbody>
-        </table>
-      </div>`,
+<p class="note"><strong>B-I—B-VII · C-I—C-VII · K-I—K-VII · A-01—A-10</strong></p>
+<p class="note"><strong>1 Nov / 1.11.2026:</strong> С 1 ноября 2026 — добровольный пилот: проверка реальных достижений, обратная связь и наставничество. Утверждённые звания сохраняются; тарифы и требования безопасности не меняются. Личный онлайн-кабинет ещё не открыт. <a href="./ranks.html#pilot">Pilot →</a></p>`,
+  roles: `<p class="eyebrow-sm">Разные способы участия</p><h2 class="anchor-heading">Дружина — это не только бойцы<a class="anchor-link" href="#roles" aria-label="Volunteer roles link">#</a></h2><p class="lead">Помощь клубу добровольна. Чтобы спросить о первой тренировке, не нужны ни ранг, ни волонтёрские обязательства.</p><div class="dm-role-grid"><article class="dm-role-card"><span aria-hidden="true" class="dm-role-serial">01</span><h3>Привести друга</h3><p>Помоги новичку познакомиться с клубом и правилами безопасности.</p></article><article class="dm-role-card"><span aria-hidden="true" class="dm-role-serial">02</span><h3>Выезды и события</h3><p>Участвуй в подходящих LARP после подтверждения правил и допуска организатором.</p></article><article class="dm-role-card"><span aria-hidden="true" class="dm-role-serial">03</span><h3>Помощь новичкам</h3><p>Поддерживай знакомство и наставничество под руководством инструктора.</p></article><article class="dm-role-card"><span aria-hidden="true" class="dm-role-serial">04</span><h3>Мастерская</h3><p>Помогай с ремонтом и снаряжением с соблюдением требований безопасности.</p></article><article class="dm-role-card"><span aria-hidden="true" class="dm-role-serial">05</span><h3>Логистика</h3><p>Помогай с перевозкой, подготовкой площадки и согласованными задачами.</p></article></div><p class="note">Реальный волонтёрский вклад можно отметить по подтверждённым сведениям и с согласия участника. Он не заменяет посещения тренировок и не присваивает звания автоматически.</p><p class="dm-inline-links"><a href="join/#ways">Выбрать способ участия →</a></p>`,
   conduct: `<p class="eyebrow-sm">Правила и кодекс</p>
       <h3 class="anchor-heading">Поведение и безопасность<a class="anchor-link" href="#conduct">#</a></h3>
       <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:0 0 8px;">Поведение</h4>
@@ -598,7 +765,7 @@ ru: {
         <li>Право отказаться от боя — без объяснений.</li>
         <li>Проверка снаряжения обязательна перед использованием.</li>
         <li>Новички получают инструктаж перед первым боем.</li>
-        <li>Дети с 7 лет, при письменном согласии родителей.</li>
+        <li>Несовершеннолетние могут участвовать только с согласием законного представителя и после подтверждения подходящего мероприятия, инструктора и безопасности.</li>
       </ul>
       <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:24px 0 8px;">Дисциплина</h4>
       <div class="tbl-wrap">
@@ -612,118 +779,37 @@ ru: {
           </tbody>
         </table>
       </div>
-      <p style="margin-top:14px;"><a href="../#terms">📜 Полные юридические условия участия →</a></p>`,
-  footer: { title: 'Хочешь увидеть всю картину?', lead: 'Репетиторство, походы Брноходцев и весь сайт целиком — на главном хабе.', visitFull: 'Перейти на весь сайт ➔' }
+      <p style="margin-top:14px;"><a href="../#terms">📜 Общие правила поведения и безопасности →</a></p>`,
+  media: { heroLink: "О нас в Brněnský deník — публикация ↓", eyebrow: "Публикации и упоминания", heading: "О нас пишут", intro: "Материалы прессы и открытые упоминания клуба. Редакционные публикации отделены от афиш и каталогов.", editorialLabel: "Редакционная статья", denikDescription: "Brněnský deník рассказал о наших занятиях историческим фехтованием и о том, как они помогают иностранным студентам в Брно заниматься спортом и находить друзей.", originalLink: "Читать статью в Deník.cz ↗", seznamLink: "Обсуждение на Seznam.cz ↗", elsewhereHeading: "Где ещё представлены", elsewhereIntro: "Это афиши и каталоги мероприятий или клубов, а не независимые журналистские отзывы.", gotoDescription: "Официальный туристический и событийный портал Брно", sermiriDescription: "Каталог клубов исторического фехтования", larpDescription: "Карточка клуба в сообществе LARP", expatDescription: "Каталог участников выставки Brno Expat Fair", outdatedNote: "Цены и условия в старых внешних афишах могут устареть. Перед записью сверяйтесь с актуальной информацией на нашем сайте." },
+  footer: { title: 'Хочешь увидеть всю картину?', lead: 'Репетиторство, походы Брноходцев и весь сайт целиком — на главном хабе.', visitFull: 'Перейти на весь сайт ➔', legal: 'Družina Moravy, z. s. · IČO 29876150 · Příkop 838/6, 602 00 Brno · Aliaksei Chareshneu, OSVČ · IČO 23041625 · организатор/получатель оплаты указан для каждой активности' }
 },
 cs: {
-  nav: { brand: 'Družina Moravy', bookBtn: 'Přihlásit se' },
+  quick: {"clubHeadline":"První bitva, nebo další společná?","trustNote":"Do klubu můžeš chodit bez právního členství ve spolku. Důvěra roste opakovaným setkáváním.","intro":"Historický šerm, skutečná parta a důvod znovu se potkat v Brně.","whatLabel":"CO","what":"Historický šerm a lukostřelba pod dohledem instruktora, s důrazem na bezpečnost.","whatNote":"Lukostřelba a konkrétní zbraně závisí na potvrzeném tréninku.","whereLabel":"KDE","whereNote":"Přesné místo srazu ověřte před odjezdem.","whenLabel":"KDY","when":"Obvykle pondělí a sobota · 18:00","whenNote":"Potvrďte si datum, čas a místo konkrétního tréninku.","registerLabel":"PŘIHLÁŠENÍ","register":"Ozvěte se nejméně 48 hodin předem.","registerNote":"Předchozí potvrzení je povinné. Dotaz není rezervace.","cta":"Poznej naši partu →","legal":"Nové placené rezervace HEMA jsou pozastaveny. Pouze nezávazné dotazy; bez písemného potvrzení neplaťte ani necestujte.","detailsVisit":"První návštěva, rozvrh, vybavení a bezpečnost","detailsProgress":"Výcvikové cesty, hodnosti a pravidla","detailsCommunity":"Komunita, média, teambuilding a kontakty","footer":"Další projekty a kontakty"},
+  nav: { brand: 'Družina Moravy', bookBtn: 'Poznej klub' },
   tabs: {main:'Domů', walkers:'BrnoWalkers', academy:'Akademie', druzina:'Družina Moravy', calendar:'Kalendář', ambassador:'Staň se ambasadorem', contacts:'Kontakty'},
   hero: {
-    name2: 'Družina Moravy — klub historického šermu (HEMA) a LARPu v Brně',
-    tagline: 'Klub historického středověkého boje, šermu (HEMA), střelby a LARP rekonstrukce v Brně.',
-    mission: 'Družina Moravy oživuje živou tradici Velké Moravy — kamarádství, řemeslo a cestu od nováčka k válečníkovi, aby každý, kdo přijde, našel kořeny, mistrovství a své lidi.',
-    ctaRegister: 'Přihlásit se na trénink', ctaChat: 'Připojit se k chatu',
+    name2: 'Družina Moravy — od prvního meče ke štítové linii',
+    tagline: 'Začni bezpečně vedenými základy meče a štítu, nauč se držet linii a pak si zvol cestu: boj zblízka nebo lukostřelbu.',
+    mission: 'Připravujeme smysluplnou výukovou cestu místo jednorázového šermu: první zvládnuté dovednosti, pomoc zkušených, společnou jednotku a postupný pokrok. Bezpečnost i pravidla účasti vysvětlujeme předem.',
+    ctaRegister: 'Zeptat se na trénink', ctaSkillTree: 'Strom dovedností: najdi svou cestu →', ctaLeaderboard: '🏆 Síň družiny →', ctaChat: 'Oznámení · WhatsApp',
     ctaAnnounceWA: 'Oznámení · WhatsApp', ctaAnnounceTG: 'Oznámení · Telegram',
     testimonialQuote: '„Tréninky v Družině jsou náročné a upřímné. Získal jsem nové přátele a skutečné dovednosti, ne jen další historku."',
     testimonialAuthor: '— Ivan, Družina Moravy',
-    freeNote: 'První trénink stojí 120 Kč — šance poznat klub. Před ním se vždy zeptáme, jestli plánuješ trénovat pravidelně dál, nebo je to jednorázová zkouška ze zvědavosti — není to test, jen to trenérovi pomůže hned zvolit správný formát.'
+    freeNote: 'Nové placené rezervace HEMA ještě nejsou otevřené. Vyžádejte si potvrzený termín a podmínky; bez potvrzení neplaťte.'
   },
-  schedule: `<p class="eyebrow-sm">Rozvrh a místo</p>
-      <h3 class="anchor-heading">Kdy a kde<a class="anchor-link" href="#schedule">#</a></h3>
-      <p>Místo: Dukelská třída 157/44, Brno. Trénink venku. Délka: 1 hodina 30 minut. Po příchodu zavolej trenérovi.</p>
-      <div class="tbl-wrap">
-        <table>
-          <thead><tr><th>Den</th><th>Čas</th><th>Formát</th></tr></thead>
-          <tbody>
-            <tr><td><strong>Pondělí</strong></td><td>18:00</td><td>Trénink</td></tr>
-            <tr><td><strong>Čtvrtek</strong></td><td>18:00</td><td>Trénink</td></tr>
-            <tr><td><strong>Sobota</strong></td><td>18:00</td><td>Trénink</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <p class="note">LARP akce probíhají nepravidelně, oznamují se zvlášť na Telegramu a WhatsAppu. Trénink se ruší, pokud se nezaregistroval žádný účastník (zaplacená lekce, zapsaný zkušební trénink nebo aktivní předplatné).</p>`,
-  tariff: `<p class="eyebrow-sm">Členství a platba</p>
-      <h3 class="anchor-heading">Tarif není hodnost<a class="anchor-link" href="#tariff">#</a></h3>
-      <p>Jde o to, jak platíš — s postupem v hodnostech to nesouvisí.</p>
-      <div class="tbl-wrap">
-        <table>
-          <thead><tr><th>Parametr</th><th>Tarif Junior</th><th>Tarif Senior</th></tr></thead>
-          <tbody>
-            <tr><td><strong>Kdo</strong></td><td>Příležitostní, nepravidelní hosté</td><td>Ti, kdo trénují pravidelně</td></tr>
-            <tr><td><strong>Platba (jedna návštěva)</strong></td><td>240 Kč / lekce</td><td>120 Kč / lekce</td></tr>
-            <tr><td><strong>Podmínka</strong></td><td>Alespoň 1 lekce měsíčně</td><td>4+ lekcí každý měsíc</td></tr>
-            <tr><td><strong>Standardní předplatné (do 4/měs)</strong></td><td>910 Kč</td><td>455 Kč</td></tr>
-            <tr><td><strong>Neomezené předplatné (3+/týden)</strong></td><td>2 870 Kč</td><td>1 435 Kč</td></tr>
-            <tr><td><strong>3měsíční předplatné (90 dní)</strong></td><td>8 235 Kč</td><td>4 120 Kč</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <p class="note" style="margin-top:10px">Předplatné zahrnuje bezplatné zapůjčení zbraní (meče, sekery, kopí, luky). Zbroj (kyrys, přilba) se půjčuje zvlášť. Platí 30 dní od platby (čtvrtletní — 90 dní), vrácení peněz jen před aktivací. První, kdo koupí čtvrtletní předplatné v aktuálním cyklu, dostane ručně vyrobenou zbraň jako dárek. Standard jsou konkrétní dny, ne vstup kdykoliv — trenérovi předem řekneš, na které z tréninků Po/Čt/So v daném cyklu přijdeš.</p>
-      <div class="callout" style="margin-top:18px;">
-        <p><strong>Startovní balíček (tarif Junior)</strong> — pro ty, kdo trénují 2×/týden nebo víc a ještě nedosáhli statusu Senior.</p>
-        <div class="tbl-wrap" style="margin-top:10px;">
-          <table>
-            <thead><tr><th>Balíček</th><th>Cena</th><th>Za lekci</th></tr></thead>
-            <tbody>
-              <tr><td>10 lekcí</td><td>2 300 Kč</td><td>230 Kč</td></tr>
-              <tr><td>20 lekcí</td><td>4 200 Kč</td><td>210 Kč</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <p class="note" style="margin-top:10px">Zapůjčení zbraní je v ceně. Platí 4 měsíce od koupě. Koupě balíčku sama o sobě nedává status Senior — pro to je stále potřeba 4+ lekcí v kalendářním měsíci; po dosažení — obnovení za sazby Senior.</p>
-      </div>
-      <p style="margin-top:18px"><strong>Status Senior si každý měsíc znovu potvrzuješ, není to jednorázová hranice.</strong> Pokud přestaneš držet 4+ lekcí měsíčně, automaticky se vrátíš na tarif Junior a sazbu 240 Kč/lekce. Hodnost se přitom neresetuje.</p>
-      <p class="note">První trénink stojí 120 Kč — šance poznat klub. Před ním se vždy zeptáme: plánuješ trénovat pravidelně (předplatné od 455 Kč/měsíc, nebo 120–240 Kč za návštěvu), nebo je to jednorázová zkouška ze zvědavosti? Není to test — jen to trenérovi pomůže hned zvolit správný formát, ať nikdo neztrácí čas.</p>`,
-  payment: `<p class="eyebrow-sm">Platba</p>
-      <h3 class="anchor-heading">Jak funguje platba<a class="anchor-link" href="#druzina-payment">#</a></h3>
-      <ul class="plain">
-        <li>Registrace a platba musí být dokončeny minimálně 48 hodin před začátkem tréninku, přes Revolut: revolut.me/aliaksj5pq.</li>
-        <li>Platba později než 48 hodin předem, nebo v den tréninku — příplatek 25 % k ceně lekce.</li>
-        <li>Potřebuješ půjčit/pronajmout klubové vybavení (zbraně, zbroj)? Dej vědět minimálně 48 hodin před tréninkem, stejně jako u platby. Později — stejný příplatek 25 % k ceně lekce.</li>
-        <li>Platba (včetně případného příplatku za pozdní platbu) musí dorazit před začátkem tréninku — bez ní tě na lekci nepustí.</li>
-        <li>Trénink se koná jen pokud má alespoň jeden účastník zaplacenou lekci (včetně první zkušební) nebo aktivní předplatné. Pokud nikdo takový není — trénink se ruší.</li>
-      </ul>`,
-  onboarding: `<p class="eyebrow-sm">Poprvé tady</p>
-      <h3 class="anchor-heading">Co očekávat<a class="anchor-link" href="#onboarding">#</a></h3>
-      <div class="tbl-wrap">
-        <table>
-          <tbody>
-            <tr><td><strong>Oblečení</strong></td><td>Pohodlné sportovní oblečení, uzavřená obuv. Vybavení se zapůjčuje.</td></tr>
-            <tr><td><strong>Vzít s sebou</strong></td><td>Láhev vody. První trénink stojí 120 Kč.</td></tr>
-            <tr><td><strong>Struktura</strong></td><td>Instruktáž → postoje → zkoušení zbraní → lehký sparring.</td></tr>
-            <tr><td><strong>Odpovědnost</strong></td><td>Podpis prohlášení o odpovědnosti. Pojištění se neposkytuje.</td></tr>
-            <tr><td><strong>Další krok</strong></td><td>Po 4 lekcích/měsíc — přechod na tarif Senior.</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="callout">
-        <p><strong>První trénink — 120 Kč, stačí přijít.</strong></p>
-        <div style="margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-          <a class="btn solid plausible-event-name=Register-Druzina" href="mailto:chereshnev.biochem@gmail.com?subject=Druzina%20Moravy%20-%20nezavazny%20dotaz" target="_blank" rel="noopener">Přihlásit se na trénink</a>
-          <a class="btn plausible-event-name=Join-Chat-Druzina" href="https://chat.whatsapp.com/JzeXAQF8I2XE3zQ2OqWsPz" target="_blank" rel="noopener">Připojit se k chatu</a>
-        </div>
-      </div>`,
-  ranks: `<p class="eyebrow-sm">Hodnosti · schváleno 19. 10. 2026</p>
+  organisation: `<p class="eyebrow-sm">O spolku</p><h3>Družina Moravy, z. s.</h3><p><strong>IČO:</strong> 29876150<br><strong>Sídlo:</strong> Příkop 838/6, 602 00 Brno, Česká republika<br><strong>Zapsán u:</strong> Krajský soud v Brně, sp. zn. L 32290</p><p>Komunitní, mládežnické, historicko-šermířské, living-history, kulturní a vzdělávací aktivity.</p><p><strong>Provozní model:</strong> jednotlivé aktivity může provozovat buď Družina Moravy, z. s., nebo Aliaksei Chareshneu, OSVČ (IČO 23041625). Konkrétní pořadatel a příjemce platby jsou uvedeni u každé akce, služby, registrace nebo platby. Grantové a spolkové projekty vede spolek; komerční tréninky, výuku a další služby může poskytovat OSVČ.</p><p><strong>Kontakt:</strong> chereshnev.biochem@gmail.com · +420 702 914 842</p>`,
+  schedule: `<p class="eyebrow-sm">Obvyklé termíny · vždy potvrdit</p><h2 class="anchor-heading">Kdy a kde se obvykle scházíme<a class="anchor-link" href="#schedule" aria-label="Schedule link">#</a></h2><p class="lead">Tréninky plánujeme zpravidla na dva večery týdně. Každý termín závisí na instruktorovi, prostoru a bezpečnostních podmínkách.</p><p class="note dm-schedule-note"><strong>Změna od 22. 10. 2026:</strong> čtvrteční tréninky v 18:00 jsou trvale zrušeny.</p><div class="dm-session-slots" role="list"><div class="dm-session-slot" role="listitem"><strong>Pondělí</strong><span>18:00 · délku potvrdíme pro termín</span></div><div class="dm-session-slot" role="listitem"><strong>Sobota</strong><span>18:00 · délku potvrdíme pro termín</span></div></div><div class="dm-where"><div><span class="dm-place-label">Obvyklé místo setkání</span><strong>Nová Zbrojovka, Brno</strong><p>Běžné tréninky plánujeme venku v areálu Nová Zbrojovka. Nemáme stálou tělocvičnu; přesný sraz, oprávnění využít dané místo a termín potvrzujeme pro každý trénink písemně.</p></div><a href="https://www.google.com/maps/search/?api=1&amp;query=Nov%C3%A1%20Zbrojovka%2C%20Brno" target="_blank" rel="noopener noreferrer">Zobrazit trasu ↗</a></div><p class="note dm-schedule-note">Toto je orientační rozvrh, nikoli potvrzená akce nebo rezervace. Bez písemného potvrzení termínu, místa, pořadatele a podmínek necestuj ani neplať. LARP výpravy oznamujeme samostatně.</p>`,
+
+
+  onboarding: `<p class="eyebrow-sm">První návštěva</p><h2 class="anchor-heading">Co si vzít a co čekat<a class="anchor-link" href="#onboarding" aria-label="First visit link">#</a></h2><p class="lead">Začínáme seznámením a bezpečností, ne povinným soubojem.</p><div class="dm-visit-grid"><article class="dm-visit-card"><span class="dm-visit-number" aria-hidden="true">01</span><h3>Oblečení</h3><p>Pohodlné sportovní oblečení a pevné uzavřené boty.</p></article><article class="dm-visit-card"><span class="dm-visit-number" aria-hidden="true">02</span><h3>S sebou</h3><p>Vodu a své dotazy. Dostupnost klubového vybavení se potvrzuje pro konkrétní trénink.</p></article><article class="dm-visit-card"><span class="dm-visit-number" aria-hidden="true">03</span><h3>Trénink</h3><p>Povel STOP a bezpečnost → vzdálenost a kroky → ovládání meče a štítu → dobrovolná cvičení.</p></article><article class="dm-visit-card"><span class="dm-visit-number" aria-hidden="true">04</span><h3>Bezpečnost</h3><p>Instruktor kontroluje vybavení. Sparring lze odmítnout. Nezletilí potřebují souhlas zákonného zástupce a schválení akce.</p></article></div><p class="dm-inline-links"><a href="safety/">Úplné bezpečnostní pokyny →</a><a href="join/">Jak se zapojit →</a></p>`,
+  ranks: `<p class="eyebrow-sm">Hodnosti · rozšířeno 24. 10. 2026</p>
 <h3 class="anchor-heading">Tři kvalifikace. Jedna družina.<a class="anchor-link" href="#ranks">#</a></h3>
-<p>Pět bojových hodností B, pět velitelských kvalifikací C a pět řemeslných kvalifikací K. Operační vedení je oddělené pověření. Deset úspěchů A-01—A-10 oceňuje doložený přínos.</p>
+<p>Sedm bojových hodností B, sedm velitelských kvalifikací C a sedm řemeslných kvalifikací K. Operační vedení je oddělené pověření. Deset úspěchů A-01—A-10 oceňuje doložený přínos.</p>
 <p style="margin:16px 0"><a class="btn solid" href="./ranks.html" style="display:inline-block;text-decoration:none">Celá soustava hodností · šest jazyků →</a></p>
 <p class="note">Náramky: B-I žádný, B-II červený, B-III modrý, B-IV oranžový, B-V černý se zlatou. Tenká odnímatelná zelená stuha znamená aktuální Senior tarif, nikoli hodnost. Zásluhy zůstávají. Výuka vyžaduje zvláštní oprávnění.</p>
-<p class="note"><strong>B-I—B-V · C-I—C-V · K-I—K-V · A-01—A-10</strong></p>`,
-  roles: `<p class="eyebrow-sm">Role v tarifu Senior</p>
-      <h3 class="anchor-heading">Vyber si alespoň jednu<a class="anchor-link" href="#roles">#</a></h3>
-      <p>Každý člen tarifu Senior si od prvního dne vybere alespoň jednu roli níže.</p>
-      <div class="tbl-wrap">
-        <table>
-          <thead><tr><th>Role</th><th>Co dělá</th><th>Odměna</th></tr></thead>
-          <tbody>
-            <tr><td><strong>Náborář</strong></td><td>Přivádí nové členy</td><td>Status a viditelnost v klubu + bonus +5 lekcí k hodnosti za každého udrženého doporučeného</td></tr>
-            <tr><td><strong>Turnajový bojovník</strong></td><td>Reprezentuje klub na turnajích a bitvách jako bojovník</td><td>Status „tváře klubu": přednostní zařazení do fotek/videí pro sociální sítě</td></tr>
-            <tr><td><strong>Asistent velitele-trenéra</strong></td><td>Pomáhá vést část tréninkové lekce</td><td>Titul + rychlejší cesta ke kandidátovi na zástupce</td></tr>
-            <tr><td><strong>Řemeslník</strong></td><td>Opravuje a udržuje společné vybavení klubu</td><td>Směna: hodiny oprav se vyměňují za bezplatné tréninky</td></tr>
-            <tr><td><strong>Logistika</strong></td><td>Doprava, trasy, rozdělování vybavení/jídla/stanů na výjezdy</td><td>Status + přednostní místo v autě/stanu na výjezdech</td></tr>
-          </tbody>
-        </table>
-      </div>`,
+<p class="note"><strong>B-I—B-VII · C-I—C-VII · K-I—K-VII · A-01—A-10</strong></p>
+<p class="note"><strong>1 Nov / 1.11.2026:</strong> Od 1. listopadu 2026 začíná dobrovolný pilot ověřeného pokroku, mentorství a úspěchů. Schválené hodnosti platí dál; ceny a bezpečnostní pravidla se nemění. Osobní online účet zatím není spuštěný. <a href="./ranks.html#pilot">Pilot →</a></p>`,
+  roles: `<p class="eyebrow-sm">Různé cesty zapojení</p><h2 class="anchor-heading">Družina není jen o bojovnících<a class="anchor-link" href="#roles" aria-label="Volunteer roles link">#</a></h2><p class="lead">Pomoc klubu je dobrovolná. Pro první nezávazný dotaz nepotřebuješ hodnost ani dobrovolnické povinnosti.</p><div class="dm-role-grid"><article class="dm-role-card"><span aria-hidden="true" class="dm-role-serial">01</span><h3>Přiveď kamaráda</h3><p>Pomoz nováčkovi poznat klub a pravidla bezpečnosti.</p></article><article class="dm-role-card"><span aria-hidden="true" class="dm-role-serial">02</span><h3>Účast na akcích</h3><p>Zapoj se do vhodných LARPů po potvrzení pravidel a účasti pořadatelem.</p></article><article class="dm-role-card"><span aria-hidden="true" class="dm-role-serial">03</span><h3>Pomoc nováčkům</h3><p>Podporuj úvod a mentoring pod dohledem instruktora.</p></article><article class="dm-role-card"><span aria-hidden="true" class="dm-role-serial">04</span><h3>Výroba a opravy</h3><p>Pečuj o výstroj s odpovídající kontrolou bezpečnosti.</p></article><article class="dm-role-card"><span aria-hidden="true" class="dm-role-serial">05</span><h3>Logistika</h3><p>Pomáhej s dopravou, přípravou prostoru a dohodnutými úkoly.</p></article></div><p class="note">Skutečné dobrovolnické zásluhy lze uznat po ověření a se souhlasem člena. Nenahrazují automaticky bojové tréninky ani neudělují hodnosti.</p><p class="dm-inline-links"><a href="join/#ways">Najdi svou roli →</a></p>`,
   conduct: `<p class="eyebrow-sm">Pravidla a kodex</p>
       <h3 class="anchor-heading">Chování a bezpečnost<a class="anchor-link" href="#conduct">#</a></h3>
       <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:0 0 8px;">Chování</h4>
@@ -739,7 +825,7 @@ cs: {
         <li>Právo odmítnout souboj — bez vysvětlení.</li>
         <li>Kontrola vybavení je povinná před použitím.</li>
         <li>Nováčci dostanou instruktáž před prvním soubojem.</li>
-        <li>Děti od 7 let, s písemným souhlasem rodičů.</li>
+        <li>Nezletilí se mohou účastnit jen se souhlasem zákonného zástupce a po potvrzení vhodné akce, instruktora a bezpečnosti.</li>
       </ul>
       <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:24px 0 8px;">Kázeň</h4>
       <div class="tbl-wrap">
@@ -753,118 +839,37 @@ cs: {
           </tbody>
         </table>
       </div>
-      <p style="margin-top:14px;"><a href="../#terms">📜 Úplné právní podmínky účasti →</a></p>`,
-  footer: { title: 'Chceš vidět celý obrázek?', lead: 'Doučování, výšlapy BrnoWalkers a celý web najdeš na hlavním hubu.', visitFull: 'Přejít na celý web ➔' }
+      <p style="margin-top:14px;"><a href="../#terms">📜 Společná pravidla chování a bezpečnosti →</a></p>`,
+  media: { heroLink: "Psali o nás v Brněnském deníku — přečíst ↓", eyebrow: "Média a veřejné zmínky", heading: "Napsali o nás", intro: "Články a veřejné zmínky o našem klubu. Redakční příspěvky odlišujeme od katalogových záznamů a pozvánek na akce.", editorialLabel: "Redakční článek", denikDescription: "Brněnský deník představil naše workshopy historického šermu, které přivádějí zahraniční studenty k pohybu i novým přátelstvím v Brně.", originalLink: "Přečíst článek v Deníku ↗", seznamLink: "Diskuse na Seznam.cz ↗", elsewhereHeading: "Najdete nás také", elsewhereIntro: "Jde o veřejné katalogy klubů a přehledy akcí, nikoli o nezávislé recenze v médiích.", gotoDescription: "Oficiální brněnský turistický a informační portál", sermiriDescription: "Katalog skupin historického šermu", larpDescription: "Profil skupiny v LARP komunitě", expatDescription: "Seznam vystavovatelů, Brnowalkers & Družina Moravy", outdatedNote: "Informace o cenách a termínech ve starších externích pozvánkách se mohou lišit. Před registrací se řiďte aktuálními údaji na tomto webu." },
+  footer: { title: 'Chceš vidět celý obrázek?', lead: 'Doučování, výšlapy BrnoWalkers a celý web najdeš na hlavním hubu.', visitFull: 'Přejít na celý web ➔', legal: 'Družina Moravy, z. s. · IČO 29876150 · Příkop 838/6, 602 00 Brno · Aliaksei Chareshneu, OSVČ · IČO 23041625 · pořadatel/příjemce platby je uveden u každé aktivity' }
 },
 uk: {
-  nav: { brand: 'Дружина Моравії', bookBtn: 'Записатися' },
+  quick: {"clubHeadline":"Твій перший бій — чи наступний?","trustNote":"Для участі в клубі не потрібне юридичне членство в z. s. Довіра зростає завдяки повторним зустрічам.","intro":"Фехтування, справжня команда та нові зустрічі в Брно.","whatLabel":"ЩО","what":"Історичне фехтування та стрільба з лука під наглядом інструктора з акцентом на безпеку.","whatNote":"Лучна програма й види зброї залежать від підтвердженого заняття.","whereLabel":"ДЕ","whereNote":"Уточни точне місце зустрічі перед виїздом.","whenLabel":"КОЛИ","when":"Зазвичай пн і сб · 18:00","whenNote":"Перевір дату, час і майданчик конкретного тренування.","registerLabel":"РЕЄСТРАЦІЯ","register":"Звертайся щонайменше за 48 годин.","registerNote":"Попереднє підтвердження обов'язкове. Повідомлення ще не є записом.","cta":"Познайомитися з Дружиною →","legal":"Новий платний запис на HEMA наразі призупинено. Лише запити; не плати й не приїжджай без письмового підтвердження.","detailsVisit":"Перший візит, розклад, спорядження й безпека","detailsProgress":"Навчання, звання та правила","detailsCommunity":"Спільнота, публікації, тімбілдинг і контакти","footer":"Інші проєкти й контакти"},
+  nav: { brand: 'Дружина Моравії', bookBtn: 'Познайомитися' },
   tabs: {main:'Головна', walkers:'Брнохідці', academy:'Академія', druzina:'Дружина Моравії', calendar:'Календар', ambassador:'Стати послом', contacts:'Контакти'},
   hero: {
-    name2: 'Дружина Моравії — клуб історичного фехтування (HEMA) та LARP у Брно',
-    tagline: 'Клуб історичного середньовічного бою, фехтування (HEMA), стрільби та LARP-реконструкції в Брно.',
-    mission: 'Дружина Моравії відроджує живу традицію Великої Моравії — товариство, ремесло і шлях від новачка до воїна, — щоб кожен, хто прийшов, знайшов коріння, майстерність і своїх.',
-    ctaRegister: 'Записатися на тренування', ctaChat: 'Приєднатися до чату',
+    name2: 'Дружина Моравії — від першого меча до щитового строю',
+    tagline: 'Почни з контрольованих основ меча й щита, навчися тримати стрій, а тоді обери свій шлях: ближній бій або лук.',
+    mission: 'Ми готуємо послідовну програму замість випадкових поєдинків: перші навички, підтримка товаришів, команда, реальний поступ і майбутні ролі. Умови безпеки й участі пояснюємо заздалегідь.',
+    ctaRegister: 'Запитати про тренування', ctaSkillTree: 'Дерево навичок: обери свій шлях →', ctaLeaderboard: '🏆 Зала слави дружини →', ctaChat: 'Анонси · WhatsApp',
     ctaAnnounceWA: 'Анонси · WhatsApp', ctaAnnounceTG: 'Анонси · Telegram',
     testimonialQuote: '«Тренування в Дружині — вимогливі й чесні. Я здобув нових друзів і реальні навички, а не просто ще одну байку.»',
     testimonialAuthor: '— Іван, Дружина Моравії',
-    freeNote: 'Перше тренування коштує 120 крон — можливість познайомитися з клубом. Перед ним ми завжди запитаємо, чи плануєш ти тренуватися регулярно далі, чи це разова спроба з цікавості — це не тест, просто допомагає тренеру одразу обрати правильний формат.'
+    freeNote: 'Новий платний запис на HEMA поки не відкрито. Запитайте підтверджену дату й умови; не платіть без підтвердження.'
   },
-  schedule: `<p class="eyebrow-sm">Розклад і місце</p>
-      <h3 class="anchor-heading">Коли і де<a class="anchor-link" href="#schedule">#</a></h3>
-      <p>Місце: Dukelská třída 157/44, Брно. Тренування на вулиці. Тривалість: 1 година 30 хвилин. Після прибуття зателефонуй тренеру.</p>
-      <div class="tbl-wrap">
-        <table>
-          <thead><tr><th>День</th><th>Час</th><th>Формат</th></tr></thead>
-          <tbody>
-            <tr><td><strong>Понеділок</strong></td><td>18:00</td><td>Тренування</td></tr>
-            <tr><td><strong>Четвер</strong></td><td>18:00</td><td>Тренування</td></tr>
-            <tr><td><strong>Субота</strong></td><td>18:00</td><td>Тренування</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <p class="note">LARP-заходи відбуваються нерегулярно, анонсуються окремо в Telegram і WhatsApp. Тренування скасовується, якщо жоден учасник не зареєструвався (оплачене заняття, записане пробне тренування або активний абонемент).</p>`,
-  tariff: `<p class="eyebrow-sm">Членство та оплата</p>
-      <h3 class="anchor-heading">Тариф — це не ранг<a class="anchor-link" href="#tariff">#</a></h3>
-      <p>Це про те, як ти платиш — до прогресу в рангах стосунку не має.</p>
-      <div class="tbl-wrap">
-        <table>
-          <thead><tr><th>Параметр</th><th>Тариф Junior</th><th>Тариф Senior</th></tr></thead>
-          <tbody>
-            <tr><td><strong>Хто</strong></td><td>Нерегулярні, випадкові гості</td><td>Ті, хто тренується регулярно</td></tr>
-            <tr><td><strong>Оплата (разове відвідування)</strong></td><td>240 крон / заняття</td><td>120 крон / заняття</td></tr>
-            <tr><td><strong>Умова</strong></td><td>Мінімум 1 заняття на місяць</td><td>4+ занять щомісяця</td></tr>
-            <tr><td><strong>Стандартний абонемент (до 4/міс)</strong></td><td>910 крон</td><td>455 крон</td></tr>
-            <tr><td><strong>Безлімітний абонемент (3+/тижд)</strong></td><td>2 870 крон</td><td>1 435 крон</td></tr>
-            <tr><td><strong>3-місячний абонемент (90 днів)</strong></td><td>8 235 крон</td><td>4 120 крон</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <p class="note" style="margin-top:10px">В абонементи включена безкоштовна оренда зброї (мечі, сокири, списи, луки). Броня (кіраса, шолом) орендується окремо. Діє 30 днів з оплати (квартальний — 90 днів), повернення лише до активації. Перший, хто купить квартальний абонемент у поточному циклі, отримає зброю ручної роботи в подарунок. Стандартний — це конкретні дні, а не прохід коли завгодно: ти заздалегідь кажеш тренеру, на які з тренувань Пн/Чт/Сб прийдеш цього циклу.</p>
-      <div class="callout" style="margin-top:18px;">
-        <p><strong>Стартовий пакет (тариф Junior)</strong> — для тих, хто тренується 2+ раз на тиждень, але ще не досяг статусу Senior.</p>
-        <div class="tbl-wrap" style="margin-top:10px;">
-          <table>
-            <thead><tr><th>Пакет</th><th>Ціна</th><th>За заняття</th></tr></thead>
-            <tbody>
-              <tr><td>10 занять</td><td>2 300 крон</td><td>230 крон</td></tr>
-              <tr><td>20 занять</td><td>4 200 крон</td><td>210 крон</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <p class="note" style="margin-top:10px">Оренда зброї включена. Діє 4 місяці з покупки. Купівля пакета сама по собі не дає статус Senior — для цього все одно потрібно 4+ занять у календарний місяць; після досягнення — продовження за тарифом Senior.</p>
-      </div>
-      <p style="margin-top:18px"><strong>Статус Senior підтверджується щомісяця заново, а не дається один раз назавжди.</strong> Якщо перестаєш тримати 4+ занять на місяць — автоматично повертаєшся на тариф Junior і ставку 240 крон/заняття. Ранг при цьому не скидається.</p>
-      <p class="note">Перше тренування коштує 120 крон — можливість познайомитися з клубом. Перед ним ми завжди запитаємо: чи плануєш ти тренуватися регулярно (абонемент від 455 крон/місяць, або 120–240 крон за візит), чи це разова спроба з цікавості? Це не тест — просто допомагає тренеру одразу обрати правильний формат, щоб ніхто не втрачав час.</p>`,
-  payment: `<p class="eyebrow-sm">Оплата</p>
-      <h3 class="anchor-heading">Як влаштована оплата<a class="anchor-link" href="#druzina-payment">#</a></h3>
-      <ul class="plain">
-        <li>Реєстрація та оплата мають бути завершені мінімум за 48 годин до початку тренування, через Revolut: revolut.me/aliaksj5pq.</li>
-        <li>Оплата пізніше, ніж за 48 годин, або в день тренування — надбавка 25% до вартості заняття.</li>
-        <li>Потрібно позичити/орендувати спорядження клубу (зброю, броню)? Повідом мінімум за 48 годин до тренування, як і з оплатою. Пізніше — та сама надбавка 25% до вартості заняття.</li>
-        <li>Оплата (включно з будь-якою надбавкою за запізнення) має надійти до початку тренування — без неї на заняття не допустять.</li>
-        <li>Тренування відбудеться лише якщо хоча б у одного учасника є оплачене заняття (включно з першим пробним) або активний абонемент. Якщо таких немає — тренування скасовується.</li>
-      </ul>`,
-  onboarding: `<p class="eyebrow-sm">Вперше тут</p>
-      <h3 class="anchor-heading">Чого очікувати<a class="anchor-link" href="#onboarding">#</a></h3>
-      <div class="tbl-wrap">
-        <table>
-          <tbody>
-            <tr><td><strong>Одяг</strong></td><td>Зручний спортивний одяг, закрите взуття. Спорядження надається.</td></tr>
-            <tr><td><strong>Взяти з собою</strong></td><td>Пляшку води. Перше тренування коштує 120 крон.</td></tr>
-            <tr><td><strong>Структура</strong></td><td>Інструктаж → стійки → проба зброї → легкий спаринг.</td></tr>
-            <tr><td><strong>Відповідальність</strong></td><td>Підписання розписки про відповідальність. Страхування не надається.</td></tr>
-            <tr><td><strong>Наступний крок</strong></td><td>Після 4 занять на місяць — перехід на тариф Senior.</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="callout">
-        <p><strong>Перше тренування — 120 крон, просто приходь.</strong></p>
-        <div style="margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-          <a class="btn solid plausible-event-name=Register-Druzina" href="mailto:chereshnev.biochem@gmail.com?subject=Druzina%20Moravy%20-%20nezavazny%20dotaz" target="_blank" rel="noopener">Записатися на тренування</a>
-          <a class="btn plausible-event-name=Join-Chat-Druzina" href="https://chat.whatsapp.com/JzeXAQF8I2XE3zQ2OqWsPz" target="_blank" rel="noopener">Приєднатися до чату</a>
-        </div>
-      </div>`,
-  ranks: `<p class="eyebrow-sm">Звання · затверджено 19.10.2026</p>
+  organisation: `<p class="eyebrow-sm">Про організацію</p><h3>Družina Moravy, z. s.</h3><p><strong>IČO:</strong> 29876150<br><strong>Юридична адреса:</strong> Příkop 838/6, 602 00 Brno, Czech Republic<br><strong>Реєстрація:</strong> Krajský soud v Brně, sp. zn. L 32290</p><p>Громадська, молодіжна, історико-фехтувальна, living-history, культурна та освітня діяльність.</p><p><strong>Модель роботи:</strong> окремі активності можуть проводитися або Družina Moravy, z. s., або Aliaksei Chareshneu, OSVČ (IČO 23041625). Конкретний організатор і одержувач платежу зазначаються для кожної події, послуги, реєстрації або платежу. Грантові та асоціаційні проєкти веде спілка; комерційні тренування, навчання та інші послуги може надавати OSVČ.</p><p><strong>Контакт:</strong> chereshnev.biochem@gmail.com · +420 702 914 842</p>`,
+  schedule: `<p class="eyebrow-sm">Звичний розклад · уточнюйте</p><h2 class="anchor-heading">Коли та де зазвичай тренуємося<a class="anchor-link" href="#schedule" aria-label="Schedule link">#</a></h2><p class="lead">Зазвичай заняття плануємо на два вечори на тиждень. Кожна дата залежить від інструктора, приміщення та безпеки.</p><p class="note dm-schedule-note"><strong>Зміна з 22.10.2026:</strong> тренування щочетверга о 18:00 скасовані назавжди.</p><div class="dm-session-slots" role="list"><div class="dm-session-slot" role="listitem"><strong>Понеділок</strong><span>18:00 · тривалість уточнюється</span></div><div class="dm-session-slot" role="listitem"><strong>Субота</strong><span>18:00 · тривалість уточнюється</span></div></div><div class="dm-where"><div><span class="dm-place-label">Звичайне місце зустрічі</span><strong>Nová Zbrojovka, Brno</strong><p>Зазвичай тренуємося надворі в районі Nová Zbrojovka. Постійної зали немає; точне місце зустрічі, дозвіл користуватися майданчиком і дату підтверджуємо письмово.</p></div><a href="https://www.google.com/maps/search/?api=1&amp;query=Nov%C3%A1%20Zbrojovka%2C%20Brno" target="_blank" rel="noopener noreferrer">Відкрити маршрут ↗</a></div><p class="note dm-schedule-note">Це орієнтовний розклад, а не підтверджена подія і не бронювання. Не приїжджай і не сплачуй без письмового підтвердження дати, місця, організатора та умов. Виїзди на LARP оголошуємо окремо.</p>`,
+
+
+  onboarding: `<p class="eyebrow-sm">Перший візит</p><h2 class="anchor-heading">Що взяти та чого очікувати<a class="anchor-link" href="#onboarding" aria-label="First visit link">#</a></h2><p class="lead">Починаємо зі знайомства та безпеки, а не з обов’язкового двобою.</p><div class="dm-visit-grid"><article class="dm-visit-card"><span class="dm-visit-number" aria-hidden="true">01</span><h3>Одяг</h3><p>Зручний спортивний одяг і міцне закрите взуття.</p></article><article class="dm-visit-card"><span class="dm-visit-number" aria-hidden="true">02</span><h3>Із собою</h3><p>Воду та запитання. Доступність клубного спорядження уточнюється для конкретного заняття.</p></article><article class="dm-visit-card"><span class="dm-visit-number" aria-hidden="true">03</span><h3>Тренування</h3><p>Команда STOP та безпека → дистанція і кроки → контроль меча і щита → добровільні вправи.</p></article><article class="dm-visit-card"><span class="dm-visit-number" aria-hidden="true">04</span><h3>Безпека</h3><p>Інструктор перевіряє спорядження. Від спарингу можна відмовитися. Для неповнолітніх потрібні згода опікуна й підтвердження умов.</p></article></div><p class="dm-inline-links"><a href="safety/">Повні правила безпеки →</a><a href="join/">Як долучитися →</a></p>`,
+  ranks: `<p class="eyebrow-sm">Звання · доповнено 24.10.2026</p>
 <h3 class="anchor-heading">Три кваліфікації. Одна Дружина.<a class="anchor-link" href="#ranks">#</a></h3>
-<p>П'ять бойових рангів B, п'ять командних кваліфікацій C та п'ять ремісничих K. Оперативне командування доручається окремо. Десять досягнень A-01—A-10 відзначають справжній внесок.</p>
+<p>Сім бойових рангів B, сім командних кваліфікацій C та сім ремісничих K. Оперативне командування доручається окремо. Десять досягнень A-01—A-10 відзначають справжній внесок.</p>
 <p style="margin:16px 0"><a class="btn solid" href="./ranks.html" style="display:inline-block;text-decoration:none">Повна система звань · шість мов →</a></p>
 <p class="note">Браслети: B-I немає, B-II червоний, B-III синій, B-IV помаранчевий, B-V чорний із золотом. Тонка знімна зелена стрічка — чинний тариф Senior, не звання. Заслуги збережено. Право викладати надається окремо.</p>
-<p class="note"><strong>B-I—B-V · C-I—C-V · K-I—K-V · A-01—A-10</strong></p>`,
-  roles: `<p class="eyebrow-sm">Ролі в тарифі Senior</p>
-      <h3 class="anchor-heading">Обери мінімум одну<a class="anchor-link" href="#roles">#</a></h3>
-      <p>Кожен учасник тарифу Senior обирає мінімум одну роль нижче з першого дня.</p>
-      <div class="tbl-wrap">
-        <table>
-          <thead><tr><th>Роль</th><th>Що робить</th><th>Нагорода</th></tr></thead>
-          <tbody>
-            <tr><td><strong>Рекрутер</strong></td><td>Приводить нових учасників</td><td>Статус і видимість у клубі + бонус +5 занять до рангу за кожного утриманого запрошеного</td></tr>
-            <tr><td><strong>Турнірний боєць</strong></td><td>Представляє клуб на турнірах і битвах як боєць</td><td>Статус «обличчя клубу»: пріоритет у фото/відео для соцмереж</td></tr>
-            <tr><td><strong>Помічник командира-тренера</strong></td><td>Допомагає вести частину тренування</td><td>Титул + прискорений шлях до статусу кандидата в заступники</td></tr>
-            <tr><td><strong>Майстровий</strong></td><td>Ремонтує та обслуговує спільне спорядження клубу</td><td>Бартер: години ремонту обмінюються на безкоштовні тренування</td></tr>
-            <tr><td><strong>Логістика</strong></td><td>Транспорт, маршрути, розподіл спорядження/їжі/наметів для виїздів</td><td>Статус + пріоритетне місце в машині/наметі на виїздах</td></tr>
-          </tbody>
-        </table>
-      </div>`,
+<p class="note"><strong>B-I—B-VII · C-I—C-VII · K-I—K-VII · A-01—A-10</strong></p>
+<p class="note"><strong>1 Nov / 1.11.2026:</strong> З 1 листопада 2026 — добровільний пілот перевірки прогресу, наставництва та досягнень. Затверджені звання зберігаються; тарифи й вимоги безпеки не змінюються. Особистий онлайн-кабінет ще не відкрито. <a href="./ranks.html#pilot">Pilot →</a></p>`,
+  roles: `<p class="eyebrow-sm">Різні способи участі</p><h2 class="anchor-heading">Дружина — не тільки бійці<a class="anchor-link" href="#roles" aria-label="Volunteer roles link">#</a></h2><p class="lead">Допомога клубу добровільна. Для першого запиту не потрібні ні звання, ні волонтерські обов’язки.</p><div class="dm-role-grid"><article class="dm-role-card"><span aria-hidden="true" class="dm-role-serial">01</span><h3>Приведи друга</h3><p>Допоможи новачку познайомитися з клубом і безпекою.</p></article><article class="dm-role-card"><span aria-hidden="true" class="dm-role-serial">02</span><h3>Бери участь у подіях</h3><p>Долучайся до відповідних LARP після підтвердження правил і участі.</p></article><article class="dm-role-card"><span aria-hidden="true" class="dm-role-serial">03</span><h3>Допомагай новачкам</h3><p>Підтримуй вступ і наставництво під наглядом інструктора.</p></article><article class="dm-role-card"><span aria-hidden="true" class="dm-role-serial">04</span><h3>Майструй і ремонтуй</h3><p>Допомагай зі спорядженням з відповідною перевіркою безпеки.</p></article><article class="dm-role-card"><span aria-hidden="true" class="dm-role-serial">05</span><h3>Логістика</h3><p>Допомагай з перевезенням, підготовкою та узгодженими завданнями.</p></article></div><p class="note">Справжню волонтерську працю можна визнати за перевіреними даними та згодою учасника. Вона не замінює бойові тренування й не надає звання автоматично.</p><p class="dm-inline-links"><a href="join/#ways">Знайди свою роль →</a></p>`,
   conduct: `<p class="eyebrow-sm">Правила та кодекс</p>
       <h3 class="anchor-heading">Поведінка та безпека<a class="anchor-link" href="#conduct">#</a></h3>
       <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:0 0 8px;">Поведінка</h4>
@@ -880,7 +885,7 @@ uk: {
         <li>Право відмовитися від бою — без пояснень.</li>
         <li>Перевірка спорядження обов'язкова перед використанням.</li>
         <li>Новачки отримують інструктаж перед першим боєм.</li>
-        <li>Діти з 7 років, за письмової згоди батьків.</li>
+        <li>Неповнолітні можуть брати участь лише за згодою законного представника й після підтвердження відповідної події, інструктора та безпеки.</li>
       </ul>
       <h4 style="font-family:var(--font-d);font-size:16px;color:var(--ink);margin:24px 0 8px;">Дисципліна</h4>
       <div class="tbl-wrap">
@@ -894,8 +899,9 @@ uk: {
           </tbody>
         </table>
       </div>
-      <p style="margin-top:14px;"><a href="../#terms">📜 Повні юридичні умови участі →</a></p>`,
-  footer: { title: 'Хочеш побачити всю картину?', lead: 'Репетиторство, походи Брнохідців та весь сайт цілком — на головному хабі.', visitFull: 'Перейти на весь сайт ➔' }
+      <p style="margin-top:14px;"><a href="../#terms">📜 Спільні правила поведінки та безпеки →</a></p>`,
+  media: { heroLink: "Про нас у Brněnský deník — публікація ↓", eyebrow: "Публікації та згадки", heading: "Про нас пишуть", intro: "Матеріали преси й публічні згадки про клуб. Редакційні статті відокремлені від афіш і каталогів.", editorialLabel: "Редакційна стаття", denikDescription: "Brněnský deník розповів про наші заняття історичним фехтуванням і про те, як вони допомагають іноземним студентам у Брно рухатися та знаходити друзів.", originalLink: "Читати статтю на Deník.cz ↗", seznamLink: "Обговорення на Seznam.cz ↗", elsewhereHeading: "Де нас також можна знайти", elsewhereIntro: "Це каталоги клубів і анонси подій, а не незалежні журналістські відгуки.", gotoDescription: "Офіційний туристичний та подієвий портал Брно", sermiriDescription: "Каталог клубів історичного фехтування", larpDescription: "Профіль групи у спільноті LARP", expatDescription: "Каталог учасників Brno Expat Fair", outdatedNote: "Ціни й умови в старих зовнішніх анонсах можуть бути неактуальними. Перед записом перевіряйте дані на цьому сайті." },
+  footer: { title: 'Хочеш побачити всю картину?', lead: 'Репетиторство, походи Брнохідців та весь сайт цілком — на головному хабі.', visitFull: 'Перейти на весь сайт ➔', legal: 'Družina Moravy, z. s. · IČO 29876150 · Příkop 838/6, 602 00 Brno · Aliaksei Chareshneu, OSVČ · IČO 23041625 · організатор/одержувач платежу зазначений для кожної активності' }
 }
 };
 
@@ -924,9 +930,12 @@ function applyTranslations(lang) {
     if (val) el.innerHTML = val;
   });
   document.documentElement.lang = lang;
+  queueMicrotask(() => document.dispatchEvent(new CustomEvent('site:language')));
 }
 
 function detectLang() {
+  const requested = new URLSearchParams(location.search).get('lang');
+  if (['ru','en','cs','uk'].includes(requested)) return requested;
   try {
     const saved = localStorage.getItem('dm_lang');
     if (saved && T[saved]) return saved;
@@ -954,19 +963,6 @@ function render(lang) {
     b.setAttribute('aria-pressed', b.dataset.lang === lang ? 'true' : 'false');
   });
   applyTranslations(lang);
-  const copy = {
-    en: ['Ask about training','Enquiries only. Do not travel or pay until your session and venue are confirmed.'],
-    cs: ['Nezávazně se zeptat','Nezávazný dotaz. Neplaťte ani nejezděte před potvrzením konkrétního místa a termínu.'],
-    ru: ['Запросить участие','Только запрос. Не платите и не приезжайте без подтверждения места и даты.'],
-    uk: ['Запитати про участь','Лише запит. Не сплачуйте й не приїжджайте без підтвердження місця і дати.']
-  };
-  const label = copy[lang] || copy.en;
-  document.querySelectorAll('a[data-i18n="nav.bookBtn"],a[data-i18n="hero.ctaRegister"],a[class*="Register-Druzina"]').forEach(a => {
-    a.href = 'mailto:chereshnev.biochem@gmail.com?subject=Druzina%20Moravy%20-%20training%20enquiry';
-    a.textContent = label[0];
-    a.removeAttribute('target');
-  });
-  const note = document.querySelector('.free-note'); if (note) note.textContent = label[1];
 }
 
 bindLangButtons();

@@ -40,9 +40,9 @@ function runAudit(pages) {
   const druzina = pages['druzina/index.html'] || '';
   const walkers = pages['walkers/index.html'] || '';
 
-  verify('root:corporate-route', linkWithId(home, 'heroCorporateCta') === 'corporate/',
+  verify('root:corporate-route', linkWithId(home, 'heroCta') === 'corporate/technical-answers/?lang=en',
     'Corporate hero CTA must open the existing corporate service');
-  verify('root:audience-route', linkWithId(home, 'heroCta') === '#join',
+  verify('root:audience-route', linkWithId(home, 'heroCorporateCta') === 'start/',
     'Personal/community hero CTA must open the relevant choices');
   const clubCard = home.match(/<a\b[^>]*class=["'][^"']*\bventure-card\b[^"']*["'][^>]*href=["']druzina\/["'][^>]*>([\s\S]*?)<\/a>/i)?.[1] || '';
   verify('root:club-card', /(?:plan|confirm|date|term|dotaz)/i.test(clubCard)
@@ -77,26 +77,26 @@ function runAudit(pages) {
   verify('schema:osvc-service', hasOwnerService && validSchemas > 0,
     'Use owner professional service schema with city-level coverage, not the association as the commercial seller');
 
-  const corporateHref = linkWithId(corporate, 'corporatePrimaryCta');
   verify('corporate:qualified-intake',
-    /docs\.google\.com\/forms\/d\/e\//i.test(corporateHref) ||
-    /docs\.google\.com\/forms\/d\/e\//i.test(corporate),
-    'Business page needs an existing scoped proposal intake');
-  verify('corporate:email-fallback', /mailto:[^"']+Corporate/i.test(corporate),
-    'A direct corporate inquiry fallback must be available');
-  let academyUrl = '';
-  try { academyUrl = decodeURIComponent(linkWithId(academy, 'navBookBtn')); } catch { /* malformed input fails below */ }
+    /mailto:[^"'\\s]*Corporate/i.test(corporate) || /mailto:[^"'\\s]*AI%20PILOT/i.test(corporate),
+    'Business page must offer a direct scoped corporate proposal email');
+  verify('corporate:email-fallback', /mailto:/i.test(corporate),
+    'A direct corporate inquiry path must remain available');
+  let academyUrl='';
+  try { academyUrl=decodeURIComponent(linkWithId(academy,'navBookBtn')); } catch { /* fail closed */ }
   verify('academy:relevant-contact',
     academyUrl.startsWith('https://wa.me/') && /Academy/i.test(academyUrl),
-    'Academy booking may not silently route to a corporate or unrelated intake');
+    'Academy first-lesson enquiry must reach its own service');
   verify('druzina:enquiry-only',
-    /^mailto:/i.test(linkWithId(druzina, 'navBookBtn')) &&
-    /do not travel or pay before confirmation/i.test(druzina) &&
-    /not a booking/i.test(druzina),
-    'HEMA is an enquiry, not paid checkout or a confirmed venue');
+    linkWithId(druzina,'navBookBtn')==='start/' &&
+    /New paid HEMA bookings are paused/i.test(druzina) &&
+    /Nové placené rezervace HEMA jsou pozastaveny/i.test(druzina),
+    'Družina entrance must remain enquiry-only with four-language payment safety');
+  let walkersUrl='';
+  try { walkersUrl=decodeURIComponent(linkWithId(walkers,'navBookBtn')); } catch { /* fail closed */ }
   verify('walkers:event-intake',
-    /docs\.google\.com\/forms\/d\/e\//i.test(linkWithId(walkers, 'navBookBtn')),
-    'Walkers event booking must retain its own intake');
+    walkersUrl.startsWith('https://wa.me/') && /BrnoWalkers/i.test(walkersUrl),
+    'Walkers event enquiry must stay service-specific');
 
   if (/Dukelská třída 157\/44/.test(home)) {
     warnings.push({ id: 'root:legacy-copy', note: 'Legacy inert club translation strings still reference a retired venue; do not re-enable them' });

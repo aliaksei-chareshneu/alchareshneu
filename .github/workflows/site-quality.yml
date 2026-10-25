@@ -24,6 +24,9 @@ jobs:
           test -f calendar/index.html
           test -f styles.css
           test -f sitemap.xml
+          test -f corporate/index.html
+          test -f corporate/technical-answers/index.html
+          test -f start/index.html
 
       - name: Reject stale production placeholders
         shell: bash
@@ -34,20 +37,46 @@ jobs:
             exit 1
           fi
 
-      - name: Verify current Druzina pricing
+      - name: Verify Druzina booking state (priced or paused)
         shell: bash
         run: |
           set -euo pipefail
-          grep -q '120 Kč' druzina/index.html
-          grep -q '240 Kč' druzina/index.html
-          grep -q '910 Kč' druzina/index.html
-          grep -q '455 Kč' druzina/index.html
-          grep -Eq '2[, ]870 Kč' druzina/index.html
-          grep -Eq '1[, ]435 Kč' druzina/index.html
-          grep -Eq '8[, ]235 Kč' druzina/index.html
-          grep -Eq '4[, ]120 Kč' druzina/index.html
+          page=druzina/index.html
+          if grep -q 'DM-PRELAUNCH-LEGAL-GATE-20261018' "$page"; then
+            # The legal/safety gate deliberately withdrew historical tariffs.
+            # Require notices in all languages and block retired checkout paths.
+            grep -q 'id="registration-notice"' "$page"
+            for language in en cs ru uk; do
+              grep -q "data-notice-lang=\"$language\"" "$page"
+            done
+            grep -q 'New paid HEMA bookings are paused' "$page"
+            grep -q 'Nové placené rezervace HEMA jsou pozastaveny' "$page"
+            grep -q 'Новые платные бронирования HEMA приостановлены' "$page"
+            grep -q 'Нові платні бронювання HEMA призупинено' "$page"
+            grep -q 'Ask about a date' "$page"
+            if grep -Eq 'docs[.]google[.]com/forms/d/e|revolut[.]me/' "$page"; then
+              echo 'Paused HEMA page still links to a retired booking/payment path' >&2
+              exit 1
+            fi
+          else
+            # Active pricing page: never silently drop a publicly stated tariff.
+            grep -q '120 Kč' "$page"
+            grep -q '240 Kč' "$page"
+            grep -q '910 Kč' "$page"
+            grep -q '455 Kč' "$page"
+            grep -Eq '2[, ]870 Kč' "$page"
+            grep -Eq '1[, ]435 Kč' "$page"
+            grep -Eq '8[, ]235 Kč' "$page"
+            grep -Eq '4[, ]120 Kč' "$page"
+          fi
 
-      - name: Verify customer paths and commercial claims
+      - name: Verify private-to-public Druzina leaderboard isolation
+        run: python3 -m unittest discover -s tests -p 'test_druzina_leaderboard.py' -v
+
+      - name: Verify fair three-week Druzina training rotation
+        run: python3 -m unittest discover -s tests -p 'test_druzina_rotation.py' -v
+
+      - name: Verify legal identity and direct public customer paths
         run: node ops/imperion-public-gates.cjs --json
 
       - name: Validate inline JavaScript syntax
@@ -55,7 +84,7 @@ jobs:
         run: |
           node <<'NODE'
           const fs = require('fs');
-          const files = ['index.html','academy/index.html','calendar/index.html','druzina/index.html','walkers/index.html'];
+          const files = ['index.html','academy/index.html','calendar/index.html','druzina/index.html','walkers/index.html','corporate/index.html','corporate/technical-answers/index.html','start/index.html'];
           let failed = false;
           for (const file of files) {
             const html = fs.readFileSync(file, 'utf8');
@@ -72,3 +101,27 @@ jobs:
           }
           if (failed) process.exit(1);
           NODE
+
+  browser-regression:
+    # Playwright 1.51.1 does not support the ubuntu-26.04 image selected by ubuntu-latest in Oct 2026.
+    # Pin the browser test runner to a supported LTS image; static checks remain on latest.
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:security
+      - run: npm run test:dom
+      - run: npm test
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: browser-regression
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
