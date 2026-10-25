@@ -40,7 +40,9 @@ function economics(input) {
     e.founder_hours <= 10000;
   if(!valid) return {net_per_founder_hour_scenario_czk:null,weighted30_scenario_czk:null};
   const net=Math.round((e.quoted_czk-e.external_cost_czk)/e.founder_hours*100)/100;
-  const weighted = e.probability_source && typeof e.probability === 'number' &&
+  const gate=report(input);
+  const qualified=gate.state!=='HOLD' && gate.recorded_stage!=='LEAD';
+  const weighted = qualified && e.probability_source && typeof e.probability === 'number' &&
     e.probability >= 0 && e.probability <= 1 &&
     Number.isInteger(e.expected_payment_days) && e.expected_payment_days >= 0 &&
     e.expected_payment_days <= 30
