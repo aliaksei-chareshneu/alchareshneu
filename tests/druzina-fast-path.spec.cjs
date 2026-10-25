@@ -1,17 +1,6 @@
 const {test,expect}=require('@playwright/test');
 
 const languages=['cs','en','ru','uk'];
-const ORIGIN='https://aliaksei-chareshneu.github.io';
-function corsHeaders(){return {'Access-Control-Allow-Origin':ORIGIN,
- 'Access-Control-Allow-Methods':'POST,OPTIONS',
- 'Access-Control-Allow-Headers':'content-type'};}
-async function replyPreflight(route){
- if(route.request().method()==='OPTIONS'){
-  await route.fulfill({status:204,headers:corsHeaders()});return true;
- }
- return false;
-}
-
 const labels={
  cs:{headline:'Vyzkoušej historický šerm v Brně.',cta:'Požádat o první trénink'},
  en:{headline:'Try historical fencing in Brno.',cta:'Ask for a first training'},
@@ -53,9 +42,8 @@ for(const lang of languages){
  test('One-minute Druzina enquiry: safety, actual payload, truthful confirmation '+lang,async({page})=>{
   let calls=0,body;
   await page.route('**/functions/v1/imperion-register',async route=>{
-   if(await replyPreflight(route))return;
    calls++;body=JSON.parse(route.request().postData());
-   await route.fulfill({status:200,headers:corsHeaders(),contentType:'application/json',
+   await route.fulfill({status:200,contentType:'application/json',
     body:JSON.stringify({ok:true,status:'RECEIVED_UNCONFIRMED',confirmed:false,reference:'synthetic-confirmation-qa'})});
   });
   await page.setViewportSize({width:375,height:812});
@@ -88,12 +76,11 @@ for(const lang of languages){
 
 test('Returning visitor and preferred date do not bypass booking confirmation',async({page})=>{
  await page.route('**/functions/v1/imperion-register',async route=>{
-  if(await replyPreflight(route))return;
   const body=JSON.parse(route.request().postData());
   expect(body.visitType).toBe('RETURNING');
   expect(body.preferredDay).toBe('DATE');
   expect(body.preferredDate).toMatch(/^\d{4}-\d{2}-\d{2}$/);
-  await route.fulfill({status:200,headers:corsHeaders(),contentType:'application/json',
+  await route.fulfill({status:200,contentType:'application/json',
    body:JSON.stringify({ok:true,status:'RECEIVED_UNCONFIRMED',confirmed:false,reference:'test-date'})});
  });
  await page.goto('/druzina/prihlaska/?lang=ru&type=returning');
