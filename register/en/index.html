@@ -36,6 +36,16 @@ a{color:var(--mint)}button,input,select{font:inherit}button{cursor:pointer}.skip
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 .mobile-jump{display:none}.retry{font:inherit;color:var(--mint);border:1px solid var(--mint);background:transparent;padding:10px 16px;min-height:44px;border-radius:12px;margin:0 0 12px;cursor:pointer}.explainer{max-width:800px;margin:38px auto 0;padding:22px 0;border-top:1px solid var(--line);color:var(--muted)}.explainer h2{font-size:21px;color:var(--text)}.explainer-links{display:flex;gap:12px;flex-wrap:wrap}.mobile-jump:focus-visible,.retry:focus-visible{outline:3px solid var(--mint);outline-offset:3px}
 @media(max-width:750px){.mobile-jump{display:inline-flex;color:#0b2b24;background:var(--mint);text-decoration:none;padding:11px 17px;border-radius:12px;font-weight:800;min-height:44px;align-items:center;margin:12px 0 4px}.pitch h1{font-size:clamp(32px,9vw,45px)}.layout{grid-template-columns:1fr;gap:14px;margin-top:22px}.pitch h1{margin:9px 0}.steps{display:none}.panel{border-radius:17px}.cols{grid-template-columns:1fr;gap:0}.cols .field{margin:12px 0}.lede{max-width:none}}
+
+/* Compact event picker. Existing palette and visual design are unchanged. */
+.event-picker{position:relative}.event-search{width:100%;min-height:49px;border:1px solid #759096;background:#0c202b;color:#fff;border-radius:12px;padding:11px 14px;font:inherit}
+.event-search:focus-visible,.match-option:focus-visible{outline:3px solid var(--mint);outline-offset:2px}
+.event-matches{position:absolute;z-index:10;left:0;right:0;top:calc(100% + 4px);max-height:min(310px,50vh);overflow-y:auto;background:#132b33;border:1px solid #759096;border-radius:12px;padding:5px;box-shadow:0 20px 40px #0008}
+.match-option{display:flex;width:100%;align-items:start;flex-direction:column;gap:3px;text-align:left;background:transparent;color:var(--text);border:0;border-radius:8px;padding:10px 12px;font:inherit;cursor:pointer}
+.match-option:hover,.match-option:focus-visible{background:#25504b}.match-title{font-size:14px;line-height:1.35}.match-status{color:var(--muted);font-size:12px}.match-status.form,.event-state{color:var(--mint)}.match-status.contact{color:var(--gold)}.match-empty{margin:9px;color:var(--muted)}
+.catalog-summary{font-size:12px;line-height:1.4;color:var(--muted);margin:8px 0 0}.event-state{font-weight:700}.owner-line{font-size:12px;color:var(--muted)}.contact-cta{display:block;text-align:center;text-decoration:none;margin-top:14px}
+.extras{border:1px solid #435d67;border-radius:12px;padding:12px 14px;margin:18px 0}.extras summary{cursor:pointer;color:var(--muted);font-weight:650}.extras .check{margin:12px 0;padding:10px}
+
 </style>
 <link rel="stylesheet" href="../../brand-theme.css?v=20261025">
 </head>
@@ -55,19 +65,19 @@ a{color:var(--mint)}button,input,select{font:inherit}button{cursor:pointer}.skip
       <h2 id="title" data-i18n="title">Event registration</h2><p class="sub" data-i18n="subtitle">Only your contact details, event and safety acknowledgment are mandatory. All other permissions are optional.</p>
       <p id="loading" class="state" role="status" data-i18n="loading">Loading available events…</p>
       <form id="rsvpForm" hidden novalidate>
-        <div class="field"><label class="required" for="eventId" data-i18n="event">Event</label><select id="eventId" required><option value="">Vyberte akci…</option></select></div>
-        <div id="eventInfo" class="info" aria-live="polite" hidden></div>
+        <div class="field event-picker" id="eventPicker"><label class="required" for="eventSearch" data-i18n="event">Event</label><input type="search" id="eventSearch" class="event-search" role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="eventMatches" autocomplete="off"><div id="eventMatches" class="event-matches" role="listbox" hidden></div><select id="eventId" required class="screenreader" aria-label="Selected event"><option value="">Vyberte akci…</option></select><p id="catalogSummary" class="catalog-summary" role="status" aria-live="polite"></p></div>
+        <div id="eventInfo" class="info" aria-live="polite" hidden></div><div id="rsvpDetails" hidden>
         <div class="cols"><div class="field"><label class="required" for="firstName" data-i18n="first">First name</label><input id="firstName" type="text" name="given-name" autocomplete="given-name" minlength="2" maxlength="80" required></div><div class="field"><label class="required" for="lastName" data-i18n="last">Surname</label><input id="lastName" type="text" name="family-name" autocomplete="family-name" minlength="2" maxlength="80" required></div></div>
         <div class="cols"><div class="field"><label class="required" for="email" data-i18n="email">Email</label><input id="email" type="email" name="email" autocomplete="email" maxlength="254" required></div><div class="field"><label class="required" for="phone" data-i18n="phone">Phone</label><input id="phone" type="tel" name="tel" autocomplete="tel" maxlength="35" pattern="[+0-9() .-]{7,35}" placeholder="+420 777 123 456" required></div></div>
         <fieldset class="field"><legend class="required" data-i18n="age">Participant age</legend><div class="choices"><label><input type="radio" name="age" value="adult" required checked><span data-i18n="adult">18 or older</span></label><label><input type="radio" name="age" value="under18"><span data-i18n="minor">Under 18</span></label></div></fieldset>
         <div id="guardian" class="cols" hidden><div class="field"><label class="required" for="guardianName" data-i18n="guardianName">Guardian name</label><input id="guardianName" maxlength="80" autocomplete="off"></div><div class="field"><label class="required" for="guardianPhone" data-i18n="guardianPhone">Guardian phone</label><input id="guardianPhone" type="tel" maxlength="35" autocomplete="off"></div></div>
         <fieldset class="field"><legend class="required" data-i18n="attendance">Will you attend?</legend><div class="choices"><label><input type="radio" name="rsvp" value="YES" required checked><span data-i18n="yes">Yes</span></label><label><input type="radio" name="rsvp" value="MAYBE"><span data-i18n="maybe">Maybe</span></label><label><input type="radio" name="rsvp" value="NO"><span data-i18n="no">No</span></label></div></fieldset>
         <div class="check"><label><input id="safety" type="checkbox" required><span><strong data-i18n="safetyHead">I agree to the safety rules (required).</strong> <span data-i18n="safetyNote">I have read the organizer instructions. This is not a waiver of legal rights or proof of insurance.</span> <a id="rulesLink" href="../safety/" target="_blank" rel="noopener" data-i18n="readRules">Read rules ↗</a></span></label></div>
-        <div class="check"><label><input id="photo" type="checkbox"><span><strong data-i18n="photoHead">I optionally allow photos/video of me</strong> <span data-i18n="photoNote">to be published on organizer channels. Declining does not exclude participation. Minors require separate guardian authorization.</span></span></label></div>
+        <details class="extras" id="optionalConsents"><summary id="optionalConsentLabel"></summary><div class="check"><label><input id="photo" type="checkbox"><span><strong data-i18n="photoHead">I optionally allow photos/video of me</strong> <span data-i18n="photoNote">to be published on organizer channels. Declining does not exclude participation. Minors require separate guardian authorization.</span></span></label></div>
         <div class="check"><label><input id="future" type="checkbox"><span><strong data-i18n="updatesHead">I want occasional future event invitations (optional).</strong> <span data-i18n="updatesNote">No spam. Invitations require separate confirmation; withdraw by email at any time.</span></span></label></div>
-        <div class="screenreader" aria-hidden="true"><label for="website">Website</label><input id="website" tabindex="-1" autocomplete="off"></div>
+        </details><div class="screenreader" aria-hidden="true"><label for="website">Website</label><input id="website" tabindex="-1" autocomplete="off"></div>
         <p class="muted" style="font-size:13px" data-i18n="privacy">Contacts are stored securely in the EU and used only to organize your participation. <a href="../privacy/">Privacy</a></p>
-        <button id="submit" class="button" type="submit" data-i18n="send">Send my RSVP →</button>
+        <button id="submit" class="button" type="submit" data-i18n="send">Send my RSVP →</button></div>
       </form>
       <p id="result" class="state" role="status" aria-live="polite" tabindex="-1" hidden></p>
       <div id="fallback" role="alert" hidden><p data-i18n="fallback">Online RSVP is temporarily unavailable. Contact the organizer directly; an enquiry is not a booking.</p><button type="button" id="retry" class="retry" data-i18n="retry">Try loading events again</button><a class="button" id="contactLink" style="display:block;text-align:center;text-decoration:none" href="https://wa.me/420702914842" target="_blank" rel="noopener" data-i18n="contact">Contact the organizer ↗</a></div>
@@ -87,46 +97,41 @@ const translations={
  uk:{jump:"Перейти до реєстрації",retry:"Повторити завантаження подій",explainerTitle:"Як зареєструватися на походи та події в Брно?",explainerText:"Оберіть відкритий похід BrnoWalkers або іншу підтверджену подію, залиште контакти та ознайомтеся з правилами безпеки. Організатор окремо підтвердить участь; надсилання форми не є оплатою чи гарантією місця.",walkersInfo:"Походи та прогулянки BrnoWalkers",druzinaInfo:"Про клуб Družina Moravy",skip:'До форми реєстрації',eyebrow:'Одна форма · без акаунта',hero:'Відкрийте <em>нове.</em>',lede:'Оберіть подію, залиште контакти та надішліть заявку приблизно за хвилину.',s1:'Оберіть підтверджену подію',s2:'Залиште контактні дані',s3:'Прочитайте правила та надішліть',disclaimer:'Участь особисто підтверджує організатор. Форма не є оплатою чи автоматичним бронюванням.',title:'Реєстрація на подію',subtitle:'Обов’язкові лише контакти, вибір події та згода з правилами безпеки. Інші дозволи необов’язкові.',loading:'Завантаження подій…',event:'Подія',first:'Ім’я',last:'Прізвище',email:'Електронна пошта',phone:'Телефон',age:'Вік учасника',adult:'18 років і більше',minor:'Менше 18 років',guardianName:'Ім’я законного представника',guardianPhone:'Телефон представника',attendance:'Плануєте прийти?',yes:'Так',maybe:'Можливо',no:'Ні',safetyHead:'Погоджуюся з правилами безпеки (обов’язково).',safetyNote:'Я ознайомився(лася) з інструкціями. Це не відмова від законних прав і не підтвердження страхування.',readRules:'Читати правила ↗',photoHead:'За бажанням дозволяю фото та відео зі мною',photoNote:'для публікації на каналах організатора. Відмова не перешкоджає участі. Для неповнолітніх потрібен окремий дозвіл опікуна.',updatesHead:'Хочу інколи отримувати запрошення на події (необов’язково).',updatesNote:'Без спаму. Запрошення вимагають додаткового підтвердження; відмовитися можна електронною поштою.',privacy:'Контакти надійно зберігаються в ЄС і використовуються лише для організації участі.',send:'Надіслати заявку →',sending:'Надсилання…',received:'Заявку отримано. Організатор окремо підтвердить участь. Повторна заявка не змінює попередні дозволи; для змін зверніться до організатора.',failure:'Не вдалося надіслати. Спробуйте ще раз або зв’яжіться з організатором.',noevents:'Зараз немає підтверджених подій з відкритою реєстрацією.',fallback:'Онлайн-реєстрація тимчасово недоступна. Зв’яжіться з організатором — звернення не є бронюванням.',contact:'Написати організатору ↗',privacyLink:'Приватність',safetyLink:'Безпека',eventsLink:'Календар',homeLink:'На головну',free:'Безкоштовно',payment:'Ціна уточнюється',controller:'Організатор / контролер даних:',unconfirmed:'Заявка не гарантує місце.',select:'Оберіть подію…'}
 };
 let lang='cs',events=[];
-const query=new URLSearchParams(location.search);
-const pathLanguage=(location.pathname.match(/\/register\/(en|ru|uk)\/(?:index\.html)?$/)||[])[1];
-const preferred=query.get('lang')||pathLanguage||'cs';
-const policyBase=pathLanguage?'../':'./';
-if (Object.prototype.hasOwnProperty.call(translations,preferred))lang=preferred;
-function t(k){return translations[lang][k]||translations.en[k]||k}
-function setLang(next){lang=next;document.documentElement.lang=lang;
-  for(const b of document.querySelectorAll('[data-lang]'))b.setAttribute('aria-pressed',String(b.dataset.lang===lang));
-  for(const el of document.querySelectorAll('[data-i18n]')){
-    const key=el.dataset.i18n,html=t(key);
-    if(key==='hero')el.innerHTML=html;else if(key==='privacy')el.textContent=html;else el.textContent=html;
-  }
-  // The privacy sentence is followed by a separate persistent link.
-  const privacy=$('rsvpForm').querySelector('[data-i18n=privacy]');
-  if(privacy){const l=document.createElement('a');l.href=policyBase+'privacy/';l.textContent=' '+t('privacyLink')+' ↗';privacy.append(l)}
-  renderEvents();
-}
-function renderEvents(){const select=$('eventId'),selected=select.value||query.get('event')||(events.length===1?events[0].event_id:'');select.replaceChildren();
-  let option=document.createElement('option');option.textContent=t('select');option.value='';select.append(option);
-  for(const ev of events){option=document.createElement('option');option.value=ev.event_id;option.textContent=ev.title;select.append(option)}
-  if(events.some(e=>e.event_id===selected))select.value=selected;
-  showEvent();
-}
-function showEvent(){const ev=events.find(e=>e.event_id===$('eventId').value),info=$('eventInfo');info.replaceChildren();
-  if(!ev){info.hidden=true;return;}info.hidden=false;
-  const date=new Intl.DateTimeFormat(lang==='uk'?'uk-UA':lang==='cs'?'cs-CZ':lang==='ru'?'ru-RU':'en-GB',{
-    dateStyle:'full',timeStyle:'short',timeZone:'Europe/Prague'}).format(new Date(ev.begins_at));
-  const p=document.createElement('p');const strong=document.createElement('strong');strong.textContent=ev.title;p.append(strong);info.append(p);
-  const details=document.createElement('p');details.textContent=date+' · '+ev.venue+' · '+(ev.price_czk===0?t('free'):t('payment'));info.append(details);
-  const controller=document.createElement('p');controller.textContent=t('controller')+' '+ev.data_controller;info.append(controller);
-  const note=document.createElement('p');note.textContent=t('unconfirmed');info.append(note);
-  const safe=String(ev.rules_url||'');$('rulesLink').href=/^https:\/\/aliaksei-chareshneu\.github\.io\/alchareshneu\//.test(safe)?safe:policyBase+'safety/';
+
+const catalogText={
+cs:{search:"Hledat událost, místo nebo datum…",total:"Akcí",open:"Online přihláška",manual:"Přímý kontakt",planned:"Čeká na potvrzení",empty:"Žádné výsledky",ask:"Napsat pořadateli ↗",planNote:"Registrace zatím není otevřena. Termín a podmínky musí být potvrzeny.",manualNote:"Zápis platí až po osobním potvrzení organizátorem.",options:"Další dobrovolné souhlasy (foto a pozvánky)"},
+en:{search:"Search event, location or date…",total:"Events",open:"Online RSVP",manual:"Contact organiser",planned:"Awaiting confirmation",empty:"No results",ask:"Contact to join ↗",planNote:"Not open for registration. Venue and event conditions still require confirmation.",manualNote:"Participation is confirmed individually by the organiser.",options:"Optional consents (photos and invitations)"},
+ru:{search:"Найти мероприятие, место или дату…",total:"Мероприятий",open:"Онлайн-запись",manual:"Связаться для записи",planned:"Ждут подтверждения",empty:"Ничего не найдено",ask:"Написать для записи ↗",planNote:"Запись пока закрыта. Место и условия требуют подтверждения. Не приезжайте и не оплачивайте без согласования.",manualNote:"Участие действительно только после отдельного подтверждения организатором.",options:"По желанию: фото и приглашения"},
+uk:{search:"Знайти подію, місце або дату…",total:"Подій",open:"Онлайн-запис",manual:"Зв’язатися для запису",planned:"Очікують підтвердження",empty:"Нічого не знайдено",ask:"Написати для запису ↗",planNote:"Запис ще не відкрито. Місце й умови потребують підтвердження. Не приїжджайте й не сплачуйте без погодження.",manualNote:"Участь підтверджує організатор особисто.",options:"За бажанням: фото й запрошення"}
+};
+function ct(k){return catalogText[lang]?.[k]||catalogText.en[k]||k}
+function eventMode(e){if(!e)return null;if(e.registration_mode==='CONTACT')return 'CONTACT';if(e.is_open===false||e.registration_mode==='PLANNED')return 'PLANNED';return 'FORM'}
+function eventDate(e){return new Intl.DateTimeFormat(lang==='uk'?'uk-UA':lang==='ru'?'ru-RU':lang==='cs'?'cs-CZ':'en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',timeZone:'Europe/Prague'}).format(new Date(e.begins_at))}
+function eventLabel(e){return eventDate(e)+' · '+e.title}
+function statusLabel(e){return ct(eventMode(e)==='FORM'?'open':eventMode(e)==='CONTACT'?'manual':'planned')}
+function closeMatches(){$('eventMatches').hidden=true;$('eventSearch').setAttribute('aria-expanded','false')}
+function chooseEvent(id){const e=events.find(v=>v.event_id===id);if(!e)return;$('eventId').value=id;$('eventSearch').value=eventLabel(e);closeMatches();showEvent()}
+function renderMatches(){
+ const list=$('eventMatches'),val=$('eventSearch').value.trim().toLocaleLowerCase(),selected=events.find(v=>v.event_id===$('eventId').value);
+ const q=selected&&val===eventLabel(selected).toLocaleLowerCase()?'':val;list.replaceChildren();
+ const hits=events.filter(e=>(e.title+' '+e.category+' '+e.community+' '+e.venue+' '+eventDate(e)+' '+statusLabel(e)).toLocaleLowerCase().includes(q));
+ if(!hits.length){const empty=document.createElement('p');empty.className='match-empty';empty.textContent=ct('empty');list.append(empty)}
+ for(const e of hits){
+   const item=document.createElement('button');item.type='button';item.setAttribute('role','option');item.className='match-option';
+   const name=document.createElement('span');name.className='match-title';name.textContent=eventLabel(e);
+   const status=document.createElement('span');status.className='match-status '+eventMode(e).toLowerCase();status.textContent=statusLabel(e);
+   item.append(name,status);item.addEventListener('click',()=>chooseEvent(e.event_id));list.append(item);
+ }
+ list.hidden=false;$('eventSearch').setAttribute('aria-expanded','true');
 }
 for(const btn of document.querySelectorAll('[data-lang]'))btn.addEventListener('click',()=>setLang(btn.dataset.lang));
-$('eventId').addEventListener('change',showEvent);
+$('eventId').addEventListener('change',()=>{const e=events.find(v=>v.event_id===$('eventId').value);$('eventSearch').value=e?eventLabel(e):'';closeMatches();showEvent()});
 function updateGuardian(){const minor=document.querySelector('input[name=age]:checked')?.value==='under18';
   $('guardian').hidden=!minor;$('guardianName').required=minor;$('guardianPhone').required=minor;
   $('photo').disabled=minor;$('future').disabled=minor;if(minor){$('photo').checked=false;$('future').checked=false;}}
 for(const radio of document.querySelectorAll('input[name=age]'))radio.addEventListener('change',updateGuardian);
 $('rsvpForm').addEventListener('submit',async event=>{event.preventDefault();const form=$('rsvpForm');
+  if(!events.some(e=>e.event_id===$('eventId').value&&eventMode(e)==='FORM')){$('eventSearch').focus();showEvent();return;}
   if(!form.checkValidity()){form.reportValidity();return;}
   const btn=$('submit'),result=$('result');btn.disabled=true;btn.textContent=t('sending');result.hidden=true;
   const body={eventId:$('eventId').value,firstName:$('firstName').value,lastName:$('lastName').value,
