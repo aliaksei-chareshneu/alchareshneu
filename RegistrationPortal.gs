@@ -119,7 +119,7 @@ function regpSubmit(payload) {
   if (isMinor && guardianName.length < 3) throw new Error('Guardian name is required for minors');
   var guardianPhone = isMinor ? regpPhone_(payload.guardianPhone) : '';
   if (payload.safety !== true) throw new Error('Please read and acknowledge the safety rules');
-  var photo = String(payload.photo || '');
+  var photo = String(payload.photo || 'NO');
   if (photo !== 'YES' && photo !== 'NO') throw new Error('Please choose a photo-permission option');
   // A minor cannot grant publicity permission without verified guardian approval.
   if (isMinor) photo = 'NO';
@@ -128,7 +128,7 @@ function regpSubmit(payload) {
   var market = payload.futureUpdates === true;
   var locale = ['en','cs','ru','uk'].indexOf(payload.language) >= 0 ? payload.language : 'en';
   var name = first.replace(/^'/,'') + ' ' + last.replace(/^'/,'');
-  var status = rsvp === 'NO' ? 'DECLINED' : rsvp === 'MAYBE' ? 'MAYBE' : (isMinor ? 'REGISTERED' : 'CONFIRMED');
+  var status = rsvp === 'NO' ? 'DECLINED' : rsvp === 'MAYBE' ? 'MAYBE' : 'REGISTERED'; // Organizer approval is separate.
   var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   var eventsSheet = ss.getSheetByName(EVENTS_SHEET_NAME);
   var erows = eventsSheet.getDataRange().getValues(), eh=erows[0];
