@@ -103,6 +103,9 @@ assert.equal(rows.Registrations[3][RH.indexOf('Photo_Consent')],'no');
 assert.throws(()=>context.regpSubmit({...good,eventId:'HOLD-HEMA-20991101'}),/closed|not available/i);
 assert.throws(()=>context.regpSubmit({...good,ageGroup:'under18',guardianName:'',guardianPhone:''}),/guardian/i);
 assert.equal(locked,0,'Lock must always be released');
+// The preceding optional-photo test intentionally withdrew marketing consent; opt in again for retention QA.
+assert.equal(context.regpSubmit({...good,photo:'NO',futureUpdates:true}).ok,true);
+assert.equal(rows.Registrations[3][RH.indexOf('Marketing_Consent')],'yes');
 const savedEventDate=rows.Events[1][EH.indexOf('Start_DateTime')];
 rows.Events[1][EH.indexOf('Start_DateTime')]=new Date(Date.now()-120*86400000).toISOString().slice(0,16).replace('T',' ');
 const marketingCleanup=context.cleanupUniversalRegistrations();
