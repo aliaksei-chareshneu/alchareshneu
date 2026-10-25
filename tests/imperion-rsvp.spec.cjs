@@ -102,3 +102,19 @@ test('failed event fetch can be retried successfully',async({page})=>{
  await expect(page.locator('#fallback')).toBeHidden();
  expect(gets).toBe(2);
 });
+
+
+test('BrnoWalkers accurately labels free and paid trips and paused board games in four languages',async({page})=>{
+  const variants=[
+    {lang:'en',price:'Some events are free and others are paid'},
+    {lang:'cs',price:'Pořádáme bezplatné i placené akce'},
+    {lang:'ru',price:'Есть бесплатные и платные мероприятия'},
+    {lang:'uk',price:'Є безкоштовні й платні заходи'},
+  ];
+  for(const {lang,price} of variants){
+    await page.goto('/walkers/?lang='+lang);
+    await expect(page.locator('#walkers-rules')).toContainText(price);
+    await expect(page.locator('#navBookBtn')).toHaveAttribute('href',lang==='cs'?'../register/':'../register/'+lang+'/');
+    await expect(page.locator('#boardgames')).toContainText(lang==='en'?'temporarily paused':lang==='cs'?'pozastaven':lang==='ru'?'временно': 'призупинен');
+  }
+});

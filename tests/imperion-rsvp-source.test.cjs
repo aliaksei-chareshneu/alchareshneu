@@ -54,3 +54,9 @@ const walkers=fs.readFileSync('walkers/index.html','utf8');
 assert.ok(walkers.includes('a[href^="../register/"]'),'walker locale-aware signup');
 assert.ok(!walkers.includes('href="https://wa.me/420702914842?text=Hello%2C%20I%27d%20like%20to%20ask%20about%20a%20BrnoWalkers%20event.'),'walker legacy CTA');
 console.log('PASS: 4 indexable, canonical, hreflang and self-contained registration forms; SEO and UX checks');
+
+
+// The same site lists a free event, so every language must explain both paid/free
+// sessions and must not invite people to paused Tuesday board game sessions.
+for(const t of ['Some events are free and others are paid','Есть бесплатные и платные мероприятия','Pořádáme bezplatné i placené akce','Є безкоштовні й платні заходи']) assert.ok(walkers.includes(t),'price disclosure missing '+t);
+for(const outdated of ['Activities are paid.','Мероприятия платные.','Akce jsou placené.','Заходи платні.','настольные игры по вторникам','úterní herní večer','настільні ігри по вівторках','Payment confirms your spot — without payment your place is not reserved.'])assert.ok(!walkers.includes(outdated),'contradictory FAQ copy '+outdated);
