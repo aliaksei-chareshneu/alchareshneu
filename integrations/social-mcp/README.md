@@ -1,6 +1,6 @@
 # Imperion Social MCP — Telegram bridge + WhatsApp group preview
 
-**Stage:** reviewable source only. NO deployment or live publication established. Zero npm dependencies, zero new CRM, zero new scheduler, no n8n activation.
+**Production Telegram publishing:** reviewable source only, NOT deployed; no live Telegram or WhatsApp publication. **Remote read-only staging:** ACTIVE in existing Supabase Free project, verified with an external health readback. Zero npm dependencies, zero new CRM, zero new scheduler; no n8n activation.
 
 ## What this is
 
@@ -62,3 +62,11 @@ curl -s -X POST http://127.0.0.1:8788/mcp -H 'Content-Type: application/json' -H
 ## Costs
 
 MCP bridge, Telegram Bot API and existing Google Sheets / Apps Script have no separate paid MCP subscription; quotas still apply. The existing server must be maintained and be allowed to run. WhatsApp Business 1:1 messaging templates and Meta charges are a separate product; group posting here remains a manual share preview.
+## 25 Oct 2026 remote staging and verification
+
+- **Live read-only MCP endpoint:** https://cmrknyhnnehyjpreehcf.supabase.co/functions/v1/imperion-social-mcp-stage
+- **Verified external health check:** `GET /health` returned `ok:true`, `READ_ONLY_STAGING`, `publishing:false`.
+- Edge Function `imperion-social-mcp-stage` version 1 is ACTIVE under existing Supabase project `browser-bridge`; its deployed `handler.mjs` exactly matches this PR source. Existing functions were not changed. Free organization tier was verified, no new project or paid plan was created.
+- This staging endpoint uses `verify_jwt=false` **ONLY because it exposes public static read-only metadata and no customer or CRM data**. Its tool list contains exactly `publication_status` and `whatsapp_group_capabilities`. It has no external fetch, write tools, account token, Telegram credential, Google Sheets access, or publishing path. Never add private data, secrets, or side effects to this endpoint; production requires a separately authenticated implementation and release review.
+- **Tests:** 21 local Node tests and matching GitHub Actions pass. Includes historical deduplication even where `Events.Telegram_Post_ID` is blank, uncertainty blocking, and correct `PUBLISHED_PROVIDER_CONFIRMED` status after Telegram Bot API returns a message ID. Do not promote to `PUBLISHED_VERIFIED` until independently checking the actual public permalink and CRM readback.
+- **Not completed:** ChatGPT custom MCP installation (requires workspace admin/owner action and authentication), live Apps Script deployment, private HMAC configuration, live n8n inspection, any real Telegram post or WhatsApp group send. The remote staging server is **not** a substitute for these gates.
