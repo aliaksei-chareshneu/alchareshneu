@@ -102,6 +102,59 @@ Deno.serve(async (req:Request):Promise<Response>=>{
     if (!body || typeof body!=='object' || Array.isArray(body)) throw new Error('type');
   } catch {return reply({error:'invalid_request'},400,origin);}
   if (body.website) return reply({ok:true,status:'RECEIVED'},200,origin); // anti-bot honeypot
+
+  // A short, genuine contact REQUEST for adult Druzina participants.
+  // This is deliberately NOT a reservation and cannot bypass is_open gates
+  // for actual events. Uses the existing RSVP security/rate-limit envelope.
+  if (body.intent==='DRUZINA_ENQUIRY') {
+    let entry: {
+      first:string;last:string;contact:string;kind:'email'|'phone';
+      type:string;day:string;date:string|null;lang:string;
+    };
+    try {
+      const type=safeEnum(body.visitType,['FIRST','RETURNING']);
+      const day=safeEnum(body.preferredDay,['NEXT','MON','SAT','DATE']);
+      const lang=safeEnum(body.language||'cs',['cs','en','ru','uk']);
+      const rawContact=text(body.contact,254);
+      const kind: 'email'|'phone'=rawContact.includes('@')?'email':'phone';
+      const contact=kind==='email'?safeEmail(rawContact):safePhone(rawContact);
+      if (body.adultConfirmed!==true || body.safety!==true) throw new Error('consent');
+      let date:string|null=null;
+      if (day==='DATE') {
+        date=text(body.preferredDate,10);
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error('date');
+        const valid=new Date(date+'T12:00:00.000Z');
+        if (!Number.isFinite(valid.getTime()) || valid.toISOString().slice(0,10)!==date ||
+          valid.getTime()<Date.now()-86400000 ||
+          valid.getTime()>Date.now()+366*86400000) throw new Error('date');
+      } else if (body.preferredDate) {
+        throw new Error('date');
+      }
+      entry={first:safeName(body.firstName),last:safeName(body.lastName),
+        contact,kind,type,day,date,lang};
+    } catch {
+      return reply({error:'please_check_required_fields'},400,origin);
+    }
+    const ip=String(req.headers.get('cf-connecting-ip')||req.headers.get('x-real-ip')||
+      req.headers.get('x-forwarded-for')||'').split(',')[0].trim().slice(0,100);
+    if (ip && !(await allow('druzina_ip',ip,10)))
+      return reply({error:'too_many_requests'},429,origin);
+    if (!(await allow('druzina_contact',entry.contact,5)))
+      return reply({error:'too_many_requests'},429,origin);
+    const {data, error}=await api.from('imperion_rsvp_enquiries').insert({
+      first_name:entry.first,last_name:entry.last,contact:entry.contact,
+      contact_kind:entry.kind,visit_type:entry.type,preferred_day:entry.day,
+      preferred_date:entry.date,adult_confirmed:true,safety_acknowledged:true,
+      safety_version:'2026-10-25-v2',language:entry.lang,
+      data_controller:'Družina Moravy, z. s.',
+      source:'site-druzina-first-visit',status:'RECEIVED_UNCONFIRMED',
+    }).select('id').single();
+    if (error || !data?.id) return reply({error:'temporarily_unavailable'},503,origin);
+    return reply({
+      ok:true,status:'RECEIVED_UNCONFIRMED',confirmed:false,reference:data.id,
+      message:'Enquiry received, not a confirmed training place or payment request.'
+    },200,origin);
+  }
   let v: {
     eventId:string;first:string;last:string;email:string;phone:string;age:string;
     guardianName:string|null;guardianPhone:string|null;photo:string;
