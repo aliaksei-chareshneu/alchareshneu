@@ -116,8 +116,8 @@ function regpSubmit(payload) {
   var isMinor = payload.ageGroup === 'under18';
   if (payload.ageGroup !== 'adult' && !isMinor) throw new Error('Choose your age group');
   var guardianName = isMinor ? regpClean_(payload.guardianName, 160) : '';
-  var guardianPhone = isMinor ? regpPhone_(payload.guardianPhone) : '';
   if (isMinor && guardianName.length < 3) throw new Error('Guardian name is required for minors');
+  var guardianPhone = isMinor ? regpPhone_(payload.guardianPhone) : '';
   if (payload.safety !== true) throw new Error('Please read and acknowledge the safety rules');
   var photo = String(payload.photo || '');
   if (photo !== 'YES' && photo !== 'NO') throw new Error('Please choose a photo-permission option');
