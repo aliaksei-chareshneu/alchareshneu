@@ -129,6 +129,26 @@ function ocEventQueue_(rows,now){
  items.sort(function(a,b){return rank[a.state]-rank[b.state]||(a.sortAt<b.sortAt?-1:a.sortAt>b.sortAt?1:0)||a.index-b.index;});
  return {queue:queue,rows:items.slice(0,100).map(function(r){delete r.index;delete r.sortAt;return r;})};
 }
+/**
+ * Deterministic one-task preview over existing private Hub summaries.
+ * Recomputed on owner console refresh; does NOT schedule, mutate, contact,
+ * spend, mark verified, or claim that an external action happened.
+ * No names, messages, bank amounts, payment IDs or contacts are returned.
+ */
+function ocNextAction_(leads,social,events,missing){
+ function task(kind,ref,reason){return {mode:'READ_ONLY',kind:kind,ref:String(ref||''),reason:reason,executed:false,approved:false};}
+ var absent=['Leads','SocialPublishing','Events'].filter(function(name){return !!missing[name];});
+ if(absent.length)return task('SOURCE',absent.join(', '),'MISSING_CANONICAL_SHEET');
+ var event=events.filter(function(r){return r.state==='REVIEW';})[0];
+ if(event)return task('EVENT',event.id,'INVALID_ACTIVE_EVENT_TIME');
+ var lead=leads.needsAction.filter(function(r){return r.dueState==='OVERDUE'||r.dueState==='TODAY';})[0];
+ if(lead)return task('LEAD',lead.id,lead.dueState);
+ var post=social.filter(function(r){return r.state==='ATTENTION';})[0];
+ if(post)return task('POST',post.id,'VERIFY_PROVIDER_RECEIPT');
+ var undated=leads.needsAction.filter(function(r){return r.dueState==='INVALID_DATE'||r.dueState==='NO_DATE';})[0];
+ if(undated)return task('LEAD_DATE',undated.id,undated.dueState);
+ return task('NONE','','NO_IMMEDIATE_SAFE_ACTION');
+}
 function ocBankState_(props,prefix){
  var last=props.getProperty(prefix+'_LAST_OK_AT')||'',raw=props.getProperty(prefix+'_LAST_BANK_BALANCE');
  var age=last?Date.now()-Date.parse(last):NaN,verified=isFinite(age)&&age>=0&&age<2*3600000;
@@ -199,8 +219,9 @@ function operatorSnapshot(){
  if(!events.missing&&['Event_ID','Title','Community','Status','Start_DateTime','End_DateTime'].some(function(k){return events.headers.filter(function(h){return h===k;}).length!==1;}))throw Error('Events schema missing or duplicate required column');
  var config=ocRows_(ss,'Revenue_Config'),publications=ocSocialQueue_(social.rows);
  var cfg={};config.rows.forEach(function(r){cfg[r.Key]=r.Value;});var now=Date.now();
- var agenda=ocEventQueue_(events.rows,now),capabilities=ocCapabilities_(p,ss);
- return {capabilities:capabilities,recoveryDiagnostics:ocRecoveryDiagnostics_(p,now,capabilities.recoveryState),at:new Date(now).toISOString(),hub:ss.getUrl(),leads:ocLeadSummary_(leads.rows,now),leadUrl:leads.url,
+ var agenda=ocEventQueue_(events.rows,now),capabilities=ocCapabilities_(p,ss),leadSummary=ocLeadSummary_(leads.rows,now);
+ var nextAction=ocNextAction_(leadSummary,publications.rows,agenda.rows,{Leads:leads.missing,SocialPublishing:social.missing,Events:events.missing});
+ return {capabilities:capabilities,recoveryDiagnostics:ocRecoveryDiagnostics_(p,now,capabilities.recoveryState),at:new Date(now).toISOString(),hub:ss.getUrl(),leads:leadSummary,nextAction:nextAction,leadUrl:leads.url,
   ingestion:cfg.STATUS||'NOT_VERIFIED',social:publications.rows,socialQueue:publications.queue,socialUrl:social.url,
   events:agenda.rows,eventQueue:agenda.queue,eventUrl:events.url,
   banks:{osvc:ocBankState_(p,'FIO_OSVC'),druzina:ocBankState_(p,'FIO_DRUZINA')},
