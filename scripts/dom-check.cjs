@@ -48,8 +48,10 @@ if(require.main===module)(async()=>{let count=0;for(const path of ['index.html',
    assert.equal(d.querySelector('#tariff')?.getAttribute('aria-hidden'),'true','retired pricing anchor must be hidden');
    assert.equal(d.querySelector('#druzina-payment')?.getAttribute('aria-hidden'),'true','retired payment anchor must be hidden');
    const booking=d.querySelector('#navBookBtn')?.getAttribute('href')||'';
-   assert.ok(booking.startsWith('start/'),path+' '+lang+' primary navigation must enter club, never falsely book a paid session');
-   assert.equal(new URL(d.querySelector('.dm-hero-register')?.href||'',d.location.href).pathname,'/alchareshneu/druzina/start/','hero first/next-battle action should enter club onboarding');
+   assert.ok(booking.startsWith('prihlaska/?lang='),path+' '+lang+' primary navigation must reach the safeguarded enquiry form');
+   assert.equal(new URL(d.querySelector('.dm-hero-register')?.href||'',d.location.href).pathname,'/alchareshneu/druzina/prihlaska/','hero CTA must lead to first-visit enquiry');
+   assert.equal(d.querySelector('.dm-v2-announcements')?.open,false,'long club updates must be collapsed by default');
+   assert.ok(d.querySelector('.dm-v2-status')?.textContent.includes('7'),'cancelled session stays visible');
    assert.ok(d.querySelector('.dm-trust-line')?.textContent.length>20,'club participation and trust statement visible');
    const retired=[...d.querySelectorAll('a[href]')].filter(a=>/docs[.]google[.]com[/]forms[/]d[/]e|revolut[.]me[/]/i.test(a.href));
    assert.equal(retired.length,0,'paused HEMA page must not link to retired payment/booking forms');

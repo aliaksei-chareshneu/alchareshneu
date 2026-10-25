@@ -88,11 +88,16 @@ function runAudit(pages) {
   verify('academy:relevant-contact',
     academyUrl.startsWith('https://wa.me/') && /Academy/i.test(academyUrl),
     'Academy first-lesson enquiry must reach its own service');
+  const dmForm = fs.readFileSync(path.join(__dirname,'../druzina/prihlaska/index.html'),'utf8');
   verify('druzina:enquiry-only',
-    linkWithId(druzina,'navBookBtn')==='start/' &&
+    /^prihlaska\/\?lang=(en|cs|ru|uk)$/.test(linkWithId(druzina,'navBookBtn')) &&
+    dmForm.includes("intent:'DRUZINA_ENQUIRY'") &&
+    dmForm.includes('id="safety" type="checkbox" required') &&
+    dmForm.includes('id="adult" type="checkbox" required') &&
+    dmForm.includes('out.confirmed!==false') &&
     /New paid HEMA bookings are paused/i.test(druzina) &&
     /Nové placené rezervace HEMA jsou pozastaveny/i.test(druzina),
-    'Družina entrance must remain enquiry-only with four-language payment safety');
+    'Družina enquiry button must lead to guarded, consented non-booking intake with four-language payment safety');
   let walkersUrl='';
   try { walkersUrl=decodeURIComponent(linkWithId(walkers,'navBookBtn')); } catch { /* fail closed */ }
   verify('walkers:event-intake',
