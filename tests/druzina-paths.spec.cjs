@@ -76,3 +76,25 @@ for(const lang of languages){
   expect(errors).toEqual([]);
  });
 }
+
+ 
+// November public-copy gates: enrolment stays non-binding and referrals
+// cannot be substituted for actually attended training or rank evidence.
+for(const lang of languages){
+ test('November public-copy gates: '+lang,async({page})=>{
+  await page.setViewportSize({width:390,height:850});
+  await page.goto('/?lang='+lang+'#ambassador');
+  const referral=page.locator('[data-i18n="ambassador.druzinaText"]');
+  await expect(referral).toBeVisible();
+  await expect(referral).not.toContainText(/\+5(?:-session)?/);
+  const scope=page.locator('[data-i18n="ui.druzinaLegalScope"]');
+  await expect(scope).toBeVisible();
+  const scopeText=await scope.innerText();
+  expect(scopeText.length).toBeGreaterThan(100);
+  expect(scopeText).toMatch(/HEMA/);
+  await page.goto('/druzina/cesty/?lang='+lang);
+  await expect(page.locator('[data-t="commandType"]')).toContainText('VII');
+  await expect(page.locator('[data-t="s1"]')).not.toContainText(/90 (?:minutes|minut|минут|хвилин)/i);
+  await expect(page.locator('#officialRanks')).toHaveAttribute('href','../ranks.html?lang='+lang);
+ });
+}
