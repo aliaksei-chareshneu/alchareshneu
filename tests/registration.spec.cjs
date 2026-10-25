@@ -58,6 +58,7 @@ test('minors require guardian details and cannot self-grant photo publicity',asy
  await expect(page.locator('#guardian')).toBeVisible();
  await expect(page.locator('#guardianName')).toHaveAttribute('required','');
  await expect(page.locator('#photoConsent')).toBeDisabled();
+ await expect(page.locator('#future')).toBeDisabled();
 });
 test('privacy and safety information are reachable and a hosted Apps Script URL is explicit',async({page})=>{
  await page.goto('/register/?preview=1&event=TEST-HIKE-20991101');
