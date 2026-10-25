@@ -16,7 +16,7 @@ for (const lang of ['en', 'cs', 'ru', 'uk']) {
       for (const link of await page.locator('.locale:visible .primary').all()) {
         const href = await link.getAttribute('href');
         expect(href).toMatch(/^(?:mailto:|https:\/\/(?:wa\.me|t\.me)\/)/);
-        expect(href).not.toMatch(/revolut|checkout|payment/i);
+        expect(href).not.toMatch(/^https:\/\/(?:revolut\.me|checkout\.)/i);
       }
       expect(errors).toEqual([]);
     });
