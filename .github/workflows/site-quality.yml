@@ -93,6 +93,9 @@ jobs:
       - name: Verify Fio settled credit creates one safe booking
         run: node --test tests/druzina-fio-commit.test.cjs
 
+      - name: Verify delayed Fio settlement of already-submitted proof without duplicate booking
+        run: node --test tests/druzina-fio-proof-reconcile.test.cjs
+
       - name: Verify private Druzina OTP account projection
         run: node --test tests/druzina-member-account.test.cjs
 
