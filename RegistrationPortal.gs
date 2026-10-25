@@ -67,11 +67,16 @@ function regpEvents_() {
       additionalSafety:isContact
     });
   });
-  events.sort(function(a,b){ return a.date.localeCompare(b.date); });
+  events.sort(function(a,b){ return new Date(a.date) - new Date(b.date); });
   return events;
 }
 
+function regpLive_() {
+  return PropertiesService.getScriptProperties().getProperty('UNIVERSAL_PORTAL_LIVE') === 'true';
+}
+
 function regpGetEvents() {
+  if (!regpLive_()) return {events:[],version:PORTAL_VERSION,notLive:true};
   return {events:regpEvents_(),version:PORTAL_VERSION};
 }
 
@@ -97,6 +102,7 @@ function regpPhone_(value) {
 }
 
 function regpSubmit(payload) {
+  if (!regpLive_()) throw new Error('Registrations are not open yet');
   if (!payload || typeof payload !== 'object' || Array.isArray(payload)) throw new Error('Invalid form data');
   if (payload.website) return {ok:true,recorded:false}; // invisible anti-bot honeypot
   var id = String(payload.eventId || '');
@@ -214,6 +220,21 @@ function cleanupUniversalRegistrations(){
     cleaned++;
   }
   return {purged:cleaned};
+}
+
+function activateUniversalRegistration(){
+  // Owner-controlled post-deployment switch: only after incognito/mobile and CRM write-read tests.
+  var events = regpEvents_();
+  if (!events.length) throw new Error('No currently approved OPEN event');
+  PropertiesService.getScriptProperties().setProperty('UNIVERSAL_PORTAL_LIVE','true');
+  try { CacheService.getScriptCache().remove('site_events_json'); } catch(e) {}
+  return {live:true,approvedEventCount:events.length};
+}
+
+function pauseUniversalRegistration(){
+  PropertiesService.getScriptProperties().deleteProperty('UNIVERSAL_PORTAL_LIVE');
+  try { CacheService.getScriptCache().remove('site_events_json'); } catch(e) {}
+  return {live:false};
 }
 
 function setupUniversalRegistration(){
