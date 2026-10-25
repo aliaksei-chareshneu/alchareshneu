@@ -85,3 +85,34 @@ test('unverified dates are never guessed, and missing arrays fail quietly',()=>{
   assert.equal(a.bookings[0].starts,'UNCONFIRMED');
   assert.equal(a.payments.length,0);
 });
+
+test('Google Calendar link is available only for confirmed bank-paid and venue-approved booking',()=>{
+ const memberId='MEM-1';
+ const safe={Session_ID:'S-1',Slot_State:'CONFIRMED',Publish_Confirmed_Only:'YES',
+  Venue_Permission_Verified:'VERIFIED',Instructor_Verified:'VERIFIED',
+  Activity_Insurance_Verified:'VERIFIED',Equipment_Check:'VERIFIED',
+  Participant_Safety_Form_Valid:'VERIFIED'};
+ const source={...base,
+  payments:[{Member_ID:memberId,Payment_ID:'PAY-OK',Expected_Amount_CZK:240,
+    Received_Amount_CZK:240,Verification_Status:'VERIFIED',
+    Verified_At:'2026-11-16T09:00:00Z'}],
+  bookings:[{Member_ID:memberId,Payment_ID:'PAY-OK',Booking_ID:'B-1',Session_ID:'S-1',
+    Status:'VERIFIED',Attendance_Status:'NOT_CHECKED',Applied_Price_CZK:240}],
+  sessions:[{Session_ID:'S-1',Status:'OPEN',Start_DateTime:'2026-11-16T17:00:00Z',
+    End_DateTime:'2026-11-16T19:00:00Z',Theme:'Druzina Historical Fencing',
+    Location:'Nová Zbrojovka — permitted location'}],
+  capacityGates:[safe]
+ };
+ const ready=env.druaPrivateView(auth,source);
+ const url=ready.account.bookings[0].googleCalendarUrl;
+ assert.match(url,/^https:\/\/calendar\.google\.com\/calendar\/render\?/);
+ assert.equal(new URL(url).searchParams.get('dates'),'20261116T170000Z/20261116T190000Z');
+ assert.equal(new URL(url).searchParams.get('ctz'),'Europe/Prague');
+ assert.ok(!url.includes('MEM-1'));
+ assert.ok(!url.includes('PAY-OK'));
+ assert.equal(env.druaPrivateView(auth,{...source,capacityGates:[]}).account.bookings[0].googleCalendarUrl,null);
+ assert.equal(env.druaPrivateView(auth,{...source,payments:[{...source.payments[0],
+   Verification_Status:'PROOF_SUBMITTED'}]}).account.bookings[0].googleCalendarUrl,null);
+ assert.equal(env.druaPrivateView(auth,{...source,
+   sessions:[{...source.sessions[0],Location:'Dukelská třída 157/44'}]}).account.bookings[0].googleCalendarUrl,null);
+});
