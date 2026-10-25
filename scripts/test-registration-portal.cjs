@@ -9,7 +9,7 @@ const gateway=fs.readFileSync('register/index.html','utf8');
 const privacy=fs.readFileSync('register/privacy/index.html','utf8');
 const safety=fs.readFileSync('register/safety/index.html','utf8');
 const server=fs.readFileSync('RegistrationPortal.gs','utf8');
-for(const field of ['id="first"','id="last"','id="email"','id="phone"','id="safety"','name="photo"','id="future"','name="rsvp"','id="age"']) {
+for(const field of ['id="first"','id="last"','id="email"','id="phone"','id="safety"','id="photoConsent"','id="future"','name="rsvp"','id="age"']) {
  assert.ok(html.includes(field),'Missing form input '+field);
 }
 for(const language of ['en','cs','ru','uk']) assert.ok(html.includes("data-lang="+JSON.stringify(language)),'Missing language '+language);
@@ -71,7 +71,7 @@ const good={eventId:'TEST-HIKE-20991101',firstName:'Ada',lastName:'Example',
  safety:true,photo:'NO',futureUpdates:false,rsvp:'YES',language:'en',website:''};
 const first=context.regpSubmit(good);
 assert.equal(first.ok,true);
-assert.equal(first.status,'CONFIRMED');
+assert.equal(first.status,'REGISTERED');
 assert.equal(rows.Registrations.length,4);
 const one=rows.Registrations[3];
 assert.equal(one[RH.indexOf('Email')],'ada@example.test');
@@ -94,7 +94,8 @@ assert.equal(rows.Registrations[4][RH.indexOf('Photo_Consent')],'no');
 assert.throws(()=>context.regpSubmit({...good,safety:false}),/safety/i);
 assert.throws(()=>context.regpSubmit({...good,email:'invalid'}),/email/i);
 assert.throws(()=>context.regpSubmit({...good,phone:'xyz'}),/phone/i);
-assert.throws(()=>context.regpSubmit({...good,photo:''}),/photo/i);
+assert.equal(context.regpSubmit({...good,photo:''}).ok,true);
+assert.equal(rows.Registrations[3][RH.indexOf('Photo_Consent')],'no');
 assert.throws(()=>context.regpSubmit({...good,eventId:'HOLD-HEMA-20991101'}),/closed|not available/i);
 assert.throws(()=>context.regpSubmit({...good,ageGroup:'under18',guardianName:'',guardianPhone:''}),/guardian/i);
 assert.equal(locked,0,'Lock must always be released');
