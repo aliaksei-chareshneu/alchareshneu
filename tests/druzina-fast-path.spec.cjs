@@ -98,7 +98,8 @@ test('Returning visitor and preferred date do not bypass booking confirmation',a
  });
  await page.goto('/druzina/prihlaska/?lang=ru&type=returning');
  await expect(page.locator('input[name="visitType"][value="RETURNING"]')).toBeChecked();
- await page.locator('input[name="preferredDay"][value="DATE"]').check();
+ await page.locator('input[name="preferredDay"][value="DATE"]+span').click();
+ await expect(page.locator('input[name="preferredDay"][value="DATE"]')).toBeChecked();
  await expect(page.locator('#dateWrap')).toBeVisible();
  const date=await page.locator('#preferredDate').getAttribute('max');
  await page.locator('#preferredDate').fill(date);
