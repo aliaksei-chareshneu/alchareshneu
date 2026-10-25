@@ -476,3 +476,29 @@ body[data-imperion-scope="dark"] .dm-path-back a{
   box-shadow:none!important
  }
 }
+
+/* Priority correction: ranks/ux.css uses body.dm-ux-ranks selectors with
+   higher specificity than the generic surface group. Never leave white rank
+   sheets underneath ivory text. */
+body[data-imperion-scope="ranks"].dm-ux-ranks :is(.launch-notice,.scroll,.honor-streamers,.dm-ranks-summary,.dm-ranks-explainer div){
+ background:#182b44;color:#f5f7fc;border-color:#364a60;
+ box-shadow:var(--brand-shadow)
+}
+body[data-imperion-scope="ranks"].dm-ux-ranks table{
+ background:#182b44;color:#f5f7fc;border-color:#364a60
+}
+body[data-imperion-scope="ranks"].dm-ux-ranks table th{
+ background:#263f5c;color:#f5f7fc;border-color:#364a60
+}
+body[data-imperion-scope="ranks"].dm-ux-ranks table td{
+ background:transparent;color:#c6d1e0;border-color:#364a60
+}
+body[data-imperion-scope="ranks"].dm-ux-ranks :is(.tip,p.tip){
+ background:#25364a;color:#f5f7fc;border-left-color:#e6bf80
+}
+body[data-imperion-scope="ranks"].dm-ux-ranks .langs button{
+ background:#213952;color:#f5f7fc;border-color:#5d728c
+}
+body[data-imperion-scope="ranks"].dm-ux-ranks .langs button[aria-pressed=true]{
+ background:#e6bf80;color:#101b2d;border-color:#e6bf80
+}
