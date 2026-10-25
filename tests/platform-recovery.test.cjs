@@ -36,3 +36,22 @@ test('invalid recovery window stops inspection before reading form responses',()
  s.RP={LEADS_SHEET:'Leads'};
  assert.throws(()=>s.prInspect_(),/Invalid recovery start timestamp/);assert.equal(reads,0);
 });
+test('editor preview logs a bounded read-only receipt without private inspection data',()=>{
+ const logs=[],s=load({console:{log:value=>logs.push(value)}});
+ s.prOwner_=()=>{};
+ const summary={mode:'READ_ONLY',responseCount:3,missingLeads:1,batchLimit:50,exactFormTriggers:1,recovered:0,cashVerified:false,publicPostsSent:0};
+ s.prInspect_=()=>({summary:{...summary,privateField:'PRIVATE-SUMMARY-FIXTURE'},c:{token:'PRIVATE-TOKEN-FIXTURE'},plan:{batch:[response('PRIVATE-RESPONSE-FIXTURE')]}});
+ const returned=s.platformRecoveryPreview();
+ assert.equal(returned.missingLeads,1);assert.equal(logs.length,1);
+ const receipt=JSON.parse(logs[0]),{event,checkedAt,...counts}=receipt;
+ assert.equal(event,'RECOVERY_PREVIEW');assert.ok(isFinite(Date.parse(checkedAt)));
+ assert.deepEqual(counts,summary);assert.doesNotMatch(logs[0],/PRIVATE/);
+});
+test('denied or failed preview never emits a successful receipt',()=>{
+ const logs=[],s=load({console:{log:value=>logs.push(value)}});let inspections=0;
+ s.prOwner_=()=>{throw Error('Owner access required');};
+ s.prInspect_=()=>{inspections++;throw Error('Invalid recovery start timestamp');};
+ assert.throws(()=>s.platformRecoveryPreview(),/Owner/);assert.equal(inspections,0);assert.equal(logs.length,0);
+ s.prOwner_=()=>{};
+ assert.throws(()=>s.platformRecoveryPreview(),/Invalid recovery/);assert.equal(inspections,1);assert.equal(logs.length,0);
+});
