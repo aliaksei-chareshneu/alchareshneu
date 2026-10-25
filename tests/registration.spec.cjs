@@ -41,6 +41,7 @@ test('RSVP requires contact, safety and explicit photo choice; NO stays valid',a
  await page.locator('#phone').fill('+420 777 123 456');
  await page.locator('#age').selectOption('adult');
  await page.locator('#safety').check();
+ await page.locator('input[name="rsvp"][value="YES"]').check();
  await page.locator('#future').uncheck();
  await page.locator('input[name="photo"][value="NO"]').check();
  await page.locator('#submit').click();
