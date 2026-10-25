@@ -21,9 +21,9 @@ function sheet(headers, records){
     get(k){return rows[1][headers.indexOf(k)];}
   };
 }
-function fixture(overrides={}, evOverrides={}, telegramImpl){
+function fixture(overrides={}, evOverrides={}, telegramImpl, otherJobs=[]){
   const caption='Approved public training, with equipment and safety briefing.';
-  const job=sheet(jobHeaders,[{Duplicate_Checked:'YES',Job_ID:jobId,Event_ID:eventId,Channel:'telegram',Status:'APPROVED',Caption:caption,Entity:'Družina Moravy z.s.',Grant_Funded:'NO',Rights_OK:'YES',Approved_At:'2026-10-25',Visibility:'PUBLIC',...overrides}]);
+  const job=sheet(jobHeaders,[{Duplicate_Checked:'YES',Job_ID:jobId,Event_ID:eventId,Channel:'telegram',Status:'APPROVED',Caption:caption,Entity:'Družina Moravy z.s.',Grant_Funded:'NO',Rights_OK:'YES',Approved_At:'2026-10-25',Visibility:'PUBLIC',...overrides},...otherJobs]);
   const event=sheet(eventHeaders,[{Event_ID:eventId,Status:'Active',Community:'Družina Moravy',Start_DateTime:new Date(Date.now()+86400000),Telegram_Post_ID:'',...evOverrides}]);
   let telegramCalls=0;
   const ctxt={
@@ -51,8 +51,10 @@ test('Apps Script bridge accepts a signed approved job and records both receipts
   const preview=f.call('preview_telegram');assert.equal(preview.ready,true);
   assert.equal(f.calls(),0);
   const r=f.call();assert.equal(r.ok,true);
-  assert.equal(r.status,'PUBLISHED_VERIFIED');
+  assert.equal(r.status,'PUBLISHED_PROVIDER_CONFIRMED');
+  assert.equal(r.publicUrlIndependentlyVerified,false);
   assert.equal(f.job.get('Post_ID'),'731');
+  assert.equal(f.job.get('Status'),'PUBLISHED_PROVIDER_CONFIRMED');
   assert.equal(f.event.get('Telegram_Post_ID'),'731');
   assert.equal(r.url,'https://t.me/druzinamoravy_news/731');
   assert.equal(f.calls(),1);
@@ -85,4 +87,28 @@ test('WhatsApp group preview never sends anything',()=>{
   const f=fixture({Job_ID:jobId,Channel:'whatsapp'});
   const r=f.call('preview_whatsapp');
   assert.equal(r.ok,true);assert.equal(r.ready,true);assert.equal(f.calls(),0);
+});
+
+test('a historical Telegram publication blocks a new job even when Events.Telegram_Post_ID is blank',()=>{
+  const old={Job_ID:jobId+':history',Event_ID:eventId,Channel:'telegram',Status:'PUBLISHED_VERIFIED',Post_ID:'649',Post_URL:'https://t.me/druzinamoravy_news/649'};
+  const f=fixture({}, {}, undefined,[old]);
+  const preview=f.call('preview_telegram');
+  assert.equal(preview.ready,false);
+  assert.ok(preview.blockers.includes('HISTORICAL_TELEGRAM_POST_OR_UNCERTAIN_SEND'));
+  assert.equal(f.call().code,'APPROVAL_GATES_BLOCKED');
+  assert.equal(f.calls(),0);
+});
+
+test('confirmed publication in a known different channel does not block correct target',()=>{
+  const old={Job_ID:jobId+':crosspost',Event_ID:eventId,Channel:'telegram',Status:'PUBLISHED_VERIFIED',Post_ID:'649',Post_URL:'https://t.me/pochody_brno_news/649'};
+  const f=fixture({}, {}, undefined,[old]);
+  assert.equal(f.call('preview_telegram').ready,true);
+  assert.equal(f.calls(),0);
+});
+
+test('uncertain delivery under another Telegram job blocks automatic publication',()=>{
+  const old={Job_ID:jobId+':uncertain',Event_ID:eventId,Channel:'telegram',Status:'RECONCILIATION_REQUIRED'};
+  const f=fixture({}, {}, undefined,[old]);
+  assert.equal(f.call().code,'APPROVAL_GATES_BLOCKED');
+  assert.equal(f.calls(),0);
 });
