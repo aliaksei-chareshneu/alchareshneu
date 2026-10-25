@@ -87,10 +87,11 @@ assert.equal(rows.Registrations.length,4);
 assert.equal(rows.Registrations[3][RH.indexOf('Photo_Consent')],'yes');
 assert.equal(rows.Registrations[3][RH.indexOf('Marketing_Consent')],'yes');
 const minor=context.regpSubmit({...good,email:'min@example.test',firstName:'Minor',photo:'YES',
- ageGroup:'under18',guardianName:'Example Guardian',guardianPhone:'+420 777 123 456'});
+ ageGroup:'under18',guardianName:'Example Guardian',guardianPhone:'+420 777 123 456',futureUpdates:true});
 assert.equal(minor.status,'REGISTERED');
 assert.equal(minor.needsGuardian,true);
 assert.equal(rows.Registrations[4][RH.indexOf('Photo_Consent')],'no');
+assert.equal(rows.Registrations[4][RH.indexOf('Marketing_Consent')],'no');
 assert.throws(()=>context.regpSubmit({...good,safety:false}),/safety/i);
 assert.throws(()=>context.regpSubmit({...good,email:'invalid'}),/email/i);
 assert.throws(()=>context.regpSubmit({...good,phone:'xyz'}),/phone/i);
