@@ -47,6 +47,9 @@ jobs:
           grep -Eq '8[, ]235 Kč' druzina/index.html
           grep -Eq '4[, ]120 Kč' druzina/index.html
 
+      - name: Verify customer paths and commercial claims
+        run: node ops/imperion-public-gates.cjs --json
+
       - name: Validate inline JavaScript syntax
         shell: bash
         run: |
