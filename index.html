@@ -157,7 +157,7 @@
       <h1 data-exp="homeTitle">Learn. Explore. Find your people.</h1>
       <p class="tagline" data-exp="homeIntro">Tutoring with Aliaksei Chareshneu, PhD. Hikes with BrnoWalkers. Historical fencing with Družina Moravy. Your next step starts in Brno.</p>
       <a id="heroCta" class="btn solid plausible-event-name=Hero-CTA" href="corporate/technical-answers/?lang=en">For companies · AI pilot from 14,900 Kč</a>
-      <a id="heroCorporateCta" class="btn" href="#join">Explore learning &amp; communities</a>
+      <a id="heroCorporateCta" class="btn" href="start/">Explore learning &amp; communities</a>
       <a class="reviews-badge" href="https://maps.app.goo.gl/fEbnJHxiVoAx1v498" target="_blank" rel="noopener">
         <span class="star">⭐</span><span data-i18n="reviewsBadge">50+ Google reviews · 5.0</span>
       </a>
@@ -3147,7 +3147,7 @@ function render(lang){
   if (mainEl) mainEl.innerHTML = renderMainTab(lang, t);
 
   // Common footer with clickable elements including Email and Phone
-  const registerLabelFooter = {ru:'Спросить о мероприятии', en:'Ask about an event', cs:'Zeptat se na akci', uk:'Zeptat se na akci'};
+  const registerLabelFooter = {ru:'Спросить о мероприятии', en:'Ask about an event', cs:'Zeptat se na akci', uk:'Запитати про подію'};
   const orderServiceLabel = {ru:'Подобрать решение', en:'Find the right service', cs:'Vybrat správnou službu', uk:'Знайти потрібну послугу'};
   const paymentCommentNote = {
     ru:'Оплата только после письменного согласования услуги, цены и условий.',
@@ -3166,7 +3166,7 @@ function render(lang){
     <div class="wrap">
       <h2>${t.footer.h}</h2>
       <div class="footer-contacts">
-        <a class="btn solid" href="start/">${orderServiceLabel[lang]}</a>
+        <a class="btn solid" href="start/?lang=${lang}">${orderServiceLabel[lang]}</a>
         <a class="btn solid" href="${REGISTER_FORM}" target="_blank" rel="noopener">${registerLabelFooter[lang]}</a>
         <a class="btn" href="mailto:chereshnev.biochem@gmail.com">Email</a>
         <a class="btn" href="tel:+420702914842">+420 702 914 842</a>
