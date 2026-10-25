@@ -301,7 +301,7 @@
     <div class="wrap">
       <div class="eyebrow-sm" data-i18n="ambassador.eyebrow">Grow the Community</div>
       <h2 class="anchor-heading" data-i18n="ambassador.h">Become an Ambassador<a class="anchor-link" href="#ambassador">#</a></h2>
-      <p class="lead" data-i18n="ambassador.lead">There's no single sign-up form for this yet — but every corner of the ecosystem already rewards people who bring others in. Here's what's live today:</p>
+      <p class="lead" data-i18n="ambassador.lead">Help our communities grow by inviting interested friends with their consent. Benefits and qualifications are never awarded automatically.</p>
 
       <div class="grid-ctas">
         <div class="card-cta">
@@ -311,7 +311,7 @@
         </div>
         <div class="card-cta">
           <h3 data-i18n="ambassador.druzinaH">⚔️ Družina Moravy</h3>
-          <p data-i18n="ambassador.druzinaText">Take the Recruiter role for status and visibility in the club plus a +5-session rank bonus for every person you bring who stays. Either way: anyone who brings someone in who trains 4+ times gets +5 sessions credited.</p>
+          <p data-i18n="ambassador.druzinaText">Invite interested friends voluntarily. Referrals do not count as training sessions or automatically increase ranks. Previously individually agreed benefits remain respected.</p>
           <a class="btn" href="druzina/#roles" data-i18n="ambassador.druzinaLink">See club roles →</a>
         </div>
         <div class="card-cta">
@@ -381,7 +381,8 @@
     <div class="wrap">
       <p class="eyebrow-sm" data-i18n="ui.termsEyebrow">Legal</p>
       <h2 class="anchor-heading" data-i18n="ui.globalRulesH">General Participant Code of Conduct<a class="anchor-link" href="#terms">#</a></h2>
-      <p data-i18n="ui.termsIntro">Applies to all BrnoWalkers, Družina Moravy, and individual-service events and activities.</p>
+      <p data-i18n="ui.termsIntro">General conduct information for confirmed activities; the organiser and terms for each service are confirmed separately.</p>
+      <p class="note" data-i18n="ui.druzinaLegalScope" role="note">New Družina Moravy HEMA sessions are currently enquiry-only. An enquiry does not reserve a place or create a payment obligation. Do not use the general bank or Revolut links to pay for HEMA. Each date requires written confirmation of the lawful organiser, price, cancellation and equipment terms. Previously agreed bookings and paid rights remain valid.</p>
 
       <details class="acc">
         <summary class="acc-summary" data-i18n="ui.termsSummary">📜 Full legal terms of participation</summary>
@@ -548,10 +549,10 @@ const RANKS = [
 const ROLES = [
   { role:{ru:'Рекрутер',en:'Recruiter',cs:'Náborář',uk:'Рекрутер'},
     what:{ru:'Привлекает новых участников',en:'Brings in new members',cs:'Přivádí nové členy',uk:'Залучає нових учасників'},
-    reward:{ru:'Статус и видимость в клубе + бонус +5 сессий к рангу за каждого удержанного',
-            en:'Status and visibility in the club + a +5-session rank bonus for every retained referral',
-            cs:'Status a viditelnost v klubu + bonus +5 sezení k hodnosti za každého udrženého nováčka',
-            uk:'Статус і видимість у клубі + бонус +5 сесій до рангу за кожного утриманого'}},
+    reward:{ru:'Признание реальной согласованной помощи; приглашения не прибавляют тренировки к рангу',
+            en:'Recognition for verified voluntary help; referrals never count as completed training or automatic ranks',
+            cs:'Uznání skutečné dobrovolné pomoci; doporučení se nepočítá jako trénink ani automatická hodnost',
+            uk:'Визнання справжньої добровільної допомоги; запрошення не додають тренування чи звання автоматично'}},
   { role:{ru:'Турнирник',en:'Tournament fighter',cs:'Turnajový bojovník',uk:'Турнірник'},
     what:{ru:'Представляет клуб на турнирах и баттлах как боец',en:'Represents the club at tournaments and battles as a fighter',cs:'Reprezentuje klub na turnajích a bitvách jako bojovník',uk:'Представляє клуб на турнірах і баттлах как бійець'},
     reward:{ru:'Статус «лицо клуба»: приоритет в фото/видео для соцсетей',
@@ -609,12 +610,12 @@ ru:{
   ambassador:{
     eyebrow:'Расширяем сообщество',
     h:'Стать послом',
-    lead:'Отдельной формы регистрации для этого пока нет — но в каждой части экосистемы уже есть бонусы для тех, кто приводит новых людей. Вот что работает уже сейчас:',
+    lead:'Можно помогать сообществам, приглашая заинтересованных друзей по их желанию. Никакие бонусы и квалификации не начисляются автоматически.',
     walkersH:'🥾 Брноходцы',
     walkersText:'Приведи друга, который сходит на 2 платных мероприятия — это засчитается как 2 события к твоему рангу. Топ-уровень (Хранитель Моравии) получает гарантированное место на любом мероприятии с лимитом, одно бесплатное мероприятие в год и имя + фото на сайте.',
     walkersLink:'Смотреть ранги →',
     druzinaH:'⚔️ Дружина Моравы',
-    druzinaText:'Возьми роль Рекрутёра — статус и заметность в клубе плюс +5 тренировок к рангу за каждого приведённого, кто остаётся. В любом случае: если приведённый тренируется 4+ раз, тебе зачисляется +5 тренировок.',
+    druzinaText:'Приглашай друзей добровольно. Приглашение не считается посещённой тренировкой и не повышает ранг автоматически. Ранее индивидуально согласованные права сохраняются.',
     druzinaLink:'Смотреть роли клуба →',
     academyH:'🎓 Академия',
     academyText:'Порекомендуй друга на репетиторство, фитнес или любую другую услугу: он получает −10% на первую запись, ты — −10% на следующую.',
@@ -699,7 +700,7 @@ ru:{
   },
   ranks:{
     eyebrow:'III · Ранг', h:'Путь участника',
-    intro:'Ранг — отдельная шкала, не связанная с тарифом. Растёт от посещаемости и от привода новых людей. Каждый ранг даёт браслет своего цвета, выдаётся лично и объявляется вслух на тренировке.',
+    intro:'Звания B/C/K получают за подтверждённые реальные занятия, навыки, практику и вклад, а не за приглашения. Действующая система до VII уровня опубликована на странице Дружины.',
     startLabel:'старт', bracelet:'Браслет', threshold:'Порог',
     sparringNote:'Приоритет выбора партнёра (III ранг) действует только в свободных раундах спарринга.',
     weaponH:'Доступ к оружию по рангу',
@@ -721,8 +722,8 @@ ru:{
       ['Особый выезд «Битва под горой»','С III ранга: редкий формат повышенной опасности.'],
       ['Именное оружие','V ранг: при первом достижении Тысяцкого — личное оружие (оплата только материалов).'],
     ],
-    referralB:'Привёл человека, который остался на 4+ тренировки?',
-    referral:'+5 сессий засчитывается к твоему счёту ранга — только статус и время.',
+    referralB:'Пригласил заинтересованного друга?',
+    referral:'Помощь можно отметить отдельно, но подтверждённые тренировки и звания не заменяются приглашениями.',
     boardH:'Лидерборд', boardText:'Видимый список в зале или закреп в чате: Имя · Ранг · Тренировок всего · Битв. Участники обновляют сами.',
     recogH:'Момент признания', recogText:'Переход на новый ранг объявляется вслух при всех в конце тренировки, и в этот же момент выдаётся браслет.',
     recogText2:'На III ранге (Ветеран) — личное признание человека частью основы клуба.'
@@ -797,7 +798,8 @@ ru:{
     info:'Инфо',
     globalRulesH:'Общий кодекс ответственности участников',
     termsEyebrow:'Правовые условия',
-    termsIntro:'Распространяется на все мероприятия и активности BrnoWalkers, Дружины Моравы и индивидуальных услуг.',
+    termsIntro:'Общие правила поведения для подтверждённых мероприятий; организатор и условия конкретной услуги указываются отдельно.',
+    druzinaLegalScope:'Новые тренировки Družina Moravy сейчас доступны только для необязывающих запросов. Запрос не является бронированием или обязательством оплаты. Не используйте общие банковские реквизиты и Revolut для HEMA. Организатор, цена, отмена и выдача инвентаря подтверждаются письменно для каждой даты. Ранее согласованные и оплаченные права сохраняются.',
     termsSummary:'📜 Полные юридические условия участия',
     contactsEyebrow:'IX · Контакты',
     contactsH:'Найти нас',
@@ -896,12 +898,12 @@ en:{
   ambassador:{
     eyebrow:'Grow the Community',
     h:'Become an Ambassador',
-    lead:'There&#39;s no single sign-up form for this yet — but every corner of the ecosystem already rewards people who bring others in. Here&#39;s what&#39;s live today:',
+    lead:'Help our communities grow by inviting interested friends with their consent. Benefits and qualifications are never awarded automatically.',
     walkersH:'🥾 BrnoWalkers',
     walkersText:'Bring a friend who attends 2 paid events and it counts as 2 events toward your own rank. The top tier (Guardian of Moravia) gets a reserved spot at every limited event, one free event a year, and a name + photo on the site.',
     walkersLink:'See the ranks →',
     druzinaH:'⚔️ Družina Moravy',
-    druzinaText:'Take the Recruiter role for status and visibility in the club plus a +5-session rank bonus for every person you bring who stays. Either way: anyone who brings someone in who trains 4+ times gets +5 sessions credited.',
+    druzinaText:'Invite interested friends voluntarily. Referrals do not count as training sessions or automatically increase ranks. Previously individually agreed benefits remain respected.',
     druzinaLink:'See club roles →',
     academyH:'🎓 Academy',
     academyText:'Refer a friend to tutoring, fitness, or any other service: they get −10% on their first booking, you get −10% on your next one.',
@@ -986,7 +988,7 @@ en:{
   },
   ranks:{
     eyebrow:'III · Rank', h:'The member\'s path',
-    intro:'Rank tracks accumulated progress based on attendance and bringing people in. Each rank grants a specific colored bracelet.',
+    intro:'B/C/K qualifications depend on verified attendance, actual skills, practice and evidence, never referral credits. See the rank rules through level VII.',
     startLabel:'start', bracelet:'Bracelet', threshold:'Threshold',
     sparringNote:'The sparring-partner priority (Rank III) only applies in free rounds.',
     weaponH:'Weapon access by rank',
@@ -1008,8 +1010,8 @@ en:{
       ['Special trip "Battle Under the Mountain"','From Rank III: higher-risk format.'],
       ['A named weapon','Rank V: on first reaching Warlord — a personal weapon (materials cost only).'],
     ],
-    referralB:'Brought in someone who stayed for 4+ trainings?',
-    referral:'+5 sessions are credited to your rank count.',
+    referralB:'Invited an interested friend?',
+    referral:'Verified help may be recognised separately; referrals never replace attended training or rank assessments.',
     boardH:'Leaderboard', boardText:'Visible list or pinned chat: Name · Rank · Total sessions · Battles.',
     recogH:'The moment of recognition', recogText:'Rank upgrades are announced out loud at the end of training with bracelet delivery.',
     recogText2:'Rank III (Veteran) marks your acceptance into the core foundation of the club.'
@@ -1084,7 +1086,8 @@ en:{
     info:'Info',
     globalRulesH:'General Participant Code of Conduct',
     termsEyebrow:'Legal',
-    termsIntro:'Applies to all BrnoWalkers, Družina Moravy, and individual-service events and activities.',
+    termsIntro:'General conduct information for confirmed activities; the organiser and terms for each service are confirmed separately.',
+    druzinaLegalScope:'New Družina Moravy HEMA sessions are currently enquiry-only. An enquiry does not reserve a place or create a payment obligation. Do not use the general bank or Revolut links to pay for HEMA. Each date requires written confirmation of the lawful organiser, price, cancellation and equipment terms. Previously agreed bookings and paid rights remain valid.',
     termsSummary:'📜 Full legal terms of participation',
     contactsEyebrow:'IX · Contacts',
     contactsH:'Find us',
@@ -1183,12 +1186,12 @@ cs:{
   ambassador:{
     eyebrow:'Rozšiřujeme komunitu',
     h:'Staň se ambasadorem',
-    lead:'Zatím na to není samostatný formulář — ale každá část ekosystému už odměňuje ty, kdo přivádí nové lidi. Tady je, co funguje už teď:',
+    lead:'Komunitám můžeš pomoci pozváním kamarádů, kteří mají zájem. Výhody ani kvalifikace se nepřidělují automaticky.',
     walkersH:'🥾 BrnoWalkers',
     walkersText:'Přiveď kamaráda, který se zúčastní 2 placených akcí — počítá se to jako 2 akce k tvému vlastnímu žebříčku. Nejvyšší úroveň (Strážce Moravy) má rezervované místo na každé akci s omezenou kapacitou, jednu akci zdarma ročně a jméno + fotku na webu.',
     walkersLink:'Zobrazit žebříček →',
     druzinaH:'⚔️ Družina Moravy',
-    druzinaText:'Vezmi si roli Náboráře pro status a viditelnost v klubu plus bonus +5 tréninků k žebříčku za každého, koho přivedeš a kdo zůstane. V každém případě: kdo přivede někoho, kdo trénuje 4+ krát, získá +5 tréninků.',
+    druzinaText:'Pozvi přátele dobrovolně. Doporučení se nepočítá jako odtrénovaná lekce a automaticky nezvyšuje hodnost. Dříve individuálně dohodnuté výhody zůstávají zachovány.',
     druzinaLink:'Zobrazit role v klubu →',
     academyH:'🎓 Akademie',
     academyText:'Doporuč kamaráda na doučování, fitness nebo jakoukoli jinou službu: on dostane −10&nbsp;% na první rezervaci, ty −10&nbsp;% na tu další.',
@@ -1273,7 +1276,7 @@ cs:{
   },
   ranks:{
     eyebrow:'III · Hodnost', h:'Cesta člena',
-    intro:'Hodnost roste z docházky a z přivedení nových lidí. Každá hodnost dává náramek vlastní barvy.',
+    intro:'Hodnosti B/C/K závisejí na skutečné ověřené účasti, dovednostech a praxi, nikoli na doporučeních. Aktuální systém sahá do VII. stupně.',
     startLabel:'start', bracelet:'Náramek', threshold:'Hranice',
     sparringNote:'Priorita výběru partnera (III. hodnost) platí jen ve volných kolech sparingu.',
     weaponH:'Přístup ke zbraním podle hodnosti',
@@ -1295,8 +1298,8 @@ cs:{
       ['Speciální výjezd','Od III. hodnosti: vzácný formát se zvýšeným rizikem.'],
       ['Jmenná zbraň','V. hodnost: osobní zbraň za cenu materiálu.'],
     ],
-    referralB:'Přivedl jsi člověka, který zůstal na 4+ tréninky?',
-    referral:'+5 sezení se připočte k tvému počtu pro hodnost.',
+    referralB:'Pozval jsi kamaráda se zájmem?',
+    referral:'Pomoc lze ocenit zvlášť, nikoli jako absolvovanou lekci či automatickou hodnost.',
     boardH:'Žebříček', boardText:'Viditelný seznam: Jméno · Hodnost · Tréninků celkem · Bitev.',
     recogH:'Okamžik uznání', recogText:'Na konci tréninku se hodnost ohlásí nahlas a předá náramek nové barvy.',
     recogText2:'III. hodnost (Veterán) znamená osobní uznání, že se stáváš pilířem klubu.'
@@ -1371,7 +1374,8 @@ cs:{
     info:'Info',
     globalRulesH:'Obecný kodex odpovědnosti účastníků',
     termsEyebrow:'Právní podmínky',
-    termsIntro:'Platí pro všechny akce a aktivity BrnoWalkers, Družiny Moravy a individuálních služeb.',
+    termsIntro:'Obecné zásady chování pro potvrzené akce; pořadatel a podmínky konkrétní služby se potvrzují zvlášť.',
+    druzinaLegalScope:'Nové tréninky Družina Moravy lze nyní pouze nezávazně poptat. Dotaz není rezervace ani povinnost platby. Za HEMA neplaťte podle obecných bankovních údajů ani odkazu Revolut. Pořadatel, cena, storno a zápůjčka výstroje se potvrzují písemně pro každý termín. Dříve sjednaná a zaplacená práva zůstávají zachována.',
     termsSummary:'📜 Úplné právní podmínky účasti',
     contactsEyebrow:'IX · Kontakty',
     contactsH:'Najdi nás',
@@ -1470,12 +1474,12 @@ uk:{
   ambassador:{
     eyebrow:'Розширюємо спільноту',
     h:'Стати послом',
-    lead:'Окремої форми реєстрації для цього поки немає — але кожна частина екосистеми вже винагороджує тих, хто приводить нових людей. Ось що працює вже зараз:',
+    lead:'Спільнотам можна допомагати, запрошуючи зацікавлених друзів за їхньою згодою. Винагороди й кваліфікації не надаються автоматично.',
     walkersH:'🥾 Брнохідці',
     walkersText:'Приведи друга, який відвідає 2 платні заходи — це зарахується як 2 події до твого рангу. Топ-рівень (Хранитель Моравії) отримує гарантоване місце на будь-якому заході з лімітом, один безкоштовний захід на рік та ім&#39;я + фото на сайті.',
     walkersLink:'Дивитись ранги →',
     druzinaH:'⚔️ Дружина Моравії',
-    druzinaText:'Візьми роль Рекрутера — статус і помітність у клубі плюс +5 тренувань до рангу за кожного приведеного, хто залишається. У будь-якому разі: якщо приведений тренується 4+ разів, тобі зараховується +5 тренувань.',
+    druzinaText:'Запрошуй зацікавлених друзів добровільно. Рекомендації не зараховуються як проведені тренування й автоматично не підвищують звання. Раніше індивідуально погоджені права зберігаються.',
     druzinaLink:'Дивитись ролі клубу →',
     academyH:'🎓 Академія',
     academyText:'Порекомендуй друга на репетиторство, фітнес чи будь-яку іншу послугу: він отримує −10% на перший запис, ти — −10% на наступний.',
@@ -1560,7 +1564,7 @@ uk:{
   },
   ranks:{
     eyebrow:'III · Ранг', h:'Шлях учасника',
-    intro:'Ранг зростає від відвідуваності та залучення нових людей. Кожен ранг дає браслет свого кольору.',
+    intro:'Звання B/C/K залежать від підтверджених тренувань, навичок і практики, а не від запрошень. Чинна система має рівні до VII.',
     startLabel:'старт', bracelet:'Браслет', threshold:'Поріг',
     sparringNote:'Пріоритет вибору партнера (III ранг) діє лише у вільних раундах спарингу.',
     weaponH:'Доступ до зброї за рангом',
@@ -1582,8 +1586,8 @@ uk:{
       ['Особливий виїзд','З III рангу: формат підвищеної складності.'],
       ['Іменна зброя','V ранг: особиста зброя за ціною матеріалів при досягненні рангу.'],
     ],
-    referralB:'Привів людину, яка залишилася на 4+ тренування?',
-    referral:'+5 сесій зараховується до твого рахунку рангу.',
+    referralB:'Запросив зацікавленого друга?',
+    referral:'Допомогу можуть відзначити окремо, але вона не замінює відвідування чи перевірку кваліфікації.',
     boardH:'Лідерборд', boardText:'Видимий список: Імʼя · Ранг · Тренувань загалом · Битв.',
     recogH:'Момент визнання', recogText:'Перехід на новий ранг оголошується вголос при всіх із видачею браслета.',
     recogText2:'III ранг (Ветеран) — офіційне визнання учасника частиною фундамента клубу.'
@@ -1658,7 +1662,8 @@ uk:{
     info:'Інфо',
     globalRulesH:'Загальний кодекс відповідальності учасників',
     termsEyebrow:'Правові умови',
-    termsIntro:'Поширюється на всі заходи та активності BrnoWalkers, Дружини Моравії та індивідуальних послуг.',
+    termsIntro:'Загальні правила поведінки для підтверджених заходів; організатор та умови конкретної послуги визначаються окремо.',
+    druzinaLegalScope:'Нові тренування Družina Moravy наразі доступні лише для необовʼязкового запиту. Запит не є бронюванням чи зобовʼязанням оплати. Не використовуйте загальні банківські реквізити або Revolut для HEMA. Організатор, ціна, скасування та видача спорядження підтверджуються письмово для кожної дати. Раніше погоджені й оплачені права зберігаються.',
     termsSummary:'📜 Повні юридичні умови участі',
     contactsEyebrow:'IX · Контакти',
     contactsH:'Знайти нас',
