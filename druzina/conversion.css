@@ -121,3 +121,41 @@ body.dm-ux-home .dm-disclosure,body.dm-ux-home .dm-disclosure-body{background:#1
  body.dm-ux-home .dm-v2-status{padding:13px 17px}
 }
 @media(prefers-reduced-motion:reduce){body.dm-ux-home #druzina *{transition:none!important}}
+
+
+/* Final legacy light-island audit — role cards and expanded details must never
+   inherit white text on cream/yellow panels from older Druzina UX sheets. */
+body.dm-ux-home[data-imperion-scope="shared"] .dm-role-card{
+ background:#182b44;color:#f5f7fc;border-color:#4d6580
+}
+body.dm-ux-home[data-imperion-scope="shared"] .dm-role-card :where(h3,strong){color:#f5f7fc}
+body.dm-ux-home[data-imperion-scope="shared"] .dm-role-card :where(p,small){color:#c6d1e0}
+body.dm-ux-home[data-imperion-scope="shared"] .dm-role-serial{
+ color:#e6bf80;background:#263d57
+}
+body.dm-ux-home[data-imperion-scope="shared"] .dm-disclosure{
+ background:#102238;color:#f5f7fc;border-color:#415a74
+}
+body.dm-ux-home[data-imperion-scope="shared"] .dm-disclosure>summary,
+body.dm-ux-home[data-imperion-scope="shared"] .dm-disclosure[open]>summary{
+ background:#1b324c;color:#f5f7fc
+}
+body.dm-ux-home[data-imperion-scope="shared"] .dm-disclosure>summary:hover{
+ background:#2a4260;color:#fff
+}
+body.dm-ux-home[data-imperion-scope="shared"] .dm-disclosure>summary:after{
+ background:#293e59;color:#e6bf80
+}
+body.dm-ux-home[data-imperion-scope="shared"] .dm-fact-icon{
+ background:#273e58;color:#e6bf80
+}
+body.dm-ux-home[data-imperion-scope="shared"] #dm-nov-rules :where(p,li,strong){
+ color:#eaf0f8!important
+}
+body.dm-ux-home[data-imperion-scope="shared"] #dm-safety-priority{
+ background:#172b43;color:#f5f7fc;border-color:#d6b47c
+}
+body.dm-ux-home[data-imperion-scope="shared"] #dm-safety-priority :where(h2,p){
+ color:#f5f7fc
+}
+body.dm-ux-home[data-imperion-scope="shared"] #dm-safety-priority a{color:#f5d6a1}
