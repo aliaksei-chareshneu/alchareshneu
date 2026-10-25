@@ -60,6 +60,12 @@ test('minors require guardian details and cannot self-grant photo publicity',asy
  await expect(page.locator('#photoConsent')).toBeDisabled();
  await expect(page.locator('#future')).toBeDisabled();
 });
+test('unactivated gateway keeps customers on site and points to current events',async({page})=>{
+ await page.goto('/register/?lang=cs');
+ await expect(page.locator('#open')).toHaveAttribute('href',/\/calendar\/\?lang=cs$/);
+ await expect(page.locator('#message')).toContainText('není aktivní');
+ expect(page.url()).toContain('/register/');
+});
 test('privacy and safety information are reachable and a hosted Apps Script URL is explicit',async({page})=>{
  await page.goto('/register/?preview=1&event=TEST-HIKE-20991101');
  await expect(page.locator('#open')).toHaveAttribute('href',/script\.google\.com.*view=register.*event=TEST-HIKE-20991101/);
