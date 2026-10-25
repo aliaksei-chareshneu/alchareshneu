@@ -125,7 +125,7 @@ function regpSubmit(payload) {
   if (isMinor) photo = 'NO';
   var rsvp = String(payload.rsvp || '');
   if (['YES','MAYBE','NO'].indexOf(rsvp) < 0) throw new Error('Please select your attendance');
-  var market = payload.futureUpdates === true;
+  var market = !isMinor && payload.futureUpdates === true; // Minors cannot independently opt into invitations.
   var locale = ['en','cs','ru','uk'].indexOf(payload.language) >= 0 ? payload.language : 'en';
   var name = first.replace(/^'/,'') + ' ' + last.replace(/^'/,'');
   var status = rsvp === 'NO' ? 'DECLINED' : rsvp === 'MAYBE' ? 'MAYBE' : 'REGISTERED'; // Organizer approval is separate.
