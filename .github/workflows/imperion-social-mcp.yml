@@ -1,0 +1,23 @@
+name: Imperion Social MCP checks
+on:
+  pull_request:
+    paths:
+      - 'integrations/social-mcp/**'
+      - '.github/workflows/imperion-social-mcp.yml'
+  push:
+    paths:
+      - 'integrations/social-mcp/**'
+      - '.github/workflows/imperion-social-mcp.yml'
+jobs:
+  synthetic-tests:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Protocol and fail-closed tests (NO external API)
+        working-directory: integrations/social-mcp
+        run: node --test tests/*.test.mjs
