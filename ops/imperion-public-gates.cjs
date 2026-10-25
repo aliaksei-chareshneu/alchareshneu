@@ -78,7 +78,8 @@ function runAudit(pages) {
     'Use owner professional service schema with city-level coverage, not the association as the commercial seller');
 
   verify('corporate:qualified-intake',
-    /mailto:[^"'\\s]*Corporate/i.test(corporate) || /mailto:[^"'\\s]*AI%20PILOT/i.test(corporate),
+    /mailto:[^"']*subject=Corporate/i.test(corporate) ||
+    /mailto:[^"']*subject=AI%20PILOT/i.test(corporate),
     'Business page must offer a direct scoped corporate proposal email');
   verify('corporate:email-fallback', /mailto:/i.test(corporate),
     'A direct corporate inquiry path must remain available');
