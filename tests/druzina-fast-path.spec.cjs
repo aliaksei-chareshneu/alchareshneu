@@ -1,6 +1,8 @@
 const {test,expect}=require('@playwright/test');
 
 const languages=['cs','en','ru','uk'];
+function cors(){return {'access-control-allow-origin':'http://127.0.0.1:8000','access-control-allow-headers':'content-type','access-control-allow-methods':'POST, OPTIONS'};}
+
 const labels={
  cs:{headline:'Vyzkoušej historický šerm v Brně.',cta:'Požádat o první trénink'},
  en:{headline:'Try historical fencing in Brno.',cta:'Ask for a first training'},
@@ -42,8 +44,9 @@ for(const lang of languages){
  test('One-minute Druzina enquiry: safety, actual payload, truthful confirmation '+lang,async({page})=>{
   let calls=0,body;
   await page.route('**/functions/v1/imperion-register',async route=>{
+   if(route.request().method()==='OPTIONS')return route.fulfill({status:204,headers:cors()});
    calls++;body=JSON.parse(route.request().postData());
-   await route.fulfill({status:200,contentType:'application/json',
+   await route.fulfill({status:200,contentType:'application/json',headers:cors(),
     body:JSON.stringify({ok:true,status:'RECEIVED_UNCONFIRMED',confirmed:false,reference:'synthetic-confirmation-qa'})});
   });
   await page.setViewportSize({width:375,height:812});
@@ -76,11 +79,12 @@ for(const lang of languages){
 
 test('Returning visitor and preferred date do not bypass booking confirmation',async({page})=>{
  await page.route('**/functions/v1/imperion-register',async route=>{
+   if(route.request().method()==='OPTIONS')return route.fulfill({status:204,headers:cors()});
   const body=JSON.parse(route.request().postData());
   expect(body.visitType).toBe('RETURNING');
   expect(body.preferredDay).toBe('DATE');
   expect(body.preferredDate).toMatch(/^\d{4}-\d{2}-\d{2}$/);
-  await route.fulfill({status:200,contentType:'application/json',
+  await route.fulfill({status:200,contentType:'application/json',headers:cors(),
    body:JSON.stringify({ok:true,status:'RECEIVED_UNCONFIRMED',confirmed:false,reference:'test-date'})});
  });
  await page.goto('/druzina/prihlaska/?lang=ru&type=returning');
