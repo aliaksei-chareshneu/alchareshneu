@@ -85,7 +85,16 @@ async function requestJson(fetchImpl, url, key, payload, timeoutMs = 20000) {
   const headers = { 'Content-Type': 'application/json' };
   if (key) headers.Authorization = 'Bearer ' + key;
   const response = await fetchImpl(url, { method: 'POST', headers, body: JSON.stringify(payload), signal: AbortSignal.timeout(timeoutMs) });
-  if (!response || typeof response.ok !== 'boolean' || !response.ok) throw Error('PROVIDER_HTTP_ERROR');
+  // Keep HTTP diagnostics narrow: status only, never provider body or credentials.
+  // In particular, Ollama can return 500/503 while /api/tags remains healthy.
+  if (!response || typeof response.ok !== 'boolean') throw Error('PROVIDER_HTTP_ERROR');
+  if (!response.ok) {
+    const status = response.status;
+    if (Number.isInteger(status) && status >= 400 && status <= 599) {
+      throw Error('PROVIDER_HTTP_STATUS_' + status);
+    }
+    throw Error('PROVIDER_HTTP_ERROR');
+  }
   const data = await response.json();
   if (!data || typeof data !== 'object') throw Error('PROVIDER_INVALID_JSON');
   return data;
