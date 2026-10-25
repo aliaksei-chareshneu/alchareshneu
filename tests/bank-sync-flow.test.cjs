@@ -5,7 +5,7 @@ const vm = require('node:vm');
 
 // Complete adapter calls with synthetic Google/Fio services, never real accounts.
 function fixture(prefix) {
-  const state = {now: Date.parse('2026-10-21T08:00:00Z'), fetches: 0,
+  const state = {now: Date.parse('2026-10-21T08:00:00Z'), fetches: 0, amount: 120, balance: 0,
     authorized: [], opened: [], shared: false, locked: false, failWrite: false};
   class Clock extends Date {
     constructor(...args) {super(...(args.length ? args : [state.now]));}
@@ -77,10 +77,10 @@ function fixture(prefix) {
       if (state.shareDuringFetch) state.shared = true;
       return {getResponseCode: () => 200, getContentText: () => JSON.stringify({
         accountStatement: {
-          info: {bankId: '2010', accountId: values[prefix + '_EXPECTED_ACCOUNT_ID'], currency: 'CZK', closingBalance: 0},
+          info: {bankId: '2010', accountId: values[prefix + '_EXPECTED_ACCOUNT_ID'], currency: 'CZK', closingBalance: state.balance},
           transactionList: {transaction: [{
             column22: {value: '9007199254740993'}, column0: {value: '2026-10-21'},
-            column1: {value: 120}, column14: {value: 'CZK'}, column5: {value: '123'},
+            column1: {value: state.amount}, column14: {value: 'CZK'}, column5: {value: '123'},
             column16: {value: '=fixture()'}
           }]}
         }
@@ -155,5 +155,30 @@ for (const prefix of ['FIO_OSVC', 'FIO_DRUZINA']) {
       assert.equal(f.state.fetches, 0);
       assert.equal(f.state.locked, false);
     }
+  });
+
+  test(prefix + ': malformed transaction amounts and balances never import or advance the checkpoint', () => {
+    const invalid = ['0x78', '1.2e2', '120.000', 120.00000001, 0.001, [], [120], true, {}, '90071992547409.91'];
+    for (const field of ['amount', 'balance']) for (const value of invalid) {
+      const f = fixture(prefix);
+      f.state[field] = value;
+      assert.throws(() => f.sync(), /amount|balance/i, field + ': ' + JSON.stringify(value));
+      assert.equal(f.sheet.rows.length, 1);
+      assert.equal(f.values[prefix + '_LAST_OK_AT'], undefined);
+      assert.equal(f.state.locked, false);
+    }
+  });
+
+  test(prefix + ': exact decimal amounts and unknown balances preserve the import contract', () => {
+    const parser = prefix === 'FIO_OSVC' ? 'fioOsCents_' : 'fioNgCents_';
+    const f = fixture(prefix);
+    for (const [value, cents] of [[0, 0], [1.15, 115], [-12.34, -1234], [' +00120,50 ', 12050], ['-0,01', -1]]) {
+      assert.equal(f.sandbox[parser](value), cents);
+    }
+    f.state.amount = '120,50';
+    f.state.balance = null;
+    assert.equal(f.sync().lastBankBalanceCZK, null);
+    assert.equal(f.sheet.rows[1][2], 120.5);
+    assert.equal(f.values[prefix + '_LAST_BANK_BALANCE'], '');
   });
 }

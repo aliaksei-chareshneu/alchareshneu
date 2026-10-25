@@ -84,17 +84,22 @@ function platformRecoveryPreview() {
   return summary;
 }
 function platformRepairFormTrigger() {
-  prOwner_(); var c=prConfig_(), triggers=ScriptApp.getProjectTriggers();
-  var exact=prMatchingTriggers_(triggers,c.form.getId());
-  // Create the replacement before removing only this handler's stale triggers.
-  if (!exact.length) exact=[ScriptApp.newTrigger('rpOnLeadFormSubmit').forForm(c.form).onFormSubmit().create()];
-  var keep=exact[0].getUniqueId();
-  triggers.forEach(function(t) {
-    if (t.getHandlerFunction()==='rpOnLeadFormSubmit' && t.getUniqueId()!==keep) ScriptApp.deleteTrigger(t);
-  });
-  var count=prMatchingTriggers_(ScriptApp.getProjectTriggers(),c.form.getId()).length;
-  if(count!==1) throw Error('Trigger readback failed');
-  return {exactFormTriggers:count, ingestionVerified:false};
+  prOwner_(); var lock=LockService.getUserLock();
+  // Serialize owner repairs so concurrent calls cannot remove each other's trigger.
+  if(!lock.tryLock(5000)) throw Error('Form trigger repair already running');
+  try {
+    var c=prConfig_(), triggers=ScriptApp.getProjectTriggers();
+    var exact=prMatchingTriggers_(triggers,c.form.getId());
+    // Create the replacement before removing only this handler's stale triggers.
+    if (!exact.length) exact=[ScriptApp.newTrigger('rpOnLeadFormSubmit').forForm(c.form).onFormSubmit().create()];
+    var keep=exact[0].getUniqueId();
+    triggers.forEach(function(t) {
+      if (t.getHandlerFunction()==='rpOnLeadFormSubmit' && t.getUniqueId()!==keep) ScriptApp.deleteTrigger(t);
+    });
+    var count=prMatchingTriggers_(ScriptApp.getProjectTriggers(),c.form.getId()).length;
+    if(count!==1) throw Error('Trigger readback failed');
+    return {exactFormTriggers:count, ingestionVerified:false};
+  } finally {lock.releaseLock();}
 }
 function prRecover_() {
   // UserLock is distinct from the existing append handler's ScriptLock.

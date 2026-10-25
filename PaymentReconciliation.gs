@@ -58,6 +58,8 @@ function paymentReconciliationPreview(){
   var p=ocRows_(ss,'Druzina_Payments'),t=ocRows_(ss,'Druzina_Fio_Transactions');
   if(p.missing||t.missing)throw Error('Existing payment or bank import sheet missing');
   rcRequireHeaders_(p.headers,['Payment_ID','Payment_Reference','Amount_CZK','Verification_Status']);
+  // An optional override still must be unique: row projection uses header keys.
+  if(p.headers.filter(function(h){return h==='Expected_Amount_CZK';}).length>1)throw Error('Duplicate optional column: Expected_Amount_CZK');
   rcRequireHeaders_(t.headers,['Bank_Transaction_ID','VS','Amount_CZK','Currency']);
   // Read only the verified NGO schema; OSVC Leads are not orders or payment records.
   var result=rcPlan_(p.rows.filter(function(r){return Object.keys(r).some(function(k){return r[k]!=='';});}),t.rows.filter(function(r){return Object.keys(r).some(function(k){return r[k]!=='';});}));
