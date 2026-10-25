@@ -1,0 +1,23 @@
+name: Druzina focused browser QA
+on:
+  push:
+    branches: [growth-experience]
+    paths:
+      - '.github/workflows/druzina-focused-qa.yml'
+permissions:
+  contents: read
+jobs:
+  conversion-smoke:
+    if: contains(github.event.head_commit.message, 'druzina-focused-qa-2026')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npx playwright install --with-deps chromium
+      - name: Verify Russian, Czech, English, Ukrainian intake and contrast
+        run: npx playwright test tests/druzina-fast-path.spec.cjs --workers=2
