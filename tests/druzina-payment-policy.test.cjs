@@ -178,3 +178,35 @@ test('Fio wrong beneficiary, VS, amount, currency, or direction never pays',()=>
   assert.equal(drubMatchBankTransfer({...movement,tokenAccountVerified:false},expected,[]).code,'BANK_ACCOUNT_UNVERIFIED');
   assert.equal(drubMatchBankTransfer(movement,{...expected,status:'EXPIRED'},[]).code,'QUOTE_NOT_PENDING');
 });
+
+test('Senior activates from next calendar month after four unique verified attendances',()=>{
+  const e=(id,date,overrides={})=>({
+    sessionId:id,attendedAt:date,status:'ATTENDED',
+    verified:true,instructorVerified:true,...overrides
+  });
+  const records=[
+    e('OCT-01','2026-10-03T18:00:00+02:00'),
+    e('OCT-02','2026-10-10T18:00:00+02:00'),
+    e('OCT-03','2026-10-17T18:00:00+02:00'),
+    e('OCT-04','2026-10-24T18:00:00+02:00'),
+    e('OCT-04','2026-10-24T18:00:00+02:00'), // duplicate
+    e('OCT-05','2026-10-25T18:00:00+01:00',{verified:false}),
+    e('OCT-06','2026-10-26T18:00:00+01:00',{status:'NO_SHOW'}),
+    e('OCT-07','2026-10-27T18:00:00+01:00',{instructorVerified:false})
+  ];
+  const next=env.drubSeniorEligibility(event,records);
+  assert.equal(next.ok,true);
+  assert.equal(next.seniorEligible,true);
+  assert.equal(next.verifiedVisitsPreviousMonth,4);
+  assert.equal(next.previousMonth,'2026-10');
+  const october=env.drubSeniorEligibility('2026-10-31T18:00:00+01:00',records);
+  assert.equal(october.seniorEligible,false); // October requires verified September visits
+  assert.equal(env.drubSeniorEligibility(event,records.slice(0,3)).seniorEligible,false);
+});
+test('Senior year boundary January requires verified December attendance',()=>{
+  const r=[1,2,3,4].map(n=>({sessionId:'DEC-'+n,attendedAt:'2026-12-'+String(8+n*4).padStart(2,'0')+'T18:00:00+01:00',
+    status:'ATTENDED',verified:true,instructorVerified:true}));
+  const q=env.drubSeniorEligibility('2027-01-11T18:00:00+01:00',r);
+  assert.equal(q.previousMonth,'2026-12');
+  assert.equal(q.seniorEligible,true);
+});
