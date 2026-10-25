@@ -26,6 +26,7 @@ jobs:
           test -f sitemap.xml
           test -f corporate/index.html
           test -f corporate/technical-answers/index.html
+          test -f start/index.html
 
       - name: Reject stale production placeholders
         shell: bash
@@ -89,7 +90,7 @@ jobs:
         run: |
           node <<'NODE'
           const fs = require('fs');
-          const files = ['index.html','academy/index.html','calendar/index.html','druzina/index.html','walkers/index.html','corporate/index.html','corporate/technical-answers/index.html','register/index.html','register/privacy/index.html','register/safety/index.html'];
+          const files = ['index.html','academy/index.html','calendar/index.html','druzina/index.html','walkers/index.html','corporate/index.html','corporate/technical-answers/index.html','start/index.html','register/index.html','register/privacy/index.html','register/safety/index.html'];
           let failed = false;
           for (const file of files) {
             const html = fs.readFileSync(file, 'utf8');
