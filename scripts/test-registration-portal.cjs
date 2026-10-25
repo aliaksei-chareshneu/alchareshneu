@@ -33,7 +33,7 @@ const RH=['Reg_ID','Event_ID','Timestamp','Full_Name','Telegram_Handle','Phone_N
  'Source_Channel','Email','First_Name','Last_Name','Safety_Acknowledged','Rules_Version','Consent_Recorded_At',
  'Marketing_Consent','Marketing_Consent_At','Data_Controller','Registration_Locale'];
 const rowOf=(header,vals)=>header.map(h=>Object.prototype.hasOwnProperty.call(vals,h)?vals[h]:'');
-const evdate='2099-11-01 12:45';
+const evdate=new Date(Date.now()+30*86400000).toISOString().slice(0,16).replace('T',' ');
 const eventRow=rowOf(EH,{Event_ID:'TEST-HIKE-20991101',Status:'Active',Community:'Brnowalkers',
  Category:'Hike',Title:'Synthetic hike',Start_DateTime:evdate,Location_Name:'Test square',Price_CZK:0,
  Registration_Mode:'OPEN',Data_Controller:'Synthetic test controller',Rules_URL:'https://aliaksei-chareshneu.github.io/alchareshneu/register/safety/'});
