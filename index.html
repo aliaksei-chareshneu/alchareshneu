@@ -129,7 +129,7 @@
            same REGISTER_FORM link and ui.stickyRegister translation key
            already used by the mobile sticky CTA, so it's one label to
            maintain, not two. -->
-      <a id="navBookBtn" class="btn solid" href="https://wa.me/420702914842?text=Hello%2C%20I%27d%20like%20to%20register%20for%20an%20event%20or%20training.%20Please%20confirm%20the%20date%2C%20venue%2C%20applicable%20safety%20information%2C%20price%20and%20booking%20conditions." target="_blank" rel="noopener" data-i18n="ui.stickyRegister">Register / Book</a>
+      <a id="navBookBtn" class="btn solid" href="start/" data-i18n="ui.stickyRegister">Choose a service</a>
     </div>
   </div>
 </nav>
@@ -480,7 +480,7 @@
      data-i18n system (ui.stickyRegister), so it translates with the
      rest of the page. -->
 <div class="mobile-cta" id="mobileCta" aria-hidden="true">
-  <a class="mobile-cta-btn" href="https://wa.me/420702914842?text=Hello%2C%20I%27d%20like%20to%20register%20for%20an%20event%20or%20training.%20Please%20confirm%20the%20date%2C%20venue%2C%20applicable%20safety%20information%2C%20price%20and%20booking%20conditions." target="_blank" rel="noopener" data-i18n="ui.stickyRegister">Register / Book</a>
+  <a class="mobile-cta-btn" href="start/" data-i18n="ui.stickyRegister">Choose a service</a>
   <a class="mobile-cta-icon" href="https://wa.me/420702914842" target="_blank" rel="noopener" aria-label="WhatsApp">
     <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l1.3-4.1A8 8 0 1 1 9 18.6z"/><path d="M9.2 10.3c0 3 2.4 5.4 5.4 5.4"/></svg>
   </a>
@@ -849,7 +849,7 @@ ru:{
     announceWA:'Анонсы · WhatsApp',
     announceTG:'Анонсы · Telegram',
     eventAlerts:'Получать анонсы событий',
-    stickyRegister:'Записаться',
+    stickyRegister:'Выбрать решение',
     forkTutoring:'Репетиторство',
     walkersNewHere:'Новичок? Выбирай подтверждённые события — настолки пока на паузе',
     druzinaRulesH:'Общие правила участия & Официальный регламент',
@@ -1137,7 +1137,7 @@ en:{
     announceWA:'Announcements · WhatsApp',
     announceTG:'Announcements · Telegram',
     eventAlerts:'Get event alerts',
-    stickyRegister:'Register / Book',
+    stickyRegister:'Choose a service',
     forkTutoring:'Tutoring',
     walkersNewHere:'New here? See confirmed events — board games are paused',
     druzinaRulesH:'General Rules & Official Regulations',
@@ -1425,7 +1425,7 @@ cs:{
     announceWA:'Oznámení · WhatsApp',
     announceTG:'Oznámení · Telegram',
     eventAlerts:'Dostat upozornění na akce',
-    stickyRegister:'Přihlásit se',
+    stickyRegister:'Vybrat službu',
     forkTutoring:'Doučování',
     walkersNewHere:'Jsi tu nový? Vyber potvrzenou akci — deskovky jsou pozastaveny',
     druzinaRulesH:'Obecná pravidla účasti & Officiální řád',
@@ -1713,7 +1713,7 @@ uk:{
     announceWA:'Анонси · WhatsApp',
     announceTG:'Анонси · Telegram',
     eventAlerts:'Отримувати сповіщення про заходи',
-    stickyRegister:'Записатися',
+    stickyRegister:'Обрати послугу',
     forkTutoring:'Репетиторство',
     walkersNewHere:'Новачок? Обирай підтверджені події — настілки на паузі',
     druzinaRulesH:'Загальні правила участі & Офіційний регламент',
@@ -3189,6 +3189,10 @@ function render(lang){
   const footerEl = document.getElementById('site-footer');
   if (footerEl) footerEl.innerHTML = footerHtml;
 
+  // Preserve the active language in the short customer-focused route.
+  for (const el of [document.getElementById('heroCorporateCta'), document.getElementById('navBookBtn'), document.querySelector('#mobileCta .mobile-cta-btn')]) {
+    if (el) el.href = 'start/?lang=' + encodeURIComponent(lang);
+  }
   bindLangButtons(lang);
   bindAudioToggle();
   initScrollReveal();
