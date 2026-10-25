@@ -71,7 +71,7 @@ async function allow(label: string, raw: string, max: number): Promise<boolean> 
   if (error) return false;
   return data === true;
 }
-const EVENT_COLS='event_id,title,community,category,begins_at,ends_at,venue,price_czk,data_controller,rules_url,contact_activity';
+const EVENT_COLS='event_id,title,community,category,begins_at,ends_at,venue,price_czk,data_controller,rules_url,contact_activity,is_open,registration_mode,action_url,public_note';
 
 Deno.serve(async (req:Request):Promise<Response>=>{
   const origin=req.headers.get('origin');
@@ -83,10 +83,10 @@ Deno.serve(async (req:Request):Promise<Response>=>{
   if (!api) return reply({error:'service_not_configured'},503,origin);
   if (req.method==='GET') {
     const {data,error}=await api.from('imperion_rsvp_events').select(EVENT_COLS)
-      .eq('is_open',true).eq('public_listing',true)
-      .gt('begins_at',new Date().toISOString()).order('begins_at',{ascending:true}).limit(30);
+      .eq('public_listing',true)
+      .gt('begins_at',new Date().toISOString()).order('begins_at',{ascending:true}).limit(120);
     if (error) return reply({error:'temporarily_unavailable'},503,origin);
-    return reply({events:data||[],version:'2026-10-25',bookingConfirmed:false},200,origin);
+    return reply({events:data||[],version:'2026-10-25-catalog-v2',bookingConfirmed:false},200,origin);
   }
   // POST requires a real browser origin. A non-browser script can forge it,
   // so we also validate strictly and rate-limit server-side.
@@ -181,7 +181,8 @@ Deno.serve(async (req:Request):Promise<Response>=>{
   } catch {return reply({error:'please_check_required_fields'},400,origin);}
   const {data:event,error:eventError}=await api.from('imperion_rsvp_events')
     .select(EVENT_COLS).eq('event_id',v.eventId).eq('is_open',true)
-    .eq('public_listing',true).gt('begins_at',new Date().toISOString()).maybeSingle();
+    .eq('registration_mode','FORM').eq('public_listing',true)
+    .gt('begins_at',new Date().toISOString()).maybeSingle();
   if (eventError) return reply({error:'temporarily_unavailable'},503,origin);
   if (!event) return reply({error:'event_not_available'},400,origin);
   if (event.contact_activity && !/\/druzina\/(safety|rules)\//.test(String(event.rules_url)))
