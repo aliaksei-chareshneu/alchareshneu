@@ -15,7 +15,7 @@ async function mount(page){
    withFailureHandler(callback){this.fail=callback;return this;},
    regpGetEvents(){this.ok({events:[event],version:'synthetic'});},
    regpSubmit(payload){window.__lastSyntheticSubmission=payload;
-     this.ok({ok:true,recorded:true,reference:'TEST-ONLY-0001',status:'CONFIRMED',needsGuardian:false});}
+     this.ok({ok:true,recorded:true,reference:'TEST-ONLY-0001',status:'REGISTERED',needsGuardian:false});}
   }}};
  },fixture);
  await page.setContent(raw);
@@ -33,7 +33,7 @@ test('mobile registration is readable in EN/CZ/RU/UA without horizontal overflow
   }
  }
 });
-test('RSVP requires contact, safety and explicit photo choice; NO stays valid',async({page})=>{
+test('RSVP requires contact and safety while photo permission stays optional',async({page})=>{
  await mount(page);
  await page.locator('#first').fill('Ada');
  await page.locator('#last').fill('Example');
@@ -43,7 +43,6 @@ test('RSVP requires contact, safety and explicit photo choice; NO stays valid',a
  await page.locator('#safety').check();
  await page.locator('input[name="rsvp"][value="YES"]').check();
  await page.locator('#future').uncheck();
- await page.locator('input[name="photo"][value="NO"]').check();
  await page.locator('#submit').click();
  await expect(page.locator('#thanks')).toBeVisible();
  const payload=await page.evaluate(()=>window.__lastSyntheticSubmission);
@@ -58,7 +57,7 @@ test('minors require guardian details and cannot self-grant photo publicity',asy
  await page.locator('#age').selectOption('under18');
  await expect(page.locator('#guardian')).toBeVisible();
  await expect(page.locator('#guardianName')).toHaveAttribute('required','');
- await expect(page.locator('input[name="photo"][value="YES"]')).toBeDisabled();
+ await expect(page.locator('#photoConsent')).toBeDisabled();
 });
 test('privacy and safety information are reachable and a hosted Apps Script URL is explicit',async({page})=>{
  await page.goto('/register/?preview=1&event=TEST-HIKE-20991101');
