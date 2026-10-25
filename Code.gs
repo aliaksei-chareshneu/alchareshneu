@@ -824,7 +824,7 @@ function cleanupOldRegistrations() {
     var retentionVal = data[i][headerMap['Retention_Until'] - 1];
     if (!retentionVal) continue;
     // Universal portal records are cleaned by cleanupUniversalRegistrations, not this legacy job.
-    if (headerMap['Source_Channel'] && String(data[i][headerMap['Source_Channel'] - 1]) === 'WEBSITE_RSVP') continue;
+    if (headerMap['Source_Channel'] && /^WEBSITE_RSVP(?:_|$)/.test(String(data[i][headerMap['Source_Channel'] - 1]))) continue;
     if (new Date(retentionVal) < today) {
       sheet.getRange(i + 1, headerMap['Phone_Number']).setValue('—');
       sheet.getRange(i + 1, headerMap['Payment_Reference']).setValue('—');
