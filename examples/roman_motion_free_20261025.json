@@ -1,0 +1,155 @@
+{
+  "slug": "roman-training-motion-free-20261025",
+  "published": false,
+  "license": "CC BY-SA 4.0",
+  "assets": {
+    "testudo": {
+      "filename": "testudo.webm",
+      "author": "CvZ",
+      "license": "CC BY-SA 4.0",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Testudo_moving.webm",
+      "download": "https://upload.wikimedia.org/wikipedia/commons/6/63/Testudo_moving.webm",
+      "kind": "video"
+    },
+    "camp": {
+      "filename": "camp.webm",
+      "author": "ZDF/Terra X/G. Graffe/H. Schmidt/C. Feyerabend/C. Twente/Gruppe 5/M. Wilkens/M. Hess",
+      "license": "CC BY-SA 4.0",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Das_r%C3%B6mische_Legionslager.webm",
+      "download": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Das_r%C3%B6mische_Legionslager.webm",
+      "kind": "video"
+    },
+    "training1": {
+      "filename": "training1.jpg",
+      "author": "MatthiasKabel",
+      "license": "CC BY-SA 3.0",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Roman_Legion_training_with_wooden_weapons_01.jpg",
+      "download": "https://upload.wikimedia.org/wikipedia/commons/6/65/Roman_Legion_training_with_wooden_weapons_01.jpg",
+      "kind": "image"
+    },
+    "training3": {
+      "filename": "training3.jpg",
+      "author": "MatthiasKabel",
+      "license": "CC BY-SA 3.0",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Roman_Legion_training_with_wooden_weapons_03.jpg",
+      "download": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Roman_Legion_training_with_wooden_weapons_03.jpg",
+      "kind": "image"
+    },
+    "training4": {
+      "filename": "training4.jpg",
+      "author": "MatthiasKabel",
+      "license": "CC BY-SA 3.0",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Roman_Legion_training_with_wooden_weapons_04.jpg",
+      "download": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Roman_Legion_training_with_wooden_weapons_04.jpg",
+      "kind": "image"
+    }
+  },
+  "variants": {
+    "documentary": [
+      {
+        "asset": "testudo",
+        "source_start": 0.3,
+        "seconds": 3.7,
+        "headline": "DOUBLE WEIGHT?"
+      },
+      {
+        "asset": "training1",
+        "seconds": 4.6,
+        "headline": "THE TRAINING KIT"
+      },
+      {
+        "asset": "camp",
+        "source_start": 2.2,
+        "seconds": 2.8,
+        "headline": "AN ANCIENT CLAIM"
+      },
+      {
+        "asset": "training3",
+        "seconds": 4.4,
+        "headline": "STRIKE THE POST"
+      },
+      {
+        "asset": "testudo",
+        "source_start": 7.5,
+        "seconds": 4.1,
+        "headline": "A LATE SOURCE"
+      },
+      {
+        "asset": "camp",
+        "source_start": 23,
+        "seconds": 4.3,
+        "headline": "NOT EVERY LEGION"
+      },
+      {
+        "asset": "training4",
+        "seconds": 3.1,
+        "headline": "THE EVIDENCE"
+      },
+      {
+        "asset": "testudo",
+        "source_start": 13.1,
+        "seconds": 5,
+        "headline": "FENCE IN BRNO"
+      }
+    ],
+    "action": [
+      {
+        "asset": "testudo",
+        "source_start": 0.8,
+        "seconds": 2.4,
+        "headline": "TWICE AS HEAVY?"
+      },
+      {
+        "asset": "camp",
+        "source_start": 6,
+        "seconds": 2.2,
+        "headline": "ROMAN RECRUITS"
+      },
+      {
+        "asset": "training4",
+        "seconds": 3.2,
+        "headline": "WOOD AND WICKER"
+      },
+      {
+        "asset": "testudo",
+        "source_start": 5.2,
+        "seconds": 2.7,
+        "headline": "TOUGHER DRILLS"
+      },
+      {
+        "asset": "training1",
+        "seconds": 4,
+        "headline": "HIT THE POST"
+      },
+      {
+        "asset": "camp",
+        "source_start": 18,
+        "seconds": 3.2,
+        "headline": "BUT WAIT"
+      },
+      {
+        "asset": "training3",
+        "seconds": 4.1,
+        "headline": "ONE LATE SOURCE"
+      },
+      {
+        "asset": "testudo",
+        "source_start": 11,
+        "seconds": 3,
+        "headline": "NOT UNIVERSAL"
+      },
+      {
+        "asset": "camp",
+        "source_start": 34,
+        "seconds": 3.2,
+        "headline": "REAL HISTORY"
+      },
+      {
+        "asset": "testudo",
+        "source_start": 15,
+        "seconds": 4,
+        "headline": "TRY FENCING"
+      }
+    ]
+  }
+}
