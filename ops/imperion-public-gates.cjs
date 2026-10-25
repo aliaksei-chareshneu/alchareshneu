@@ -53,12 +53,14 @@ function runAudit(pages) {
   const jsonScripts = [...home.matchAll(/<script\b[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)];
   let validSchemas = 0;
   let hasOwnerService = false;
+  let ownerIsPerson = false;
   for (const match of jsonScripts) {
     try {
       const value = JSON.parse(match[1]);
       const values = Array.isArray(value) ? value : [value];
       for (const schema of values) {
         validSchemas++;
+        if (schema['@type'] === 'Person' && /Aliaksei Chareshneu/i.test(schema.name || '') && !/Družina Moravy/i.test(JSON.stringify(schema.alternateName || ''))) ownerIsPerson = true;
         if (schema['@type'] === 'ProfessionalService' && /Brno/i.test(JSON.stringify(schema.areaServed || schema.address || ''))) {
           hasOwnerService = true;
         }
@@ -70,6 +72,8 @@ function runAudit(pages) {
       errors.push({ id: 'schema:invalid-json', note: 'Invalid JSON-LD on home page' });
     }
   }
+  verify('schema:owner-identity', ownerIsPerson,
+    'Owner personal identity must not claim the separate association as a legal alias');
   verify('schema:osvc-service', hasOwnerService && validSchemas > 0,
     'Use owner professional service schema with city-level coverage, not the association as the commercial seller');
 
