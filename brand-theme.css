@@ -1,0 +1,478 @@
+/* IMPERION VISUAL SYSTEM · 25 OCT 2026 · v1
+   One dark naval identity, inspired by Druzina Moravy banners:
+   midnight navy · royal blue · gold · silver · ivory · warning crimson.
+   Scope-specific overrides protect forms, card contrast and event gates.
+ */
+html:root{
+ color-scheme:dark;background:#0b1729;color:#f5f7fc;
+ --brand-night:#0b1729;--brand-deep:#102238;
+ --brand-panel:#182b44;--brand-panel-2:#213952;
+ --brand-white:#f5f7fc;--brand-silver:#c6d1e0;--brand-muted:#b8c8d9;
+ --brand-gold:#e6bf80;--brand-gold-bright:#f5d6a1;
+ --brand-red:#ff9299;--brand-line:#364a60;
+ --brand-shadow:0 16px 42px rgba(1,8,19,.24);
+ --bg:#0b1729;--bg-alt:#102238;--bg-card:#182b44;
+ --ink:#f5f7fc;--ink-dim:#c6d1e0;--ink-faint:#a5b7cb;
+ --rule:#364a60;--r1:#f5f7fc;--r2:#e76b79;--r3:#78a9e2;
+ --r4:#b0c2d4;--r5:#e6bf80;
+}
+body[data-imperion-scope]{
+ --gold:#e6bf80;--gold2:#f5d6a1;--ink:#f5f7fc;
+ --muted:#b8c8d9;--sub:#b8c8d9;--line:#364a60;
+ --panel:#182b44;--panel2:#213952;--navy:#102238;--navy2:#182b44;
+ --night:#102238;--night-soft:#213952;--text:#f5f7fc;
+ --paper:#182b44;--cream:#102238;--white:#182b44;--light:#102238;
+ --edge:#364a60;--shadow:var(--brand-shadow);
+ background-color:var(--brand-night);color:var(--brand-white);accent-color:var(--brand-gold);
+}
+body[data-imperion-scope] :where(a,button,input,select,textarea,summary):focus-visible{
+ outline:3px solid #f5d6a1;outline-offset:3px
+}
+body[data-imperion-scope] ::selection{background:#916a37;color:#fff}
+body[data-imperion-scope] :where(input,select,textarea){accent-color:var(--brand-gold)}
+body[data-imperion-scope] :where(button,a){-webkit-tap-highlight-color:rgba(230,191,128,.18)}
+/* Main marketing pages use common styles.css / experience.css. */
+body[data-imperion-scope="shared"]{
+ --dm-paper:#102238;--dm-cream:#182b44;--dm-ink:#f5f7fc;
+ --dm-muted:#b8c8d9;--dm-border:#364a60;--dm-amber:#e6bf80
+}
+body[data-imperion-scope="shared"] .nav{
+ background:rgba(11,23,41,.97);border-bottom-color:var(--brand-line)
+}
+body[data-imperion-scope="shared"] .tabs-bar{
+ background:#102238;border-bottom-color:var(--brand-line)
+}
+body[data-imperion-scope="shared"] .hero-scrim{
+ background:linear-gradient(90deg,#0b1729 5%,rgba(11,23,41,.96) 33%,
+ rgba(11,23,41,.67) 61%,rgba(11,23,41,.08) 100%)
+}
+body[data-imperion-scope="shared"] :where(.btn.solid,.btn.primary){
+ background:var(--brand-gold);border-color:var(--brand-gold);color:#101b2d
+}
+body[data-imperion-scope="shared"] :where(.btn.solid,.btn.primary):hover{
+ background:var(--brand-gold-bright);border-color:var(--brand-gold-bright);color:#101b2d
+}
+body[data-imperion-scope="shared"] .langs button[aria-pressed=true]{
+ background:var(--brand-gold);color:#101b2d;border-color:var(--brand-gold)
+}
+body[data-imperion-scope="shared"] .quest-site{
+ --bg:#0b1729;--bg-alt:#102238;--bg-card:#182b44;
+ --ink:#f5f7fc;--ink-dim:#c6d1e0;--ink-faint:#a5b7cb;
+ --r5:#e6bf80;--rule:#364a60;background:#0b1729;color:#f5f7fc
+}
+/* The Druzina homepage's once-light content islands. */
+body[data-imperion-scope="shared"] :where(.dm-jumpbar,.dm-start,.dm-faq,.dm-path-bridge){
+ background:#102238;color:var(--brand-white);border-color:var(--brand-line)
+}
+body[data-imperion-scope="shared"] :where(.dm-fact,.dm-steps li,.dm-path-step,.dm-session-slot){
+ background:#182b44;border-color:var(--brand-line);color:var(--brand-white);
+ box-shadow:var(--brand-shadow)
+}
+body[data-imperion-scope="shared"] :where(.dm-fact,.dm-steps li,.dm-path-step,.dm-session-slot)
+ :where(h2,h3,strong){color:var(--brand-white)}
+body[data-imperion-scope="shared"] :where(.dm-fact,.dm-steps li,.dm-path-step,.dm-session-slot)
+ :where(p,small,span){color:var(--brand-muted)}
+body[data-imperion-scope="shared"] .dm-jumpbar a{color:var(--brand-silver)}
+body[data-imperion-scope="shared"] .dm-jumpbar a:hover{
+ background:#213952;color:var(--brand-gold-bright)
+}
+body[data-imperion-scope="shared"] .dm-jumpbar .dm-jump-primary{
+ background:var(--brand-gold);color:#101b2d
+}
+body[data-imperion-scope="shared"] .dm-faq summary{color:var(--brand-white)}
+body[data-imperion-scope="shared"] .dm-faq summary:after{
+ background:#2b405a;color:var(--brand-gold)
+}
+body[data-imperion-scope="shared"] .dm-path-back a{
+ background:var(--brand-panel);color:var(--brand-gold);border-color:var(--brand-line)
+}
+/* November dashboard: the tables/cards, not just its banner, go dark. */
+body[data-imperion-scope="novinky"]{
+ --ink:#f5f7fc;--muted:#b8c8d9;--paper:#182b44;
+ --cream:#0b1729;--rule:#364a60;--gold:#e6bf80
+}
+body[data-imperion-scope="novinky"] a{color:var(--brand-gold)}
+body[data-imperion-scope="novinky"] .skip-link{background:#182b44;color:var(--brand-white)}
+body[data-imperion-scope="novinky"] :where(.site-header,.site-footer){background:#0c1c30}
+body[data-imperion-scope="novinky"] .hero{
+ background:radial-gradient(circle at 90% -15%,rgba(89,126,177,.32) 0,transparent 46%),
+ linear-gradient(125deg,#11233a 10%,#1b3552 72%,#122842)
+}
+body[data-imperion-scope="novinky"] .fact{
+ background:#182b44;border-color:#364a60;box-shadow:var(--brand-shadow)
+}
+body[data-imperion-scope="novinky"] .fact-icon{background:#2c4059;color:var(--brand-gold)}
+body[data-imperion-scope="novinky"] :where(.fact-value,.section-intro h2,.progress-step strong,.data-table td:first-child,.fold-content strong){
+ color:var(--brand-white)
+}
+body[data-imperion-scope="novinky"] :where(.section-number,.step-num,.fold-index){color:var(--brand-gold)}
+body[data-imperion-scope="novinky"] .alert-strip{
+ background:#282638;border-color:#655063;color:var(--brand-white)
+}
+body[data-imperion-scope="novinky"] .alert-strip li{color:#e8e0e4}
+body[data-imperion-scope="novinky"] .alert-strip li.cancelled{color:#ffb0b2}
+body[data-imperion-scope="novinky"] .alert-symbol{background:#a13c4b}
+body[data-imperion-scope="novinky"] .table-wrap{
+ background:#182b44;border-color:var(--brand-line);box-shadow:var(--brand-shadow)
+}
+body[data-imperion-scope="novinky"] .data-table thead{background:#233c58;color:#fff}
+body[data-imperion-scope="novinky"] .data-table td{border-color:var(--brand-line)}
+body[data-imperion-scope="novinky"] .data-table tbody tr:nth-child(even){background:#1c304a}
+body[data-imperion-scope="novinky"] .data-table tbody tr:hover{background:#263d5b}
+body[data-imperion-scope="novinky"] :where(.price-amount,.price-table tbody tr:first-child .price-amount,.price-table tbody tr:nth-child(2) .price-amount){
+ color:var(--brand-gold-bright)
+}
+body[data-imperion-scope="novinky"] .state-tag{
+ background:#293c53;color:#e0e9f3;border-color:#587085
+}
+body[data-imperion-scope="novinky"] .state-tag[data-state="stop"]{
+ background:#512d3e;color:#ffb7bd;border-color:#ad5f6c
+}
+body[data-imperion-scope="novinky"] .state-tag[data-state="plan"]{
+ background:#4b3b2b;color:#ffe0a9;border-color:#9a774c
+}
+body[data-imperion-scope="novinky"] .state-tag[data-state="pilot"]{
+ background:#1d3f56;color:#d4eaff;border-color:#547c99
+}
+body[data-imperion-scope="novinky"] .senior-panel{
+ background:#12243b;border-color:var(--brand-line)
+}
+body[data-imperion-scope="novinky"] .progress-step{
+ background:#213650;border-color:var(--brand-line)
+}
+body[data-imperion-scope="novinky"] .senior-panel>p{color:var(--brand-muted)}
+body[data-imperion-scope="novinky"] .fold{
+ background:#182b44;border-color:var(--brand-line)
+}
+body[data-imperion-scope="novinky"] :where(.fold summary:hover,.fold[open] summary){
+ background:#253b56;color:#fff
+}
+body[data-imperion-scope="novinky"] :where(.fold summary svg,.fold-content p){color:var(--brand-silver)}
+body[data-imperion-scope="novinky"] .resource{
+ background:#182b44;color:var(--brand-silver);border-color:var(--brand-line)
+}
+body[data-imperion-scope="novinky"] .resource:hover{
+ background:#213952;border-color:#b58f59
+}
+body[data-imperion-scope="novinky"] .resource span:last-child{color:var(--brand-gold)}
+body[data-imperion-scope="novinky"] .action{
+ background:#152c47;border:1px solid var(--brand-line)
+}
+body[data-imperion-scope="novinky"] .action-buttons .primary{
+ background:var(--brand-gold);color:#101b2d
+}
+body[data-imperion-scope="novinky"] .action-buttons .secondary{
+ color:#fff2df;border-color:#718aa8
+}
+body[data-imperion-scope="novinky"] .last-updated,
+body[data-imperion-scope="novinky"] .data-table td:before{color:var(--brand-muted)}
+/* Ranks and achievements: old beige documents / white tables. */
+body[data-imperion-scope="ranks"]{--dm-ink:var(--brand-white);--dm-muted:var(--brand-muted)}
+body[data-imperion-scope="ranks"] header{
+ background:radial-gradient(circle at 80% 0,#2a4260,#12243a 48%,#0c192c 100%);
+ border-bottom-color:var(--brand-gold)
+}
+body[data-imperion-scope="ranks"] main{color:var(--brand-white)}
+body[data-imperion-scope="ranks"] .langs button{
+ background:#213952;color:#f3f7ff;border-color:#5d728c
+}
+body[data-imperion-scope="ranks"] .langs button[aria-pressed=true]{
+ background:var(--brand-gold);border-color:var(--brand-gold);color:#101b2d
+}
+body[data-imperion-scope="ranks"] :where(.dm-ranks-summary,.dm-ranks-explainer div,.honor-streamers,.launch-notice,.scroll){
+ background:#182b44;color:var(--brand-white);border-color:var(--brand-line);box-shadow:var(--brand-shadow)
+}
+body[data-imperion-scope="ranks"] :where(table,th){background:#1d3450;color:var(--brand-white)}
+body[data-imperion-scope="ranks"] td{
+ color:var(--brand-silver);border-color:var(--brand-line)
+}
+body[data-imperion-scope="ranks"] th{
+ background:#263f5c;border-color:var(--brand-line)
+}
+body[data-imperion-scope="ranks"] table tbody tr:nth-child(even){background:#203550}
+body[data-imperion-scope="ranks"] table tbody tr:hover{background:#294663}
+body[data-imperion-scope="ranks"] :where(.tip,p.tip){
+ background:#25364a;color:var(--brand-white);border-left-color:var(--brand-gold)
+}
+body[data-imperion-scope="ranks"] :where(.launch-kicker,.dm-ranks-summary h2,.dm-ranks-summary strong){color:var(--brand-gold)}
+body[data-imperion-scope="ranks"] .dm-ranks-summary .dm-ranks-link{
+ background:#233b55;color:var(--brand-gold);border-color:var(--brand-line)
+}
+body[data-imperion-scope="ranks"] .small{color:var(--brand-muted)}
+/* Join pathway: preserve real venue/date and paused-payment caveats. */
+body[data-imperion-scope="join"]{
+ --paper:#0b1729;--white:#182b44;--ink:#f5f7fc;
+ --muted:#b8c8d9;--line:#364a60
+}
+body[data-imperion-scope="join"] a{color:var(--brand-gold)}
+body[data-imperion-scope="join"] :where(.path,.card,.support,.support-rows article){
+ background:#182b44;color:var(--brand-white);border-color:var(--brand-line)
+}
+body[data-imperion-scope="join"] .support{background:#102238}
+body[data-imperion-scope="join"] :where(.path span,.section h2,.card h3,.support-rows h3,.qa summary){
+ color:var(--brand-white)
+}
+body[data-imperion-scope="join"] :where(.section-lead,.card p,.support-rows p,.qa details p){
+ color:var(--brand-muted)
+}
+body[data-imperion-scope="join"] :where(.section-tag,.card .availability){color:var(--brand-gold)}
+body[data-imperion-scope="join"] .card .num{
+ background:#273f5b;color:var(--brand-gold)
+}
+body[data-imperion-scope="join"] .path i{color:var(--brand-gold)}
+body[data-imperion-scope="join"] .skip{
+ background:#182b44;color:var(--brand-white)
+}
+body[data-imperion-scope="join"] .btn-primary{
+ background:var(--brand-gold);color:#101b2d
+}
+body[data-imperion-scope="join"] .btn-primary:hover{
+ background:var(--brand-gold-bright);color:#101b2d
+}
+body[data-imperion-scope="join"] .story{background:#0e2239}
+body[data-imperion-scope="join"] .qa details{border-color:var(--brand-line)}
+/* Share/referral page with an editable outreach message. */
+body[data-imperion-scope="share"]{
+ --ink:#f5f7fc;--muted:#b8c8d9;--cream:#0b1729;
+ --paper:#182b44;--line:#364a60
+}
+body[data-imperion-scope="share"] a{color:var(--brand-gold)}
+body[data-imperion-scope="share"] :where(.steps li,.panel,.linkline){
+ background:#182b44;color:var(--brand-white);border-color:var(--brand-line)
+}
+body[data-imperion-scope="share"] .hero{
+ background:radial-gradient(circle at 84% -10%,#314c6d 0,transparent 49%),
+ linear-gradient(135deg,#152d46,#102238);color:var(--brand-white)
+}
+body[data-imperion-scope="share"] .hero .lead{color:var(--brand-silver)}
+body[data-imperion-scope="share"] .notice{
+ background:#203650;color:var(--brand-white);border-color:var(--brand-gold)
+}
+body[data-imperion-scope="share"] .steps b{color:var(--brand-gold)}
+body[data-imperion-scope="share"] textarea{
+ background:#0e2136;color:var(--brand-white);border-color:#6d8298
+}
+body[data-imperion-scope="share"] .btn{
+ background:#263d57;color:var(--brand-white);border:1px solid #6b8198
+}
+body[data-imperion-scope="share"] .btn.primary{
+ background:var(--brand-gold);color:#101b2d;border-color:var(--brand-gold)
+}
+body[data-imperion-scope="share"] .copy-status{color:#e6d5aa}
+body[data-imperion-scope="share"] .skip{
+ background:#182b44;color:var(--brand-white)
+}
+/* A2 practice: not only dark surface; all answer states retain contrast. */
+body[data-imperion-scope="a2"]{
+ --teal:#e6bf80;--navy:#102238;--light:#0b1729;
+ --cream:#182b44;--ink:#f5f7fc;--muted:#b8c8d9;
+ --line:#364a60;--red:#ff9299;--green:#d8e7e8
+}
+body[data-imperion-scope="a2"] a{color:var(--brand-gold)}
+body[data-imperion-scope="a2"] :where(.eyebrow,.scoreline,.offer .price){color:var(--brand-gold)}
+body[data-imperion-scope="a2"] :where(.lede,.fine){color:var(--brand-muted)}
+body[data-imperion-scope="a2"] .pill{
+ background:#2a3d55;color:var(--brand-gold-bright)
+}
+body[data-imperion-scope="a2"] :where(.surface,.skill,.ctx,.error-card,.offer){
+ background:#182b44;color:var(--brand-white);border-color:var(--brand-line)
+}
+body[data-imperion-scope="a2"] .stats{
+ background:#152a42;color:var(--brand-white)
+}
+body[data-imperion-scope="a2"] .btn{
+ background:var(--brand-gold);color:#101b2d;border-color:var(--brand-gold)
+}
+body[data-imperion-scope="a2"] .btn:hover{
+ background:var(--brand-gold-bright);color:#101b2d
+}
+body[data-imperion-scope="a2"] .btn.alt{
+ background:#213952;color:var(--brand-gold)
+}
+body[data-imperion-scope="a2"] .btn.alt:hover{background:#2b496a}
+body[data-imperion-scope="a2"] .choice{
+ background:#152a43;color:var(--brand-white);border-color:#6a819b
+}
+body[data-imperion-scope="a2"] .choice:hover:not(:disabled){
+ background:#294565;color:var(--brand-white);border-color:var(--brand-gold)
+}
+body[data-imperion-scope="a2"] .choice .letter{
+ background:#2b445f;color:var(--brand-gold)
+}
+body[data-imperion-scope="a2"] .choice.correct{
+ background:#203b49;color:#f4f7fc;border-color:#8dcab8
+}
+body[data-imperion-scope="a2"] .choice.wrong{
+ background:#522e3d;color:#ffb3b9;border-color:#bd6671
+}
+body[data-imperion-scope="a2"] .feedback{
+ background:#223950;color:var(--brand-white)
+}
+body[data-imperion-scope="a2"] .feedback.bad{
+ background:#502b39;color:#ffc4c8
+}
+body[data-imperion-scope="a2"] .bar{background:#34485c}
+body[data-imperion-scope="a2"] .bar>div{background:var(--brand-gold)}
+body[data-imperion-scope="a2"] .langbar button[aria-pressed=true]{
+ background:var(--brand-gold);color:#101b2d;border-color:var(--brand-gold)
+}
+/* Corporate technical answers: replace mint/teal while keeping inputs. */
+body[data-imperion-scope="tech"]{
+ --ink:#f5f7fc;--sub:#b8c8d9;--paper:#0b1729;
+ --white:#182b44;--edge:#364a60;--teal:#e6bf80;--mint:#e6bf80
+}
+body[data-imperion-scope="tech"] a{color:var(--brand-gold)}
+body[data-imperion-scope="tech"] .top{
+ background:#102238;border-color:var(--brand-line)
+}
+body[data-imperion-scope="tech"] .brand span,
+body[data-imperion-scope="tech"] .nav-back{color:var(--brand-silver)}
+body[data-imperion-scope="tech"] .languages button[aria-pressed=true]{
+ background:var(--brand-gold);color:#101b2d
+}
+body[data-imperion-scope="tech"] .hero{
+ background:radial-gradient(ellipse at 84% 8%,#315576 0,transparent 52%),
+ linear-gradient(140deg,#102238,#203d5a);color:var(--brand-white)
+}
+body[data-imperion-scope="tech"] .eyebrow{color:var(--brand-gold)}
+body[data-imperion-scope="tech"] :where(.hero-lead,.hero-facts){color:#deebf5}
+body[data-imperion-scope="tech"] :where(.trust,.offer){
+ background:#102238;color:var(--brand-white)
+}
+body[data-imperion-scope="tech"] :where(.workflow,.tile,.price-box,.calc,.brief-form){
+ background:#182b44;color:var(--brand-white);border-color:var(--brand-line)
+}
+body[data-imperion-scope="tech"] :where(.calculator,.workflow-tag,.tile .num){
+ background:#253c57;color:var(--brand-gold)
+}
+body[data-imperion-scope="tech"] :where(.section-intro,.flow-step small,.workflow-note,.tile p,.price-note,.disclaimer,.sum-caption,.brief-wrap p,.hint){
+ color:var(--brand-muted)
+}
+body[data-imperion-scope="tech"] .field :where(input,select,textarea){
+ background:#0d2137;color:var(--brand-white);border-color:#7289a1
+}
+body[data-imperion-scope="tech"] .cta{
+ background:var(--brand-gold);color:#101b2d
+}
+body[data-imperion-scope="tech"] .cta:hover{
+ background:var(--brand-gold-bright);color:#101b2d
+}
+body[data-imperion-scope="tech"] .cta.light{
+ background:#213e5c;color:var(--brand-white);border:1px solid #607c99
+}
+body[data-imperion-scope="tech"] .skip{
+ background:#213952;color:#fff
+}
+/* Travel audit: preserve calculator controls and numeric readability. */
+body[data-imperion-scope="travel"] .travel-hero{
+ background:linear-gradient(125deg,#102238,#2a4868);color:var(--brand-white)
+}
+body[data-imperion-scope="travel"] :where(.travel-card,.travel-demo-box){
+ background:#182b44;color:var(--brand-white);border-color:var(--brand-line)
+}
+body[data-imperion-scope="travel"] .travel-demo{background:#102238}
+body[data-imperion-scope="travel"] .travel-field input{
+ background:#0e2137;color:var(--brand-white);border-color:#8397ad
+}
+body[data-imperion-scope="travel"] .travel-result{
+ background:#203850;color:var(--brand-white);border-left-color:var(--brand-gold)
+}
+body[data-imperion-scope="travel"] .travel-small{color:var(--brand-muted)}
+body[data-imperion-scope="travel"] .travel-label{
+ border-color:var(--brand-line);color:var(--brand-silver)
+}
+body[data-imperion-scope="travel"] .travel-hero .btn.solid{
+ background:var(--brand-gold);color:#101b2d;border-color:var(--brand-gold)
+}
+/* Start hub: readable navy cards and an unmistakable primary path. */
+body[data-imperion-scope="hub"] a{color:var(--brand-gold)}
+body[data-imperion-scope="hub"] :where(.card,.note){
+ background:#182b44;color:var(--brand-white);border-color:var(--brand-line)
+}
+body[data-imperion-scope="hub"] :where(.card>p:not(.eyebrow),.sub,.tiny,footer){
+ color:var(--brand-muted)
+}
+body[data-imperion-scope="hub"] :where(.overline,.eyebrow){color:var(--brand-gold)}
+body[data-imperion-scope="hub"] .langs a{
+ border-color:var(--brand-line);color:var(--brand-white)
+}
+body[data-imperion-scope="hub"] .langs a[aria-current="page"]{
+ background:var(--brand-gold);color:#101b2d
+}
+body[data-imperion-scope="hub"] .primary{
+ background:var(--brand-gold);color:#101b2d
+}
+body[data-imperion-scope="hub"] .primary:hover{
+ background:var(--brand-gold-bright)
+}
+/* Four-language RSVP: form fields, selected choices and required consent. */
+body[data-imperion-scope="register"]{
+ --bg:#0b1729;--pane:#182b44;--line:#3a516a;
+ --text:#f5f7fc;--muted:#c6d1e0;--mint:#e6bf80;
+ --gold:#e6bf80;--alert:#ffb8b9;
+ background:radial-gradient(ellipse at 11% 0,#263f61 0,transparent 45%),
+ linear-gradient(145deg,#0b1729,#11243b 65%)
+}
+body[data-imperion-scope="register"] :where(a,.brand){color:var(--brand-gold)}
+body[data-imperion-scope="register"] .langs button[aria-pressed=true]{
+ background:var(--brand-gold);color:#101b2d
+}
+body[data-imperion-scope="register"] .pitch h1 em{color:var(--brand-gold)}
+body[data-imperion-scope="register"] .steps b{
+ background:var(--brand-gold);color:#101b2d
+}
+body[data-imperion-scope="register"] .panel{
+ background:linear-gradient(160deg,#1c314e,#152840);
+ border-color:var(--brand-line)
+}
+body[data-imperion-scope="register"] :where(.info,.check,.state){
+ background:#182d46;border-color:var(--brand-line);color:var(--brand-white)
+}
+body[data-imperion-scope="register"] .field :where(input,select){
+ background:#0f2239;color:var(--brand-white);border-color:#7b94ad
+}
+body[data-imperion-scope="register"] :where(.button,.mobile-jump){
+ background:var(--brand-gold);color:#101b2d
+}
+body[data-imperion-scope="register"] .button:hover{
+ background:var(--brand-gold-bright)
+}
+/* Small, plain-language legal and safety pages. */
+body[data-imperion-scope="docs"]{
+ background:#0b1729;color:var(--brand-white)
+}
+body[data-imperion-scope="docs"] a{color:var(--brand-gold)}
+body[data-imperion-scope="docs"] section{border-color:var(--brand-line)}
+/* All already-dark specialised pages adopt the same accessible tokens. */
+body[data-imperion-scope="dark"]{
+ --bg:#0b1729;--panel:#182b44;--panel2:#213952;
+ --paper:#182b44;--ink:#f5f7fc;--text:#f5f7fc;
+ --muted:#b8c8d9;--sub:#b8c8d9;--gold:#e6bf80;
+ --edge:#364a60;--line:#364a60
+}
+body[data-imperion-scope="dark"] .dm-path-bridge{
+ background:#102238;color:var(--brand-white);border-color:var(--brand-line)
+}
+body[data-imperion-scope="dark"] .dm-path-step{
+ background:#182b44;color:var(--brand-white);border-color:var(--brand-line)
+}
+body[data-imperion-scope="dark"] .dm-path-back a{
+ background:#213952;color:var(--brand-gold);border-color:var(--brand-line)
+}
+@media(prefers-reduced-motion:reduce){
+ body[data-imperion-scope] *,body[data-imperion-scope] *:before,
+ body[data-imperion-scope] *:after{
+  scroll-behavior:auto!important;animation-duration:.01ms!important;
+  transition-duration:.01ms!important
+ }
+}
+@media print{
+ html:root{color-scheme:light}
+ body[data-imperion-scope]{
+  background:#fff!important;color:#151515!important;
+  -webkit-print-color-adjust:economy;print-color-adjust:economy
+ }
+ body[data-imperion-scope] :where(.fact,.data-table,.card,.panel){
+  box-shadow:none!important
+ }
+}
