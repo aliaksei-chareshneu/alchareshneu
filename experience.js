@@ -113,10 +113,28 @@
     if(['academy','druzina','walkers'].includes(page)) {
       const hero=document.querySelector('.hero-ctas');
       const primary=hero?.querySelector('.btn.solid');
-      if(primary){primary.textContent=page==='academy'?t.book:page==='druzina'?t.trial:t.events;primary.href=page==='walkers'?'../calendar/':registration;if(page==='walkers'){primary.removeAttribute('target');primary.removeAttribute('rel');}}
+      if(primary){
+        if(page==='druzina'&&primary.matches('[data-dm-signup="FIRST"]')){
+          // Conversion v2 uses a REAL safeguarded enquiry form, not the retired #tariff/start flow.
+          // Keep its own four-language text from the page's quick.* translations.
+          primary.href='prihlaska/?lang='+encodeURIComponent(lang());
+        }else{
+          primary.textContent=page==='academy'?t.book:page==='druzina'?t.trial:t.events;
+          primary.href=page==='walkers'?'../calendar/':registration;
+          if(page==='walkers'){primary.removeAttribute('target');primary.removeAttribute('rel');}
+        }
+      }
       const secondary=hero?.querySelector('.btn:not(.solid)');
       if(secondary&&page==='academy'){secondary.textContent=t.prices;secondary.href='#service-selector';}
-      if(secondary&&page==='druzina'){if(secondary.classList.contains('plausible-event-name=Explore-Druzina-Tree')){secondary.href='cesty/?lang='+encodeURIComponent(lang());secondary.removeAttribute('target');}else if(secondary.classList.contains('plausible-event-name=Enquire-Druzina-Castle')){secondary.href='teambuilding/?lang='+encodeURIComponent(lang());secondary.removeAttribute('target');}else{secondary.textContent=t.prices;secondary.href='#tariff';secondary.removeAttribute('target');}}
+      if(secondary&&page==='druzina'){
+        if(secondary.matches('[data-dm-signup="RETURNING"]')){
+          secondary.href='prihlaska/?lang='+encodeURIComponent(lang())+'&type=returning';
+        }else if(secondary.classList.contains('plausible-event-name=Explore-Druzina-Tree')){
+          secondary.href='cesty/?lang='+encodeURIComponent(lang());secondary.removeAttribute('target');
+        }else if(secondary.classList.contains('plausible-event-name=Enquire-Druzina-Castle')){
+          secondary.href='teambuilding/?lang='+encodeURIComponent(lang());secondary.removeAttribute('target');
+        }else{secondary.textContent=t.prices;secondary.href='#tariff';secondary.removeAttribute('target');}
+      }
       const steps=section('first-steps');steps.append(el('p','eyebrow-sm',t.first),el('h2','',t.steps));
       const list=el('ol','journey-steps');t[page+'Steps'].forEach((text,i)=>{const item=el('li');item.append(el('span','step-number','0'+(i+1)),el('h3','',[t.step1,t.step2,t.step3][i]),el('p','',text));list.append(item);});steps.append(list);
       document.querySelector('.hero').after(steps.parentElement);
@@ -133,7 +151,12 @@
     document.querySelectorAll('.faq-q').forEach(b=>b.setAttribute('aria-expanded',String(b.closest('.faq-item')?.classList.contains('open')||false)));
     // Keep keyboard focus out of the hidden mobile toolbar.
     const mobile=document.querySelector('#mobileCta');if(mobile)mobile.inert=mobile.getAttribute('aria-hidden')==='true';
-    document.querySelectorAll('.mobile-cta-btn').forEach(a=>{if(page==='main'){const labels={en:'Choose a service',cs:'Vybrat službu',ru:'Выбрать решение',uk:'Обрати послугу'};a.textContent=labels[lang()]||labels.en;a.href=base+'start/?lang='+encodeURIComponent(lang());a.removeAttribute('target');return;}a.textContent=page==='druzina'?t.trial:page==='academy'?t.book:t.events;if(page==='walkers'||page==='calendar'){a.href=page==='calendar'?'#calendar-events':base+'calendar/';a.removeAttribute('target');}});
+    document.querySelectorAll('.mobile-cta-btn').forEach(a=>{if(page==='main'){const labels={en:'Choose a service',cs:'Vybrat službu',ru:'Выбрать решение',uk:'Обрати послугу'};a.textContent=labels[lang()]||labels.en;a.href=base+'start/?lang='+encodeURIComponent(lang());a.removeAttribute('target');return;}if(page==='druzina'&&a.matches('[data-dm-signup="FIRST"]')){
+        a.href='prihlaska/?lang='+encodeURIComponent(lang());
+        return; // Preserve localized nav.bookBtn CTA, not old "meet club" wording.
+      }
+      a.textContent=page==='druzina'?t.trial:page==='academy'?t.book:t.events;
+      if(page==='walkers'||page==='calendar'){a.href=page==='calendar'?'#calendar-events':base+'calendar/';a.removeAttribute('target');}});
     document.querySelectorAll('.service-action').forEach(a=>a.textContent=t.ask);
     routeDirectContacts();
     document.documentElement.dataset.enhanced='true';
