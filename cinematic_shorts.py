@@ -47,13 +47,13 @@ def wordcaptions(path):
 def font():
     return next((f for f in FONTS if Path(f).exists()),None)
 
-def overlay_png(out,shot,variant):
+def overlay_png(out,shot,variant,brand_label,source_label,visual_label):
     file=font()
     if not file: raise RuntimeError("Install DejaVu Sans or Arial Bold")
     img=Image.new("RGBA",(W,H)); d=ImageDraw.Draw(img)
     accent=(251,202,117,255) if variant=="documentary" else (96,239,204,255)
     d.rounded_rectangle((60,120,1020,207),radius=16,fill=(4,12,20,187))
-    d.text((84,135),"BATTLE MYTHS LAB  /  HISTORY",font=ImageFont.truetype(file,36),fill=accent)
+    d.text((84,135),brand_label.upper()[:37],font=ImageFont.truetype(file,36),fill=accent)
     f=ImageFont.truetype(file,68); lines=[]; current=""
     for word in shot["headline"].split():
         t=(current+" "+word).strip()
@@ -70,15 +70,16 @@ def overlay_png(out,shot,variant):
         d.text((91,y),line,font=f,fill="white",stroke_width=2,stroke_fill=(0,0,0,255)); y+=89
     label=ImageFont.truetype(file,27)
     d.rounded_rectangle((60,1643,1020,1714),radius=15,fill=(2,8,16,191))
-    d.text((78,1660),"ILLUSTRATIVE RECONSTRUCTION",font=label,fill=(235,240,243))
+    d.text((78,1660),visual_label.upper()[:40],font=label,fill=(235,240,243))
     d.rounded_rectangle((60,1830,1020,1890),radius=13,fill=(2,8,16,190))
-    d.text((80,1844),"SOURCE: VEGETIUS, EPITOMA I.11",font=label,fill=accent)
+    d.text((80,1844),source_label.upper()[:47],font=label,fill=accent)
     img.save(out)
 
 def check(cfg,media):
     if cfg.get("license")!="CC BY-SA 4.0" or cfg.get("published") is not False:
         raise ValueError("Rights gate: example requires CC BY-SA 4.0 and published=false")
     if set(cfg.get("variants",{}))!={"documentary","action"}: raise ValueError("Need two variants")
+    if not re.fullmatch(r"[a-z0-9][a-z0-9_-]{2,40}",cfg.get('output_prefix','roman_motion')): raise ValueError('Unsafe output prefix')
     root=Path(media).resolve(); assets={}
     for name,meta in cfg["assets"].items():
         if not all(meta.get(k) for k in ("filename","source_page","author","license")): raise ValueError("Missing provenance")
@@ -120,7 +121,7 @@ def render(cfg,media,voice,subtitles,outdir):
     rights=["Adaptation CC BY-SA 4.0: https://creativecommons.org/licenses/by-sa/4.0/",
             "Modified footage: cropped, color-graded, annotated, and re-timed.",
             "Scenes are illustrative reenactments; not evidence all legions trained identically.",
-            "Historical text: Vegetius, Epitoma rei militaris I.11.",
+            "Historical source: "+cfg.get("source_label","Vegetius, Epitoma rei militaris I.11"),
             "Narration: original script, Kokoro English synthetic speech.",""]
     rights += [f"{key}: {meta['author']} | {meta['source_page']} | {meta['license']}" for key,meta in cfg["assets"].items()]
     (outdir/"LICENSE_CREDITS.txt").write_text("\n".join(rights)+"\n",encoding="utf-8")
@@ -133,7 +134,7 @@ def render(cfg,media,voice,subtitles,outdir):
             for i,shot in enumerate(shots):
                 length=d-elapsed if i==len(shots)-1 else float(shot["seconds"])*scale
                 if length<=0.5: raise ValueError("Shot too short")
-                graphic=vdir/f"label{i:02d}.png"; overlay_png(graphic,shot,variant)
+                graphic=vdir/f"label{i:02d}.png"; overlay_png(graphic,shot,variant,cfg.get("brand_label","BATTLE MYTHS LAB / HISTORY"),cfg.get("source_label","SOURCE: VEGETIUS, EPITOMA I.11"),cfg.get("visual_label","ILLUSTRATIVE RECONSTRUCTION"))
                 segment=vdir/f"piece{i:02d}.mp4"
                 shot_render(assets[shot["asset"]],shot,graphic,segment,length,variant)
                 segs.append(segment); elapsed+=length
@@ -145,7 +146,7 @@ def render(cfg,media,voice,subtitles,outdir):
                 "-map","0:v:0","-map","1:a:0","-c:v","copy","-c:a","aac",
                 "-b:a","160k","-af","loudnorm=I=-16:TP=-1.5:LRA=11",
                 "-shortest",str(mute)],timeout=240)
-            final=outdir/f"roman_motion_{variant}_DRAFT.mp4"
+            final=outdir/f"{cfg.get('output_prefix','roman_motion')}_{variant}_DRAFT.mp4"
             subs_posix=subs.resolve().as_posix().replace(":","\\:").replace("'","\\'")
             vf=("subtitles='"+subs_posix+"':force_style="
                 "'FontName=DejaVu Sans,FontSize=16,Bold=1,Outline=2,Shadow=1,Alignment=2,MarginV=64'")
