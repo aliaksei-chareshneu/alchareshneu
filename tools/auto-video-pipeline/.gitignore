@@ -1,0 +1,10 @@
+node_modules/
+out/
+public/source.mp4
+public/broll_*
+*.mp4
+*.mov
+*.mkv
+*.webm
+*.env
+**/__pycache__/
