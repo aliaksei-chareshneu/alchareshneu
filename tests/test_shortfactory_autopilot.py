@@ -101,6 +101,14 @@ class AutopilotTests(unittest.TestCase):
                  self.root/"state","",True,False)
         self.assertEqual(out["status"],"IDLE_NO_VETTED_EPISODES")
 
+    def test_previously_rendered_unapproved_draft_is_skipped(self):
+        drafts = self.root/"drafts"
+        (drafts/"episode-001").mkdir(parents=True)
+        (drafts/"episode-001"/"QA.json").write_text('{"status":"DRAFT_REVIEW_ONLY"}', encoding="utf-8")
+        result=loop(self.root,self.queue,drafts,self.root/"cache",
+                    self.root/"state","",True,False)
+        self.assertEqual(result["status"],"IDLE_WAITING_FOR_NEW_OR_APPROVED_EPISODES")
+
     def test_description_attribution(self):
         result=publish_description(self.spec,"License CC BY-SA 4.0 Author: Example")
         self.assertIn("License",result)
