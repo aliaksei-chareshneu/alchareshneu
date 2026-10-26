@@ -77,6 +77,7 @@ jobs:
             'config/shortfactory_settings.example.json',
             'tests/test_shortfactory_autopilot.py',
             'docs/SHORTFACTORY-NO-VIDEO-CREDIT-PIPELINE.md',
+            'docs/SHORTFACTORY_AUTOPILOT_INSTALL_RU.md',
           ]
           for path in paths:
               assert (base/path).is_file(),path
