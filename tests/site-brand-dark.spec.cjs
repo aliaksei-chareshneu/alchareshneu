@@ -94,9 +94,11 @@ test('all public HTML pages opt into one dark brand system',async()=>{
  expect(fs.existsSync('brand-theme.css')).toBe(true);
  for(const file of pages){
   const source=fs.readFileSync(file,'utf8');
-  const relative='../'.repeat(file.split('/').length-1)+'brand-theme.css?v=20261025';
-  const stylesheet=file==='404.html'?'/alchareshneu/brand-theme.css?v=20261025':relative;
-  expect(source,'Missing brand stylesheet in '+file).toContain('href="'+stylesheet+'"');
+  const relative='../'.repeat(file.split('/').length-1)+'brand-theme.css';
+  const stylesheet=file==='404.html'?'/alchareshneu/brand-theme.css':relative;
+  const link=source.match(/<link\b[^>]*href="([^"]*brand-theme\.css\?v=\d{8}[a-z]?)"/i);
+  expect(link,'Missing versioned brand stylesheet in '+file).not.toBeNull();
+  expect(link[1].split('?')[0], 'Wrong theme path in '+file).toBe(stylesheet);
   expect(source,'Missing dark theme scope in '+file).toMatch(/<body\b[^>]*\bdata-imperion-scope="[^"]+"/i);
   expect(source,'Missing browser chrome theme in '+file).toMatch(/name="theme-color"\s+content="#0b1729"/i);
  }
