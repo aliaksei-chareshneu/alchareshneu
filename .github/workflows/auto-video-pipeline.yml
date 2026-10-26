@@ -30,3 +30,12 @@ jobs:
       - name: Inspect Remotion compositions
         working-directory: tools/auto-video-pipeline
         run: npx remotion compositions src/index.ts
+      - name: Synthetic footage to actual Remotion MP4
+        working-directory: tools/auto-video-pipeline
+        run: |
+          ffmpeg -hide_banner -loglevel error -y -f lavfi -i testsrc2=size=360x640:rate=30:duration=3 -f lavfi -i sine=frequency=440:duration=3 -c:v libx264 -preset ultrafast -pix_fmt yuv420p -c:a aac -shortest "$RUNNER_TEMP/source.mp4"
+          python3 pipeline.py plan "$RUNNER_TEMP/source.mp4" --out "$RUNNER_TEMP/remotion-plan"
+          python3 pipeline.py prepare-remotion "$RUNNER_TEMP/remotion-plan/plan.json"
+          npx remotion render src/index.ts AutoEdited "$RUNNER_TEMP/remotion-render.mp4" --log=error
+          test -s "$RUNNER_TEMP/remotion-render.mp4"
+          ffprobe -v error -show_entries format=duration -of default=nk=1:nw=1 "$RUNNER_TEMP/remotion-render.mp4"
