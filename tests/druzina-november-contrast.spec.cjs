@@ -69,3 +69,21 @@ test('Three qualification lines are never confused with opt-in Senior Corps',()=
  expect(ranks).toContain('Проверка квалификаций · прогресс и достижения');
  expect(ranks).toContain('Утверждённые правила v1.1 действуют.');
 });
+
+
+test('All six rank language panels have dark, readable VI-VII extensions',async({page})=>{
+  for(const lang of ['cs','en','ru','uk','be','sk']){
+    await page.goto('/druzina/ranks.html?lang='+lang);
+    const panel=page.locator('.panel[data-locale="'+lang+'"]');
+    await expect(panel).toBeVisible();
+    const extension=panel.locator('.rank-extension-v12');
+    await expect(extension).toBeVisible();
+    const bg=await extension.evaluate(el=>({
+       background:getComputedStyle(el).backgroundColor,
+       color:getComputedStyle(el).color
+    }));
+    expect(bg.background).toBe('rgb(24, 43, 68)');
+    expect(bg.color).toBe('rgb(245, 247, 252)');
+    await expect(panel.locator('.launch-kicker')).not.toContainText(/Dobrovolně|Voluntary|Добровольно|Добровільно|Добраахвотна|Dobrovoľne/);
+  }
+});
