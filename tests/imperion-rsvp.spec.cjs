@@ -134,3 +134,18 @@ test('unverified or withdrawn events cannot be submitted despite listing in cata
   await expect(page.locator('#submit')).toBeDisabled();
   expect(post).toBe(0);
 });
+
+test('LIVE read-only smoke: public GitHub Pages loads catalog via real secured API',async({browser})=>{
+ const context=await browser.newContext();
+ const page=await context.newPage();
+ try{
+   await page.goto('https://aliaksei-chareshneu.github.io/alchareshneu/register/',{
+     waitUntil:'domcontentloaded',timeout:30000
+   });
+   await expect(page.locator('#rsvpForm')).toBeVisible({timeout:20000});
+   await expect(page.locator('#fallback')).toBeHidden();
+   await expect(page.locator('#catalogSummary')).toContainText('Online přihláška');
+   expect(await page.locator('#eventId option').count()).toBeGreaterThan(2);
+   // No form submission or personal-data collection during live read-only checks.
+ }finally{await context.close();}
+});
