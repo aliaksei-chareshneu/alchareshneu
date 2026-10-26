@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
-const { ROOT, LOOPBACK, ALLOWED_MODELS, ACTIONS, selectLocalModel, readLocalModels, showStatus, localChat, setupLocalModel } = require('../ops/imperion-ai.cjs');
+const { ROOT, LOOPBACK, ALLOWED_MODELS, ACTIONS, selectLocalModel, readLocalModels, showStatus, auditAccess, localChat, setupLocalModel } = require('../ops/imperion-ai.cjs');
 
 test('launcher stays inside the existing source repository', () => {
   assert.equal(ROOT, path.resolve(__dirname, '..'));
@@ -85,4 +85,39 @@ test('Windows menu includes only explicit safe actions and no implicit service a
   assert.match(content, /imperion-ai\.cjs" agy/i);
   assert.match(content, /imperion-ai\.cjs" setup-model/i);
   assert.doesNotMatch(content, /winget install|npm install|--dangerously|auto[- ]publish/i);
+});
+
+
+test('free access audit probes only Ollama loopback and does not expose Gemini API key', async () => {
+  const calls = [];
+  const secret = 'TEST_SECRET_SHOULD_NOT_APPEAR';
+  const report = await auditAccess({
+    env: { GEMINI_API_KEY: secret },
+    getCommand: name => name === 'agy' ? 'agy.exe' : null,
+    fetchImpl: async (url, opts) => {
+      calls.push({ url, method: opts.method });
+      return {ok: true, json: async () => ({models: [{name: 'qwen3:4b'}]})};
+    },
+  });
+  assert.equal(report.schema, 1);
+  assert.equal(report.tools.agy, 'BINARY_FOUND_AUTH_UNVERIFIED');
+  assert.equal(report.readiness, 'LOCAL_MODEL_LISTED_CLOUD_UNVERIFIED');
+  assert.equal(report.ollama.preferred_model, 'qwen3:4b');
+  assert.equal(report.ollama.inference, 'NOT_TESTED');
+  assert.equal(report.antigravity.eligibility, 'NOT_VERIFIED');
+  assert.equal(report.antigravity.gemini_api_key_present, true);
+  assert.equal(report.antigravity.gemini_api_billing_tier, 'NOT_VERIFIED');
+  assert.equal(report.paid_model_calls, 0);
+  assert.equal(report.purchases_or_activations, 0);
+  assert.ok(!JSON.stringify(report).includes(secret));
+  assert.deepEqual(calls, [{url: LOOPBACK + '/api/tags', method: 'GET'}]);
+});
+
+test('free access audit returns unknown not success for offline PC', async () => {
+  const report = await auditAccess({env: {},getCommand: () => null,
+    fetchImpl: async () => {throw Error('offline');}});
+  assert.equal(report.readiness, 'NO_VERIFIED_LOCAL_MODEL_CLOUD_UNVERIFIED');
+  assert.equal(report.ollama.server, 'OFFLINE_OR_UNVERIFIED');
+  assert.equal(report.antigravity.gemini_api_key_present, false);
+  assert.equal(report.external_requests, 0);
 });
