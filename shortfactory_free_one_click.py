@@ -45,7 +45,7 @@ def run(config, script, dest, cache, voice="bm_george", speed=1.10):
     if not (ROOT/"cinematic_shorts.py").exists() or not (ROOT/"shortfactory_voice_kokoro.py").exists():
         raise RuntimeError("Run this script inside the existing ShortFactory repository.")
     cfg=json.loads(config.read_text(encoding="utf-8"))
-    if cfg.get("license")!="CC BY-SA 4.0" or cfg.get("published") is not False:
+    if cfg.get("license") not in {"CC BY-SA 4.0", "OWNED_ORIGINAL"} or cfg.get("published") is not False:
         raise ValueError("License or review gate failure")
     import kokoro_onnx, soundfile, PIL
     media=cache/"media"; model=cache/"kokoro-v1.0.onnx"; voices=cache/"voices-v1.0.bin"
