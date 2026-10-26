@@ -119,6 +119,7 @@ jobs:
     # Playwright 1.51.1 does not support the ubuntu-26.04 image selected by ubuntu-latest in Oct 2026.
     # Pin the browser test runner to a supported LTS image; static checks remain on latest.
     runs-on: ubuntu-24.04
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -126,7 +127,8 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci --ignore-scripts
-      - run: npx playwright install --with-deps chromium
+      - name: Install pinned Chromium without apt mirror dependency
+        run: timeout 240s npx playwright install chromium
       - run: npm run test:security
       - run: npm run test:dom
       - run: npm test

@@ -24,7 +24,8 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci --ignore-scripts
-      - run: npx playwright install --with-deps chromium
+      - name: Install pinned Chromium without apt mirror dependency
+        run: timeout 240s npx playwright install chromium
       - name: Verify live endpoint, CORS and multilingual browser form (no submissions)
         env:
           PUBLIC_SITE: https://aliaksei-chareshneu.github.io
