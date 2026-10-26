@@ -61,7 +61,7 @@ jobs:
       - name: Create portable reviewed install bundle
         run: |
           python - <<'PY'
-          import zipfile
+          import shutil
           from pathlib import Path
           base=Path('.')
           paths=[
@@ -80,15 +80,16 @@ jobs:
           ]
           for path in paths:
               assert (base/path).is_file(),path
-          name='MoravianHost_ShortFactory_AUTOMATION_INSTALLER_20261026.zip'
-          with zipfile.ZipFile(name,'w',zipfile.ZIP_DEFLATED) as z:
-              for path in paths:
-                  z.write(base/path,arcname='ShortFactory_SETUP/'+path)
-          print(name,Path(name).stat().st_size,'bytes',len(paths),'files')
+          package=Path('dist/ShortFactory_SETUP')
+          for path in paths:
+              target=package/path
+              target.parent.mkdir(parents=True,exist_ok=True)
+              shutil.copyfile(base/path,target)
+          print('Prepared one-layer installer artifact:',len(paths),'files')
           PY
       - uses: actions/upload-artifact@v4
         with:
           name: MoravianHost-ShortFactory-automation-Windows-install
-          path: MoravianHost_ShortFactory_AUTOMATION_INSTALLER_20261026.zip
+          path: dist/
           retention-days: 10
           if-no-files-found: error
