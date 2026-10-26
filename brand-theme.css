@@ -517,3 +517,84 @@ html[lang="cs"] .dm-root-fast-entry>[data-quick-lang="cs"],
 html[lang="en"] .dm-root-fast-entry>[data-quick-lang="en"],
 html[lang="ru"] .dm-root-fast-entry>[data-quick-lang="ru"],
 html[lang="uk"] .dm-root-fast-entry>[data-quick-lang="uk"]{display:flex}
+
+
+
+/* Nov 2026 Druzina: dark-on-blue contrast regression FIX.
+   The original light dashboard CSS has selectors such as
+   .price-table tbody tr:first-child .price-amount (specificity 0,3,2).
+   The previous :where(...) dark-theme override was too weak, leaving
+   green/brown text on navy panels. Explicit scoped specificity below
+   enforces a cohesive legible palette on desktop AND mobile. */
+body[data-imperion-scope="novinky"] .price-table tbody .price-amount,
+body[data-imperion-scope="novinky"] .price-table tbody tr:first-child .price-amount,
+body[data-imperion-scope="novinky"] .price-table tbody tr:nth-child(2) .price-amount {
+ color:#f5d6a1;
+}
+body[data-imperion-scope="novinky"] .data-table td:first-child {
+ color:#f5f7fc;
+}
+body[data-imperion-scope="novinky"] .data-table tbody tr,
+body[data-imperion-scope="novinky"] .data-table tbody tr:nth-child(even) {
+ background:#182b44;
+}
+body[data-imperion-scope="novinky"] .data-table tbody tr:hover{
+ background:#263d5b;
+}
+body[data-imperion-scope="novinky"] .data-table tbody td,
+body[data-imperion-scope="novinky"] .fine-print,
+body[data-imperion-scope="novinky"] .section-intro>p:last-child{
+ color:#d7e2ed;
+}
+body[data-imperion-scope="novinky"] .data-table tbody td:first-child{
+ color:#f5f7fc;
+}
+body[data-imperion-scope="novinky"] .fold-content p,
+body[data-imperion-scope="novinky"] .senior-panel>p{
+ color:#c6d1e0;
+}
+body[data-imperion-scope="novinky"] .fold-content strong,
+body[data-imperion-scope="novinky"] .progress-step strong,
+body[data-imperion-scope="novinky"] .section-intro h2,
+body[data-imperion-scope="novinky"] .senior-panel h3{
+ color:#f5f7fc;
+}
+body[data-imperion-scope="novinky"] .fold summary{
+ color:#f5f7fc;
+}
+body[data-imperion-scope="novinky"] .fold summary:hover,
+body[data-imperion-scope="novinky"] .fold[open] summary{
+ color:#fff;
+ background:#253b56;
+}
+body[data-imperion-scope="novinky"] .state-tag[data-state="pilot"]{
+ color:#e3f2ff;
+ background:#18364f;
+ border-color:#779bbd;
+}
+body[data-imperion-scope="novinky"] .resource{
+ color:#e1e9f3;
+ background:#182b44;
+}
+body[data-imperion-scope="novinky"] .resource:hover{
+ color:#fff;
+ background:#213952;
+}
+body[data-imperion-scope="novinky"] .progress-step{
+ background:#213650;
+}
+body[data-imperion-scope="novinky"] .language button[aria-pressed=true],
+body[data-imperion-scope="novinky"] .action-buttons .primary{
+ color:#101b2d;
+ background:#e6bf80;
+}
+@media(max-width:720px){
+ body[data-imperion-scope="novinky"] .data-table tbody tr,
+ body[data-imperion-scope="novinky"] .data-table tbody tr:nth-child(even){
+  background:#182b44!important;
+  border-color:#364a60;
+ }
+ body[data-imperion-scope="novinky"] .data-table td:first-child{
+  border-bottom-color:#48617c!important;
+ }
+}
