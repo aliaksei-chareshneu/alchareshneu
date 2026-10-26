@@ -1,6 +1,6 @@
 const {test,expect}=require('@playwright/test');
 const endpoint='https://cmrknyhnnehyjpreehcf.supabase.co/functions/v1/imperion-register';
-const base={community:'BrnoWalkers',category:'Hike',ends_at:'2026-11-28T13:30:00Z',venue:'Brno',price_czk:0,data_controller:'Družina Moravy, z. s.',rules_url:'https://aliaksei-chareshneu.github.io/alchareshneu/register/safety/',contact_activity:false};
+const base={community:'BrnoWalkers',category:'Hike',ends_at:'2026-11-28T13:30:00Z',venue:'Brno',price_czk:0,data_controller:'Družina Moravy, z. s.',rules_url:'https://aliaksei-chareshneu.github.io/alchareshneu/register/safety/',contact_activity:false,price_verified:true,end_time_verified:true};
 const events=[
  {...base,event_id:'PUB-HIKE-20261101',title:'BrnoWalkers Hády',begins_at:'2026-11-01T11:45:00Z',is_open:true,registration_mode:'FORM'},
  {...base,event_id:'PUB-OREL-20261114',title:'Orel beginner HEMA',begins_at:'2026-11-14T11:00:00Z',registration_mode:'CONTACT',is_open:false,category:'HEMA Training',action_url:'https://wa.me/420702914842?text=OREL%2014'},

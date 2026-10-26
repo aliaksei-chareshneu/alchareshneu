@@ -105,7 +105,7 @@ ru:{search:"Найти мероприятие, место или дату…",to
 uk:{search:"Знайти подію, місце або дату…",total:"Подій",open:"Онлайн-запис",manual:"Зв’язатися для запису",planned:"Очікують підтвердження",empty:"Нічого не знайдено",ask:"Написати для запису ↗",planNote:"Запис ще не відкрито. Місце й умови потребують підтвердження. Не приїжджайте й не сплачуйте без погодження.",manualNote:"Участь підтверджує організатор особисто.",options:"За бажанням: фото й запрошення"}
 };
 function ct(k){return catalogText[lang]?.[k]||catalogText.en[k]||k}
-function eventMode(e){if(!e)return null;if(e.registration_mode==='CONTACT')return 'CONTACT';if(e.is_open===false||e.registration_mode==='PLANNED')return 'PLANNED';return 'FORM'}
+function eventMode(e){if(!e)return null;if(e.registration_mode==='CONTACT')return 'CONTACT';const starts=Date.parse(e.begins_at);if(e.registration_mode!=='FORM'||e.is_open!==true||e.price_verified!==true||e.end_time_verified!==true||!Number.isFinite(starts)||starts<=Date.now())return 'PLANNED';return 'FORM'}
 function eventDate(e){return new Intl.DateTimeFormat(lang==='uk'?'uk-UA':lang==='ru'?'ru-RU':lang==='cs'?'cs-CZ':'en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',timeZone:'Europe/Prague'}).format(new Date(e.begins_at))}
 function eventLabel(e){return eventDate(e)+' · '+e.title}
 function statusLabel(e){return ct(eventMode(e)==='FORM'?'open':eventMode(e)==='CONTACT'?'manual':'planned')}

@@ -13,6 +13,8 @@ function impPrivateConfig_(){
   var sheetId=p.getProperty('IMPERION_CRM_SHEET_ID')||
     (typeof SPREADSHEET_ID!=='undefined'?SPREADSHEET_ID:'');
   if(!/^[a-f0-9]{64}$/i.test(key))throw Error('Invalid/missing private intake key');
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+    throw Error('Invalid/missing owner notification email; import blocked to prevent silent lost leads');
   if(!sheetId)throw Error('Missing existing CRM spreadsheet ID');
   return {key:key,email:email,sheetId:sheetId};
 }
@@ -29,7 +31,11 @@ function impPrivateFetch_(config,payload){
 }
 function impHeader_(sheet){
   var names=sheet.getRange(1,1,1,sheet.getLastColumn()).getDisplayValues()[0],map={};
-  names.forEach(function(name,i){if(name)map[name]=i;});
+  names.forEach(function(name,i){
+    if(!name)return;
+    if(Object.prototype.hasOwnProperty.call(map,name))throw Error('Duplicate CRM header: '+name);
+    map[name]=i;
+  });
   return {names:names,map:map};
 }
 function impText_(v){
@@ -53,7 +59,13 @@ function impAppend_(sheet,headers,object){
   var row=headers.names.map(function(k){
     return Object.prototype.hasOwnProperty.call(object,k)?impText_(object[k]):'';
   });
-  sheet.getRange(sheet.getLastRow()+1,1,1,row.length).setValues([row]);
+  var nextRow=sheet.getLastRow()+1;
+  sheet.getRange(nextRow,1,1,row.length).setValues([row]);
+  var receipt=Object.prototype.hasOwnProperty.call(object,'Submission_ID')?'Submission_ID':
+    (Object.prototype.hasOwnProperty.call(object,'Request_ID')?'Request_ID':'');
+  if(receipt&&headers.map[receipt]!==undefined&&
+     sheet.getRange(nextRow,headers.map[receipt]+1).getDisplayValue().trim()!==String(object[receipt]))
+    throw Error('CRM append readback failed: '+receipt);
 }
 function impWriteRsvps_(ss,items){
   var sh=ss.getSheetByName('Registrations');if(!sh)throw Error('Missing Registrations');
@@ -110,6 +122,48 @@ function impWriteEnquiries_(ss,items){
   });
   return {ids:ids,added:added};
 }
+/** Pending owner count digest is private Script Properties, not a second CRM.
+ * A failed MailApp call retains the counts for the next hourly run.
+ * Do not include attendee names, guardian data or contact details in emails.
+ */
+var IMP_PRIVATE_NOTIFY_PENDING='IMPERION_INTAKE_NOTIFY_PENDING';
+function impPendingDigest_(){
+  var raw=PropertiesService.getScriptProperties().getProperty(IMP_PRIVATE_NOTIFY_PENDING);
+  if(!raw)return {rsvps:0,enquiries:0};
+  var data;
+  try{data=JSON.parse(raw)}catch(e){throw Error('Invalid pending digest state');}
+  if(!data||!Number.isSafeInteger(data.rsvps)||!Number.isSafeInteger(data.enquiries)||
+     data.rsvps<0||data.enquiries<0)throw Error('Invalid pending digest counters');
+  return data;
+}
+function impQueueOwnerDigest_(rsvps,enquiries){
+  if(!Number.isSafeInteger(rsvps)||!Number.isSafeInteger(enquiries)||
+     rsvps<0||enquiries<0)throw Error('Invalid new intake counts');
+  if(rsvps+enquiries===0)return;
+  var p=PropertiesService.getScriptProperties(),pending=impPendingDigest_();
+  p.setProperty(IMP_PRIVATE_NOTIFY_PENDING,JSON.stringify({
+    rsvps:pending.rsvps+rsvps,enquiries:pending.enquiries+enquiries
+  }));
+}
+function impFlushOwnerDigest_(cfg){
+  var pending=impPendingDigest_(),n=pending.rsvps+pending.enquiries;
+  if(n===0)return {sent:false,pending:false};
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cfg.email))throw Error('Missing owner digest address');
+  try{
+    MailApp.sendEmail(cfg.email,'[Imperion] Nové žádosti: '+n,
+      'Registrace na akce: '+pending.rsvps+'\n'+
+      'Dotazy na trénink Družina: '+pending.enquiries+'\n\n'+
+      'Soukromé kontakty najdete jen ve stávající CRM:\n'+
+      'https://docs.google.com/spreadsheets/d/'+cfg.sheetId+'/edit\n\n'+
+      'Ani účast, ani platba nejsou automaticky potvrzeny.');
+    PropertiesService.getScriptProperties().deleteProperty(IMP_PRIVATE_NOTIFY_PENDING);
+    return {sent:true,pending:false};
+  }catch(e){
+    console.error('Private owner digest unavailable; pending count kept for retry');
+    return {sent:false,pending:true};
+  }
+}
+
 /** Run manually once first, then enable owner-created time triggers. */
 function imperionSyncPrivateIntake(){
   var lock=LockService.getScriptLock();
@@ -125,22 +179,16 @@ function imperionSyncPrivateIntake(){
       if(!batch.rsvps.length&&!batch.enquiries.length)break;
       var a=impWriteRsvps_(ss,batch.rsvps);
       var b=impWriteEnquiries_(ss,batch.enquiries);
-      // Acknowledge only AFTER all private CRM writes succeed.
+      // Persist the owner-notification receipt BEFORE acknowledging the source;
+      // a mail outage or later crash must not silently discard new leads.
+      impQueueOwnerDigest_(a.added,b.added);
+      // Acknowledge only AFTER CRM writes/readback and notification queuing succeed.
       impPrivateFetch_(cfg,{action:'ack',rsvps:a.ids,enquiries:b.ids});
       addedR+=a.added;addedE+=b.added;processed+=a.ids.length+b.ids.length;
       if(a.ids.length<40&&b.ids.length<40)break;
     }
-    if(addedR+addedE>0&&cfg.email){
-      // Owner-only count digest, not attendee/guardian details.
-      try{
-        MailApp.sendEmail(cfg.email,'[Imperion] Новые заявки: '+(addedR+addedE),
-          'Заявки на мероприятия: '+addedR+'\n'+
-          'Запросы тренировок Družina: '+addedE+'\n\n'+
-          'Контакты в существующей CRM:\n'+
-          'https://docs.google.com/spreadsheets/d/'+cfg.sheetId+'/edit\n\n'+
-          'Ни участие, ни оплата не подтверждены автоматически.');
-      }catch(e){console.error('Private intake digest failed; CRM rows already saved');}
-    }
+    // Retry a previously failed digest even if this run has no new rows.
+    impFlushOwnerDigest_(cfg);
     console.log('Private intake: new RSVP='+addedR+', enquiries='+addedE+', acked='+processed);
     return {newRsvps:addedR,newEnquiries:addedE,acked:processed};
   }finally{lock.releaseLock();}
