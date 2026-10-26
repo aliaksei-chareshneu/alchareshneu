@@ -1,0 +1,9 @@
+{
+  "slug": "demo-original-ai-workflow",
+  "brand": "AI & data · demo",
+  "slides": [
+    {"headline": "Your spreadsheets should work for you", "body": "Turn repeated data cleanup into a reproducible Python workflow.", "seconds": 3},
+    {"headline": "Start with one small process", "body": "Define the input, verify the output, and keep a human approval step.", "seconds": 3},
+    {"headline": "Measure the real result", "body": "Track fewer manual steps, time saved, and verified quality. Concept demo — no client claims.", "seconds": 3}
+  ]
+}

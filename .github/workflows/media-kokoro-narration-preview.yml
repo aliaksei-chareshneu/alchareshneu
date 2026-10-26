@@ -1,0 +1,74 @@
+name: Media Kokoro narrated review draft
+
+on:
+  push:
+    branches:
+      - feature/imperion-youtube-trend-intake-20261022
+    paths:
+      - 'shortfactory_voice_kokoro.py'
+      - 'examples/roman_training_voice_20261025.json'
+      - '.github/workflows/media-kokoro-narration-preview.yml'
+  pull_request:
+    paths:
+      - 'shortfactory_voice_kokoro.py'
+      - 'examples/roman_training_voice_20261025.json'
+      - '.github/workflows/media-kokoro-narration-preview.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  render-narration-draft:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install offline neural voice renderer dependencies
+        run: |
+          python -m pip install --disable-pip-version-check 'kokoro-onnx>=0.5,<0.7' 'soundfile>=0.12,<0.14' 'Pillow>=10,<13'
+          ffmpeg -version | head -n 1
+      - name: Install static FFmpeg and ffprobe for narrated video mux
+        run: |
+          curl --fail --location --retry 3 --silent --show-error \
+            'https://github.com/BtbN/FFmpeg-Builds/releases/latest/download/ffmpeg-master-latest-linux64-gpl.tar.xz' -o ffmpeg-static.tar.xz
+          mkdir -p "$HOME/.local/bin"
+          tar -xJf ffmpeg-static.tar.xz --strip-components=2 -C "$HOME/.local/bin" \
+            --wildcards '*/bin/ffmpeg' '*/bin/ffprobe'
+          chmod +x "$HOME/.local/bin/ffmpeg" "$HOME/.local/bin/ffprobe"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          "$HOME/.local/bin/ffmpeg" -version | head -n 1
+          "$HOME/.local/bin/ffprobe" -version | head -n 1
+
+      - name: Verify original script and syntax without network
+        run: |
+          python -m py_compile shortfactory_voice_kokoro.py original_reel_builder.py
+          python shortfactory_voice_kokoro.py --script examples/roman_training_voice_20261025.json --model missing.onnx --voices missing.bin --output ./unused --check
+      - name: Download Apache-2.0 neural weights and voice bank
+        run: |
+          curl --fail --location --retry 3 --silent --show-error \
+            'https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.1/kokoro-v1.0.onnx' -o kokoro-v1.0.onnx
+          curl --fail --location --retry 3 --silent --show-error \
+            'https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.1/voices-v1.0.bin' -o voices-v1.0.bin
+          test $(stat -c %s kokoro-v1.0.onnx) -gt 80000000
+          test $(stat -c %s voices-v1.0.bin) -gt 1000000
+          sha256sum kokoro-v1.0.onnx voices-v1.0.bin
+      - name: Render and verify narrated Roman history draft (NOT published)
+        run: |
+          python shortfactory_voice_kokoro.py \
+            --script examples/roman_training_voice_20261025.json \
+            --model kokoro-v1.0.onnx --voices voices-v1.0.bin \
+            --voice bm_george --speed 1.10 \
+            --output ./preview/roman-training-voice
+          ffprobe -v error -show_entries stream=codec_name,width,height:format=duration \
+            -of json ./preview/roman-training-voice/roman_training_narrated_preview.mp4
+      - name: Retain private review artifact, never publish
+        uses: actions/upload-artifact@v4
+        with:
+          name: roman-history-kokoro-narrated-DRAFT
+          path: preview/roman-training-voice/
+          if-no-files-found: error
+          retention-days: 7
