@@ -50,7 +50,12 @@ def run(config, script, dest, cache, voice="bm_george", speed=1.10):
     import kokoro_onnx, soundfile, PIL
     media=cache/"media"; model=cache/"kokoro-v1.0.onnx"; voices=cache/"voices-v1.0.bin"
     for name,meta in cfg["assets"].items():
-        fetch(meta["download"],media/meta["filename"],minbytes=50000)
+        target=media/meta["filename"]
+        if cfg["license"]=="OWNED_ORIGINAL":
+            if not target.is_file() or target.stat().st_size<50000:
+                raise FileNotFoundError("Copy reviewed owned footage into local media cache: "+str(target))
+        else:
+            fetch(meta["download"],target,minbytes=50000)
     fetch(MODEL_URL,model,minbytes=80000000)
     fetch(VOICES_URL,voices,minbytes=1000000)
     with tempfile.TemporaryDirectory(prefix="free-shortfactory-") as tmp:
