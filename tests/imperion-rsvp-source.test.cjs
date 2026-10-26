@@ -66,3 +66,12 @@ assert.ok(fn.includes(".eq('source_active',true)"),'withdrawn feed entries must 
 assert.ok(fn.includes(".eq('price_verified',true)"),'unverified price must reject POST');
 
 assert.ok(front.includes("e.registration_mode!=='FORM'")&&front.includes("e.end_time_verified!==true"),'RSVP must fail closed on incomplete event verification');
+
+// The client cannot be the authority for event approval. A forged POST must
+// not bypass withdrawn-source or unverified-end-time gates in production.
+assert.ok(fn.includes(".eq('end_time_verified',true)"),
+  'server POST must reject events whose end time is not verified');
+assert.ok(fn.includes(".eq('public_listing',true).eq('source_active',true)"),
+  'server GET must not advertise withdrawn source events');
+assert.ok(fn.includes(".eq('source_active',true)"),
+  'server POST must reject withdrawn source events');

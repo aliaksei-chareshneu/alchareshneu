@@ -71,7 +71,7 @@ async function allow(label: string, raw: string, max: number): Promise<boolean> 
   if (error) return false;
   return data === true;
 }
-const EVENT_COLS='event_id,title,community,category,begins_at,ends_at,venue,price_czk,data_controller,rules_url,contact_activity,is_open,registration_mode,action_url,public_note,price_verified,end_time_verified';
+const EVENT_COLS='event_id,title,community,category,begins_at,ends_at,venue,price_czk,data_controller,rules_url,contact_activity,is_open,registration_mode,action_url,public_note,price_verified,end_time_verified,source_active';
 
 Deno.serve(async (req:Request):Promise<Response>=>{
   const origin=req.headers.get('origin');
@@ -83,7 +83,7 @@ Deno.serve(async (req:Request):Promise<Response>=>{
   if (!api) return reply({error:'service_not_configured'},503,origin);
   if (req.method==='GET') {
     const {data,error}=await api.from('imperion_rsvp_events').select(EVENT_COLS)
-      .eq('public_listing',true)
+      .eq('public_listing',true).eq('source_active',true)
       .gt('begins_at',new Date().toISOString()).order('begins_at',{ascending:true}).limit(120);
     if (error) return reply({error:'temporarily_unavailable'},503,origin);
     return reply({events:data||[],version:'2026-10-25-catalog-v3',bookingConfirmed:false},200,origin);
@@ -182,7 +182,8 @@ Deno.serve(async (req:Request):Promise<Response>=>{
   const {data:event,error:eventError}=await api.from('imperion_rsvp_events')
     .select(EVENT_COLS).eq('event_id',v.eventId).eq('is_open',true)
     .eq('registration_mode','FORM').eq('source_active',true)
-    .eq('price_verified',true).eq('public_listing',true)
+    .eq('price_verified',true).eq('end_time_verified',true)
+    .eq('public_listing',true)
     .gt('begins_at',new Date().toISOString()).maybeSingle();
   if (eventError) return reply({error:'temporarily_unavailable'},503,origin);
   if (!event) return reply({error:'event_not_available'},400,origin);
