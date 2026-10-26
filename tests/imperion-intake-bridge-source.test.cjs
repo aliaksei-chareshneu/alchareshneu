@@ -30,3 +30,30 @@ test('SQL migration is idempotent and service-role-only',()=>{
  assert.match(sql,/revoke all on function public\.verify_imperion_intake_bridge_token/);
  assert.match(sql,/to service_role/);
 });
+
+
+test('rejects duplicate headers and verifies persisted CRM row receipt',()=>{
+ const helpers=new Function(gs+'; return {impHeader_,impAppend_};')();
+ const dup={getLastColumn:()=>3,getRange:()=>({getDisplayValues:()=>[['Reg_ID','Submission_ID','Submission_ID']]})};
+ assert.throws(()=>helpers.impHeader_(dup),/Duplicate CRM header/);
+ assert.match(gs,/CRM append readback failed/);
+});
+test('owner digest survives a MailApp failure and retries with zero new registrations',()=>{
+ const kv=new Map(),mails=[];
+ const PropertiesService={getScriptProperties:()=>({
+   getProperty:k=>kv.get(k)||null,
+   setProperty:(k,v)=>kv.set(k,v),
+   deleteProperty:k=>kv.delete(k),
+ })};
+ let fail=true;
+ const MailApp={sendEmail:(...args)=>{if(fail){fail=false;throw Error('mail outage')}mails.push(args)}};
+ const fn=new Function('PropertiesService','MailApp',gs+';return {impQueueOwnerDigest_,impFlushOwnerDigest_};')(PropertiesService,MailApp);
+ fn.impQueueOwnerDigest_(2,1);
+ assert.deepEqual(fn.impFlushOwnerDigest_({email:'owner@example.invalid',sheetId:'sheet'}),{sent:false,pending:true});
+ assert.equal(mails.length,0);
+ assert.deepEqual(fn.impFlushOwnerDigest_({email:'owner@example.invalid',sheetId:'sheet'}),{sent:true,pending:false});
+ assert.equal(mails.length,1);
+ assert.match(mails[0][1],/3/);
+ assert.equal(kv.size,0);
+ assert.deepEqual(fn.impFlushOwnerDigest_({email:'owner@example.invalid',sheetId:'sheet'}),{sent:false,pending:false});
+});
