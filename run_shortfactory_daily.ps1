@@ -14,10 +14,10 @@ $Logs = Join-Path $Root "logs"
 New-Item -ItemType Directory -Force -Path $Logs | Out-Null
 $Date = Get-Date -Format "yyyy-MM-dd"
 $Log = Join-Path $Logs ("daily-" + $Date + ".log")
-function Run-Logged([string[]]$Args) {
+function Run-Logged([string[]]$CommandArgs) {
     # Do not log OAuth tokens, credentials or secret JSON.
-    ("[" + (Get-Date -Format o) + "] " + ($Args -join " ")) | Out-File -Append -FilePath $Log -Encoding utf8
-    & $Python @Args 2>&1 | Out-File -Append -FilePath $Log -Encoding utf8
+    ("[" + (Get-Date -Format o) + "] " + ($CommandArgs -join " ")) | Out-File -Append -FilePath $Log -Encoding utf8
+    & $Python @CommandArgs 2>&1 | Out-File -Append -FilePath $Log -Encoding utf8
     if ($LASTEXITCODE -ne 0) {
         ("EXIT=" + $LASTEXITCODE) | Out-File -Append -FilePath $Log -Encoding utf8
         throw "ShortFactory stage failed. See $Log"
@@ -31,7 +31,7 @@ if (-not (Test-Path $AutoMedia)) {
 $IdeaArgs = @("shortfactory_idea_worker.py", "--trends", $AutoMedia, "--ideas", (Join-Path $Root "ideas"))
 if ($Settings.enable_local_ollama_ideas -eq $true) { $IdeaArgs += "--ollama" }
 Run-Logged $IdeaArgs
-$Args = @("shortfactory_autopilot.py", "--root", $Root,
+$AutopilotArgs = @("shortfactory_autopilot.py", "--root", $Root,
           "--queue", (Join-Path $Root "queue\ready"),
           "--drafts", (Join-Path (Split-Path -Parent $Root) "Drafts\ShortFactory"),
           "--state", (Join-Path $Root "state"))
@@ -39,8 +39,8 @@ if ($Settings.enable_private_upload -eq $true) {
     if (-not $Settings.channel_id -or -not $Settings.channel_id.StartsWith("UC")) {
         throw "Private uploads enabled without an explicit channel ID"
     }
-    $Args += @("--upload-private", "--channel-id", $Settings.channel_id)
+    $AutopilotArgs += @("--upload-private", "--channel-id", $Settings.channel_id)
 }
-if ($DryRun) { $Args += "--dry-run" }
-Run-Logged $Args
+if ($DryRun) { $AutopilotArgs += "--dry-run" }
+Run-Logged $AutopilotArgs
 Write-Host "ShortFactory cycle complete. Log: $Log"
