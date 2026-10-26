@@ -148,13 +148,13 @@ function impQueueOwnerDigest_(rsvps,enquiries){
 function impFlushOwnerDigest_(cfg){
   var pending=impPendingDigest_(),n=pending.rsvps+pending.enquiries;
   if(n===0)return {sent:false,pending:false};
-  if(!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(cfg.email))throw Error('Missing owner digest address');
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cfg.email))throw Error('Missing owner digest address');
   try{
     MailApp.sendEmail(cfg.email,'[Imperion] Nové žádosti: '+n,
-      'Registrace na akce: '+pending.rsvps+'\\n'+
-      'Dotazy na trénink Družina: '+pending.enquiries+'\\n\\n'+
-      'Soukromé kontakty najdete jen ve stávající CRM:\\n'+
-      'https://docs.google.com/spreadsheets/d/'+cfg.sheetId+'/edit\\n\\n'+
+      'Registrace na akce: '+pending.rsvps+'\n'+
+      'Dotazy na trénink Družina: '+pending.enquiries+'\n\n'+
+      'Soukromé kontakty najdete jen ve stávající CRM:\n'+
+      'https://docs.google.com/spreadsheets/d/'+cfg.sheetId+'/edit\n\n'+
       'Ani účast, ani platba nejsou automaticky potvrzeny.');
     PropertiesService.getScriptProperties().deleteProperty(IMP_PRIVATE_NOTIFY_PENDING);
     return {sent:true,pending:false};
