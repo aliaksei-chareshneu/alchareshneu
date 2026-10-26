@@ -61,6 +61,15 @@ def main():
         log("youtube_metadata SKIPPED_NO_API_KEY")
     run("feedback", ["distribution_bridge.py", "feedback"], retries=1)
     run("trend_score", ["trend_score.py", "trend_candidates.auto.csv", "--top", "50"], retries=1)
+    # Only generate local, unverified review ideas. No video imports, approval or posting.
+    idea_worker = ROOT / "shortfactory_idea_worker.py"
+    if idea_worker.is_file():
+        try:
+            run("draft_ideas_review_only", ["shortfactory_idea_worker.py"], retries=1)
+        except Exception as exc:
+            log("draft_ideas_review_only DEGRADED (" + type(exc).__name__ + ")")
+    else:
+        log("draft_ideas_review_only SKIPPED_NOT_INSTALLED")
     log("END " + datetime.datetime.now().astimezone().isoformat())
 
 if __name__ == "__main__":
