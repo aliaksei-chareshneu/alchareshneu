@@ -1,0 +1,32 @@
+name: Auto video pipeline
+on:
+  pull_request:
+    paths:
+      - 'tools/auto-video-pipeline/**'
+      - '.github/workflows/auto-video-pipeline.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Python unit tests
+        run: python3 -m unittest discover -s tools/auto-video-pipeline/tests -v
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Remotion dependencies
+        working-directory: tools/auto-video-pipeline
+        run: npm install --no-audit --no-fund
+      - name: Typecheck Remotion source
+        working-directory: tools/auto-video-pipeline
+        run: npx tsc --noEmit
+      - name: Inspect Remotion compositions
+        working-directory: tools/auto-video-pipeline
+        run: npx remotion compositions src/index.ts
