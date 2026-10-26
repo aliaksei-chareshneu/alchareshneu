@@ -56,7 +56,15 @@ Process large local queues with `python3 pipeline.py batch /path/to/footage --ou
 
 ## Codex / Remotion plugin
 
-Official installation is in the **ChatGPT desktop app → Plugins → Remotion** (availability depends on account/workspace). In Codex open a project and invoke `$remotion`. The Remotion project here is standard TypeScript and doesn't require the plugin to exist before planning. Remotion dependencies were not installed in the delivery environment; run `npm install` and verify Studio/render on your computer before release.
+The Codex plugin is **optional**: open **ChatGPT desktop app → Plugins → Remotion**, then invoke `$remotion` in a Codex project if available to your account. The editable Remotion TypeScript project and its rendering engine do **not** require that plugin or installation on the user's computer.
+
+## Where execution happens (no user computer required)
+
+1. **In-chat temporary workspace:** Python + FFmpeg can process an authorized uploaded video in the current session and return an MP4. The runtime and its files are **temporary**; this is not a 24/7 service. No private footage is sent to GitHub.
+2. **GitHub Actions cloud runner:** `.github/workflows/auto-video-pipeline.yml` installs Node/Remotion on a temporary Ubuntu runner, tests Python/TypeScript, generates a synthetic source MP4, runs the Python edit-plan adapter and renders another MP4 with Remotion, then provides a downloadable artifact. The user's computer does not participate. **Verified 26 Oct 2026:** [GitHub Actions run 40320208323](https://github.com/aliaksei-chareshneu/alchareshneu/actions/runs/40320208323) succeeded, along with Site quality.
+3. **Private production inputs not yet wired:** This PR does not accept arbitrary uploads or upload user footage to GitHub; GitHub CI uses only synthetic footage. A private, permissioned upload/storage adapter and security/rights review are necessary before an always-on cloud editor can accept real videos.
+
+The cloud workflow currently lives on a **draft PR branch**, not production. Its `workflow_dispatch` manual entry becomes generally available only after the workflow is merged into the default branch with approval. No live publishing is enabled.
 
 Remotion: https://www.remotion.dev/docs/ai/codex-plugin | https://www.remotion.dev/docs/videos/ | https://www.remotion.dev/docs/render
 
