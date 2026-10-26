@@ -4,6 +4,7 @@
 <main><nav aria-label="Разделы"><button data-tab="money" class="active">Деньги</button><button data-tab="leads">Заявки</button><button data-tab="content">Публикации</button><button data-tab="community">События</button><button data-tab="system">Система</button></nav>
 <div class="actions"><label><input id="autoRefresh" type="checkbox" checked> Обновлять данные автоматически</label><span id="autoRefreshStatus" class="muted" role="status">Ожидание первой загрузки…</span></div>
 <div id="message" class="notice" role="status" aria-live="polite"></div><div id="bankPending" class="notice" role="status" aria-live="polite" style="display:none"></div><p id="updated" class="muted">Загрузка данных владельца…</p>
+<div class="card"><h2>Следующий проверяемый шаг</h2><p id="nextAction" role="status" aria-live="polite">Ожидание данных…</p><p class="muted">Подсказка по существующим очередям: проверка, а не выполнение. Письма, платежи, публикации и изменения статусов не запускаются. Полную историю и юридические ограничения нужно проверить отдельно.</p></div>
 <section id="money" class="active"><div class="grid"><div class="card"><h3>Остаток · OSVČ</h3><div id="osvcBalance" class="value">—</div><div id="osvcState" class="muted">Не проверено</div></div><div class="card"><h3>Остаток · Družina z.s.</h3><div id="ngoBalance" class="value">—</div><div id="ngoState" class="muted">Не проверено</div></div><div class="card"><h3>Подтверждённые заказы</h3><div class="value">—</div><div class="muted">Сумма требует подтверждений заказов</div></div></div><div class="notice">Банковский остаток не равен заработанной выручке, прибыли или свободным средствам гранта. Деньги OSVČ и объединения учитываются отдельно.</div><div class="actions"><button data-action="syncOSVC">Проверить банк OSVČ</button><button data-action="syncDruzina">Проверить банк Družina</button><button data-action="previewPayments">Сверить оплаты Družina</button></div><div class="card"><h2>Сверка оплат Družina</h2><p id="paymentAvailability" class="muted" role="status">Доступность сверки ещё не проверена.</p><p id="paymentState" class="muted">Сверка оплат ещё не запускалась.</p><p id="paymentCheckedAt"></p><p id="paymentQueue" role="status"></p><p id="paymentBankState" class="muted"></p><p class="muted">Совпадение VS и суммы требует ручной проверки. Этот отчёт использует загруженную выписку и не подтверждает оплату. Автообновление панели не повторяет сверку; время отчёта указано отдельно.</p><div id="paymentTable" class="table" tabindex="0" aria-label="Сверка оплат; таблицу можно прокручивать вбок"></div></div></section>
 <section id="leads"><div class="card"><h2>Очередь заявок</h2><p id="leadCount"></p><p id="leadQueue" role="status"></p><p class="muted">Сначала просроченные и задачи на сегодня, затем заявки без корректного срока и будущие задачи. Даты без времени действуют весь указанный день по Праге.</p><p id="ingestion" class="muted"></p><div id="leadTable" class="table" tabindex="0" aria-label="Очередь заявок; таблицу можно прокручивать вбок"></div><p><a id="leadLink">Открыть существующую CRM</a></p></div></section>
 <section id="content"><div class="card"><h2>Очередь публикаций</h2><p id="socialQueue" role="status"></p><p class="muted">Сначала записи, требующие внимания. Подтверждение означает статус и ссылку, сохранённые в Hub; панель не проверяет публикацию повторно у сервиса. Обновление не отправляет и не повторяет публикации.</p><div id="socialTable" class="table" tabindex="0" aria-label="Очередь публикаций; таблицу можно прокручивать вбок"></div><p><a id="socialLink">Открыть очередь и медиаматериалы</a></p></div></section>
@@ -139,6 +140,11 @@ function validateSnapshot(d){
   if(typeof state!=='string'||!Object.hasOwn(PAYMENT_AVAILABILITY,state)||
      d.capabilities.actions.previewPayments!==(state==='READY'))throw Error('Inconsistent payment availability');
  }
+ if(d.nextAction!==undefined){
+  const n=d.nextAction,reasons={SOURCE:['MISSING_CANONICAL_SHEET'],EVENT:['INVALID_ACTIVE_EVENT_TIME'],LEAD:['OVERDUE','TODAY'],POST:['VERIFY_PROVIDER_RECEIPT'],LEAD_DATE:['NO_DATE','INVALID_DATE'],NONE:['NO_IMMEDIATE_SAFE_ACTION']};
+  if(!record(n)||n.mode!=='READ_ONLY'||n.executed!==false||n.approved!==false||typeof n.ref!=='string'||
+     !Object.hasOwn(reasons,n.kind)||!reasons[n.kind].includes(n.reason))throw Error('Incomplete next-action preview');
+ }
  if(d.leads.queue!==undefined){
   const q=d.leads.queue,fields={OVERDUE:'overdue',TODAY:'today',UPCOMING:'upcoming',NO_DATE:'noDate',INVALID_DATE:'invalidDate'};
   if(!record(q)||!['total','overdue','today','upcoming','noDate','invalidDate','shown'].every(k=>count(q[k]))||
@@ -263,6 +269,19 @@ function socialSchedule(value){
  if(typeof value==='string'&&/^\d{4}-\d{2}-\d{2}T.*(?:Z|[+-]\d{2}:\d{2})$/.test(value)&&Number.isFinite(Date.parse(value)))return new Date(value).toLocaleString('ru-RU',{timeZone:'Europe/Prague'})+' · Прага';
  return value||'Не указан';
 }
+function renderNextAction(n){
+ if(n===undefined){$('nextAction').textContent='Эта версия серверного модуля ещё не передаёт рекомендации.';return;}
+ const ref=n.ref?' · ID: '+n.ref:'';
+ const text={
+  SOURCE:'Проверьте доступность исходных листов Hub: '+n.ref+'. Пока данные неполные, автоматические выводы недостоверны.',
+  EVENT:'Проверьте дату, место, разрешение и безопасность активного события'+ref+'. Никакого автоматического анонса.',
+  LEAD:'Заявка'+ref+' · '+(n.reason==='OVERDUE'?'просрочен следующий шаг':'следующий шаг сегодня')+'. Сначала проверьте полный тред, Inbox/Sent, CRM, отказ от контакта и обязательства; только потом решайте об ответе.',
+  POST:'Публикация'+ref+' требует проверки в самой платформе. Повторную отправку без live-readback не запускать.',
+  LEAD_DATE:'Заявка'+ref+': '+(n.reason==='INVALID_DATE'?'исправьте некорректный срок':'зафиксируйте подтверждённый следующий шаг и срок')+' в существующей CRM. Не инициирует контакт.',
+  NONE:'По отображаемым очередям нет немедленного безопасного действия. Это не подтверждает отсутствие других обязательств.'
+ };
+ $('nextAction').textContent=text[n.kind]||'Рекомендация не распознана.';
+}
 function renderSocialQueue(d){
  const unavailable=d.missing.includes('SocialPublishing'),q=d.socialQueue,rows=unavailable?[]:d.social.slice(0,100);
  $('socialQueue').textContent=unavailable?'Лист SocialPublishing не найден. Очередь недоступна.':!q?'Диагностика публикаций недоступна в этой версии модуля.'+(d.social.length>100?' Показаны первые 100 записей; полная очередь в Hub.':''):
@@ -289,7 +308,7 @@ function renderEventQueue(d){
   [r.community,q?EVENT_REASONS[r.reason]:'Откройте исходный список для проверки.'].filter(Boolean).join(' · ')
  ]));
 }
-function render(d){validateSnapshot(d);capabilities=d.capabilities||null;controls();renderPaymentAvailability(capabilities);$('updated').textContent='Обновлено: '+new Date(d.at).toLocaleString('ru-RU',{timeZone:'Europe/Prague'})+' · Europe/Prague';bank('osvc',d.banks.osvc);bank('ngo',d.banks.druzina);renderLeadQueue(d.leads,d.missing);$('ingestion').textContent=d.ingestion;renderSocialQueue(d);renderEventQueue(d);link('leadLink',d.leadUrl);link('socialLink',d.socialUrl);link('eventLink',d.eventUrl);$('recovery').textContent='Восстановление заявок: '+recoveryLabel(capabilities&&capabilities.recoveryState);renderRecoveryDiagnostics(d.recoveryDiagnostics);$('missing').textContent=d.missing.length?'Не найдены листы: '+d.missing.join(', '):'';}
+function render(d){validateSnapshot(d);capabilities=d.capabilities||null;controls();renderPaymentAvailability(capabilities);$('updated').textContent='Обновлено: '+new Date(d.at).toLocaleString('ru-RU',{timeZone:'Europe/Prague'})+' · Europe/Prague';bank('osvc',d.banks.osvc);bank('ngo',d.banks.druzina);renderLeadQueue(d.leads,d.missing);renderNextAction(d.nextAction);$('ingestion').textContent=d.ingestion;renderSocialQueue(d);renderEventQueue(d);link('leadLink',d.leadUrl);link('socialLink',d.socialUrl);link('eventLink',d.eventUrl);$('recovery').textContent='Восстановление заявок: '+recoveryLabel(capabilities&&capabilities.recoveryState);renderRecoveryDiagnostics(d.recoveryDiagnostics);$('missing').textContent=d.missing.length?'Не найдены листы: '+d.missing.join(', '):'';}
 function rpc(method,arg){
  if(busy)return;
  if(method!=='operatorSnapshot'&&isBankAction(arg)&&bankRequestPending()){message('Предыдущий банковский запрос ещё не завершён. Дождитесь ответа сервера.',true);return;}
