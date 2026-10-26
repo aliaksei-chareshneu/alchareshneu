@@ -64,3 +64,5 @@ for(const outdated of ['Activities are paid.','Мероприятия платн
 for(const locale of locales){const page=fs.readFileSync(pages[locale][0],'utf8');assert.ok(page.includes("e.price_verified===false?t('payment')"),'unknown price incorrectly shown as free '+locale)}
 assert.ok(fn.includes(".eq('source_active',true)"),'withdrawn feed entries must reject POST');
 assert.ok(fn.includes(".eq('price_verified',true)"),'unverified price must reject POST');
+
+assert.ok(front.includes("e.registration_mode!=='FORM'")&&front.includes("e.end_time_verified!==true"),'RSVP must fail closed on incomplete event verification');
