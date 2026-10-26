@@ -1,0 +1,36 @@
+# Imperion private form → existing Community CRM
+
+## Current status, 26 Oct 2026
+
+- **LIVE:** The private Supabase Edge function `imperion-intake-bridge` is deployed. It reads unsynced requests ONLY with a 64-character high-entropy bearer token stored in Supabase Vault.
+- **TESTED:** no token → HTTP 401; correct token → HTTP 200; malformed ACK → HTTP 400. All returns omit public CORS and use `Cache-Control: no-store`.
+- **NOT YET LIVE:** Apps Script must be added and authorized in the existing Community Hub spreadsheet by its Google account owner. Until this step, **no automatic transfer into the Google CRM and no email digest** are running. Do not claim otherwise.
+- No second CRM, new Sheets workbook, automated client email, payment, event attendance confirmation, or newsletter subscription.
+
+## One-time owner action
+
+1. Open the existing [Community Hub CRM](https://docs.google.com/spreadsheets/d/1igxEHQ7wFFCoCA9lg4kzT2OoMrVLgbBogfqTxGeUftY/edit) → Extensions → Apps Script. Add **one new script file** named `imperion-intake-sync`. Copy the complete content of [imperion-intake-sync.gs](../imperion-intake-sync.gs). **Do not overwrite** the existing Code.gs/web app/calendar script.
+2. Apps Script Project Settings → Script Properties. Set:
+   - `IMPERION_INTAKE_BRIDGE_KEY`: copy privately from Supabase Vault with this query in the Supabase SQL editor:
+     `select decrypted_secret from vault.decrypted_secrets where name='imperion_intake_bridge_key';`
+     **Never paste or commit this credential to the website, a Google Sheet cell, GitHub, email or this chat.**
+   - `IMPERION_NOTIFY_EMAIL`: the owner's actual operational email for the digest.
+   - Optional `IMPERION_CRM_SHEET_ID`: `1igxEHQ7wFFCoCA9lg4kzT2OoMrVLgbBogfqTxGeUftY`. The existing `Code.gs` defines `SPREADSHEET_ID`, so this is normally unnecessary.
+3. In Apps Script, manually Run `imperionSyncPrivateIntake`; grant Google the requested UrlFetch, Sheets and Mail permissions in the owner account. Check the execution transcript (there may be zero new records). Then Run `imperionInstallPrivateIntake` once. This adds hourly import and daily retention cleanup triggers, preserving unrelated existing triggers.
+
+## Automated flow after the above
+
+Supabase `imperion_rsvp_submissions` → private GET → existing tab `Registrations`. Supabase `imperion_rsvp_enquiries` → existing `Druzina_Requests`. The original source UUID is preserved in the target row. The script holds a lock, reads existing UUIDs to avoid duplicates and only ACKs Supabase after writing rows. Retried requests recognize the UUID, skip duplicate writes and retry ACK. It emails only the **owner** one digest of new RSVP/enquiry counts and a CRM link, never contact/guardian details. No automatic guest confirmations, marketing or payments.
+
+## Privacy and safety
+
+- A participant's RSVP status `YES` is a stated intention, **not** a confirmed booking. `Source_Channel` and operational email explicitly say unconfirmed.
+- Optional `marketing_requested` maps to `REQUESTED_UNCONFIRMED`, not consent for marketing.
+- `crm_synced_at` is an operational receipt in the existing private Supabase submission table; no new person registry is created.
+- The Apps Script retention helper anonymizes identifying fields at each RSVP's `retention_until`, and HEMA enquiries 90 days after submission. It preserves anonymous event totals.
+- The private Edge Function has no public PII-export route. RLS remains enabled; anon/authenticated have no grants.
+- Rotate the Vault secret and Script Property together if it is ever exposed.
+
+## Verification once activated
+
+Use synthetic `.invalid` contact data to test both types. Check exactly one new row in each target tab, `crm_synced_at` on source, and one owner digest. Re-run; it must add zero new rows and send no new digest. Do not announce completion until verified against both Google Sheets and the Edge receipts.
