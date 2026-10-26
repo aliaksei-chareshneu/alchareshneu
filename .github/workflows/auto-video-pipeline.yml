@@ -30,6 +30,11 @@ jobs:
       - name: Inspect Remotion compositions
         working-directory: tools/auto-video-pipeline
         run: npx remotion compositions src/index.ts
+      - name: Install system FFmpeg on runner
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg
+          ffmpeg -version | head -n 1
       - name: Synthetic footage to actual Remotion MP4
         working-directory: tools/auto-video-pipeline
         run: |
@@ -39,3 +44,10 @@ jobs:
           npx remotion render src/index.ts AutoEdited "$RUNNER_TEMP/remotion-render.mp4" --log=error
           test -s "$RUNNER_TEMP/remotion-render.mp4"
           ffprobe -v error -show_entries format=duration -of default=nk=1:nw=1 "$RUNNER_TEMP/remotion-render.mp4"
+      - name: Preserve synthetic render for inspection
+        uses: actions/upload-artifact@v4
+        with:
+          name: auto-video-remotion-smoketest
+          path: ${{ runner.temp }}/remotion-render.mp4
+          retention-days: 7
+          if-no-files-found: error
