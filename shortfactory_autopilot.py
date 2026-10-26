@@ -129,6 +129,14 @@ def loop(root: Path, queue: Path, drafts: Path, cache: Path, state: Path,
         try:
             spec = load_episode(item, root)
             job = spec["episode_id"]
+            rendered = (drafts / job / "QA.json").is_file()
+            receipt = state / "youtube" / (job + ".json")
+            if not dry_run and rendered:
+                # Never get stuck on yesterday's already-generated sample.
+                if not spec["editorial_approved"] or not upload_private:
+                    continue
+                if receipt.is_file():
+                    continue
             output, manifest_file = assemble(spec, root, drafts, cache, dry_run)
             if dry_run:
                 return {"status": "DRY_RUN_READY", "episode_id": job,
@@ -152,7 +160,9 @@ def loop(root: Path, queue: Path, drafts: Path, cache: Path, state: Path,
                 subprocess.CalledProcessError) as exc:
             errors.append({"episode": item.stem, "error": type(exc).__name__ + ": " + str(exc)[:220]})
             continue
-    return {"status": "ALL_EPISODES_BLOCKED", "errors": errors, "processed": 0}
+    if errors:
+        return {"status": "ALL_EPISODES_BLOCKED", "errors": errors, "processed": 0}
+    return {"status": "IDLE_WAITING_FOR_NEW_OR_APPROVED_EPISODES", "processed": 0}
 
 
 def main() -> int:
