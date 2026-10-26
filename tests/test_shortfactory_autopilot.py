@@ -41,6 +41,15 @@ class YoutubePrivateTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,"channel"):
             validate_manifest(self.meta,self.video,"UC"+"2"*22)
 
+    def test_duplicate_mp4_across_jobs_refused(self):
+        receipts=self.root/"state"
+        receipts.mkdir()
+        (receipts/"earlier.json").write_text(
+            json.dumps({"job_id":"earlier","sha256":digest(self.video),
+                        "status":"UPLOADED_PRIVATE_VERIFIED"}),encoding="utf-8")
+        with self.assertRaisesRegex(ValueError,"same rendered MP4"):
+            private_upload(self.video,self.meta,receipts,self.root/"oauth",self.channel,True)
+
     def test_no_public_upload(self):
         self.meta["upload_visibility"]="public"
         with self.assertRaises(ValueError):
