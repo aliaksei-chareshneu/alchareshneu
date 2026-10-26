@@ -32,7 +32,7 @@ Deno.serve(async(req:Request):Promise<Response>=>{
     const body=raw.trim();
     if(!body.startsWith(prefix)||!body.endsWith(");"))throw new Error("public feed format mismatch");
     const data=JSON.parse(body.slice(prefix.length,-2));
-    if(!data||!Array.isArray(data.events)||data.events.length<1||data.events.length>120)
+    if(!data||!Array.isArray(data.events)||data.events.length>120)
       throw new Error("public feed event list invalid");
     const generatedAt=new Date(data.generatedAt);
     if(!Number.isFinite(generatedAt.getTime())||
