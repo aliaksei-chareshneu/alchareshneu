@@ -120,7 +120,7 @@ def render(cfg,media,voice,subtitles,outdir):
     subs=outdir/"wordgroup_captions.srt"; subs.write_text(wordcaptions(subtitles),encoding="utf-8")
     rights=["Adaptation CC BY-SA 4.0: https://creativecommons.org/licenses/by-sa/4.0/",
             "Modified footage: cropped, color-graded, annotated, and re-timed.",
-            "Scenes are illustrative reenactments; not evidence all legions trained identically.",
+            "Illustrative reconstruction, not raw historical footage. Verify the actual source claims before public release.",
             "Historical source: "+cfg.get("source_label","Vegetius, Epitoma rei militaris I.11"),
             "Narration: original script, Kokoro English synthetic speech.",""]
     rights += [f"{key}: {meta['author']} | {meta['source_page']} | {meta['license']}" for key,meta in cfg["assets"].items()]
