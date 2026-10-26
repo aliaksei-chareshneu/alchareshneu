@@ -76,13 +76,20 @@ def overlay_png(out,shot,variant,brand_label,source_label,visual_label):
     img.save(out)
 
 def check(cfg,media):
-    if cfg.get("license")!="CC BY-SA 4.0" or cfg.get("published") is not False:
-        raise ValueError("Rights gate: example requires CC BY-SA 4.0 and published=false")
+    if cfg.get("license") not in {"CC BY-SA 4.0", "OWNED_ORIGINAL"} or cfg.get("published") is not False:
+        raise ValueError("Rights gate: requires audited CC BY-SA or owned footage and published=false")
     if set(cfg.get("variants",{}))!={"documentary","action"}: raise ValueError("Need two variants")
     if not re.fullmatch(r"[a-z0-9][a-z0-9_-]{2,40}",cfg.get('output_prefix','roman_motion')): raise ValueError('Unsafe output prefix')
     root=Path(media).resolve(); assets={}
     for name,meta in cfg["assets"].items():
         if not all(meta.get(k) for k in ("filename","source_page","author","license")): raise ValueError("Missing provenance")
+        if cfg["license"] == "OWNED_ORIGINAL":
+            if meta["license"] != "owned" or not meta.get("rights_verified_by") or not meta.get("rights_checked_at"):
+                raise ValueError("Owned footage requires verified owner/release record")
+            if meta.get("recognisable_people") is True and meta.get("people_consents_verified") is not True:
+                raise ValueError("People consent evidence required")
+            if meta.get("minors_visible") is True and meta.get("guardian_consents_verified") is not True:
+                raise ValueError("Guardian releases required")
         p=(root/meta["filename"]).resolve()
         if not p.is_relative_to(root) or not p.is_file() or p.stat().st_size<20000: raise FileNotFoundError(str(p))
         assets[name]=p
@@ -118,7 +125,10 @@ def render(cfg,media,voice,subtitles,outdir):
     outdir=Path(outdir); outdir.mkdir(parents=True,exist_ok=True)
     if any(outdir.iterdir()): raise FileExistsError("Output must be empty; no silent overwrite")
     subs=outdir/"wordgroup_captions.srt"; subs.write_text(wordcaptions(subtitles),encoding="utf-8")
-    rights=["Adaptation CC BY-SA 4.0: https://creativecommons.org/licenses/by-sa/4.0/",
+    licence_note=("Adaptation CC BY-SA 4.0: https://creativecommons.org/licenses/by-sa/4.0/"
+                  if cfg["license"]=="CC BY-SA 4.0" else
+                  "Owned original footage; rights and identifiable-person releases independently reviewed.")
+    rights=[licence_note,
             "Modified footage: cropped, color-graded, annotated, and re-timed.",
             "Illustrative reconstruction, not raw historical footage. Verify the actual source claims before public release.",
             "Historical source: "+cfg.get("source_label","Vegetius, Epitoma rei militaris I.11"),
