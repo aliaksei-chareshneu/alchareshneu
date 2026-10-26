@@ -115,6 +115,15 @@ def private_upload(video: Path, manifest: dict, state_dir: Path, config_dir: Pat
         current = json.loads(state_file.read_text(encoding="utf-8"))
         return {"status": "ALREADY_ATTEMPTED_NO_RETRY", "state": current.get("status"),
                 "video_id": current.get("video_id"), "job_id": info["job_id"]}
+    # Cross-episode duplicate protection: refuse a second upload of identical MP4 bytes.
+    if state_dir.is_dir():
+        for previous in state_dir.glob("*.json"):
+            try:
+                prior = json.loads(previous.read_text(encoding="utf-8"))
+            except (json.JSONDecodeError, OSError):
+                raise RuntimeError("Corrupted upload receipt, manual review required")
+            if prior.get("sha256") == info["sha256"] and previous != state_file:
+                raise ValueError("The same rendered MP4 was already used in another YouTube upload attempt")
     if dry_run:
         return {"status": "DRY_RUN_VALIDATED", "job_id": info["job_id"],
                 "sha256": info["sha256"], "would_upload_private": True}
