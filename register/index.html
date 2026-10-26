@@ -80,7 +80,7 @@ a{color:var(--mint)}button,input,select{font:inherit}button{cursor:pointer}.skip
         <button id="submit" class="button" type="submit" data-i18n="send">Odeslat přihlášku →</button></div>
       </form>
       <p id="result" class="state" role="status" aria-live="polite" tabindex="-1" hidden></p>
-      <div id="fallback" role="alert" hidden><p data-i18n="fallback">Automatická registrace dočasně není dostupná. Kontaktujte pořadatele přímo — zpráva není potvrzená rezervace.</p><button type="button" id="retry" class="retry" data-i18n="retry">Zkusit načíst znovu</button><a class="button" id="contactLink" style="display:block;text-align:center;text-decoration:none" href="https://wa.me/420702914842" target="_blank" rel="noopener" data-i18n="contact">Kontaktovat pořadatele ↗</a></div>
+      <div id="fallback" role="alert" hidden><p data-i18n="fallback">Automatická registrace dočasně není dostupná. Kontaktujte pořadatele přímo — zpráva není potvrzená rezervace.</p><button type="button" id="retry" class="retry" data-i18n="retry">Zkusit načíst znovu</button><a class="button" id="trainingFallback" href="/alchareshneu/druzina/prihlaska/?lang=cs" style="display:block;text-align:center;text-decoration:none;margin:10px 0">HEMA: nezávazná přihláška / training enquiry</a><a class="button" id="contactLink" style="display:block;text-align:center;text-decoration:none" href="https://wa.me/420702914842" target="_blank" rel="noopener" data-i18n="contact">Kontaktovat pořadatele ↗</a></div>
     </section>
   </main>
   <section class="explainer" aria-labelledby="about-registration"><h2 id="about-registration" data-i18n="explainerTitle">Jak funguje registrace na komunitní akce v Brně?</h2><p data-i18n="explainerText">Vyberte otevřený výlet BrnoWalkers nebo jinou schválenou akci, vyplňte kontakty a potvrďte bezpečnostní pokyny. Účast následně osobně potvrdí pořadatel; odeslání samo o sobě není rezervace ani platba.</p><p class="explainer-links"><a href="../walkers/" data-i18n="walkersInfo">Výlety a vycházky BrnoWalkers</a><span aria-hidden="true">·</span><a href="../druzina/" data-i18n="druzinaInfo">O klubu Družina Moravy</a></p></section>
@@ -131,6 +131,7 @@ const policyBase=pathLanguage?'../':'./';
 if (Object.prototype.hasOwnProperty.call(translations,preferred))lang=preferred;
 function t(k){return translations[lang][k]||translations.en[k]||k}
 function setLang(next){lang=next;document.documentElement.lang=lang;
+ const help=$('trainingFallback');if(help){help.href='/alchareshneu/druzina/prihlaska/?lang='+lang;help.textContent=({cs:'HEMA: odeslat nezávaznou přihlášku',en:'HEMA: send a training enquiry',ru:'HEMA: отправить заявку на тренировку',uk:'HEMA: надіслати заявку на тренування'})[lang]||'HEMA enquiry'}
   for(const b of document.querySelectorAll('[data-lang]'))b.setAttribute('aria-pressed',String(b.dataset.lang===lang));
   for(const el of document.querySelectorAll('[data-i18n]')){
     const key=el.dataset.i18n,html=t(key);
@@ -162,6 +163,7 @@ function showEvent(){
  const meta=document.createElement('p');meta.textContent=eventDate(e)+' · '+e.venue+' · '+(e.price_verified===false?t('payment'):Number(e.price_czk)===0?t('free'):Number(e.price_czk)+' Kč');info.append(meta);
  const status=document.createElement('p');status.className='event-state';status.textContent=statusLabel(e);info.append(status);
  const note=document.createElement('p');note.textContent=mode==='FORM'?t('unconfirmed'):(lang==='ru'&&e.public_note?e.public_note:ct(mode==='CONTACT'?'manualNote':'planNote'));info.append(note);
+ if(mode==='FORM'&&e.public_note){const caution=document.createElement('p');caution.className='event-warning';caution.textContent=e.public_note;info.append(caution)}
  if(mode==='FORM'){const owner=document.createElement('p');owner.className='owner-line';owner.textContent=t('controller')+' '+e.data_controller;info.append(owner)}
  if(mode==='CONTACT'){
   const href=String(e.action_url||'');
