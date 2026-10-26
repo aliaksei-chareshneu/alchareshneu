@@ -59,7 +59,7 @@ footer{padding-top:28px;color:#a6c6b7;font-size:12px}
 <ul class="benefits"><li><strong>1</strong><span data-i18n="s1">Pick an event</span></li><li><strong>2</strong><span data-i18n="s2">Leave contact details</span></li><li><strong>3</strong><span data-i18n="s3">Send your RSVP</span></li></ul></aside>
 <section class="panel" aria-labelledby="formtitle"><h2 id="formtitle" data-i18n="formtitle">Join the next experience</h2><p class="sub" data-i18n="subtitle">No Google login. Your place is confirmed only after the organizer replies.</p>
 <form id="rsvpform" autocomplete="on">
-<div class="group"><label for="event" data-i18n="event">Which event? *</label><select id="event" required><option value="">Choose</option><option value="PUB-HIKE-20261101">Free hike: Hády → Růženin lom → Obřany · 1 Nov</option><option value="PUB-OREL-20261114">Free HEMA beginner workshop · 14 Nov</option></select><div id="eventbox" class="event-details hidden" aria-live="polite"></div></div>
+<div class="group"><label for="event" data-i18n="event">Which event? *</label><select id="event" required><option value="">Choose</option><option value="DM-REGULAR-INTEREST">Družina Moravy · next regular historical fencing training (ask for a date)</option><option value="SES-20261102">Regular HEMA training · Monday 2 Nov · 18:00–20:00 (enquiry)</option><option value="PUB-HIKE-20261101">Free hike: Hády → Růženin lom → Obřany · 1 Nov</option><option value="PUB-OREL-20261114">Free HEMA beginner workshop · 14 Nov</option></select><div id="eventbox" class="event-details hidden" aria-live="polite"></div></div>
 <div class="two"><div class="group"><label for="first" data-i18n="first">First name *</label><input id="first" type="text" autocomplete="given-name" maxlength="80" required placeholder="Alex"></div><div class="group"><label for="last" data-i18n="last">Surname *</label><input id="last" type="text" autocomplete="family-name" maxlength="80" required placeholder="Smith"></div><div class="group"><label for="email" data-i18n="email">Email *</label><input id="email" type="email" autocomplete="email" required maxlength="254" placeholder="you@example.com"></div><div class="group"><label for="phone" data-i18n="phone">Phone / WhatsApp *</label><input id="phone" type="tel" autocomplete="tel" required maxlength="35" placeholder="+420 700 000 000"></div></div>
 <div class="group"><label for="age" data-i18n="age">Age group *</label><select id="age" required><option value="">Choose</option><option value="adult" data-i18n="adult">18+</option><option value="minor" data-i18n="minor">Under 18 (guardian approval needed)</option></select></div>
 <div class="two hidden" id="guardian"><div class="group"><label for="guardianName" data-i18n="gname">Guardian full name *</label><input id="guardianName" type="text" maxlength="160"></div><div class="group"><label for="guardianPhone" data-i18n="gphone">Guardian phone *</label><input id="guardianPhone" type="tel" maxlength="35"></div></div>
@@ -81,6 +81,8 @@ footer{padding-top:28px;color:#a6c6b7;font-size:12px}
 <script>
 (function(){'use strict';
 const events={
+'DM-REGULAR-INTEREST':{name:'Družina Moravy · regular historical fencing',date:'Recurring Monday and Saturday sessions (exact available date sent by organiser)',place:'Brno · exact permitted meeting point provided after personal confirmation',price:'Participation and any applicable price confirmed individually; not an automatic free booking',rules:'../druzina/safety/',confirmation:'Interest only. The organiser will reply with a specific date, availability and conditions. Do not pay or travel before confirmation.'},
+'SES-20261102':{name:'Družina Moravy · technical HEMA training · 2 Nov',date:'Monday 2 Nov 2026 · 18:00–20:00',place:'Brno · exact meeting point shared after personal confirmation',price:'Current participation terms/plan eligibility confirmed personally. Do not pay before reply.',rules:'../druzina/safety/',confirmation:'Request only, not a confirmed booking. The organiser must personally confirm the place and participation.'},
 'PUB-HIKE-20261101':{name:'Hády → Růženin lom → Obřany',date:'Sunday 1 Nov 2026 · 12:45–16:15',place:'Velká Klajdovka, Brno',price:'FREE · 7–9 km',rules:'./safety/',confirmation:'GO/NO-GO 31 Oct 2026'},
 'PUB-OREL-20261114':{name:'Beginner historical fencing · Orel Husovice',date:'Saturday 14 Nov 2026 · 12:00–14:30',place:'Orlovna Husovice, Vranovská 93, Brno',price:'FREE · supervised soft weapons',rules:'../druzina/safety/',confirmation:'No admission without organizer confirmation and individual safety check'}
 };
@@ -102,7 +104,9 @@ function send(channel){if(!validate())return;const d=collect();const body=textPa
 document.querySelectorAll('[data-lang]').forEach(b=>b.addEventListener('click',()=>translate(b.dataset.lang)));
 el('event').addEventListener('change',renderEvent);el('age').addEventListener('change',ageChanged);
 el('rsvpform').addEventListener('submit',e=>{e.preventDefault();send('wa')});el('sendEmail').addEventListener('click',()=>send('email'));
-if(events[requested])el('event').value=requested;
+if(Date.now()>=Date.parse('2026-11-02T20:00:00+01:00')){const oldOption=Array.from(el('event').options).find(o=>o.value==='SES-20261102');if(oldOption)oldOption.remove();}
+if(Array.from(el('event').options).some(o=>o.value===requested))el('event').value=requested;
+else if(requested==='SES-20261102')el('event').value='DM-REGULAR-INTEREST';
 renderEvent();translate((params.get('lang')||'en'));
 })();
 </script>
