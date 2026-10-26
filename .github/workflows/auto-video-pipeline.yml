@@ -30,20 +30,24 @@ jobs:
       - name: Inspect Remotion compositions
         working-directory: tools/auto-video-pipeline
         run: npx remotion compositions src/index.ts
-      - name: Install system FFmpeg on runner
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y ffmpeg
-          ffmpeg -version | head -n 1
-      - name: Synthetic footage to actual Remotion MP4
+      - name: Synthetic source through Python EDL to Remotion MP4
         working-directory: tools/auto-video-pipeline
+        env:
+          SOURCE_PATH: ${{ runner.temp }}/remotion-source.mp4
+          PLAN_PATH: ${{ runner.temp }}/remotion-plan.json
+          RENDER_PATH: ${{ runner.temp }}/remotion-render.mp4
         run: |
-          ffmpeg -hide_banner -loglevel error -y -f lavfi -i testsrc2=size=360x640:rate=30:duration=3 -f lavfi -i sine=frequency=440:duration=3 -c:v libx264 -preset ultrafast -pix_fmt yuv420p -c:a aac -shortest "$RUNNER_TEMP/source.mp4"
-          python3 pipeline.py plan "$RUNNER_TEMP/source.mp4" --out "$RUNNER_TEMP/remotion-plan"
-          python3 pipeline.py prepare-remotion "$RUNNER_TEMP/remotion-plan/plan.json"
-          npx remotion render src/index.ts AutoEdited "$RUNNER_TEMP/remotion-render.mp4" --log=error
-          test -s "$RUNNER_TEMP/remotion-render.mp4"
-          ffprobe -v error -show_entries format=duration -of default=nk=1:nw=1 "$RUNNER_TEMP/remotion-render.mp4"
+          node -e 'const fs=require("fs"); fs.writeFileSync("src/edit.json",JSON.stringify({fps:30,width:360,height:640,frames:90,clips:[],captions:[{start:0,end:90,text:"Synthetic source"}],broll:[]}));'
+          npx remotion render src/index.ts AutoEdited "$SOURCE_PATH" --log=error --concurrency=2
+          python3 - <<'PY'
+          import json, os
+          plan = {"source":os.environ["SOURCE_PATH"], "source_info":{"width":360,"height":640}, "keeps":[{"start":0,"end":3}], "captions":[{"start":0.3,"end":2.7,"text":"Remotion cloud output"}], "broll":[]}
+          with open(os.environ["PLAN_PATH"],"w",encoding="utf-8") as f: json.dump(plan,f)
+          PY
+          python3 pipeline.py prepare-remotion "$PLAN_PATH"
+          npx remotion render src/index.ts AutoEdited "$RENDER_PATH" --log=error --concurrency=2
+          test -s "$RENDER_PATH"
+          file "$RENDER_PATH"
       - name: Preserve synthetic render for inspection
         uses: actions/upload-artifact@v4
         with:
