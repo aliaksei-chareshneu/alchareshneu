@@ -1,6 +1,6 @@
 const {test,expect}=require('@playwright/test');
 const url='https://cmrknyhnnehyjpreehcf.supabase.co/functions/v1/imperion-register';
-const example={event_id:'PUB-HIKE-20261101',title:'BrnoWalkers: Hády – Růženin lom – Obřany',community:'BrnoWalkers',category:'Hike',begins_at:'2026-11-01T11:45:00Z',ends_at:'2026-11-01T15:15:00Z',venue:'Velká Klajdovka, Brno',price_czk:0,data_controller:'Družina Moravy, z. s.',rules_url:'https://aliaksei-chareshneu.github.io/alchareshneu/register/safety/',contact_activity:false};
+const example={event_id:'PUB-HIKE-20261101',title:'BrnoWalkers: Hády – Růženin lom – Obřany',community:'BrnoWalkers',category:'Hike',begins_at:'2026-11-01T11:45:00Z',ends_at:'2026-11-01T15:15:00Z',venue:'Velká Klajdovka, Brno',price_czk:0,data_controller:'Družina Moravy, z. s.',rules_url:'https://aliaksei-chareshneu.github.io/alchareshneu/register/safety/',contact_activity:false,is_open:true,registration_mode:'FORM',price_verified:true,end_time_verified:true};
 function cors(){return {'access-control-allow-origin':'http://127.0.0.1:8000','access-control-allow-headers':'content-type','access-control-allow-methods':'GET, POST, OPTIONS'};}
 test('public registration sends one private request with independent consents',async({page})=>{
   let submitted=null;
@@ -117,4 +117,20 @@ test('BrnoWalkers accurately labels free and paid trips and paused board games i
     await expect(page.locator('#navBookBtn')).toHaveAttribute('href',lang==='cs'?'../register/':'../register/'+lang+'/');
     await expect(page.locator('#boardgames')).toContainText(lang==='en'?'temporarily paused':lang==='cs'?'pozastaven':lang==='ru'?'временно': 'призупинен');
   }
+});
+
+test('unverified or withdrawn events cannot be submitted despite listing in catalog',async({page})=>{
+  let post=0;
+  await page.route(url,route=>{
+    if(route.request().method()==='POST')post++;
+    return route.fulfill({status:200,contentType:'application/json',headers:cors(),body:JSON.stringify({
+      events:[{...example,is_open:true,registration_mode:'FORM',price_verified:false,title:'Pending price'}]
+    })});
+  });
+  await page.goto('/register/en/?event=PUB-HIKE-20261101');
+  await expect(page.locator('#rsvpForm')).toBeVisible();
+  await expect(page.locator('#eventInfo')).toContainText('Awaiting confirmation');
+  await expect(page.locator('#rsvpDetails')).toBeHidden();
+  await expect(page.locator('#submit')).toBeDisabled();
+  expect(post).toBe(0);
 });
