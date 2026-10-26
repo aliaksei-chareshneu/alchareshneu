@@ -1,7 +1,18 @@
 import React from 'react';
 import {AbsoluteFill, Composition, Img, Sequence, staticFile} from 'remotion';
 import {Video} from '@remotion/media';
-import edit from './edit.json';
+import rawEdit from './edit.json';
+
+type EditPlan = {
+  fps: number;
+  width: number;
+  height: number;
+  frames: number;
+  clips: Array<{at: number; start: number; frames: number}>;
+  captions: Array<{start: number; end: number; text: string}>;
+  broll: Array<{file: string; start: number; end: number}>;
+};
+const edit = rawEdit as EditPlan;
 
 const AutoEdited: React.FC = () => (
   <AbsoluteFill style={{backgroundColor: '#090909'}}>
