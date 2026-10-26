@@ -1,0 +1,94 @@
+name: Live registration smoke (read-only)
+
+on:
+  push:
+    branches: [growth-experience]
+    paths:
+      - '.github/workflows/live-registration-smoke.yml'
+      - 'register/**'
+      - 'druzina/prihlaska/**'
+      - 'supabase/functions/imperion-register/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  public-intake:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npx playwright install --with-deps chromium
+      - name: Verify live endpoint, CORS and multilingual browser form (no submissions)
+        env:
+          PUBLIC_SITE: https://aliaksei-chareshneu.github.io
+          PUBLIC_API: https://cmrknyhnnehyjpreehcf.supabase.co/functions/v1/imperion-register
+        run: |
+          node <<'NODE'
+          const assert = require('node:assert/strict');
+          const { chromium } = require('@playwright/test');
+          const SITE = process.env.PUBLIC_SITE;
+          const API = process.env.PUBLIC_API;
+          (async () => {
+            const request = (url, options = {}) =>
+              fetch(url, { ...options, signal: AbortSignal.timeout(20000), cache: 'no-store' });
+
+            const response = await request(API, { headers: { Origin: SITE } });
+            assert.equal(response.status, 200, 'public event catalog GET must return 200');
+            assert.equal(response.headers.get('access-control-allow-origin'), SITE,
+              'published site must be permitted by CORS');
+            const json = await response.json();
+            assert.ok(Array.isArray(json.events), 'catalog must be an array');
+            const open = json.events.filter(e => e.is_open === true &&
+              e.registration_mode === 'FORM' && e.price_verified === true &&
+              e.end_time_verified === true && e.source_active === true &&
+              Date.parse(e.begins_at) > Date.now());
+            assert.ok(open.length > 0,
+              'at least one real, server-verified event must be open during this smoke run');
+
+            const preflight = await request(API, {
+              method: 'OPTIONS',
+              headers: { Origin: SITE, 'Access-Control-Request-Method': 'POST' }
+            });
+            assert.equal(preflight.status, 204, 'legitimate CORS preflight');
+            assert.equal(preflight.headers.get('access-control-allow-origin'), SITE);
+
+            const foreign = await request(API, {
+              headers: { Origin: 'https://example.invalid' }
+            });
+            assert.equal(foreign.status, 403, 'foreign origin must remain blocked');
+
+            const browser = await chromium.launch({ headless: true });
+            try {
+              for (const locale of ['', 'en/', 'ru/', 'uk/']) {
+                const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+                const jsErrors = [];
+                page.on('pageerror', error => jsErrors.push(String(error)));
+                const url = SITE + '/alchareshneu/register/' + locale;
+                const loaded = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+                assert.equal(loaded.status(), 200, url + ' must return HTTP 200');
+                await page.locator('#rsvpForm').waitFor({ state: 'visible', timeout: 25000 });
+                assert.equal(await page.locator('#fallback').isHidden(), true,
+                  url + ' must not show the unavailable fallback');
+                await page.locator('#eventSearch').click();
+                const option = page.locator('#eventMatches .match-option:has(.match-status.form)').first();
+                await option.waitFor({ state: 'visible', timeout: 10000 });
+                await option.click();
+                await page.locator('#rsvpDetails').waitFor({ state: 'visible', timeout: 10000 });
+                assert.equal(await page.locator('#submit').isEnabled(), true);
+                assert.deepEqual(jsErrors, [], url + ' JavaScript exception(s)');
+                console.log('PASS', url, 'open event selection', '(no form submitted)');
+                await page.close();
+              }
+            } finally {
+              await browser.close();
+            }
+            console.log('PASS public GET, strict CORS, and all four live registration languages');
+          })().catch(error => { console.error(error.stack || error.message); process.exitCode = 1; });
+          NODE
