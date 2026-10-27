@@ -67,13 +67,20 @@ function impAppend_(sheet,headers,object){
      sheet.getRange(nextRow,headers.map[receipt]+1).getDisplayValue().trim()!==String(object[receipt]))
     throw Error('CRM append readback failed: '+receipt);
 }
-function impWriteRsvps_(ss,items){
+function impWriteRsvps_(ss,items,events){
   var sh=ss.getSheetByName('Registrations');if(!sh)throw Error('Missing Registrations');
   var h=impHeader_(sh);if(h.map.Submission_ID===undefined)throw Error('Missing Submission_ID');
   var existing=impExisting_(sh,h.map.Submission_ID+1),ids=[],added=0;
   items.forEach(function(r){
     var id=String(r.id||'');if(!/^[a-f0-9-]{36}$/i.test(id))throw Error('Invalid RSVP id');
     if(!existing[id]){
+      // The canonical CRM validates RSVP_Status and Payment_Status. Browser intent is NOT a confirmed booking.
+      var intent=String(r.rsvp_status||'');
+      var states={YES:'REGISTERED',MAYBE:'MAYBE',NO:'DECLINED'};
+      if(!Object.prototype.hasOwnProperty.call(states,intent))throw Error('Invalid public RSVP intent');
+      var event=events&&events[String(r.event_id||'')];
+      var isFree=!!(event&&event.price_verified===true&&Number(event.price_czk)===0);
+      var paymentStatus=(intent==='NO'||isFree)?'NOT_REQUIRED':'PENDING';
       impAppend_(sh,h,{
         Reg_ID:'WEB-'+id,Event_ID:r.event_id||'',Timestamp:impDate_(r.created_at),
         Full_Name:[r.first_name,r.last_name].filter(Boolean).join(' '),
@@ -82,8 +89,8 @@ function impWriteRsvps_(ss,items){
         Photo_Consent:r.photo_choice||'NO',
         Waiver_Accepted:r.safety_acknowledged===true?'YES':'NO',
         Retention_Until:impDate_(r.retention_until),Submission_ID:id,
-        RSVP_Status:r.rsvp_status||'MAYBE',RSVP_Status_At:impDate_(r.created_at),
-        Payment_Status:'NOT_COLLECTED',
+        RSVP_Status:states[intent],RSVP_Status_At:impDate_(r.created_at),
+        Payment_Status:paymentStatus,
         Reply_Contact:r.email||r.phone||'',
         Source_Channel:'WEBSITE_RSVP_SUPABASE_UNCONFIRMED',
         Email:r.email||'',First_Name:r.first_name||'',Last_Name:r.last_name||'',
@@ -217,7 +224,15 @@ function impReceiptMessage_(kind,row,m,events){
   }
   if(e&&e.venue)parts.push(w[5]+': '+String(e.venue).slice(0,200));
   if(e&&e.price_verified===true&&Number.isInteger(e.price_czk))parts.push(w[6]+': '+e.price_czk+' Kč');
-  parts.push(w[9]+' https://aliaksei-chareshneu.github.io/alchareshneu/register/safety/');
+  var rulesUrl=e&&String(e.rules_url||'')||'';
+  if(!/^https:\/\/aliaksei-chareshneu\.github\.io\/alchareshneu\//.test(rulesUrl))
+   rulesUrl='https://aliaksei-chareshneu.github.io/alchareshneu/register/safety/';
+  if(e&&/hema|fenc|šerm|sword|combat/i.test(String(e.category||'')+' '+String(e.title||'')))
+   parts.push(w[9]+' '+rulesUrl);
+  else {
+   var safetyLabels={cs:'Pravidla a bezpečnost: ',en:'Rules and safety: ',ru:'Правила и безопасность: ',uk:'Правила та безпека: '};
+   parts.push((safetyLabels[lang]||safetyLabels.cs)+rulesUrl);
+  }
   sender=v('Data_Controller').includes('Aliaksei Chareshneu')?'Aliaksei Chareshneu (OSVČ)':'Družina Moravy';
   parts.push(w[8]);
  }else if(kind==='TRAINING'){
@@ -246,11 +261,11 @@ function impReceiptMessage_(kind,row,m,events){
  parts.push('',w[10]);
  return {to:email,subject:w[0]+' · '+id.slice(0,8),body:parts.join('\n'),sender:sender};
 }
-function impSendReceiptQueue_(ss,cfg){
+function impSendReceiptQueue_(ss,cfg,events){
  var tabs=[['Registrations','RSVP'],['Druzina_Requests','TRAINING'],['Leads','B2B']];
  var quota=MailApp.getRemainingDailyQuota(),max=Math.min(30,Math.max(0,quota-1)),sent=0,failed=0;
  if(max<=0)return {sent:0,failed:0,quotaBlocked:true};
- var events=impReceiptCatalog_();
+ events=events||impReceiptCatalog_();
  tabs.forEach(function(pair){
   if(sent>=max)return;
   var sh=ss.getSheetByName(pair[0]);if(!sh||sh.getLastRow()<2)return;
@@ -438,13 +453,15 @@ function imperionSyncPrivateIntake(){
     var cfg=impPrivateConfig_(),ss=SpreadsheetApp.openById(cfg.sheetId);
     ['Registrations','Druzina_Requests','Leads'].forEach(function(n){impEnsureReceiptCols_(ss.getSheetByName(n));});
     var addedR=0,addedE=0,addedB=0,processed=0;
+    // One safe public price lookup; never infer paid status from a blank/unknown fee.
+    var events=impReceiptCatalog_();
     for(var i=0;i<4;i++){
       var batch=impPrivateFetch_(cfg,null);
       if(batch.protocol!=='imperion-intake-bridge-v1'||
          !Array.isArray(batch.rsvps)||!Array.isArray(batch.enquiries)||!Array.isArray(batch.b2b))
         throw Error('Private intake response schema changed');
       if(!batch.rsvps.length&&!batch.enquiries.length&&!batch.b2b.length)break;
-      var a=impWriteRsvps_(ss,batch.rsvps);
+      var a=impWriteRsvps_(ss,batch.rsvps,events);
       var b=impWriteEnquiries_(ss,batch.enquiries);
       var c=impWriteB2B_(ss,batch.b2b);
       // Persist the owner-notification receipt BEFORE acknowledging the source;
@@ -458,7 +475,7 @@ function imperionSyncPrivateIntake(){
     }
     // Retry a previously failed digest even if this run has no new rows.
     impFlushOwnerDigest_(cfg);
-    var receipts=impSendReceiptQueue_(ss,cfg);
+    var receipts=impSendReceiptQueue_(ss,cfg,events);
     var followups=impSendAttendedFollowups_(ss,cfg);
     console.log('Private intake receipts: dispatched='+receipts.sent+', errors='+receipts.failed);
     console.log('Private intake: new RSVP='+addedR+', enquiries='+addedE+', corporate OSVC='+addedB+', acked='+processed);
@@ -530,11 +547,18 @@ function imperionInstallPrivateIntake(){
   var cfg=impPrivateConfig_();
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cfg.email))
     throw Error('IMPERION_NOTIFY_EMAIL must be configured');
-  var triggers=ScriptApp.getProjectTriggers().map(function(t){return t.getHandlerFunction()});
-  // Replace only this importer's trigger with a 5-minute cadence; preserve unrelated triggers.
-  ScriptApp.getProjectTriggers().forEach(function(t){if(t.getHandlerFunction()==='imperionSyncPrivateIntake')ScriptApp.deleteTrigger(t);});
-  ScriptApp.newTrigger('imperionSyncPrivateIntake').timeBased().everyMinutes(5).create();
-  if(triggers.indexOf('imperionCleanupPrivateIntake')<0)
+  var triggers=ScriptApp.getProjectTriggers(),importers=[],cleanups=[];
+  triggers.forEach(function(t){
+    if(t.getHandlerFunction()==='imperionSyncPrivateIntake')importers.push(t);
+    if(t.getHandlerFunction()==='imperionCleanupPrivateIntake')cleanups.push(t);
+  });
+  // Never remove a working import trigger before a replacement has been authorized.
+  // A second owner account may have invisible triggers: owner must inspect the editor once.
+  if(importers.length>1||cleanups.length>1)
+    throw Error('Duplicate intake triggers under this account: inspect Triggers before proceeding');
+  if(importers.length===0)
+    ScriptApp.newTrigger('imperionSyncPrivateIntake').timeBased().everyMinutes(5).create();
+  if(cleanups.length===0)
     ScriptApp.newTrigger('imperionCleanupPrivateIntake').timeBased().everyDays(1).atHour(4).create();
-  return {installed:true};
+  return {installed:true,importerCreated:importers.length===0,retentionCreated:cleanups.length===0};
 }
