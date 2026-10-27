@@ -59,7 +59,8 @@ test('privacy consent is mandatory and no API POST without it',async({page})=>{
  await page.locator('#timeframe').fill('next month');
  await page.locator('#summary').fill('Practical Python workshop with reusable examples.');
  await page.locator('#submit').click();
- await expect(page.locator('#result')).toBeHidden();
+ await expect(page.locator('#result')).toHaveClass(/err/);
+ await expect(page.locator('#result')).toContainText('Complete the required fields');
  expect(calls).toBe(0);
 });
 test('network failure does not present a successful order or charge',async({page})=>{
