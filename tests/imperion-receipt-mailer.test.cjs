@@ -72,3 +72,26 @@ test('source contains GDPR-safe dispatch, retry and 5-minute trigger not a marke
  assert.match(source,/SENT_TO_PROVIDER/);
  assert.doesNotMatch(source,/sendBroadcast|sendCampaign|newsletterSubscribe/);
 });
+
+test('post-event follow-up is opt-in controlled, verified-attendance only and never assumes review links',()=>{
+ const api=new Function(source+';return {impAttendeeThankYou_,impSendAttendedFollowups_};')();
+ const map={Registration_Locale:0,Marketing_Consent:1};
+ const row=['ru','REQUESTED_UNCONFIRMED'];
+ const ev={title:'BrnoWalkers route',category:'Hike',community:'Brnowalkers'};
+ const props={getProperty:()=>''};
+ const message=api.impAttendeeThankYou_(row,map,ev,props);
+ assert.match(message.body,/честному отзыву/);
+ assert.doesNotMatch(message.body,/t\\.me\\/pochody_brno_news/,'unverified marketing opt-in must not receive community invitations');
+ assert.doesNotMatch(message.body,/\/review/,'no review URL may be fabricated');
+ row[1]='CONFIRMED';
+ const withConsent=api.impAttendeeThankYou_(row,map,ev,props);
+ assert.match(withConsent.body,/t\\.me\\/pochody_brno_news/);
+ const disabled=new Function('PropertiesService',source+
+   ';return impSendAttendedFollowups_;')({getScriptProperties:()=>({getProperty:()=>null})});
+ assert.deepEqual(disabled({},{}),{sent:0,failed:0,disabled:true});
+ assert.match(source,/Check_In_At/);
+ assert.match(source,/source!==['"]WEBSITE_RSVP_SUPABASE_UNCONFIRMED['"]/);
+ assert.match(source,/IMP_EVENT_FOLLOWUP_COLS/);
+ assert.match(source,/IMPERION_ATTENDEE_FOLLOWUP_LIVE/);
+ assert.match(source,/impSendAttendedFollowups_\\(ss,cfg\\)/);
+});
