@@ -260,6 +260,35 @@ function updateGuardian(){const minor=document.querySelector('input[name=age]:ch
   $('photo').disabled=minor;$('future').disabled=minor;if(minor){$('photo').checked=false;$('future').checked=false;}refreshOptIns();}
 for(const radio of document.querySelectorAll('input[name=age]'))radio.addEventListener('change',updateGuardian);
 const RECEIPT_TEXT={"cs":{"title":"Přihláška byla přijata","event":"Akce","date":"Datum a čas","place":"Místo / sraz","price":"Uvedená cena","email":"Kontaktní e-mail","rules":"Bezpečnostní pravidla","reference":"Číslo přihlášky","pending":"Toto není potvrzené místo ani platba. Pořadatel ověří sraz, účast a podmínky individuálně; do té doby nejezděte a neplaťte.","delivery":"Uložte si tyto údaje. E-mailová kopie může dorazit později nebo být nedostupná.","copy":"Kopírovat údaje","copied":"Zkopírováno","back":"Zapsat se na další akci"},"en":{"title":"We received your request","event":"Event","date":"Date and time","place":"Venue / meeting point","price":"Listed price","email":"Contact email","rules":"Safety rules","reference":"Request reference","pending":"This is not a confirmed place or payment. The organiser will verify the meeting place, attendance and terms individually. Do not travel or pay until confirmed.","delivery":"Save these details now. An email copy may be delayed or unavailable.","copy":"Copy details","copied":"Copied","back":"Register for another event"},"ru":{"title":"Заявка получена","event":"Мероприятие","date":"Дата и время","place":"Место / сбор","price":"Указанная стоимость","email":"Контактный email","rules":"Правила безопасности","reference":"Номер обращения","pending":"Это не бронь и не оплата. Организатор отдельно подтвердит место сбора, участие и условия. До подтверждения не приезжайте и не платите.","delivery":"Сохраните эти данные: копия по почте может задержаться или быть недоступна.","copy":"Скопировать данные","copied":"Скопировано","back":"Записаться на другое мероприятие"},"uk":{"title":"Заявку отримано","event":"Подія","date":"Дата й час","place":"Місце / зустріч","price":"Вказана ціна","email":"Контактний email","rules":"Правила безпеки","reference":"Номер запиту","pending":"Це не бронювання й не оплата. Організатор окремо підтвердить місце зустрічі та умови. Не вирушайте й не платіть до підтвердження.","delivery":"Збережіть ці дані: копія на пошту може затриматися або бути недоступною.","copy":"Копіювати дані","copied":"Скопійовано","back":"Зареєструватися на іншу подію"}};
+const RECEIPT_CONTACT={
+ cs:{prompt:'Děkujeme za přihlášku. Pokud plánujete přijít, pošlete prosím pořadateli krátkou zprávu. Vaši účast potvrdí pořadatel zvlášť.',intro:'Dobrý den, právě jsem se přihlásil/a na akci:',yes:'Plánuji přijít.',maybe:'Zatím nevím, dám vědět.',no:'Tentokrát nepřijdu.',subject:'Přihláška na akci',community:'Novinky komunity (dobrovolně)'},
+ en:{prompt:'Thanks for registering! If you plan to join, please send the organiser a short message. Your place is confirmed separately by the organiser.',intro:'Hello, I have just submitted an RSVP for:',yes:'I plan to attend.',maybe:'I am not sure yet; I will let you know.',no:'I cannot attend this time.',subject:'Event RSVP',community:'Community updates (optional)'},
+ ru:{prompt:'Спасибо за заявку! Если планируете прийти, пожалуйста, напишите организатору короткое сообщение. Участие организатор подтвердит отдельно.',intro:'Здравствуйте! Я только что отправил(а) заявку на мероприятие:',yes:'Планирую прийти.',maybe:'Пока не уверен(а), сообщу позже.',no:'В этот раз не смогу прийти.',subject:'Заявка на мероприятие',community:'Новости сообщества (по желанию)'},
+ uk:{prompt:'Дякуємо за заявку! Якщо плануєте прийти, будь ласка, напишіть організатору коротке повідомлення. Участь організатор підтвердить окремо.',intro:'Вітаю! Я щойно надіслав(-ла) заявку на подію:',yes:'Планую прийти.',maybe:'Поки не впевнений(-а), повідомлю пізніше.',no:'Цього разу не зможу прийти.',subject:'Реєстрація на подію',community:'Новини спільноти (за бажанням)'}
+};
+function receiptContacts(el,eventData,body){
+ const d=RECEIPT_CONTACT[lang]||RECEIPT_CONTACT.cs;
+ const message=[d.intro,eventData?.title||body.eventId,eventData?eventDate(eventData):'',body.rsvp==='YES'?d.yes:body.rsvp==='MAYBE'?d.maybe:d.no].filter(Boolean).join('\n');
+ const prompt=document.createElement('p');prompt.textContent=d.prompt;el.append(prompt);
+ const actions=document.createElement('div');actions.className='receipt-actions';
+ const links=[
+  ['Telegram','https://t.me/Chareshneu'],
+  ['WhatsApp','https://wa.me/420702914842?text='+encodeURIComponent(message)],
+  ['Email','mailto:chereshnev.biochem@gmail.com?subject='+encodeURIComponent(d.subject+' · '+(eventData?.title||body.eventId))+'&body='+encodeURIComponent(message)]
+ ];
+ for(const [label,url] of links){
+  const a=document.createElement('a');a.href=url;a.textContent=label;
+  a.className='button';a.style.cssText='display:inline-flex;align-items:center;justify-content:center;width:auto;min-height:44px;text-decoration:none;padding:10px 16px;font-size:14px';
+  if(!url.startsWith('mailto:')){a.target='_blank';a.rel='noopener noreferrer';}
+  actions.append(a);
+ }
+ el.append(actions);
+ const isDruzina=/družina|druzina/i.test(String(eventData?.community||''));
+ const news=document.createElement('p'),newsLink=document.createElement('a');
+ newsLink.href=isDruzina?'https://t.me/druzinamoravy_news':'https://t.me/pochody_brno_news';
+ newsLink.target='_blank';newsLink.rel='noopener noreferrer';newsLink.textContent=d.community;
+ news.append(newsLink);el.append(news);
+}
 function showReceipt(eventData,body,payload){
  const dict=RECEIPT_TEXT[lang]||RECEIPT_TEXT.cs,el=$('result');el.replaceChildren();
  const records=[[dict.event,eventData?.title||body.eventId],[dict.email,body.email]];
@@ -284,7 +313,7 @@ function showReceipt(eventData,body,payload){
   .then(()=>{copy.textContent=dict.copied;},()=>{copy.textContent=dict.copy;});});
  const again=document.createElement('button');again.type='button';again.textContent=dict.back;
  again.addEventListener('click',()=>{el.hidden=true;$('rsvpForm').hidden=false;renderEvents();$('eventSearch').focus();});
- actions.append(copy,again);el.append(actions);el.hidden=false;
+ actions.append(copy,again);el.append(actions);receiptContacts(el,eventData,body);el.hidden=false;
 }
 $('rsvpForm').addEventListener('submit',async event=>{event.preventDefault();const form=$('rsvpForm');
   if(!events.some(e=>e.event_id===$('eventId').value&&eventMode(e)==='FORM')){$('eventSearch').focus();showEvent();return;}
