@@ -83,7 +83,6 @@ footer{padding-top:28px;color:#a6c6b7;font-size:12px}
 const events={
 'DM-REGULAR-INTEREST':{name:'Družina Moravy · regular historical fencing',date:'Recurring Monday and Saturday sessions (exact available date sent by organiser)',place:'Brno · exact permitted meeting point provided after personal confirmation',price:'Participation and any applicable price confirmed individually; not an automatic free booking',rules:'../druzina/safety/',confirmation:'Interest only. The organiser will reply with a specific date, availability and conditions. Do not pay or travel before confirmation.'},
 'SES-20261102':{name:'Družina Moravy · technical HEMA training · 2 Nov',date:'Monday 2 Nov 2026 · 18:00–20:00',place:'Brno · exact meeting point shared after personal confirmation',price:'Current participation terms/plan eligibility confirmed personally. Do not pay before reply.',rules:'../druzina/safety/',confirmation:'Request only, not a confirmed booking. The organiser must personally confirm the place and participation.'},
-'COM-HIKE-20261028':{name:'BrnoWalkers guided walk · Stránská skála → Bílá hora → Židenice (PAID)',date:'Wednesday 28 Oct 2026 · 12:00–15:00',place:'Brno · exact safe meeting pin and route details sent after personal confirmation',price:'100 Kč per adult (18+) · maximum 18 people · roughly 6–8 km; own MHD tickets · independent commercial OSVČ tour (not a free NGO/JRDM event)',rules:'./safety/',confirmation:'Interest request only (not a booking). Tour goes ahead only with at least eight paid participants and verified weather, meeting pin, route, insurance and accompanying guide. The organiser confirms individually before any payment or travel.'},
 'PUB-HIKE-20261101':{name:'Hády → Růženin lom → Obřany',date:'Sunday 1 Nov 2026 · 12:45–16:15',place:'Velká Klajdovka, Brno',price:'FREE · 7–9 km',rules:'./safety/',confirmation:'GO/NO-GO 31 Oct 2026'},
 'PUB-OREL-20261114':{name:'Beginner historical fencing · Orel Husovice',date:'Saturday 14 Nov 2026 · 12:00–14:30',place:'Orlovna Husovice, Vranovská 93, Brno',price:'FREE · supervised soft weapons',rules:'../druzina/safety/',confirmation:'No admission without organizer confirmation and individual safety check'}
 };
@@ -183,9 +182,16 @@ async function loadOnlineEvents(){
 document.querySelectorAll('[data-lang]').forEach(b=>b.addEventListener('click',()=>translate(b.dataset.lang)));
 el('event').addEventListener('change',renderEvent);el('age').addEventListener('change',ageChanged);
 el('rsvpform').addEventListener('submit',e=>{e.preventDefault();send('wa')});el('sendEmail').addEventListener('click',()=>send('email'));
-if(Date.now()>=Date.parse('2026-10-28T15:00:00+01:00')){const oldPaid=Array.from(el('event').options).find(o=>o.value==='COM-HIKE-20261028');if(oldPaid)oldPaid.remove();delete events['COM-HIKE-20261028'];}
+// COM-HIKE-20261028 permanently closed by organiser on 27 Oct 2026.
  if(Date.now()>=Date.parse('2026-11-02T20:00:00+01:00')){const oldOption=Array.from(el('event').options).find(o=>o.value==='SES-20261102');if(oldOption)oldOption.remove();}
-if(requested==='COM-HIKE-20261028' && Date.now()<Date.parse('2026-10-28T15:00:00+01:00')){const direct=document.createElement('div');direct.setAttribute('role','status');direct.style.cssText='padding:18px;margin-bottom:18px;border:1px solid #78a98b;border-radius:14px;background:#103829;color:#f3fff4';direct.innerHTML='<strong>28 Oct paid BrnoWalkers walk — direct messages only / bez formuláře</strong><p>Stránská skála → Bílá hora → Židenice · 12:00–15:00 · 100 Kč · 18+ · enquiry only, meeting point confirmed individually.</p><p><a style="color:#fff;font-weight:bold" href="https://wa.me/420702914842?text=WALK28">Message me on WhatsApp: +420 702 914 842</a></p><p><a style="color:#fff;font-weight:bold" href="https://t.me/Chareshneu">Telegram: @Chareshneu</a> · Email: chereshnev.biochem@gmail.com</p>';el('rsvpform').before(direct);el('rsvpform').style.display='none';}
+if(requested==='COM-HIKE-20261028'){
+  const cancelled=document.createElement('div');
+  cancelled.setAttribute('role','alert');
+  cancelled.style.cssText='padding:18px;margin:0 0 18px;border:2px solid #ffb5a9;border-radius:14px;background:#3c2424;color:#fff;line-height:1.6';
+  cancelled.innerHTML='<strong>❌ ZRUŠENO / CANCELLED / ОТМЕНЕНО — BrnoWalkers, 28 October 2026, 12:00–15:00</strong><p>The paid walk Stránská skála → Bílá hora → Židenice will NOT take place. / Tato placená vycházka se NEKONÁ. Please do not travel or pay.</p><p>If you have already paid, please contact <a style="color:white;text-decoration:underline" href="mailto:chereshnev.biochem@gmail.com?subject=BrnoWalkers%2028.10%20cancellation">the organiser</a> for an individual payment and refund check. The free hike on 1 November is unaffected.</p>';
+  el('rsvpform').before(cancelled);
+  el('rsvpform').style.display='none';
+}
 if(Array.from(el('event').options).some(o=>o.value===requested))el('event').value=requested;
 else if(requested==='SES-20261102')el('event').value='DM-REGULAR-INTEREST';
 renderEvent();translate((params.get('lang')||'en'));
