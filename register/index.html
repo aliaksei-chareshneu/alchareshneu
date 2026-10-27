@@ -68,10 +68,10 @@ footer{padding-top:28px;color:#a6c6b7;font-size:12px}
 <label class="check"><input id="safety" type="checkbox" required><span><strong data-i18n="safety">I have read and will follow the event safety rules. *</strong><span style="display:block;margin:5px 0"><a id="rules" href="./safety/" target="_blank" rel="noopener noreferrer" data-i18n="read">Read the rules ↗</a></span></span></label>
 <label class="check"><input id="photo" type="checkbox"><span data-i18n="photo">I permit publication of identifiable photos/videos of me from this event (optional; off by default).</span></label>
 <label class="check"><input id="future" type="checkbox"><span data-i18n="future">Send me occasional future event invitations from this organizer (optional; off by default).</span></label>
-<p class="tiny" data-i18n="privacy">Your details go to the organizer only after you press Send in WhatsApp or email. No data is submitted by this webpage. The organizer records received requests manually in the event CRM. Consent to photos and future invitations is optional and separate.</p>
+<p class="tiny" data-i18n="privacy">For open online events, Send securely stores your RSVP request with the organiser; this does not confirm a place. For other events, direct contact in WhatsApp/email is still manual. Photo and marketing permissions are separate and optional.</p>
 <p class="tiny"><a href="./privacy/" target="_blank" rel="noopener noreferrer" data-i18n="privacyLink">Privacy and data retention ↗</a></p>
 <div class="honeypot" aria-hidden="true"><label>Leave blank<input id="website" type="text" tabindex="-1" autocomplete="off"></label></div>
-<div class="actions"><button class="primary" id="sendWa" type="submit" data-i18n="submit">Continue to WhatsApp →</button><button class="secondary" id="sendEmail" type="button" data-i18n="mail">Prefer email? Prepare email →</button></div>
+<div class="actions"><button class="primary" id="sendWa" type="submit" data-i18n="submit">Send RSVP securely →</button><button class="secondary" id="sendEmail" type="button" data-i18n="mail">Contact by email (manual) →</button></div>
 <div id="feedback" class="notice hidden" role="status" aria-live="polite"></div>
 </form>
 </section>
@@ -88,10 +88,10 @@ const events={
 'PUB-OREL-20261114':{name:'Beginner historical fencing · Orel Husovice',date:'Saturday 14 Nov 2026 · 12:00–14:30',place:'Orlovna Husovice, Vranovská 93, Brno',price:'FREE · supervised soft weapons',rules:'../druzina/safety/',confirmation:'No admission without organizer confirmation and individual safety check'}
 };
 const dict={
-en:{eyebrow:'ONE MINUTE. ONE ADVENTURE.',heading:'Come along.<br><span>Meet your people.</span>',lead:'Discover Brno with us — on a hike or through historical fencing. Choose your event and send a short RSVP.',s1:'Pick an event',s2:'Leave contact details',s3:'Send your RSVP',formtitle:'Join the next experience',subtitle:'No Google login. Your place is confirmed only after the organizer replies.',event:'Which event? *',first:'First name *',last:'Surname *',email:'Email *',phone:'Phone / WhatsApp *',age:'Age group *',adult:'18 or older',minor:'Under 18 (guardian approval needed)',gname:'Guardian full name *',gphone:'Guardian phone *',attendance:'Will you attend? *',yes:'Yes',maybe:'Maybe',no:"Can't go",safety:'I have read and will follow the event safety rules. *',read:'Read the rules ↗',photo:'I permit publication of identifiable photos/videos of me from this event (optional; off by default).',future:'Send me occasional future event invitations from this organizer (optional; off by default).',privacy:'Your details go to the organizer only after you press Send in WhatsApp or email. This webpage does not store your details. Received requests are added manually to the event CRM. Photo permission and future invitations are separate optional choices.',privacyLink:'Privacy and retention ↗',submit:'Continue to WhatsApp →',mail:'Prefer email? Prepare email →',feedback:'WhatsApp/email is open. You must press SEND there. Your place is not reserved until the organizer replies.',invalid:'Please enter a valid phone number and complete all required fields.',cancelled:'Cannot send while that event is not selected.'},
-cs:{eyebrow:'MINUTA A JDEŠ.',heading:'Přidej se.<br><span>Poznej své lidi.</span>',lead:'Objevuj Brno na výletech a při historickém šermu. Vyber akci a odešli krátkou přihlášku.',s1:'Vyber akci',s2:'Zadej kontakty',s3:'Odešli zprávu',formtitle:'Přihlášení na akci',subtitle:'Bez účtu Google. Účast platí až po odpovědi organizátora.',event:'Která akce? *',first:'Jméno *',last:'Příjmení *',email:'E-mail *',phone:'Telefon / WhatsApp *',age:'Věk *',adult:'18 a více',minor:'Méně než 18 (nutný souhlas rodiče)',gname:'Jméno zákonného zástupce *',gphone:'Telefon zástupce *',attendance:'Přijdete? *',yes:'Ano',maybe:'Možná',no:'Nepřijdu',safety:'Přečetl/a jsem si bezpečnostní pravidla a budu je dodržovat. *',read:'Přečíst pravidla ↗',photo:'Souhlasím se zveřejněním fotografií/videa, na nichž mě lze poznat (nepovinné).',future:'Chci občasné pozvánky na další akce tohoto organizátora (nepovinné).',privacy:'Vaše údaje obdrží pořadatel až po odeslání zprávy ve WhatsAppu či e-mailu. Web nic neukládá. Doručené zprávy pořadatel zapíše ručně do CRM. Souhlas s fotkami a pozvánkami je nezávislý a nepovinný.',privacyLink:'Ochrana údajů a uchování ↗',submit:'Pokračovat do WhatsAppu →',mail:'Raději e-mail? Připravit e-mail →',feedback:'WhatsApp nebo e-mail je otevřen. Tam musíte stisknout ODESLAT. Účast platí až po potvrzení pořadatelem.',invalid:'Zadejte správné telefonní číslo a vyplňte povinné položky.',cancelled:'Nejdříve vyberte akci.'},
-ru:{eyebrow:'МИНУТА — И В ПУТЬ.',heading:'Присоединяйся.<br><span>Найди своих.</span>',lead:'Исследуй Брно с нами: походы и историческое фехтование. Выбери событие и отправь короткую заявку.',s1:'Выбери событие',s2:'Оставь контакты',s3:'Отправь сообщение',formtitle:'Запись на мероприятие',subtitle:'Без аккаунта Google. Участие только после ответа организатора.',event:'Какое мероприятие? *',first:'Имя *',last:'Фамилия *',email:'Email *',phone:'Телефон / WhatsApp *',age:'Возраст *',adult:'18 лет или старше',minor:'Младше 18 (нужно согласие родителя)',gname:'Имя и фамилия родителя *',gphone:'Телефон родителя *',attendance:'Придёшь? *',yes:'Да',maybe:'Возможно',no:'Не приду',safety:'Я прочитал(а) правила безопасности и обязуюсь их соблюдать. *',read:'Прочитать правила ↗',photo:'Разрешаю публикацию узнаваемых фото/видео со мной (необязательно).',future:'Хочу иногда получать приглашения на будущие мероприятия организатора (необязательно).',privacy:'Контакты попадут организатору только после отправки сообщения через WhatsApp или email. Сайт ничего не сохраняет. Полученные заявки заносятся в CRM вручную. Разрешения на фото и рассылки отдельные и необязательные.',privacyLink:'Конфиденциальность и сроки хранения ↗',submit:'Перейти в WhatsApp →',mail:'Удобнее email? Подготовить письмо →',feedback:'WhatsApp/email открыт. Нужно нажать ОТПРАВИТЬ там. Запись считается подтверждённой только после ответа организатора.',invalid:'Проверьте телефон и обязательные поля.',cancelled:'Сначала выберите мероприятие.'},
-uk:{eyebrow:'ХВИЛИНА — І В ДОРОГУ.',heading:'Приєднуйся.<br><span>Знайди своїх.</span>',lead:'Досліджуй Брно з нами: походи та історичне фехтування. Обери подію та надішли заявку.',s1:'Обери подію',s2:'Залиш контакти',s3:'Надішли повідомлення',formtitle:'Реєстрація на подію',subtitle:'Без облікового запису Google. Участь лише після відповіді організатора.',event:'Яка подія? *',first:"Ім'я *",last:'Прізвище *',email:'Email *',phone:'Телефон / WhatsApp *',age:'Вік *',adult:'18 років або більше',minor:'До 18 (потрібна згода батьків)',gname:"Ім'я опікуна *",gphone:'Телефон опікуна *',attendance:'Ви прийдете? *',yes:'Так',maybe:'Можливо',no:'Не прийду',safety:'Я ознайомився(-лася) та зобов’язуюся дотримуватися правил безпеки. *',read:'Прочитати правила ↗',photo:'Дозволяю публікацію впізнаваних фото/відео зі мною (необов’язково).',future:'Хочу іноді отримувати запрошення на майбутні події організатора (необов’язково).',privacy:'Контакти отримає організатор лише після надсилання повідомлення через WhatsApp або email. Сайт нічого не зберігає. Отримані заявки вносяться до CRM вручну. Дозволи на фото та розсилки окремі й необов’язкові.',privacyLink:'Конфіденційність і зберігання ↗',submit:'Відкрити WhatsApp →',mail:'Зручніше email? Підготувати лист →',feedback:'WhatsApp або email відкрито. Потрібно натиснути НАДІСЛАТИ. Участь після підтвердження організатора.',invalid:'Перевірте телефон і обов’язкові поля.',cancelled:'Спочатку оберіть подію.'}
+en:{eyebrow:'ONE MINUTE. ONE ADVENTURE.',heading:'Come along.<br><span>Meet your people.</span>',lead:'Discover Brno with us — on a hike or through historical fencing. Choose your event and send a short RSVP.',s1:'Pick an event',s2:'Leave contact details',s3:'Send your RSVP',formtitle:'Join the next experience',subtitle:'No Google login. Your place is confirmed only after the organizer replies.',event:'Which event? *',first:'First name *',last:'Surname *',email:'Email *',phone:'Phone / WhatsApp *',age:'Age group *',adult:'18 or older',minor:'Under 18 (guardian approval needed)',gname:'Guardian full name *',gphone:'Guardian phone *',attendance:'Will you attend? *',yes:'Yes',maybe:'Maybe',no:"Can't go",safety:'I have read and will follow the event safety rules. *',read:'Read the rules ↗',photo:'I permit publication of identifiable photos/videos of me from this event (optional; off by default).',future:'Send me occasional future event invitations from this organizer (optional; off by default).',privacy:'Online RSVP requests are saved securely for the organizer and can be transferred to a private CRM. Other events use manual WhatsApp/email contact. A submitted request is not an approved place; photo and future invitation choices are independent.',privacyLink:'Privacy and retention ↗',submit:'Send RSVP securely →',mail:'Contact by email (manual) →',feedback:'WhatsApp or email opened; press SEND there. This contact-only message is not saved automatically in CRM.',invalid:'Please enter a valid phone number and complete all required fields.',cancelled:'Cannot send while that event is not selected.'},
+cs:{eyebrow:'MINUTA A JDEŠ.',heading:'Přidej se.<br><span>Poznej své lidi.</span>',lead:'Objevuj Brno na výletech a při historickém šermu. Vyber akci a odešli krátkou přihlášku.',s1:'Vyber akci',s2:'Zadej kontakty',s3:'Odešli zprávu',formtitle:'Přihlášení na akci',subtitle:'Bez účtu Google. Účast platí až po odpovědi organizátora.',event:'Která akce? *',first:'Jméno *',last:'Příjmení *',email:'E-mail *',phone:'Telefon / WhatsApp *',age:'Věk *',adult:'18 a více',minor:'Méně než 18 (nutný souhlas rodiče)',gname:'Jméno zákonného zástupce *',gphone:'Telefon zástupce *',attendance:'Přijdete? *',yes:'Ano',maybe:'Možná',no:'Nepřijdu',safety:'Přečetl/a jsem si bezpečnostní pravidla a budu je dodržovat. *',read:'Přečíst pravidla ↗',photo:'Souhlasím se zveřejněním fotografií/videa, na nichž mě lze poznat (nepovinné).',future:'Chci občasné pozvánky na další akce tohoto organizátora (nepovinné).',privacy:'Online přihlášky se bezpečně ukládají pro pořadatele a mohou být převedeny do neveřejného CRM. Ostatní akce využívají ruční zprávu WhatsApp/e-mail. Přihláška není potvrzené místo; souhlasy s fotkami a pozvánkami jsou oddělené.',privacyLink:'Ochrana údajů a uchování ↗',submit:'Odeslat přihlášku bezpečně →',mail:'Kontaktovat e-mailem (ručně) →',feedback:'WhatsApp nebo e-mail je otevřen; tam stiskněte ODESLAT. Tato zpráva se automaticky neuloží do CRM.',invalid:'Zadejte správné telefonní číslo a vyplňte povinné položky.',cancelled:'Nejdříve vyberte akci.'},
+ru:{eyebrow:'МИНУТА — И В ПУТЬ.',heading:'Присоединяйся.<br><span>Найди своих.</span>',lead:'Исследуй Брно с нами: походы и историческое фехтование. Выбери событие и отправь короткую заявку.',s1:'Выбери событие',s2:'Оставь контакты',s3:'Отправь сообщение',formtitle:'Запись на мероприятие',subtitle:'Без аккаунта Google. Участие только после ответа организатора.',event:'Какое мероприятие? *',first:'Имя *',last:'Фамилия *',email:'Email *',phone:'Телефон / WhatsApp *',age:'Возраст *',adult:'18 лет или старше',minor:'Младше 18 (нужно согласие родителя)',gname:'Имя и фамилия родителя *',gphone:'Телефон родителя *',attendance:'Придёшь? *',yes:'Да',maybe:'Возможно',no:'Не приду',safety:'Я прочитал(а) правила безопасности и обязуюсь их соблюдать. *',read:'Прочитать правила ↗',photo:'Разрешаю публикацию узнаваемых фото/видео со мной (необязательно).',future:'Хочу иногда получать приглашения на будущие мероприятия организатора (необязательно).',privacy:'Онлайн-заявки безопасно сохраняются для организатора и могут переноситься в закрытую CRM. Остальные обращения отправляются вручную через WhatsApp/email. Заявка не означает подтверждения места; согласия на фото и рассылку отдельные.',privacyLink:'Конфиденциальность и сроки хранения ↗',submit:'Отправить заявку →',mail:'Написать email вручную →',feedback:'WhatsApp или почта открыты; нажмите ОТПРАВИТЬ там. Такое сообщение не сохраняется в CRM автоматически.',invalid:'Проверьте телефон и обязательные поля.',cancelled:'Сначала выберите мероприятие.'},
+uk:{eyebrow:'ХВИЛИНА — І В ДОРОГУ.',heading:'Приєднуйся.<br><span>Знайди своїх.</span>',lead:'Досліджуй Брно з нами: походи та історичне фехтування. Обери подію та надішли заявку.',s1:'Обери подію',s2:'Залиш контакти',s3:'Надішли повідомлення',formtitle:'Реєстрація на подію',subtitle:'Без облікового запису Google. Участь лише після відповіді організатора.',event:'Яка подія? *',first:"Ім'я *",last:'Прізвище *',email:'Email *',phone:'Телефон / WhatsApp *',age:'Вік *',adult:'18 років або більше',minor:'До 18 (потрібна згода батьків)',gname:"Ім'я опікуна *",gphone:'Телефон опікуна *',attendance:'Ви прийдете? *',yes:'Так',maybe:'Можливо',no:'Не прийду',safety:'Я ознайомився(-лася) та зобов’язуюся дотримуватися правил безпеки. *',read:'Прочитати правила ↗',photo:'Дозволяю публікацію впізнаваних фото/відео зі мною (необов’язково).',future:'Хочу іноді отримувати запрошення на майбутні події організатора (необов’язково).',privacy:'Онлайн-заявки безпечно зберігаються для організатора і можуть передаватися до закритої CRM. Інші звернення надсилаються вручну через WhatsApp/email. Заявка не підтверджує місце; дозволи на фото й розсилки окремі.',privacyLink:'Конфіденційність і зберігання ↗',submit:'Надіслати заявку →',mail:'Написати email вручну →',feedback:'Відкрився WhatsApp або email; натисніть НАДІСЛАТИ там. Цей запит не зберігається до CRM автоматично.',invalid:'Перевірте телефон і обов’язкові поля.',cancelled:'Спочатку оберіть подію.'}
 };
 let lang='en';let evt='';const el=id=>document.getElementById(id), params=new URLSearchParams(location.search),requested=params.get('event')||'';const source=/^[a-zA-Z0-9_-]{1,45}$/.test(params.get('src')||'')?params.get('src'):'site_direct';
 function translate(l){lang=dict[l]?l:'en';document.documentElement.lang=lang;document.querySelectorAll('[data-lang]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.lang===lang?'true':'false'));document.querySelectorAll('[data-i18n]').forEach(n=>{const v=dict[lang][n.dataset.i18n];if(v){if(n.dataset.i18n==='heading')n.innerHTML=v;else n.textContent=v;}});}
@@ -101,7 +101,84 @@ function collect(){const data=events[evt];const id=x=>el(x).value.trim();return 
 function textPayload(d){return ['EVENT RSVP / WEBSITE','Event: '+d.eventName+' ['+d.event+']','Name: '+d.first+' '+d.last,'Email: '+d.email,'Phone: '+d.phone,'Attendance: '+d.rsvp,'Age: '+d.age+(d.age==='minor'?' (guardian approval required)':''),...(d.age==='minor'?['Guardian: '+d.guardianName,'Guardian phone: '+d.guardianPhone]:[]),'Safety rules read and accepted: '+d.safety,'Rules: '+d.safetyUrl,'Permission to publish identifiable photos/video: '+d.photo,'Opt-in to future event invitations: '+d.future,'Source: '+d.src,'Please confirm personally; sending this request does NOT reserve a place.'].join('\n');}
 function validate(){if(el('event').value==='COM-HIKE-20261028'&&el('age').value==='minor'){show('This 28 October commercial walk is for adults (18+) only.',true);return false;}if(!el('rsvpform').reportValidity())return false;const digits=el('phone').value.replace(/\D/g,'');if(digits.length<7||digits.length>15){show(dict[lang].invalid,true);el('phone').focus();return false;}if(el('age').value==='minor'){const n=el('guardianPhone').value.replace(/\D/g,'');if(n.length<7||n.length>15){show(dict[lang].invalid,true);return false;}}if(!events[el('event').value]){show(dict[lang].cancelled,true);return false;}return true;}
 function show(msg,bad){const e=el('feedback');e.textContent=msg;e.classList.remove('hidden');e.classList.toggle('error',!!bad);}
-function send(channel){if(!validate())return;const d=collect();const body=textPayload(d);if(el('website').value)return;const url=channel==='wa'?'https://wa.me/420702914842?text='+encodeURIComponent(body):'mailto:chereshnev.biochem@gmail.com?subject='+encodeURIComponent('Event RSVP: '+d.eventName)+'&body='+encodeURIComponent(body);show(dict[lang].feedback,false);window.open(url,'_blank','noopener,noreferrer');}
+
+const RSVP_ENDPOINT='https://cmrknyhnnehyjpreehcf.supabase.co/functions/v1/imperion-register';
+let rsvpOnlineIds=new Set(['PUB-HIKE-20261101','PUB-HIKE-20261128']);
+const rsvpMessages={
+en:['Saving your request securely…','Request saved. The organiser must personally confirm your place. Do not pay or travel before confirmation.','Unable to verify the server response. Your request may already be saved: contact the organiser with this event ID rather than resubmitting repeatedly.','This event uses direct contact only. WhatsApp/email opened; you must press SEND there. This is not automatically saved in CRM.'],
+cs:['Bezpečně ukládáme přihlášku…','Přihláška uložena. Místo potvrdí pořadatel osobně. Do potvrzení neplaťte ani necestujte.','Odpověď serveru se nepodařilo ověřit. Žádost již může být uložena; napište pořadateli kód akce místo opakovaného odesílání.','Tato akce vyžaduje přímý kontakt. Otevřel se WhatsApp/e-mail, kde musíte stisknout ODESLAT. Do CRM se zpráva automaticky neuloží.'],
+ru:['Сохраняем заявку…','Заявка сохранена. Место подтверждает организатор лично. Не платите и не приезжайте без подтверждения.','Не удалось проверить ответ сервера. Заявка уже могла сохраниться: напишите организатору код события вместо повторных отправок.','Для этого события работает только личное обращение. Открылся WhatsApp/email; нажмите там ОТПРАВИТЬ. В CRM оно автоматически не попадёт.'],
+uk:['Зберігаємо заявку…','Заявку збережено. Місце організатор підтверджує особисто. Не платіть і не приходьте без підтвердження.','Не вдалося перевірити відповідь сервера. Заявка могла зберегтися: напишіть організатору код події, а не відправляйте повторно.','Для цієї події лише особисте звернення. Відкрився WhatsApp/email; там натисніть НАДІСЛАТИ. До CRM автоматично не потрапить.']
+};
+function manualContact(channel,d){
+ const body=textPayload(d);
+ const url=channel==='wa'?'https://wa.me/420702914842?text='+encodeURIComponent(body):
+ 'mailto:chereshnev.biochem@gmail.com?subject='+encodeURIComponent('Event RSVP: '+d.eventName)+'&body='+encodeURIComponent(body);
+ show((rsvpMessages[lang]||rsvpMessages.en)[3],false);
+ window.open(url,'_blank','noopener,noreferrer');
+}
+async function send(channel){
+ if(!validate()||el('website').value)return;
+ const d=collect();
+ if(channel==='email'){manualContact('email',d);return;}
+ if(!rsvpOnlineIds.has(d.event)){manualContact('wa',d);return;}
+ const button=el('sendWa');if(button.disabled)return;
+ button.disabled=true;show((rsvpMessages[lang]||rsvpMessages.en)[0],false);
+ const abort=new AbortController(),timer=setTimeout(()=>abort.abort(),17000);
+ try{
+   const response=await fetch(RSVP_ENDPOINT,{
+    method:'POST',mode:'cors',credentials:'omit',cache:'no-store',
+    headers:{'Content-Type':'application/json'},signal:abort.signal,
+    body:JSON.stringify({
+      eventId:d.event,firstName:d.first,lastName:d.last,
+      email:d.email,phone:d.phone,ageGroup:d.age==='minor'?'under18':'adult',
+      guardianName:d.age==='minor'?d.guardianName:null,
+      guardianPhone:d.age==='minor'?d.guardianPhone:null,
+      rsvp:d.rsvp,safety:el('safety').checked,photo:d.photo,
+      futureUpdates:d.age==='adult'&&d.future==='YES',
+      language:lang,website:el('website').value
+    })
+   });
+   const result=await response.json().catch(()=>({}));
+   if(!response.ok||result.ok!==true){
+    show(response.status===429?'Too many requests. Contact the organiser directly.':(rsvpMessages[lang]||rsvpMessages.en)[2],true);
+    return;
+   }
+   show((rsvpMessages[lang]||rsvpMessages.en)[1],false);
+   el('rsvpform').reset();el('event').value=d.event;ageChanged();renderEvent();
+ }catch(error){show((rsvpMessages[lang]||rsvpMessages.en)[2],true);}
+ finally{clearTimeout(timer);button.disabled=false;}
+}
+async function loadOnlineEvents(){
+ try{
+  const response=await fetch(RSVP_ENDPOINT,{method:'GET',mode:'cors',credentials:'omit',cache:'no-store'});
+  if(!response.ok)return;
+  const data=await response.json();if(!Array.isArray(data.events))return;
+  const open=data.events.filter(ev=>ev&&ev.is_open===true&&ev.registration_mode==='FORM'&&
+    ev.source_active===true&&ev.price_verified===true&&ev.end_time_verified===true&&
+    /^[A-Za-z0-9-]{2,100}$/.test(String(ev.event_id||'')));
+  rsvpOnlineIds=new Set(open.map(ev=>ev.event_id));
+  for(const ev of open){
+   const dt=new Date(ev.begins_at);
+   const when=Number.isFinite(dt.getTime())?new Intl.DateTimeFormat('en-GB',{
+    timeZone:'Europe/Prague',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'
+   }).format(dt):'Date by arrangement';
+   const data={name:String(ev.title||ev.event_id).slice(0,180),date:when,
+    place:String(ev.venue||'Meeting point individually confirmed').slice(0,300),
+    price:Number(ev.price_czk)===0?'FREE / zdarma':String(ev.price_czk)+' Kč',
+    rules:String(ev.rules_url||'./safety/'),confirmation:'Online RSVP request; organiser confirmation required.'};
+   events[ev.event_id]=data;
+   if(!Array.from(el('event').options).some(opt=>opt.value===ev.event_id)){
+    const option=document.createElement('option');
+    option.value=ev.event_id;option.textContent=data.name+' · '+when;el('event').appendChild(option);
+   }
+  }
+  if(requested&&events[requested]&&Array.from(el('event').options).some(opt=>opt.value===requested))
+   el('event').value=requested;
+  renderEvent();
+ }catch(error){/* Safe fallback: backend still verifies eligibility on POST. */}
+}
+
 document.querySelectorAll('[data-lang]').forEach(b=>b.addEventListener('click',()=>translate(b.dataset.lang)));
 el('event').addEventListener('change',renderEvent);el('age').addEventListener('change',ageChanged);
 el('rsvpform').addEventListener('submit',e=>{e.preventDefault();send('wa')});el('sendEmail').addEventListener('click',()=>send('email'));
@@ -111,6 +188,7 @@ if(requested==='COM-HIKE-20261028' && Date.now()<Date.parse('2026-10-28T15:00:00
 if(Array.from(el('event').options).some(o=>o.value===requested))el('event').value=requested;
 else if(requested==='SES-20261102')el('event').value='DM-REGULAR-INTEREST';
 renderEvent();translate((params.get('lang')||'en'));
+loadOnlineEvents();
 })();
 </script>
 </body></html>
