@@ -156,7 +156,8 @@ async function loadOnlineEvents(){
   const data=await response.json();if(!Array.isArray(data.events))return;
   const open=data.events.filter(ev=>ev&&ev.is_open===true&&ev.registration_mode==='FORM'&&
     ev.source_active===true&&ev.price_verified===true&&ev.end_time_verified===true&&
-    /^[A-Za-z0-9-]{2,100}$/.test(String(ev.event_id||'')));
+    ev.contact_activity===false&&Number(ev.price_czk)===0&&
+    /^PUB-HIKE-[0-9]{8}$/.test(String(ev.event_id||'')));
   rsvpOnlineIds=new Set(open.map(ev=>ev.event_id));
   for(const ev of open){
    const dt=new Date(ev.begins_at);
