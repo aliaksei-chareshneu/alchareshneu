@@ -38,6 +38,15 @@ a{color:var(--mint)}button,input,select{font:inherit}button{cursor:pointer}.skip
 .mobile-jump{display:none}.retry{font:inherit;color:var(--mint);border:1px solid var(--mint);background:transparent;padding:10px 16px;min-height:44px;border-radius:12px;margin:0 0 12px;cursor:pointer}.explainer{max-width:800px;margin:38px auto 0;padding:22px 0;border-top:1px solid var(--line);color:var(--muted)}.explainer h2{font-size:21px;color:var(--text)}.explainer-links{display:flex;gap:12px;flex-wrap:wrap}.mobile-jump:focus-visible,.retry:focus-visible{outline:3px solid var(--mint);outline-offset:3px}
 @media(max-width:750px){.mobile-jump{display:inline-flex;color:#0b2b24;background:var(--mint);text-decoration:none;padding:11px 17px;border-radius:12px;font-weight:800;min-height:44px;align-items:center;margin:12px 0 4px}.pitch h1{font-size:clamp(32px,9vw,45px)}.layout{grid-template-columns:1fr;gap:14px;margin-top:22px}.pitch h1{margin:9px 0}.steps{display:none}.panel{border-radius:17px}.cols{grid-template-columns:1fr;gap:0}.cols .field{margin:12px 0}.lede{max-width:none}}
 
+.consent-choices{border:1px solid #6b8f84;border-radius:13px;padding:13px 14px 8px;margin:18px 0 22px;background:rgba(15,54,47,.5);min-width:0}
+.consent-choices legend{padding:0 8px;font-weight:800;color:var(--mint)}.consent-help{font-size:13px;color:var(--muted);margin:2px 0 10px}
+.consent-choices .check{margin:10px 0;padding:9px;border-radius:10px;background:rgba(255,255,255,.025)}
+.consent-choices .check label{cursor:pointer}
+.contact-alternatives{display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));gap:9px;margin:12px 0}
+.contact-option{display:flex;align-items:center;justify-content:center;min-height:44px;border:1px solid #78aa9c;border-radius:11px;background:#173a3d;color:#d9ffec;text-decoration:none;font-weight:750;padding:9px 13px}
+.contact-option:hover,.contact-option:focus-visible{outline:2px solid var(--mint);outline-offset:2px}
+.contact-group{margin-top:15px}.contact-group .contact-lead{font-size:13px;color:var(--muted);margin:0 0 8px}
+
 /* Compact event picker. Existing palette and visual design are unchanged. */
 .event-picker{position:relative}.event-search{width:100%;min-height:49px;border:1px solid #759096;background:#0c202b;color:#fff;border-radius:12px;padding:11px 14px;font:inherit}
 .event-search:focus-visible,.match-option:focus-visible{outline:3px solid var(--mint);outline-offset:2px}
@@ -68,20 +77,21 @@ a{color:var(--mint)}button,input,select{font:inherit}button{cursor:pointer}.skip
       <form id="rsvpForm" hidden novalidate>
         <div class="field event-picker" id="eventPicker"><label class="required" for="eventSearch" data-i18n="event">Мероприятие</label><input type="search" id="eventSearch" class="event-search" role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="eventMatches" autocomplete="off"><div id="eventMatches" class="event-matches" role="listbox" hidden></div><select id="eventId" required class="screenreader" aria-label="Selected event"><option value="">Vyberte akci…</option></select><p id="catalogSummary" class="catalog-summary" role="status" aria-live="polite"></p></div>
         <div id="eventInfo" class="info" aria-live="polite" hidden></div><div id="rsvpDetails" hidden>
+        <fieldset class="consent-choices" id="optionalConsents"><legend id="optionalConsentLabel">Další dobrovolné souhlasy</legend><p id="optionalConsentNote" class="consent-help"></p><div class="check"><label><input id="photo" type="checkbox"><span><strong data-i18n="photoHead">По желанию разрешаю фото и видео со мной</strong> <span data-i18n="photoNote">для публикации на каналах организатора. Отказ не мешает участию. Для несовершеннолетних нужно отдельное разрешение опекуна.</span></span></label></div>
+        <div class="check"><label><input id="future" type="checkbox"><span><strong data-i18n="updatesHead">Хочу иногда получать приглашения на мероприятия (по желанию).</strong> <span data-i18n="updatesNote">Без спама. Для приглашений требуется дополнительное подтверждение; отказаться можно по email.</span></span></label></div>
+        </fieldset>
         <div class="cols"><div class="field"><label class="required" for="firstName" data-i18n="first">Имя</label><input id="firstName" type="text" name="given-name" autocomplete="given-name" minlength="2" maxlength="80" required></div><div class="field"><label class="required" for="lastName" data-i18n="last">Фамилия</label><input id="lastName" type="text" name="family-name" autocomplete="family-name" minlength="2" maxlength="80" required></div></div>
         <div class="cols"><div class="field"><label class="required" for="email" data-i18n="email">Электронная почта</label><input id="email" type="email" name="email" autocomplete="email" maxlength="254" required></div><div class="field"><label class="required" for="phone" data-i18n="phone">Телефон</label><input id="phone" type="tel" name="tel" autocomplete="tel" maxlength="35" pattern="[+0-9() .-]{7,35}" placeholder="+420 777 123 456" required></div></div>
         <fieldset class="field"><legend class="required" data-i18n="age">Возраст участника</legend><div class="choices"><label><input type="radio" name="age" value="adult" required checked><span data-i18n="adult">18 лет и старше</span></label><label><input type="radio" name="age" value="under18"><span data-i18n="minor">Младше 18 лет</span></label></div></fieldset>
         <div id="guardian" class="cols" hidden><div class="field"><label class="required" for="guardianName" data-i18n="guardianName">Имя законного представителя</label><input id="guardianName" maxlength="80" autocomplete="off"></div><div class="field"><label class="required" for="guardianPhone" data-i18n="guardianPhone">Телефон представителя</label><input id="guardianPhone" type="tel" maxlength="35" autocomplete="off"></div></div>
         <fieldset class="field"><legend class="required" data-i18n="attendance">Планируете прийти?</legend><div class="choices"><label><input type="radio" name="rsvp" value="YES" required checked><span data-i18n="yes">Да</span></label><label><input type="radio" name="rsvp" value="MAYBE"><span data-i18n="maybe">Возможно</span></label><label><input type="radio" name="rsvp" value="NO"><span data-i18n="no">Нет</span></label></div></fieldset>
         <div class="check"><label><input id="safety" type="checkbox" required><span><strong data-i18n="safetyHead">С правилами безопасности согласен(на) (обязательно).</strong> <span data-i18n="safetyNote">Я ознакомился(лась) с инструкциями. Это не отказ от законных прав и не подтверждение страховки.</span> <a id="rulesLink" href="../safety/" target="_blank" rel="noopener" data-i18n="readRules">Прочитать правила ↗</a></span></label></div>
-        <details class="extras" id="optionalConsents"><summary id="optionalConsentLabel"></summary><div class="check"><label><input id="photo" type="checkbox"><span><strong data-i18n="photoHead">По желанию разрешаю фото и видео со мной</strong> <span data-i18n="photoNote">для публикации на каналах организатора. Отказ не мешает участию. Для несовершеннолетних нужно отдельное разрешение опекуна.</span></span></label></div>
-        <div class="check"><label><input id="future" type="checkbox"><span><strong data-i18n="updatesHead">Хочу иногда получать приглашения на мероприятия (по желанию).</strong> <span data-i18n="updatesNote">Без спама. Для приглашений требуется дополнительное подтверждение; отказаться можно по email.</span></span></label></div>
-        </details><div class="screenreader" aria-hidden="true"><label for="website">Website</label><input id="website" tabindex="-1" autocomplete="off"></div>
+        <div class="screenreader" aria-hidden="true"><label for="website">Website</label><input id="website" tabindex="-1" autocomplete="off"></div>
         <p class="muted" style="font-size:13px" data-i18n="privacy">Контакты надёжно хранятся в ЕС и используются для организации участия. <a href="../privacy/">Конфиденциальность</a></p>
         <button id="submit" class="button" type="submit" data-i18n="send">Отправить заявку →</button></div>
       </form>
       <section id="result" class="state" role="status" aria-live="polite" tabindex="-1" hidden></section>
-      <div id="fallback" role="alert" hidden><p data-i18n="fallback">Онлайн-запись временно недоступна. Свяжитесь с организатором — запрос не является бронью.</p><button type="button" id="retry" class="retry" data-i18n="retry">Повторить загрузку мероприятий</button><a class="button" id="trainingFallback" href="/alchareshneu/druzina/prihlaska/?lang=cs" style="display:block;text-align:center;text-decoration:none;margin:10px 0">HEMA: nezávazná přihláška / training enquiry</a><a class="button" id="contactLink" style="display:block;text-align:center;text-decoration:none" href="mailto:chereshnev.biochem@gmail.com?subject=Event%20registration%20question" data-i18n="contact">Написать организатору ↗</a></div>
+      <div id="fallback" role="alert" hidden><p data-i18n="fallback">Онлайн-запись временно недоступна. Свяжитесь с организатором — запрос не является бронью.</p><button type="button" id="retry" class="retry" data-i18n="retry">Повторить загрузку мероприятий</button><a class="button" id="trainingFallback" href="/alchareshneu/druzina/prihlaska/?lang=cs" style="display:block;text-align:center;text-decoration:none;margin:10px 0">HEMA: nezávazná přihláška / training enquiry</a><a class="button" id="contactLink" style="display:block;text-align:center;text-decoration:none" href="mailto:chereshnev.biochem@gmail.com?subject=Event%20registration%20question" data-i18n="contact">Написать организатору ↗</a><div class="contact-alternatives" id="fallbackChannels" aria-label="Telegram, WhatsApp, SMS"><a class="contact-option" href="https://t.me/Chareshneu" target="_blank" rel="noopener noreferrer">Telegram</a><a class="contact-option" href="https://wa.me/420702914842?text=Hello%2C%20I%20have%20a%20question%20about%20event%20registration." target="_blank" rel="noopener noreferrer">WhatsApp</a><a class="contact-option" href="sms:+420702914842?body=Hello%2C%20I%20have%20an%20event%20registration%20question.">SMS</a></div></div>
     </section>
   </main>
   <section class="explainer" aria-labelledby="about-registration"><h2 id="about-registration" data-i18n="explainerTitle">Как записаться на походы и мероприятия в Брно?</h2><p data-i18n="explainerText">Выберите открытый поход BrnoWalkers или другое подтверждённое мероприятие, оставьте контакты и ознакомьтесь с правилами безопасности. Организатор отдельно подтвердит участие; отправка формы не является оплатой или гарантией места.</p><p class="explainer-links"><a href="../../walkers/" data-i18n="walkersInfo">Походы и прогулки BrnoWalkers</a><span aria-hidden="true">·</span><a href="../../druzina/" data-i18n="druzinaInfo">О клубе Družina Moravy</a></p></section>
@@ -99,6 +109,38 @@ const translations={
 };
 let lang='cs',events=[];
 
+
+const CONTACT_COPY={
+ cs:{consent:'Obě volby jsou dobrovolné a nezávislé. Odmítnutí nebrání účasti.',lead:'Zvolte způsob kontaktu. Zpráva sama není potvrzením účasti.',request:'Dobrý den, rád(a) bych ověřil(a) podmínky a účast na akci',fallback:'Dobrý den, potřebuji pomoc s registrací na akci.'},
+ en:{consent:'Both options are voluntary and independent. Declining does not affect participation.',lead:'Choose a contact method. A message does not confirm attendance.',request:'Hello, could you clarify the details and confirm participation in the event',fallback:'Hello, I need help registering for an event.'},
+ ru:{consent:'Оба согласия добровольны и независимы. Отказ не влияет на участие.',lead:'Выберите способ связи. Сообщение само по себе не подтверждает участие.',request:'Здравствуйте, прошу уточнить условия и подтвердить участие в мероприятии',fallback:'Здравствуйте, нужна помощь с записью на мероприятие.'},
+ uk:{consent:'Обидві згоди добровільні та незалежні. Відмова не впливає на участь.',lead:'Оберіть спосіб зв’язку. Повідомлення саме по собі не підтверджує участь.',request:'Вітаю, прошу уточнити умови й підтвердити участь у події',fallback:'Вітаю, потрібна допомога з реєстрацією на подію.'}
+};
+function contactChannels(event){
+ const tr=CONTACT_COPY[lang]||CONTACT_COPY.cs;
+ const msg=event?tr.request+' «'+event.title+'» ('+eventDate(event)+').':tr.fallback;
+ return [
+  {name:'WhatsApp',url:'https://wa.me/420702914842?text='+encodeURIComponent(msg)},
+  {name:'Telegram',url:'https://t.me/Chareshneu'},
+  {name:'SMS',url:'sms:+420702914842?body='+encodeURIComponent(msg)},
+  {name:'E-mail',url:'mailto:chereshnev.biochem@gmail.com?subject='+encodeURIComponent(event?'Event: '+event.title:'Event registration')+'&body='+encodeURIComponent(msg)}
+ ];
+}
+function renderEventContacts(info,event,action){
+ const whitelisted=['https://wa.me/420702914842','https://t.me/Chareshneu','mailto:chereshnev.biochem@gmail.com'];
+ if(!whitelisted.some(x=>action===x||action.startsWith(x+'?')))return;
+ const preferred=action.startsWith('https://wa.me/')?'WhatsApp':action.startsWith('https://t.me/')?'Telegram':'E-mail';
+ const outer=document.createElement('div');outer.className='contact-group';
+ const p=document.createElement('p');p.className='contact-lead';p.textContent=(CONTACT_COPY[lang]||CONTACT_COPY.cs).lead;outer.append(p);
+ const main=document.createElement('a');main.className='button contact-cta';main.href=action;main.textContent=ct('ask')+' · '+preferred;
+ if(action.startsWith('https:')){main.target='_blank';main.rel='noopener noreferrer';}outer.append(main);
+ const nav=document.createElement('nav');nav.className='contact-alternatives';nav.setAttribute('aria-label','Telegram, WhatsApp, SMS, E-mail');
+ contactChannels(event).filter(x=>x.name!==preferred).forEach(x=>{
+  const a=document.createElement('a');a.className='contact-option';a.href=x.url;a.textContent=x.name;
+  if(x.url.startsWith('https:')){a.target='_blank';a.rel='noopener noreferrer';}nav.append(a);
+ });
+ outer.append(nav);info.append(outer);
+}
 const catalogText={
 cs:{search:"Hledat událost, místo nebo datum…",total:"Akcí",open:"Online přihláška",manual:"Přímý kontakt",planned:"Čeká na potvrzení",empty:"Žádné výsledky",ask:"Napsat pořadateli ↗",planNote:"Registrace zatím není otevřena. Termín a podmínky musí být potvrzeny.",manualNote:"Zápis platí až po osobním potvrzení organizátorem.",options:"Další dobrovolné souhlasy (foto a pozvánky)"},
 en:{search:"Search event, location or date…",total:"Events",open:"Online RSVP",manual:"Contact organiser",planned:"Awaiting confirmation",empty:"No results",ask:"Contact to join ↗",planNote:"Not open for registration. Venue and event conditions still require confirmation.",manualNote:"Participation is confirmed individually by the organiser.",options:"Optional consents (photos and invitations)"},
@@ -151,7 +193,7 @@ function renderEvents(){
  for(const e of events){const opt=document.createElement('option');opt.value=e.event_id;opt.textContent=eventLabel(e)+' · '+statusLabel(e);select.append(opt)}
  if(events.some(e=>e.event_id===selected))select.value=selected;
  const e=events.find(v=>v.event_id===select.value);$('eventSearch').value=e?eventLabel(e):'';
- $('eventSearch').placeholder=ct('search');$('eventSearch').setAttribute('aria-label',t('event'));$('optionalConsentLabel').textContent=ct('options');
+ $('eventSearch').placeholder=ct('search');$('eventSearch').setAttribute('aria-label',t('event'));$('optionalConsentLabel').textContent=ct('options');$('optionalConsentNote').textContent=(CONTACT_COPY[lang]||CONTACT_COPY.cs).consent;
  const modes=events.map(eventMode);
  $('catalogSummary').textContent=ct('total')+': '+events.length+' · '+ct('open')+': '+modes.filter(m=>m==='FORM').length+' · '+ct('manual')+': '+modes.filter(m=>m==='CONTACT').length+' · '+ct('planned')+': '+modes.filter(m=>m==='PLANNED').length;
  closeMatches();showEvent();
@@ -166,12 +208,7 @@ function showEvent(){
  const note=document.createElement('p');note.textContent=mode==='FORM'?t('unconfirmed'):(lang==='ru'&&e.public_note?e.public_note:ct(mode==='CONTACT'?'manualNote':'planNote'));info.append(note);
  if(mode==='FORM'&&e.public_note){const caution=document.createElement('p');caution.className='event-warning';caution.textContent=e.public_note;info.append(caution)}
  if(mode==='FORM'){const owner=document.createElement('p');owner.className='owner-line';owner.textContent=t('controller')+' '+e.data_controller;info.append(owner)}
- if(mode==='CONTACT'){
-  const href=String(e.action_url||'');
-  if(/^https:\/\/wa\.me\/420702914842(?:\?|$)/.test(href)||/^https:\/\/t\.me\/Chareshneu(?:\?|$)/.test(href)||/^mailto:chereshnev\.biochem@gmail\.com(?:\?|$)/.test(href)){
-   const a=document.createElement('a');a.href=href;a.textContent=ct('ask');a.className='button contact-cta';a.rel='noopener noreferrer';if(href.startsWith('https:'))a.target='_blank';info.append(a);
-  }
- }
+ if(mode==='CONTACT')renderEventContacts(info,e,String(e.action_url||''));
  const safe=String(e.rules_url||'');$('rulesLink').href=/^https:\/\/aliaksei-chareshneu\.github\.io\/alchareshneu\//.test(safe)?safe:policyBase+'safety/';
 }
 $('eventSearch').addEventListener('focus',renderMatches);
