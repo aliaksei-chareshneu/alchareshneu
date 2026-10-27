@@ -43,7 +43,7 @@ function runAudit(pages) {
 
   // The home hero may point to the service explanation OR straight to the
   // guarded OSVC quote form, but never to an invented checkout.
-  const heroCorporateRoute=linkWithId(home,'heroCta');
+  const heroCorporateRoute=linkWithId(home,'heroCta').replace(/&amp;/g,'&');
   const b2bQuote=pages['corporate/request/index.html']||'';
   const b2bGuarded=/<form[^>]*id="request"/.test(b2bQuote)
     && /id="privacyAck"[^>]*type="checkbox" required/.test(b2bQuote)
