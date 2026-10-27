@@ -13,6 +13,11 @@ test('public registration sends one private request with independent consents',a
   await page.goto('/register/?lang=cs&event=PUB-HIKE-20261101');
   await expect(page.locator('#rsvpForm')).toBeVisible();
   await expect(page.locator('#eventId')).toHaveValue('PUB-HIKE-20261101');
+  await expect(page.locator('#optionalConsents')).toBeVisible();
+  await expect(page.locator('#optionalConsents')).toHaveJSProperty('tagName','FIELDSET');
+  await expect(page.locator('#photo')).not.toBeChecked();
+  await expect(page.locator('#future')).not.toBeChecked();
+  await expect(page.locator('#safety')).not.toBeChecked();
   await page.locator('#firstName').fill('Test');
   await page.locator('#lastName').fill('Example');
   await page.locator('#email').fill('synthetic-rsvp@example.test');
@@ -44,6 +49,10 @@ test('registration backend outage gives direct organiser contact without collect
  await expect(page.locator('#fallback')).toBeVisible();
  await expect(page.locator('#rsvpForm')).toBeHidden();
  await expect(page.locator('#contactLink')).toHaveAttribute('href',/^mailto:/);
+ await expect(page.locator('#fallbackChannels a')).toHaveCount(3);
+ await expect(page.locator('#fallbackChannels a').nth(0)).toHaveAttribute('href','https://t.me/Chareshneu');
+ await expect(page.locator('#fallbackChannels a').nth(1)).toHaveAttribute('href',/^https:\/\/wa\.me\//);
+ await expect(page.locator('#fallbackChannels a').nth(2)).toHaveAttribute('href',/^sms:/);
 });
 
 
