@@ -97,3 +97,26 @@ test('business landing pages link to direct quote form',async({page})=>{
  await page.goto('/corporate/travel-audit/');
  await expect(page.locator('a[href*="request/"][href*="travel_audit"]')).toHaveCount(1);
 });
+
+
+test('existing B2B lead source includes allowed organic channel tags, not personal identifiers',async({page})=>{
+ let request=null;
+ await page.route(ENDPOINT,async route=>{
+  request=route.request().postDataJSON();
+  await route.fulfill({status:200,contentType:'application/json',
+   body:JSON.stringify({ok:true,status:'RECEIVED_UNCONFIRMED',confirmed:false,reference:'00000000-0000-0000-0000-000000000011'})});
+ });
+ await page.goto('/corporate/request/?lang=en&service=DATA_PILOT&src=start_company&utm_source=instagram&utm_medium=bio&utm_campaign=nov2026');
+ await page.locator('#company').fill('Synthetic company');
+ await page.locator('#contactName').fill('Test Contact');
+ await page.locator('#email').fill('nobody@example.invalid');
+ await page.locator('#budgetBand').selectOption('unknown');
+ await page.locator('#timeframe').fill('November 2026');
+ await page.locator('#summary').fill('We want an evaluated pilot for answering recurring technical support questions.');
+ await page.locator('#privacyAck').check();
+ await page.locator('#submit').click();
+ await expect(page.locator('#result')).toBeVisible();
+ expect(request).not.toBeNull();
+ expect(request.source).toBe('start_company__instagram_bio_nov2026');
+ expect(request.source).not.toContain('nobody@example.invalid');
+});

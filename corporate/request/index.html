@@ -140,7 +140,12 @@ form.addEventListener('submit',async e=>{
  e.preventDefault();
  if(!form.reportValidity()||$('summary').value.trim().length<15){show(dict[lang].invalid,true);return;}
  btn.disabled=true;btn.textContent=dict[lang].sending;result.hidden=true;
- const source=/^[a-zA-Z0-9_-]{2,65}$/.test(qp.get('src')||'')?qp.get('src'):'corporate_website';
+ const baseSource=/^[a-zA-Z0-9_-]{2,65}$/.test(qp.get('src')||'')?qp.get('src'):'corporate_website';
+const utmLabels=['utm_source','utm_medium','utm_campaign'].map(function(key){
+  const value=qp.get(key)||'';
+  return /^[a-zA-Z0-9][a-zA-Z0-9._-]{0,63}$/.test(value)?value.replace(/[.-]/g,'_'):null;
+}).filter(Boolean);
+const source=utmLabels.length?(baseSource+'__'+utmLabels.join('_')).slice(0,65):baseSource;
  const body={company:$('company').value.trim(),contactName:$('contactName').value.trim(),
   email:$('email').value.trim(),phone:$('phone').value.trim(),offer:$('offer').value,
   budgetBand:$('budgetBand').value,timeframe:$('timeframe').value.trim(),
