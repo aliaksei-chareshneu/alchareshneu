@@ -1,11 +1,13 @@
 # Imperion private form → existing Community CRM
 
-## Current status, 26 Oct 2026
+## Current status, 27 Oct 2026
 
-- **LIVE:** The private Supabase Edge function `imperion-intake-bridge` is deployed. It reads unsynced requests ONLY with a 64-character high-entropy bearer token stored in Supabase Vault.
-- **TESTED:** no token → HTTP 401; correct token → HTTP 200; malformed ACK → HTTP 400. All returns omit public CORS and use `Cache-Control: no-store`.
-- **NOT YET LIVE:** Apps Script must be added and authorized in the existing Community Hub spreadsheet by its Google account owner. Until this step, **no automatic transfer into the Google CRM and no email digest** are running. Do not claim otherwise.
-- No second CRM, new Sheets workbook, automated client email, payment, event attendance confirmation, or newsletter subscription.
+- **LIVE:** Private Supabase `imperion-intake-bridge` version 2 reads three streams, authorized ONLY by 64-character high-entropy bearer token verified against Supabase Vault: event RSVPs, NGO Družina enquiries, and **OSVČ B2B corporate inquiries**.
+- **LIVE:** Private B2B source table `imperion_b2b_inquiries` (RLS ON, no anon/authenticated access) stores unconfirmed requests from [corporate quote form](../corporate/request/).
+- **DEPLOYED / NOT YET END-TO-END VERIFIED:** The enhanced Google Apps Script importer in [imperion-intake-sync.gs](../imperion-intake-sync.gs) handles all three streams, writing B2B leads into the existing `Leads` tab of Community Hub CRM (not NGO member tab), with UUID-based idempotency, one 24h next-action, counted owner digest, and retention hygiene.
+- **ONE OWNER ACTION REQUIRED:** Google Apps Script project installation/authorization in the already-existing Community Hub spreadsheet. The Google Drive connector cannot deploy or authorize Apps Script and the Remote Desktop connection has reached its monthly limit. Until installation, the private bridge does NOT automatically write Google Sheets or send notification email.
+- **FAILSAFE:** Existing ChatGPT automation `07 · B2B Deal Engine: CASH-FIRST` may perform a connector-based sync on scheduled runs. This is an **attempted secondary route**, not proof of continuous sync. Do not falsely claim the native Apps Script trigger runs until independently verified.
+- No new CRM, no payment capture, no auto-accepted order, no public personal-data export, no cold marketing email from forms.
 
 ## One-time owner action
 
@@ -16,11 +18,11 @@
      **Never paste or commit this credential to the website, a Google Sheet cell, GitHub, email or this chat.**
    - `IMPERION_NOTIFY_EMAIL`: the owner's actual operational email for the digest.
    - Optional `IMPERION_CRM_SHEET_ID`: `1igxEHQ7wFFCoCA9lg4kzT2OoMrVLgbBogfqTxGeUftY`. The existing `Code.gs` defines `SPREADSHEET_ID`, so this is normally unnecessary.
-3. In Apps Script, manually Run `imperionSyncPrivateIntake`; grant Google the requested UrlFetch, Sheets and Mail permissions in the owner account. Check the execution transcript (there may be zero new records). Then Run `imperionInstallPrivateIntake` once. This adds hourly import and daily retention cleanup triggers, preserving unrelated existing triggers.
+3. In Apps Script, manually Run `imperionSyncPrivateIntake`; grant Google the requested UrlFetch, Sheets and Mail permissions in the owner account. Check the execution transcript (there may be zero new records). Confirm B2B records, if any, appear only in existing `Leads` tab and are not marked paid. Then Run `imperionInstallPrivateIntake` once. This adds hourly import and daily retention cleanup triggers, preserving unrelated existing triggers.
 
 ## Automated flow after the above
 
-Supabase `imperion_rsvp_submissions` → private GET → existing tab `Registrations`. Supabase `imperion_rsvp_enquiries` → existing `Druzina_Requests`. The original source UUID is preserved in the target row. The script holds a lock, reads existing UUIDs to avoid duplicates and only ACKs Supabase after writing rows. Retried requests recognize the UUID, skip duplicate writes and retry ACK. It emails only the **owner** one digest of new RSVP/enquiry counts and a CRM link, never contact/guardian details. No automatic guest confirmations, marketing or payments.
+Supabase `imperion_rsvp_submissions` → private GET → existing tab `Registrations`. Supabase `imperion_rsvp_enquiries` → existing `Druzina_Requests`. Supabase `imperion_b2b_inquiries` → same private GET → existing `Leads` (OSVČ, not NGO). The original source UUID is preserved in the target row. The script holds a lock, reads existing UUIDs to avoid duplicates and only ACKs Supabase after writing rows. Retried requests recognize the UUID, skip duplicate writes and retry ACK. It emails only the **owner** one digest of new RSVP/enquiry/B2B counts and a CRM link, never contact/guardian details. No automatic guest confirmations, marketing or payments.
 
 **Reliability (staged until Apps Script installation):** The importer checks the stored source UUID immediately after every CRM insert, refuses duplicate headers and requires a configured owner digest address before pulling data. New-application counts are queued in private Script Properties **before** Supabase ACK. If Gmail/MailApp fails, the next hourly run retries the count-only owner digest even if no fresh registrations arrive. Mail is at-least-once (a crash immediately after delivery can repeat the same count); do not interpret message counts as unique registrations. No participant details are emailed.
 
@@ -35,4 +37,4 @@ Supabase `imperion_rsvp_submissions` → private GET → existing tab `Registrat
 
 ## Verification once activated
 
-Use synthetic `.invalid` contact data to test both types. Check exactly one new row in each target tab, `crm_synced_at` on source, and one owner digest. Re-run; it must add zero new rows and send no new digest. Do not announce completion until verified against both Google Sheets and the Edge receipts.
+Use synthetic `.invalid` contact data to test all three types. Check exactly one new row in each appropriate existing tab, `crm_synced_at` on source, and one owner digest. Re-run; it must add zero new rows and send no new digest. Do not announce completion until verified against both Google Sheets and the Edge receipts.
