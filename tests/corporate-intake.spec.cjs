@@ -37,6 +37,9 @@ test('accepts a well-scoped valid B2B request in Czech and sends no payment',asy
  await page.locator('#submit').click();
  await expect(page.locator('#result')).toBeVisible();
  await expect(page.locator('#result')).toContainText('přijata');
+ await expect(page.locator('#receiptDetails')).toContainText('Výrobní demo s.r.o.');
+ await expect(page.locator('#receiptDetails')).toContainText('00000000-0000-0000-0000-000000000002');
+ await expect(page.locator('#receiptDetails .receipt-button')).toBeVisible();
  expect(calls).toHaveLength(1);
  expect(calls[0].method).toBe('POST');
  expect(calls[0].body.offer).toBe('DATA_PILOT');

@@ -13,6 +13,11 @@ test('public registration sends one private request with independent consents',a
   await page.goto('/register/?lang=cs&event=PUB-HIKE-20261101');
   await expect(page.locator('#rsvpForm')).toBeVisible();
   await expect(page.locator('#eventId')).toHaveValue('PUB-HIKE-20261101');
+  await expect(page.locator('#optionalConsents')).toBeVisible();
+  await expect(page.locator('#optionalConsents')).toHaveJSProperty('tagName','FIELDSET');
+  await expect(page.locator('#photo')).not.toBeChecked();
+  await expect(page.locator('#future')).not.toBeChecked();
+  await expect(page.locator('#safety')).not.toBeChecked();
   await page.locator('#firstName').fill('Test');
   await page.locator('#lastName').fill('Example');
   await page.locator('#email').fill('synthetic-rsvp@example.test');
@@ -20,6 +25,10 @@ test('public registration sends one private request with independent consents',a
   await page.locator('#safety').check();
   await page.locator('#submit').click();
   await expect(page.locator('#result')).toContainText('Přihláška byla přijata');
+  await expect(page.locator('#result')).toContainText('Velká Klajdovka');
+  await expect(page.locator('#result')).toContainText('synthetic-rsvp@example.test');
+  await expect(page.locator('#result .receipt-actions button')).toHaveCount(2);
+  await expect(page.locator('#rsvpForm')).toBeHidden();
   await expect(page.locator('#result')).toBeFocused();
   expect(submitted).toMatchObject({eventId:'PUB-HIKE-20261101',email:'synthetic-rsvp@example.test',safety:true,photo:'NO',futureUpdates:false,language:'cs'});
   expect(page.url()).not.toContain('synthetic-rsvp');
@@ -39,7 +48,13 @@ test('registration backend outage gives direct organiser contact without collect
  await page.goto('/register/?lang=ru');
  await expect(page.locator('#fallback')).toBeVisible();
  await expect(page.locator('#rsvpForm')).toBeHidden();
- await expect(page.locator('#contactLink')).toHaveAttribute('href',/^https:\/\/wa\.me\//);
+ await expect(page.locator('#contactLink')).toHaveAttribute('href',/^mailto:/);
+ await expect(page.locator('#fallbackChannels a')).toHaveCount(3);
+ await expect(page.locator('#fallbackChannels a').nth(0)).toHaveAttribute('href','https://t.me/Chareshneu');
+ await expect(page.locator('#fallbackChannels a').nth(1)).toHaveAttribute('href',/^https:\/\/wa\.me\//);
+ await expect(page.locator('#fallbackChannels a').nth(2)).toHaveAttribute('href',/^sms:/);
+ const waHref=await page.locator('#fallbackChannels a').nth(1).getAttribute('href');
+ expect(decodeURIComponent(waHref)).toContain('Здравствуйте');
 });
 
 

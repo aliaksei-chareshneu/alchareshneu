@@ -11,7 +11,10 @@ test('Google Apps Script helper parses, deduplicates and has a safe receipt orde
  assert.match(gs,/impExisting_/);
  assert.match(gs,/Acknowledge only AFTER/);
  assert.match(gs,/imperionCleanupPrivateIntake/);
- assert.match(gs,/everyHours\(1\)/);
+ assert.match(gs,/everyMinutes\(5\)/);
+ assert.match(gs,/impSendReceiptQueue_/);
+ assert.match(gs,/SENT_TO_PROVIDER/);
+ assert.match(gs,/REVIEW_NO_EMAIL/);
  assert.match(gs,/REQUESTED_UNCONFIRMED/);
 });
 test('private bridge rejects access before source rows are selected',()=>{

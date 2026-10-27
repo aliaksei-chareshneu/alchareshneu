@@ -21,6 +21,12 @@ for(const lang of ['cs','en','ru','uk']){
    await expect(page.locator('#eventId')).toHaveValue('PUB-OREL-20261114');
    await expect(page.locator('#rsvpDetails')).toBeHidden();
    await expect(page.locator('#eventInfo .contact-cta')).toHaveAttribute('href',/^https:\/\/wa\.me\//);
+   const alternatives=page.locator('#eventInfo .contact-alternatives a');
+   await expect(alternatives).toHaveCount(3);
+   await expect(alternatives.nth(0)).toHaveAttribute('href','https://t.me/Chareshneu');
+   await expect(alternatives.nth(1)).toHaveAttribute('href',/^sms:\+420702914842\?body=/);
+   await expect(alternatives.nth(2)).toHaveAttribute('href',/^mailto:chereshnev\.biochem@gmail\.com\?/);
+   await expect(page.locator('#eventInfo .contact-lead')).toBeVisible();
    await page.locator('#eventSearch').fill('Future group');
    await page.locator('#eventMatches .match-option').click();
    await expect(page.locator('#rsvpDetails')).toBeHidden();
@@ -29,6 +35,16 @@ for(const lang of ['cs','en','ru','uk']){
    await page.locator('#eventMatches .match-option').click();
    await expect(page.locator('#rsvpDetails')).toBeVisible();
    await expect(page.locator('#eventId')).toHaveValue('PUB-HIKE-20261128');
+   await expect(page.locator('#optionalConsents')).toBeVisible();
+   await expect(page.locator('#optionalConsentNote')).toBeVisible();
+   await expect(page.locator('#photo')).not.toBeChecked();
+   await expect(page.locator('#future')).not.toBeChecked();
+   await expect(page.locator('#safety')).not.toBeChecked();
+   const firstConsent=await page.evaluate(()=>{
+      const opts=document.querySelector('#optionalConsents'),first=document.querySelector('#firstName');
+      return Boolean(opts.compareDocumentPosition(first)&Node.DOCUMENT_POSITION_FOLLOWING);
+   });
+   expect(firstConsent).toBe(true);
    expect(posts).toBe(0);
  });
 }

@@ -61,6 +61,10 @@ for(const lang of languages){
   await page.locator('#safety').check();
   await page.locator('#send').click();
   await expect(page.locator('#successPanel')).toBeVisible();
+  await expect(page.locator('#receiptFacts')).toContainText('example@example.invalid');
+  await expect(page.locator('#receiptMailNotice')).not.toBeEmpty();
+  await expect(page.locator('#copyReceipt')).toBeVisible();
+  await expect(page.locator('#successPanel a[href*="wa.me"]')).toHaveCount(0);
   await expect(page.locator('#interestForm')).toBeHidden();
   await expect(page.locator('#requestId')).toHaveText('synthetic-confirmation-qa');
   expect(calls).toBe(1);
