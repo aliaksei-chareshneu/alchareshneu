@@ -18,7 +18,8 @@ for (const [lang, headline] of Object.entries(langs)) {
       await expect(page.locator('h1')).toHaveText(headline);
       await expect(page.locator('h1')).toHaveCount(1);
       await expect(page.locator('.price')).toContainText('14 900 Kč');
-      await expect(page.locator('a[href="#brief"]')).toHaveCount(2);
+      await expect(page.locator('a[href="#brief"]')).toHaveCount(1);
+      await expect(page.locator('a[href*="request/"][href*="technical_answers"]')).toHaveCount(1);
       await expect(page.locator('#fallback-email')).toHaveAttribute('href',/^mailto:chereshnev\.biochem@gmail\.com/);
       await expect(page.locator('.sampleBadge')).toHaveCount(0); // No decorative fake social proof widget
       const state = await page.evaluate(() => {
@@ -85,7 +86,7 @@ test('technical answers: language switching and corporate referral are usable',a
 test('homepage prioritizes B2B pilot and preserves separate community choice',async({page})=>{
   for(const lang of ['cs','en','ru','uk']){
     await page.goto('/?lang='+lang);
-    await expect(page.locator('#heroCta')).toHaveAttribute('href','corporate/technical-answers/?lang='+lang);
+    await expect(page.locator('#heroCta')).toHaveAttribute('href','corporate/request/?lang='+lang+'&service=DATA_PILOT&src=home_hero');
     await expect(page.locator('#heroCorporateCta')).toHaveAttribute('href','start/?lang='+lang);
     await expect(page.locator('#heroCta')).toContainText(lang==='en'?'14,900':'14 900');
   }
