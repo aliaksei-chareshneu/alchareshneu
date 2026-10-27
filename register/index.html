@@ -76,7 +76,12 @@ a{color:var(--mint)}button,input,select{font:inherit}button{cursor:pointer}.skip
     <a class="brand" href="../">BRNO · DRUŽINA MORAVY · BRNOWALKERS</a>
     <nav class="langs" aria-label="Language / Jazyk"><button type="button" data-lang="cs" aria-pressed="true">CZ</button><button type="button" data-lang="en" aria-pressed="false">EN</button><button type="button" data-lang="ru" aria-pressed="false">RU</button><button type="button" data-lang="uk" aria-pressed="false">UA</button></nav>
   </header>
-  <main class="layout">
+  <aside id="bw-cancel-20261028" role="alert" style="max-width:1050px;margin:18px auto 0;padding:16px 18px;border:2px solid #ffafa4;border-radius:12px;background:#44292b;color:#fff;line-height:1.5">
+  <strong>❌ ZRUŠENO / CANCELLED / ОТМЕНЕНО / СКАСОВАНО — BrnoWalkers, 28. 10. 2026</strong>
+  <p style="margin:6px 0">Placená vycházka Stránská skála → Bílá hora → Židenice (12:00–15:00) se <strong>NEKONÁ</strong>. The paid guided walk is <strong>CANCELLED</strong>; do not travel or pay. Další akce nejsou tímto oznámením dotčeny. / Other events are unaffected.</p>
+  <p style="margin:6px 0">If you paid for this walk, contact <a style="color:#fff;text-decoration:underline" href="mailto:chereshnev.biochem@gmail.com?subject=BrnoWalkers%2028.10%20refund">the organiser</a> to arrange a refund.</p>
+</aside>
+<main class="layout">
     <section class="pitch" aria-labelledby="hero"><div class="kicker" data-i18n="eyebrow">Jedna registrace · bez účtu</div><h1 id="hero" data-i18n="hero">Pojďte s námi <em>zažít víc.</em></h1><p class="lede" data-i18n="lede">Vyberte akci, zanechte kontakt a odešlete nezávaznou přihlášku. Zabere to asi minutu.</p><a class="mobile-jump" href="#form" data-i18n="jump">Přejít k přihlášce</a>
       <ol class="steps"><li><b>1</b><span data-i18n="s1">Vyberte ověřenou akci</span></li><li><b>2</b><span data-i18n="s2">Vyplňte své kontakty</span></li><li><b>3</b><span data-i18n="s3">Potvrďte pravidla a odešlete</span></li></ol>
       <p class="muted" data-i18n="disclaimer">Pošlete přihlášku. Účast si pak potvrdíme zprávou.</p>
@@ -343,7 +348,7 @@ async function loadEvents(){
     const response=await fetch(ENDPOINT,{method:'GET',cache:'no-store',signal:AbortSignal.timeout(10000)});
     if(!response.ok)throw new Error('service_unavailable');
     const payload=await response.json();
-    events=Array.isArray(payload.events)?payload.events:[];
+    events=(Array.isArray(payload.events)?payload.events:[]).filter(e=>e && !['BW-PAID-20261028','COM-HIKE-20261028'].includes(String(e.event_id||'')));
     if(!events.length)throw new Error('no_events');
     $('rsvpForm').hidden=false;renderEvents();
   }catch(error){
@@ -354,5 +359,6 @@ async function loadEvents(){
 $('retry').addEventListener('click',loadEvents);
 setLang(lang);updateGuardian();loadEvents();
 </script>
+<script>if(Date.now()>Date.parse('2026-11-04T00:00:00+01:00')){const e=document.getElementById('bw-cancel-20261028');if(e)e.remove();}</script>
 </body>
 </html>
