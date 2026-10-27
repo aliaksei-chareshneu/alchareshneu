@@ -88,6 +88,11 @@
       <h1 data-i18n="cal.title2">Calendar — Upcoming Hikes, Training &amp; Events</h1>
       <p class="tagline" data-i18n="cal.tagline">Every open BrnoWalkers hike and Družina Moravy training session, updated live. Subscribe once and never miss what's next.</p>
 
+      <div id="cal-paid-walk-20261028" style="margin:20px 0;padding:15px;border:1px solid #789787;border-radius:12px;background:#17392e">
+        <strong>Wed 28 October, 12:00–15:00 · Stránská skála → Bílá hora · 100 Kč</strong>
+        <p>BrnoWalkers paid guided walk (OSVČ, not the free 1 Nov JRDM hike). Exact meeting point, route and participation confirmed individually after your request.</p>
+        <a href="../register/?event=COM-HIKE-20261028&amp;src=calendar_28oct" style="font-weight:800">Request a place →</a>
+      </div>
       <div class="hero-ctas">
         <a class="btn solid plausible-event-name=Calendar-Subscribe" data-i18n="cal.ctaSubscribe" href="https://calendar.google.com/calendar/u/0/newembed?src=2b87a4e595671b05f82867969757d6c8500733a05a7ebcc77a3c6102b1644757@group.calendar.google.com&amp;ctz=Europe/Prague" target="_blank" rel="noopener">📅 Subscribe to the calendar</a>
       </div>
@@ -433,5 +438,6 @@ const EVENTS_API_URL = 'https://script.google.com/macros/s/AKfycbzKdIEwIF4gH9Cku
   document.head.appendChild(script);
 })();
 </script>
+<script>if(Date.now()>=Date.parse('2026-10-28T15:00:00+01:00')){var paidBanner=document.getElementById('cal-paid-walk-20261028');if(paidBanner)paidBanner.remove();}</script>
 </body>
 </html>
