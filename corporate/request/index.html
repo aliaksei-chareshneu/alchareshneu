@@ -44,7 +44,7 @@ button.submit:disabled{cursor:wait;opacity:.55}
 .hp{position:absolute;left:-10000px;opacity:0;pointer-events:none}
 footer{border-top:1px solid #30465a;margin-top:45px;padding-top:20px;color:#b5cadc;font-size:12px}
 @media(max-width:600px){.wrap{padding:20px 16px 50px}.columns{grid-template-columns:1fr}.cards{grid-template-columns:1fr}.panel{padding:18px}}
-</style>
+.receipt-button{border:1px solid #4e7c71;background:#b9f0d7;color:#122a2a;padding:10px 16px;border-radius:8px;min-height:44px;font-weight:750}#receiptDetails{border:1px solid #41766e;background:#163335;padding:16px 20px;border-radius:10px;margin-top:12px}#receiptDetails p{margin:7px 0;line-height:1.5;overflow-wrap:anywhere}</style>
 </head>
 <body data-imperion-scope="tech"><div class="wrap">
 <header><a href="../" id="back">← Zpět na firemní služby</a><nav aria-label="Jazyk / Language"><button type="button" data-lang="cs" aria-pressed="true">CZ</button><button type="button" data-lang="en" aria-pressed="false">EN</button><button type="button" data-lang="ru" aria-pressed="false">RU</button><button type="button" data-lang="uk" aria-pressed="false">UA</button></nav></header>
@@ -83,7 +83,7 @@ footer{border-top:1px solid #30465a;margin-top:45px;padding-top:20px;color:#b5ca
 <div class="hp" aria-hidden="true"><label for="website">Website</label><input type="text" id="website" name="website" tabindex="-1" autocomplete="off"></div>
 <label class="check"><input id="privacyAck" type="checkbox" required><span id="privacyLabel">Přečetl/a jsem si <a href="#privacy">informace o zpracování údajů</a> za účelem vyřízení poptávky. Nepřihlašuji se k marketingovému odběru.</span></label>
 <div class="actions"><button class="submit" id="submit" type="submit">Odeslat nezávaznou poptávku</button><span class="helper" id="submitHint">Bez platby; nabídka a termín vyžadují individuální potvrzení.</span></div>
-<p role="status" aria-live="polite" id="result" hidden></p>
+<p role="status" aria-live="polite" id="result" hidden></p><section id="receiptDetails" hidden aria-live="polite"></section>
 </form></section>
 <section class="fallback" id="fallback"><strong id="fallbackTitle">Pokud se formulář nenačte</strong><p><span id="fallbackText">Pošlete krátkou poptávku e-mailem nebo přes WhatsApp; uveďte firmu, úkol, rozpočet a termín.</span></p>
 <a href="mailto:chereshnev.biochem@gmail.com?subject=Firemn%C3%AD%20popt%C3%A1vka%20%E2%80%94%20web&body=Firma%3A%0ASlu%C5%BEba%3A%0AProbl%C3%A9m%3A%0ATerm%C3%ADn%3A%0ARozpo%C4%8Det%3A%0A">E-mail</a> ·
@@ -126,6 +126,17 @@ function show(message,error){
  result.hidden=false;result.className=error?'err':'ok';result.textContent=message;
  result.focus({preventScroll:true});result.scrollIntoView({block:'nearest'});
 }
+const RECEIPT_B2B={"cs":{"title":"Přehled přijaté poptávky","ref":"Číslo poptávky","company":"Firma","offer":"Služba","contact":"Kontaktní e-mail","when":"Požadovaný termín","next":"Poptávka je uložena. To není objednávka ani přijetí nabídky; rozsah, cenu a podmínky potvrdíme individuálně.","email":"Automatická odpověď e-mailem zatím není aktivní. Uložte si číslo poptávky a údaje níže.","copy":"Kopírovat potvrzení","copied":"Zkopírováno"},"en":{"title":"Your enquiry receipt","ref":"Enquiry reference","company":"Company","offer":"Service","contact":"Contact email","when":"Requested timeframe","next":"Your request is recorded. No order, price, booking or contract is accepted; terms will be agreed individually.","email":"Automatic acknowledgement emails are not active yet. Save the request reference and details.","copy":"Copy receipt","copied":"Copied"},"ru":{"title":"Данные принятой заявки","ref":"Номер заявки","company":"Компания","offer":"Услуга","contact":"Контактный email","when":"Желаемый срок","next":"Заявка сохранена. Это не заказ и не согласованный договор, стоимость и условия будут подтверждены отдельно.","email":"Автоматические письма пока не отправляются. Сохраните номер заявки и данные ниже.","copy":"Скопировать подтверждение","copied":"Скопировано"},"uk":{"title":"Дані отриманого запиту","ref":"Номер запиту","company":"Компанія","offer":"Послуга","contact":"Контактний email","when":"Бажаний термін","next":"Запит збережено. Це не замовлення й не контракт; ціну та умови узгодять окремо.","email":"Автоматичні листи наразі не надсилаються. Збережіть номер і дані запиту.","copy":"Копіювати підтвердження","copied":"Скопійовано"}};
+function showB2bReceipt(b,server){
+ const d=RECEIPT_B2B[lang],area=$('receiptDetails');area.replaceChildren();
+ const lines=[d.title,server.reference?d.ref+': '+server.reference:null,d.company+': '+b.company,
+  d.offer+': '+$('offer').selectedOptions[0].textContent,d.contact+': '+b.email,d.when+': '+b.timeframe,d.next,d.email].filter(Boolean);
+ for(const line of lines){const p=document.createElement('p');p.textContent=line;area.appendChild(p);}
+ const button=document.createElement('button');button.type='button';button.className='receipt-button';button.textContent=d.copy;
+ button.addEventListener('click',()=>{if(navigator.clipboard?.writeText)
+   navigator.clipboard.writeText(lines.join('\n')).then(()=>{button.textContent=d.copied;},()=>{});});
+ area.append(button);area.hidden=false;
+}
 form.addEventListener('submit',async e=>{
  e.preventDefault();
  if(!form.reportValidity()||$('summary').value.trim().length<15){show(dict[lang].invalid,true);return;}
@@ -140,7 +151,7 @@ form.addEventListener('submit',async e=>{
   const response=await fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),cache:'no-store',signal:AbortSignal.timeout(12000)});
   const obj=await response.json().catch(()=>({}));
   if(!response.ok||obj.ok!==true||obj.status!=='RECEIVED_UNCONFIRMED')throw Error('server');
-  form.reset();show(dict[lang].received,false);
+  showB2bReceipt(body,obj);form.reset();show(dict[lang].received,false);
  }catch{show(dict[lang].fail,true);}
  finally{btn.disabled=false;btn.textContent=dict[lang].submit}
 });
