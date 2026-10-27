@@ -12,6 +12,8 @@ for(const loc of ['cs','en','ru','uk']){
 }
 assert.ok(!front.includes('SUPABASE_SERVICE_ROLE_KEY'));
 assert.ok(front.includes("cache:'no-store'"));
+for(const contact of ['function receiptContacts(', 'https://t.me/Chareshneu','https://wa.me/420702914842','mailto:chereshnev.biochem@gmail.com','https://t.me/druzinamoravy_news','https://t.me/pochody_brno_news']) assert.ok(front.includes(contact),'RSVP confirmation contact missing: '+contact);
+assert.ok(front.includes('receiptContacts(el,eventData,body);'),'Only a successful RSVP should show follow-up channels');
 assert.ok(fn.includes('imperion_rsvp_allow_request'));
 assert.ok(fn.includes('writeError.code!==\'23505\''));
 assert.ok(fn.includes("origin!==ALLOWED_ORIGIN"));
