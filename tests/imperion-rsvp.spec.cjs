@@ -53,6 +53,8 @@ test('registration backend outage gives direct organiser contact without collect
  await expect(page.locator('#fallbackChannels a').nth(0)).toHaveAttribute('href','https://t.me/Chareshneu');
  await expect(page.locator('#fallbackChannels a').nth(1)).toHaveAttribute('href',/^https:\/\/wa\.me\//);
  await expect(page.locator('#fallbackChannels a').nth(2)).toHaveAttribute('href',/^sms:/);
+ const waHref=await page.locator('#fallbackChannels a').nth(1).getAttribute('href');
+ expect(decodeURIComponent(waHref)).toContain('Здравствуйте');
 });
 
 
