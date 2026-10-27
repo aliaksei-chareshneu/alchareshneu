@@ -231,6 +231,18 @@ function impReceiptMessage_(kind,row,m,events){
   label=v('Service');sender='Aliaksei Chareshneu (OSVČ)';parts.push(w[11]);
  }else{return null;}
  parts.splice(1,0,w[2]+': '+id,w[3]+': '+label);
+ if(kind==='RSVP'){
+  var followNote={
+   cs:'Pokud plánujete přijít, dejte nám prosím ještě krátce vědět. Vaše místo není potvrzené, dokud vám pořadatel neodpoví.',
+   en:'If you plan to join us, please send a short message. Your place is not confirmed until the organiser replies.',
+   ru:'Если вы планируете прийти, пожалуйста, напишите короткое сообщение организатору. Участие подтвердят ответным сообщением.',
+   uk:'Якщо плануєте прийти, будь ласка, напишіть організатору коротке повідомлення. Участь буде підтверджено окремою відповіддю.'
+  };
+  parts.push('',followNote[lang]||followNote.cs,
+   'Telegram: https://t.me/Chareshneu',
+   'WhatsApp: https://wa.me/420702914842',
+   'Email: reply to this message');
+ }
  parts.push('',w[10]);
  return {to:email,subject:w[0]+' · '+id.slice(0,8),body:parts.join('\n'),sender:sender};
 }
