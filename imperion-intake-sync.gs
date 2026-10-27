@@ -122,6 +122,53 @@ function impWriteEnquiries_(ss,items){
   });
   return {ids:ids,added:added};
 }
+
+/** OSVC corporate enquiries are added to the EXISTING Leads tab, never to the NGO member table. */
+function impWriteB2B_(ss,items){
+  var sh=ss.getSheetByName('Leads');if(!sh)throw Error('Missing Leads');
+  var h=impHeader_(sh);
+  ['Lead_ID','Submission_ID','Stage','Source','Service','Owner','Action_Status'].forEach(function(k){
+    if(h.map[k]===undefined)throw Error('Missing Leads header: '+k);
+  });
+  var existing=impExisting_(sh,h.map.Submission_ID+1),ids=[],added=0;
+  items.forEach(function(r){
+    var id=String(r.id||'');if(!/^[a-f0-9-]{36}$/i.test(id))throw Error('Invalid B2B id');
+    var key='OSVC-B2B-'+id;
+    if(!existing[key]){
+      var offer=String(r.offer||''),allowed={
+        AI_WORKSHOP:'IT/Science',DATA_PILOT:'IT/Science',
+        SCIENTIFIC_CONSULTING:'IT/Science',HEMA_CORPORATE:'Other'
+      };
+      if(!Object.prototype.hasOwnProperty.call(allowed,offer))throw Error('Invalid B2B offer');
+      var band=String(r.budget_band||'unknown');
+      var priority=band==='70000+'||band==='30000-70000'?'P1':'P2';
+      var created=impDate_(r.created_at),expire=impDate_(r.retention_until);
+      if(!created||!expire)throw Error('Invalid B2B timestamp/retention');
+      var notes='Unconfirmed OSVC website enquiry (not NGO membership); no contract, booking, invoice or CASH. '+
+        'Company: '+String(r.company||'')+'; Offer: '+offer+
+        '; Budget: '+band+' CZK; Team size: '+String(r.team_size||'not supplied')+
+        '; Preferred timeframe: '+String(r.preferred_timeframe||'not supplied')+
+        '; Tracking source: '+String(r.source||'corporate_website')+
+        '; Privacy notice accepted for enquiry only. No marketing permission.';
+      impAppend_(sh,h,{
+        Lead_ID:'B2B-'+id,Created_At:created,
+        Full_Name:[r.company,r.contact_name].filter(Boolean).join(' — '),
+        Email:r.email||'',Phone_Number:r.phone||'',
+        Source:'Website',Service:allowed[offer],
+        Subject_Goal:String(r.summary||''),Language:'unknown',Format:'Flexible',Stage:'New',
+        Expected_Value_CZK:'',Next_Action_At:new Date(Date.now()+86400000),
+        Last_Contact_At:'',Followup_Count:0,Paid_CZK:0,Owner:'Aliaksei',
+        Notes:notes,Submission_ID:key,Retention_Until:expire,
+        Last_Automation_At:new Date(),Action_Status:'OSVC_B2B_INBOUND_REVIEW_NO_ORDER_NO_CASH',
+        Priority:priority
+      });
+      existing[key]=true;added++;
+    }
+    ids.push(id);
+  });
+  return {ids:ids,added:added};
+}
+
 /** Pending owner count digest is private Script Properties, not a second CRM.
  * A failed MailApp call retains the counts for the next hourly run.
  * Do not include attendee names, guardian data or contact details in emails.
@@ -129,30 +176,34 @@ function impWriteEnquiries_(ss,items){
 var IMP_PRIVATE_NOTIFY_PENDING='IMPERION_INTAKE_NOTIFY_PENDING';
 function impPendingDigest_(){
   var raw=PropertiesService.getScriptProperties().getProperty(IMP_PRIVATE_NOTIFY_PENDING);
-  if(!raw)return {rsvps:0,enquiries:0};
+  if(!raw)return {rsvps:0,enquiries:0,b2b:0};
   var data;
   try{data=JSON.parse(raw)}catch(e){throw Error('Invalid pending digest state');}
   if(!data||!Number.isSafeInteger(data.rsvps)||!Number.isSafeInteger(data.enquiries)||
-     data.rsvps<0||data.enquiries<0)throw Error('Invalid pending digest counters');
-  return data;
+     data.rsvps<0||data.enquiries<0||
+     (data.b2b!==undefined&&(!Number.isSafeInteger(data.b2b)||data.b2b<0)))
+    throw Error('Invalid pending digest counters');
+  return {rsvps:data.rsvps,enquiries:data.enquiries,b2b:data.b2b||0};
 }
-function impQueueOwnerDigest_(rsvps,enquiries){
-  if(!Number.isSafeInteger(rsvps)||!Number.isSafeInteger(enquiries)||
-     rsvps<0||enquiries<0)throw Error('Invalid new intake counts');
-  if(rsvps+enquiries===0)return;
+function impQueueOwnerDigest_(rsvps,enquiries,b2b){
+  b2b=b2b||0;
+  if(!Number.isSafeInteger(rsvps)||!Number.isSafeInteger(enquiries)||!Number.isSafeInteger(b2b)||
+     rsvps<0||enquiries<0||b2b<0)throw Error('Invalid new intake counts');
+  if(rsvps+enquiries+b2b===0)return;
   var p=PropertiesService.getScriptProperties(),pending=impPendingDigest_();
   p.setProperty(IMP_PRIVATE_NOTIFY_PENDING,JSON.stringify({
-    rsvps:pending.rsvps+rsvps,enquiries:pending.enquiries+enquiries
+    rsvps:pending.rsvps+rsvps,enquiries:pending.enquiries+enquiries,b2b:pending.b2b+b2b
   }));
 }
 function impFlushOwnerDigest_(cfg){
-  var pending=impPendingDigest_(),n=pending.rsvps+pending.enquiries;
+  var pending=impPendingDigest_(),n=pending.rsvps+pending.enquiries+pending.b2b;
   if(n===0)return {sent:false,pending:false};
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cfg.email))throw Error('Missing owner digest address');
   try{
     MailApp.sendEmail(cfg.email,'[Imperion] Nové žádosti: '+n,
       'Registrace na akce: '+pending.rsvps+'\n'+
-      'Dotazy na trénink Družina: '+pending.enquiries+'\n\n'+
+      'Dotazy na trénink Družina: '+pending.enquiries+'\n'+
+      'Firemní OSVČ poptávky: '+pending.b2b+'\n\n'+
       'Soukromé kontakty najdete jen ve stávající CRM:\n'+
       'https://docs.google.com/spreadsheets/d/'+cfg.sheetId+'/edit\n\n'+
       'Ani účast, ani platba nejsou automaticky potvrzeny.');
@@ -170,27 +221,29 @@ function imperionSyncPrivateIntake(){
   if(!lock.tryLock(12000))throw Error('Another intake run is already in progress');
   try{
     var cfg=impPrivateConfig_(),ss=SpreadsheetApp.openById(cfg.sheetId);
-    var addedR=0,addedE=0,processed=0;
+    var addedR=0,addedE=0,addedB=0,processed=0;
     for(var i=0;i<4;i++){
       var batch=impPrivateFetch_(cfg,null);
       if(batch.protocol!=='imperion-intake-bridge-v1'||
-         !Array.isArray(batch.rsvps)||!Array.isArray(batch.enquiries))
+         !Array.isArray(batch.rsvps)||!Array.isArray(batch.enquiries)||!Array.isArray(batch.b2b))
         throw Error('Private intake response schema changed');
-      if(!batch.rsvps.length&&!batch.enquiries.length)break;
+      if(!batch.rsvps.length&&!batch.enquiries.length&&!batch.b2b.length)break;
       var a=impWriteRsvps_(ss,batch.rsvps);
       var b=impWriteEnquiries_(ss,batch.enquiries);
+      var c=impWriteB2B_(ss,batch.b2b);
       // Persist the owner-notification receipt BEFORE acknowledging the source;
       // a mail outage or later crash must not silently discard new leads.
-      impQueueOwnerDigest_(a.added,b.added);
+      impQueueOwnerDigest_(a.added,b.added,c.added);
       // Acknowledge only AFTER CRM writes/readback and notification queuing succeed.
-      impPrivateFetch_(cfg,{action:'ack',rsvps:a.ids,enquiries:b.ids});
-      addedR+=a.added;addedE+=b.added;processed+=a.ids.length+b.ids.length;
-      if(a.ids.length<40&&b.ids.length<40)break;
+      impPrivateFetch_(cfg,{action:'ack',rsvps:a.ids,enquiries:b.ids,b2b:c.ids});
+      addedR+=a.added;addedE+=b.added;addedB+=c.added;
+      processed+=a.ids.length+b.ids.length+c.ids.length;
+      if(a.ids.length<40&&b.ids.length<40&&c.ids.length<40)break;
     }
     // Retry a previously failed digest even if this run has no new rows.
     impFlushOwnerDigest_(cfg);
-    console.log('Private intake: new RSVP='+addedR+', enquiries='+addedE+', acked='+processed);
-    return {newRsvps:addedR,newEnquiries:addedE,acked:processed};
+    console.log('Private intake: new RSVP='+addedR+', enquiries='+addedE+', corporate OSVC='+addedB+', acked='+processed);
+    return {newRsvps:addedR,newEnquiries:addedE,newB2B:addedB,acked:processed};
   }finally{lock.releaseLock();}
 }
 function imperionCleanupPrivateIntake(){
@@ -225,6 +278,28 @@ function imperionCleanupPrivateIntake(){
       if(!isFinite(date.getTime())||date.getTime()+90*86400000>now.getTime())return;
       cols.forEach(function(n){if(em[n]!==undefined)e.getRange(i+2,em[n]+1).clearContent()});
       e.getRange(i+2,em.Processing_Status+1).setValue('EXPIRED_ANONYMIZED');
+      cleared++;
+    });
+  }
+
+  // Privacy hygiene for uncontracted OSVC leads; NEVER touch paid/contracted rows.
+  var leads=ss.getSheetByName('Leads');
+  if(leads&&leads.getLastRow()>1){
+    var hl=impHeader_(leads),lm=hl.map;
+    var need=['Submission_ID','Stage','Retention_Until','Action_Status'];
+    need.forEach(function(k){if(lm[k]===undefined)throw Error('Missing Leads header: '+k)});
+    var lr=leads.getRange(2,1,leads.getLastRow()-1,leads.getLastColumn()).getValues();
+    lr.forEach(function(x,i){
+      if(!String(x[lm.Submission_ID]||'').startsWith('OSVC-B2B-'))return;
+      if(String(x[lm.Action_Status])==='OSVC_B2B_EXPIRED_ANONYMIZED')return;
+      // A paid or legally meaningful contract must be reviewed, not auto-deleted.
+      if(['New','Lost'].indexOf(String(x[lm.Stage]))<0)return;
+      var date=x[lm.Retention_Until] instanceof Date?x[lm.Retention_Until]:new Date(x[lm.Retention_Until]);
+      if(!isFinite(date.getTime())||date>now)return;
+      ['Full_Name','Email','Phone_Number','Subject_Goal','Notes'].forEach(function(name){
+        if(lm[name]!==undefined)leads.getRange(i+2,lm[name]+1).clearContent();
+      });
+      leads.getRange(i+2,lm.Action_Status+1).setValue('OSVC_B2B_EXPIRED_ANONYMIZED');
       cleared++;
     });
   }
