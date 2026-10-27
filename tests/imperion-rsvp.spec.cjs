@@ -43,7 +43,7 @@ test('registration backend outage gives direct organiser contact without collect
  await page.goto('/register/?lang=ru');
  await expect(page.locator('#fallback')).toBeVisible();
  await expect(page.locator('#rsvpForm')).toBeHidden();
- await expect(page.locator('#contactLink')).toHaveAttribute('href',/^https:\/\/wa\.me\//);
+ await expect(page.locator('#contactLink')).toHaveAttribute('href',/^mailto:/);
 });
 
 
