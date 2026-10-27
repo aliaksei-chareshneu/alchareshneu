@@ -281,6 +281,109 @@ function impSendReceiptQueue_(ss,cfg){
  return {sent:sent,failed:failed};
 }
 
+/** Optional one-time attendee follow-up, using the SAME Registrations row.
+ * OFF by default. A manual Check_In_At is mandatory: submitting an RSVP
+ * does NOT prove attendance. Never contact minors or marketing-only records.
+ */
+var IMP_EVENT_FOLLOWUP_COLS=['Event_Followup_Status','Event_Followup_Attempts','Event_Followup_Sent_At'];
+function impEnsureEventFollowupCols_(sh){
+ var h=impHeader_(sh);
+ IMP_EVENT_FOLLOWUP_COLS.forEach(function(k){
+  if(h.map[k]!==undefined)return;
+  var col=sh.getLastColumn()+1;
+  if(col>sh.getMaxColumns())sh.insertColumnsAfter(sh.getMaxColumns(),1);
+  sh.getRange(1,col).setValue(k);h.map[k]=col-1;
+ });
+}
+function impEventEnd_(v){
+ if(v instanceof Date)return v;
+ var s=String(v||''),match=/^(\d{4})-(\d{1,2})-(\d{1,2})[ T](\d{1,2}):(\d{2})/.exec(s);
+ if(match)return new Date(Number(match[1]),Number(match[2])-1,Number(match[3]),
+   Number(match[4]),Number(match[5]));
+ return new Date(v);
+}
+function impAttendeeThankYou_(row,m,event,props){
+ var locale=String(row[m.Registration_Locale]||'cs'),isWalk=/walk|hike|výlet|proch|tour/i.test(String(event.category));
+ var isDruzina=/družina|druzina/i.test(event.community);
+ var words={
+  cs:['Děkujeme za společnou akci','Děkujeme, že jste přišli na naši akci. Budeme rádi za upřímnou zpětnou vazbu: co se povedlo a co příště zlepšit? Stačí odpovědět na tento e-mail.','Pokud chcete, můžete také zanechat veřejnou recenzi:','Novinky komunity můžete dobrovolně sledovat zde:'],
+  en:['Thank you for joining us','Thank you for coming along. We would appreciate your honest feedback: what worked well and what could be better? Just reply to this email.','If you wish, you can also leave a public review:','You can optionally follow community updates here:'],
+  ru:['Спасибо, что были с нами','Спасибо, что пришли! Будем рады честному отзыву: что понравилось и что стоит улучшить? Можно просто ответить на это письмо.','Если захотите, можете оставить публичный отзыв:','Новости сообщества можно по желанию читать здесь:'],
+  uk:['Дякуємо, що були з нами','Дякуємо, що завітали! Будемо раді чесному відгуку: що сподобалося і що можна поліпшити? Достатньо відповісти на цей лист.','Якщо бажаєте, можете залишити публічний відгук:','За бажанням можна стежити за новинами спільноти тут:']
+ };
+ var w=words[locale]||words.cs;
+ var body=[w[1],'',event.title];
+ var reviewKey=isDruzina?'IMPERION_DRUZINA_REVIEW_URL':'IMPERION_BRNOWALKERS_REVIEW_URL';
+ var review=String(props.getProperty(reviewKey)||'').trim();
+ // Only owner-configured review destinations. Never guess a Google Maps review link.
+ if(/^https:\/\/(?:g\.page|maps\.app\.goo\.gl|(?:www\.)?(?:google\.com|facebook\.com))\//i.test(review))
+  body.push('',w[2]+' '+review);
+ // A request to opt in is not a confirmed marketing consent.
+ if(String(row[m.Marketing_Consent]||'').toUpperCase()==='CONFIRMED'){
+  body.push('',w[3]+' https://t.me/'+(isDruzina?'druzinamoravy_news':'pochody_brno_news'));
+ }
+ return {subject:w[0]+' · '+String(event.title||'').slice(0,110),body:body.join('\n'),
+  sender:isDruzina?'Družina Moravy':isWalk?'BrnoWalkers':'Community events'};
+}
+function impSendAttendedFollowups_(ss,cfg){
+ var p=PropertiesService.getScriptProperties();
+ if(p.getProperty('IMPERION_ATTENDEE_FOLLOWUP_LIVE')!=='true')
+  return {sent:0,failed:0,disabled:true};
+ var sh=ss.getSheetByName('Registrations'),eventSheet=ss.getSheetByName('Events');
+ if(!sh||!eventSheet)throw Error('Existing event/registration CRM is unavailable');
+ impEnsureEventFollowupCols_(sh);
+ var m=impHeader_(sh).map,em=impHeader_(eventSheet).map;
+ ['Event_ID','Category','Community','Title','End_DateTime','Status','Data_Controller'].forEach(function(k){
+  if(em[k]===undefined)throw Error('Missing Events.'+k);
+ });
+ ['Email','Event_ID','Source_Channel','Age','Check_In_At','RSVP_Status','Data_Controller',
+  'Registration_Locale','Marketing_Consent','Event_Followup_Status',
+  'Event_Followup_Attempts','Event_Followup_Sent_At'].forEach(function(k){
+  if(m[k]===undefined)throw Error('Missing Registrations.'+k);
+ });
+ var now=Date.now(),byId={};
+ var evs=eventSheet.getDataRange().getValues();
+ evs.slice(1).forEach(function(r){
+  var id=String(r[em.Event_ID]||''),end=impEventEnd_(r[em.End_DateTime]);
+  if(!id||!isFinite(end.getTime())||end.getTime()+18*3600000>now
+    ||end.getTime()+14*86400000<now)return;
+  if(['Active','Completed','Archived'].indexOf(String(r[em.Status]))<0)return;
+  byId[id]={title:String(r[em.Title]||'').slice(0,160),
+   category:String(r[em.Category]||''),community:String(r[em.Community]||''),
+   controller:String(r[em.Data_Controller]||'').trim()};
+ });
+ var quota=Math.max(0,MailApp.getRemainingDailyQuota()-3),max=Math.min(12,quota),sent=0,failed=0;
+ if(!max||sh.getLastRow()<2)return {sent:0,failed:0,quotaBlocked:!max};
+ var rows=sh.getRange(2,1,sh.getLastRow()-1,sh.getLastColumn()).getDisplayValues();
+ rows.forEach(function(row,i){
+  if(sent>=max)return;
+  var source=String(row[m.Source_Channel]||''),event=byId[String(row[m.Event_ID]||'')];
+  if(source!=='WEBSITE_RSVP_SUPABASE_UNCONFIRMED'||!event
+   ||!event.controller||event.controller!==String(row[m.Data_Controller]||'').trim()
+   ||!String(row[m.Check_In_At]||'').trim()
+   ||!/^adult$/i.test(String(row[m.Age]||''))
+   ||['NO','DECLINED'].indexOf(String(row[m.RSVP_Status]||'').toUpperCase())>=0)return;
+  var email=String(row[m.Email]||'').trim();
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email))return;
+  var state=String(row[m.Event_Followup_Status]||'').trim();
+  if(state&&state!=='RETRY')return; // exactly one follow-up per canonical row
+  var attempts=Number(row[m.Event_Followup_Attempts]||0);
+  if(attempts>=3){sh.getRange(i+2,m.Event_Followup_Status+1).setValue('FAILED_REVIEW');return;}
+  var msg=impAttendeeThankYou_(row,m,event,p);
+  try{
+   MailApp.sendEmail({to:email,subject:msg.subject,body:msg.body,name:msg.sender,replyTo:cfg.email});
+   sh.getRange(i+2,m.Event_Followup_Sent_At+1).setValue(new Date());
+   sh.getRange(i+2,m.Event_Followup_Status+1).setValue('SENT_TO_PROVIDER');
+   sent++;
+  }catch(error){
+   sh.getRange(i+2,m.Event_Followup_Attempts+1).setValue(attempts+1);
+   sh.getRange(i+2,m.Event_Followup_Status+1).setValue(attempts+1>=3?'FAILED_REVIEW':'RETRY');
+   failed++;console.error('Verified-attendance follow-up failed; retained for review');
+  }
+ });
+ return {sent:sent,failed:failed};
+}
+
 /** Pending owner count digest is private Script Properties, not a second CRM.
  * A failed MailApp call retains the counts for the next hourly run.
  * Do not include attendee names, guardian data or contact details in emails.
@@ -356,9 +459,10 @@ function imperionSyncPrivateIntake(){
     // Retry a previously failed digest even if this run has no new rows.
     impFlushOwnerDigest_(cfg);
     var receipts=impSendReceiptQueue_(ss,cfg);
+    var followups=impSendAttendedFollowups_(ss,cfg);
     console.log('Private intake receipts: dispatched='+receipts.sent+', errors='+receipts.failed);
     console.log('Private intake: new RSVP='+addedR+', enquiries='+addedE+', corporate OSVC='+addedB+', acked='+processed);
-    return {newRsvps:addedR,newEnquiries:addedE,newB2B:addedB,acked:processed,receipts:receipts};
+    return {newRsvps:addedR,newEnquiries:addedE,newB2B:addedB,acked:processed,receipts:receipts,followups:followups};
   }finally{lock.releaseLock();}
 }
 function imperionCleanupPrivateIntake(){
