@@ -53,6 +53,8 @@ test('retries mail outage without creating a second CRM or a confirmed booking',
  assert.match(msg.body,/Не приезжайте и не платите до подтверждения/);
  assert.doesNotMatch(msg.body,/confirmed booking|оплата получена/i);
  assert.equal(msg.replyTo,'owner@example.invalid');
+ assert.match(msg.body,/https:\/\/t\.me\/Chareshneu/);
+ assert.match(msg.body,/https:\/\/wa\.me\/420702914842/);
 });
 test('rejects stale/wrong-source and non-email rows, including business rows outside New',()=>{
  const h=harness(), m=Object.fromEntries(h.keys.map((k,i)=>[k,i])),row=h.rows[1].slice();
@@ -69,4 +71,27 @@ test('source contains GDPR-safe dispatch, retry and 5-minute trigger not a marke
  assert.match(source,/REVIEW_NO_EMAIL/);
  assert.match(source,/SENT_TO_PROVIDER/);
  assert.doesNotMatch(source,/sendBroadcast|sendCampaign|newsletterSubscribe/);
+});
+
+test('post-event follow-up is opt-in controlled, verified-attendance only and never assumes review links',()=>{
+ const api=new Function(source+';return {impAttendeeThankYou_,impSendAttendedFollowups_};')();
+ const map={Registration_Locale:0,Marketing_Consent:1};
+ const row=['ru','REQUESTED_UNCONFIRMED'];
+ const ev={title:'BrnoWalkers route',category:'Hike',community:'Brnowalkers'};
+ const props={getProperty:()=>''};
+ const message=api.impAttendeeThankYou_(row,map,ev,props);
+ assert.match(message.body,/честному отзыву/);
+ assert.ok(!message.body.includes('t.me/pochody_brno_news'),'unverified marketing opt-in must not receive community invitations');
+ assert.doesNotMatch(message.body,/\/review/,'no review URL may be fabricated');
+ row[1]='CONFIRMED';
+ const withConsent=api.impAttendeeThankYou_(row,map,ev,props);
+ assert.ok(withConsent.body.includes('t.me/pochody_brno_news'));
+ const disabled=new Function('PropertiesService',source+
+   ';return impSendAttendedFollowups_;')({getScriptProperties:()=>({getProperty:()=>null})});
+ assert.deepEqual(disabled({},{}),{sent:0,failed:0,disabled:true});
+ assert.match(source,/Check_In_At/);
+ assert.match(source,/source!==['"]WEBSITE_RSVP_SUPABASE_UNCONFIRMED['"]/);
+ assert.match(source,/IMP_EVENT_FOLLOWUP_COLS/);
+ assert.match(source,/IMPERION_ATTENDEE_FOLLOWUP_LIVE/);
+ assert.ok(source.includes('impSendAttendedFollowups_(ss,cfg)'));
 });
