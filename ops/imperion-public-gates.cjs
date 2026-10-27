@@ -7,6 +7,7 @@ const path = require('node:path');
 const REQUIRED = Object.freeze([
   'index.html',
   'corporate/index.html',
+  'corporate/request/index.html',
   'academy/index.html',
   'druzina/index.html',
   'walkers/index.html',
@@ -40,8 +41,19 @@ function runAudit(pages) {
   const druzina = pages['druzina/index.html'] || '';
   const walkers = pages['walkers/index.html'] || '';
 
-  verify('root:corporate-route', linkWithId(home, 'heroCta') === 'corporate/technical-answers/?lang=en',
-    'Corporate hero CTA must open the existing corporate service');
+  // The home hero may point to the service explanation OR straight to the
+  // guarded OSVC quote form, but never to an invented checkout.
+  const heroCorporateRoute=linkWithId(home,'heroCta');
+  const b2bQuote=pages['corporate/request/index.html']||'';
+  const b2bGuarded=/<form[^>]*id="request"/.test(b2bQuote)
+    && /id="privacyAck"[^>]*type="checkbox" required/.test(b2bQuote)
+    && /imperion-b2b-intake/.test(b2bQuote)
+    && /RECEIVED_UNCONFIRMED/.test(b2bQuote)
+    && /bookingConfirmed:false|Nezávazná|non-binding/i.test(b2bQuote);
+  verify('root:corporate-route',
+    heroCorporateRoute==='corporate/technical-answers/?lang=en'
+    || (heroCorporateRoute==='corporate/request/?lang=en&service=DATA_PILOT&src=home_hero'&&b2bGuarded),
+    'Corporate hero CTA must open an existing documented service or guarded non-binding quote form');
   verify('root:audience-route', linkWithId(home, 'heroCorporateCta') === 'start/',
     'Personal/community hero CTA must open the relevant choices');
   const clubCard = home.match(/<a\b[^>]*class=["'][^"']*\bventure-card\b[^"']*["'][^>]*href=["']druzina\/["'][^>]*>([\s\S]*?)<\/a>/i)?.[1] || '';
