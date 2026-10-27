@@ -20,6 +20,10 @@ test('public registration sends one private request with independent consents',a
   await page.locator('#safety').check();
   await page.locator('#submit').click();
   await expect(page.locator('#result')).toContainText('Přihláška byla přijata');
+  await expect(page.locator('#result')).toContainText('Velká Klajdovka');
+  await expect(page.locator('#result')).toContainText('synthetic-rsvp@example.test');
+  await expect(page.locator('#result .receipt-actions button')).toHaveCount(2);
+  await expect(page.locator('#rsvpForm')).toBeHidden();
   await expect(page.locator('#result')).toBeFocused();
   expect(submitted).toMatchObject({eventId:'PUB-HIKE-20261101',email:'synthetic-rsvp@example.test',safety:true,photo:'NO',futureUpdates:false,language:'cs'});
   expect(page.url()).not.toContain('synthetic-rsvp');
