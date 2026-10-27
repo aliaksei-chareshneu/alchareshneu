@@ -53,6 +53,8 @@ test('retries mail outage without creating a second CRM or a confirmed booking',
  assert.match(msg.body,/Не приезжайте и не платите до подтверждения/);
  assert.doesNotMatch(msg.body,/confirmed booking|оплата получена/i);
  assert.equal(msg.replyTo,'owner@example.invalid');
+ assert.match(msg.body,/https:\/\/t\.me\/Chareshneu/);
+ assert.match(msg.body,/https:\/\/wa\.me\/420702914842/);
 });
 test('rejects stale/wrong-source and non-email rows, including business rows outside New',()=>{
  const h=harness(), m=Object.fromEntries(h.keys.map((k,i)=>[k,i])),row=h.rows[1].slice();
