@@ -31,18 +31,22 @@ Deno.serve(async (req:Request):Promise<Response>=>{
 
   try{
     if(req.method==="GET"){
-      const [rsvp,enquiry]=await Promise.all([
+      const [rsvp,enquiry,b2b]=await Promise.all([
         api.from("imperion_rsvp_submissions")
           .select("id,event_id,first_name,last_name,email,phone,age_group,guardian_name,guardian_phone,rsvp_status,safety_acknowledged,safety_version,photo_choice,marketing_requested,data_controller,language,source,status,created_at,retention_until")
           .is("crm_synced_at",null).order("created_at",{ascending:true}).limit(40),
         api.from("imperion_rsvp_enquiries")
           .select("id,first_name,last_name,contact,contact_kind,visit_type,preferred_day,preferred_date,adult_confirmed,safety_acknowledged,safety_version,language,data_controller,source,status,created_at,retention_until")
           .is("crm_synced_at",null).order("created_at",{ascending:true}).limit(40),
+        // OSVC enquiries are returned only to the existing privately authenticated CRM importer.
+        api.from("imperion_b2b_inquiries")
+          .select("id,created_at,company,contact_name,email,phone,offer,summary,budget_band,preferred_timeframe,team_size,source,status,retention_until")
+          .is("crm_synced_at",null).order("created_at",{ascending:true}).limit(40),
       ]);
-      if(rsvp.error||enquiry.error)throw Error("pending read");
+      if(rsvp.error||enquiry.error||b2b.error)throw Error("pending read");
       return reply({
         ok:true,protocol:"imperion-intake-bridge-v1",
-        rsvps:rsvp.data||[],enquiries:enquiry.data||[],
+        rsvps:rsvp.data||[],enquiries:enquiry.data||[],b2b:b2b.data||[],
         max_per_type:40,read_only:true
       });
     }
@@ -50,11 +54,12 @@ Deno.serve(async (req:Request):Promise<Response>=>{
     const length=Number(req.headers.get("content-length")||"0");
     if(length>10000)return reply({error:"payload_too_large"},413);
     const payload=await req.json().catch(()=>null);
-    const rsvps=validIds(payload?.rsvps),enquiries=validIds(payload?.enquiries);
-    if(payload?.action!=="ack"||rsvps===null||enquiries===null)
+    const rsvps=validIds(payload?.rsvps),enquiries=validIds(payload?.enquiries),
+      b2b=validIds(payload?.b2b??[]); // Backwards-compatible ACK for older GAS clients.
+    if(payload?.action!=="ack"||rsvps===null||enquiries===null||b2b===null)
       return reply({error:"invalid_ack"},400);
     const now=new Date().toISOString();
-    let ra=0,ea=0;
+    let ra=0,ea=0,ba=0;
     if(rsvps.length){
       const out=await api.from("imperion_rsvp_submissions").update({crm_synced_at:now})
         .in("id",rsvps).is("crm_synced_at",null).select("id");
@@ -67,7 +72,13 @@ Deno.serve(async (req:Request):Promise<Response>=>{
       if(out.error)throw Error("enquiry ack");
       ea=out.data?.length||0;
     }
-    return reply({ok:true,acked:{rsvps:ra,enquiries:ea},idempotent:true});
+    if(b2b.length){
+      const out=await api.from("imperion_b2b_inquiries").update({crm_synced_at:now})
+        .in("id",b2b).is("crm_synced_at",null).select("id");
+      if(out.error)throw Error("b2b ack");
+      ba=out.data?.length||0;
+    }
+    return reply({ok:true,acked:{rsvps:ra,enquiries:ea,b2b:ba},idempotent:true});
   }catch(error){
     console.error("intake_bridge_error",error instanceof Error?error.message:"unknown");
     return reply({error:"intake_unavailable"},503);
