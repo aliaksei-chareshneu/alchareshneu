@@ -42,6 +42,15 @@ a{color:var(--mint)}button,input,select{font:inherit}button{cursor:pointer}.skip
 .consent-choices legend{padding:0 8px;font-weight:800;color:var(--mint)}.consent-help{font-size:13px;color:var(--muted);margin:2px 0 10px}
 .consent-choices .check{margin:10px 0;padding:9px;border-radius:10px;background:rgba(255,255,255,.025)}
 .consent-choices .check label{cursor:pointer}
+.consent-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:8px 0 14px}
+.consent-select-all{background:var(--mint);color:#082c25;border:2px solid transparent;border-radius:12px;min-height:48px;padding:10px 15px;line-height:1.25;font-size:15px;font-weight:850;text-align:center;box-shadow:0 5px 18px #0005}
+.consent-select-all[aria-pressed="true"]{background:transparent;color:var(--mint);border-color:var(--mint);box-shadow:none}
+.consent-select-all:disabled{opacity:.5;cursor:not-allowed}
+.consent-select-all:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.consent-count{font-size:13px;font-weight:750;color:var(--muted)}
+.consent-choices .check:has(input:checked){border:1px solid #78bca5;background:#173e38}
+@media(max-width:440px){.consent-select-all{width:100%}.consent-count{width:100%;text-align:center}}
+
 .contact-alternatives{display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));gap:9px;margin:12px 0}
 .contact-option{display:flex;align-items:center;justify-content:center;min-height:44px;border:1px solid #78aa9c;border-radius:11px;background:#173a3d;color:#d9ffec;text-decoration:none;font-weight:750;padding:9px 13px}
 .contact-option:hover,.contact-option:focus-visible{outline:2px solid var(--mint);outline-offset:2px}
@@ -77,7 +86,7 @@ a{color:var(--mint)}button,input,select{font:inherit}button{cursor:pointer}.skip
       <form id="rsvpForm" hidden novalidate>
         <div class="field event-picker" id="eventPicker"><label class="required" for="eventSearch" data-i18n="event">Event</label><input type="search" id="eventSearch" class="event-search" role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="eventMatches" autocomplete="off"><div id="eventMatches" class="event-matches" role="listbox" hidden></div><select id="eventId" required class="screenreader" aria-label="Selected event"><option value="">Vyberte akci…</option></select><p id="catalogSummary" class="catalog-summary" role="status" aria-live="polite"></p></div>
         <div id="eventInfo" class="info" aria-live="polite" hidden></div><div id="rsvpDetails" hidden>
-        <fieldset class="consent-choices" id="optionalConsents"><legend id="optionalConsentLabel">Další dobrovolné souhlasy</legend><p id="optionalConsentNote" class="consent-help"></p><div class="check"><label><input id="photo" type="checkbox"><span><strong data-i18n="photoHead">I optionally allow photos/video of me</strong> <span data-i18n="photoNote">to be published on organizer channels. Declining does not exclude participation. Minors require separate guardian authorization.</span></span></label></div>
+        <fieldset class="consent-choices" id="optionalConsents"><legend id="optionalConsentLabel">Další dobrovolné souhlasy</legend><p id="optionalConsentNote" class="consent-help"></p><div class="consent-toolbar"><button type="button" id="optInAll" class="consent-select-all" aria-pressed="false" aria-controls="photo future" aria-describedby="optionalConsentNote">Souhlasím s fotografiemi i pozvánkami</button><span id="optionalConsentCount" class="consent-count" role="status" aria-live="polite">0 ze 2 vybráno</span></div><div class="check"><label><input id="photo" type="checkbox"><span><strong data-i18n="photoHead">I optionally allow photos/video of me</strong> <span data-i18n="photoNote">to be published on organizer channels. Declining does not exclude participation. Minors require separate guardian authorization.</span></span></label></div>
         <div class="check"><label><input id="future" type="checkbox"><span><strong data-i18n="updatesHead">I want occasional future event invitations (optional).</strong> <span data-i18n="updatesNote">No spam. Invitations require separate confirmation; withdraw by email at any time.</span></span></label></div>
         </fieldset>
         <div class="cols"><div class="field"><label class="required" for="firstName" data-i18n="first">First name</label><input id="firstName" type="text" name="given-name" autocomplete="given-name" minlength="2" maxlength="80" required></div><div class="field"><label class="required" for="lastName" data-i18n="last">Surname</label><input id="lastName" type="text" name="family-name" autocomplete="family-name" minlength="2" maxlength="80" required></div></div>
@@ -109,6 +118,29 @@ const translations={
 };
 let lang='cs',events=[];
 
+
+const OPTIN_TEXT={
+ cs:{select:'Souhlasím s fotografiemi i pozvánkami',clear:'Zrušit obě dobrovolné volby',count:' z 2 vybráno',minor:'U nezletilých je nutný zvláštní souhlas zákonného zástupce.'},
+ en:{select:'I agree to photos and invitations',clear:'Clear both optional choices',count:' of 2 selected',minor:'A minor needs separate parental authorisation.'},
+ ru:{select:'Согласен на фото и приглашения',clear:'Снять оба добровольных согласия',count:' из 2 выбрано',minor:'Для несовершеннолетних нужно отдельное согласие родителя.'},
+ uk:{select:'Погоджуюся на фото та запрошення',clear:'Скасувати обидві добровільні згоди',count:' із 2 обрано',minor:'Для неповнолітніх потрібна окрема згода батьків.'}
+};
+function refreshOptIns(){
+ const chosen=Number($('photo').checked)+Number($('future').checked);
+ const both=chosen===2,under18=document.querySelector('input[name=age]:checked')?.value==='under18';
+ const terms=OPTIN_TEXT[lang]||OPTIN_TEXT.cs;
+ const button=$('optInAll');button.disabled=!!under18;
+ button.setAttribute('aria-pressed',String(both));
+ button.textContent=both?terms.clear:terms.select;
+ $('optionalConsentCount').textContent=under18?terms.minor:chosen+terms.count;
+}
+function toggleOptionalConsents(){
+ if($('optInAll').disabled)return;
+ const active=$('photo').checked&&$('future').checked;
+ $('photo').checked=!active;$('future').checked=!active;refreshOptIns();
+}
+$('optInAll').addEventListener('click',toggleOptionalConsents);
+['photo','future'].forEach(id=>$(id).addEventListener('change',refreshOptIns));
 
 const CONTACT_COPY={
  cs:{consent:'Obě volby jsou dobrovolné a nezávislé. Odmítnutí nebrání účasti.',lead:'Zvolte způsob kontaktu. Zpráva sama není potvrzením účasti.',request:'Dobrý den, rád(a) bych ověřil(a) podmínky a účast na akci',fallback:'Dobrý den, potřebuji pomoc s registrací na akci.'},
@@ -197,7 +229,7 @@ function renderEvents(){
  for(const e of events){const opt=document.createElement('option');opt.value=e.event_id;opt.textContent=eventLabel(e)+' · '+statusLabel(e);select.append(opt)}
  if(events.some(e=>e.event_id===selected))select.value=selected;
  const e=events.find(v=>v.event_id===select.value);$('eventSearch').value=e?eventLabel(e):'';
- $('eventSearch').placeholder=ct('search');$('eventSearch').setAttribute('aria-label',t('event'));$('optionalConsentLabel').textContent=ct('options');$('optionalConsentNote').textContent=(CONTACT_COPY[lang]||CONTACT_COPY.cs).consent;
+ $('eventSearch').placeholder=ct('search');$('eventSearch').setAttribute('aria-label',t('event'));$('optionalConsentLabel').textContent=ct('options');$('optionalConsentNote').textContent=(CONTACT_COPY[lang]||CONTACT_COPY.cs).consent;refreshOptIns();
  const modes=events.map(eventMode);
  $('catalogSummary').textContent=ct('total')+': '+events.length+' · '+ct('open')+': '+modes.filter(m=>m==='FORM').length+' · '+ct('manual')+': '+modes.filter(m=>m==='CONTACT').length+' · '+ct('planned')+': '+modes.filter(m=>m==='PLANNED').length;
  closeMatches();showEvent();
@@ -225,7 +257,7 @@ for(const btn of document.querySelectorAll('[data-lang]'))btn.addEventListener('
 $('eventId').addEventListener('change',()=>{const e=events.find(v=>v.event_id===$('eventId').value);$('eventSearch').value=e?eventLabel(e):'';closeMatches();showEvent()});
 function updateGuardian(){const minor=document.querySelector('input[name=age]:checked')?.value==='under18';
   $('guardian').hidden=!minor;$('guardianName').required=minor;$('guardianPhone').required=minor;
-  $('photo').disabled=minor;$('future').disabled=minor;if(minor){$('photo').checked=false;$('future').checked=false;}}
+  $('photo').disabled=minor;$('future').disabled=minor;if(minor){$('photo').checked=false;$('future').checked=false;}refreshOptIns();}
 for(const radio of document.querySelectorAll('input[name=age]'))radio.addEventListener('change',updateGuardian);
 const RECEIPT_TEXT={"cs":{"title":"Přihláška byla přijata","event":"Akce","date":"Datum a čas","place":"Místo / sraz","price":"Uvedená cena","email":"Kontaktní e-mail","rules":"Bezpečnostní pravidla","reference":"Číslo přihlášky","pending":"Toto není potvrzené místo ani platba. Pořadatel ověří sraz, účast a podmínky individuálně; do té doby nejezděte a neplaťte.","delivery":"Uložte si tyto údaje. E-mailová kopie může dorazit později nebo být nedostupná.","copy":"Kopírovat údaje","copied":"Zkopírováno","back":"Zapsat se na další akci"},"en":{"title":"We received your request","event":"Event","date":"Date and time","place":"Venue / meeting point","price":"Listed price","email":"Contact email","rules":"Safety rules","reference":"Request reference","pending":"This is not a confirmed place or payment. The organiser will verify the meeting place, attendance and terms individually. Do not travel or pay until confirmed.","delivery":"Save these details now. An email copy may be delayed or unavailable.","copy":"Copy details","copied":"Copied","back":"Register for another event"},"ru":{"title":"Заявка получена","event":"Мероприятие","date":"Дата и время","place":"Место / сбор","price":"Указанная стоимость","email":"Контактный email","rules":"Правила безопасности","reference":"Номер обращения","pending":"Это не бронь и не оплата. Организатор отдельно подтвердит место сбора, участие и условия. До подтверждения не приезжайте и не платите.","delivery":"Сохраните эти данные: копия по почте может задержаться или быть недоступна.","copy":"Скопировать данные","copied":"Скопировано","back":"Записаться на другое мероприятие"},"uk":{"title":"Заявку отримано","event":"Подія","date":"Дата й час","place":"Місце / зустріч","price":"Вказана ціна","email":"Контактний email","rules":"Правила безпеки","reference":"Номер запиту","pending":"Це не бронювання й не оплата. Організатор окремо підтвердить місце зустрічі та умови. Не вирушайте й не платіть до підтвердження.","delivery":"Збережіть ці дані: копія на пошту може затриматися або бути недоступною.","copy":"Копіювати дані","copied":"Скопійовано","back":"Зареєструватися на іншу подію"}};
 function showReceipt(eventData,body,payload){
