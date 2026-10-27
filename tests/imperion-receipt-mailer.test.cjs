@@ -81,11 +81,11 @@ test('post-event follow-up is opt-in controlled, verified-attendance only and ne
  const props={getProperty:()=>''};
  const message=api.impAttendeeThankYou_(row,map,ev,props);
  assert.match(message.body,/честному отзыву/);
- assert.doesNotMatch(message.body,/t\\.me\\/pochody_brno_news/,'unverified marketing opt-in must not receive community invitations');
+ assert.ok(!message.body.includes('t.me/pochody_brno_news'),'unverified marketing opt-in must not receive community invitations');
  assert.doesNotMatch(message.body,/\/review/,'no review URL may be fabricated');
  row[1]='CONFIRMED';
  const withConsent=api.impAttendeeThankYou_(row,map,ev,props);
- assert.match(withConsent.body,/t\\.me\\/pochody_brno_news/);
+ assert.ok(withConsent.body.includes('t.me/pochody_brno_news'));
  const disabled=new Function('PropertiesService',source+
    ';return impSendAttendedFollowups_;')({getScriptProperties:()=>({getProperty:()=>null})});
  assert.deepEqual(disabled({},{}),{sent:0,failed:0,disabled:true});
@@ -93,5 +93,5 @@ test('post-event follow-up is opt-in controlled, verified-attendance only and ne
  assert.match(source,/source!==['"]WEBSITE_RSVP_SUPABASE_UNCONFIRMED['"]/);
  assert.match(source,/IMP_EVENT_FOLLOWUP_COLS/);
  assert.match(source,/IMPERION_ATTENDEE_FOLLOWUP_LIVE/);
- assert.match(source,/impSendAttendedFollowups_\\(ss,cfg\\)/);
+ assert.ok(source.includes('impSendAttendedFollowups_(ss,cfg)'));
 });
