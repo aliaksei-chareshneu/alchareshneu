@@ -141,7 +141,7 @@
       <p class="eyebrow" data-i18n="hero.eyebrow">Brno · Movement · Mind</p>
       <h1 data-exp="homeTitle">Learn. Explore. Find your people.</h1>
       <p class="tagline" data-exp="homeIntro">Tutoring with Aliaksei Chareshneu, PhD. Hikes with BrnoWalkers. Historical fencing with Družina Moravy. Your next step starts in Brno.</p>
-      <a id="heroCta" class="btn solid plausible-event-name=Hero-CTA" href="corporate/technical-answers/?lang=en">For companies · AI pilot from 14,900 Kč</a>
+      <a id="heroCta" class="btn solid plausible-event-name=Hero-CTA" href="corporate/request/?lang=en&amp;service=DATA_PILOT&amp;src=home_hero">For companies · AI pilot from 14,900 Kč</a>
       <a id="heroCorporateCta" class="btn" href="start/">Explore learning &amp; communities</a>
       <a class="reviews-badge" href="https://maps.app.goo.gl/fEbnJHxiVoAx1v498" target="_blank" rel="noopener">
         <span class="star">⭐</span><span data-i18n="reviewsBadge">50+ Google reviews · 5.0</span>
@@ -3089,10 +3089,10 @@ function applyTranslations(lang) {
 // its own small lookup + setter rather than bolting attribute-switching
 // onto the generic data-i18n system for one element.
 const HERO_CTA = {
-  en:{text:'For companies · AI pilot from 14,900 Kč', href:'corporate/technical-answers/?lang=en'},
-  cs:{text:'Pro firmy · AI pilot od 14 900 Kč', href:'corporate/technical-answers/?lang=cs'},
-  ru:{text:'Компаниям · AI-пилот от 14 900 Kč', href:'corporate/technical-answers/?lang=ru'},
-  uk:{text:'Компаніям · AI-пілот від 14 900 Kč', href:'corporate/technical-answers/?lang=uk'}
+  en:{text:'For companies · AI pilot from 14,900 Kč', href:'corporate/request/?lang=en&service=DATA_PILOT&src=home_hero'},
+  cs:{text:'Pro firmy · AI pilot od 14 900 Kč', href:'corporate/request/?lang=cs&service=DATA_PILOT&src=home_hero'},
+  ru:{text:'Компаниям · AI-пилот от 14 900 Kč', href:'corporate/request/?lang=ru&service=DATA_PILOT&src=home_hero'},
+  uk:{text:'Компаніям · AI-пілот від 14 900 Kč', href:'corporate/request/?lang=uk&service=DATA_PILOT&src=home_hero'}
 };
 function updateHeroCta(lang) {
   const el = document.getElementById('heroCta');
