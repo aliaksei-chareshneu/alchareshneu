@@ -164,3 +164,42 @@ test('LIVE read-only smoke: public GitHub Pages loads catalog via real secured A
    // No form submission or personal-data collection during live read-only checks.
  }finally{await context.close();}
 });
+
+
+for(const lang of ['cs','en','ru','uk']){
+ test('optional consent shortcut is explicit, reversible and never checks safety in '+lang,async({page})=>{
+  await page.route(url,route=>route.fulfill({status:200,contentType:'application/json',headers:cors(),body:JSON.stringify({events:[example]})}));
+  await page.goto('/register/'+(lang==='cs'?'':lang+'/'));
+  await expect(page.locator('#rsvpDetails')).toBeVisible();
+  await expect(page.locator('#optInAll')).toBeVisible();
+  await expect(page.locator('#optInAll')).toHaveAttribute('aria-pressed','false');
+  await expect(page.locator('#photo')).not.toBeChecked();
+  await expect(page.locator('#future')).not.toBeChecked();
+  await expect(page.locator('#safety')).not.toBeChecked();
+  const placement=await page.evaluate(()=>Boolean(document.getElementById('optionalConsents')
+   .compareDocumentPosition(document.getElementById('firstName'))&Node.DOCUMENT_POSITION_FOLLOWING));
+  expect(placement).toBe(true);
+  await page.locator('#optInAll').click();
+  await expect(page.locator('#photo')).toBeChecked();
+  await expect(page.locator('#future')).toBeChecked();
+  await expect(page.locator('#safety')).not.toBeChecked();
+  await expect(page.locator('#optInAll')).toHaveAttribute('aria-pressed','true');
+  await page.locator('#photo').uncheck();
+  await expect(page.locator('#future')).toBeChecked();
+  await expect(page.locator('#optInAll')).toHaveAttribute('aria-pressed','false');
+  await page.locator('#optInAll').click();
+  await expect(page.locator('#photo')).toBeChecked();
+  await expect(page.locator('#future')).toBeChecked();
+  await page.locator('#optInAll').click();
+  await expect(page.locator('#photo')).not.toBeChecked();
+  await expect(page.locator('#future')).not.toBeChecked();
+  await page.locator('#optInAll').click();
+  await page.locator('input[name=age][value=under18]').check();
+  await expect(page.locator('#photo')).toBeDisabled();
+  await expect(page.locator('#future')).toBeDisabled();
+  await expect(page.locator('#photo')).not.toBeChecked();
+  await expect(page.locator('#future')).not.toBeChecked();
+  await expect(page.locator('#optInAll')).toBeDisabled();
+  await expect(page.locator('#safety')).not.toBeChecked();
+ });
+}
