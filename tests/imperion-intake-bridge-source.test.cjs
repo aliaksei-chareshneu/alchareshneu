@@ -57,3 +57,16 @@ test('owner digest survives a MailApp failure and retries with zero new registra
  assert.equal(kv.size,0);
  assert.deepEqual(fn.impFlushOwnerDigest_({email:'owner@example.invalid',sheetId:'sheet'}),{sent:false,pending:false});
 });
+
+test('private B2B inquiry intake maps to canonical Leads tab with strict no-cash status',()=>{
+ assert.match(gs,/getSheetByName\('Leads'\)/);
+ assert.match(gs,/OSVC-B2B-/);
+ assert.match(gs,/OSVC_B2B_INBOUND_REVIEW_NO_ORDER_NO_CASH/);
+ assert.match(gs,/pending\.b2b/);
+ assert.match(gs,/newB2B:addedB/);
+ assert.match(gs,/OSVC_B2B_EXPIRED_ANONYMIZED/);
+ assert.match(edge,/from\("imperion_b2b_inquiries"\)/);
+ assert.match(edge,/b2b:b2b\.data/);
+ assert.match(edge,/b2b:ba/);
+ assert.doesNotMatch(edge,/access-control-allow-origin/i);
+});
