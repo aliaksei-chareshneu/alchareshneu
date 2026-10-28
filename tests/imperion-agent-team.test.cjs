@@ -103,6 +103,22 @@ test('social fails closed if source job id differs or public rights missing',asy
   x.data.SocialPublishing[0].approved_public_snapshot.rights_status='unknown';
   assert.equal((await A.social(x)).jobs[0].state,'SOURCE_RIGHTS_OR_FACT_GATE_BLOCKED');
 });
+test('existing scheduled/pending records never get requeued even with approved snapshot',async()=>{
+  const x=sample();x.data.SocialPublishing=x.data.SocialPublishing.slice(0,1);
+  for(const s of ['SCHEDULED_PENDING','PENDING','SCHEDULED','BUFFER_SUBMITTING','ERROR','PUBLISHED','POSTED_UNVERIFIED']){
+    x.data.SocialPublishing[0].Status=s;
+    const out=await A.social(x);
+    assert.equal(out.jobs[0].state,'NO_AUTORETRY_RECONCILE_PROVIDER',s);
+    assert.equal(out.published_by_this_run,0);
+  }
+});
+test('live Hub action status and Owner_Approval are recognized without inventing trust',()=>{
+  const x=sample();
+  x.data.IMPERION_Agent_Jobs[0].Owner_Approval='PENDING';
+  assert.equal(A.chief(x).priority_tasks[0].approval,'PENDING');
+  x.data.Revenue_Actions[0].Action_Status='CLOSED_NO_MORE_FOLLOWUP';
+  assert.equal(A.sales(x).candidates_total,0);
+});
 test('seo audits existing files without publication or external crawl',()=>{
   const dir=fs.mkdtempSync(path.join(os.tmpdir(),'imperion-seo-'));
   try{
