@@ -119,3 +119,67 @@ test('public RSVP safety acknowledgement cannot become a waiver, and timestamps 
   'existing submission ID must be idempotent');
  assert.equal(records.length,1);
 });
+
+
+test('owner digest summarizes the precise new event without disclosing applicant PII',()=>{
+ const kv=new Map(),mails=[];
+ const PropertiesService={getScriptProperties:()=>({
+   getProperty:k=>kv.get(k)||null,
+   setProperty:(k,v)=>kv.set(k,v),
+   deleteProperty:k=>kv.delete(k)
+ })};
+ const MailApp={sendEmail:(...args)=>mails.push(args)};
+ function sheet(headers,rows,id){
+   return {
+     getLastColumn:()=>headers.length,
+     getLastRow:()=>rows.length+1,
+     getSheetId:()=>id,
+     getRange:(r,c,n=1,w=1)=>({
+       getDisplayValues:()=>r===1?[headers.slice(c-1,c-1+w)]:
+         rows.slice(r-2,r-2+n).map(x=>x.slice(c-1,c-1+w))
+     })
+   };
+ }
+ const id='12345678-1234-4123-8123-123456789012';
+ const reg=sheet(
+   ['Submission_ID','Source_Channel','Event_ID','RSVP_Status','Full_Name','Email'],
+   [[id,'WEBSITE_RSVP_SUPABASE_UNCONFIRMED','PUB-HIKE-20261101','REGISTERED',
+     'Private Test Person','private@example.invalid']],560816289);
+ const ctrl=sheet(['Datum / Date','Мероприятие / Event','Event_ID'],
+   [['2026-11-01 12:45','Hády → Růženin lom → Obřany','PUB-HIKE-20261101']],2026101802);
+ const ss={getSheetByName:name=>name==='Registrations'?reg:
+   name==='RSVP_Control'?ctrl:null};
+ const fn=new Function('PropertiesService','MailApp',gs+
+   ';return {impQueueOwnerDigest_,impFlushOwnerDigest_};')(PropertiesService,MailApp);
+ fn.impQueueOwnerDigest_(1,0,0,ss);
+ assert.equal(JSON.parse(kv.get('IMPERION_INTAKE_NOTIFY_PENDING')).items.length,1);
+ const outcome=fn.impFlushOwnerDigest_({email:'owner@example.invalid',sheetId:'sheet123'},ss,{});
+ assert.deepEqual(outcome,{sent:true,pending:false});
+ assert.equal(mails.length,1);
+ assert.match(mails[0][1],/Hády/);
+ assert.match(mails[0][2],/01.11.2026|2026-11-01/);
+ assert.match(mails[0][2],/chce přijít: 1/);
+ assert.match(mails[0][2],/nepotvrzené místo/);
+ assert.match(mails[0][2],/gid=560816289&range=A2/);
+ assert.doesNotMatch(mails[0][2],/Private Test Person|private@example.invalid/);
+ assert.doesNotMatch(mails[0][2],/FIREMNÍ OSVČ POPTÁVKY/);
+ assert.equal(kv.size,0);
+});
+
+test('owner digest persists counts even without optional CRM details',()=>{
+ const kv=new Map(),mails=[];
+ const PropertiesService={getScriptProperties:()=>({
+   getProperty:k=>kv.get(k)||null,
+   setProperty:(k,v)=>kv.set(k,v),
+   deleteProperty:k=>kv.delete(k)
+ })};
+ const MailApp={sendEmail:(...args)=>mails.push(args)};
+ const fn=new Function('PropertiesService','MailApp',gs+
+   ';return {impQueueOwnerDigest_,impFlushOwnerDigest_};')(PropertiesService,MailApp);
+ fn.impQueueOwnerDigest_(0,0,2);
+ assert.deepEqual(fn.impFlushOwnerDigest_({email:'owner@example.invalid',sheetId:'sheet123'}),
+   {sent:true,pending:false});
+ assert.match(mails[0][2],/FIREMNÍ OSVČ POPTÁVKY/);
+ assert.doesNotMatch(mails[0][2],/DRUŽINA MORAVY — zájem/);
+ assert.doesNotMatch(mails[0][2],/REGISTRACE NA AKCE — nové/);
+});
