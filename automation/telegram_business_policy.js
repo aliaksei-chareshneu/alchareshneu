@@ -11,7 +11,7 @@ const REGISTRATION = "https://aliaksei-chareshneu.github.io/alchareshneu/registe
 const CALENDAR = "https://aliaksei-chareshneu.github.io/alchareshneu/calendar/";
 
 const INTENTS = [
-  { key: "registration", re: /\b(registr(?:ation|er|arse)?|sign[\s-]?up|enrol|apply)\b|(?:как|где)\s+(?:мне\s+)?(?:записаться|зарегистрироваться)|(?:как|где)\s+(?:записаться|регистрироваться)|(?:jak|kde)\s+(?:se\s+)?(?:přihlásit|registrovat)|(?:як|де)\s+(?:зареєструватися|записатися)/iu },
+  { key: "registration", re: /\b(regist(?:er|ration|ration form)|sign[\s-]?up|enrol|apply)\b|(?:как|где)\s+(?:мне\s+)?(?:записаться|зарегистрироваться)|(?:как|где)\s+(?:записаться|регистрироваться)|(?:jak|kde)\s+(?:se\s+)?(?:přihlásit|registrovat)|(?:як|де)\s+(?:зареєструватися|записатися)/iu },
   { key: "schedule", re: /\b(schedule|timetable|calendar|when are (?:the )?(?:sessions|trainings))\b|(?:где|какое|график)\s+(?:расписание|тренировок)|расписани[ея]|(?:kde|jaký)\s+(?:je\s+)?(?:rozvrh|kalendář)|(?:kdy jsou)\s+tréninky|(?:де|який)\s+розклад|розклад\s+занять/iu },
 ];
 
@@ -21,8 +21,8 @@ const HUMAN_REVIEW = /(?:платёж|оплат|возврат|скидк|це�
 function replyFor(intent, message) {
   const s = String(message);
   const hasCyrillic = /[\u0400-\u052f]/u.test(s);
-  const ukrainian = /\b(?:як|де|записатися|зареєструватися|розклад)\b/iu.test(s);
-  const czech = /\b(?:jak|kde|se|přihlásit|registrovat|rozvrh|kalendář|tréninky)\b/iu.test(s);
+  const ukrainian = /(?<![\p{L}\p{N}_])(?:як|де|записатися|зареєструватися|розклад)(?![\p{L}\p{N}_])/iu.test(s);
+  const czech = /(?<![\p{L}\p{N}_])(?:jak|kde|přihlásit|registrovat|rozvrh|kalendář|tréninky)(?![\p{L}\p{N}_])/iu.test(s);
   if (intent === "registration") {
     if (ukrainian) return "Реєстрація на заходи тут: " + REGISTRATION + "\nОберіть подію та заповніть форму. Якщо реєстрація недоступна, напишіть мені.";
     if (hasCyrillic) return "Регистрация на мероприятия здесь: " + REGISTRATION + "\nВыберите мероприятие и заполните форму. Если регистрация недоступна, напишите мне.";
@@ -39,7 +39,7 @@ function decide(update, policy = {}) {
   const msg = update && update.business_message;
   if (!msg) return { decision: "IGNORE", reason: "NOT_BUSINESS_MESSAGE" };
   if (msg.chat?.type !== "private" || msg.from?.is_bot || msg.sender_business_bot) return { decision: "IGNORE", reason: "NON_PRIVATE_OR_BOT" };
-  if (!msg.business_connection_id || !Number.isSafeInteger(msg.chat?.id)) return { decision: "IGNORE", reason: "INVALID_CONNECTION_OR_CHAT" };
+  if (!msg.business_connection_id || !Number.isSafeInteger(msg.chat?.id) || !Number.isSafeInteger(msg.message_id)) return { decision: "IGNORE", reason: "INVALID_CONNECTION_OR_CHAT" };
   const incomingText = typeof msg.text === "string" ? msg.text.trim() : "";
   if (!incomingText || incomingText.length > 1500) return { decision: "REVIEW", reason: "NO_SAFE_TEXT" };
   const age = (policy.nowSeconds ?? Math.floor(Date.now() / 1000)) - msg.date;
