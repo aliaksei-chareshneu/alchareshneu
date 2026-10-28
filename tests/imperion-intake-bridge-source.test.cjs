@@ -73,3 +73,49 @@ test('private B2B inquiry intake maps to canonical Leads tab with strict no-cash
  assert.match(edge,/b2b:ba/);
  assert.doesNotMatch(edge,/access-control-allow-origin/i);
 });
+
+
+test('public RSVP safety acknowledgement cannot become a waiver, and timestamps retain hours',()=>{
+ const {impWriteRsvps_}=new Function(gs+';return {impWriteRsvps_};')();
+ const headers=['Reg_ID','Event_ID','Timestamp','Full_Name','Waiver_Accepted',
+  'Safety_Acknowledged','Retention_Until','Submission_ID','RSVP_Status',
+  'RSVP_Status_At','Consent_Recorded_At','Payment_Status'];
+ const records=[], formats=[];
+ const sheet={
+  getLastColumn:()=>headers.length,
+  getLastRow:()=>records.length+1,
+  getRange(row,col,count=1,width=1){
+   return {
+    getDisplayValues:()=>row===1?[headers]:records.slice(row-2,row-2+count).map(r=>[String(r[col-1]??'')]),
+    setValues(values){assert.equal(width,headers.length);records[row-2]=values[0];},
+    getDisplayValue:()=>String(records[row-2]?.[col-1]??''),
+    setNumberFormat(format){formats.push({row,col,format});}
+   };
+  }
+ };
+ const id='12345678-1234-4123-8123-123456789012';
+ const applicant={
+  id,event_id:'QA-FREE-HIKE',rsvp_status:'YES',first_name:'Synthetic',
+  last_name:'Visitor',safety_acknowledged:true,safety_version:'qa-v1',
+  photo_choice:'NO',marketing_requested:false,
+  created_at:'2026-10-28T07:31:49.151Z',
+  retention_until:'2027-01-30T15:15:00.000Z'
+ };
+ const ss={getSheetByName:name=>name==='Registrations'?sheet:null};
+ const events={'QA-FREE-HIKE':{price_verified:true,price_czk:0}};
+ assert.deepEqual(impWriteRsvps_(ss,[applicant],events),{ids:[id],added:1});
+ const saved=records[0];
+ assert.equal(saved[headers.indexOf('Waiver_Accepted')],'',
+  'safety confirmation must not create a legal waiver');
+ assert.equal(saved[headers.indexOf('Safety_Acknowledged')],'YES');
+ assert.equal(saved[headers.indexOf('Payment_Status')],'NOT_REQUIRED');
+ for(const field of ['Timestamp','Retention_Until','RSVP_Status_At','Consent_Recorded_At']){
+  const col=headers.indexOf(field)+1;
+  assert.ok(saved[col-1] instanceof Date,field+' must remain a native datetime');
+  assert.ok(formats.some(f=>f.row===2&&f.col===col&&f.format==='dd.mm.yyyy hh:mm'),
+   field+' must be displayed with hours and minutes');
+ }
+ assert.deepEqual(impWriteRsvps_(ss,[applicant],events),{ids:[id],added:0},
+  'existing submission ID must be idempotent');
+ assert.equal(records.length,1);
+});
