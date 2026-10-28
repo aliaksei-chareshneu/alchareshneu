@@ -78,7 +78,7 @@ function chief(snapshot) {
     status: upper(field(r, 'Status', 'status', 'State')),
     due: dueState(field(r, 'Due_At', 'Deadline_At', 'Due_Date', 'due_at'), now),
     due_at: str(field(r, 'Due_At', 'Deadline_At', 'Due_Date', 'due_at')),
-    approval: upper(field(r, 'Approval_Status', 'approval_status')),
+    approval: upper(field(r, 'Owner_Approval', 'Approval_Status', 'approval_status')), 
     proof: !!str(field(r, 'Receipt_URL', 'evidence_url', 'Evidence')),
   })).filter(x => !['DONE', 'CLOSED', 'VERIFIED', 'CANCELLED'].includes(x.status));
   const rank = { OVERDUE: 0, WITHIN_24H: 1, DATE_REVIEW: 2, MISSING_DATE: 3, FUTURE: 4 };
@@ -108,7 +108,9 @@ function sales(snapshot) {
     const stage = str(field(r,'Stage','stage','Status','status')).toLowerCase();
     const optOut = upper(field(r,'Opt_Out','opt_out','Do_Not_Contact')) === 'TRUE' ||
       upper(field(r,'Opt_Out','opt_out','Do_Not_Contact')) === 'YES';
-    if (STOP_STAGES.has(stage) || stage.startsWith('closed_') || optOut) { closed++; continue; }
+    const actionStatus = upper(field(r,'Action_Status','action_status'));
+    const blockedStatus = /(?:^|[_\s-])(STOP|HOLD|CLOSED|DORMANT|LOST|DO_NOT_CONTACT)(?:[_\s-]|$)/.test(actionStatus);
+    if (STOP_STAGES.has(stage) || stage.startsWith('closed_') || optOut || blockedStatus) { closed++; continue; }
     const id = identity(r,['Lead_ID','Opportunity_ID','Action_ID','ID'],i);
     const email = str(field(r,'Email','email')).toLowerCase();
     const org = str(field(r,'Company','Organisation','Organization','Company_Domain','Domain')).toLowerCase();
@@ -151,7 +153,9 @@ async function social(snapshot) {
       jobs.push({id,state:'PROVIDER_READBACK_NEEDED', existing_status:status});
       continue;
     }
-    if (status === 'DELIVERY_UNVERIFIED' || status === 'SUBMITTING' || status === 'ERROR') {
+    if (['DELIVERY_UNVERIFIED','SUBMITTING','BUFFER_SUBMITTING','ERROR',
+      'PENDING','SCHEDULED_PENDING','SCHEDULED','POSTED_UNVERIFIED',
+      'PUBLISHED'].includes(status)) {
       jobs.push({id,state:'NO_AUTORETRY_RECONCILE_PROVIDER',existing_status:status});
       continue;
     }
