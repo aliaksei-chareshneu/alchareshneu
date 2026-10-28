@@ -35,6 +35,31 @@ function iso(v) {
   const d = new Date(v);
   return Number.isFinite(d.getTime()) ? d.toISOString() : null;
 }
+// Community Hub Events is configured with Europe/Prague local DateTime columns.
+// Never silently guess during the skipped or repeated DST hour.
+function pragueEventIso(value) {
+  const explicit=iso(value);
+  if (explicit) return explicit;
+  if (typeof value!=='string') return null;
+  const m=/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?$/.exec(value);
+  if (!m) return null;
+  const parts=m.slice(1).map(Number);
+  const [year,month,day,hour,minute,second=0]=parts;
+  const nominal=Date.UTC(year,month-1,day,hour,minute,second);
+  const nominalDate=new Date(nominal);
+  if (nominalDate.getUTCFullYear()!==year || nominalDate.getUTCMonth()!==month-1 ||
+      nominalDate.getUTCDate()!==day || nominalDate.getUTCHours()!==hour ||
+      nominalDate.getUTCMinutes()!==minute || nominalDate.getUTCSeconds()!==second) return null;
+  const fmt=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Prague',
+    year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',
+    second:'2-digit',hourCycle:'h23'});
+  const target=[year,month,day,hour,minute,second].join('-');
+  const matches=[1,2].map(offset=>new Date(nominal-offset*3600000)).filter(date=>{
+    const o=Object.fromEntries(fmt.formatToParts(date).map(p=>[p.type,Number(p.value)]));
+    return [o.year,o.month,o.day,o.hour,o.minute,o.second].join('-')===target;
+  });
+  return matches.length===1 ? matches[0].toISOString():null;
+}
 function rows(data, name) {
   const names = FIELDS[name];
   const key = names.find(k => Object.hasOwn(data, k));
@@ -79,13 +104,13 @@ function chief(snapshot) {
     due: dueState(field(r, 'Due_At', 'Deadline_At', 'Due_Date', 'due_at'), now),
     due_at: str(field(r, 'Due_At', 'Deadline_At', 'Due_Date', 'due_at')),
     approval: upper(field(r, 'Owner_Approval', 'Approval_Status', 'approval_status')), 
-    proof: !!str(field(r, 'Receipt_URL', 'evidence_url', 'Evidence')),
+    proof: !!str(field(r, 'Evidence_URI', 'Receipt_URL', 'evidence_url', 'Evidence')),
   })).filter(x => !['DONE', 'CLOSED', 'VERIFIED', 'CANCELLED'].includes(x.status));
   const rank = { OVERDUE: 0, WITHIN_24H: 1, DATE_REVIEW: 2, MISSING_DATE: 3, FUTURE: 4 };
   tasks.sort((a,b) => rank[a.due]-rank[b.due] || a.id.localeCompare(b.id));
   const events = rows(snapshot.data, 'events').map((r,i) => ({
     id: identity(r, ['Event_ID','event_id'], i),
-    starts_at: iso(field(r, 'Starts_At','Start_At','start_at','begins_at')),
+    starts_at: pragueEventIso(field(r, 'Start_DateTime', 'Starts_At','Start_At','start_at','begins_at')),
     status: upper(field(r,'Status','status')),
   })).filter(x => x.starts_at && !['CANCELLED','DRAFT'].includes(x.status) &&
     new Date(x.starts_at).getTime() >= new Date(now).getTime() &&
@@ -131,7 +156,7 @@ function sales(snapshot) {
     const stopChecked = upper(field(r,'Stop_List_Checked','stop_list_checked'));
     const date = str(field(r,'Next_Action_At','Next_Action_Date','Due_At'));
     const due = dueState(date,snapshot.captured_at);
-    const amount = Number(field(r,'Quoted_CZK','Expected_CZK','Amount_CZK'));
+    const amount = Number(field(r,'Quoted_CZK','Expected_CZK','Expected_Value_CZK','Amount_CZK'));
     const value = Number.isFinite(amount) && amount > 0 ? amount : null;
     const ready = history === 'VERIFIED' || history === 'TRUE';
     candidates.push({
@@ -236,4 +261,4 @@ if(require.main===module)main().catch(e=>{
   process.stderr.write((/^[A-Z0-9_: .-]+$/.test(e.message)?e.message:'AGENT_TEAM_FAILED')+'\n');
   process.exitCode=1;
 });
-module.exports={iso,rows,validSnapshot,dueState,chief,sales,social,seo,video,runAll};
+module.exports={iso,pragueEventIso,rows,validSnapshot,dueState,chief,sales,social,seo,video,runAll};
