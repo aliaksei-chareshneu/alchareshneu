@@ -102,15 +102,25 @@ function chief(snapshot) {
 function sales(snapshot) {
   const source = rows(snapshot.data, 'revenue_actions');
   const contacts = source.length ? source : rows(snapshot.data, 'leads');
-  let closed=0, excluded=0, duplicate=0;
+  let closed=0, duplicate=0;
   const seen = new Set(), candidates = [];
+  const tokens = r => [
+    ['email',str(field(r,'Email','email')).toLowerCase()],
+    ['org',str(field(r,'Company','Organisation','Organization','Company_Domain','Domain')).toLowerCase()]
+  ].filter(([,v])=>v).map(([kind,v])=>kind+':'+v);
+  const stopped = r => {
+    const stage = str(field(r,'Stage','stage','Status','status')).toLowerCase();
+    const optOut = ['TRUE','YES'].includes(upper(field(r,'Opt_Out','opt_out','Do_Not_Contact')));
+    const actionStatus = upper(field(r,'Action_Status','action_status'));
+    const statusStop = /(?:^|[_\s-])(STOP|HOLD|CLOSED|DORMANT|LOST|DO_NOT_CONTACT)(?:[_\s-]|$)/.test(actionStatus);
+    return STOP_STAGES.has(stage) || stage.startsWith('closed_') || optOut || statusStop;
+  };
+  // A stopped identity also blocks aliases/different rows sharing the same
+  // normalized email or company, never bypassing an opt-out via a duplicate.
+  const blockedTokens = new Set(contacts.filter(stopped).flatMap(tokens));
   for (const [i,r] of contacts.entries()) {
     const stage = str(field(r,'Stage','stage','Status','status')).toLowerCase();
-    const optOut = upper(field(r,'Opt_Out','opt_out','Do_Not_Contact')) === 'TRUE' ||
-      upper(field(r,'Opt_Out','opt_out','Do_Not_Contact')) === 'YES';
-    const actionStatus = upper(field(r,'Action_Status','action_status'));
-    const blockedStatus = /(?:^|[_\s-])(STOP|HOLD|CLOSED|DORMANT|LOST|DO_NOT_CONTACT)(?:[_\s-]|$)/.test(actionStatus);
-    if (STOP_STAGES.has(stage) || stage.startsWith('closed_') || optOut || blockedStatus) { closed++; continue; }
+    if (stopped(r) || tokens(r).some(t=>blockedTokens.has(t))) { closed++; continue; }
     const id = identity(r,['Lead_ID','Opportunity_ID','Action_ID','ID'],i);
     const email = str(field(r,'Email','email')).toLowerCase();
     const org = str(field(r,'Company','Organisation','Organization','Company_Domain','Domain')).toLowerCase();
@@ -134,7 +144,7 @@ function sales(snapshot) {
   candidates.sort((a,b) => rank[a.due]-rank[b.due] || (b.amount_czk||0)-(a.amount_czk||0));
   return {
     state: 'REVIEW_REQUIRED', source: source.length ? 'EXISTING_IMPERION_HUB/Revenue_Actions' : 'EXISTING_IMPERION_HUB/Leads',
-    source_rows: contacts.length, excluded, closed_or_opted_out: closed, duplicates_rejected: duplicate,
+    source_rows: contacts.length, closed_or_opted_out: closed, duplicates_rejected: duplicate,
     candidates: candidates.slice(0, 100), candidates_total: candidates.length,
     outbound_sent: 0, contracted_verified: 'NOT_CHECKED', cleared_cash: 'NOT_CHECKED',
   };
