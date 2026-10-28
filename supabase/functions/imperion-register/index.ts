@@ -71,6 +71,7 @@ async function allow(label: string, raw: string, max: number): Promise<boolean> 
   if (error) return false;
   return data === true;
 }
+const INVITE_LINK = /^https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]{22}$/;
 const EVENT_COLS='event_id,title,community,category,begins_at,ends_at,venue,price_czk,data_controller,rules_url,contact_activity,is_open,registration_mode,action_url,public_note,price_verified,end_time_verified,source_active';
 
 Deno.serve(async (req:Request):Promise<Response>=>{
@@ -180,7 +181,7 @@ Deno.serve(async (req:Request):Promise<Response>=>{
     if (age==='under18') v.photo='NO';
   } catch {return reply({error:'please_check_required_fields'},400,origin);}
   const {data:event,error:eventError}=await api.from('imperion_rsvp_events')
-    .select(EVENT_COLS).eq('event_id',v.eventId).eq('is_open',true)
+    .select(EVENT_COLS+',updates_group_url').eq('event_id',v.eventId).eq('is_open',true)
     .eq('registration_mode','FORM').eq('source_active',true)
     .eq('price_verified',true).eq('end_time_verified',true)
     .eq('public_listing',true)
@@ -212,6 +213,12 @@ Deno.serve(async (req:Request):Promise<Response>=>{
     // RSVP remains valid; an opt-in request is NEVER an active mailing list entry.
     if (inviteError && inviteError.code!=='23505') console.error('Invitation request storage unavailable');
   }
+  // Event-specific logistics only, never marketing; intentionally excluded from
+  // the anonymous GET catalog. Minors do not receive a public group invite.
+  const invite = v.age==='adult' && v.rsvp!=='NO' &&
+    typeof event.updates_group_url==='string' &&
+    INVITE_LINK.test(event.updates_group_url) ? event.updates_group_url : null;
   return reply({ok:true,status:'RECEIVED',confirmed:false,
+    ...(invite ? {updatesGroupUrl:invite} : {}),
     message:'Your RSVP request was received; the organizer must confirm participation separately.'},200,origin);
 });
