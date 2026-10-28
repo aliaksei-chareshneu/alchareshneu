@@ -314,3 +314,38 @@ body[data-imperion-scope='docs'] main { line-height: 1.8; }
   html { scroll-behavior: auto !important; }
   body[data-imperion-scope] *, body[data-imperion-scope] *::before, body[data-imperion-scope] *::after { transition: none !important; animation: none !important; }
 }
+
+
+/* New 4-language event signup announcement: all links stay in the user's own site.
+   General event RSVPs are distinct from provisional Družina and OSVČ enquiries. */
+body[data-imperion-scope='shared'] .reg-launch {
+  max-width: 1220px;
+  margin: 22px auto 32px;
+  padding: clamp(20px,3vw,30px);
+  border: 1px solid #4d7386;
+  border-radius: 22px;
+  background: linear-gradient(120deg,#153b4a,#0b1b32 72%);
+  box-shadow: 0 18px 42px #0003;
+  color: #f4faff;
+}
+body[data-imperion-scope='shared'] .reg-launch .reg-eyebrow {
+  font-size: 13px; font-weight: 800; letter-spacing: .07em;
+  color: #fbd06e; margin: 0 0 10px;
+}
+body[data-imperion-scope='shared'] .reg-launch h2 {
+  color: #fff; font-size: clamp(22px,3vw,34px); line-height: 1.2;
+  margin: 0 0 12px; letter-spacing:-.02em;
+}
+body[data-imperion-scope='shared'] .reg-launch p { margin: 0 0 12px; line-height: 1.5; }
+body[data-imperion-scope='shared'] .reg-launch .reg-actions { display:flex; gap:10px; flex-wrap:wrap; margin: 16px 0; }
+body[data-imperion-scope='shared'] .reg-launch .reg-actions a {
+  display:inline-flex; align-items:center; justify-content:center; min-height:44px;
+  padding:10px 18px; border-radius:13px; color:#0a2032; background:#ffcf52;
+  font-weight:800; text-decoration:none;
+}
+body[data-imperion-scope='shared'] .reg-launch .reg-actions a:hover { background:#ffe08a; }
+body[data-imperion-scope='shared'] .reg-launch .reg-note { color:#d5e4ed; font-size:14px; margin: 6px 0 0; }
+@media(max-width:640px){
+  body[data-imperion-scope='shared'] .reg-launch { margin:14px 14px 24px; border-radius:15px; }
+  body[data-imperion-scope='shared'] .reg-launch .reg-actions a { flex:1 1 120px; }
+}
