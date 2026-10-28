@@ -16,7 +16,7 @@ const INTENTS = [
 ];
 
 // Event statuses and date-specific public announcements must be confirmed live.
-const HUMAN_REVIEW = /(?:платёж|оплат|возврат|скидк|цена|стоимост|договор|счёт|банк|персональн|медицин|болезн|травм|помощь|конфликт|жалоб|небезопасн|страхов|несовершеннолет|дет[ьи]|1\s*ноябр|1\s*listopad|1\s*november|1\s*nov\b|hády|hady|refund|price|cost|discount|payment|invoice|agreement|injur|child|minor|health|privacy|personal|cancel|cancellation|complain|safety|insurance|zdarma|cena|platba|faktura|sleva|storno|úraz|zdrav|ochran|dítě|děti|bezpeč|листопад)/iu;
+const HUMAN_REVIEW = /(?:платёж|оплат|сколько|стоит|how much|how many|capacity|возврат|скидк|цена|стоимост|договор|счёт|банк|персональн|медицин|болезн|травм|помощь|конфликт|жалоб|небезопасн|страхов|несовершеннолет|дет[ьи]|1\s*ноябр|1\s*listopad|1\s*november|1\s*nov\b|hády|hady|refund|price|cost|discount|payment|invoice|agreement|injur|child|minor|health|privacy|personal|cancel|cancellation|complain|safety|insurance|zdarma|cena|platba|faktura|sleva|storno|úraz|zdrav|ochran|dítě|děti|bezpeč|листопад)/iu;
 
 function replyFor(intent, message) {
   const s = String(message);
