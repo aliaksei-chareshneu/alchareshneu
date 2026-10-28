@@ -119,3 +119,33 @@ test('public RSVP safety acknowledgement cannot become a waiver, and timestamps 
   'existing submission ID must be idempotent');
  assert.equal(records.length,1);
 });
+
+
+test('event logistics WhatsApp link is sourced from canonical Events, RSVP only and adult only',()=>{
+ const link='https://chat.whatsapp.com/ECVnqiJJUuI8MJvDLXkS6s',evId='PUB-HIKE-20261101';
+ const headers=['Event_ID','Updates_Group_URL'],entries=[[evId,link]];
+ const sheet={
+  getLastColumn:()=>2,
+  getLastRow:()=>2,
+  getRange:(r,c,n,w)=>({getDisplayValues:()=>r===1?[headers]:entries})
+ };
+ const ss={getSheetByName:name=>name==='Events'?sheet:null};
+ const h=new Function(gs+';return {impReceiptAttachEventGroups_,impReceiptMessage_};')();
+ const events=h.impReceiptAttachEventGroups_(ss,{[evId]:{title:'BrnoWalkers hike',category:'Hike'}});
+ assert.equal(events[evId].updates_group_url,link);
+ const uuid='12345678-1234-4123-8123-123456789012';
+ const m={Submission_ID:0,Source_Channel:1,Event_ID:2,Email:3,Age:4,
+  RSVP_Status:5,Receipt_Locale:6,Data_Controller:7};
+ const row=[uuid,'WEBSITE_RSVP_SUPABASE_UNCONFIRMED',evId,
+  'registrant@example.invalid','adult','REGISTERED','en','Družina Moravy, z. s.'];
+ const receipt=h.impReceiptMessage_('RSVP',row,m,events);
+ assert.ok(receipt);
+ assert.match(receipt.body,/WhatsApp group for updates about this event/);
+ assert.ok(receipt.body.includes(link));
+ assert.match(receipt.body,/Joining is optional/);
+ assert.match(receipt.body,/not confirmed yet/);
+ assert.ok(!h.impReceiptMessage_('RSVP',[...row.slice(0,4),'under18',...row.slice(5)],m,events).body.includes(link));
+ assert.ok(!h.impReceiptMessage_('RSVP',[...row.slice(0,5),'DECLINED',...row.slice(6)],m,events).body.includes(link));
+ assert.ok(!h.impReceiptMessage_('RSVP',row,m,{[evId]:{title:'Other event'}}).body.includes(link));
+ assert.match(gs,/events=impReceiptAttachEventGroups_\(ss,events\|\|impReceiptCatalog_\(\)\)/);
+});
