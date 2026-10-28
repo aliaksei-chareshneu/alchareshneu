@@ -272,7 +272,7 @@ const RECEIPT_CONTACT={
  ru:{prompt:'Форма уже передала заявку, писать дополнительно не нужно. Если хотите исправить данные или задать вопрос, используйте контакты ниже.',intro:'Здравствуйте! Я только что отправил(а) заявку на мероприятие:',yes:'Планирую прийти.',maybe:'Пока не уверен(а), сообщу позже.',no:'В этот раз не смогу прийти.',subject:'Заявка на мероприятие',community:'Новости сообщества (по желанию)',group:'Вступить в группу сообщества (по желанию)',announcements:'Новости в WhatsApp (по желанию)'},
  uk:{prompt:'Форма вже передала заявку, додатково писати не потрібно. Якщо треба виправити дані чи поставити запитання, скористайтеся контактами нижче.',intro:'Вітаю! Я щойно надіслав(-ла) заявку на подію:',yes:'Планую прийти.',maybe:'Поки не впевнений(-а), повідомлю пізніше.',no:'Цього разу не зможу прийти.',subject:'Реєстрація на подію',community:'Новини спільноти (за бажанням)',group:'Вступити до групи спільноти (за бажанням)',announcements:'Новини у WhatsApp (за бажанням)'}
 };
-function receiptContacts(el,eventData,body){
+function receiptContacts(el,eventData,body,payload){
  const d=RECEIPT_CONTACT[lang]||RECEIPT_CONTACT.cs;
  const message=[d.intro,eventData?.title||body.eventId,eventData?eventDate(eventData):'',body.rsvp==='YES'?d.yes:body.rsvp==='MAYBE'?d.maybe:d.no].filter(Boolean).join('\n');
  const prompt=document.createElement('p');prompt.textContent=d.prompt;el.append(prompt);
@@ -289,16 +289,48 @@ function receiptContacts(el,eventData,body){
   actions.append(a);
  }
  el.append(actions);
+ const invite=String(payload?.updatesGroupUrl||'');
+ const eventInvite=body.ageGroup==='adult' && body.rsvp!=='NO' &&
+  /^https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]{22}$/.test(invite);
+ if(eventInvite){
+  const copy={
+   cs:['WhatsApp skupina pro aktuální informace k této akci:',
+       'Připojit se ke skupině pro tuto akci',
+       'Připojení je dobrovolné. Ostatní členové mohou vidět vaše telefonní číslo. Účast ještě není potvrzená. Pokud nechcete do skupiny, odpovězte na potvrzovací e-mail.'],
+   en:['WhatsApp group for updates about this event:',
+       'Join the event WhatsApp group',
+       'Joining is optional. Other members may see your phone number. Attendance is not confirmed yet. If you prefer email updates, reply to the registration email.'],
+   ru:['WhatsApp-группа для изменений и новостей об этом мероприятии:',
+       'Вступить в группу мероприятия',
+       'Вступление добровольное. Другие участники могут видеть ваш номер телефона. Участие пока не подтверждено. Если удобнее получать новости по почте, ответьте на письмо о регистрации.'],
+   uk:['WhatsApp-група для змін та новин щодо цієї події:',
+       'Приєднатися до групи події',
+       'Вступ добровільний. Інші учасники можуть бачити ваш номер телефону. Участь ще не підтверджено. Для оновлень електронною поштою дайте відповідь на лист реєстрації.']
+  }[lang]||[];
+  const section=document.createElement('section');
+  section.className='event-updates-group';
+  const title=document.createElement('p'),bold=document.createElement('strong');
+  bold.textContent=copy[0];title.append(bold);
+  const line=document.createElement('p'),join=document.createElement('a');
+  join.href=invite;join.target='_blank';join.rel='noopener noreferrer';
+  join.textContent=copy[1];join.className='button';
+  join.style.cssText='display:inline-flex;align-items:center;padding:10px 16px;min-height:44px;width:auto;text-decoration:none';
+  line.append(join);
+  const note=document.createElement('p');note.textContent=copy[2];
+  section.append(title,line,note);el.append(section);
+ }
  const isDruzina=/družina|druzina/i.test(String(eventData?.community||''));
  const news=document.createElement('p'),newsLink=document.createElement('a');
  newsLink.href=isDruzina?'https://t.me/druzinamoravy_news':'https://t.me/pochody_brno_news';
  newsLink.target='_blank';newsLink.rel='noopener noreferrer';newsLink.textContent=d.community;
  news.append(newsLink);el.append(news);
+ if(!eventInvite){
  const group=document.createElement('p'),groupLink=document.createElement('a');
  groupLink.href=isDruzina?'https://chat.whatsapp.com/DuTpgF22mxMFy6L1Cfrcvu':'https://chat.whatsapp.com/JCyEJNm746nBXNll3VzzX3';
  groupLink.target='_blank';groupLink.rel='noopener noreferrer';
  groupLink.textContent=isDruzina?d.announcements:d.group;
  group.append(groupLink);el.append(group);
+ }
 }
 function showReceipt(eventData,body,payload){
  const dict=RECEIPT_TEXT[lang]||RECEIPT_TEXT.cs,el=$('result');el.replaceChildren();
@@ -324,7 +356,7 @@ function showReceipt(eventData,body,payload){
   .then(()=>{copy.textContent=dict.copied;},()=>{copy.textContent=dict.copy;});});
  const again=document.createElement('button');again.type='button';again.textContent=dict.back;
  again.addEventListener('click',()=>{el.hidden=true;$('rsvpForm').hidden=false;renderEvents();$('eventSearch').focus();});
- actions.append(copy,again);el.append(actions);receiptContacts(el,eventData,body);el.hidden=false;
+ actions.append(copy,again);el.append(actions);receiptContacts(el,eventData,body,payload);el.hidden=false;
 }
 $('rsvpForm').addEventListener('submit',async event=>{event.preventDefault();const form=$('rsvpForm');
   if(!events.some(e=>e.event_id===$('eventId').value&&eventMode(e)==='FORM')){$('eventSearch').focus();showEvent();return;}
