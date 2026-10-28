@@ -61,6 +61,16 @@ test('rejects bad date, handles explicit offset, does not assume midnight Prague
   assert.equal(A.dueState('2026-10-28T08:59:00+01:00',at),'OVERDUE');
   assert.equal(A.dueState('2026-10-28T09:01:00+01:00',at),'WITHIN_24H');
 });
+test('actual Hub Start_DateTime accepts unambiguous Prague local hours; blocks DST ambiguity',()=>{
+  assert.equal(A.pragueEventIso('2026-10-28 09:00'),'2026-10-28T08:00:00.000Z');
+  assert.equal(A.pragueEventIso('2026-07-01 12:00'),'2026-07-01T10:00:00.000Z');
+  assert.equal(A.pragueEventIso('2026-10-25 02:30'),null);
+  assert.equal(A.pragueEventIso('2026-03-29 02:30'),null);
+  assert.equal(A.pragueEventIso('2026-02-30 12:00'),null);
+  const x=sample();x.data.Events[0].Starts_At=undefined;
+  x.data.Events[0].Start_DateTime='2026-10-29 09:00';
+  assert.equal(A.chief(x).next_7_days_events.length,1);
+});
 test('chief shows urgent but not done tasks and excludes draft events',()=>{
   const out=A.chief(sample());
   assert.equal(out.open_tasks,1);
