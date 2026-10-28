@@ -61,6 +61,11 @@ function impAppend_(sheet,headers,object){
   });
   var nextRow=sheet.getLastRow()+1;
   sheet.getRange(nextRow,1,1,row.length).setValues([row]);
+  // Values typed as Date must retain their time component in the CRM UI.
+  // Default blank-row formatting sometimes displays DATE and silently hides hours.
+  headers.names.forEach(function(k,i){
+    if(row[i] instanceof Date)sheet.getRange(nextRow,i+1).setNumberFormat('dd.mm.yyyy hh:mm');
+  });
   var receipt=Object.prototype.hasOwnProperty.call(object,'Submission_ID')?'Submission_ID':
     (Object.prototype.hasOwnProperty.call(object,'Request_ID')?'Request_ID':'');
   if(receipt&&headers.map[receipt]!==undefined&&
@@ -87,7 +92,9 @@ function impWriteRsvps_(ss,items,events){
         Phone_Number:r.phone||'',Age:r.age_group||'',
         Guardian_Name:r.guardian_name||'',Guardian_Phone:r.guardian_phone||'',
         Photo_Consent:r.photo_choice||'NO',
-        Waiver_Accepted:r.safety_acknowledged===true?'YES':'NO',
+        // Public safety acknowledgement is NOT a legal waiver or release of rights.
+        // Keep this field blank unless a separate, valid waiver was explicitly recorded.
+        Waiver_Accepted:'',
         Retention_Until:impDate_(r.retention_until),Submission_ID:id,
         RSVP_Status:states[intent],RSVP_Status_At:impDate_(r.created_at),
         Payment_Status:paymentStatus,
