@@ -218,6 +218,26 @@ function impReceiptCatalog_(){
   return map;
  }catch(e){console.error('Public event catalog unavailable to receipt mailer');return {};}
 }
+/** Optional per-event logistics link comes from the existing private Events CRM.
+ * Do not put this field in anonymous event catalogs or mailing-list opt-ins.
+ */
+function impReceiptAttachEventGroups_(ss,events){
+  events=events||{};
+  var sh=ss&&ss.getSheetByName('Events');
+  if(!sh||sh.getLastRow()<2)return events;
+  var m=impHeader_(sh).map;
+  if(m.Event_ID===undefined||m.Updates_Group_URL===undefined)return events;
+  var lines=sh.getRange(2,1,sh.getLastRow()-1,sh.getLastColumn()).getDisplayValues();
+  lines.forEach(function(r){
+    var id=String(r[m.Event_ID]||'').trim();
+    var link=String(r[m.Updates_Group_URL]||'').trim();
+    if(!id||!/^https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]{22}$/.test(link))return;
+    if(!events[id])events[id]={event_id:id};
+    events[id].updates_group_url=link;
+  });
+  return events;
+}
+
 function impReceiptMessage_(kind,row,m,events){
  function v(n){return m[n]===undefined?'':String(row[m[n]]||'').trim().slice(0,300);}
  var id='',email=v('Email'),label='',lang=v('Receipt_Locale')||'cs',w=impReceiptWords_(lang);
@@ -239,6 +259,24 @@ function impReceiptMessage_(kind,row,m,events){
   else {
    var safetyLabels={cs:'Pravidla a bezpečnost: ',en:'Rules and safety: ',ru:'Правила и безопасность: ',uk:'Правила та безпека: '};
    parts.push((safetyLabels[lang]||safetyLabels.cs)+rulesUrl);
+  }
+  // A WhatsApp invitation is event logistics, not marketing consent or
+  // confirmation of a place. Do not invite a minor or a declined RSVP.
+  var group=e&&String(e.updates_group_url||'').trim();
+  if(/^https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]{22}$/.test(group)&&
+     /^adult$/i.test(v('Age'))&&v('RSVP_Status')!=='DECLINED'){
+    var copy={
+     cs:['WhatsApp skupina pouze pro aktualizace k této akci:',
+         'Připojení je dobrovolné; členové skupiny mohou vidět vaše číslo. Účast zatím není potvrzená. Pokud nechcete do skupiny, odpovězte na tento e-mail.'],
+     en:['WhatsApp group for updates about this event:',
+         'Joining is optional; other members may see your phone number. Attendance is not confirmed yet. If you prefer email updates, reply to this message.'],
+     ru:['WhatsApp-группа для обновлений по этому мероприятию:',
+         'Вступление добровольное; другие участники могут видеть ваш номер телефона. Участие ещё не подтверждено. Для связи по почте ответьте на это письмо.'],
+     uk:['WhatsApp-група для оновлень щодо цієї події:',
+         'Вступ добровільний; інші учасники можуть бачити ваш номер телефону. Участь ще не підтверджено. Для зв’язку поштою дайте відповідь на цей лист.']
+    };
+    var words=copy[lang]||copy.cs;
+    parts.push('',words[0]+' '+group,words[1]);
   }
   sender=v('Data_Controller').includes('Aliaksei Chareshneu')?'Aliaksei Chareshneu (OSVČ)':'Družina Moravy';
   parts.push(w[8]);
@@ -272,7 +310,7 @@ function impSendReceiptQueue_(ss,cfg,events){
  var tabs=[['Registrations','RSVP'],['Druzina_Requests','TRAINING'],['Leads','B2B']];
  var quota=MailApp.getRemainingDailyQuota(),max=Math.min(30,Math.max(0,quota-1)),sent=0,failed=0;
  if(max<=0)return {sent:0,failed:0,quotaBlocked:true};
- events=events||impReceiptCatalog_();
+ events=impReceiptAttachEventGroups_(ss,events||impReceiptCatalog_());
  tabs.forEach(function(pair){
   if(sent>=max)return;
   var sh=ss.getSheetByName(pair[0]);if(!sh||sh.getLastRow()<2)return;

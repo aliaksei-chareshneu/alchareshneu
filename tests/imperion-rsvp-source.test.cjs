@@ -13,7 +13,14 @@ for(const loc of ['cs','en','ru','uk']){
 assert.ok(!front.includes('SUPABASE_SERVICE_ROLE_KEY'));
 assert.ok(front.includes("cache:'no-store'"));
 for(const contact of ['function receiptContacts(', 'https://t.me/Chareshneu','https://wa.me/420702914842','mailto:chereshnev.biochem@gmail.com','https://t.me/druzinamoravy_news','https://t.me/pochody_brno_news','https://chat.whatsapp.com/JCyEJNm746nBXNll3VzzX3','https://chat.whatsapp.com/DuTpgF22mxMFy6L1Cfrcvu']) assert.ok(front.includes(contact),'RSVP confirmation contact missing: '+contact);
-assert.ok(front.includes('receiptContacts(el,eventData,body);'),'Only a successful RSVP should show follow-up channels');
+assert.ok(front.includes('receiptContacts(el,eventData,body,payload);'),'Only a successful RSVP should show event-specific follow-up channels');
+assert.ok(fn.includes(".select(EVENT_COLS+',updates_group_url').eq('event_id',v.eventId)"),
+ 'POST must selectively fetch the event logistics group link');
+assert.ok(fn.includes("const EVENT_COLS='") &&
+ !fn.split('const EVENT_COLS=')[1].split(';')[0].includes('updates_group_url'),
+ 'anonymous GET catalog must not expose WhatsApp invite');
+assert.ok(fn.includes("v.age==='adult' && v.rsvp!=='NO'"),
+ 'no group invite for minors or declined RSVPs');
 // Duplicate submissions are intentionally idempotent: a public request cannot
 // disclose whether someone else's name/email already appears in the database.
 // The receipt therefore says "processed" rather than falsely claiming a new row.
@@ -96,3 +103,12 @@ assert.ok(fn.includes(".eq('public_listing',true).eq('source_active',true)"),
   'server GET must not advertise withdrawn source events');
 assert.ok(fn.includes(".eq('source_active',true)"),
   'server POST must reject withdrawn source events');
+
+// Event-specific invitation may appear only after a successful POST response.
+// The static pages and anonymous GET must never disclose the invite itself.
+for(const loc of ['cs','en','ru','uk']){
+ const source=fs.readFileSync(loc==='cs'?'register/index.html':'register/'+loc+'/index.html','utf8');
+ assert.ok(source.includes("payload?.updatesGroupUrl"),'POST-only invitation missing '+loc);
+ assert.ok(source.includes('eventInvite'),'event invitation gate missing '+loc);
+ assert.ok(!source.includes('ECVnqiJJUuI8MJvDLXkS6s'),'event invitation leaked to public JS '+loc);
+}
