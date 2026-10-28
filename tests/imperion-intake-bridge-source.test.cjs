@@ -122,7 +122,7 @@ test('public RSVP safety acknowledgement cannot become a waiver, and timestamps 
 
 
 test('event logistics WhatsApp link is sourced from canonical Events, RSVP only and adult only',()=>{
- const link='https://chat.whatsapp.com/ECVnqiJJUuI8MJvDLXkS6s',evId='PUB-HIKE-20261101';
+ const link='https://chat.whatsapp.com/'+'A'.repeat(22),evId='PUB-HIKE-20261101';
  const headers=['Event_ID','Updates_Group_URL'],entries=[[evId,link]];
  const sheet={
   getLastColumn:()=>2,
