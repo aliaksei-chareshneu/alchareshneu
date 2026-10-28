@@ -159,7 +159,7 @@ test('owner digest summarizes the precise new event without disclosing applicant
  assert.match(mails[0][1],/Hády/);
  assert.match(mails[0][2],/01.11.2026|2026-11-01/);
  assert.match(mails[0][2],/chce přijít: 1/);
- assert.match(mails[0][2],/nepotvrzené místo/);
+ assert.match(mails[0][2],/ne potvrzené místo/);
  assert.match(mails[0][2],/gid=560816289&range=A2/);
  assert.doesNotMatch(mails[0][2],/Private Test Person|private@example.invalid/);
  assert.doesNotMatch(mails[0][2],/FIREMNÍ OSVČ POPTÁVKY/);
