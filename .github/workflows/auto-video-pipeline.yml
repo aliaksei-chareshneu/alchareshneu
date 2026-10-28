@@ -10,7 +10,7 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -48,10 +48,25 @@ jobs:
           npx remotion render src/index.ts AutoEdited "$RENDER_PATH" --log=error --concurrency=2
           test -s "$RENDER_PATH"
           file "$RENDER_PATH"
-      - name: Preserve synthetic render for inspection
+      - name: Preserve synthetic Remotion render for inspection
         uses: actions/upload-artifact@v4
         with:
           name: auto-video-remotion-smoketest
           path: ${{ runner.temp }}/remotion-render.mp4
+          retention-days: 7
+          if-no-files-found: error
+      - name: Ensure FFmpeg and FFprobe for Video Factory
+        run: |
+          ffmpeg -version | head -n 1
+          ffprobe -version | head -n 1
+          ffmpeg -hide_banner -filters 2>&1 | grep -E ' subtitles ' >/dev/null
+      - name: Video Factory synthetic cloud render
+        working-directory: tools/auto-video-pipeline
+        run: python3 cloud_demo.py --output "${{ runner.temp }}/video-factory-cloud"
+      - name: Preserve synthetic Video Factory review MP4 and evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: video-factory-synthetic-review
+          path: ${{ runner.temp }}/video-factory-cloud/
           retention-days: 7
           if-no-files-found: error
