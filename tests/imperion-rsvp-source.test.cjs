@@ -14,6 +14,25 @@ assert.ok(!front.includes('SUPABASE_SERVICE_ROLE_KEY'));
 assert.ok(front.includes("cache:'no-store'"));
 for(const contact of ['function receiptContacts(', 'https://t.me/Chareshneu','https://wa.me/420702914842','mailto:chereshnev.biochem@gmail.com','https://t.me/druzinamoravy_news','https://t.me/pochody_brno_news','https://chat.whatsapp.com/JCyEJNm746nBXNll3VzzX3','https://chat.whatsapp.com/DuTpgF22mxMFy6L1Cfrcvu']) assert.ok(front.includes(contact),'RSVP confirmation contact missing: '+contact);
 assert.ok(front.includes('receiptContacts(el,eventData,body);'),'Only a successful RSVP should show follow-up channels');
+// Duplicate submissions are intentionally idempotent: a public request cannot
+// disclose whether someone else's name/email already appears in the database.
+// The receipt therefore says "processed" rather than falsely claiming a new row.
+for (const phrase of [
+ 'nový záznam nevznikne',
+ 'no second entry was created',
+ 'новая запись не создаётся',
+ 'нового запису не буде',
+ 'Další zprávu posílat nemusíte',
+ 'no extra message is needed',
+ 'писать дополнительно не нужно',
+ 'додатково писати не потрібно',
+]) assert.ok(front.includes(phrase), 'privacy-safe duplicate acknowledgement missing: '+phrase);
+for (const stale of [
+ 'please send the organiser a short message',
+ 'pošlete prosím pořadateli krátkou zprávu',
+ 'напишите организатору короткое сообщение',
+ 'напишіть організатору коротке повідомлення',
+]) assert.ok(!front.includes(stale), 'duplicate second-contact requirement remains: '+stale);
 assert.ok(fn.includes('imperion_rsvp_allow_request'));
 assert.ok(fn.includes('writeError.code!==\'23505\''));
 assert.ok(fn.includes("origin!==ALLOWED_ORIGIN"));
