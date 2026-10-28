@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "source_system": "EXISTING_IMPERION_HUB",
+  "snapshot_id": "synthetic-agent-team-smoke-20261028",
+  "captured_at": "2026-10-28T09:00:00+01:00",
+  "data": {
+    "Leads": [],
+    "Revenue_Actions": [
+      {
+        "Lead_ID": "SYNTHETIC-DEAL-001",
+        "Stage": "Warm",
+        "Company": "Demo Company",
+        "Next_Action_At": "2026-10-27T17:00:00+01:00",
+        "Quoted_CZK": 12000,
+        "Email_History_Check": "UNVERIFIED",
+        "Stop_List_Checked": "FALSE"
+      }
+    ],
+    "SocialPublishing": [
+      {
+        "Job_ID": "PUB-SYN-AGENT-001",
+        "Status": "DRAFT",
+        "approved_public_snapshot": {
+          "job_id": "PUB-SYN-AGENT-001",
+          "owner_entity": "OSVC",
+          "rights_status": "owned",
+          "data_classification": "PUBLIC_APPROVED",
+          "public_source_approved": true,
+          "external_ai_approved": false,
+          "image_rights_approved": false,
+          "source_lang": "en",
+          "existing_status": "DRAFT",
+          "source_text": "Synthetic public event on 31.10.2026 at 18:00. Price 350 CZK. https://example.org/synthetic-only"
+        }
+      }
+    ],
+    "Events": [
+      {
+        "Event_ID": "SYNTHETIC-EVENT-001",
+        "Status": "Confirmed",
+        "Starts_At": "2026-10-29T09:00:00+01:00"
+      }
+    ],
+    "IMPERION_Agent_Jobs": [
+      {
+        "Job_ID": "SYNTHETIC-FOLLOWUP-001",
+        "Status": "OPEN",
+        "Due_At": "2026-10-28T08:30:00+01:00",
+        "Approval_Status": "REVIEW"
+      }
+    ],
+    "ShortFactory": [
+      {
+        "job_id": "SYNTHETIC-VIDEO-001",
+        "status": "QUEUED_SAFE_SOURCE",
+        "rights_status": "owned",
+        "source_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    ]
+  }
+}
