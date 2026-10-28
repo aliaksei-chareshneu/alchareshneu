@@ -43,8 +43,8 @@ function pragueEventIso(value) {
   if (typeof value!=='string') return null;
   const m=/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?$/.exec(value);
   if (!m) return null;
-  const parts=m.slice(1).map(Number);
-  const [year,month,day,hour,minute,second=0]=parts;
+  const [year,month,day,hour,minute]=m.slice(1,6).map(Number);
+  const second=m[6]===undefined ? 0 : Number(m[6]);
   const nominal=Date.UTC(year,month-1,day,hour,minute,second);
   const nominalDate=new Date(nominal);
   if (nominalDate.getUTCFullYear()!==year || nominalDate.getUTCMonth()!==month-1 ||
