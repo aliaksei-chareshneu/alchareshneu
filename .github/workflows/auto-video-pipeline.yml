@@ -16,6 +16,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Install FFmpeg and FFprobe for Python tests
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg
+          ffmpeg -hide_banner -filters 2>&1 | grep -E ' subtitles ' >/dev/null
       - name: Python unit tests
         run: python3 -m unittest discover -s tools/auto-video-pipeline/tests -v
       - uses: actions/setup-node@v4
