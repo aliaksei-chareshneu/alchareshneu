@@ -28,7 +28,7 @@ test("does not touch ordinary Telegram messages or group chats", () => {
   assert.equal(decide(update("How to register?", { chat: { type: "group", id: -1 } }), approved).decision, "IGNORE");
 });
 test("defaults to REVIEW when owner has not approved chat scope", () => {
-  assert.equal(decide(update("Как зарегистрироваться?")).reason, "SCOPE_NOT_APPROVED");
+  assert.equal(decide(update("Как зарегистрироваться?"), { nowSeconds: NOW }).reason, "SCOPE_NOT_APPROVED");
 });
 test("defaults to DRAFT even after chat scope approval", () => {
   const r = decide(update("Как зарегистрироваться?"), approved);
