@@ -25,7 +25,7 @@
 <link rel="icon" type="image/x-icon" href="../favicon.ico">
 <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
 <link rel="manifest" href="../site.webmanifest">
-<meta name="theme-color" content="#16171a">
+<meta name="theme-color" content="#0b1729">
 
 <!-- LocalBusiness — venture-specific instance of the org-wide entity on
      the main site, @id links them as the same underlying business. -->
@@ -50,8 +50,14 @@
 <link href="https://fonts.googleapis.com/css2?family=Spectral:wght=500;600;700&family=Source+Sans+3:wght=400;500;600;700&family=JetBrains+Mono:wght=500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../styles.css">
 
+<link rel="stylesheet" href="../experience.css">
+<script src="../experience.js" defer></script>
+<link rel="stylesheet" href="../brand-theme.css?v=20261025">
+<link rel="stylesheet" href="../site-design.css?v=20261027">
+<script src="../site-design.js?v=20261027" defer></script>
 </head>
-<body>
+<body data-imperion-scope="shared">
+<a class="skip-link" href="#page-content" data-exp="skip">Skip to content</a>
 <nav class="nav">
   <div class="wrap">
     <div class="brand"><a href="../" style="color:var(--ink);text-decoration:none;">Aliaksei Chareshneu, PhD</a><small data-i18n="nav.brand">BrnoWalkers</small></div>
@@ -62,7 +68,7 @@
         <button data-lang="cs">CZ</button>
         <button data-lang="en">EN</button>
       </div>
-      <a id="navBookBtn" class="btn solid plausible-event-name=Register-Walkers" data-i18n="nav.bookBtn" href="../register/?event=PUB-HIKE-20261101&amp;src=walkers_page" target="_blank" rel="noopener">Register / Book</a>
+      <a id="navBookBtn" class="btn solid plausible-event-name=Register-Walkers" data-i18n="nav.bookBtn" href="../register/">Register / Book</a>
     </div>
   </div>
 </nav>
@@ -78,14 +84,19 @@
 <div class="tabs-bar">
   <div class="wrap">
     <a class="tab-btn" href="../" data-i18n="tabs.main">Home</a>
-    <a class="tab-btn active" href="./" data-i18n="tabs.walkers">BrnoWalkers</a>
+    <a class="tab-btn active" aria-current="page" href="../walkers/" data-i18n="tabs.walkers">BrnoWalkers</a>
     <a class="tab-btn" href="../academy/" data-i18n="tabs.academy">Academy</a>
     <a class="tab-btn" href="../druzina/" data-i18n="tabs.druzina">Družina Moravy</a>
     <a class="tab-btn" href="../calendar/" data-i18n="tabs.calendar">Calendar</a>
   </div>
 </div>
 
-<main>
+<main id="page-content">
+<aside id="bw-cancel-20261028" role="status" style="max-width:1120px;margin:16px auto;padding:17px 20px;border:2px solid #ffafa4;border-radius:12px;background:#44292b;color:#fff;line-height:1.55">
+ <strong>❌ ZRUŠENO / CANCELLED / ОТМЕНЕНО / СКАСОВАНО — 28 October 2026, 12:00–15:00</strong>
+ <p style="margin:6px 0">The paid BrnoWalkers walk <strong>Stránská skála → Bílá hora → Židenice</strong> will <strong>NOT take place</strong>. Do not travel to the meeting point or make payment. / Placená vycházka se <strong>NEKONÁ</strong>. Necestujte na sraz ani neplaťte.</p>
+ <p style="margin:6px 0">Already paid? Contact <a style="color:#fff;text-decoration:underline" href="mailto:chereshnev.biochem@gmail.com?subject=BrnoWalkers%2028.10%20refund">the organiser</a> to verify your payment and arrange a refund. The free hike on 1 November is unaffected.</p>
+</aside>
 <section class="hero" id="walkers">
     <!-- CHARACTER HERO ART — "the Ranger" — kept in sync with the
          matching block on the main index.html walkers hero. -->
@@ -103,80 +114,20 @@
       <h1 data-i18n="walkers.title2">BrnoWalkers — Guided Hikes, Cave Tours &amp; City Walks in Moravia</h1>
       <p class="tagline" data-i18n="walkers.tagline">Pedestrian tourism, hiking, rock climbing, and exploring the best spots in Moravia with great company.</p>
       <p class="hero-mission" data-i18n="walkers.missionText">BrnoWalkers make Moravia their own — step by step, we discover the city and the region together, so Brno becomes home and fellow travelers become family.</p>
-      <a class="reviews-badge" href="https://maps.app.goo.gl/fEbnJHxiVoAx1v498" target="_blank" rel="noopener">⭐ 50+ Google reviews · 5.0</a>
 
-      <!-- Official cancellation of the 28 Oct OSVC BrnoWalkers walk, 27 Oct 2026. -->
-      <div id="paid-walk-20261028" role="status" aria-label="28 October guided walk cancelled" style="margin:22px 0 18px;padding:17px 19px;border-radius:16px;background:#3c2424;border:2px solid #ffb5a9;color:#fff;max-width:780px">
-        <strong style="display:block;font-size:18px">❌ CANCELLED / ZRUŠENO / ОТМЕНЕНО — Wednesday 28 October, 12:00–15:00</strong>
-        <p style="margin:9px 0;line-height:1.6">The paid BrnoWalkers guided walk <strong>Stránská skála → Bílá hora → Židenice</strong> will <strong>NOT take place</strong>. Do not travel to the meeting point or send payment. / <strong>Placená vycházka se nekoná.</strong> Nejezděte na místo srazu a neposílejte platby.</p>
-        <p style="margin:9px 0;line-height:1.6">If you already paid, please contact the organiser directly for an individual refund check: <a style="color:#fff;text-decoration:underline" href="mailto:chereshnev.biochem@gmail.com?subject=BrnoWalkers%2028.10%20cancellation">chereshnev.biochem@gmail.com</a>. The free BrnoWalkers hike on 1 November is a <strong>separate event</strong> and is not affected.</p>
-      </div>
       <div class="hero-ctas">
-        <a class="btn solid plausible-event-name=Register-Walkers" data-i18n="hero.ctaRegister" href="../register/?event=PUB-HIKE-20261101&amp;src=walkers_page" target="_blank" rel="noopener">Register for an event</a>
+        <a class="btn solid plausible-event-name=Register-Walkers" data-i18n="hero.ctaRegister" href="../register/">Register for an event</a>
         <a class="btn plausible-event-name=Join-Chat-Walkers" data-i18n="hero.ctaChat" href="https://chat.whatsapp.com/JCyEJNm746nBXNll3VzzX3" target="_blank" rel="noopener">Join the chat</a>
       </div>
+      <a class="reviews-badge" href="https://maps.app.goo.gl/fEbnJHxiVoAx1v498" target="_blank" rel="noopener">Read Google reviews ↗</a>
       <div class="hero-ctas-secondary">
         <a class="btn-quiet plausible-event-name=Announce-WA-Walkers" data-i18n="hero.ctaAnnounceWA" href="https://chat.whatsapp.com/BSlQetCjMoL8IO45c6VnH0" target="_blank" rel="noopener">Announcements · WhatsApp</a>
         <a class="btn-quiet plausible-event-name=Announce-TG-Walkers" data-i18n="hero.ctaAnnounceTG" href="https://t.me/pochody_brno_news" target="_blank" rel="noopener">Announcements · Telegram</a>
       </div>
 
-      <div class="hero-testimonial">
-        <p class="quote" data-i18n="hero.testimonialQuote">"Great walks, clear guidance, and zero pressure. A perfect weekend reset with people who actually enjoy exploring Moravia."</p>
-        <div class="author" data-i18n="hero.testimonialAuthor">— Marina, BrnoWalkers</div>
-      </div>
+
     </div>
   </section>
-<!-- 2026-10-27: live OSVC tour catalogue; enquiries only until individual terms confirmed. -->
-<section id="paid-guided-tours" aria-label="Book a paid guided tour in Brno" style="padding:42px 16px;background:#f6f3ec;color:#172b28;border-block:1px solid #d0c7b2">
-  <div class="wrap" style="max-width:1150px;margin:0 auto">
-    <p style="margin:0 0 7px;font-weight:750;text-transform:uppercase;letter-spacing:.07em;color:#45695e">BRNOWALKERS · PRIVATE GUIDING · FIREMNÍ ZÁŽITKY</p>
-    <h2 style="font-size:clamp(25px,4vw,38px);margin:0 0 12px;line-height:1.2;color:#15382f">Paid Brno walking tours &amp; private group experiences</h2>
-    <p style="font-size:16px;line-height:1.6;max-width:920px;margin:0 0 24px">Prohlídky Brna pro jednotlivce, soukromé skupiny a firmy. / City experiences for visitors, friends and international teams. <strong>Enquire now — date, availability and written terms will be confirmed individually.</strong></p>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,235px),1fr));gap:14px">
-      <article style="padding:22px;border-radius:14px;background:white;border:1px solid #d5dbd4">
-        <p style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:#42665c;margin:0 0 8px">SUN 29 NOV · 14:00–16:30</p>
-        <h3 style="margin:0 0 8px;font-size:21px;color:#162d27">Brno, které zmizelo</h3>
-        <p style="margin:0 0 9px;line-height:1.5">Historical Brno city tour: lost places, city changes and street stories. CZ.</p>
-        <p style="font-size:19px;font-weight:800;margin:8px 0">450 Kč <span style="font-size:13px;font-weight:500">per person</span></p>
-        <p style="font-size:13px;line-height:1.5;margin:0 0 15px">2–2.5 h · goes ahead with at least 8 bank-paid participants. Interest is not a booking.</p>
-        <a class="btn solid" href="mailto:chereshnev.biochem@gmail.com?subject=Brno%20kter%C3%A9%20zmizelo%2029.11&amp;body=Dobr%C3%BD%20den%2C%0Am%C3%A1m%20z%C3%A1jem%20o%20prohl%C3%ADdku%2029.11.%20Po%C4%8Det%20osob%3A%20">Request a place / Poptat →</a>
-      </article>
-      <article style="padding:22px;border-radius:14px;background:white;border:1px solid #d5dbd4">
-        <p style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:#42665c;margin:0 0 8px">TUE 17 NOV · 08:30–12:30</p>
-        <h3 style="margin:0 0 8px;font-size:21px;color:#162d27">Hidden Brno: hillside walk</h3>
-        <p style="margin:0 0 9px;line-height:1.5">Červený kopec · Kamenná kolonie · Pisárky · Žlutý kopec. Adult guided city hike, ~7–9 km.</p>
-        <p style="font-size:19px;font-weight:800;margin:8px 0">390 / 490 Kč <span style="font-size:13px;font-weight:500">early / standard, per person</span></p>
-        <p style="font-size:13px;line-height:1.5;margin:0 0 15px">18+ · max 18 · GO only from 8 bank-paid people · decision by 13 Nov. Exact meeting point after confirmation.</p>
-        <a class="btn solid" href="mailto:chereshnev.biochem@gmail.com?subject=BrnoWalkers%2017.11%20paid%20walk&amp;body=Hello%2C%0AI%20am%20interested%20in%20the%2017%20Nov%20tour.%20Number%20of%20adults%3A%20">Ask about places →</a>
-      </article>
-      <article style="padding:22px;border-radius:14px;background:white;border:1px solid #d5dbd4">
-        <p style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:#42665c;margin:0 0 8px">ON REQUEST · SOUKROMÁ PROHLÍDKA</p>
-        <h3 style="margin:0 0 8px;font-size:21px;color:#162d27">Private Brno Experience</h3>
-        <p style="margin:0 0 9px;line-height:1.5">A 2-hour city walk adapted to your guests. Language CZ / EN / RU, agreed route and time, up to 10 participants.</p>
-        <p style="font-size:19px;font-weight:800;margin:8px 0">From 3 500 Kč <span style="font-size:13px;font-weight:500">per group · test rate</span></p>
-        <p style="font-size:13px;line-height:1.5;margin:0 0 15px">Transport, entry tickets and meals are not included. Request a date-specific quotation.</p>
-        <a class="btn solid" href="mailto:chereshnev.biochem@gmail.com?subject=Private%20Brno%20Experience%20-%20group%20enquiry&amp;body=Preferred%20date%3A%0ALanguage%3A%0ANumber%20of%20guests%3A%0APreferred%20theme%3A%0A">Request private tour →</a>
-      </article>
-      <article style="padding:22px;border-radius:14px;background:white;border:1px solid #d5dbd4">
-        <p style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:#42665c;margin:0 0 8px">FOR HR / INTERNATIONAL TEAMS</p>
-        <h3 style="margin:0 0 8px;font-size:21px;color:#162d27">Brno Team Welcome</h3>
-        <p style="margin:0 0 9px;line-height:1.5">2-hour introduction to Brno for new colleagues: city orientation, local context and light social connection. EN/CZ, up to 15 adults.</p>
-        <p style="font-size:19px;font-weight:800;margin:8px 0">9 900 Kč <span style="font-size:13px;font-weight:500">per corporate group · pilot rate</span></p>
-        <p style="font-size:13px;line-height:1.5;margin:0 0 15px">Custom date and briefing; no HEMA, archery or grant-funded services. Corporate quote before order.</p>
-        <a class="btn solid" href="mailto:chereshnev.biochem@gmail.com?subject=Brno%20Team%20Welcome%20-%20corporate%20enquiry&amp;body=Company%3A%0ADesired%20date%3A%0ANumber%20of%20people%3A%0ALanguage%3A%0ABudget%3A%0A">Request company quote →</a>
-      </article>
-    </div>
-    <p style="max-width:1070px;margin:19px 0 0;font-size:13px;line-height:1.6"><strong>Important / Důležité:</strong> These are independent commercial OSVČ guiding offers, <strong>not</strong> the separate free Družina Moravy / Morava v pohybu grant events. No place is guaranteed by this page. Before payment or binding booking, the organiser confirms exact guide, meeting point, route, legal seller and conditions, insurance/safety, cancellation/refund terms and availability in writing. If the organiser cancels an already paid public tour, the tour fee is refunded. Third-party travel, food and entry fees are excluded unless agreed otherwise.</p>
-  </div>
-</section>
-<!-- Upcoming confirmed community hike and external conservation volunteer option. -->
-<section id="nov26-walkers-volunteer" style="padding:21px 16px;background:#153329;color:#e9fff1;border-top:1px solid #91c6a5;border-bottom:1px solid #91c6a5">
-<div class="wrap">
-<h2 style="font-size:clamp(23px,4vw,30px);color:#f5dda5;margin:0 0 9px">🥾🔥 NEXT / БЛИЖАЙШЕЕ — 1 November community hike</h2>
-<p style="line-height:1.6"><strong>Sunday 1 Nov, 12:45–16:15 — Hády → Růženin lom → Obřany.</strong> Meet at Velká Klajdovka, Brno. Free participation, approximately 7–9 km; prior RSVP and organiser confirmation needed. / Воскресенье, 1 ноября, бесплатный поход 12:45–16:15. Сбор Velká Klajdovka; заранее подтвердите участие.</p>
-<p style="line-height:1.6"><strong>🌿 Saturday 7 Nov, 09:00 — Kosteliska bird park conservation volunteering.</strong> This is an event by <strong>JMP ČSO</strong>, not BrnoWalkers' own project. Register <strong>directly with organiser</strong> at <a href="mailto:kettnerova@jmpcso.cz" style="color:#b1f6c9">kettnerova@jmpcso.cz</a>. Bring sturdy shoes, outdoor clothes and food; tools and gloves provided. End time not yet verified. / Волонтёрская природоохранная работа, запись напрямую у организатора.</p>
-<p style="line-height:1.6;margin-bottom:0">Interested in helping with other Morava v pohybu / Družina events in November? / Хотите помочь на других мероприятиях ноября? See <a href="../calendar/#calendar-volunteers" style="color:#b1f6c9">the schedule / расписание</a> or <a href="https://wa.me/420702914842" target="_blank" rel="noopener" style="color:#b1f6c9">message us on WhatsApp</a>.</p>
-</div></section>
 <section id="event-types">
     <div class="wrap" data-i18n="eventTypes">
       <div class="eyebrow-sm">What we run</div>
@@ -227,13 +178,13 @@
       <div class="eyebrow-sm">About</div>
       <h3 class="anchor-heading">About BrnoWalkers<a class="anchor-link" href="#walkers-about">#</a></h3>
       <div class="portrait-block">
-        <img class="photo-slot" src="../images/portrait_cave.jpg" alt="Aliaksei — your hiking guide" loading="lazy"
+        <img class="photo-slot" src="../images/portrait_cave.webp" alt="Aliaksei — your hiking guide" loading="lazy"
              onerror="this.setAttribute('data-alt', this.alt); this.classList.add('img-fallback'); this.removeAttribute('src');">
         <p class="portrait-text">I'm Aliaksei — I've been personally leading these hikes for several years. I know every trail, every cave, and exactly what's worth looking up at along the way.</p>
       </div>
       <p>BrnoWalkers is an open community for people who love movement. We regularly organize walking trips around Brno and across the Czech Republic (Babi Lom, Praděd, Moravian Karst, caves, canoe river trips). It's the perfect way to reset your brain and find active friends.</p>
-      <!-- Real site also places a second supporting photo (images/walkers_group.jpg)
-           and a wide banner (images/walkers_cave.jpg) around this section —
+      <!-- Real site also places a second supporting photo (images/walkers_group.webp)
+           and a wide banner (images/walkers_cave.webp) around this section —
            carry those over as-is from the current renderWalkersTab() output,
            not duplicating them here to keep this file focused. -->
     </div>
@@ -242,7 +193,7 @@
     <div class="wrap" data-i18n="rules">
       <h3 class="anchor-heading">Official Regulations &amp; Rules<a class="anchor-link" href="#walkers-rules">#</a></h3>
       <ul class="plain">
-        <li>Activities are paid. The price of each event is announced in advance in the chats. Donations are also welcome.</li>
+        <li>Some events are free and others are paid. The announcement and registration page specify the price and participation conditions. Voluntary donations are welcome.</li>
         <li>Transport to and from the venue, as well as additional services (food, water, equipment), are not included in the price and are the participant's own responsibility — unless explicitly stated otherwise in the event announcement.</li>
         <li>Routes, distance, and difficulty levels are always announced in advance in our chats.</li>
         <li>Mandatory requirement: comfortable sports/hiking shoes and weather-appropriate clothing.</li>
@@ -254,7 +205,7 @@
       <div class="callout">
         <p><strong>Join the BrnoWalkers chats to never miss the next trip announcement!</strong></p>
         <div style="margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-          <a class="btn solid plausible-event-name=Register-Walkers" href="https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog" target="_blank" rel="noopener">Register for an event</a>
+          <a class="btn solid plausible-event-name=Register-Walkers" href="../register/">Register for an event</a>
           <a class="btn plausible-event-name=Join-Chat-Walkers" href="https://chat.whatsapp.com/JCyEJNm746nBXNll3VzzX3" target="_blank" rel="noopener">Join the chat</a>
         </div>
       </div>
@@ -302,7 +253,7 @@
           <button class="faq-q" onclick="toggleFAQ('faq-walkers-1')">
             <span>Where and when do we meet?</span><span class="faq-icon">+</span>
           </button>
-          <div class="faq-a"><div class="faq-a-inner">The meeting point and time are always in the specific event announcement in the chat. After payment I send the meeting point again in a separate message. If you can't find it — just message me.</div></div>
+          <div class="faq-a"><div class="faq-a-inner">The meeting point and time are always in the specific event announcement in the chat. The organiser confirms participation separately and can clarify the meeting point if needed. If you can't find it — just message me.</div></div>
         </div>
 
         <div class="faq-item" id="faq-walkers-2">
@@ -378,7 +329,7 @@
           <button class="faq-q" onclick="toggleFAQ('faq-walkers-8')">
             <span>How do I pay?</span><span class="faq-icon">+</span>
           </button>
-          <div class="faq-a"><div class="faq-a-inner">The payment method is specified in the event announcement. Usually it's a bank transfer — Raiffeisenbank, account no. 7804336003/5500 (put your name and the event name in the reference) — or Revolut: <a href="https://revolut.me/aliaksj5pq" target="_blank" rel="noopener">revolut.me/aliaksj5pq</a>. Payment confirms your spot — without payment your place is not reserved.</div></div>
+          <div class="faq-a"><div class="faq-a-inner">Payment applies only to paid events; free events require no payment. For paid events, the method is specified in the event announcement. Usually it's a bank transfer — Raiffeisenbank, account no. 7804336003/5500 (put your name and the event name in the reference) — or Revolut: <a href="https://revolut.me/aliaksj5pq" target="_blank" rel="noopener">revolut.me/aliaksj5pq</a>. For paid events, participation is confirmed by the organiser after payment. For free events, the organiser confirms your RSVP separately without payment.</div></div>
         </div>
 
         <div class="faq-item" id="faq-walkers-9">
@@ -387,8 +338,8 @@
           </button>
           <div class="faq-a"><div class="faq-a-inner">
             <strong>Late arrival:</strong> the group waits a maximum of 10 minutes from the set time, then departs. If you're running late — warn me in advance, we may be able to adjust a joining point along the route.<br><br>
-            <strong>Cancellation on your side, 7+ days before the event:</strong> refunded minus a fixed 120 Kč admin fee (covers payment processing and the back-and-forth of cancelling — kept even on a fully valid, on-time cancellation).<br><br>
-            <strong>Cancellation less than 7 days before, or a no-show:</strong> your spot was reserved specifically for you — no refund, including the 120 Kč fee.<br><br>
+            <strong>Paid events — cancellation 7+ days before the event:</strong> refunded minus a fixed 120 Kč admin fee (covers payment processing and the back-and-forth of cancelling — kept even on a fully valid, on-time cancellation).<br><br>
+            <strong>Paid events — cancellation less than 7 days before, or a no-show:</strong> your spot was reserved specifically for you — no refund, including the 120 Kč fee.<br><br>
             <strong>Cancellation or rescheduling on our side</strong> (weather, not enough participants) — full refund, including the fee, see below.
           </div></div>
         </div>
@@ -420,7 +371,7 @@
       </div>
 
       <div style="text-align:center;margin-top:28px;">
-        <a class="btn" href="https://maps.app.goo.gl/fEbnJHxiVoAx1v498" target="_blank" rel="noopener">⭐ 50+ Google reviews · 5.0 →</a>
+        <a class="btn" href="https://maps.app.goo.gl/fEbnJHxiVoAx1v498" target="_blank" rel="noopener">Read Google reviews ↗ →</a>
       </div>
     </div>
   </section>
@@ -472,7 +423,7 @@
 </main>
 
 <div class="mobile-cta" id="mobileCta" aria-hidden="true">
-  <a class="mobile-cta-btn" data-i18n="nav.bookBtn" href="../register/?event=PUB-HIKE-20261101&amp;src=walkers_page" target="_blank" rel="noopener">Register / Book</a>
+  <a class="mobile-cta-btn" data-i18n="nav.bookBtn" href="../register/">Register / Book</a>
   <a class="mobile-cta-icon" href="https://wa.me/420702914842" target="_blank" rel="noopener" aria-label="WhatsApp">
     <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l1.3-4.1A8 8 0 1 1 9 18.6z"/><path d="M9.2 10.3c0 3 2.4 5.4 5.4 5.4"/></svg>
   </a>
@@ -500,7 +451,7 @@
       "name": "Where and when do we meet?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "The meeting point and time are always in the specific event announcement in the chat. After payment I send the meeting point again in a separate message. If you can't find it — just message me."
+        "text": "The meeting point and time are always in the specific event announcement in the chat. The organiser confirms participation separately and can clarify the meeting point if needed. If you can't find it — just message me."
       }
     },
     {
@@ -556,7 +507,7 @@
       "name": "How do I pay?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "The payment method is specified in the event announcement. Usually it's a bank transfer or Revolut. Payment confirms your spot — without payment your place is not reserved."
+        "text": "Payment applies only to paid events; free events require no payment. For paid events, the method is specified in the event announcement. Usually it's a bank transfer or Revolut. For paid events, participation is confirmed by the organiser after payment. For free events, the organiser confirms your RSVP separately without payment."
       }
     },
     {
@@ -704,14 +655,14 @@ en: {
   about: `<div class="eyebrow-sm">About</div>
       <h3 class="anchor-heading">About BrnoWalkers<a class="anchor-link" href="#walkers-about">#</a></h3>
       <div class="portrait-block">
-        <img class="photo-slot" src="../images/portrait_cave.jpg" alt="Aliaksei — your hiking guide" loading="lazy"
+        <img class="photo-slot" src="../images/portrait_cave.webp" alt="Aliaksei — your hiking guide" loading="lazy"
              onerror="this.setAttribute('data-alt', this.alt); this.classList.add('img-fallback'); this.removeAttribute('src');">
         <p class="portrait-text">I'm Aliaksei — I've been personally leading these hikes for several years. I know every trail, every cave, and exactly what's worth looking up at along the way.</p>
       </div>
       <p>BrnoWalkers is an open community for people who love movement. We regularly organize walking trips around Brno and across the Czech Republic (Babi Lom, Praděd, Moravian Karst, caves, canoe river trips). It's the perfect way to reset your brain and find active friends.</p>`,
   rules: `<h3 class="anchor-heading">Official Regulations &amp; Rules<a class="anchor-link" href="#walkers-rules">#</a></h3>
       <ul class="plain">
-        <li>Activities are paid. The price of each event is announced in advance in the chats. Donations are also welcome.</li>
+        <li>Some events are free and others are paid. The announcement and registration page specify the price and participation conditions. Voluntary donations are welcome.</li>
         <li>Transport to and from the venue, as well as additional services (food, water, equipment), are not included in the price and are the participant's own responsibility — unless explicitly stated otherwise in the event announcement.</li>
         <li>Routes, distance, and difficulty levels are always announced in advance in our chats.</li>
         <li>Mandatory requirement: comfortable sports/hiking shoes and weather-appropriate clothing.</li>
@@ -721,7 +672,7 @@ en: {
       <div class="callout">
         <p><strong>Join the BrnoWalkers chats to never miss the next trip announcement!</strong></p>
         <div style="margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-          <a class="btn solid plausible-event-name=Register-Walkers" href="https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog" target="_blank" rel="noopener">Register for an event</a>
+          <a class="btn solid plausible-event-name=Register-Walkers" href="../register/">Register for an event</a>
           <a class="btn plausible-event-name=Join-Chat-Walkers" href="https://chat.whatsapp.com/JCyEJNm746nBXNll3VzzX3" target="_blank" rel="noopener">Join the chat</a>
         </div>
       </div>`,
@@ -751,7 +702,7 @@ en: {
         <p class="faq-category-label">📍 Location &amp; Time</p>
         <div class="faq-item" id="faq-walkers-1">
           <button class="faq-q" onclick="toggleFAQ('faq-walkers-1')"><span>Where and when do we meet?</span><span class="faq-icon">+</span></button>
-          <div class="faq-a"><div class="faq-a-inner">The meeting point and time are always in the specific event announcement in the chat. After payment I send the meeting point again in a separate message. If you can't find it — just message me.</div></div>
+          <div class="faq-a"><div class="faq-a-inner">The meeting point and time are always in the specific event announcement in the chat. The organiser confirms participation separately and can clarify the meeting point if needed. If you can't find it — just message me.</div></div>
         </div>
         <div class="faq-item" id="faq-walkers-2">
           <button class="faq-q" onclick="toggleFAQ('faq-walkers-2')"><span>How do I get to the starting point?</span><span class="faq-icon">+</span></button>
@@ -793,14 +744,14 @@ en: {
         <p class="faq-category-label">💳 Payment &amp; Cancellation</p>
         <div class="faq-item" id="faq-walkers-8">
           <button class="faq-q" onclick="toggleFAQ('faq-walkers-8')"><span>How do I pay?</span><span class="faq-icon">+</span></button>
-          <div class="faq-a"><div class="faq-a-inner">The payment method is specified in the event announcement. Usually it's a bank transfer — Raiffeisenbank, account no. 7804336003/5500 (put your name and the event name in the reference) — or Revolut: <a href="https://revolut.me/aliaksj5pq" target="_blank" rel="noopener">revolut.me/aliaksj5pq</a>. Payment confirms your spot — without payment your place is not reserved.</div></div>
+          <div class="faq-a"><div class="faq-a-inner">Payment applies only to paid events; free events require no payment. For paid events, the method is specified in the event announcement. Usually it's a bank transfer — Raiffeisenbank, account no. 7804336003/5500 (put your name and the event name in the reference) — or Revolut: <a href="https://revolut.me/aliaksj5pq" target="_blank" rel="noopener">revolut.me/aliaksj5pq</a>. For paid events, participation is confirmed by the organiser after payment. For free events, the organiser confirms your RSVP separately without payment.</div></div>
         </div>
         <div class="faq-item" id="faq-walkers-9">
           <button class="faq-q" onclick="toggleFAQ('faq-walkers-9')"><span>What if I'm late or can't make it?</span><span class="faq-icon">+</span></button>
           <div class="faq-a"><div class="faq-a-inner">
             <strong>Late arrival:</strong> the group waits a maximum of 10 minutes from the set time, then departs. If you're running late — warn me in advance, we may be able to adjust a joining point along the route.<br><br>
-            <strong>Cancellation on your side, 7+ days before the event:</strong> refunded minus a fixed 120 Kč admin fee (covers payment processing and the back-and-forth of cancelling — kept even on a fully valid, on-time cancellation).<br><br>
-            <strong>Cancellation less than 7 days before, or a no-show:</strong> your spot was reserved specifically for you — no refund, including the 120 Kč fee.<br><br>
+            <strong>Paid events — cancellation 7+ days before the event:</strong> refunded minus a fixed 120 Kč admin fee (covers payment processing and the back-and-forth of cancelling — kept even on a fully valid, on-time cancellation).<br><br>
+            <strong>Paid events — cancellation less than 7 days before, or a no-show:</strong> your spot was reserved specifically for you — no refund, including the 120 Kč fee.<br><br>
             <strong>Cancellation or rescheduling on our side</strong> (weather, not enough participants) — full refund, including the fee, see below.
           </div></div>
         </div>
@@ -821,7 +772,7 @@ en: {
         </div>
       </div>
       <div style="text-align:center;margin-top:28px;">
-        <a class="btn" href="https://maps.app.goo.gl/fEbnJHxiVoAx1v498" target="_blank" rel="noopener">⭐ 50+ Google reviews · 5.0 →</a>
+        <a class="btn" href="https://maps.app.goo.gl/fEbnJHxiVoAx1v498" target="_blank" rel="noopener">Read Google reviews ↗ →</a>
       </div>`,
   medals: `<p class="eyebrow-sm">Ranks &amp; Medals</p>
       <h3 class="anchor-heading">BrnoWalkers Reward System<a class="anchor-link" href="#medals">#</a></h3>
@@ -907,14 +858,14 @@ ru: {
   about: `<div class="eyebrow-sm">О нас</div>
       <h3 class="anchor-heading">О Брноходцах<a class="anchor-link" href="#walkers-about">#</a></h3>
       <div class="portrait-block">
-        <img class="photo-slot" src="../images/portrait_cave.jpg" alt="Алексей — твой гид по походам" loading="lazy"
+        <img class="photo-slot" src="../images/portrait_cave.webp" alt="Алексей — твой гид по походам" loading="lazy"
              onerror="this.setAttribute('data-alt', this.alt); this.classList.add('img-fallback'); this.removeAttribute('src');">
         <p class="portrait-text">Я Алексей — веду эти походы лично уже несколько лет. Знаю каждую тропу, каждую пещеру и точно знаю, куда стоит заглянуть по пути.</p>
       </div>
       <p>Брноходцы — открытое сообщество для тех, кто любит движение. Мы регулярно организуем походы вокруг Брно и по всей Чехии (Бабий Лом, Прадед, Моравский карст, пещеры, сплавы на байдарках). Это отличный способ перезагрузить голову и найти активных друзей.</p>`,
   rules: `<h3 class="anchor-heading">Официальные правила и регламент<a class="anchor-link" href="#walkers-rules">#</a></h3>
       <ul class="plain">
-        <li>Мероприятия платные. Цена каждого события анонсируется заранее в чатах. Донаты тоже приветствуются.</li>
+        <li>Есть бесплатные и платные мероприятия. Цена и условия участия указаны в анонсе и на странице регистрации. Добровольные пожертвования приветствуются.</li>
         <li>Транспорт до места и обратно, а также доп. услуги (еда, вода, снаряжение) не включены в цену и остаются на ответственности участника — если в анонсе события явно не указано иное.</li>
         <li>Маршрут, дистанция и уровень сложности всегда анонсируются заранее в наших чатах.</li>
         <li>Обязательное требование: удобная спортивная/треккинговая обувь и одежда по погоде.</li>
@@ -924,7 +875,7 @@ ru: {
       <div class="callout">
         <p><strong>Присоединяйся к чатам Брноходцев, чтобы не пропустить анонс следующего похода!</strong></p>
         <div style="margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-          <a class="btn solid plausible-event-name=Register-Walkers" href="https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog" target="_blank" rel="noopener">Записаться на событие</a>
+          <a class="btn solid plausible-event-name=Register-Walkers" href="../register/">Записаться на событие</a>
           <a class="btn plausible-event-name=Join-Chat-Walkers" href="https://chat.whatsapp.com/JCyEJNm746nBXNll3VzzX3" target="_blank" rel="noopener">Присоединиться к чату</a>
         </div>
       </div>`,
@@ -954,7 +905,7 @@ ru: {
         <p class="faq-category-label">📍 Место и время</p>
         <div class="faq-item" id="faq-walkers-1">
           <button class="faq-q" onclick="toggleFAQ('faq-walkers-1')"><span>Где и когда встречаемся?</span><span class="faq-icon">+</span></button>
-          <div class="faq-a"><div class="faq-a-inner">Точка и время встречи всегда указаны в конкретном анонсе события в чате. После оплаты я ещё раз пришлю точку встречи отдельным сообщением. Не нашёл — просто напиши мне.</div></div>
+          <div class="faq-a"><div class="faq-a-inner">Точка и время встречи всегда указаны в конкретном анонсе события в чате. Организатор отдельно подтверждает участие и при необходимости уточняет место встречи. Не нашёл — просто напиши мне.</div></div>
         </div>
         <div class="faq-item" id="faq-walkers-2">
           <button class="faq-q" onclick="toggleFAQ('faq-walkers-2')"><span>Как добраться до стартовой точки?</span><span class="faq-icon">+</span></button>
@@ -996,14 +947,14 @@ ru: {
         <p class="faq-category-label">💳 Оплата и отмена</p>
         <div class="faq-item" id="faq-walkers-8">
           <button class="faq-q" onclick="toggleFAQ('faq-walkers-8')"><span>Как оплатить?</span><span class="faq-icon">+</span></button>
-          <div class="faq-a"><div class="faq-a-inner">Способ оплаты указан в анонсе события. Обычно это банковский перевод — Raiffeisenbank, счёт 7804336003/5500 (укажи в назначении платежа своё имя и название события) — или Revolut: <a href="https://revolut.me/aliaksj5pq" target="_blank" rel="noopener">revolut.me/aliaksj5pq</a>. Оплата подтверждает твоё место — без оплаты место не бронируется.</div></div>
+          <div class="faq-a"><div class="faq-a-inner">Оплата нужна только для платных мероприятий; бесплатные не требуют оплаты. Для платных событий способ оплаты указан в анонсе. Обычно это банковский перевод — Raiffeisenbank, счёт 7804336003/5500 (укажи в назначении платежа своё имя и название события) — или Revolut: <a href="https://revolut.me/aliaksj5pq" target="_blank" rel="noopener">revolut.me/aliaksj5pq</a>. На платном мероприятии участие подтверждает организатор после оплаты. На бесплатном — организатор отдельно подтверждает заявку без оплаты.</div></div>
         </div>
         <div class="faq-item" id="faq-walkers-9">
           <button class="faq-q" onclick="toggleFAQ('faq-walkers-9')"><span>Что если я опаздываю или не смогу прийти?</span><span class="faq-icon">+</span></button>
           <div class="faq-a"><div class="faq-a-inner">
             <strong>Опоздание:</strong> группа ждёт максимум 10 минут от назначенного времени, потом выходит. Если опаздываешь — предупреди заранее, возможно получится скорректировать точку присоединения по маршруту.<br><br>
-            <strong>Отмена с твоей стороны, за 7+ дней до события:</strong> возврат за вычетом фиксированного сбора 120 крон (покрывает обработку платежа и переписку по отмене — удерживается даже при полностью правомерной, своевременной отмене).<br><br>
-            <strong>Отмена менее чем за 7 дней, или неявка:</strong> место было забронировано именно под тебя — возврата нет, включая сбор 120 крон.<br><br>
+            <strong>Только платные мероприятия — отмена за 7+ дней:</strong> возврат за вычетом фиксированного сбора 120 крон (покрывает обработку платежа и переписку по отмене — удерживается даже при полностью правомерной, своевременной отмене).<br><br>
+            <strong>Только платные мероприятия — отмена менее чем за 7 дней или неявка:</strong> место было забронировано именно под тебя — возврата нет, включая сбор 120 крон.<br><br>
             <strong>Отмена или перенос с нашей стороны</strong> (погода, недобор участников) — полный возврат, включая сбор, см. ниже.
           </div></div>
         </div>
@@ -1016,7 +967,7 @@ ru: {
         <p class="faq-category-label">❓ Другое</p>
         <div class="faq-item" id="faq-walkers-11">
           <button class="faq-q" onclick="toggleFAQ('faq-walkers-11')"><span>Я новенький и никого не знаю — можно прийти одному?</span><span class="faq-icon">+</span></button>
-          <div class="faq-a"><div class="faq-a-inner">Абсолютно нормально и на самом деле типично. Большинство участников присоединились именно так. Группа дружелюбная — познакомишься с людьми по пути. Если хочешь мягкий старт — приходи сначала на настольные игры по вторникам без долгосрочных обязательств и подпишись на канал анонсов.</div></div>
+          <div class="faq-a"><div class="faq-a-inner">Абсолютно нормально и на самом деле типично. Большинство участников присоединились именно так. Группа дружелюбная — познакомишься с людьми по пути. Для спокойного старта выбери ближайший подтверждённый поход и подпишись на анонсы. Настольные игры сейчас на паузе.</div></div>
         </div>
         <div class="faq-item" id="faq-walkers-12">
           <button class="faq-q" onclick="toggleFAQ('faq-walkers-12')"><span>Что делать в экстренной ситуации на маршруте?</span><span class="faq-icon">+</span></button>
@@ -1110,14 +1061,14 @@ cs: {
   about: `<div class="eyebrow-sm">O nás</div>
       <h3 class="anchor-heading">O BrnoWalkers<a class="anchor-link" href="#walkers-about">#</a></h3>
       <div class="portrait-block">
-        <img class="photo-slot" src="../images/portrait_cave.jpg" alt="Aliaksei — tvůj průvodce na výšlapech" loading="lazy"
+        <img class="photo-slot" src="../images/portrait_cave.webp" alt="Aliaksei — tvůj průvodce na výšlapech" loading="lazy"
              onerror="this.setAttribute('data-alt', this.alt); this.classList.add('img-fallback'); this.removeAttribute('src');">
         <p class="portrait-text">Jsem Aliaksei — tyto výšlapy osobně vedu už několik let. Znám každou stezku, každou jeskyni a přesně vím, co je po cestě stojí za to.</p>
       </div>
       <p>BrnoWalkers je otevřená komunita pro lidi, kteří milují pohyb. Pravidelně pořádáme pěší výlety po Brně a po celé České republice (Babí lom, Praděd, Moravský kras, jeskyně, sjezdy na kánoích). Je to skvělý způsob, jak si vyčistit hlavu a najít aktivní přátele.</p>`,
   rules: `<h3 class="anchor-heading">Oficiální pravidla a řád<a class="anchor-link" href="#walkers-rules">#</a></h3>
       <ul class="plain">
-        <li>Akce jsou placené. Cena každé akce se oznamuje předem v chatech. Dary jsou také vítány.</li>
+        <li>Pořádáme bezplatné i placené akce. Cena a podmínky účasti jsou uvedeny v oznámení a na registrační stránce. Dobrovolné dary jsou vítány.</li>
         <li>Doprava na místo a zpět, stejně jako doplňkové služby (jídlo, voda, vybavení), nejsou zahrnuty v ceně a jsou na odpovědnosti účastníka — pokud v oznámení akce není výslovně uvedeno jinak.</li>
         <li>Trasa, vzdálenost a úroveň obtížnosti se vždy oznamují předem v našich chatech.</li>
         <li>Povinný požadavek: pohodlná sportovní/turistická obuv a oblečení podle počasí.</li>
@@ -1127,7 +1078,7 @@ cs: {
       <div class="callout">
         <p><strong>Připoj se k chatům BrnoWalkers, aby ti neuniklo oznámení dalšího výletu!</strong></p>
         <div style="margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-          <a class="btn solid plausible-event-name=Register-Walkers" href="https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog" target="_blank" rel="noopener">Přihlásit se na akci</a>
+          <a class="btn solid plausible-event-name=Register-Walkers" href="../register/">Přihlásit se na akci</a>
           <a class="btn plausible-event-name=Join-Chat-Walkers" href="https://chat.whatsapp.com/JCyEJNm746nBXNll3VzzX3" target="_blank" rel="noopener">Připojit se k chatu</a>
         </div>
       </div>`,
@@ -1157,7 +1108,7 @@ cs: {
         <p class="faq-category-label">📍 Místo a čas</p>
         <div class="faq-item" id="faq-walkers-1">
           <button class="faq-q" onclick="toggleFAQ('faq-walkers-1')"><span>Kde a kdy se sejdeme?</span><span class="faq-icon">+</span></button>
-          <div class="faq-a"><div class="faq-a-inner">Místo a čas srazu jsou vždy v konkrétním oznámení akce v chatu. Po platbě ještě jednou pošlu místo srazu samostatnou zprávou. Nemůžeš ho najít — napiš mi.</div></div>
+          <div class="faq-a"><div class="faq-a-inner">Místo a čas srazu jsou vždy v konkrétním oznámení akce v chatu. Pořadatel účast potvrdí samostatně a podle potřeby upřesní místo srazu. Nemůžeš ho najít — napiš mi.</div></div>
         </div>
         <div class="faq-item" id="faq-walkers-2">
           <button class="faq-q" onclick="toggleFAQ('faq-walkers-2')"><span>Jak se dostanu na startovní bod?</span><span class="faq-icon">+</span></button>
@@ -1199,14 +1150,14 @@ cs: {
         <p class="faq-category-label">💳 Platba a storno</p>
         <div class="faq-item" id="faq-walkers-8">
           <button class="faq-q" onclick="toggleFAQ('faq-walkers-8')"><span>Jak zaplatím?</span><span class="faq-icon">+</span></button>
-          <div class="faq-a"><div class="faq-a-inner">Způsob platby je uveden v oznámení akce. Obvykle je to bankovní převod — Raiffeisenbank, účet 7804336003/5500 (do poznámky uveď jméno a název akce) — nebo Revolut: <a href="https://revolut.me/aliaksj5pq" target="_blank" rel="noopener">revolut.me/aliaksj5pq</a>. Platba potvrzuje tvé místo — bez platby není místo rezervováno.</div></div>
+          <div class="faq-a"><div class="faq-a-inner">Platba se týká pouze placených akcí; bezplatné akce žádnou platbu nevyžadují. U placených akcí je způsob platby uveden v oznámení. Obvykle je to bankovní převod — Raiffeisenbank, účet 7804336003/5500 (do poznámky uveď jméno a název akce) — nebo Revolut: <a href="https://revolut.me/aliaksj5pq" target="_blank" rel="noopener">revolut.me/aliaksj5pq</a>. U placených akcí pořadatel potvrdí účast po zaplacení. U bezplatných akcí pořadatel samostatně potvrdí přihlášku bez platby.</div></div>
         </div>
         <div class="faq-item" id="faq-walkers-9">
           <button class="faq-q" onclick="toggleFAQ('faq-walkers-9')"><span>Co když se opozdím nebo nemůžu dorazit?</span><span class="faq-icon">+</span></button>
           <div class="faq-a"><div class="faq-a-inner">
             <strong>Pozdní příchod:</strong> skupina čeká maximálně 10 minut od stanoveného času, pak odchází. Pokud se opozdíš — dej vědět předem, možná půjde upravit bod připojení na trase.<br><br>
-            <strong>Zrušení z tvé strany, 7+ dní před akcí:</strong> vrácení peněz mínus fixní poplatek 120 Kč (pokrývá zpracování platby a komunikaci kolem zrušení — zůstává i při plně platném, včasném zrušení).<br><br>
-            <strong>Zrušení méně než 7 dní předem, nebo neúčast:</strong> místo bylo rezervováno přímo pro tebe — bez vrácení peněz, včetně poplatku 120 Kč.<br><br>
+            <strong>Pouze placené akce — zrušení 7+ dní před akcí:</strong> vrácení peněz mínus fixní poplatek 120 Kč (pokrývá zpracování platby a komunikaci kolem zrušení — zůstává i při plně platném, včasném zrušení).<br><br>
+            <strong>Pouze placené akce — zrušení méně než 7 dní předem nebo neúčast:</strong> místo bylo rezervováno přímo pro tebe — bez vrácení peněz, včetně poplatku 120 Kč.<br><br>
             <strong>Zrušení nebo přeložení z naší strany</strong> (počasí, nedostatek účastníků) — plné vrácení peněz včetně poplatku, viz níže.
           </div></div>
         </div>
@@ -1219,7 +1170,7 @@ cs: {
         <p class="faq-category-label">❓ Ostatní</p>
         <div class="faq-item" id="faq-walkers-11">
           <button class="faq-q" onclick="toggleFAQ('faq-walkers-11')"><span>Jsem nový a nikoho neznám — je v pořádku přijít sám?</span><span class="faq-icon">+</span></button>
-          <div class="faq-a"><div class="faq-a-inner">Naprosto normální a vlastně typické. Většina účastníků se přidala přesně takto. Skupina je přátelská — lidi poznáš cestou. Pokud chceš měkký start, přijď nejprve na úterní herní večer bez dlouhodobého závazku a sleduj kanál oznámení.</div></div>
+          <div class="faq-a"><div class="faq-a-inner">Naprosto normální a vlastně typické. Většina účastníků se přidala přesně takto. Skupina je přátelská — lidi poznáš cestou. Pro klidný začátek si vyber potvrzenou procházku a sleduj oznámení. Deskové hry jsou teď pozastavené.</div></div>
         </div>
         <div class="faq-item" id="faq-walkers-12">
           <button class="faq-q" onclick="toggleFAQ('faq-walkers-12')"><span>Co dělat v nouzové situaci na trase?</span><span class="faq-icon">+</span></button>
@@ -1313,14 +1264,14 @@ uk: {
   about: `<div class="eyebrow-sm">Про нас</div>
       <h3 class="anchor-heading">Про Брнохідців<a class="anchor-link" href="#walkers-about">#</a></h3>
       <div class="portrait-block">
-        <img class="photo-slot" src="../images/portrait_cave.jpg" alt="Олексій — твій гід у походах" loading="lazy"
+        <img class="photo-slot" src="../images/portrait_cave.webp" alt="Олексій — твій гід у походах" loading="lazy"
              onerror="this.setAttribute('data-alt', this.alt); this.classList.add('img-fallback'); this.removeAttribute('src');">
         <p class="portrait-text">Я Олексій — веду ці походи особисто вже кілька років. Знаю кожну стежку, кожну печеру і точно знаю, куди варто зазирнути дорогою.</p>
       </div>
       <p>Брнохідці — відкрита спільнота для тих, хто любить рух. Ми регулярно організовуємо походи навколо Брно та по всій Чехії (Бабі Лом, Прадед, Моравський карст, печери, сплави на байдарках). Це чудовий спосіб перезавантажити голову і знайти активних друзів.</p>`,
   rules: `<h3 class="anchor-heading">Офіційні правила та регламент<a class="anchor-link" href="#walkers-rules">#</a></h3>
       <ul class="plain">
-        <li>Заходи платні. Ціна кожної події анонсується заздалегідь у чатах. Донати теж вітаються.</li>
+        <li>Є безкоштовні й платні заходи. Ціна та умови участі зазначені в анонсі й на сторінці реєстрації. Добровільні пожертви вітаються.</li>
         <li>Транспорт до місця і назад, а також додаткові послуги (їжа, вода, спорядження) не включені в ціну і залишаються на відповідальності учасника — якщо в анонсі події явно не вказано інше.</li>
         <li>Маршрут, відстань і рівень складності завжди анонсуються заздалегідь у наших чатах.</li>
         <li>Обов'язкова вимога: зручне спортивне/трекінгове взуття та одяг за погодою.</li>
@@ -1330,7 +1281,7 @@ uk: {
       <div class="callout">
         <p><strong>Приєднуйся до чатів Брнохідців, щоб не пропустити анонс наступного походу!</strong></p>
         <div style="margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-          <a class="btn solid plausible-event-name=Register-Walkers" href="https://docs.google.com/forms/d/e/1FAIpQLScEaxLcoHw9NgWpPi1oV9HkGOtczIN4HgD__plLSBtnTJ-Dcg/viewform?usp=dialog" target="_blank" rel="noopener">Записатися на подію</a>
+          <a class="btn solid plausible-event-name=Register-Walkers" href="../register/">Записатися на подію</a>
           <a class="btn plausible-event-name=Join-Chat-Walkers" href="https://chat.whatsapp.com/JCyEJNm746nBXNll3VzzX3" target="_blank" rel="noopener">Приєднатися до чату</a>
         </div>
       </div>`,
@@ -1360,7 +1311,7 @@ uk: {
         <p class="faq-category-label">📍 Місце та час</p>
         <div class="faq-item" id="faq-walkers-1">
           <button class="faq-q" onclick="toggleFAQ('faq-walkers-1')"><span>Де і коли зустрічаємось?</span><span class="faq-icon">+</span></button>
-          <div class="faq-a"><div class="faq-a-inner">Точка і час зустрічі завжди вказані в конкретному анонсі події в чаті. Після оплати я ще раз надішлю точку зустрічі окремим повідомленням. Не знайшов — просто напиши мені.</div></div>
+          <div class="faq-a"><div class="faq-a-inner">Точка і час зустрічі завжди вказані в конкретному анонсі події в чаті. Організатор окремо підтверджує участь і за потреби уточнює місце зустрічі. Не знайшов — просто напиши мені.</div></div>
         </div>
         <div class="faq-item" id="faq-walkers-2">
           <button class="faq-q" onclick="toggleFAQ('faq-walkers-2')"><span>Як дістатися до стартової точки?</span><span class="faq-icon">+</span></button>
@@ -1402,14 +1353,14 @@ uk: {
         <p class="faq-category-label">💳 Оплата та скасування</p>
         <div class="faq-item" id="faq-walkers-8">
           <button class="faq-q" onclick="toggleFAQ('faq-walkers-8')"><span>Як оплатити?</span><span class="faq-icon">+</span></button>
-          <div class="faq-a"><div class="faq-a-inner">Спосіб оплати вказаний в анонсі події. Зазвичай це банківський переказ — Raiffeisenbank, рахунок 7804336003/5500 (вкажи в призначенні платежу своє ім'я і назву події) — або Revolut: <a href="https://revolut.me/aliaksj5pq" target="_blank" rel="noopener">revolut.me/aliaksj5pq</a>. Оплата підтверджує твоє місце — без оплати місце не бронюється.</div></div>
+          <div class="faq-a"><div class="faq-a-inner">Оплата потрібна лише для платних заходів; безкоштовні події не потребують оплати. Для платних заходів спосіб оплати зазначений в анонсі. Зазвичай це банківський переказ — Raiffeisenbank, рахунок 7804336003/5500 (вкажи в призначенні платежу своє ім'я і назву події) — або Revolut: <a href="https://revolut.me/aliaksj5pq" target="_blank" rel="noopener">revolut.me/aliaksj5pq</a>. Для платних заходів організатор підтверджує участь після оплати. Для безкоштовних заходів він окремо підтверджує заявку без оплати.</div></div>
         </div>
         <div class="faq-item" id="faq-walkers-9">
           <button class="faq-q" onclick="toggleFAQ('faq-walkers-9')"><span>Що якщо я запізнююсь або не зможу прийти?</span><span class="faq-icon">+</span></button>
           <div class="faq-a"><div class="faq-a-inner">
             <strong>Запізнення:</strong> група чекає максимум 10 хвилин від призначеного часу, потім виходить. Якщо запізнюєшся — попередь заздалегідь, можливо вдасться скоригувати точку приєднання по маршруту.<br><br>
-            <strong>Скасування з твого боку, за 7+ днів до події:</strong> повернення за вирахуванням фіксованого збору 120 крон (покриває обробку платежу і листування щодо скасування — утримується навіть при повністю правомірному, своєчасному скасуванні).<br><br>
-            <strong>Скасування менш ніж за 7 днів, або неявка:</strong> місце було заброньоване саме для тебе — повернення немає, включно зі збором 120 крон.<br><br>
+            <strong>Лише платні заходи — скасування за 7+ днів:</strong> повернення за вирахуванням фіксованого збору 120 крон (покриває обробку платежу і листування щодо скасування — утримується навіть при повністю правомірному, своєчасному скасуванні).<br><br>
+            <strong>Лише платні заходи — скасування менш ніж за 7 днів або неявка:</strong> місце було заброньоване саме для тебе — повернення немає, включно зі збором 120 крон.<br><br>
             <strong>Скасування або перенесення з нашого боку</strong> (погода, недобір учасників) — повне повернення, включно зі збором, див. нижче.
           </div></div>
         </div>
@@ -1422,7 +1373,7 @@ uk: {
         <p class="faq-category-label">❓ Інше</p>
         <div class="faq-item" id="faq-walkers-11">
           <button class="faq-q" onclick="toggleFAQ('faq-walkers-11')"><span>Я новенький і нікого не знаю — можна прийти самому?</span><span class="faq-icon">+</span></button>
-          <div class="faq-a"><div class="faq-a-inner">Абсолютно нормально і насправді типово. Більшість учасників приєдналися саме так. Група дружня — познайомишся з людьми дорогою. Якщо хочеш м'який старт — приходь спочатку на настільні ігри по вівторках без довгострокових зобов'язань і підпишись на канал анонсів.</div></div>
+          <div class="faq-a"><div class="faq-a-inner">Абсолютно нормально і насправді типово. Більшість учасників приєдналися саме так. Група дружня — познайомишся з людьми дорогою. Для спокійного старту обери найближчий підтверджений похід і стеж за анонсами. Настільні ігри зараз на паузі.</div></div>
         </div>
         <div class="faq-item" id="faq-walkers-12">
           <button class="faq-q" onclick="toggleFAQ('faq-walkers-12')"><span>Що робити в екстреній ситуації на маршруті?</span><span class="faq-icon">+</span></button>
@@ -1490,9 +1441,12 @@ function applyTranslations(lang) {
     if (val) el.innerHTML = val;
   });
   document.documentElement.lang = lang;
+  queueMicrotask(() => document.dispatchEvent(new CustomEvent('site:language')));
 }
 
 function detectLang() {
+  const requested = new URLSearchParams(location.search).get('lang');
+  if (['ru','en','cs','uk'].includes(requested)) return requested;
   try {
     const saved = localStorage.getItem('dm_lang');
     if (saved && T[saved]) return saved;
@@ -1520,11 +1474,13 @@ function render(lang) {
     b.setAttribute('aria-pressed', b.dataset.lang === lang ? 'true' : 'false');
   });
   applyTranslations(lang);
+  const registrationLink={cs:'../register/',en:'../register/en/',ru:'../register/ru/',uk:'../register/uk/'}[lang];
+  document.querySelectorAll('a[href^="../register/"]').forEach(a=>a.href=registrationLink);
 }
 
 bindLangButtons();
 render(detectLang());
 </script>
-<script>if(Date.now()>=Date.parse('2026-11-04T00:00:00+01:00')){var paidBanner=document.getElementById('paid-walk-20261028');if(paidBanner)paidBanner.remove();}</script>
+<script>if(Date.now()>Date.parse('2026-11-04T00:00:00+01:00')){const e=document.getElementById('bw-cancel-20261028');if(e)e.remove();}</script>
 </body>
 </html>

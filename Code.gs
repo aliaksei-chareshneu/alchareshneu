@@ -31,21 +31,18 @@ var EVENTS_SHEET_NAME        = 'Events';
 var REGISTRATIONS_SHEET_NAME = 'Registrations';
 var SPREADSHEET_ID           = '1igxEHQ7wFFCoCA9lg4kzT2OoMrVLgbBogfqTxGeUftY'; // из URL таблицы
 
-var SITE_EVENTS_LIMIT         = 6; // сколько ближайших событий отдавать на сайт
+var SITE_EVENTS_LIMIT         = 80; // сколько ближайших событий отдавать на сайт
 var SITE_EVENTS_CACHE_SECONDS = 300; // кэш ответа doGet, чтобы не дёргать Sheets на каждого посетителя сайта
 
 // ====================== МЕНЮ ======================
 function onOpen() {
-  var menu = SpreadsheetApp.getUi()
+  SpreadsheetApp.getUi()
     .createMenu('Community Hub')
     .addItem('🔄 Повторить синхронизацию для текущей строки', 'retrySyncForActiveRow')
     .addItem('❌ Отменить событие (текущая строка)', 'cancelEventFromMenu')
     .addItem('⏰ Проверить напоминания сейчас', 'sendEventReminders')
-    .addItem('📚 Создать пакет репетиторских занятий', 'createTutoringPackageEvents');
-  if (typeof operatorOpen === 'function') {
-    menu.addSeparator().addItem('IMPERION · Operations', 'operatorOpen');
-  }
-  menu.addToUi();
+    .addItem('📚 Создать пакет репетиторских занятий', 'createTutoringPackageEvents')
+    .addToUi();
 }
 
 function retrySyncForActiveRow() {
@@ -463,6 +460,8 @@ function deleteFacebookPost(postId, community) {
 // fetch() из браузера. Загрузка через <script src="..."> (JSONP) в принципе не подчиняется
 // политике CORS — это не запасной вариант "на всякий случай", а основной маршрут.
 function doGet(e) {
+  // Universal registration; keep the existing JSON/JSONP API and legacy doPost intact.
+  if (e && e.parameter && e.parameter.view === 'register') return regpPage(e);
   var callback = (e && e.parameter && e.parameter.callback) ? String(e.parameter.callback) : '';
   // JSONP is executable JavaScript: only allow a simple global function identifier.
   if (callback && !/^[A-Za-z_$][0-9A-Za-z_$]{0,63}$/.test(callback)) callback = '';
@@ -509,8 +508,8 @@ function doGet(e) {
           description: row[headerMap['Description'] - 1] || '',
           startISO: startDate.toISOString(),
           locationName: row[headerMap['Location_Name'] - 1] || '',
-          priceCzk: row[headerMap['Price_CZK'] - 1] || 0,
-          isFree: Number(row[headerMap['Price_CZK'] - 1] || 0) === 0,
+          priceCzk: row[headerMap['Price_CZK'] - 1] === '' ? null : Number(row[headerMap['Price_CZK'] - 1]),
+          isFree: row[headerMap['Price_CZK'] - 1] !== '' && Number(row[headerMap['Price_CZK'] - 1]) === 0,
           registerUrl: registerUrl,
           imageOverride: headerMap['Image_Filename'] ? (row[headerMap['Image_Filename'] - 1] || '') : ''
         });
@@ -532,7 +531,7 @@ function doGet(e) {
 // ====================== СЦЕНАРИЙ 2: ПРИБМ РЕГИСТРАЦИЙ (Tally → Web App) ======================
 function doPost(e) {
   try {
-    if (e.parameter.secret !== TALLY_WEBHOOK_SECRET) {
+    if (!TALLY_WEBHOOK_SECRET || !e || !e.parameter || e.parameter.secret !== TALLY_WEBHOOK_SECRET) {
       return ContentService.createTextOutput('forbidden').setMimeType(ContentService.MimeType.TEXT);
     }
 
@@ -542,8 +541,10 @@ function doPost(e) {
         .setMimeType(ContentService.MimeType.JSON);
     }
     try {
+    if (!e.postData || typeof e.postData.contents !== 'string' || e.postData.contents.length > 1000000) throw new Error('Invalid webhook body');
     var data = JSON.parse(e.postData.contents);
     var submissionId = (data.data && data.data.submissionId) || '';
+    if (typeof submissionId !== 'string' || !submissionId || !Array.isArray(data.data.fields)) throw new Error('Missing submission identity or fields');
     var byLabel = {};
     (data.data && data.data.fields || []).forEach(function (f) { byLabel[f.label] = f.value; });
 
@@ -551,6 +552,7 @@ function doPost(e) {
     var sheet = ss.getSheetByName(REGISTRATIONS_SHEET_NAME);
     var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
     var submissionCol = headers.indexOf('Submission_ID');
+    if (submissionCol === -1) throw new Error('Submission_ID column is required for deduplication');
 
     // Tally повторяет доставку вебхука (через 5 мин/30мин/1ч/6ч/1день), если не получила
     // ответ 2xx за 10 секунд. Если первая попытка на самом деле уже сохранилась,
@@ -597,6 +599,10 @@ function doPost(e) {
         default: return '';
       }
     });
+    // Untrusted webhook text must never become a spreadsheet formula.
+    newRow = newRow.map(function (value) {
+      return typeof value === 'string' && /^[=+@-]/.test(value) ? "'" + value : value;
+    });
     sheet.appendRow(newRow);
 
     return ContentService.createTextOutput(JSON.stringify({ ok: true }))
@@ -606,7 +612,7 @@ function doPost(e) {
     }
   } catch (err) {
     console.error('doPost: ' + err);
-    return ContentService.createTextOutput(JSON.stringify({ ok: false, error: String(err) }))
+    return ContentService.createTextOutput(JSON.stringify({ ok: false, error: 'invalid_request' }))
       .setMimeType(ContentService.MimeType.JSON);
   }
 }
@@ -627,12 +633,58 @@ function lookupEventDate(ss, eventId) {
 // Триггер: Time-driven, ежедневно в 10:00 Prague.
 // Ищет Active события с Start_DateTime завтра-послезавтра и шлёт напоминание в канал.
 function sendEventReminders() {
-  // Critical regression guard: legacy broadcasts caused duplicate channel posts.
-  // Keep this public trigger name for existing Apps Script installations, but
-  // delegate ONLY to the reviewed single-job, idempotent Telegram publisher.
-  if (typeof p80TgTick === 'function') return p80TgTick();
-  console.error('SAFE_SOCIAL_DELIVERY_ADAPTER_MISSING; no Telegram send');
-  return { ok: false, sent: 0, reason: 'SAFE_ADAPTER_MISSING' };
+  var sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(EVENTS_SHEET_NAME);
+  var headerMap = getHeaderMap(sheet);
+  var rows = sheet.getRange(2, 1, Math.max(sheet.getLastRow() - 1, 1), sheet.getLastColumn()).getValues();
+
+  // Сравниваем календарные даты (Europe/Prague), а не сментие в часах от текущего момента.
+  // Раньше окно было "+44ч...+52ч от now" — при ежедневном триггере в 10:00 это на самом деле
+  // ловило события ПОСЛЕЗАВТРА (ч+2), а не завтра, при этом текст сообщения говорил "завтра".
+  // Сравнение по календарным суткам не зависит от зависит от того, в какой час дня сработал триггer
+  // и в какой час начинается само событие.
+  var tz = 'Europe/Prague';
+  var tomorrow = new Date(Date.now() + 24 * 3600 * 1000);
+  var tomorrowStr = Utilities.formatDate(tomorrow, tz, 'yyyy-MM-dd');
+
+  rows.forEach(function (row) {
+    var status = row[headerMap['Status'] - 1];
+    if (status !== 'Active') return;
+    if (row[headerMap['Category'] - 1] === 'Corporate') return; // внутренний учёт, без публичных напоминаний
+
+    var startDate = parseDate(row[headerMap['Start_DateTime'] - 1]);
+    if (isNaN(startDate.getTime())) return;
+    var eventDateStr = Utilities.formatDate(startDate, tz, 'yyyy-MM-dd');
+    if (eventDateStr !== tomorrowStr) return; // событие не "завтра" по календарю Prague — пропускаем
+
+    var title        = row[headerMap['Title'] - 1];
+    var locationName = row[headerMap['Location_Name'] - 1];
+    var locationAddr = row[headerMap['Location_Address'] - 1];
+    var community    = row[headerMap['Community'] - 1];
+    var category     = row[headerMap['Category'] - 1];
+    var price        = row[headerMap['Price_CZK'] - 1];
+    var tallyUrl     = row[headerMap['Tally_Form_URL'] - 1];
+    var calLink      = row[headerMap['Calendar_Link'] - 1];
+    var isFree       = (Number(price) === 0);
+    var ce           = colorAndEmoji(category, community);
+    var startStr     = formatDateForPost(startDate);
+
+    var reminderText =
+      '⏰ <b>Напоминание — завтра!</b>\n\n' +
+      ce.emoji + ' <b>' + escapeHtml(title) + '</b>\n\n' +
+      '🐡 ' + escapeHtml(locationName) +
+      (locationAddr ? '\n📌 ' + escapeHtml(locationAddr) : '') + '\n' +
+      '🕐 ' + startStr + '\n' +
+      '💰 ' + paymentPhrase(category, isFree, price) + '\n' +
+      '\n🗓,<a href="' + calLink + '">Добавить в календарь</a>';
+
+    try {
+      sendTelegramMessage(getChannelId(community), reminderText,
+        tallyUrl || null,
+        tallyUrl ? '📝 Ещё не записался?' : null);
+    } catch (err) {
+      console.error('Reminder failed for ' + title + ': ' + err);
+    }
+  });
 }
 
 // ====================== ОТМЕНА СОБЫТИЯ ======================
@@ -764,6 +816,9 @@ function cleanupOldRegistrations() {
   for (var i = 1; i < data.length; i++) {
     var retentionVal = data[i][headerMap['Retention_Until'] - 1];
     if (!retentionVal) continue;
+    // New portal records are anonymized by cleanupUniversalRegistrations, not this legacy job.
+    if (headerMap['Source_Channel'] && /^WEBSITE_RSVP(?:_|$)/.test(
+        String(data[i][headerMap['Source_Channel'] - 1]))) continue;
     if (new Date(retentionVal) < today) {
       sheet.getRange(i + 1, headerMap['Phone_Number']).setValue('—');
       sheet.getRange(i + 1, headerMap['Payment_Reference']).setValue('—');
