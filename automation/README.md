@@ -126,3 +126,35 @@ Primary sources are linked below. This section documents RESEARCH, not a deploye
 - **One desktop gateway per PC** with human-reviewed permission scopes; phones pair locally.
 - **Do not auto-publish to Facebook personal profiles.** Draft and explicitly owner-confirm a native post.
 - **Request only two screenshots when essential**: Oracle Compute VM shape/region/RAM (no IPs/keys) and Microsoft Nonprofit Hub Offers for grant eligibility.
+
+
+## Telegram Secretary Mode pilot · 28 Oct 2026
+
+Telegram policy source: automation/telegram_business_policy.js. It is a **pure policy module** to integrate with the already-existing IMPERION n8n intake/router or Apps Script. It DOES NOT create a new agent service, new CRM, queue, webhook, credential or Telegram bot, and cannot send messages on its own.
+
+- Official Telegram Connected Business Bots: https://core.telegram.org/api/bots/connected-business-bots
+- Official setup: https://core.telegram.org/bots/features#business-bots
+- No Telegram Premium required to connect a Business bot. Only one may be connected to a user account at a time.
+- The right can_reply applies to recent incoming private chats (last 24 hours); business_connection_id must match.
+- **Do not change the existing channel bot @moravian_host_bot webhook.** It already publishes to authorized Telegram channels. Prefer a separate owner-created Secretary bot in BotFather, subject to owner approval.
+- Exclude friends and sensitive chats; first test only individually allowlisted customers.
+- Draft-only by default. scopeApprovedByOwner, matching businessConnectionId, exact allowed chat IDs, and autoReplyApproved are all checked before a payload can be prepared.
+- This function only emits a proposed Telegram payload, never makes HTTP requests.
+- The real integration (NOT yet implemented) must verify connection rights, sender, authorization, idempotency, expiry, per-chat policy and log only redacted proof to existing execution receipts, not message bodies.
+- Unknown requests, prices, refunds, dates, safeguarding, health, minors or commitments require human review.
+- No personal Telegram historical corpus ingestion and no private-chat data sent to free AI APIs in this pilot.
+- Run synthetic tests with: node --test automation/test_telegram_business_policy.js
+- Go-live acceptance requires owner-selected chats, exact owner-approved reply categories, owner-connected bot, fake safe inbound message, actual provider ACK, explicit enable and exit/rollback.
+
+## Funding checked against actual incoming mail
+
+- 11 Oct 2026: Microsoft confirmed Družina Moravy nonprofit eligibility. **Not** proof that the Azure $2,000 sponsorship is active.
+- 22 Oct 2026: Goodstack confirmed nonprofit eligibility and earlier Microsoft/Canva approvals; Google on 27 Oct reported YouTube and ambiguous "branch" approved. **Not** proof of any Google Cloud compute credit.
+- 16 Oct 2026: Oracle Free Trial ended; only Always Free resources remain.
+- 20 Oct 2026: Google Cloud trial notice said 30 days remain, but the console must confirm credit balance/expiry.
+- Azure activation: https://learn.microsoft.com/en-us/industry/nonprofit/microsoft-for-nonprofits/claim-activate-nonprofit-azure-grant — sign in as validated primary contact, Offers > Activate, acceptance of terms, billing safeguards. Activate within 90 days of offer issuance.
+- Oracle A1 free: https://docs.oracle.com/en-us/iaas/Content/FreeTier/freetier_topic-Always_Free_Resources.htm — 2 OCPU/12 GB RAM equivalent, capacity availability/account quota not yet checked.
+- AWS worldwide nonprofit credit up to $5k: https://aws.amazon.com/government-education/nonprofits/nonprofit-credit-program/ — country-specific partner approval not verified; credits expire, usage afterward can incur charges.
+- GitHub Education teacher/researcher free Copilot Pro eligibility: https://docs.github.com/en/education/about-github-education/github-education-for-teachers/apply-to-github-education-as-a-teacher — actual eligibility/academic status not verified.
+
+**Legal separation**: do not use NGO-sponsored Azure/AWS resources to run unrelated commercial OSVČ outbound campaigns or personal chats. Segregate roles, credentials, privacy policies, cost and grant attribution. Do not activate pay-as-you-go billing, sign contracts, or charge a credit card without owner approval.
