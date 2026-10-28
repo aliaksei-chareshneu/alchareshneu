@@ -9,6 +9,22 @@ Implementation: `ops/imperion-agent-team.cjs`, Node 22, no added dependencies. I
 - Later: authorized existing Hub/n8n exports a current private snapshot, the agent report is compared to live rows, approved actions run only through EXISTING guarded workflows, and every real effect has an independent provider receipt.
 - A GitHub commit or green CI test does NOT establish that an autonomous runtime is installed, running continuously or connected to Gmail/Calendar/n8n.
 
+## Owner-only Google Sheets snapshot bridge (STAGED, NOT INSTALLED)
+
+`ImperionAgentSnapshot.gs` provides the private function
+`imperionAgentBuildSnapshot_()` in the existing, owner-authenticated
+Community Hub-bound Apps Script project. It reads only the exact current
+`Leads`, `Revenue_Actions`, `SocialPublishing`, `Events`,
+`IMPERION_Agent_Jobs` headers, with a narrow field allowlist.
+It omits free-text Notes, customer names, descriptions and social captions,
+and turns actual Google Sheets Date objects into UTC ISO strings. It does
+not use Gmail, Calendar, n8n, paid models, write cells, create a timer or
+expose a web endpoint. It returns data only to an authorized private
+server/editor caller, never to a public page, log or PR. Media remains
+an existing ShortFactory SQLite source on the owner's device; the
+snapshot intentionally labels that list empty until independently read.
+No cloud installation or protected-data export has been performed.
+
 ## Existing sources: one queue, no duplication
 
 Use Community Hub tabs `Leads`, `Revenue_Actions`, `Events`, `SocialPublishing`, `IMPERION_Agent_Jobs`. Media source is the existing ShortFactory SQLite database; do not move customer data into the public repository. Input is a bounded locally exported JSON snapshot using existing exact tab keys, `schema_version:1`, `source_system:"EXISTING_IMPERION_HUB"`, an opaque `snapshot_id`, and an explicit ISO offset-aware `captured_at`. The marker is a format contract, **not authentication**. Real snapshots belong to the authorized private owner process.
