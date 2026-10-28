@@ -34,7 +34,9 @@ jobs:
           grep -q 'id="photo"' register/index.html
           grep -q 'id="future"' register/index.html
           grep -q 'data-lang="ru"' register/index.html
-          grep -q 'manual' register/privacy/index.html
+          # Online RSVP uses Supabase; privacy must explain that submitting is not a confirmed booking.
+          grep -q 'Supabase' register/privacy/index.html
+          grep -q 'not an automatic reservation' register/privacy/index.html
 
       - name: Reject stale production placeholders
         shell: bash
