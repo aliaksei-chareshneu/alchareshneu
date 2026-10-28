@@ -24,7 +24,9 @@ test('public registration sends one private request with independent consents',a
   await page.locator('#phone').fill('+420 777 111 222');
   await page.locator('#safety').check();
   await page.locator('#submit').click();
-  await expect(page.locator('#result')).toContainText('Přihláška byla přijata');
+  await expect(page.locator('#result')).toContainText('Požadavek byl zpracován');
+  await expect(page.locator('#result')).toContainText('nový záznam nevznikne');
+  await expect(page.locator('#result')).toContainText('Další zprávu posílat nemusíte');
   await expect(page.locator('#result')).toContainText('Velká Klajdovka');
   await expect(page.locator('#result')).toContainText('synthetic-rsvp@example.test');
   await expect(page.locator('#result .receipt-actions button')).toHaveCount(2);
