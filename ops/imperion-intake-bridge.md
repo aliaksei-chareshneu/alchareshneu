@@ -1,26 +1,33 @@
 # Imperion private form → existing Community CRM
 
-## Applicant confirmation upgrade (prepared, NOT YET LIVE)
+## VERIFIED LIVE — 28 Oct 2026
+
+Owner-authorized installation, actual five-minute trigger execution, all three public-form E2E flows, Supabase/CRM UUID matching and ACK, actual owner/applicant inbox delivery, idempotent re-import, and QA-only cleanup passed. [Full evidence and UUIDs: issue #137](https://github.com/aliaksei-chareshneu/alchareshneu/issues/137#issuecomment-6463532153).
+
+[Bound Apps Script project](https://script.google.com/u/0/home/projects/1a_AHisFPBBLsi7I_T5rXBL0NmikoA4Iux7UaqLVAiX8aYLtPY-G3CRhl/edit) · [Triggers](https://script.google.com/u/0/home/projects/1a_AHisFPBBLsi7I_T5rXBL0NmikoA4Iux7UaqLVAiX8aYLtPY-G3CRhl/triggers) · [Executions](https://script.google.com/u/0/home/projects/1a_AHisFPBBLsi7I_T5rXBL0NmikoA4Iux7UaqLVAiX8aYLtPY-G3CRhl/executions).
+
+## Applicant confirmation (installed and verified)
 
 - Browser receipts now show the request details and a copy button on event RSVP, Družina training enquiry and corporate enquiry forms (CZ/EN/RU/UA). No messenger is required after a successful form submission.
-- The existing `imperion-intake-sync.gs` source additionally queues **transactional acknowledgements** on the **existing CRM rows** and uses the owner's authorized Google `MailApp` to send them in the recorded language. It requires the one-time installation/authorization below: **editing the GitHub file does not activate the Google script**.
+- The existing `imperion-intake-sync.gs` source additionally queues **transactional acknowledgements** on the **existing CRM rows** and uses the owner's authorized Google `MailApp` to send them in the recorded language. It is installed and authorized in the existing bound project. **Future edits to the GitHub file do not automatically update the Google script**.
 - Intake runs approximately **every five minutes** after the owner runs the updated installer (not instantaneous). It attempts up to five deliveries and records `Receipt_Status`, `Receipt_Attempts`, `Receipt_Sent_At` and `Receipt_Locale` inside existing relevant tabs; no parallel contact database. `SENT_TO_PROVIDER` means accepted by MailApp, NOT verified inbox delivery, opening or booked participation.
 - A phone-only Družina enquiry is recorded with `ONSCREEN_ONLY`, not emailed. To guarantee an email copy in future, collect a valid address; SMS requires a separately contracted provider. Resend currently has **no verified sending domain**, so it is NOT an active attendee-mail channel.
 - A failed MailApp call stays `RETRY` until the next import; after five failures the row becomes `FAILED_REVIEW` for manual intervention. A crash after MailApp accepted a send but before CRM status write may produce a duplicate: exactly-once email delivery is not provable with MailApp.
 - Outgoing email is strictly about the specific submitted request: **no advertising, no acceptance, no payment, no guarantee of the event taking place**. For event details the mailer uses the approved public catalog and explicitly warns that time/meeting place need final personal confirmation.
 - Google Apps Script [MailApp quota](https://developers.google.com/apps-script/guides/services/quotas) may limit high-volume delivery (e.g. consumer 100 recipients/day). Use a verified transactional domain/provider before scaling beyond its verified quota, and measure actual delivery/bounces separately.
 
-## Current status, 27 Oct 2026 (verified after live CRM/API audit)
+## Current production status, 28 Oct 2026
 
-- **LIVE:** Private Supabase `imperion-intake-bridge` version 2 reads three streams, authorized ONLY by 64-character high-entropy bearer token verified against Supabase Vault: event RSVPs, NGO Družina enquiries, and **OSVČ B2B corporate inquiries**.
-- **LIVE:** Private B2B source table `imperion_b2b_inquiries` (RLS ON, no anon/authenticated access) stores unconfirmed requests from [corporate quote form](../corporate/request/).
-- **SOURCE CORRECTED, GOOGLE INSTALL UNVERIFIED:** The enhanced Google Apps Script importer in [imperion-intake-sync.gs](../imperion-intake-sync.gs) is committed on `growth-experience`, but source code in GitHub is NOT evidence that it is installed or running in the bound Google Apps Script project. It handles all three streams; B2B leads route only to `Leads`, NGO enquiries to `Druzina_Requests`, public event RSVPs to `Registrations`.
-- **OWNER GATE:** Install and authorize the importer in the existing bound Community Hub Apps Script project, then verify the trigger and an end-to-end receipt. Google Drive cannot deploy or authorize Apps Script; Desktop Commander usage is exhausted and connected browser automation is out of credits. Until owner-authorized installation is evidenced, no five-minute Google Sheet import or owner/attendee notification is guaranteed.
-- **OBSERVED ON 27 OCT:** Supabase contained exactly 1 RSVP (for event `PUB-HIKE-20261101`), 0 Družina enquiries and 0 B2B enquiries; that RSVP had a matching UUID in existing `Registrations` and `crm_synced_at` set. It is a manually reconciled/self-submitted record, not evidence of a working automatic trigger. Its `Source_Channel` was normalized to `WEBSITE_RSVP_SUPABASE_UNCONFIRMED` so the existing retention helper can see it. No remaining pending source records during the check.
-- **FAILSAFE:** Existing ChatGPT automation `07 · B2B Deal Engine: CASH-FIRST` may perform a connector-based sync on scheduled runs. This is an **attempted secondary route**, not proof of continuous sync. Do not falsely claim the native Apps Script trigger runs until independently verified.
-- No new CRM, no payment capture, no auto-accepted order, no public personal-data export, no cold marketing email from forms.
+- Private Supabase bridge reads RSVPs, Družina enquiries and corporate inquiries with Vault-backed bearer authorization. RLS and private source tables remain in place.
+- Importer installed as one added file; original scripts, web handlers and automations preserved. Installed source blob: `20d132925edec244577f16ea17dcf3046b4733a8`.
+- Script Properties contain the private bridge key, existing CRM ID and confirmed owner digest address.
+- Exactly one importer trigger runs every **5 minutes**; actual automatic execution at 08:34:12 Europe/Prague completed successfully. Exactly one daily retention trigger runs **04:00–05:00 Europe/Prague**. The two pre-existing unrelated owner triggers remain.
+- Public-form tests created one RSVP in `Registrations`, one training enquiry in `Druzina_Requests`, and one corporate enquiry in `Leads` only. All source UUIDs and ACK timestamps matched. Actual Gmail inbox readback verified the owner digest and all three applicant receipts.
+- Repeated import produced zero new rows and zero new notifications. Verified QA records were removed from source and CRM; original non-QA RSVP preserved. No source pending rows at final readback.
+- Daily retention helper was also manually run successfully: zero expired rows anonymized.
+- No new CRM, payments, auto-accepted orders, public personal-data export, cold marketing mail or ChatGPT tasks.
 
-## One-time owner action
+## Installation / recovery reference (already completed)
 
 1. Open the existing [Community Hub CRM](https://docs.google.com/spreadsheets/d/1igxEHQ7wFFCoCA9lg4kzT2OoMrVLgbBogfqTxGeUftY/edit) → Extensions → Apps Script. Add **one new script file** named `imperion-intake-sync`. Copy the complete content of [imperion-intake-sync.gs](../imperion-intake-sync.gs). **Do not overwrite** the existing Code.gs/web app/calendar script.
 2. Apps Script Project Settings → Script Properties. Set:
@@ -33,9 +40,9 @@
 
 ## Automated flow after the above
 
-Supabase `imperion_rsvp_submissions` → private GET → existing tab `Registrations`. Supabase `imperion_rsvp_enquiries` → existing `Druzina_Requests`. Supabase `imperion_b2b_inquiries` → same private GET → existing `Leads` (OSVČ, not NGO). The original source UUID is preserved in the target row. The script holds a lock, reads existing UUIDs to avoid duplicates and only ACKs Supabase after writing rows. Retried requests recognize the UUID, skip duplicate writes and retry ACK. It emails the **owner** one count-only digest. The newly staged transactional receipt mailer sends applicants their own request summary after import; it is not an attendance confirmation, marketing or payment. It does not send guardian contacts to third parties.
+Supabase `imperion_rsvp_submissions` → private GET → existing tab `Registrations`. Supabase `imperion_rsvp_enquiries` → existing `Druzina_Requests`. Supabase `imperion_b2b_inquiries` → same private GET → existing `Leads` (OSVČ, not NGO). The original source UUID is preserved in the target row. The script holds a lock, reads existing UUIDs to avoid duplicates and only ACKs Supabase after writing rows. Retried requests recognize the UUID, skip duplicate writes and retry ACK. It emails the **owner** one count-only digest. The installed transactional receipt mailer sends applicants their own request summary after import; it is not an attendance confirmation, marketing or payment. It does not send guardian contacts to third parties.
 
-**Reliability (staged until Apps Script installation):** The importer checks the stored source UUID immediately after every CRM insert, refuses duplicate headers and requires a configured owner digest address before pulling data. New-application counts are queued in private Script Properties **before** Supabase ACK. If Gmail/MailApp fails, the next five-minute import run retries the count-only owner digest even if no fresh registrations arrive. Mail is at-least-once (a crash immediately after delivery can repeat the same count); do not interpret message counts as unique registrations. No participant details are emailed.
+**Reliability:** The importer checks the stored source UUID immediately after every CRM insert, refuses duplicate headers and requires a configured owner digest address before pulling data. New-application counts are queued in private Script Properties **before** Supabase ACK. If Gmail/MailApp fails, the next five-minute import run retries the count-only owner digest even if no fresh registrations arrive. Mail is at-least-once (a crash immediately after delivery can repeat the same count); do not interpret message counts as unique registrations. No participant details are emailed.
 
 ## Privacy and safety
 
@@ -52,8 +59,8 @@ Supabase `imperion_rsvp_submissions` → private GET → existing tab `Registrat
 - The existing `Payment_Status` dropdown allows `NOT_REQUIRED, PENDING, DECLARED, VERIFIED, REFUNDED`; it **does not accept `NOT_COLLECTED`**. The importer now writes `NOT_REQUIRED` only for a declined RSVP or a publicly verified zero-price event, otherwise `PENDING` for manual payment review. `PENDING` is not a payment demand, and no checkout was enabled.
 - Receipt text now uses the event's approved public rules link; the sentence about fencing equipment is only used for HEMA/fencing events, not BrnoWalkers walks.
 - `imperionInstallPrivateIntake` now leaves an existing owner trigger intact instead of deleting it first. Before running it, inspect existing project triggers and other potential owners: Google may not display triggers created by a different account. If the importer trigger already exists, check its **actual interval** manually; the installer will not silently replace it.
-- The `growth-experience` source commit is `7d15e1985ef693f77f6355d4c35dd9163b8c4bdf`. **No Google Apps Script production push or triggered execution was performed by that commit.**
+- The `growth-experience` source commit is `7d15e1985ef693f77f6355d4c35dd9163b8c4bdf`. The matching script was installed and authorized in the bound project on 28 Oct 2026; actual triggered execution and inbox delivery are evidenced in issue #137.
 
-## Verification once activated
+## Future verification
 
-Use synthetic `.invalid` contact data to test all three types. Check exactly one new row in each appropriate existing tab, `crm_synced_at` on source, and one owner digest. Re-run; it must add zero new rows and send no new digest. Do not announce completion until verified against both Google Sheets and the Edge receipts.
+Use adult synthetic QA and an owner-controlled Gmail plus-alias for actual email delivery checks; use `.invalid` contacts only when delivery is not being tested. Check exactly one new row in the appropriate existing tab, matching source UUID and `crm_synced_at`, owner digest and applicant receipt in the actual mailbox. Re-run: zero new rows and zero repeated notifications. Before removing QA records, verify their exact IDs and identities in both systems. Do not infer deployment or inbox delivery from GitHub source or `SENT_TO_PROVIDER` alone.
