@@ -1,0 +1,36 @@
+name: IMPERION free inference (offline tests)
+on:
+  pull_request:
+    paths:
+      - "automation/free_inference.py"
+      - "automation/test_free_inference.py"
+      - "automation/telegram_business_policy.js"
+      - "automation/test_telegram_business_policy.js"
+      - ".github/workflows/imperion-free-inference-ci.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  unit:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout (read-only)
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile and test with no API keys
+        run: |
+          python -m py_compile automation/free_inference.py
+          python -m unittest discover -s automation -p "test_*.py" -v
+
+      - name: Validate Telegram Business policy (offline, no network)
+        run: |
+          node --check automation/telegram_business_policy.js
+          node --test automation/test_telegram_business_policy.js
