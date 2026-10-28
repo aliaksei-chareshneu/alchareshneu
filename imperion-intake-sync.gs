@@ -406,44 +406,192 @@ function impSendAttendedFollowups_(ss,cfg){
  return {sent:sent,failed:failed};
 }
 
-/** Pending owner count digest is private Script Properties, not a second CRM.
- * A failed MailApp call retains the counts for the next hourly run.
- * Do not include attendee names, guardian data or contact details in emails.
+/** Private owner digest. Store only counters and a few non-identifying CRM row
+ * pointers in Script Properties. Never put names, email, phone, guardian or
+ * free-form enquiry content in owner notification emails.
+ * Existing counters without details remain readable after an upgrade.
  */
 var IMP_PRIVATE_NOTIFY_PENDING='IMPERION_INTAKE_NOTIFY_PENDING';
+var IMP_OWNER_DIGEST_SAMPLE_LIMIT=12;
 function impPendingDigest_(){
   var raw=PropertiesService.getScriptProperties().getProperty(IMP_PRIVATE_NOTIFY_PENDING);
-  if(!raw)return {rsvps:0,enquiries:0,b2b:0};
+  if(!raw)return {rsvps:0,enquiries:0,b2b:0,items:[]};
   var data;
   try{data=JSON.parse(raw)}catch(e){throw Error('Invalid pending digest state');}
   if(!data||!Number.isSafeInteger(data.rsvps)||!Number.isSafeInteger(data.enquiries)||
      data.rsvps<0||data.enquiries<0||
      (data.b2b!==undefined&&(!Number.isSafeInteger(data.b2b)||data.b2b<0)))
     throw Error('Invalid pending digest counters');
-  return {rsvps:data.rsvps,enquiries:data.enquiries,b2b:data.b2b||0};
+  return {rsvps:data.rsvps,enquiries:data.enquiries,b2b:data.b2b||0,
+    items:Array.isArray(data.items)?data.items.slice(-IMP_OWNER_DIGEST_SAMPLE_LIMIT):[]};
 }
-function impQueueOwnerDigest_(rsvps,enquiries,b2b){
+/** Snapshot only the freshly appended rows, never old CRM contacts or test data.
+ * Row numbers are pointers for the owner; counts remain authoritative if this
+ * optional snapshot is unavailable.
+ */
+function impDigestNewRows_(ss,rsvps,enquiries,b2b){
+  if(!ss)return [];
+  var samples=[];
+  [
+    {tab:'Registrations',kind:'RSVP',count:rsvps},
+    {tab:'Druzina_Requests',kind:'TRAINING',count:enquiries},
+    {tab:'Leads',kind:'B2B',count:b2b}
+  ].forEach(function(spec){
+    if(!spec.count)return;
+    var sh=ss.getSheetByName(spec.tab);
+    if(!sh||sh.getLastRow()<=spec.count)return;
+    var take=Math.min(spec.count,IMP_OWNER_DIGEST_SAMPLE_LIMIT);
+    var first=sh.getLastRow()-take+1;
+    var m=impHeader_(sh).map;
+    var rows=sh.getRange(first,1,take,sh.getLastColumn()).getDisplayValues();
+    function v(row,k){return m[k]===undefined?'':String(row[m[k]]||'').trim();}
+    rows.forEach(function(row,i){
+      var n=first+i;
+      if(spec.kind==='RSVP'){
+        if(!/^WEBSITE_RSVP_SUPABASE_/.test(v(row,'Source_Channel'))||
+           !/^[0-9a-f-]{36}$/i.test(v(row,'Submission_ID')))return;
+        samples.push({kind:'RSVP',row:n,eventId:v(row,'Event_ID').slice(0,90),
+          status:v(row,'RSVP_Status').slice(0,20)});
+      }else if(spec.kind==='TRAINING'){
+        if(!/^ENQ-[0-9a-f-]{36}$/i.test(v(row,'Request_ID')))return;
+        samples.push({kind:'TRAINING',row:n,
+          training:v(row,'Request_Type')==='RETURNING_TRAINING_ENQUIRY'?'RETURNING':'FIRST'});
+      }else{
+        if(!/^OSVC-B2B-[0-9a-f-]{36}$/i.test(v(row,'Submission_ID')))return;
+        var budget=/;\s*Budget:\s*([A-Za-z0-9+_-]{1,24})\s*CZK(?:;|$)/.exec(v(row,'Notes'));
+        samples.push({kind:'B2B',row:n,service:v(row,'Service').slice(0,45),
+          priority:v(row,'Priority').slice(0,6),budget:budget?budget[1]:''});
+      }
+    });
+  });
+  return samples;
+}
+function impQueueOwnerDigest_(rsvps,enquiries,b2b,ss){
   b2b=b2b||0;
   if(!Number.isSafeInteger(rsvps)||!Number.isSafeInteger(enquiries)||!Number.isSafeInteger(b2b)||
      rsvps<0||enquiries<0||b2b<0)throw Error('Invalid new intake counts');
   if(rsvps+enquiries+b2b===0)return;
-  var p=PropertiesService.getScriptProperties(),pending=impPendingDigest_();
-  p.setProperty(IMP_PRIVATE_NOTIFY_PENDING,JSON.stringify({
-    rsvps:pending.rsvps+rsvps,enquiries:pending.enquiries+enquiries,b2b:pending.b2b+b2b
-  }));
+  var p=PropertiesService.getScriptProperties(),pending=impPendingDigest_(),fresh=[];
+  try{fresh=impDigestNewRows_(ss,rsvps,enquiries,b2b);}
+  catch(e){console.error('Optional owner digest details unavailable; counts retained');}
+  var state={
+    rsvps:pending.rsvps+rsvps,enquiries:pending.enquiries+enquiries,b2b:pending.b2b+b2b,
+    items:pending.items.concat(fresh).slice(-IMP_OWNER_DIGEST_SAMPLE_LIMIT)
+  };
+  var serialized=JSON.stringify(state);
+  while(serialized.length>7800&&state.items.length){
+    state.items.shift();
+    serialized=JSON.stringify(state);
+  }
+  p.setProperty(IMP_PRIVATE_NOTIFY_PENDING,serialized);
 }
-function impFlushOwnerDigest_(cfg){
+/** Public event title/date from the existing catalog or the existing RSVP
+ * control tab; neither source exposes attendee contact details here.
+ */
+function impOwnerDigestEvents_(ss,events){
+  var out={};
+  Object.keys(events||{}).forEach(function(id){
+    var e=events[id]||{},d=e.begins_at?new Date(e.begins_at):null;
+    out[id]={title:String(e.title||id).replace(/[\r\n]/g,' ').slice(0,130),
+      date:d&&isFinite(d.getTime())&&typeof Utilities!=='undefined'?
+        Utilities.formatDate(d,'Europe/Prague','dd.MM.yyyy HH:mm'):''};
+  });
+  if(!ss)return out;
+  var sh=ss.getSheetByName('RSVP_Control');
+  if(!sh||sh.getLastRow()<2)return out;
+  var rows=sh.getRange(2,1,Math.min(sh.getLastRow()-1,150),3).getDisplayValues();
+  rows.forEach(function(r){
+    var id=String(r[2]||'').trim();
+    if(!id)return;
+    var title=String(r[1]||'').replace(/[\r\n]/g,' ').slice(0,130);
+    var date=String(r[0]||'').trim().slice(0,30);
+    if(!out[id])out[id]={title:title||id,date:date};
+    else {
+      if(!out[id].title||out[id].title===id)out[id].title=title||id;
+      if(!out[id].date)out[id].date=date;
+    }
+  });
+  return out;
+}
+function impOwnerDigestRowUrl_(cfg,ss,tab,row){
+  var root='https://docs.google.com/spreadsheets/d/'+cfg.sheetId+'/edit';
+  if(!ss||!Number.isSafeInteger(row)||row<2)return root;
+  var sh=ss.getSheetByName(tab);
+  return sh?root+'#gid='+sh.getSheetId()+'&range=A'+row:root;
+}
+function impFlushOwnerDigest_(cfg,ss,events){
   var pending=impPendingDigest_(),n=pending.rsvps+pending.enquiries+pending.b2b;
   if(n===0)return {sent:false,pending:false};
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cfg.email))throw Error('Missing owner digest address');
+  var titleById={};
+  try{titleById=impOwnerDigestEvents_(ss,events);}
+  catch(e){console.error('Owner digest event titles unavailable; using IDs');}
+  var list=Array.isArray(pending.items)?pending.items:[],lines=[
+    'Nové požadavky z webových formulářů: '+n,
+    'Počty se vztahují k novým záznamům, ne k potvrzené účasti ani platbám.'
+  ];
+  var rsvp=list.filter(function(x){return x&&x.kind==='RSVP';});
+  var training=list.filter(function(x){return x&&x.kind==='TRAINING';});
+  var b2b=list.filter(function(x){return x&&x.kind==='B2B';});
+  if(pending.rsvps){
+    lines.push('','REGISTRACE NA AKCE — nové odpovědi: '+pending.rsvps);
+    var grouped={};
+    rsvp.forEach(function(item){
+      var key=String(item.eventId||'neznámá akce');
+      if(!grouped[key])grouped[key]={rows:[],yes:0,maybe:0,no:0};
+      var group=grouped[key];
+      group.rows.push(item.row);
+      if(item.status==='REGISTERED')group.yes++;
+      else if(item.status==='MAYBE')group.maybe++;
+      else if(item.status==='DECLINED')group.no++;
+    });
+    Object.keys(grouped).forEach(function(id){
+      var group=grouped[id],event=titleById[id]||{},
+        eventName=event.title||id;
+      lines.push('• '+eventName+(event.date?' — '+event.date:''));
+      lines.push('  Nové odpovědi: '+group.rows.length+
+        ' | chce přijít: '+group.yes+' | možná: '+group.maybe+' | nepřijde: '+group.no);
+      group.rows.forEach(function(row){
+        lines.push('  Otevřít přihlášku: '+impOwnerDigestRowUrl_(cfg,ss,'Registrations',row));
+      });
+    });
+    if(!rsvp.length)lines.push('Podrobnosti jsou v listu Registrations.');
+    lines.push('Stav „chce přijít“ znamená odeslaný formulář, ne potvrzené místo.');
+  }
+  if(pending.enquiries){
+    lines.push('','DRUŽINA MORAVY — zájem o první / další trénink: '+pending.enquiries);
+    training.forEach(function(item){
+      lines.push('• '+(item.training==='RETURNING'?'Opakovaná návštěva':'První návštěva')+
+        ' | '+impOwnerDigestRowUrl_(cfg,ss,'Druzina_Requests',item.row));
+    });
+    if(!training.length)lines.push('Podrobnosti jsou v listu Druzina_Requests.');
+    lines.push('Zájem o trénink není potvrzená rezervace.');
+  }
+  if(pending.b2b){
+    lines.push('','FIREMNÍ OSVČ POPTÁVKY — nové obchodní poptávky: '+pending.b2b);
+    b2b.forEach(function(item){
+      lines.push('• '+(item.service||'Firemní služba')+
+        (item.budget?' | rozpočet (deklarovaný): '+item.budget+' Kč':'')+
+        (item.priority?' | priorita: '+item.priority:''));
+      lines.push('  Otevřít lead: '+impOwnerDigestRowUrl_(cfg,ss,'Leads',item.row));
+    });
+    if(!b2b.length)lines.push('Podrobnosti jsou v listu Leads.');
+    lines.push('Poptávka není objednávka, smlouva, faktura ani příjem.');
+  }
+  if(rsvp.length+training.length+b2b.length<n)
+    lines.push('','V e-mailu jsou jen poslední dostupné náhledy; úplné údaje jsou v CRM.');
+  lines.push('','DALŠÍ KROK: zkontrolovat uvedené záznamy v CRM, ověřit dostupnost a odpovědět individuálně.',
+    'CRM: https://docs.google.com/spreadsheets/d/'+cfg.sheetId+'/edit');
+  var subject='[Imperion] Nové žádosti: '+n;
+  if(n===1&&pending.rsvps===1){
+    var item=rsvp[0],event=item&&titleById[item.eventId];
+    subject='[Imperion] Nová registrace — '+String(event&&event.title||'akce').slice(0,64);
+  }else if(n===1&&pending.enquiries===1)
+    subject='[Imperion] Nový zájem o trénink Družina';
+  else if(n===1&&pending.b2b===1)
+    subject='[Imperion] Nová firemní OSVČ poptávka';
   try{
-    MailApp.sendEmail(cfg.email,'[Imperion] Nové žádosti: '+n,
-      'Registrace na akce: '+pending.rsvps+'\n'+
-      'Dotazy na trénink Družina: '+pending.enquiries+'\n'+
-      'Firemní OSVČ poptávky: '+pending.b2b+'\n\n'+
-      'Soukromé kontakty najdete jen ve stávající CRM:\n'+
-      'https://docs.google.com/spreadsheets/d/'+cfg.sheetId+'/edit\n\n'+
-      'Ani účast, ani platba nejsou automaticky potvrzeny.');
+    MailApp.sendEmail(cfg.email,subject,lines.join('\n'));
     PropertiesService.getScriptProperties().deleteProperty(IMP_PRIVATE_NOTIFY_PENDING);
     return {sent:true,pending:false};
   }catch(e){
@@ -473,7 +621,7 @@ function imperionSyncPrivateIntake(){
       var c=impWriteB2B_(ss,batch.b2b);
       // Persist the owner-notification receipt BEFORE acknowledging the source;
       // a mail outage or later crash must not silently discard new leads.
-      impQueueOwnerDigest_(a.added,b.added,c.added);
+      impQueueOwnerDigest_(a.added,b.added,c.added,ss);
       // Acknowledge only AFTER CRM writes/readback and notification queuing succeed.
       impPrivateFetch_(cfg,{action:'ack',rsvps:a.ids,enquiries:b.ids,b2b:c.ids});
       addedR+=a.added;addedE+=b.added;addedB+=c.added;
@@ -481,7 +629,7 @@ function imperionSyncPrivateIntake(){
       if(a.ids.length<40&&b.ids.length<40&&c.ids.length<40)break;
     }
     // Retry a previously failed digest even if this run has no new rows.
-    impFlushOwnerDigest_(cfg);
+    impFlushOwnerDigest_(cfg,ss,events);
     var receipts=impSendReceiptQueue_(ss,cfg,events);
     var followups=impSendAttendedFollowups_(ss,cfg);
     console.log('Private intake receipts: dispatched='+receipts.sent+', errors='+receipts.failed);
