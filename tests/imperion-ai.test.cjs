@@ -121,3 +121,15 @@ test('free access audit returns unknown not success for offline PC', async () =>
   assert.equal(report.antigravity.gemini_api_key_present, false);
   assert.equal(report.external_requests, 0);
 });
+
+
+test('VS Code exposes audit via existing explicit on-demand task only', () => {
+  const raw = fs.readFileSync(path.join(ROOT, '.vscode', 'tasks.json'), 'utf8');
+  const doc = JSON.parse(raw);
+  const items = doc.tasks.filter(item => item.label === 'IMPERION AI: Audit (local-only)');
+  assert.equal(items.length, 1);
+  assert.equal(items[0].command, 'node');
+  assert.deepEqual(items[0].args, ['ops/imperion-ai.cjs', 'audit']);
+  assert.ok(items[0].type === 'shell');
+  assert.ok(!JSON.stringify(items).includes('GEMINI_API_KEY'));
+});
