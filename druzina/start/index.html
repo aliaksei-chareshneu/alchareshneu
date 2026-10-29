@@ -65,7 +65,7 @@ h1{font:800 clamp(2.5rem,5.8vw,5.5rem)/1.04 Georgia,serif;letter-spacing:-.035em
     <p data-k="introDetails">14 Nov 2026, 12:00–14:30 · Orlovna Husovice, Vranovská 93 · Padded practice swords and basic gear provided for this workshop.</p>
     <p class="event-note" data-k="introNote">Advance registration required. Only the organiser's personal confirmation secures a place. Beginners welcome; no archery.</p>
   </div>
-  <a class="primary" id="introCta" href="https://wa.me/420702914842?text=OREL%2014%20START" rel="noopener noreferrer" target="_blank" data-k="introCta">Ask for a free place</a>
+  <a class="primary" id="introCta" href="../../register/?event=PUB-OREL-20261114&amp;lang=en" rel="noopener noreferrer" target="_blank" data-k="introCta">Ask for a free place</a>
 </section>
 <section class="hero"><div class="wrap hero-grid">
 <div class="hero-content">
@@ -109,8 +109,7 @@ document.getElementById('action').href=c==='ru'?'https://t.me/druzinamoravy_news
 document.getElementById('question').href=c==='ru'?'https://t.me/Chareshneu':'https://wa.me/420702914842?text='+encodeURIComponent(({en:'Hello! I would like to meet the Družina Moravy team. Is there a confirmed upcoming event? I understand this is not a booking.',cs:'Dobrý den, rád/a bych poznal/a partu Družiny Moravy. Kdy se koná nejbližší potvrzená akce? Chápu, že nejde o rezervaci.',uk:'Вітаю! Хочу познайомитися з командою Дружини Морави. Коли наступна підтверджена подія? Розумію, що це не бронювання.'})[c]||'Hello!');
 const srcParam=new URLSearchParams(window.location.search).get('src')||'START';
 const sourceTag=/^[A-Za-z0-9_-]{1,32}$/.test(srcParam)?srcParam:'START';
-const invitation=({en:'OREL 14 — Hello! Please tell me whether I can join the free introductory fencing workshop on 14 November.',cs:'OREL 14 — Dobrý den, rád/a bych na bezplatný úvodní šerm 14. listopadu. Prosím o osobní potvrzení místa.',ru:'OREL 14 — Здравствуйте! Хочу на бесплатный вводный урок фехтования 14 ноября. Подтвердите, пожалуйста, место.',uk:'OREL 14 — Вітаю! Хочу на безкоштовний вступний урок фехтування 14 листопада. Прошу підтвердити місце.'})[c]||'OREL 14';
-document.getElementById('introCta').href='https://wa.me/420702914842?text='+encodeURIComponent(invitation+' [source:'+sourceTag+']');
+document.getElementById('introCta').href='../../register/?event=PUB-OREL-20261114&lang='+encodeURIComponent(c)+'&src='+encodeURIComponent(sourceTag);
 document.getElementById('details').href='../join/?lang='+encodeURIComponent(c);
 const u=new URL(window.location.href);u.searchParams.set('lang',c);history.replaceState(null,'',u);
 document.title=t.title+' | Družina Moravy';
