@@ -91,6 +91,19 @@
         "cwd": "${workspaceFolder}"
       },
       "problemMatcher": []
+    },
+    {
+      "label": "IMPERION AI: Audit (local-only)",
+      "type": "shell",
+      "command": "node",
+      "args": [
+        "ops/imperion-ai.cjs",
+        "audit"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
     }
   ]
 }
