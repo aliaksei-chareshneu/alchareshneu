@@ -103,6 +103,8 @@ def test_discovery_protection_and_redirect_validation(harness):
     assert invalid.status_code == 400
     external=c.post("/oauth/register",json={"client_name":"Untrusted redirect","redirect_uris":["https://example.net/callback"]})
     assert external.status_code == 400
+    localhost=c.post("/oauth/register",json={"client_name":"Untrusted localhost","redirect_uris":["http://127.0.0.1:8181/callback"]})
+    assert localhost.status_code == 400
     assert c.get("/mcp").status_code == 405
     assert c.post("/mcp",headers={"Origin":"https://evil.example"}).status_code == 403
 
