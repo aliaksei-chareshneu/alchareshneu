@@ -37,3 +37,7 @@ Source material created by us or licensed -> written rights/consent check -> ori
 
 ## Acceptance / blocking
 At every handoff, distinguish VERIFIED, DRAFT/PR, BLOCKED, and NOT VERIFIED. AI assistants do not bypass legal-entity separation, contracts, privacy, access approvals or spend authorisation. A script/configuration checked into GitHub does not install an IDE, provision Microsoft, create a schedule, connect a mailbox or deploy production.
+
+## Access-audit command and VS Code task (29.10.2026)
+
+Use `node ops/imperion-ai.cjs audit` or the existing VS Code `Terminal -> Run Task -> IMPERION AI: Audit (local-only)`. This is manual, read-only and bounded to the local Ollama `127.0.0.1:11434/api/tags`. It does not run a model, send public data to Google, consume credits, provision licences, read an external balance or verify Google account eligibility. `GEMINI_API_KEY` is reported only as a boolean indicating presence, never as a value. Source tests validate this behavior. An account's free or nonprofit eligibility requires independent provider-dashboard confirmation. Official alternative `agy` Gemini API-key configuration: https://antigravity.google/docs/cli/install/ .
