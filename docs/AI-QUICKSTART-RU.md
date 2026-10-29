@@ -72,3 +72,11 @@
 Отдельно учитывайте **установлен инструмент**, **есть авторизация**, **модель ответила**, **содержание прошло QA**, **подтверждено действие на платформе**, **поступила оплата**. Никогда не подменяйте один статус другим.
 
 Технические детали: [AI toolchain](AI-TOOLCHAIN.md), [AI content pipeline](AI-CONTENT-PIPELINE.md), `AGENTS.md`. Все сценарии — в **существующем репозитории**, без новой CRM или очереди.
+
+## Read-only аудит AI-доступов
+
+На компьютере с обновлённым репозиторием запустите `node ops/imperion-ai.cjs audit` или выберите задачу `IMPERION AI: Audit` в VS Code (если она установлена). Отчёт JSON проверяет установленные CLI и список моделей локального Ollama. Он НЕ проверяет реальную авторизацию, остаток квот, работу облачной модели и активацию NGO-продуктов; внешние API и платные модели не вызываются.
+
+Antigravity имеет официальный альтернативный способ авторизации через Gemini API key: `https://antigravity.google/docs/cli/install/`. Для него нужны конфигурация `modelProvider=gemini` и переменная `GEMINI_API_KEY`; наличие ключа не означает бесплатный тариф. Прежде чем использовать API, отдельно проверьте в Google AI Studio (`https://aistudio.google.com/`) Free Tier и квоты проекта. Никогда не вставляйте ключ в GitHub, логи или сообщения.
+
+Бесплатные и NGO-продукты проверяются в кабинетах, независимо друг от друга: Google for Nonprofits `https://www.google.com/nonprofits/`, Google Cloud Billing `https://console.cloud.google.com/billing`, GitHub Copilot `https://github.com/settings/copilot`. Не включать платный биллинг и не переносить NGO-права z.s. на коммерческую OSVČ.
