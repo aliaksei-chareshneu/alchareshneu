@@ -131,7 +131,7 @@ def valid_redirect(uri: str, allowed_https_hosts: tuple[str, ...] = ("chatgpt.co
             return False
         if u.scheme == "https":
             return u.hostname.lower() in allowed_https_hosts
-        return u.scheme == "http" and u.hostname in {"localhost", "127.0.0.1", "[::1]", "::1"}
+        return u.scheme == "http" and u.hostname in {"localhost", "127.0.0.1", "::1"} and u.hostname in allowed_https_hosts
     except Exception:
         return False
 
