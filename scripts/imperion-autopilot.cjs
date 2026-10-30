@@ -66,10 +66,13 @@ function build(source, now = Date.now()) {
       review_required: true, drafts}
   };
 }
+function serializeOutput(value) {
+  return typeof value === 'string' ? value : JSON.stringify(value, null, 2) + '\n';
+}
 function writeStable(name, value) {
   fs.mkdirSync(OUTPUT, {recursive: true});
   const file = path.join(OUTPUT, name);
-  const next = JSON.stringify(value, null, 2) + '\n';
+  const next = serializeOutput(value);
   if (fs.existsSync(file) && fs.readFileSync(file, 'utf8') === next) return false;
   fs.writeFileSync(file, next, 'utf8');
   return true;
@@ -166,4 +169,4 @@ async function main() {
   }));
 }
 if (require.main === module) main().catch(e => {console.error(e.message); process.exitCode = 1;});
-module.exports = {short, eligible, build, htmlEscape, renderCampaigns, renderRss};
+module.exports = {short, eligible, build, htmlEscape, renderCampaigns, renderRss, serializeOutput};

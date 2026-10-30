@@ -59,3 +59,12 @@ test('unverified forms are absent from own site campaign feed and RSS',()=>{
  assert.doesNotMatch(renderCampaigns(feed),/Workshop \(план\)/);
  assert.doesNotMatch(renderRss(feed),/<item>/);
 });
+
+test('raw HTML and RSS must not be JSON-encoded before publishing',()=>{
+ const {serializeOutput,renderCampaigns,renderRss}=require('../scripts/imperion-autopilot.cjs');
+ const feed=build({events:[event()],bookingConfirmed:false},Date.parse('2035-01-01')).feed;
+ assert.ok(serializeOutput(renderCampaigns(feed)).startsWith('<!doctype html>'));
+ assert.ok(serializeOutput(renderRss(feed)).startsWith('<?xml version="1.0"'));
+ assert.ok(serializeOutput(feed).startsWith('{\n'));
+ assert.doesNotMatch(serializeOutput(renderRss(feed)).slice(0,20),/^"/);
+});
