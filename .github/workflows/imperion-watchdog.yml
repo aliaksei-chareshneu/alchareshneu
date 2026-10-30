@@ -1,0 +1,33 @@
+name: IMPERION autonomous production watchdog
+on:
+  schedule:
+    - cron: '45 * * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/imperion-watchdog.cjs'
+      - 'tests/imperion-watchdog.test.cjs'
+      - '.github/workflows/imperion-watchdog.yml'
+permissions:
+  contents: read
+  issues: write
+  actions: write
+concurrency:
+  group: imperion-production-watchdog
+  cancel-in-progress: false
+jobs:
+  verify-and-recover:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test fail-closed safety gates
+        run: node --test tests/imperion-watchdog.test.cjs
+      - name: Verify live site, CRM public contract and alert once per incident
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/imperion-watchdog.cjs
