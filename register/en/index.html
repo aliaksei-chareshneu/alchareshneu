@@ -189,7 +189,14 @@ function ct(k){return catalogText[lang]?.[k]||catalogText.en[k]||k}
 function eventMode(e){if(!e)return null;if(e.registration_mode==='CONTACT')return 'CONTACT';const starts=Date.parse(e.begins_at);if(e.registration_mode!=='FORM'||e.is_open!==true||e.price_verified!==true||e.end_time_verified!==true||!Number.isFinite(starts)||starts<=Date.now())return 'PLANNED';return 'FORM'}
 function eventDate(e){return new Intl.DateTimeFormat(lang==='uk'?'uk-UA':lang==='ru'?'ru-RU':lang==='cs'?'cs-CZ':'en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',timeZone:'Europe/Prague'}).format(new Date(e.begins_at))}
 function eventLabel(e){return eventDate(e)+' · '+e.title}
-function statusLabel(e){return ct(eventMode(e)==='FORM'?'open':eventMode(e)==='CONTACT'?'manual':'planned')}
+function statusLabel(e){
+ const mode=eventMode(e);
+ // A form accepting interest is not a booking, particularly for paid sessions.
+ if(mode==='FORM'&&Number(e.price_czk)>0){
+   return ({cs:'Nezávazný zájem',en:'Interest only',ru:'Предварительная заявка',uk:'Попередня заявка'})[lang]||'Interest only';
+ }
+ return ct(mode==='FORM'?'open':mode==='CONTACT'?'manual':'planned');
+}
 function closeMatches(){$('eventMatches').hidden=true;$('eventSearch').setAttribute('aria-expanded','false')}
 function chooseEvent(id){const e=events.find(v=>v.event_id===id);if(!e)return;$('eventId').value=id;$('eventSearch').value=eventLabel(e);closeMatches();showEvent()}
 function renderMatches(){
