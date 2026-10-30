@@ -248,7 +248,23 @@ function showEvent(){
  const meta=document.createElement('p');meta.textContent=eventDate(e)+' · '+e.venue+' · '+(e.price_verified===false?t('payment'):Number(e.price_czk)===0?t('free'):Number(e.price_czk)+' Kč');info.append(meta);
  const status=document.createElement('p');status.className='event-state';status.textContent=statusLabel(e);info.append(status);
  const note=document.createElement('p');note.textContent=mode==='FORM'?t('unconfirmed'):ct(mode==='CONTACT'?'manualNote':'planNote');info.append(note);
- // Longer notes remain on the event/policy pages; do not repeat them on the quick RSVP form.
+ // A paid event can take INTEREST-ONLY RSVPs. It is never an online
+ // booking/checkout; give the warning beside the specific event in all
+ // four languages rather than relying on a generic unconfirmed label.
+ if(mode==='FORM'&&Number(e.price_czk)>0){
+   const paidWarning=document.createElement('p');paidWarning.className='event-paid-warning';
+   const warnings={
+     cs:'Pouze nezávazný zájem, ne rezervace ani platba. Neplaťte a necestujte bez individuálního písemného potvrzení místa, času, ceny a bezpečnostních podmínek.',
+     en:'Interest only: not a booking or payment. Do not pay or travel before an individual written confirmation of the place, time, price and safety conditions.',
+     ru:'Только предварительная заявка, не бронь и не оплата. Не платите и не приезжайте без индивидуального письменного подтверждения места, времени, цены и условий безопасности.',
+     uk:'Лише попередня заявка, не бронювання й не оплата. Не сплачуйте й не приїжджайте без особистого письмового підтвердження місця, часу, ціни та умов безпеки.'
+   };
+   paidWarning.textContent=warnings[lang]||warnings.en;info.append(paidWarning);
+ }
+ // Preserve event-specific restrictions supplied by the authoritative API.
+ // Use textContent, never render organiser-supplied text as HTML.
+ const publicNote=String(e.public_note||'').trim().slice(0,1600);
+ if(publicNote){const details=document.createElement('p');details.className='event-public-note';details.textContent=publicNote;info.append(details);}
  // The privacy page identifies the relevant data controller.
  if(mode==='CONTACT')renderEventContacts(info,e,String(e.action_url||''));
  const safe=String(e.rules_url||'');$('rulesLink').href=/^https:\/\/aliaksei-chareshneu\.github\.io\/alchareshneu\//.test(safe)?safe:policyBase+'safety/';
