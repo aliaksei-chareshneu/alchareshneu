@@ -20,9 +20,8 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 6
     steps:
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: true
+      - name: Check out canonical main sources
+        uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -30,19 +29,28 @@ jobs:
         run: node --test tests/imperion-autopilot.test.cjs
       - name: Read only already-public, approved signup catalog
         run: node scripts/imperion-autopilot.cjs
-      - name: Update own GitHub Pages feed and review-only social drafts
+      - name: Check out verified GitHub Pages publication branch
+        uses: actions/checkout@v4
+        with:
+          ref: growth-experience
+          path: pages
+          persist-credentials: true
+      - name: Publish public-only page, feed and review drafts to Pages
         shell: bash
         run: |
           set -euo pipefail
+          mkdir -p pages/autopilot
+          cp autopilot/index.html autopilot/feed.json autopilot/social-drafts.json pages/autopilot/
+          cd pages
           git config user.name 'imperion-autopilot[bot]'
           git config user.email '52605565+aliaksei-chareshneu@users.noreply.github.com'
-          git add autopilot/feed.json autopilot/social-drafts.json
+          git add autopilot/index.html autopilot/feed.json autopilot/social-drafts.json
           if git diff --cached --quiet; then
-            echo 'Public feed unchanged; no duplicate commit.'
+            echo 'Public Pages feed unchanged; no duplicate commit.'
           else
-            git commit -m 'chore(autopilot): refresh verified public event feed'
-            git push origin HEAD:main
+            git commit -m 'chore(autopilot): refresh public campaigns on Pages source'
+            git push origin HEAD:growth-experience
           fi
           echo '## IMPERION public autopilot' >> "$GITHUB_STEP_SUMMARY"
-          echo 'Only verified public catalog events; own website and manual-review social drafts.' >> "$GITHUB_STEP_SUMMARY"
-          echo 'No automatic Facebook/group posts, unsolicited emails, or private CRM export.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Verified public-only events published to growth-experience (the actual Pages branch).' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Social drafts require approval. No direct Facebook/group posts or private CRM export.' >> "$GITHUB_STEP_SUMMARY"
