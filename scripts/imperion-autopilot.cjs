@@ -74,6 +74,76 @@ function writeStable(name, value) {
   fs.writeFileSync(file, next, 'utf8');
   return true;
 }
+
+function htmlEscape(value) {
+  return String(value ?? '').replace(/[&<>"']/g, c => ({
+    '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+  })[c]);
+}
+/** Owned website publishing requires no third-party social-media privileges. */
+function renderCampaigns(feed) {
+  const cards = feed.events.map(e => {
+    const start = new Intl.DateTimeFormat('cs-CZ', {
+      dateStyle:'long', timeStyle:'short',timeZone:'Europe/Prague'
+    }).format(new Date(e.begins_at));
+    const link = '../register/?event=' + encodeURIComponent(e.event_id);
+    const price = e.price_czk === 0 ? 'Zdarma' : e.price_czk + ' Kč';
+    return '<article class="campaign" id="' + htmlEscape(e.event_id) + '">' +
+      '<p class="kind">' + htmlEscape(e.community || e.category) + '</p>' +
+      '<h2>' + htmlEscape(e.title) + '</h2>' +
+      '<p><strong>Kdy:</strong> ' + htmlEscape(start) + '</p>' +
+      '<p><strong>Kde:</strong> ' + htmlEscape(e.venue) + '</p>' +
+      '<p><strong>Cena:</strong> ' + htmlEscape(price) + '</p>' +
+      '<p class="disclaimer">Přihláška je nezávazná; účast, místo a podmínky musí pořadatel osobně potvrdit.</p>' +
+      '<a class="cta" href="' + htmlEscape(link) + '">Nezávazně se přihlásit</a></article>';
+  }).join('\n');
+  return '<!doctype html>\n<html lang="cs">\n<head>\n' +
+    '<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1">\n' +
+    '<meta name="theme-color" content="#0b1729">\n<meta name="referrer" content="no-referrer">\n' +
+    '<meta http-equiv="Content-Security-Policy" content="default-src &#39;self&#39;; style-src &#39;self&#39; &#39;unsafe-inline&#39;; object-src &#39;none&#39;; base-uri &#39;self&#39;; form-action &#39;self&#39;">\n' +
+    '<meta name="description" content="Aktuálně otevřené nezávazné přihlášky na akce v Brně: pěší výlety a začátečnické workshopy.">\n' +
+    '<link rel="canonical" href="' + ORIGIN + '/alchareshneu/autopilot/campaigns.html">\n' +
+    '<link rel="stylesheet" href="../brand-theme.css?v=20261028">\n' +
+    '<link rel="stylesheet" href="../site-design.css?v=20261027">\n' +
+    '<link rel="alternate" type="application/rss+xml" title="IMPERION události" href="rss.xml">\n' +
+    '<title>Aktuálně otevřené akce v Brně | IMPERION</title>\n' +
+    '<style>main{max-width:1000px;margin:auto;padding:32px 22px 75px}h1{font-size:clamp(2rem,6vw,3.1rem);margin:45px 0 20px}' +
+    '.campaigns{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:16px}' +
+    '.campaign{border-radius:17px;border:1px solid #42526d;padding:24px;background:#182b44}' +
+    '.campaign h2{font-size:1.3rem;line-height:1.35}.campaign p{color:#c6d1e0}' +
+    '.kind{color:#e6bf80!important;font-size:.8rem;text-transform:uppercase;font-weight:bold}' +
+    '.disclaimer{font-size:.87rem}.cta{display:inline-block;border-radius:9px;background:#e6bf80;color:#101b2d!important;font-weight:700;padding:12px 15px;text-decoration:none}' +
+    'a:focus-visible{outline:3px solid #e6bf80;outline-offset:4px}</style>\n' +
+    '</head>\n<body data-imperion-scope="autopilot" data-autopilot="owned-campaigns-v1"><main>\n' +
+    '<p><a href="./">IMPERION Autopilot</a> · <a href="../calendar/">Kalendář</a></p>\n' +
+    '<h1>Vyber si akci v Brně</h1><p>Jen otevřené nezávazné přihlášky z veřejného katalogu. ' +
+    'Toto je automaticky aktualizovaný obsah vlastního webu, ne potvrzení účasti.</p>\n' +
+    '<section class="campaigns" aria-label="Otevřené akce">\n' +
+    (cards || '<p>Nyní nejsou k dispozici žádné ověřené otevřené přihlášky.</p>') +
+    '</section><p><a href="./">Zkontrolovat živý katalog</a></p></main></body></html>\n';
+}
+function xmlEscape(value) {
+  return String(value ?? '').replace(/[&<>"']/g, c=>({
+    '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&apos;'
+  })[c]);
+}
+function renderRss(feed) {
+  const root = ORIGIN + '/alchareshneu/autopilot/';
+  const items = feed.events.map(e => {
+    const url = root + 'campaigns.html#' + encodeURIComponent(e.event_id);
+    const description = e.venue + ' — Nezávazná přihláška, účast vyžaduje osobní potvrzení pořadatelem.';
+    return '<item><title>' + xmlEscape(e.title) + '</title>' +
+      '<link>' + xmlEscape(url) + '</link>' +
+      '<guid isPermaLink="false">' + xmlEscape(e.event_id) + '</guid>' +
+      '<description>' + xmlEscape(description) + '</description></item>';
+  }).join('\n');
+  return '<?xml version="1.0" encoding="UTF-8"?>\n' +
+    '<rss version="2.0"><channel><title>IMPERION — otevřené přihlášky</title>' +
+    '<link>' + xmlEscape(root) + '</link>' +
+    '<description>Ověřené otevřené nezávazné přihlášky; pořadatel potvrzuje účast osobně.</description>' +
+    '<language>cs-CZ</language>' + items + '</channel></rss>\n';
+}
+
 async function main() {
   const response = await fetch(API, {headers: {'Origin': ORIGIN, 'Accept': 'application/json'},
     signal: AbortSignal.timeout(20000)});
@@ -85,7 +155,9 @@ async function main() {
   if (raw.length > 300000) throw new Error('Catalog exceeds safe bounds');
   const result = build(JSON.parse(raw));
   const changed = [writeStable('feed.json', result.feed),
-    writeStable('social-drafts.json', result.drafts)].some(Boolean);
+    writeStable('social-drafts.json', result.drafts),
+    writeStable('campaigns.html', renderCampaigns(result.feed)),
+    writeStable('rss.xml', renderRss(result.feed))].some(Boolean);
   console.log(JSON.stringify({
     status: 'PASS', public_events: result.feed.events.length,
     owner_review_drafts: result.drafts.drafts.length,
@@ -94,4 +166,4 @@ async function main() {
   }));
 }
 if (require.main === module) main().catch(e => {console.error(e.message); process.exitCode = 1;});
-module.exports = {short, eligible, build};
+module.exports = {short, eligible, build, htmlEscape, renderCampaigns, renderRss};

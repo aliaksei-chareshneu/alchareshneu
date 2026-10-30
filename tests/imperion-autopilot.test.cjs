@@ -34,3 +34,28 @@ test('malformed or duplicated public catalog fails closed',()=>{
   assert.throws(()=>build({events:[event()],bookingConfirmed:true},Date.parse('2035-01-01')));
   assert.throws(()=>build({events:[event(),event()],bookingConfirmed:false},Date.parse('2035-01-01')),/Duplicate event id/);
 });
+
+test('owned campaigns and RSS are generated from verified events, escaped and require personal confirmation',()=>{
+  const {renderCampaigns,renderRss}=require('../scripts/imperion-autopilot.cjs');
+  const e=event({title:'Brno autumn <script>alert("x")</script> hike'});
+  const feed=build({events:[e],bookingConfirmed:false},Date.parse('2035-01-01')).feed;
+  const html=renderCampaigns(feed),rss=renderRss(feed);
+  assert.match(html,/data-autopilot="owned-campaigns-v1"/);
+  assert.match(html,/brand-theme\.css\?v=20261028/);
+  assert.match(html,/site-design\.css\?v=20261027/);
+  assert.doesNotMatch(html,/<script>alert/);
+  assert.match(html,/&lt;script&gt;/);
+  assert.match(html,/Nezávazně se přihlásit/);
+  assert.match(html,/Přihláška je nezávazná/);
+  assert.match(rss,/<rss version="2.0">/);
+  assert.match(rss,/&lt;script&gt;/);
+  assert.doesNotMatch(rss,/<script>/);
+  assert.equal((rss.match(/<item>/g)||[]).length,1);
+});
+test('unverified forms are absent from own site campaign feed and RSS',()=>{
+ const {renderCampaigns,renderRss}=require('../scripts/imperion-autopilot.cjs');
+ const feed=build({events:[event({title:'Workshop (план)'})],bookingConfirmed:false},Date.parse('2035-01-01')).feed;
+ assert.equal(feed.events.length,0);
+ assert.doesNotMatch(renderCampaigns(feed),/Workshop \(план\)/);
+ assert.doesNotMatch(renderRss(feed),/<item>/);
+});

@@ -40,11 +40,11 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p pages/autopilot
-          cp autopilot/index.html autopilot/feed.json autopilot/social-drafts.json pages/autopilot/
+          cp autopilot/index.html autopilot/feed.json autopilot/social-drafts.json autopilot/campaigns.html autopilot/rss.xml pages/autopilot/
           cd pages
           git config user.name 'imperion-autopilot[bot]'
           git config user.email '52605565+aliaksei-chareshneu@users.noreply.github.com'
-          git add autopilot/index.html autopilot/feed.json autopilot/social-drafts.json
+          git add autopilot/index.html autopilot/feed.json autopilot/social-drafts.json autopilot/campaigns.html autopilot/rss.xml
           if git diff --cached --quiet; then
             echo 'Public Pages feed unchanged; no duplicate commit.'
           else
