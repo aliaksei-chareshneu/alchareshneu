@@ -112,3 +112,16 @@ for(const obsolete of [
   'Automated attendee emails, WhatsApp messages and a secure personal account are NOT live',
   'Автоматические письма участникам, WhatsApp-сообщения',
 ]) assert.ok(!druzinaGateway.includes(obsolete),'outdated Druzina notice: '+obsolete);
+
+for(const [locale,path] of Object.entries({cs:'register/index.html',en:'register/en/index.html',ru:'register/ru/index.html',uk:'register/uk/index.html'})){
+ const html=fs.readFileSync(path,'utf8');
+ assert.ok(html.includes("mode==='FORM'&&Number(e.price_czk)>0"),'paid interest-only warning missing: '+locale);
+ assert.ok(html.includes("const publicNote=String(e.public_note||'').trim().slice(0,1600)"),'authoritative event public_note must be shown: '+locale);
+ assert.ok(html.includes('details.textContent=publicNote'), 'public_note must be rendered as textContent: '+locale);
+ for(const notice of [
+ 'Pouze nezávazný zájem, ne rezervace ani platba',
+ 'Interest only: not a booking or payment',
+ 'Только предварительная заявка, не бронь и не оплата',
+ 'Лише попередня заявка, не бронювання й не оплата'
+ ]) assert.ok(html.includes(notice),'all locale translations required on every synchronized script: '+locale);
+}
