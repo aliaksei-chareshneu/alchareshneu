@@ -96,3 +96,40 @@ assert.ok(fn.includes(".eq('public_listing',true).eq('source_active',true)"),
   'server GET must not advertise withdrawn source events');
 assert.ok(fn.includes(".eq('source_active',true)"),
   'server POST must reject withdrawn source events');
+
+const druzinaGateway=fs.readFileSync('druzina/registrace/index.html','utf8');
+for(const phrase of [
+  'Po odeslání žádosti může přijít automatické e-mailové potvrzení přijetí',
+  'A transactional email acknowledgement may arrive',
+  'может прийти автоматическое письмо о получении заявки',
+  'може надійти автоматичний лист про отримання заявки',
+  'Není to potvrzení rezervace',
+  'not a booking',
+  'НЕ подтверждает бронирование',
+  'НЕ підтверджує бронювання',
+]) assert.ok(druzinaGateway.includes(phrase),'Druzina public receipt notice must reflect live transactional email, not booking: '+phrase);
+for(const obsolete of [
+  'Automated attendee emails, WhatsApp messages and a secure personal account are NOT live',
+  'Автоматические письма участникам, WhatsApp-сообщения',
+]) assert.ok(!druzinaGateway.includes(obsolete),'outdated Druzina notice: '+obsolete);
+
+for(const [locale,path] of Object.entries({cs:'register/index.html',en:'register/en/index.html',ru:'register/ru/index.html',uk:'register/uk/index.html'})){
+ const html=fs.readFileSync(path,'utf8');
+ assert.ok(html.includes("mode==='FORM'&&Number(e.price_czk)>0"),'paid interest-only warning missing: '+locale);
+ assert.ok(html.includes("const publicNote=String(e.public_note||'').trim().slice(0,1600)"),'authoritative event public_note must be shown: '+locale);
+ assert.ok(html.includes('details.textContent=publicNote'), 'public_note must be rendered as textContent: '+locale);
+ for(const notice of [
+ 'Pouze nezávazný zájem, ne rezervace ani platba',
+ 'Interest only: not a booking or payment',
+ 'Только предварительная заявка, не бронь и не оплата',
+ 'Лише попередня заявка, не бронювання й не оплата'
+ ]) assert.ok(html.includes(notice),'all locale translations required on every synchronized script: '+locale);
+}
+
+for(const locale of locales){
+ const html=fs.readFileSync(pages[locale][0],'utf8');
+ assert.ok(html.includes("if(mode==='FORM'&&Number(e.price_czk)>0)"),
+   'priced RSVP must not be described as a confirmed booking: '+locale);
+ for(const label of ['Nezávazný zájem','Interest only','Предварительная заявка','Попередня заявка'])
+   assert.ok(html.includes(label),'paid-interest label missing: '+label+' on '+locale);
+}
