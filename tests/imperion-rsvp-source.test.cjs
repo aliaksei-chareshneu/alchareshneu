@@ -96,3 +96,19 @@ assert.ok(fn.includes(".eq('public_listing',true).eq('source_active',true)"),
   'server GET must not advertise withdrawn source events');
 assert.ok(fn.includes(".eq('source_active',true)"),
   'server POST must reject withdrawn source events');
+
+const druzinaGateway=fs.readFileSync('druzina/registrace/index.html','utf8');
+for(const phrase of [
+  'Po odeslání žádosti může přijít automatické e-mailové potvrzení přijetí',
+  'A transactional email acknowledgement may arrive',
+  'может прийти автоматическое письмо о получении заявки',
+  'може надійти автоматичний лист про отримання заявки',
+  'Není to potvrzení rezervace',
+  'not a booking',
+  'НЕ подтверждает бронирование',
+  'НЕ підтверджує бронювання',
+]) assert.ok(druzinaGateway.includes(phrase),'Druzina public receipt notice must reflect live transactional email, not booking: '+phrase);
+for(const obsolete of [
+  'Automated attendee emails, WhatsApp messages and a secure personal account are NOT live',
+  'Автоматические письма участникам, WhatsApp-сообщения',
+]) assert.ok(!druzinaGateway.includes(obsolete),'outdated Druzina notice: '+obsolete);
