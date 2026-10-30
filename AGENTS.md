@@ -24,3 +24,10 @@ Deliver a working, independently verified change, not a plan, prompt, architectu
 
 ## Report
 Separate DONE with evidence, PREPARED but not live, and BLOCKED with precise next action. Respond in Russian unless the user's task requests another language.
+
+## Autonomous production loops
+- Own-site RSS + static event campaigns: `scripts/imperion-autopilot.cjs` via `.github/workflows/imperion-autopilot.yml` every six hours; only public confirmed-as-open metadata, registrations remain nonbinding.
+- Independent health and incident recovery: `scripts/imperion-watchdog.cjs` via `.github/workflows/imperion-watchdog.yml` hourly. Confirm real Pages HTTP 200, RSS content, API gates and automatic incident closure.
+- Read-only source checks: `ops/imperion-daily-event-source-verify.sql` already installed as Supabase cron job `imperion_public_event_daily_source_readback`; uses existing event operator queue and source readbacks, never authorizes publication.
+- Existing private inbound intake: bound Apps Script importer every five minutes. NEVER duplicate CRM or expose contact data via GitHub Pages.
+- Existing Windows browser bridge: do not operate the owner's active tab or credentials without a task-specific permitted workflow; browser UI steps are never proof of a business outcome.
