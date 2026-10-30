@@ -125,3 +125,11 @@ for(const [locale,path] of Object.entries({cs:'register/index.html',en:'register
  'Лише попередня заявка, не бронювання й не оплата'
  ]) assert.ok(html.includes(notice),'all locale translations required on every synchronized script: '+locale);
 }
+
+for(const locale of locales){
+ const html=fs.readFileSync(pages[locale][0],'utf8');
+ assert.ok(html.includes("if(mode==='FORM'&&Number(e.price_czk)>0)"),
+   'priced RSVP must not be described as a confirmed booking: '+locale);
+ for(const label of ['Nezávazný zájem','Interest only','Предварительная заявка','Попередня заявка'])
+   assert.ok(html.includes(label),'paid-interest label missing: '+label+' on '+locale);
+}
