@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://cmrknyhnnehyjpreehcf.supabase.co; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="theme-color" content="#0e1525">
+<meta name="description" content="IMPERION — aktuálně otevřené nezávazné přihlášky na komunitní akce, výlety a workshopy. Žádné automatické potvrzení účasti.">
+<link rel="canonical" href="https://aliaksei-chareshneu.github.io/alchareshneu/autopilot/">
+<title>IMPERION | Aktuální akce a přihlášky</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:#0e1525;color:#f5f6fb}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 15% 10%,#213453 0,transparent 32%),#0e1525}
+main{max-width:960px;margin:auto;padding:36px 20px 80px}
+a{color:inherit}header{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.brand{font-weight:800;letter-spacing:.14em;font-size:.8rem;color:#bcd2ec;text-decoration:none}
+nav a{font-size:.89rem;color:#c8d4e8;text-decoration:none;margin-left:16px}
+h1{font-size:clamp(2rem,6vw,3.5rem);letter-spacing:-.04em;line-height:1.08;margin:58px 0 17px}
+.subtitle{max-width:650px;color:#cad3e3;font-size:1.08rem;line-height:1.7;margin-bottom:32px}
+.eyebrow{color:#98f3cc;font-size:.8rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:16px}
+.card{background:linear-gradient(160deg,#192740,#131e31);border:1px solid #3b4c67;border-radius:20px;padding:24px;display:flex;flex-direction:column;min-height:265px}
+.card h2{margin:12px 0 9px;font-size:1.25rem;line-height:1.32}
+.card p{margin:6px 0;color:#c6d2e0;line-height:1.5}
+.meta{font-size:.86rem;color:#98f3cc;letter-spacing:.03em;text-transform:uppercase;font-weight:700}
+.cta{margin-top:auto;padding:13px 17px;display:inline-block;text-decoration:none;text-align:center;color:#091b2b;background:#9ff0ca;border-radius:11px;font-weight:750}
+.cta:hover,.cta:focus{background:#c1fbe2;outline:2px solid #9ff0ca;outline-offset:3px}
+.label{font-size:.85rem;color:#acbacf}.notice{background:#111c2e;border:1px solid #354862;border-radius:13px;padding:16px 19px;color:#cfdbeb;line-height:1.6}
+footer{margin-top:50px;color:#aebbd0;font-size:.87rem;border-top:1px solid #30405b;padding-top:24px}
+#status{color:#dce5ef;font-size:.95rem;margin:0 0 20px}
+</style>
+</head>
+<body>
+<main>
+<header><a class="brand" href="../">IMPERION</a><nav aria-label="Navigace"><a href="../calendar/">Kalendář</a><a href="../register/">Přihlášky</a><a href="../corporate/">Pro firmy</a></nav></header>
+<p class="eyebrow" style="margin-top:45px">Brno · Komunita · Vzdělávání</p>
+<h1>Vyrazíme spolu?</h1>
+<p class="subtitle">Aktuálně otevřené komunitní akce a workshopy. Přihlášky se zobrazují z ověřeného veřejného katalogu, nikoli ze starého propagačního příspěvku.</p>
+<p id="status" role="status" aria-live="polite">Načítám aktuální termíny…</p>
+<section id="events" class="grid" aria-label="Přihlášky"></section>
+<p class="notice" style="margin-top:22px"><strong>Důležité:</strong> Odeslání přihlášky je pouze nezávazná žádost. Termín, místo, bezpečnostní podmínky a účast musí pořadatel osobně potvrdit. Neposílejte platbu bez potvrzení.</p>
+<section style="margin-top:47px">
+<p class="eyebrow">Pro firmy</p><h2>AI, data a Python — konkrétní řešení</h2>
+<p class="subtitle" style="margin-top:0">Máte problém, který potřebujete vyřešit? Pošlete nezávaznou poptávku s rozsahem a požadovaným výsledkem.</p>
+<a class="cta" href="../corporate/request/?lang=cs&src=autopilot">Nezávazná firemní poptávka</a>
+</section>
+<footer>IMPERION — vlastní informační kanál. Nezastupujeme externí pořadatele akcí. Neautomatizujeme příspěvky do Facebook skupin ani neposíláme nevyžádané zprávy.</footer>
+</main>
+<script>
+'use strict';
+(function(){
+  const API='https://cmrknyhnnehyjpreehcf.supabase.co/functions/v1/imperion-register';
+  const host=document.getElementById('events'),status=document.getElementById('status');
+  const uncertain=/\b(?:HOLD|TBD|TBC|planned)\b|план|не\s*подтвержд|уточня|nepotvrzen|předběžn(?:ý|é)\s*termín/i;
+  const clean=(v,n=180)=>String(v==null?'':v).normalize('NFKC').replace(/[\u0000-\u001f\u007f]/g,' ').replace(/\s+/g,' ').trim().slice(0,n);
+  function approved(e){
+    return e&&e.is_open===true&&e.registration_mode==='FORM'&&e.price_verified===true&&
+      e.end_time_verified===true&&e.source_active===true&&
+      /^PUB-[A-Z0-9-]{4,90}$/.test(clean(e.event_id,110))&&
+      Number.isInteger(e.price_czk)&&e.price_czk>=0&&e.price_czk<=100000&&
+      clean(e.title).length>=5&&clean(e.venue).length>=3&&
+      !uncertain.test(clean(e.title)+' '+clean(e.venue))&&
+      Number.isFinite(Date.parse(e.begins_at))&&Date.parse(e.begins_at)>Date.now();
+  }
+  function element(name,cls,text){
+    const n=document.createElement(name);if(cls)n.className=cls;if(text!=null)n.textContent=text;return n;
+  }
+  function display(e){
+    const c=element('article','card');
+    const date=new Intl.DateTimeFormat('cs-CZ',{dateStyle:'long',timeStyle:'short',timeZone:'Europe/Prague'}).format(new Date(e.begins_at));
+    c.append(element('div','meta',clean(e.community,70)||'Komunitní akce'));
+    c.append(element('h2',null,clean(e.title)));
+    c.append(element('p',null,'🗓 '+date));
+    c.append(element('p',null,'📍 '+clean(e.venue)));
+    c.append(element('p',null,e.price_czk===0?'Zdarma':'Cena: '+e.price_czk+' Kč'));
+    c.append(element('p','label','Přihláška zatím nezaručuje účast.'));
+    const a=element('a','cta','Nezávazně se přihlásit');
+    a.href='../register/?event='+encodeURIComponent(clean(e.event_id,110));
+    a.setAttribute('aria-label','Nezávazná přihláška: '+clean(e.title));
+    c.append(a);host.append(c);
+  }
+  fetch(API,{method:'GET',cache:'no-store',headers:{Accept:'application/json'},signal:AbortSignal.timeout(16000)})
+    .then(r=>{if(!r.ok)throw Error('HTTP '+r.status);return r.json();})
+    .then(data=>{
+      if(data.bookingConfirmed!==false||!Array.isArray(data.events)||data.events.length>120)throw Error('unexpected catalog');
+      const seen=new Set();
+      const eligible=data.events.filter(approved).filter(e=>{
+        const id=clean(e.event_id,110);if(seen.has(id))return false;seen.add(id);return true;
+      }).sort((a,b)=>a.begins_at.localeCompare(b.begins_at));
+      eligible.forEach(display);
+      status.textContent=eligible.length?('Aktuálně otevřeno: '+eligible.length+' nezávazných přihlášek.'):'Momentálně nemáme žádné otevřené potvrzované přihlášky. Zkuste kalendář později.';
+    })
+    .catch(()=>{status.textContent='Aktuální stav teď nelze bezpečně ověřit. Žádné staré termíny automaticky nezobrazujeme. Zkuste prosím kalendář nebo nás kontaktujte.';});
+})();
+</script>
+</body>
+</html>
