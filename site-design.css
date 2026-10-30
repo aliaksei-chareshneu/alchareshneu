@@ -314,3 +314,24 @@ body[data-imperion-scope='docs'] main { line-height: 1.8; }
   html { scroll-behavior: auto !important; }
   body[data-imperion-scope] *, body[data-imperion-scope] *::before, body[data-imperion-scope] *::after { transition: none !important; animation: none !important; }
 }
+
+/* Public RSVP: paid sessions accept interest only, never a checkout or confirmed place. */
+body[data-imperion-scope='register'] .event-paid-warning {
+  border: 1px solid #d7a36e;
+  border-radius: 10px;
+  background: #3b2b25;
+  color: #ffe9c7;
+  font-weight: 750;
+  line-height: 1.55;
+  padding: 12px 14px;
+}
+body[data-imperion-scope='register'] .event-public-note {
+  border-left: 3px solid #a7d4c7;
+  background: #152e30;
+  border-radius: 5px;
+  color: #e6f5ed;
+  line-height: 1.55;
+  padding: 10px 13px;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
