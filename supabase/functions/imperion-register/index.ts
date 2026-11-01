@@ -107,6 +107,18 @@ function communityChannels(community: string, locale: string, age: string, rsvp:
 
 const EVENT_COLS='event_id,title,community,category,begins_at,ends_at,venue,price_czk,data_controller,rules_url,contact_activity,is_open,registration_mode,action_url,public_note,price_verified,end_time_verified,source_active';
 
+// 01 Nov 2026 calendar readback: Orel 14 Nov free workshop accepts
+// preliminary RSVPs only through 01 Nov 23:59 Europe/Prague. This server
+// deadline must survive hourly public-catalog syncs and direct deep links.
+// Do not change access to unrelated events or the separate adult enquiry.
+const REGISTRATION_CLOSES_AT = Object.freeze({
+  'PUB-OREL-20261114': Date.parse('2026-11-02T00:00:00+01:00'),
+});
+function registrationStillOpen(eventId: string, atMs: number = Date.now()): boolean {
+  const cutoff = REGISTRATION_CLOSES_AT[eventId as keyof typeof REGISTRATION_CLOSES_AT];
+  return cutoff === undefined || (Number.isFinite(cutoff) && atMs < cutoff);
+}
+
 Deno.serve(async (req:Request):Promise<Response>=>{
   const origin=req.headers.get('origin');
   if (req.method === 'OPTIONS') return origin===ALLOWED_ORIGIN
@@ -120,7 +132,7 @@ Deno.serve(async (req:Request):Promise<Response>=>{
       .eq('public_listing',true).eq('source_active',true)
       .gt('begins_at',new Date().toISOString()).order('begins_at',{ascending:true}).limit(120);
     if (error) return reply({error:'temporarily_unavailable'},503,origin);
-    return reply({events:data||[],version:'2026-10-25-catalog-v3',bookingConfirmed:false},200,origin);
+    return reply({events:(data||[]).filter(e=>registrationStillOpen(e.event_id)),version:'2026-11-01-catalog-v4',bookingConfirmed:false},200,origin);
   }
   // POST requires a real browser origin. A non-browser script can forge it,
   // so we also validate strictly and rate-limit server-side.
@@ -213,6 +225,7 @@ Deno.serve(async (req:Request):Promise<Response>=>{
     if (body.safety!==true) throw new Error('safety');
     if (age==='under18') v.photo='NO';
   } catch {return reply({error:'please_check_required_fields'},400,origin);}
+  if (!registrationStillOpen(v.eventId)) return reply({error:'event_not_available'},400,origin);
   const {data:event,error:eventError}=await api.from('imperion_rsvp_events')
     .select(EVENT_COLS+',updates_group_url').eq('event_id',v.eventId).eq('is_open',true)
     .eq('registration_mode','FORM').eq('source_active',true)
@@ -227,6 +240,9 @@ Deno.serve(async (req:Request):Promise<Response>=>{
     req.headers.get('x-forwarded-for')||'').split(',')[0].trim().slice(0,100);
   if (ip && !(await allow('ip',ip,12))) return reply({error:'too_many_requests'},429,origin);
   if (!(await allow('email',v.email,8))) return reply({error:'too_many_requests'},429,origin);
+  // A direct POST must not bypass the calendar registration cutoff even when
+  // the sheet feed still says is_open=true. Recheck after database read.
+  if (!registrationStillOpen(v.eventId)) return reply({error:'event_not_available'},400,origin);
   const expiry=new Date(new Date(event.ends_at).getTime()+90*86400000);
   const {error:writeError}=await api.from('imperion_rsvp_submissions').insert({
     event_id:v.eventId,first_name:v.first,last_name:v.last,email:v.email,phone:v.phone,

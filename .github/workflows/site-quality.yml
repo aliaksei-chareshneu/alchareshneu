@@ -84,7 +84,9 @@ jobs:
         run: python3 -m unittest discover -s tests -p 'test_druzina_rotation.py' -v
 
       - name: Check public RSVP frontend, consent and server contract
-        run: node tests/imperion-rsvp-source.test.cjs
+        run: |
+          node tests/imperion-rsvp-source.test.cjs
+          node --test tests/imperion-registration-window.test.cjs
 
       - name: Verify CRM-only transactional receipt queue and retries
         run: |
