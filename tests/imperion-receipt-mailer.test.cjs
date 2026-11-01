@@ -38,6 +38,46 @@ function harness(){
   ';return {impSendReceiptQueue_,impReceiptMessage_,impReceiptWords_};')(MailApp,UrlFetchApp,Utilities);
  return {api,rows,keys,db,dispatched};
 }
+test('transactional receipt optionally includes one correct channel, without consent or attendance claims',()=>{
+ const choose=new Function(source+';return impCommunityInvite_;')();
+ const communities=[
+  ['Družina Moravy','https://t.me/druzinamoravy_news','https://chat.whatsapp.com/DuTpgF22mxMFy6L1Cfrcvu'],
+  ['Brnowalkers','https://t.me/pochody_brno_news','https://chat.whatsapp.com/BSlQetCjMoL8IO45c6VnH0']
+ ];
+ for(const [community,tg,wa] of communities){
+  for(const locale of ['cs','en','ru','uk']){
+   const invite=choose(community,locale,'adult','REGISTERED');
+   assert.ok(invite);
+   assert.equal(invite.url,locale==='ru'||locale==='uk'?tg:wa);
+   assert.equal(choose(community,locale,'adult','MAYBE').url,invite.url);
+   assert.equal(choose(community,locale,'under18','REGISTERED'),null);
+   assert.equal(choose(community,locale,'adult','DECLINED'),null);
+  }
+ }
+ assert.equal(choose('Unknown','ru','adult','REGISTERED'),null);
+ assert.equal(choose('Brnowalkers Družina Moravy','ru','adult','REGISTERED'),null);
+ const h=harness(),m=Object.fromEntries(h.keys.map((k,i)=>[k,i]));
+ const columns=[...h.keys,'Age','RSVP_Status'];
+ const values=[...h.rows[1],'adult','REGISTERED'];
+ const map=Object.fromEntries(columns.map((name,i)=>[name,i]));
+ const event={'PUB-HIKE-20261101':{
+  event_id:'PUB-HIKE-20261101',title:'BrnoWalkers community hike',
+  community:'Brnowalkers',category:'Hike',
+  begins_at:'2026-11-01T11:45:00Z',venue:'Velká Klajdovka',
+  price_verified:true,price_czk:0
+ }};
+ const receipt=h.api.impReceiptMessage_('RSVP',values,map,event);
+ assert.ok(receipt);
+ assert.ok(receipt.body.includes('https://t.me/pochody_brno_news'));
+ assert.ok(!receipt.body.includes('https://chat.whatsapp.com/BSlQetCjMoL8IO45c6VnH0'));
+ values[map.Age]='under18';
+ const minor=h.api.impReceiptMessage_('RSVP',values,map,event);
+ assert.ok(!minor.body.includes('https://t.me/pochody_brno_news'));
+ values[map.Age]='adult';values[map.RSVP_Status]='DECLINED';
+ const declined=h.api.impReceiptMessage_('RSVP',values,map,event);
+ assert.ok(!declined.body.includes('https://t.me/pochody_brno_news'));
+});
+
 test('retries mail outage without creating a second CRM or a confirmed booking',()=>{
  const h=harness(),state=()=>h.rows[1][h.keys.indexOf('Receipt_Status')];
  assert.deepEqual(h.api.impSendReceiptQueue_(h.db,{email:'owner@example.invalid'}),{sent:0,failed:1});
