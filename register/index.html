@@ -345,7 +345,8 @@ function receiptContacts(el,eventData,body,payload){
   link.style.cssText='display:inline-flex;align-items:center;padding:10px 16px;min-height:44px;width:auto;text-decoration:none';
   link.textContent=communityInvite.cta;wrap.append(link);
   const note=document.createElement('p');note.textContent=communityInvite.note;
-  section.append(intro,wrap,note);el.append(section);
+  const chatNote=document.createElement('p');chatNote.textContent=communityInvite.chatInfo;
+  section.append(intro,wrap,note,chatNote);el.append(section);
  }
 }
 function showReceipt(eventData,body,payload){
