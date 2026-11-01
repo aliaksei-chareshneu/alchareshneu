@@ -4,16 +4,16 @@
   "booking_confirmed": false,
   "events": [
     {
-      "event_id": "PUB-HIKE-20261101",
-      "title": "BrnoWalkers / Morava v pohybu — Hády → Růženin lom → Obřany",
-      "community": "Brnowalkers",
-      "category": "Hike",
-      "begins_at": "2026-11-01T11:45:00.000Z",
-      "ends_at": "2026-11-01T15:15:00.000Z",
-      "venue": "Velká Klajdovka, Brno",
-      "price_czk": 0,
-      "public_note": "Free guided community hike. Advance RSVP is provisional until the organiser personally confirms the place.",
-      "registration_url": "https://aliaksei-chareshneu.github.io/alchareshneu/register/?event=PUB-HIKE-20261101",
+      "event_id": "PUB-WALK-TALK-20261111",
+      "title": "Walk & Talk Brno — 11. 11. 18:30 (PŘEDBĚŽNÉ / TENTATIVE)",
+      "community": "BrnoWalkers / OSVČ",
+      "category": "Community Walk",
+      "begins_at": "2026-11-11T17:30:00.000Z",
+      "ends_at": "2026-11-11T18:45:00.000Z",
+      "venue": "Centrum Brna — přesné místo srazu bude potvrzeno",
+      "price_czk": 50,
+      "public_note": "PŘEDBĚŽNÝ ZÁJEM, NE POTVRZENÁ AKCE / INTEREST ONLY, NOT A CONFIRMED EVENT. Středa 11.11. 18:30–19:45, 50 Kč/osoba. Registrace je nezávazná, bez platby a bez rezervace místa. Do 3.11. ověřujeme minimálně 6 individuálních zájemců, spoluorganizátora, bezpečnou trasu a přesný sraz. Teprve po osobním GO zašleme podrobnosti ",
+      "registration_url": "https://aliaksei-chareshneu.github.io/alchareshneu/register/?event=PUB-WALK-TALK-20261111",
       "status": "OPEN_PRELIMINARY_ONLY"
     },
     {
