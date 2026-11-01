@@ -43,8 +43,8 @@ Results go to stdout, not a second queue or database.
 
 | Function | Actual functionality | NOT proof of |
 | --- | --- | --- |
-| Chief of Staff | Sorts urgent existing jobs, upcoming non-draft events | Inbox/calendar fully checked or saved time |
-| Sales | Scores existing leads, excludes HOLD/Lost/opt-out, dedupes, requires verified SENT history and stop list | New SENT messages, orders, cleared cash |
+| Chief of Staff | Sorts urgent jobs and events; surfaces claimed DONE/VERIFIED without independent receipt for review | Inbox/calendar checked, provider-readback or saved time |
+| Sales | Scores existing leads, quarantines explicit synthetic QA fixtures, propagates no-contact by Lead_ID/email/company, requires verified SENT history and stop list | New SENT messages, orders, cleared cash |
 | Social Media | Uses SocialPublishing.Job_ID, calls existing AI content adapter in zero-network PREVIEW on PUBLIC_APPROVED source | Post, permalink or delivered update |
 | AEO + SEO | Audits local robots, sitemap, root and corporate HTML | Production ranking, crawl, live deployment |
 | Video Editor | Reviews rights/hash readiness in existing ShortFactory snapshot | A rendered, uploaded or published clip |
@@ -59,3 +59,10 @@ Review checks must cover legal entity, private/public data classification, media
 - Any production rollout, posts, financial/legal commitments and external sends require owner authorization and real readback.
 
 Do not merge merely because tests pass. This code is a bounded review-first integration point into the existing operator lane.
+
+## 1 November 2026: bounded audit fixes (still not LIVE)
+
+- Sales excludes explicit `QA_SYNTHETIC` / `TEST_FIXTURE` flags from the existing Hub queue without treating those fixtures as genuine opt-outs. A real stop/opt-out action blocks every matching `Lead_ID` even when the Revenue_Actions tab has no Email or Company columns. Report `qa_only_excluded` separately.
+- Chief no longer drops claimed `DONE/CLOSED/VERIFIED` jobs from all visibility. `completed_needing_readback` exposes each closed claim for external receipt audit; presence of Evidence_URI is NOT proof of real execution.
+- Node tests cover the new QA exclusions, stop-list inheritance, evidence-missing and evidence-present-but-unverified cases. The operator still sends no messages, changes no cash status and makes no network requests.
+- Before a release, recheck the current `main` divergence (252 commits behind at 1 Nov readback); never force merge the old Draft PR. The owner-bound Apps Script and real provider receipts remain separate release gates.
