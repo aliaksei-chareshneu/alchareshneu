@@ -12,8 +12,64 @@ for(const loc of ['cs','en','ru','uk']){
 }
 assert.ok(!front.includes('SUPABASE_SERVICE_ROLE_KEY'));
 assert.ok(front.includes("cache:'no-store'"));
-for(const contact of ['function receiptContacts(', 'https://t.me/Chareshneu','https://wa.me/420702914842','mailto:chereshnev.biochem@gmail.com','https://t.me/druzinamoravy_news','https://t.me/pochody_brno_news','https://chat.whatsapp.com/JCyEJNm746nBXNll3VzzX3','https://chat.whatsapp.com/DuTpgF22mxMFy6L1Cfrcvu']) assert.ok(front.includes(contact),'RSVP confirmation contact missing: '+contact);
+for(const contact of ['function receiptContacts(', 'https://t.me/Chareshneu','https://wa.me/420702914842','mailto:chereshnev.biochem@gmail.com']) assert.ok(front.includes(contact),'RSVP confirmation contact missing: '+contact);
+const communityInvites=require('../register/community-invites.js');
+const channels={
+ 'Družina Moravy':{
+  cs:'https://chat.whatsapp.com/DuTpgF22mxMFy6L1Cfrcvu',
+  en:'https://chat.whatsapp.com/DuTpgF22mxMFy6L1Cfrcvu',
+  ru:'https://t.me/druzinamoravy_news',
+  uk:'https://t.me/druzinamoravy_news'
+ },
+ Brnowalkers:{
+  cs:'https://chat.whatsapp.com/BSlQetCjMoL8IO45c6VnH0',
+  en:'https://chat.whatsapp.com/BSlQetCjMoL8IO45c6VnH0',
+  ru:'https://t.me/pochody_brno_news',
+  uk:'https://t.me/pochody_brno_news'
+ }
+};
+for(const [community,links] of Object.entries(channels)){
+ for(const [locale,url] of Object.entries(links)){
+  const route=communityInvites.resolve(community,locale,'adult','YES');
+  assert.equal(route.url,url,'Wrong channel for '+community+' '+locale);
+  assert.equal(route.platform,(locale==='ru'||locale==='uk')?'Telegram':'WhatsApp');
+  assert.equal(route.chatAfterVisits,community==='Družina Moravy'?2:1);
+  assert.ok(route.chatInfo.includes(String(route.chatAfterVisits)));
+  assert.equal(communityInvites.resolve(community,locale,'adult','MAYBE').url,url);
+  assert.equal(communityInvites.resolve(community,locale,'under18','YES'),null,'Minors must never be auto-invited');
+  assert.equal(communityInvites.resolve(community,locale,'adult','NO'),null,'Declined RSVP must not be invited');
+ }
+}
+const publicRouter=fs.readFileSync('register/community-invites.js','utf8');
+for(const secretInvite of [
+ 'https://t.me/druzinamoravy',
+ 'https://t.me/pochody_brno',
+ 'https://chat.whatsapp.com/JzeXAQF8I2XE3zQ2OqWsPz',
+ 'https://chat.whatsapp.com/JCyEJNm746nBXNll3VzzX3'
+]){
+ assert.ok(!publicRouter.includes("'"+secretInvite+"'"),'Participant chat invite leaked to public router: '+secretInvite);
+ for(const locale of ['cs','en','ru','uk']){
+  const page=fs.readFileSync(locale==='cs'?'register/index.html':'register/'+locale+'/index.html','utf8');
+  assert.ok(!page.includes("'"+secretInvite+"'"),'Participant chat invite leaked to public registration '+locale);
+ }
+}
+
+assert.equal(communityInvites.resolve('Unknown','ru','adult','YES'),null);
+assert.equal(communityInvites.resolve('BrnoWalkers Družina Moravy','ru','adult','YES'),null);
+assert.equal(communityInvites.resolve('Družina Moravy','de','adult','YES'),null);
+assert.equal(communityInvites.resolve('Družina Moravy','ru','adult','NO'),null);
+assert.ok(!Object.values(channels).some(byLang=>Object.values(byLang).some(url=>url.includes('JCyEJNm746nBXNll3VzzX3'))),'Private chat must not be invited on registration');
 assert.ok(front.includes('receiptContacts(el,eventData,body,payload);'),'Only a successful RSVP should show event-specific follow-up channels');
+for(const loc of ['cs','en','ru','uk']){
+ const path=loc==='cs'?'register/index.html':'register/'+loc+'/index.html';
+ const html=fs.readFileSync(path,'utf8');
+ const scriptTag=loc==='cs'?'<script src="./community-invites.js"></script>':'<script src="../community-invites.js"></script>';
+ assert.ok(html.includes(scriptTag),'Shared community router missing in '+loc);
+ assert.ok(html.includes('IMPERION_COMMUNITY_INVITES?.resolve('),'Post-success invitation render missing in '+loc);
+ assert.ok(html.includes('communityInvite.chatInfo'),'Chat access guidance missing in '+loc);
+ assert.ok(!html.includes('JCyEJNm746nBXNll3VzzX3'),'Private BrnoWalkers chat must not be shown on registration '+loc);
+}
+
 assert.ok(fn.includes(".select(EVENT_COLS+',updates_group_url').eq('event_id',v.eventId)"),
  'POST must selectively fetch the event logistics group link');
 assert.ok(fn.includes("const EVENT_COLS='") &&

@@ -124,6 +124,7 @@ a{color:var(--mint)}button,input,select{font:inherit}button{cursor:pointer}.skip
   <section class="explainer" aria-labelledby="about-registration"><h2 id="about-registration" data-i18n="explainerTitle">Jak funguje registrace na komunitní akce v Brně?</h2><p data-i18n="explainerText">Vyberte akci, vyplňte kontakt a odešlete přihlášku. Další podrobnosti najdete u konkrétní akce.</p><p class="explainer-links"><a href="../walkers/" data-i18n="walkersInfo">Výlety a vycházky BrnoWalkers</a><span aria-hidden="true">·</span><a href="../druzina/" data-i18n="druzinaInfo">O klubu Družina Moravy</a></p></section>
   <footer><span>© 2026 · Družina Moravy, z. s. / BrnoWalkers / Aliaksei Chareshneu OSVČ</span><nav class="bottom"><a href="./privacy/" data-i18n="privacyLink">Soukromí</a><a href="./safety/" data-i18n="safetyLink">Bezpečnost</a><a href="../calendar/" data-i18n="eventsLink">Kalendář</a><a href="../" data-i18n="homeLink">Zpět na web</a></nav></footer>
 </div>
+<script src="./community-invites.js"></script>
 <script>
 'use strict';
 const ENDPOINT='https://cmrknyhnnehyjpreehcf.supabase.co/functions/v1/imperion-register';
@@ -331,17 +332,21 @@ function receiptContacts(el,eventData,body,payload){
   const note=document.createElement('p');note.textContent=copy[2];
   section.append(title,line,note);el.append(section);
  }
- const isDruzina=/družina|druzina/i.test(String(eventData?.community||''));
- const news=document.createElement('p'),newsLink=document.createElement('a');
- newsLink.href=isDruzina?'https://t.me/druzinamoravy_news':'https://t.me/pochody_brno_news';
- newsLink.target='_blank';newsLink.rel='noopener noreferrer';newsLink.textContent=d.community;
- news.append(newsLink);el.append(news);
- if(!eventInvite){
- const group=document.createElement('p'),groupLink=document.createElement('a');
- groupLink.href=isDruzina?'https://chat.whatsapp.com/DuTpgF22mxMFy6L1Cfrcvu':'https://chat.whatsapp.com/JCyEJNm746nBXNll3VzzX3';
- groupLink.target='_blank';groupLink.rel='noopener noreferrer';
- groupLink.textContent=isDruzina?d.announcements:d.group;
- group.append(groupLink);el.append(group);
+ const communityInvite=globalThis.IMPERION_COMMUNITY_INVITES?.resolve(
+   eventData?.community,lang,body.ageGroup,body.rsvp);
+ if(communityInvite){
+  const section=document.createElement('section');
+  section.className='event-updates-group';
+  const intro=document.createElement('p'),headline=document.createElement('strong');
+  headline.textContent=communityInvite.title;intro.append(headline);
+  const wrap=document.createElement('p'),link=document.createElement('a');
+  link.href=communityInvite.url;link.target='_blank';link.rel='noopener noreferrer';
+  link.className='button';
+  link.style.cssText='display:inline-flex;align-items:center;padding:10px 16px;min-height:44px;width:auto;text-decoration:none';
+  link.textContent=communityInvite.cta;wrap.append(link);
+  const note=document.createElement('p');note.textContent=communityInvite.note;
+  const chatNote=document.createElement('p');chatNote.textContent=communityInvite.chatInfo;
+  section.append(intro,wrap,note,chatNote);el.append(section);
  }
 }
 function showReceipt(eventData,body,payload){

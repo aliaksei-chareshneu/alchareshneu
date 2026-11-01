@@ -238,6 +238,30 @@ function impReceiptAttachEventGroups_(ss,events){
   return events;
 }
 
+/**
+ * Optional community announcements after accepted adult RSVPs, never private
+ * participant chats or marketing opt-ins. Existing event-specific logistics
+ * invitations remain separate.
+ */
+function impCommunityInvite_(community,locale,age,status){
+ if(!/^adult$/i.test(String(age))||['REGISTERED','MAYBE'].indexOf(String(status).toUpperCase())<0)return null;
+ if(['cs','en','ru','uk'].indexOf(locale)<0)return null;
+ var name=String(community||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+ var dm=name.indexOf('druzina moravy')!==-1,bw=name.indexOf('brnowalkers')!==-1;
+ if(dm===bw)return null;
+ var telegram=locale==='ru'||locale==='uk';
+ var url=dm?
+  (telegram?'https://t.me/druzinamoravy_news':'https://chat.whatsapp.com/DuTpgF22mxMFy6L1Cfrcvu'):
+  (telegram?'https://t.me/pochody_brno_news':'https://chat.whatsapp.com/BSlQetCjMoL8IO45c6VnH0');
+ var copy={
+  cs:['Dobrovolné novinky komunity','Připojení je dobrovolné. Členové WhatsApp skupiny mohou vidět vaše telefonní číslo. Účast ještě není potvrzená.'],
+  en:['Optional community updates','Joining is voluntary. WhatsApp group members may see your phone number. Your attendance is not confirmed.'],
+  ru:['Новости сообщества по желанию','Вступление добровольное. Проверьте настройки приватности Telegram. Заявка ещё не подтверждает участие.'],
+  uk:['Новини спільноти за бажанням','Долучення добровільне. Перевірте налаштування приватності Telegram. Реєстрація ще не підтверджує участі.']
+ }[locale];
+ return {url:url,heading:copy[0]+' ('+(dm?'Družina Moravy':'BrnoWalkers')+', '+(telegram?'Telegram':'WhatsApp')+'):',note:copy[1]};
+}
+
 function impReceiptMessage_(kind,row,m,events){
  function v(n){return m[n]===undefined?'':String(row[m[n]]||'').trim().slice(0,300);}
  var id='',email=v('Email'),label='',lang=v('Receipt_Locale')||'cs',w=impReceiptWords_(lang);
@@ -278,6 +302,8 @@ function impReceiptMessage_(kind,row,m,events){
     var words=copy[lang]||copy.cs;
     parts.push('',words[0]+' '+group,words[1]);
   }
+  var communityInvite=impCommunityInvite_(e&&e.community,lang,v('Age'),v('RSVP_Status'));
+  if(communityInvite)parts.push('',communityInvite.heading,communityInvite.url,communityInvite.note);
   sender=v('Data_Controller').includes('Aliaksei Chareshneu')?'Aliaksei Chareshneu (OSVČ)':'Družina Moravy';
   parts.push(w[8]);
  }else if(kind==='TRAINING'){
@@ -345,7 +371,7 @@ function impSendReceiptQueue_(ss,cfg,events){
  * OFF by default. A manual Check_In_At is mandatory: submitting an RSVP
  * does NOT prove attendance. Never contact minors or marketing-only records.
  */
-var IMP_EVENT_FOLLOWUP_COLS=['Event_Followup_Status','Event_Followup_Attempts','Event_Followup_Sent_At'];
+var IMP_EVENT_FOLLOWUP_COLS=['Event_Followup_Status','Event_Followup_Attempts','Event_Followup_Sent_At','Community_Chat_Invite_Sent_At'];
 function impEnsureEventFollowupCols_(sh){
  var h=impHeader_(sh);
  IMP_EVENT_FOLLOWUP_COLS.forEach(function(k){
@@ -362,7 +388,64 @@ function impEventEnd_(v){
    Number(match[4]),Number(match[5]));
  return new Date(v);
 }
-function impAttendeeThankYou_(row,m,event,props){
+/** Private channel directory: existing Druzina_Config, never public registration source. */
+function impChatBrand_(community){
+ var n=String(community||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+ var dm=n.indexOf('druzina moravy')>=0,bw=n.indexOf('brnowalkers')>=0;
+ return dm===bw?'':(dm?'DM':'BW');
+}
+function impCommunityChatConfig_(ss){
+ var sh=ss&&ss.getSheetByName('Druzina_Config'),out={};
+ if(!sh||sh.getLastRow()<2)return out;
+ var m=impHeader_(sh).map;
+ if(['Key','Value','Status','Type'].some(function(k){return m[k]===undefined;}))return out;
+ sh.getRange(2,1,sh.getLastRow()-1,sh.getLastColumn()).getDisplayValues().forEach(function(r){
+  var key=String(r[m.Key]||''),url=String(r[m.Value]||'').trim();
+  if(!/^COMMUNITY_CHAT_(DM|BW)_(TELEGRAM|WHATSAPP)$/.test(key)||
+    String(r[m.Type])!=='community_chat'||String(r[m.Status])!=='LINK_VERIFIED_20261101')return;
+  var valid=key.endsWith('_TELEGRAM')?
+    /^https:\/\/t\.me\/[A-Za-z0-9_]{5,32}$/.test(url):
+    /^https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]{22}$/.test(url);
+  if(valid)out[key]=url;
+ });
+ return out;
+}
+function impChatIdentity_(row,m){
+ function v(k){return m[k]===undefined?'':String(row[m[k]]||'').trim().toLowerCase();}
+ var email=v('Email'),first=v('First_Name'),last=v('Last_Name'),ctrl=v('Data_Controller');
+ return email&&first&&last&&ctrl?[email,first,last,ctrl].join('|'):'';
+}
+function impVerifiedChatVisits_(rows,m,eventMap,person,brand){
+ var id=impChatIdentity_(person,m),seen={};
+ if(!id||!brand||String(person[m.Data_Controller]||'').trim()!=='Družina Moravy, z. s.')return 0;
+ rows.forEach(function(r){
+  if(impChatIdentity_(r,m)!==id||
+    String(r[m.Source_Channel]||'')!=='WEBSITE_RSVP_SUPABASE_UNCONFIRMED'||
+    !/^adult$/i.test(String(r[m.Age]||''))||
+    !String(r[m.Check_In_At]||'').trim()||
+    ['NO','DECLINED'].indexOf(String(r[m.RSVP_Status]||'').toUpperCase())>=0)return;
+  var eventId=String(r[m.Event_ID]||''),e=eventMap[eventId];
+  if(e&&e.brand===brand&&e.controller==='Družina Moravy, z. s.')seen[eventId]=true;
+ });
+ return Object.keys(seen).length;
+}
+function impChatAlreadyInvited_(rows,m,eventMap,person,brand){
+ var identity=impChatIdentity_(person,m);
+ return !!identity&&rows.some(function(r){
+  var event=eventMap[String(r[m.Event_ID]||'')];
+  return impChatIdentity_(r,m)===identity&&event&&event.brand===brand&&
+   !!String(r[m.Community_Chat_Invite_Sent_At]||'').trim();
+ });
+}
+function impPickCommunityChat_(config,brand,locale){
+ var suffix=(locale==='ru'||locale==='uk')?'TELEGRAM':
+  (locale==='cs'||locale==='en')?'WHATSAPP':'';
+ if(!brand||!suffix)return null;
+ var url=config['COMMUNITY_CHAT_'+brand+'_'+suffix];
+ return url?{url:url,platform:suffix}:null;
+}
+
+function impAttendeeThankYou_(row,m,event,props,chatInvite){
  var locale=String(row[m.Registration_Locale]||'cs'),isWalk=/walk|hike|výlet|proch|tour/i.test(String(event.category));
  var isDruzina=/družina|druzina/i.test(event.community);
  var words={
@@ -382,6 +465,15 @@ function impAttendeeThankYou_(row,m,event,props){
  if(String(row[m.Marketing_Consent]||'').toUpperCase()==='CONFIRMED'){
   body.push('',w[3]+' https://t.me/'+(isDruzina?'druzinamoravy_news':'pochody_brno_news'));
  }
+ if(chatInvite&&chatInvite.url){
+  var wordsChat={
+   cs:['Diskusní chat účastníků (dobrovolně):','Ve WhatsApp skupině mohou ostatní členové vidět vaše číslo. Vstup do chatu nepotvrzuje rezervaci ani členství.'],
+   en:['Participant discussion chat (optional):','WhatsApp group members can see your phone number. Joining does not confirm a booking or membership.'],
+   ru:['Чат участников (вступление добровольное):','Проверьте настройки приватности Telegram. Вступление не означает подтверждённую запись или членство.'],
+   uk:['Чат учасників (добровільно):','Перевірте налаштування приватності Telegram. Вступ не підтверджує бронювання або членство.']
+  }[locale];
+  body.push('',wordsChat[0],chatInvite.url,wordsChat[1]);
+ }
  return {subject:w[0]+' · '+String(event.title||'').slice(0,110),body:body.join('\n'),
   sender:isDruzina?'Družina Moravy':isWalk?'BrnoWalkers':'Community events'};
 }
@@ -397,14 +489,20 @@ function impSendAttendedFollowups_(ss,cfg){
   if(em[k]===undefined)throw Error('Missing Events.'+k);
  });
  ['Email','Event_ID','Source_Channel','Age','Check_In_At','RSVP_Status','Data_Controller',
-  'Registration_Locale','Marketing_Consent','Event_Followup_Status',
+  'Registration_Locale','Marketing_Consent','First_Name','Last_Name','Community_Chat_Invite_Sent_At','Event_Followup_Status',
   'Event_Followup_Attempts','Event_Followup_Sent_At'].forEach(function(k){
   if(m[k]===undefined)throw Error('Missing Registrations.'+k);
  });
- var now=Date.now(),byId={};
+ var now=Date.now(),byId={},allChatEvents={},chatConfig=impCommunityChatConfig_(ss);
  var evs=eventSheet.getDataRange().getValues();
  evs.slice(1).forEach(function(r){
   var id=String(r[em.Event_ID]||''),end=impEventEnd_(r[em.End_DateTime]);
+  var eventStatus=String(r[em.Status]||'');
+  if(id&&isFinite(end.getTime())&&end.getTime()<=now &&
+    ['Active','Completed','Archived'].indexOf(eventStatus)>=0){
+   allChatEvents[id]={brand:impChatBrand_(r[em.Community]),
+    controller:String(r[em.Data_Controller]||'').trim()};
+  }
   if(!id||!isFinite(end.getTime())||end.getTime()+18*3600000>now
     ||end.getTime()+14*86400000<now)return;
   if(['Active','Completed','Archived'].indexOf(String(r[em.Status]))<0)return;
@@ -429,9 +527,17 @@ function impSendAttendedFollowups_(ss,cfg){
   if(state&&state!=='RETRY')return; // exactly one follow-up per canonical row
   var attempts=Number(row[m.Event_Followup_Attempts]||0);
   if(attempts>=3){sh.getRange(i+2,m.Event_Followup_Status+1).setValue('FAILED_REVIEW');return;}
-  var msg=impAttendeeThankYou_(row,m,event,p);
+  var brand=impChatBrand_(event.community),chatInvite=null;
+  if(String(row[m.Marketing_Consent]||'').toUpperCase()==='CONFIRMED' &&
+     (brand==='DM'||brand==='BW') &&
+     !impChatAlreadyInvited_(rows,m,allChatEvents,row,brand) &&
+     impVerifiedChatVisits_(rows,m,allChatEvents,row,brand)>=(brand==='DM'?2:1)){
+   chatInvite=impPickCommunityChat_(chatConfig,brand,String(row[m.Registration_Locale]||'cs'));
+  }
+  var msg=impAttendeeThankYou_(row,m,event,p,chatInvite);
   try{
    MailApp.sendEmail({to:email,subject:msg.subject,body:msg.body,name:msg.sender,replyTo:cfg.email});
+   if(chatInvite)sh.getRange(i+2,m.Community_Chat_Invite_Sent_At+1).setValue(new Date());
    sh.getRange(i+2,m.Event_Followup_Sent_At+1).setValue(new Date());
    sh.getRange(i+2,m.Event_Followup_Status+1).setValue('SENT_TO_PROVIDER');
    sent++;
