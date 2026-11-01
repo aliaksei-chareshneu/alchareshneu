@@ -95,3 +95,51 @@ test('post-event follow-up is opt-in controlled, verified-attendance only and ne
  assert.match(source,/IMPERION_ATTENDEE_FOLLOWUP_LIVE/);
  assert.ok(source.includes('impSendAttendedFollowups_(ss,cfg)'));
 });
+test('chat directory and attendance thresholds: private NGO path only',()=>{
+ const api=new Function(source+';return {impChatBrand_,impCommunityChatConfig_,impVerifiedChatVisits_,impChatAlreadyInvited_,impPickCommunityChat_,impAttendeeThankYou_};')();
+ const telegram='https://t.me/placeholderchat',whatsapp='https://chat.whatsapp.com/'+'a'.repeat(22);
+ const values=[
+  ['Key','Value','Status','Type'],
+  ['COMMUNITY_CHAT_DM_TELEGRAM',telegram,'LINK_VERIFIED_20261101','community_chat'],
+  ['COMMUNITY_CHAT_DM_WHATSAPP',whatsapp,'LINK_VERIFIED_20261101','community_chat'],
+  ['COMMUNITY_CHAT_BW_TELEGRAM',telegram,'LINK_VERIFIED_20261101','community_chat'],
+  ['COMMUNITY_CHAT_BW_WHATSAPP',whatsapp,'LINK_VERIFIED_20261101','community_chat'],
+  ['COMMUNITY_CHAT_DM_WHATSAPP',whatsapp,'EXPIRED','community_chat']
+ ];
+ const sheet={
+  getLastRow:()=>values.length,getLastColumn:()=>4,
+  getRange:(r,c,n,w)=>({getDisplayValues:()=>values.slice(r-1,r-1+n).map(v=>v.slice(c-1,c-1+w))})
+ };
+ const config=api.impCommunityChatConfig_({getSheetByName:n=>n==='Druzina_Config'?sheet:null});
+ assert.equal(Object.keys(config).length,4);
+ assert.equal(api.impPickCommunityChat_(config,'DM','ru').url,telegram);
+ assert.equal(api.impPickCommunityChat_(config,'BW','en').url,whatsapp);
+ assert.equal(api.impPickCommunityChat_(config,'DM','de'),null);
+ assert.equal(api.impChatBrand_('Družina Moravy'),'DM');
+ assert.equal(api.impChatBrand_('Brnowalkers'),'BW');
+ assert.equal(api.impChatBrand_('Brnowalkers Družina Moravy'),'');
+ const keys=['Email','First_Name','Last_Name','Data_Controller','Age','Source_Channel','Check_In_At','RSVP_Status','Event_ID','Community_Chat_Invite_Sent_At'];
+ const m=Object.fromEntries(keys.map((key,i)=>[key,i]));
+ const base={Email:'attendee@example.invalid',First_Name:'Anna',Last_Name:'Example',
+  Data_Controller:'Družina Moravy, z. s.',Age:'adult',Source_Channel:'WEBSITE_RSVP_SUPABASE_UNCONFIRMED',
+  Check_In_At:'2026-11-01 18:30',RSVP_Status:'REGISTERED',Event_ID:'a',Community_Chat_Invite_Sent_At:''};
+ const row=changes=>keys.map(k=>Object.hasOwn(changes,k)?changes[k]:base[k]);
+ const events={a:{brand:'DM',controller:'Družina Moravy, z. s.'},b:{brand:'DM',controller:'Družina Moravy, z. s.'},c:{brand:'BW',controller:'Družina Moravy, z. s.'},osvc:{brand:'BW',controller:'OSVČ'}};
+ const r1=row({}),r2=row({Event_ID:'b'});
+ assert.equal(api.impVerifiedChatVisits_([r1],m,events,r1,'DM'),1);
+ assert.equal(api.impVerifiedChatVisits_([r1,r1,r2],m,events,r1,'DM'),2);
+ assert.equal(api.impVerifiedChatVisits_([row({Event_ID:'c'})],m,events,row({Event_ID:'c'}),'BW'),1);
+ assert.equal(api.impVerifiedChatVisits_([row({Event_ID:'osvc'})],m,events,row({Event_ID:'osvc'}),'BW'),0);
+ assert.equal(api.impVerifiedChatVisits_([row({Check_In_At:''})],m,events,r1,'DM'),0);
+ assert.equal(api.impVerifiedChatVisits_([row({Age:'under18'})],m,events,r1,'DM'),0);
+ assert.equal(api.impVerifiedChatVisits_([row({RSVP_Status:'DECLINED'})],m,events,r1,'DM'),0);
+ assert.equal(api.impVerifiedChatVisits_([row({Email:'someone-else@example.invalid'})],m,events,r1,'DM'),0);
+ assert.equal(api.impChatAlreadyInvited_([r1],m,events,r1,'DM'),false);
+ assert.equal(api.impChatAlreadyInvited_([row({Community_Chat_Invite_Sent_At:'2026-11-01'})],m,events,r1,'DM'),true);
+ const email=api.impAttendeeThankYou_(['ru','CONFIRMED'],
+   {Registration_Locale:0,Marketing_Consent:1},
+   {title:'Demo',category:'HEMA',community:'Družina Moravy'}, {getProperty:()=>''},{url:telegram});
+ assert.ok(email.body.includes(telegram));
+ assert.ok(!source.includes('JzeXAQF8I2XE3zQ2OqWsPz'));
+ assert.match(source,/row\[m.Community_Chat_Invite_Sent_At\]=invitedAt\.toISOString\(\)/);
+});
