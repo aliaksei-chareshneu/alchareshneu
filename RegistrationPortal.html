@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="referrer" content="no-referrer">
+<title>Join an event | Brno community</title>
+<style>
+:root{color-scheme:dark;--bg:#0c1720;--pane:#152530;--line:#314651;--white:#f6f6ef;--muted:#b3c2ca;--mint:#b6ebd5;--gold:#edcc84;--err:#ffb8af}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at top left,#23453f 0,transparent 49%),linear-gradient(140deg,#0b1720,#101f2b 70%);color:var(--white);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
+a{color:var(--mint)}button,select,input{font:inherit}
+.page{max-width:1160px;margin:auto;padding:28px 20px 72px}
+.top{display:flex;justify-content:space-between;gap:15px;align-items:center}
+.brand{font-weight:900;letter-spacing:.11em;font-size:13px;text-transform:uppercase;color:var(--mint)}
+.lang{display:flex;gap:5px;background:#152b30;border:1px solid var(--line);padding:4px;border-radius:99px}
+.lang button{min-width:34px;min-height:32px;border:0;border-radius:99px;background:transparent;color:var(--muted);font-size:12px;font-weight:800;cursor:pointer}
+.lang button[aria-pressed=true]{color:#072720;background:var(--mint)}
+.layout{display:grid;grid-template-columns:minmax(250px,.87fr) minmax(0,1.13fr);gap:clamp(22px,5vw,80px);align-items:start;margin-top:clamp(35px,6vw,85px)}
+aside{padding-top:30px;max-width:390px}
+.kicker{color:var(--gold);font-weight:800;letter-spacing:.16em;font-size:12px;text-transform:uppercase}
+h1{font-size:clamp(35px,4.5vw,61px);line-height:1.06;letter-spacing:-.04em;margin:16px 0 24px}
+h1 em{font-style:normal;color:var(--mint)}
+.lead{font-size:18px;max-width:36ch;color:var(--muted);line-height:1.65}
+.steps{margin:30px 0;padding:0;list-style:none;display:grid;gap:16px}
+.steps li{display:flex;gap:13px;align-items:center;color:#deebe7;font-size:15px}
+.steps strong{color:#082520;background:var(--mint);border-radius:50%;display:grid;place-items:center;min-width:30px;height:30px;font-size:13px}
+.panel{background:linear-gradient(160deg,rgba(31,54,62,.96),rgba(18,35,47,.99));border:1px solid #46616d;box-shadow:0 18px 75px rgba(0,0,0,.32);border-radius:22px;padding:clamp(18px,4vw,38px)}
+.panel h2{margin:0 0 6px;font-size:24px;letter-spacing:-.02em}
+.intro{color:var(--muted);margin:0 0 26px;font-size:14px}
+.field{margin:16px 0}
+label.title{font-size:13px;color:#f7f9f5;font-weight:720;display:block;margin-bottom:7px}
+input[type=text],input[type=email],input[type=tel],select{border:1px solid #627985;border-radius:11px;background:#0c1b26;color:var(--white);padding:13px 14px;width:100%;min-height:50px;outline:0}
+input:focus-visible,select:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid var(--mint);outline-offset:3px}
+select{appearance:auto}option{background:#10222c}
+input::placeholder{color:#8195a0}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+hr{border:0;border-top:1px solid var(--line);margin:23px 0}
+.eventbox{border:1px solid #49666c;background:#133832;border-radius:11px;padding:14px 15px;margin:13px 0 20px}
+.eventbox strong{display:block;font-size:15px}
+.eventbox span{display:block;color:#bfd7cf;font-size:13px;margin-top:3px}
+.options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.option{position:relative;display:block;cursor:pointer}
+.option input{position:absolute;opacity:0}
+.option span{display:grid;place-items:center;background:#10232c;border:1px solid #637984;border-radius:10px;min-height:49px;padding:10px 4px;font-size:14px;font-weight:650;text-align:center}
+.option input:checked+span{background:#d5f7e4;border-color:#d5f7e4;color:#123328}
+.option input:focus-visible+span{outline:3px solid var(--gold);outline-offset:2px}
+.check{display:flex;gap:12px;align-items:flex-start;margin:16px 0;cursor:pointer;color:#e1ece5;font-size:14px}
+.check input{accent-color:#b6ebd5;width:19px;height:19px;flex-shrink:0;margin:2px 0 0}
+.small{color:var(--muted);font-size:12px;line-height:1.55}
+.small a{color:#c9f6dd}
+.submit{width:100%;border:0;border-radius:12px;min-height:55px;background:var(--mint);color:#102d24;cursor:pointer;font-size:16px;font-weight:850;margin-top:14px}
+.submit:disabled{opacity:.5;cursor:not-allowed}
+.alert{border-radius:10px;padding:13px;font-size:14px;margin-bottom:18px;border:1px solid var(--line)}
+.error{color:#ffd4cc;border-color:#b86661;background:#452b32}
+.success{background:#153c36;border-color:#7cbea5;color:#ecfff7}
+.foot{font-size:12px;color:#9fb7c3;padding-top:25px}
+.hide{display:none!important}
+.honey{position:absolute!important;left:-10000px!important;opacity:0!important;height:0!important;overflow:hidden!important}
+@media(max-width:760px){.layout{display:block;margin-top:35px}aside{padding:0 0 25px}.lead{font-size:15px}.steps{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.steps li{display:block;font-size:12px}.steps strong{margin-bottom:6px}.panel{border-radius:18px}.two{grid-template-columns:1fr}.page{padding:16px 14px 50px}h1{font-size:clamp(33px,8vw,42px);margin:12px 0 16px}.foot{padding-top:18px}}
+@media(prefers-reduced-motion:no-preference){button,input,select{transition:border-color .12s ease,background .12s ease}}
+</style>
+</head>
+<body>
+<main class="page">
+<header class="top"><div class="brand">BRNO · EVENTS</div><div class="lang" role="group" aria-label="Language">
+<button type="button" data-lang="en" aria-pressed="true">EN</button><button type="button" data-lang="cs" aria-pressed="false">CZ</button>
+<button type="button" data-lang="ru" aria-pressed="false">RU</button><button type="button" data-lang="uk" aria-pressed="false">UA</button></div></header>
+<div class="layout">
+<aside><p class="kicker" data-i18n="eyebrow">One form. More adventures.</p>
+<h1 data-i18n="headline">Come along.<br><em>Meet your people.</em></h1>
+<p class="lead" data-i18n="description">Hikes, historical experiences, workshops and community events in Brno. Register in under a minute.</p>
+<ol class="steps"><li><strong>1</strong><span data-i18n="step1">Choose an event</span></li>
+<li><strong>2</strong><span data-i18n="step2">Leave your contact</span></li>
+<li><strong>3</strong><span data-i18n="step3">Confirm your choices</span></li></ol>
+</aside>
+<section class="panel" aria-labelledby="formTitle">
+<h2 id="formTitle" data-i18n="formtitle">Your place starts here</h2>
+<p class="intro" data-i18n="formintro">We will use your details to coordinate this event. No account needed.</p>
+<div id="message" class="alert hide" role="status" aria-live="polite"></div>
+<form id="regform" novalidate>
+<div class="field"><label class="title" for="event" data-i18n="eventlabel">Event *</label>
+<select id="event" required><option value="" data-i18n="loading">Loading events…</option></select>
+<div id="eventdetails" class="eventbox hide" aria-live="polite"></div></div>
+<div class="two">
+<div class="field"><label class="title" for="first" data-i18n="first">First name *</label><input id="first" type="text" autocomplete="given-name" maxlength="80" required placeholder="Alex"></div>
+<div class="field"><label class="title" for="last" data-i18n="last">Surname *</label><input id="last" type="text" autocomplete="family-name" maxlength="80" required placeholder="Smith"></div>
+<div class="field"><label class="title" for="email" data-i18n="email">Email *</label><input id="email" type="email" autocomplete="email" inputmode="email" maxlength="254" required placeholder="you@example.com"></div>
+<div class="field"><label class="title" for="phone" data-i18n="phone">Phone / WhatsApp *</label><input id="phone" type="tel" autocomplete="tel" inputmode="tel" maxlength="35" required placeholder="+420 123 456 789"></div>
+</div>
+<div class="field"><label class="title" for="age" data-i18n="age">Age group *</label><select id="age" required>
+<option value="" data-i18n="choose">Please choose</option><option value="adult" data-i18n="adult">18 or older</option>
+<option value="under18" data-i18n="minor">Under 18 (guardian approval needed)</option></select></div>
+<div id="guardian" class="two hide"><div class="field"><label class="title" for="guardianName" data-i18n="guardianName">Guardian full name *</label><input type="text" id="guardianName" maxlength="160"></div>
+<div class="field"><label class="title" for="guardianPhone" data-i18n="guardianPhone">Guardian phone *</label><input type="tel" id="guardianPhone" maxlength="35"></div></div>
+<hr>
+<div class="field"><label class="title" data-i18n="attendance">Will you attend? *</label>
+<div class="options" role="radiogroup" aria-label="Attendance">
+<label class="option"><input type="radio" name="rsvp" value="YES" required><span data-i18n="yes">Yes, going</span></label>
+<label class="option"><input type="radio" name="rsvp" value="MAYBE"><span data-i18n="maybe">Maybe</span></label>
+<label class="option"><input type="radio" name="rsvp" value="NO"><span data-i18n="no">Can't go</span></label>
+</div></div>
+<hr>
+<label class="check"><input id="safety" type="checkbox" required>
+<span><strong data-i18n="safety">I have read and agree to follow the event safety rules. *</strong>
+<span id="safetylink" class="small" style="display:block;margin-top:6px"></span></span></label>
+<div class="field"><label class="check"><input id="photoConsent" type="checkbox"><span data-i18n="photo">I agree to publication of identifiable photos/videos of me from this event (optional).</span></label>
+<p class="small" data-i18n="photoNote">Optional permission for the organizer's websites and social media. Leaving it unchecked will not affect participation. For minors, guardian approval must be checked separately.</p></div>
+<label class="check"><input id="future" type="checkbox"><span data-i18n="future">Send me occasional invitations to future events from this organizer (optional). I can unsubscribe any time.</span></label>
+<p class="small" id="controller"></p>
+<p class="small" data-i18n="privacy">Your data are used for event logistics; optional publicity and future invitations have separate permissions. Registration does not confirm payment, insurance or admission to contact activities.</p>
+<p class="small"><a href="https://aliaksei-chareshneu.github.io/alchareshneu/register/privacy/" target="_blank" rel="noopener noreferrer" data-i18n="privacyLink">Privacy and retention details ↗</a></p>
+<div class="honey" aria-hidden="true"><label>Do not fill<input type="text" id="website" tabindex="-1" autocomplete="off"></label></div>
+<button class="submit" id="submit" type="submit" disabled data-i18n="submit">Register for the event →</button>
+</form>
+<div id="thanks" class="hide" role="status" aria-live="polite"><div class="alert success"><h2 data-i18n="saved">RSVP recorded ✓</h2>
+<p id="savedtext"></p><p id="reference" class="small"></p>
+<p class="small" data-i18n="savedNote">Please look out for confirmation from the organizer. This is not a paid reservation or sports clearance.</p>
+<nav aria-label="Explore other projects" class="small" style="padding:16px 0;line-height:2">
+<a href="https://aliaksei-chareshneu.github.io/alchareshneu/walkers/" target="_blank" rel="noopener noreferrer">BrnoWalkers ↗</a> ·
+<a href="https://aliaksei-chareshneu.github.io/alchareshneu/druzina/join/" target="_blank" rel="noopener noreferrer">Družina Moravy ↗</a> ·
+<a href="https://aliaksei-chareshneu.github.io/alchareshneu/academy/" target="_blank" rel="noopener noreferrer">Academy ↗</a>
+<p>Optional links only. Your contact details are not shared with other projects.</p>
+</nav>
+<button id="again" type="button" class="submit" data-i18n="again">Register another person</button></div></div>
+</section></div>
+<footer class="foot">BrnoWalkers · Družina Moravy · <a href="https://aliaksei-chareshneu.github.io/alchareshneu/">Return to site</a></footer>
+</main>
+<script>
+(function(){
+'use strict';
+var initialEvent=<?!= JSON.stringify(initialEventId) ?>;
+var activeLang=<?!= JSON.stringify(initialLanguage) ?>;
+var events=[];
+var t={
+en:{eyebrow:'One form. More adventures.',headline:'Come along.<br><em>Meet your people.</em>',description:'Hikes, historical experiences, workshops and community events in Brno. Register in under a minute.',step1:'Choose an event',step2:'Leave your contact',step3:'Confirm your choices',formtitle:'Your place starts here',formintro:'Your details are used to coordinate the selected event. No account needed.',eventlabel:'Event *',loading:'Loading events…',first:'First name *',last:'Surname *',email:'Email *',phone:'Phone / WhatsApp *',age:'Age group *',choose:'Please choose',adult:'18 or older',minor:'Under 18 (guardian approval needed)',guardianName:'Guardian full name *',guardianPhone:'Guardian phone *',attendance:'Will you attend? *',yes:'Yes, going',maybe:'Maybe',no:"Can't go",safety:'I have read and agree to follow the event safety rules. *',photo:'I agree to publication of identifiable photos/videos of me from this event (optional).',photoYes:'Yes, I agree',photoNo:'No, thank you',photoNote:"Optional permission for the organizer's website and social media. Saying no will not affect participation. For minors, guardian approval must be checked separately.",future:'Send me occasional invitations to future events from this organizer (optional). I can unsubscribe any time.',privacy:'Your data are used for event logistics; optional publicity and future invitations have separate permissions. Registration does not confirm payment, insurance or admission to contact activities.',privacyLink:'Privacy and retention details ↗',submit:'Register for the event →',saved:'RSVP recorded ✓',savedNote:'The organizer confirms the details separately. To change an earlier RSVP or permissions, contact the organizer directly. This is not a payment or sports clearance.',again:'Register another person',safetyOpen:'Read safety rules ↗',controller:'Data controller: ',noevents:'No events currently open for registration. Please check back soon.',savedOk:'Thank you. Your response has been recorded.',loadingSubmit:'Saving…',selectEvent:'Select an event',error:'Could not save your RSVP. Please try again.',guardian:'If under 18, an organizer must verify your guardian’s permission.'},
+cs:{eyebrow:'Jeden formulář. Další zážitky.',headline:'Přidej se.<br><em>Poznej své lidi.</em>',description:'Výlety, historické akce, workshopy a komunita v Brně. Registrace do jedné minuty.',step1:'Vyber akci',step2:'Zadej kontakt',step3:'Potvrď možnosti',formtitle:'Začni registraci',formintro:'Údaje slouží k organizaci vybrané akce. Bez přihlášení.',eventlabel:'Akce *',loading:'Načítání akcí…',first:'Jméno *',last:'Příjmení *',email:'E-mail *',phone:'Telefon / WhatsApp *',age:'Věková skupina *',choose:'Vyberte',adult:'18 a více let',minor:'Méně než 18 let (souhlas zákonného zástupce)',guardianName:'Jméno zákonného zástupce *',guardianPhone:'Telefon zákonného zástupce *',attendance:'Dorazíte? *',yes:'Ano, přijdu',maybe:'Možná',no:'Nepřijdu',safety:'Přečetl/a jsem si pravidla bezpečnosti a zavazuji se je dodržovat. *',photo:'Souhlasím se zveřejněním fotografií/videa, na nichž jsem rozpoznatelný/á (nepovinné).',photoYes:'Ano, souhlasím',photoNo:'Ne, děkuji',photoNote:'Nepovinný souhlas pro web a sociální sítě pořadatele. Odmítnutí neomezuje účast. Za nezletilé rozhoduje zákonný zástupce.',future:'Chci občasné pozvánky na další akce tohoto pořadatele (nepovinné). Mohu se kdykoli odhlásit.',privacy:'Údaje používáme k organizaci akce; zveřejnění fotografií a pozvánky vyžadují oddělené svolení. Registrace není potvrzení platby, pojištění ani připuštění ke kontaktnímu sportu.',privacyLink:'Ochrana osobních údajů a doba uchování ↗',submit:'Odeslat registraci →',saved:'Účast zaznamenána ✓',savedNote:'Pořadatel potvrdí podrobnosti zvlášť. Změny dřívější účasti a souhlasů řešte přímo s pořadatelem. Nejde o platbu ani sportovní povolení.',again:'Registrovat další osobu',safetyOpen:'Pravidla bezpečnosti ↗',controller:'Správce údajů: ',noevents:'Momentálně nejsou žádné akce otevřené k registraci.',savedOk:'Děkujeme, odpověď byla zaznamenána.',loadingSubmit:'Ukládám…',selectEvent:'Vyberte akci',error:'Registraci se nepodařilo uložit.',guardian:'U nezletilých musí pořadatel zvlášť ověřit souhlas zákonného zástupce.'},
+ru:{eyebrow:'Одна форма. Больше приключений.',headline:'Присоединяйся.<br><em>Найди своих.</em>',description:'Походы, исторические события, мастер-классы и сообщества Брно. Регистрация меньше минуты.',step1:'Выбери событие',step2:'Оставь контакт',step3:'Подтверди условия',formtitle:'Записаться на событие',formintro:'Данные нужны для организации выбранного мероприятия. Аккаунт не требуется.',eventlabel:'Мероприятие *',loading:'Загружаем события…',first:'Имя *',last:'Фамилия *',email:'Email *',phone:'Телефон / WhatsApp *',age:'Возраст *',choose:'Выберите',adult:'18 лет или старше',minor:'Младше 18 (нужно согласие родителя)',guardianName:'Имя и фамилия родителя *',guardianPhone:'Телефон родителя *',attendance:'Планируете прийти? *',yes:'Да, приду',maybe:'Возможно',no:'Не приду',safety:'Я прочитал(а) и обязуюсь соблюдать правила безопасности. *',photo:'Разрешаю публикацию фото/видео, где меня можно узнать (необязательно).',photoYes:'Да, согласен(на)',photoNo:'Нет, спасибо',photoNote:'Необязательное разрешение для сайта и соцсетей организатора. Отказ не ограничивает участие. Для детей необходимо согласие законного представителя.',future:'Хочу иногда получать приглашения на будущие мероприятия этого организатора (необязательно). Можно отказаться в любое время.',privacy:'Контакт используется для организации события. Фото и будущие приглашения требуют отдельных разрешений. Запись не подтверждает оплату, страховку или допуск к контактным занятиям.',privacyLink:'Конфиденциальность и сроки хранения ↗',submit:'Отправить регистрацию →',saved:'Запись сохранена ✓',savedNote:'Организатор отдельно подтвердит детали. Изменения прежней заявки и согласий согласуйте напрямую с организатором. Это не оплата и не разрешение на контактные занятия.',again:'Записать ещё человека',safetyOpen:'Правила безопасности ↗',controller:'Ответственный за данные: ',noevents:'Пока нет доступных мероприятий.',savedOk:'Спасибо, ответ сохранён.',loadingSubmit:'Сохраняем…',selectEvent:'Выберите мероприятие',error:'Не удалось сохранить заявку. Повторите попытку.',guardian:'Для несовершеннолетних организатор отдельно проверяет разрешение родителя.'},
+uk:{eyebrow:'Одна форма. Більше пригод.',headline:'Приєднуйся.<br><em>Знайди своїх.</em>',description:'Походи, історичні події, майстер-класи та спільноти Брно. Реєстрація менш ніж за хвилину.',step1:'Обери подію',step2:'Залиш контакт',step3:'Підтвердь умови',formtitle:'Реєстрація на подію',formintro:'Дані потрібні для організації обраної події. Обліковий запис не потрібен.',eventlabel:'Подія *',loading:'Завантаження подій…',first:"Ім'я *",last:'Прізвище *',email:'Email *',phone:'Телефон / WhatsApp *',age:'Вік *',choose:'Оберіть',adult:'18 років або більше',minor:'До 18 (потрібна згода батьків)',guardianName:"Ім'я опікуна *",guardianPhone:'Телефон опікуна *',attendance:'Ви прийдете? *',yes:'Так, прийду',maybe:'Можливо',no:'Не прийду',safety:'Я ознайомився(-лася) та зобов’язуюся дотримуватися правил безпеки. *',photo:'Дозволяю публікацію фото/відео, де мене можна впізнати (необов’язково).',photoYes:'Так, погоджуюся',photoNo:'Ні, дякую',photoNote:'Необов’язковий дозвіл для сайту та соцмереж організатора. Відмова не обмежує участь. Для дітей потрібна згода законного представника.',future:'Хочу іноді отримувати запрошення на майбутні події цього організатора (необов’язково). Можу відписатися будь-коли.',privacy:'Дані потрібні для організації події. Фото та нові запрошення вимагають окремих дозволів. Реєстрація не підтверджує оплату, страхування чи допуск до контактного спорту.',privacyLink:'Конфіденційність і терміни зберігання ↗',submit:'Надіслати реєстрацію →',saved:'Запис збережено ✓',savedNote:'Організатор підтвердить деталі окремо. Зміни попередньої заявки й згод узгоджуйте безпосередньо з організатором. Це не оплата і не допуск до спорту.',again:'Зареєструвати ще людину',safetyOpen:'Правила безпеки ↗',controller:'Володілець даних: ',noevents:'Поки немає подій для реєстрації.',savedOk:'Дякуємо, відповідь збережено.',loadingSubmit:'Зберігаємо…',selectEvent:'Оберіть подію',error:'Не вдалося зберегти заявку.',guardian:'Для неповнолітніх організатор окремо перевіряє згоду законного представника.'}
+};
+var $=function(id){return document.getElementById(id)};
+var activeEvent=null;
+function safe(s){return String(s||'');}
+function showMsg(text,bad){var el=$('message');el.className='alert '+(bad?'error':'success');el.textContent=text;el.classList.remove('hide');}
+function translate(lang){
+ activeLang=t[lang]?lang:'en';
+ document.documentElement.lang=activeLang;
+ document.querySelectorAll('[data-lang]').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.lang===activeLang?'true':'false')});
+ document.querySelectorAll('[data-i18n]').forEach(function(el){var key=el.dataset.i18n;if(t[activeLang][key]){if(key==='headline')el.innerHTML=t[activeLang][key];else el.textContent=t[activeLang][key];}});
+ fillEvents();fillDetails();
+}
+function fillEvents(){
+ var el=$('event');var prev=el.value||initialEvent;
+ while(el.firstChild)el.removeChild(el.firstChild);
+ var opt=document.createElement('option');opt.value='';opt.textContent=t[activeLang].selectEvent;el.appendChild(opt);
+ events.forEach(function(ev){var o=document.createElement('option');o.value=ev.id;o.textContent=ev.date+' · '+ev.title;el.appendChild(o)});
+ if(events.some(function(e){return e.id===prev}))el.value=prev;
+ else if(events.length===1)el.value=events[0].id;
+ fillDetails();
+ $('submit').disabled=!events.length;
+}
+function fillDetails(){
+ activeEvent=events.find(function(x){return x.id===$('event').value;})||null;
+ var box=$('eventdetails');
+ if(!activeEvent){box.classList.add('hide');$('controller').textContent='';$('safetylink').textContent='';return;}
+ box.classList.remove('hide');
+ while(box.firstChild)box.removeChild(box.firstChild);
+ var name=document.createElement('strong');name.textContent=activeEvent.title;box.appendChild(name);
+ [activeEvent.date,activeEvent.location,activeEvent.price].forEach(function(v){var s=document.createElement('span');s.textContent=v;box.appendChild(s)});
+ $('controller').textContent=t[activeLang].controller+activeEvent.dataController;
+ var link=document.createElement('a');link.href=activeEvent.rulesUrl;link.target='_blank';link.rel='noopener noreferrer';link.textContent=t[activeLang].safetyOpen;
+ var slot=$('safetylink');slot.textContent='';slot.appendChild(link);
+}
+function collect(){
+ var checked=document.querySelector('input[name=rsvp]:checked');
+  return {eventId:$('event').value,firstName:$('first').value,lastName:$('last').value,
+ email:$('email').value,phone:$('phone').value,ageGroup:$('age').value,
+ guardianName:$('guardianName').value,guardianPhone:$('guardianPhone').value,
+ rsvp:checked?checked.value:'',photo:$('photoConsent').checked?'YES':'NO',
+ safety:$('safety').checked,futureUpdates:$('future').checked,
+ language:activeLang,website:$('website').value};
+}
+function validate(){
+ if(!$('regform').checkValidity()){$('regform').reportValidity();return false;}
+ if(!activeEvent){showMsg(t[activeLang].selectEvent,true);return false;}
+ return true;
+}
+document.querySelectorAll('[data-lang]').forEach(function(b){b.addEventListener('click',function(){translate(b.dataset.lang)})});
+$('event').addEventListener('change',fillDetails);
+$('age').addEventListener('change',function(){
+ var minor=$('age').value==='under18';$('guardian').classList.toggle('hide',!minor);
+ $('guardianName').required=minor;$('guardianPhone').required=minor;
+ if(minor){$('photoConsent').checked=false;$('photoConsent').disabled=true;$('future').checked=false;$('future').disabled=true;}else{$('photoConsent').disabled=false;$('future').disabled=false;}
+});
+$('again').addEventListener('click',function(){
+ $('regform').reset();$('photoConsent').disabled=false;$('future').disabled=false;$('thanks').classList.add('hide');$('regform').classList.remove('hide');
+ $('message').classList.add('hide');$('guardian').classList.add('hide');$('event').value=activeEvent?activeEvent.id:'';
+ fillDetails();
+});
+$('regform').addEventListener('submit',function(e){
+ e.preventDefault();
+ if(!validate())return;
+ if(!(window.google&&google.script&&google.script.run)){showMsg(t[activeLang].error,true);return;}
+ $('submit').disabled=true;$('submit').textContent=t[activeLang].loadingSubmit;
+ google.script.run.withSuccessHandler(function(result){
+  $('submit').disabled=false;$('submit').textContent=t[activeLang].submit;
+  if(!result||!result.ok||!result.recorded){showMsg(t[activeLang].error,true);return;}
+  $('regform').classList.add('hide');$('thanks').classList.remove('hide');
+  $('savedtext').textContent=t[activeLang].savedOk+(result.needsGuardian?' '+t[activeLang].guardian:'');
+  $('reference').textContent=result.reference?'Ref: '+result.reference:'';
+  $('message').classList.add('hide');window.scrollTo(0,0);
+ }).withFailureHandler(function(err){
+  $('submit').disabled=false;$('submit').textContent=t[activeLang].submit;
+  showMsg(err&&err.message?String(err.message):t[activeLang].error,true);
+ }).regpSubmit(collect());
+});
+translate(activeLang);
+if(window.google&&google.script&&google.script.run){
+ google.script.run.withSuccessHandler(function(data){events=(data&&data.events)||[];fillEvents();if(!events.length)showMsg(t[activeLang].noevents,true)})
+ .withFailureHandler(function(err){showMsg((err&&err.message)||t[activeLang].error,true)}).regpGetEvents();
+}else showMsg('This is a design preview. Live registration requires the approved Apps Script deployment.',true);
+})();
+</script>
+</body>
+</html>

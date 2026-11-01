@@ -1,0 +1,17 @@
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const src=fs.readFileSync('supabase/functions/imperion-register/index.ts','utf8');
+const sql=fs.readFileSync('supabase/migrations/20261025_imperion_druzina_enquiry_inbox.sql','utf8');
+assert.match(src,/body\.intent==='DRUZINA_ENQUIRY'/);
+assert.match(src,/body\.adultConfirmed!==true \|\| body\.safety!==true/);
+assert.match(src,/safeEnum\(body\.preferredDay,\['NEXT','MON','SAT','DATE'\]\)/);
+assert.match(src,/allow\('druzina_contact',entry\.contact,5\)/);
+assert.match(src,/data_controller:'Družina Moravy, z\. s\.'/);
+assert.match(src,/RECEIVED_UNCONFIRMED/);
+assert.match(src,/const EVENT_COLS=/);
+assert.match(src,/if \(!event\) return reply\(\{error:'event_not_available'\}/);
+assert.match(sql,/enable row level security/i);
+assert.match(sql,/revoke all on table .* from public,anon,authenticated/i);
+assert.match(sql,/retention_until <= now\(\)/);
+assert.doesNotMatch(src,/console\.log\(entry/);
+console.log('Druzina enquiry intake source, consent, rate-limit and RLS gates PASS');

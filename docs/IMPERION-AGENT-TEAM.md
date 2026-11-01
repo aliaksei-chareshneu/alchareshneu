@@ -25,6 +25,17 @@ an existing ShortFactory SQLite source on the owner's device; the
 snapshot intentionally labels that list empty until independently read.
 No cloud installation or protected-data export has been performed.
 
+## 01 November 2026 main-forward-port
+Current main no longer contains the old ops/ai-content-pipeline.cjs module or the old operations-tests.yml.
+Do not resurrect them. Social now returns SOURCE_VALIDATED_PREVIEW_NOT_RENDERED after public-source
+checks, and never claims generated content. Tests run in the existing site-quality.yml.
+Added ops/imperion-proof-auditor.cjs, a public GitHub GET-only proof verifier with
+strict repository and numeric-ID allowlist. It verifies a PR or one exact CI run only,
+not a deployed website, published post, accepted service, contract, or bank-cleared cash.
+Example public readback: node ops/imperion-proof-auditor.cjs --kind pr --id 154
+--claim PR_DRAFT_OPEN --sha EXPECTED_HEAD_SHA (40 hex chars).
+CI must be pinned to the exact run head SHA.
+
 ## Existing sources: one queue, no duplication
 
 Use Community Hub tabs `Leads`, `Revenue_Actions`, `Events`, `SocialPublishing`, `IMPERION_Agent_Jobs`. Media source is the existing ShortFactory SQLite database; do not move customer data into the public repository. Input is a bounded locally exported JSON snapshot using existing exact tab keys, `schema_version:1`, `source_system:"EXISTING_IMPERION_HUB"`, an opaque `snapshot_id`, and an explicit ISO offset-aware `captured_at`. The marker is a format contract, **not authentication**. Real snapshots belong to the authorized private owner process.
@@ -45,7 +56,7 @@ Results go to stdout, not a second queue or database.
 | --- | --- | --- |
 | Chief of Staff | Sorts urgent jobs and events; surfaces claimed DONE/VERIFIED without independent receipt for review | Inbox/calendar checked, provider-readback or saved time |
 | Sales | Scores existing leads, quarantines explicit synthetic QA fixtures, propagates no-contact by Lead_ID/email/company, requires verified SENT history and stop list | New SENT messages, orders, cleared cash |
-| Social Media | Uses SocialPublishing.Job_ID, calls existing AI content adapter in zero-network PREVIEW on PUBLIC_APPROVED source | Post, permalink or delivered update |
+| Social Media | Uses SocialPublishing.Job_ID, validates PUBLIC_APPROVED source and rights, no content rendering | Post, permalink or delivered update |
 | AEO + SEO | Audits local robots, sitemap, root and corporate HTML | Production ranking, crawl, live deployment |
 | Video Editor | Reviews rights/hash readiness in existing ShortFactory snapshot | A rendered, uploaded or published clip |
 

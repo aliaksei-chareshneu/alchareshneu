@@ -1,0 +1,45 @@
+name: Druzina first-visit live intake smoke
+on:
+  push:
+    branches: [growth-experience]
+    paths:
+      - '.github/workflows/druzina-live-intake-smoke.yml'
+permissions:
+  contents: read
+jobs:
+  first-visit-api-smoke:
+    if: contains(github.event.head_commit.message, 'druzina-live-smoke-2026')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - name: Verify real server receipt (synthetic data, no payment)
+        env:
+          ENDPOINT: https://cmrknyhnnehyjpreehcf.supabase.co/functions/v1/imperion-register
+          ORIGIN: https://aliaksei-chareshneu.github.io
+        run: |
+          node <<'NODE'
+          (async()=>{
+            const invalid=await fetch(process.env.ENDPOINT,{
+              method:'POST',headers:{'Content-Type':'application/json'},
+              body:JSON.stringify({intent:'DRUZINA_ENQUIRY'})
+            });
+            if(invalid.status!==403)throw Error('Missing origin must be rejected');
+            const response=await fetch(process.env.ENDPOINT,{
+              method:'POST',
+              headers:{'Content-Type':'application/json','Origin':process.env.ORIGIN},
+              body:JSON.stringify({
+                intent:'DRUZINA_ENQUIRY',visitType:'FIRST',preferredDay:'NEXT',
+                firstName:'Synthetic',lastName:'SmokeTest',
+                contact:'qa-druzina-20261025@example.invalid',
+                adultConfirmed:true,safety:true,language:'en',website:''
+              })
+            });
+            const data=await response.json().catch(()=>({}));
+            if(response.status!==200||data.ok!==true||
+              data.status!=='RECEIVED_UNCONFIRMED'||data.confirmed!==false||
+              typeof data.reference!=='string'||data.reference.length<10){
+              throw Error('Live intake returned unexpected response: HTTP '+response.status+' / '+JSON.stringify(data));
+            }
+            console.log('PASS: legitimate synthetic request stored; untrusted origin blocked; no booking/payment implied');
+          })().catch(e=>{console.error(e.message);process.exit(1)});
+          NODE

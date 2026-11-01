@@ -7,11 +7,10 @@
  * Does not read Gmail, publish, email, book, pay, schedule, or claim live status.
  *
  * Agent functions: chief / sales / social / seo / video.
- * Existing optional content adapter is used only in no-network PREVIEW mode.
+ * Social validates public source only; no preview renderer on current main.
  */
 const fs = require('node:fs');
 const path = require('node:path');
-const { runPipeline } = require('./ai-content-pipeline.cjs');
 
 const ROOT = path.resolve(__dirname, '..');
 const FIELDS = Object.freeze({
@@ -197,41 +196,44 @@ function sales(snapshot) {
   };
 }
 async function social(snapshot) {
-  const records = rows(snapshot.data,'social_publishing');
-  const seen = new Set(), jobs = [];
-  for (const [i,r] of records.entries()) {
-    const id = identity(r,['Job_ID','job_id'],i);
-    if (id.startsWith('MISSING_ID_')) { jobs.push({ id, state:'INVALID_SOURCE_ID' }); continue; }
-    if (seen.has(id)) { jobs.push({id,state:'DUPLICATE_SOURCE_JOB_ID'}); continue; }
+  const records=rows(snapshot.data,'social_publishing');
+  const seen=new Set(),jobs=[];
+  for(const [i,r] of records.entries()){
+    const id=identity(r,['Job_ID','job_id'],i);
+    if(id.startsWith('MISSING_ID_')){jobs.push({id,state:'INVALID_SOURCE_ID'});continue;}
+    if(seen.has(id)){jobs.push({id,state:'DUPLICATE_SOURCE_JOB_ID'});continue;}
     seen.add(id);
-    const status = upper(field(r,'Status','status','State'));
-    // Stored scheduled/posted state never proves actual publication.
-    if (status === 'PUBLISHED_VERIFIED') {
-      jobs.push({id,state:'PROVIDER_READBACK_NEEDED', existing_status:status});
-      continue;
+    const status=upper(field(r,'Status','status','State'));
+    if(status==='PUBLISHED_VERIFIED'){
+      jobs.push({id,state:'PROVIDER_READBACK_NEEDED',existing_status:status});continue;
     }
-    if (['DELIVERY_UNVERIFIED','SUBMITTING','BUFFER_SUBMITTING','ERROR',
-      'PENDING','SCHEDULED_PENDING','SCHEDULED','POSTED_UNVERIFIED',
-      'PUBLISHED'].includes(status)) {
-      jobs.push({id,state:'NO_AUTORETRY_RECONCILE_PROVIDER',existing_status:status});
-      continue;
+    if(['DELIVERY_UNVERIFIED','SUBMITTING','BUFFER_SUBMITTING','ERROR','PENDING',
+       'SCHEDULED_PENDING','SCHEDULED','POSTED_UNVERIFIED','PUBLISHED'].includes(status)){
+      jobs.push({id,state:'NO_AUTORETRY_RECONCILE_PROVIDER',existing_status:status});continue;
     }
-    const approved = field(r,'approved_public_snapshot');
-    if (!approved) { jobs.push({id,state:'HUMAN_SOURCE_REVIEW_REQUIRED',existing_status:status}); continue; }
-    if (approved.job_id !== id) {jobs.push({id,state:'SOURCE_JOB_ID_MISMATCH'});continue;}
-    try {
-      const draft = await runPipeline(approved,{live:false,withImage:true,
-        fetchImpl:()=>{throw Error('NETWORK_FORBIDDEN_IN_PREVIEW');}});
-      jobs.push({id,state:'PREVIEW_READY',source_fingerprint:draft.source_fingerprint,
-        targets:draft.targets, published:false});
-    } catch {
-      jobs.push({id,state:'SOURCE_RIGHTS_OR_FACT_GATE_BLOCKED'});
+    // Old content pipeline was removed from current main. Verify the source,
+    // but DO NOT claim a rendered preview, an approved send, or publication.
+    const approved=field(r,'approved_public_snapshot');
+    if(!approved||typeof approved!=='object'||Array.isArray(approved)){
+      jobs.push({id,state:'HUMAN_SOURCE_REVIEW_REQUIRED',existing_status:status});continue;
     }
+    if(approved.job_id!==id){jobs.push({id,state:'SOURCE_JOB_ID_MISMATCH'});continue;}
+    const safe=approved.public_source_approved===true &&
+      approved.data_classification==='PUBLIC_APPROVED' &&
+      ['OSVC','DRUZINA_MORAVY_ZS','BRNOWALKERS'].includes(upper(approved.owner_entity)) &&
+      ['owned','licensed','public_domain'].includes(str(approved.rights_status).toLowerCase()) &&
+      ['cs','en','ru','uk'].includes(str(approved.source_lang).toLowerCase()) &&
+      str(approved.source_text).length>=10&&str(approved.source_text).length<=3000;
+    if(!safe){jobs.push({id,state:'SOURCE_RIGHTS_OR_FACT_GATE_BLOCKED'});continue;}
+    jobs.push({id,state:'SOURCE_VALIDATED_PREVIEW_NOT_RENDERED',
+      preview_generated:false,published:false,owner_approval_required:true});
   }
   return {state:'REVIEW_REQUIRED',source:'EXISTING_IMPERION_HUB/SocialPublishing',
-    jobs:jobs.slice(0,100), total:jobs.length, published_by_this_run:0,
-    pending_reconciliation:jobs.filter(j=>j.state==='PROVIDER_READBACK_NEEDED'||j.state==='NO_AUTORETRY_RECONCILE_PROVIDER').length};
+    jobs:jobs.slice(0,100),total:jobs.length,published_by_this_run:0,
+    pending_reconciliation:jobs.filter(j=>j.state==='PROVIDER_READBACK_NEEDED'||
+      j.state==='NO_AUTORETRY_RECONCILE_PROVIDER').length};
 }
+
 function seo(root=ROOT) {
   const read = f => {try{return fs.readFileSync(path.join(root,f),'utf8');}catch{return '';}};
   const robots=read('robots.txt'), sitemap=read('sitemap.xml'),

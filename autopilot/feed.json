@@ -1,0 +1,46 @@
+{
+  "schema": "imperion-public-campaigns-v1",
+  "source": "existing_public_rsvp_catalog",
+  "booking_confirmed": false,
+  "events": [
+    {
+      "event_id": "PUB-HIKE-20261101",
+      "title": "BrnoWalkers / Morava v pohybu — Hády → Růženin lom → Obřany",
+      "community": "Brnowalkers",
+      "category": "Hike",
+      "begins_at": "2026-11-01T11:45:00.000Z",
+      "ends_at": "2026-11-01T15:15:00.000Z",
+      "venue": "Velká Klajdovka, Brno",
+      "price_czk": 0,
+      "public_note": "Free guided community hike. Advance RSVP is provisional until the organiser personally confirms the place.",
+      "registration_url": "https://aliaksei-chareshneu.github.io/alchareshneu/register/?event=PUB-HIKE-20261101",
+      "status": "OPEN_PRELIMINARY_ONLY"
+    },
+    {
+      "event_id": "PUB-OREL-20261114",
+      "title": "FREE Beginner HEMA Workshop — Orel Husovice | Morava v pohybu",
+      "community": "Družina Moravy",
+      "category": "HEMA Training",
+      "begins_at": "2026-11-14T11:00:00.000Z",
+      "ends_at": "2026-11-14T13:30:00.000Z",
+      "venue": "Orlovna Husovice",
+      "price_czk": 0,
+      "public_note": "Online preliminary registration is open. Submitting the form does not reserve a place. The organiser must personally confirm participation and verify safety, capacity, and guardian consent where applicable.",
+      "registration_url": "https://aliaksei-chareshneu.github.io/alchareshneu/register/?event=PUB-OREL-20261114",
+      "status": "OPEN_PRELIMINARY_ONLY"
+    },
+    {
+      "event_id": "PUB-HIKE-20261128",
+      "title": "BrnoWalkers — Obřany → Bílovice nad Svitavou | Free community hike",
+      "community": "Brnowalkers",
+      "category": "Hike",
+      "begins_at": "2026-11-28T09:00:00.000Z",
+      "ends_at": "2026-11-28T13:30:00.000Z",
+      "venue": "Brno hlavní nádraží — main entrance",
+      "price_czk": 0,
+      "public_note": "Free guided community hike. Advance RSVP is provisional until the organiser personally confirms the place.",
+      "registration_url": "https://aliaksei-chareshneu.github.io/alchareshneu/register/?event=PUB-HIKE-20261128",
+      "status": "OPEN_PRELIMINARY_ONLY"
+    }
+  ]
+}

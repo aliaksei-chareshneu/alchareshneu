@@ -1,46 +1,33 @@
-# Codex / agent instructions for this repository
+# IMPERION project instructions for Codex and engineering agents
 
-## Human operator entrypoint
+## Objective
+Deliver a working, independently verified change, not a plan, prompt, architecture document, or PR presented as production.
 
-Windows one-click launch: `ops/IMPERION-AI.cmd` (from this repo), or `node ops/imperion-ai.cjs status` to inspect local CLIs, Ollama and model status. Russian guide: `docs/AI-QUICKSTART-RU.md`; equivalent explicit VS Code tasks: `.vscode/tasks.json`. The launcher never publishes, pays, installs or authorizes AI services automatically; model input in the smoke is strictly synthetic. Codex begins in read-only mode and Antigravity in plan+sandbox; accounts and paid quotas must be verified independently. The Windows device might be offline: no GitHub commit alone executes programs on a PC.
+## Procedure
+- Preserve the user's original task. Check prior implementation, issues, existing Google Apps Script, GitHub Actions, Supabase and Sheets before creating anything.
+- Define real acceptance criteria, then inspect -> implement -> test -> run -> independently verify -> repair.
+- Reuse the existing public registration flow and private intake-to-CRM bridge. Do not create another CRM or bypass approval of events.
+- Keep OSVČ commercial data, Družina Moravy z.s. and grant-funded data and funds separate.
+- Never publish to Facebook groups through a bypass or a profile without actual permission. Social campaigns require owner review and a verified direct permalink before a POSTED claim.
+- Do not place PII or credentials into GitHub Pages, logs, client JavaScript or public files.
+- Preserve informed consent, safety, nonbinding registration, explicit time/location approvals, copyright and platform rules.
+- Do not spend money, issue new subscriptions, send unsolicited bulk messages, or assume unlimited third-party credits.
+- A draft, CI pass, Git commit or PR is not a production release. Check the live endpoint and existing CRM when the task requires them.
 
-## Required first read
-For any website, offer, lead-generation, forms, conversion, copywriting or site navigation task, read **[docs/CODEX-SITE-CONVERSION.md](docs/CODEX-SITE-CONVERSION.md)** before changing code. It is the self-contained, approved site-repositioning implementation handoff dated 2026-10-12.
+## Existing project
+- Node and Playwright tests are in tests/.
+- Public register endpoint: supabase/functions/imperion-register/index.ts.
+- Private intake bridge: supabase/functions/imperion-intake-bridge/index.ts and imperion-intake-sync.gs.
+- Safe public campaign refresh: scripts/imperion-autopilot.cjs, .github/workflows/imperion-autopilot.yml.
+- Public website: autopilot/index.html. Feed is public and must NEVER contain private contact data.
+- Canonical operating docs: existing 00 GLOBAL / 01 CASH / 02 ORGANISATIONS / 03 EXECUTION in connected Drive.
 
-This repository is public. **Do not copy private Google Drive master briefs, CRM exports, customer messages, personal data, API keys, signed contracts or nonpublic sales figures into commits or logs.** A link to a private Google Doc in a chat prompt does not establish Codex access. Use the repository handoff for development; obtain confirmation for facts you cannot verify.
+## Report
+Separate DONE with evidence, PREPARED but not live, and BLOCKED with precise next action. Respond in Russian unless the user's task requests another language.
 
-## Evidence-to-autonomy and accepted outcomes (2026-10-22)
-For any substantive recurring, delegated or multi-step change, define the *observable end-user result* before counting activity: a verifiable baseline/source of truth (or UNVERIFIED), 1–3 context-specific acceptance criteria, responsible operator and permission boundary, expected owner-time/cost impact, and independent readback. A green CI check, staged code, draft post, queued provider call or published content without conversion evidence does **not** prove business impact. Record actual tests separately from live external effects; report incomplete/blocked outcomes as such and never fabricate saved time, attendance, orders or cleared payments.
-
-Reuse the existing implementation, CRM and agent receipts instead of adding parallel queues/dashboards. For agent benchmarking prioritize accepted outputs, error/duplicate prevention, privacy and safety, real costs and measured founder minutes—not tokens generated, tasks opened or messages sent. A code edit to instructions is not deployment or automatic execution.
-
-For contributor and volunteer features, apply role-specific, consent-based bounded pilot → independently verified repeat → appreciative feedback → expressly agreed autonomy. Do not build a universal people leaderboard, infer performance from one cancelled event, penalize a declined volunteer role, or publish identifiable/private evaluation or minors' data. Real contracts, lawful qualified instruction, authority to sign, payment beneficiary and owner approval remain separate mandatory gates. Prefer a small reviewable PR with tests; obtain explicit owner sign-off before production, public release or any new obligations.
-
-## Verified production publication (2026-10-13)
-- **GitHub Pages publishes from `growth-experience` at `/` using a legacy branch build, NOT the default `main` branch.** This was confirmed through the authenticated GitHub Pages API on 2026-10-13. Recheck Settings → Pages before modifying deployment configuration; the source may change later.
-- A green **Site quality** GitHub Actions check proves source checks only; it does **not** deploy Pages.
-- Work in reviewable feature branches. For a public website change, land the approved patch on the *actual Pages source branch* (`growth-experience` as verified above); merging only into `main` will not update the public site.
-- `main` and `growth-experience` have diverged. Do not replace the Pages branch with `main` or force-merge whole histories without auditing their unique changes. Prefer minimal targeted patches and PRs.
-- Verify production after Pages reports `built`: compare the live page to the publishing branch at https://aliaksei-chareshneu.github.io/alchareshneu/ and test the affected CTA/content. Remote machine `zmrzlina` also has an hourly read-only Pages SHA-256 drift check in `state/pages_drift_check.ps1` (outside this repository).
-- Issue #10 / PR #11 record the diagnosed branch mismatch, correction, and verified public rollout.
-
-## Source and change controls
-- Existing site and its architecture are the implementation target. Do not create a new site or parallel CRM.
-- Start with a separate branch; prefer focused diffs and a reviewable PR. Do not force-push or change payment/registration production backends without review.
-- Verify affected copy and navigation on mobile and in Czech, English, Russian and Ukrainian.
-- Honor approved effective-date prices, consent/safety, accessible booking and distinct legal entities. Never invent insurance, customer testimonials, earnings or measured outcomes.
-- Make a meaningful test plan, run available checks, describe what was actually tested, and require owner approval for safety, legal, fees, or production rollout.
-- Historical README/START-HERE instructions may predate the current production architecture; check live sources and this handoff before deploying.
-
-## Optional local Ollama fallback (2026-10-22)
-
-On the authorised Windows PC, Qwen3 `0.6b` truly works CPU-only but gave **untranslated** outputs in real CZ/RU/UK tests; do not call this model business-ready. The Ollama pipeline defaults to a vetted on-device model ID `qwen3:4b` when installed (Apache-2.0); the local synthetic smoke `node ops/ai-local-smoke.cjs --ollama` prefers 4B and falls back to 0.6B without any model download. Models are explicitly allowlisted, native API is fixed to `127.0.0.1:11434`, requests force `num_gpu=0`, and no paid/remote fallback exists. The Ollama-only QA gates flag missing protected dates/prices/URLs, absent Cyrillic for RU/UK, and missing Czech diacritic evidence; passing those checks still requires human review before any approved SocialPublishing action. `--local` remains the independent Hy-MT2 port-8000 path. No CRM, posts, payments, or model install by this script.
-
-## Optional AI drafting and translation adapters (2026-10-22)
-- For automation of publication text, Czech/English/Russian/Ukrainian translation, illustration backgrounds or AI provider selection, **first read `docs/AI-CONTENT-PIPELINE.md`** and `ops/ai-content-pipeline.cjs`. These are optional drafting helpers, not an alternative CRM or live publisher.
-- Reuse exactly the existing `SocialPublishing.Job_ID` and owning `Events` record. Process only a human-approved PUBLIC source, legal seller/owner and content rights. Never send personal or internal records to remote model providers; never count model output as a verified post.
-- `Hy-MT2` is a loopback-only local option; the Windows helper `ops/hymt2-windows.ps1` is opt-in, not a scheduled job or proof that software/models are installed. MiMo and Qwen remote API calls are blocked by explicit cost/approval flags by default. Preserve the free `LanguageApp.translate` path, existing ShortFactory and safety/duplicate/confirmation gates.
-- AI provider mocked tests and green CI do not prove installed local inference, real external API calls, completed public posts, or any business outcome. Always mark the actual execution/readback state.
-
-## Multi-agent local toolchain (2026-10-22)
-For VS Code / GitHub Copilot use [repository instructions](.github/copilot-instructions.md), the [toolchain runbook](docs/AI-TOOLCHAIN.md) and the existing issue/PR/test process. Local Windows read-only preflight: `ops/ai-toolchain-preflight.ps1`. The existence of those files is not proof that a Copilot licence, Microsoft 365 tenant product or Google Antigravity CLI is installed/active. Do not run an installer or cloud/production side effects merely because an agent proposes them.
+## Autonomous production loops
+- Own-site RSS + static event campaigns: `scripts/imperion-autopilot.cjs` via `.github/workflows/imperion-autopilot.yml` every six hours; only public confirmed-as-open metadata, registrations remain nonbinding.
+- Independent health and incident recovery: `scripts/imperion-watchdog.cjs` via `.github/workflows/imperion-watchdog.yml` hourly. Confirm real Pages HTTP 200, RSS content, API gates and automatic incident closure.
+- Read-only source checks: `ops/imperion-daily-event-source-verify.sql` already installed as Supabase cron job `imperion_public_event_daily_source_readback`; uses existing event operator queue and source readbacks, never authorizes publication.
+- Existing private inbound intake: bound Apps Script importer every five minutes. NEVER duplicate CRM or expose contact data via GitHub Pages.
+- Existing Windows browser bridge: do not operate the owner's active tab or credentials without a task-specific permitted workflow; browser UI steps are never proof of a business outcome.
