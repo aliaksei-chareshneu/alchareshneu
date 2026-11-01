@@ -91,6 +91,11 @@ function drufVerifyCartPricing_(quote,items,member) {
   return {ok:true,amountCZK:sum,items:items};
 }
 function drufGuardBankCommit_(tx,quote,items,member) {
+  // A web form, uploaded screenshot, or caller-made object must never be
+  // accepted as a bank-credit attestation. The owner worker must supply a
+  // verified read-only Fio feed record tied to the intended payee.
+  if(!tx||tx.tokenAccountVerified!==true)
+    return {ok:false,code:'UNVERIFIED_BANK_FEED'};
   var p=PropertiesService.getScriptProperties(),cfg=configMap_();
   var flags={
     DRU_FIO_READONLY_CONFIRMED:p.getProperty('DRU_FIO_READONLY_CONFIRMED'),
