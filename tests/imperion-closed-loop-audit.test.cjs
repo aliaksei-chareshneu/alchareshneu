@@ -121,7 +121,7 @@ test('no raw names, IDs, email, payment source or URL in returned health',()=>{
   const t=fixtures();t.Druzina_Bookings[1][0]='customer@example.test';
   const x=context(t).imperionClosedLoopAuditHealth();
   const json=JSON.stringify(x);
-  assert.doesNotMatch(json,/customer@example|BOOK-1|RECEIPT-1|https:\/\/);
+  assert.doesNotMatch(json,/customer@example|BOOK-1|RECEIPT-1|https?:/);
   assert.equal(x.mode,'READ_ONLY_PRIVATE_OWNER_AUDIT');
   assert.equal(x.published_or_sent_or_charged,0);
   assert.doesNotMatch(code,/\.setValues?\s*\(|\.appendRow\s*\(|\.create\s*\(|UrlFetchApp|ScriptApp|MailApp|GmailApp/);
