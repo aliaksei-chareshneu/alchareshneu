@@ -8,7 +8,13 @@ const path = require('node:path');
 const API = 'https://cmrknyhnnehyjpreehcf.supabase.co/functions/v1/imperion-register';
 const ORIGIN = 'https://aliaksei-chareshneu.github.io';
 const OUTPUT = path.resolve(__dirname, '../autopilot');
-const UNCERTAIN = /\b(?:HOLD|TBD|TBC|planned)\b|план|не\s*подтвержд|уточня|nepotvrzen|předběžn(?:ý|é)\s*termín/i;
+// Calendar independently checked on 2026-11-01 (Europe/Prague).
+// Explicit per-event cutoff is a safety fallback until the existing public
+// catalog provides a trusted registration_closes_at field. No private data.
+const CALENDAR_REGISTRATION_CUTOFFS = Object.freeze({
+  'PUB-OREL-20261114': '2026-11-02T00:00:00+01:00',
+});
+const UNCERTAIN = /\b(?:HOLD|TBD|TBC|planned|tentative|interest only|not a confirmed event|not yet confirmed)\b|план|не\s*подтвержд|уточня|nepotvrzen|předběžn(?:ý|á|é|í)/iu;
 function short(value, limit = 180) {
   return String(value == null ? '' : value).normalize('NFKC')
     .replace(/[\u0000-\u001f\u007f]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, limit);
@@ -23,7 +29,18 @@ function eligible(e, now = Date.now()) {
   if (!Number.isFinite(start) || start <= now) return false;
   if (!Number.isInteger(e.price_czk) || e.price_czk < 0 || e.price_czk > 100000) return false;
   if (short(e.title).length < 5 || short(e.venue).length < 3) return false;
-  if (UNCERTAIN.test(short(e.title) + ' ' + short(e.venue))) return false;
+  // Reject tentative public promotions even when the sign-up form accepts
+  // preliminary interest. Checking only title missed the 11 Nov pilot.
+  if (UNCERTAIN.test([short(e.title), short(e.venue), short(e.public_note, 320)].join(' '))) return false;
+  // Server is_open alone cannot override a verified calendar deadline.
+  // Future catalog dates must be offset-aware and are fail-closed if malformed.
+  const cutoff = e.registration_closes_at || CALENDAR_REGISTRATION_CUTOFFS[short(e.event_id,110)];
+  if (cutoff !== undefined && cutoff !== null) {
+    if (typeof cutoff !== 'string' ||
+        !/T\d\d:\d\d(?::\d\d(?:\.\d+)?)?(?:Z|[+-]\d\d:\d\d)$/.test(cutoff)) return false;
+    const end = Date.parse(cutoff);
+    if (!Number.isFinite(end) || now >= end) return false;
+  }
   return true;
 }
 function build(source, now = Date.now()) {
