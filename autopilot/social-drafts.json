@@ -4,15 +4,6 @@
   "review_required": true,
   "drafts": [
     {
-      "event_id": "PUB-WALK-TALK-20261111",
-      "status": "HOLD_FOR_MANUAL_APPROVAL",
-      "destination": "OWN_PROFILE_OR_EXPLICITLY_ALLOWED_COMMUNITY_ONLY",
-      "direct_public_links": false,
-      "posted": false,
-      "published_url": null,
-      "text_cs": "Chystá se Walk & Talk Brno — 11. 11. 18:30 (PŘEDBĚŽNÉ / TENTATIVE).\nKdy: 11. 11. 2026 18:30\nKde: Centrum Brna — přesné místo srazu bude potvrzeno\nCena: 50 Kč.\n\nChceš informace? Napiš mi soukromou zprávu s názvem akce. Přihláška je nezávazná; účast platí až po osobním potvrzení pořadatelem."
-    },
-    {
       "event_id": "PUB-OREL-20261114",
       "status": "HOLD_FOR_MANUAL_APPROVAL",
       "destination": "OWN_PROFILE_OR_EXPLICITLY_ALLOWED_COMMUNITY_ONLY",
