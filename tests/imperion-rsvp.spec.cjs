@@ -1,6 +1,9 @@
 const {test,expect}=require('@playwright/test');
 const url='https://cmrknyhnnehyjpreehcf.supabase.co/functions/v1/imperion-register';
-const example={event_id:'PUB-HIKE-20261101',title:'BrnoWalkers: Hády – Růženin lom – Obřany',community:'BrnoWalkers',category:'Hike',begins_at:'2026-11-01T11:45:00Z',ends_at:'2026-11-01T15:15:00Z',venue:'Velká Klajdovka, Brno',price_czk:0,data_controller:'Družina Moravy, z. s.',rules_url:'https://aliaksei-chareshneu.github.io/alchareshneu/register/safety/',contact_activity:false,is_open:true,registration_mode:'FORM',price_verified:true,end_time_verified:true};
+// Synthetic open-event fixture must remain in the future so tests do not expire after 1 Nov 2026.
+const fixtureStart=new Date(Date.now()+14*24*60*60*1000).toISOString();
+const fixtureEnd=new Date(Date.parse(fixtureStart)+210*60*1000).toISOString();
+const example={event_id:'PUB-HIKE-20261101',title:'BrnoWalkers: Hády – Růženin lom – Obřany',community:'BrnoWalkers',category:'Hike',begins_at:fixtureStart,ends_at:fixtureEnd,venue:'Velká Klajdovka, Brno',price_czk:0,data_controller:'Družina Moravy, z. s.',rules_url:'https://aliaksei-chareshneu.github.io/alchareshneu/register/safety/',contact_activity:false,is_open:true,registration_mode:'FORM',price_verified:true,end_time_verified:true};
 function cors(){return {'access-control-allow-origin':'http://127.0.0.1:8000','access-control-allow-headers':'content-type','access-control-allow-methods':'GET, POST, OPTIONS'};}
 test('public registration sends one private request with independent consents',async({page})=>{
   let submitted=null;
