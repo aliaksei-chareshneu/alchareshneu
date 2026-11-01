@@ -9,7 +9,7 @@ test.describe("Brno iD parental voucher education offer",()=>{
     await expect(page.getByRole("heading",{level:1})).toContainText("Rodičovské vouchery");
     await expect(page.locator("#lead")).toContainText("20 %");
     await expect(page.locator("#dates")).toContainText("30. listopadu");
-    await expect(page.locator("#math")).toContainText("2 520 Kč");
+    await expect(page.locator("#math")).toContainText(/2[ ,]520 Kč/);
     await expect(page.locator("#cta")).toHaveAttribute("href",/docs\.google\.com\/forms/);
     await expect(page.locator("#official")).toHaveAttribute("href","https://www.brnoid.cz/cs/rodicovske-vouchery");
     await expect(page.locator("#directory")).toHaveAttribute("href","https://www.brnoid.cz/cs/rv-info");
@@ -25,7 +25,7 @@ test.describe("Brno iD parental voucher education offer",()=>{
       await page.locator('[data-lang="'+lang+'"]').click();
       await expect(page.getByRole("heading",{level:1})).toContainText(title);
       await expect(page.locator("#dates")).toContainText(deadline);
-      await expect(page.locator("#math")).toContainText("2 520 Kč");
+      await expect(page.locator("#math")).toContainText(/2[ ,]520 Kč/);
       await expect(page.locator("#warning")).toContainText("Družina Moravy z. s.");
       await expect(page.locator('[data-lang="'+lang+'"]')).toHaveAttribute("aria-pressed","true");
     }
