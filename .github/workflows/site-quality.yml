@@ -157,5 +157,5 @@ jobs:
           node-version: '22'
       - name: Test agent and GitHub provider readback logic offline
         run: |
-          node --test tests/imperion-agent-team.test.cjs tests/imperion-agent-snapshot.test.cjs tests/imperion-proof-auditor.test.cjs
+          node --test tests/imperion-agent-team.test.cjs tests/imperion-agent-snapshot.test.cjs tests/imperion-proof-auditor.test.cjs tests/imperion-closed-loop-audit.test.cjs
           node ops/imperion-agent-team.cjs --input ops/imperion-agent-team-synthetic.json > /dev/null
