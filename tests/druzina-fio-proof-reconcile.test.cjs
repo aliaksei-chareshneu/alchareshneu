@@ -19,7 +19,11 @@ function setup(){
   Venue_Permission_Verified:'VERIFIED',Instructor_Verified:'VERIFIED',
   Activity_Insurance_Verified:'VERIFIED',Equipment_Check:'VERIFIED',
   Participant_Safety_Form_Valid:'VERIFIED',Guardian_Gate_If_Minors:'VERIFIED',
-  BOOKABLE_TRAINING_PAX_FAIL_CLOSED_FORMULA:4,Publish_Confirmed_Only:'YES'};
+  BOOKABLE_TRAINING_PAX_FAIL_CLOSED_FORMULA:4,Publish_Confirmed_Only:'YES',
+  Newcomer_Ready:'YES',Evidence_Source:'signed date-specific evidence',
+  Reviewer_and_proof_of_100_TOTAL_not_ready:'reviewed 100 total humans',
+  Max_Attendance_Checked:20,Staff_And_Marshals_Count:3,
+  Other_Humans_Count_Parents_Spectators:2};
  const data={payments:[payment],quotes:[quote],bookings:[b],
   Druzina_Training_Capacity_Gate:[gate]};
  const flags={DRU_FIO_READONLY_CONFIRMED:'YES',DRU_FIO_SETTLEMENT_SELLER_CONFIRMED:'YES',
