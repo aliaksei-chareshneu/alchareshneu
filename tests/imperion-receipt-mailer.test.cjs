@@ -78,6 +78,33 @@ test('transactional receipt optionally includes one correct channel, without con
  assert.ok(!declined.body.includes('https://t.me/pochody_brno_news'));
 });
 
+test('chat access requires verified visits, matching controller and opt-in',()=>{
+ const a=new Function(source+';return {impChatBrand_,impVerifiedChatVisits_,impChatAlreadyInvited_,impPickCommunityChat_,impAttendeeThankYou_};')();
+ assert.equal(a.impChatBrand_('Družina Moravy'),'DM');
+ assert.equal(a.impChatBrand_('Brnowalkers'),'BW');
+ const keys=['Email','First_Name','Last_Name','Data_Controller','Age','Source_Channel','Check_In_At','RSVP_Status','Event_ID','Community_Chat_Invite_Sent_At'];
+ const m=Object.fromEntries(keys.map((k,i)=>[k,i]));
+ const base={Email:'test@example.invalid',First_Name:'Anna',Last_Name:'Example',Data_Controller:'Družina Moravy, z. s.',
+  Age:'adult',Source_Channel:'WEBSITE_RSVP_SUPABASE_UNCONFIRMED',Check_In_At:'01.11.2026',RSVP_Status:'REGISTERED',Event_ID:'a',Community_Chat_Invite_Sent_At:''};
+ const row=changes=>keys.map(k=>Object.hasOwn(changes,k)?changes[k]:base[k]);
+ const e={a:{brand:'DM',controller:'Družina Moravy, z. s.'},b:{brand:'DM',controller:'Družina Moravy, z. s.'},c:{brand:'BW',controller:'Družina Moravy, z. s.'}};
+ const r=row({}),r2=row({Event_ID:'b'});
+ assert.equal(a.impVerifiedChatVisits_([r],m,e,r,'DM'),1);
+ assert.equal(a.impVerifiedChatVisits_([r,r2],m,e,r,'DM'),2);
+ assert.equal(a.impVerifiedChatVisits_([row({Check_In_At:''})],m,e,r,'DM'),0);
+ assert.equal(a.impVerifiedChatVisits_([row({First_Name:'Other'})],m,e,r,'DM'),0);
+ assert.equal(a.impVerifiedChatVisits_([row({Age:'under18'})],m,e,r,'DM'),0);
+ assert.equal(a.impVerifiedChatVisits_([row({RSVP_Status:'DECLINED'})],m,e,r,'DM'),0);
+ assert.equal(a.impChatAlreadyInvited_([row({Community_Chat_Invite_Sent_At:'02.11.2026'})],m,e,r,'DM'),true);
+ assert.equal(a.impPickCommunityChat_({COMMUNITY_CHAT_DM_TELEGRAM:'https://t.me/examplechat'},'DM','ru').platform,'TELEGRAM');
+ assert.equal(a.impPickCommunityChat_({COMMUNITY_CHAT_BW_WHATSAPP:'https://chat.whatsapp.com/abcdefghijklmnopqrstuv'},'BW','cs').platform,'WHATSAPP');
+ assert.equal(a.impPickCommunityChat_({},'DM','de'),null);
+ const msg=a.impAttendeeThankYou_(['ru','CONFIRMED'],{Registration_Locale:0,Marketing_Consent:1},
+  {title:'Test',category:'HEMA',community:'Družina Moravy'}, {getProperty:()=>''},{url:'https://t.me/examplechat'});
+ assert.ok(msg.body.includes('https://t.me/examplechat'));
+ assert.match(source,/String\(row\[m.Marketing_Consent\]/);
+});
+
 test('retries mail outage without creating a second CRM or a confirmed booking',()=>{
  const h=harness(),state=()=>h.rows[1][h.keys.indexOf('Receipt_Status')];
  assert.deepEqual(h.api.impSendReceiptQueue_(h.db,{email:'owner@example.invalid'}),{sent:0,failed:1});
