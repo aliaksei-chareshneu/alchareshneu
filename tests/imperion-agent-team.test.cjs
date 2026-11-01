@@ -129,6 +129,57 @@ test('live Hub action status and Owner_Approval are recognized without inventing
   x.data.Revenue_Actions[0].Action_Status='CLOSED_NO_MORE_FOLLOWUP';
   assert.equal(A.sales(x).candidates_total,0);
 });
+test('commercial queue excludes explicit QA synthetic rows from totals and action candidates',()=>{
+  const x=sample();
+  x.data.Revenue_Actions=[
+    {Lead_ID:'REAL-1',Stage:'Warm',Expected_CZK:15000},
+    {Lead_ID:'QA-1',Stage:'Warm',Action_Status:'QA_SYNTHETIC_EXCLUDE_FROM_SALES_NO_ORDER_NO_CASH',Expected_CZK:90000},
+    {Lead_ID:'FIXTURE-2',Stage:'Warm',Source:'TEST_FIXTURE',Expected_CZK:120000}
+  ];
+  const out=A.sales(x);
+  assert.equal(out.source_rows,3);
+  assert.equal(out.qa_only_excluded,2);
+  assert.equal(out.candidates_total,1);
+  assert.equal(out.candidates[0].id,'REAL-1');
+  assert.equal(out.outbound_sent,0);
+  assert.equal(out.cleared_cash,'NOT_CHECKED');
+});
+test('real opt-out blocks every repeated action with same Lead_ID even without email',()=>{
+  const x=sample();
+  x.data.Revenue_Actions=[
+    {Lead_ID:'SAME-1',Stage:'Warm',Expected_CZK:18000},
+    {Lead_ID:'SAME-1',Stage:'Do_Not_Contact',Expected_CZK:25000},
+    {Lead_ID:'OTHER-2',Stage:'Warm',Expected_CZK:3000}
+  ];
+  const out=A.sales(x);
+  assert.equal(out.closed_or_opted_out,2);
+  assert.equal(out.candidates_total,1);
+  assert.equal(out.candidates[0].id,'OTHER-2');
+});
+test('synthetic QA fixture is excluded but cannot poison real contact stop-list',()=>{
+  const x=sample();
+  x.data.Revenue_Actions=[
+    {Lead_ID:'REAL-A',Stage:'Warm',Email:'buyer@example.invalid',Expected_CZK:4000},
+    {Lead_ID:'QA-ALIAS',Stage:'Lost',Email:'buyer@example.invalid',
+      Source:'QA_SYNTHETIC',Opt_Out:true,Expected_CZK:100000}
+  ];
+  const out=A.sales(x);
+  assert.equal(out.qa_only_excluded,1);
+  assert.equal(out.closed_or_opted_out,0);
+  assert.equal(out.candidates_total,1);
+  assert.equal(out.candidates[0].id,'REAL-A');
+});
+test('non QA real STOP action blocks all rows for that Lead_ID',()=>{
+  const x=sample();
+  x.data.Revenue_Actions=[
+    {Lead_ID:'REAL-B',Stage:'Warm',Action_Status:'OPEN'},
+    {Lead_ID:'REAL-B',Stage:'Warm',Action_Status:'STOP_NO_CONTACT'}
+  ];
+  const out=A.sales(x);
+  assert.equal(out.qa_only_excluded,0);
+  assert.equal(out.closed_or_opted_out,2);
+  assert.equal(out.candidates_total,0);
+});
 test('seo audits existing files without publication or external crawl',()=>{
   const dir=fs.mkdtempSync(path.join(os.tmpdir(),'imperion-seo-'));
   try{
