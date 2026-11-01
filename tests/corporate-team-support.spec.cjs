@@ -24,7 +24,7 @@ test.describe("Corporate monthly team support from existing product",()=>{
   test("request uses existing backend category without selling or taking payment",async({page})=>{
     await page.goto("/corporate/request/?lang=cs&service=AI_WORKSHOP&src=ai_team_support_9900");
     await expect(page.locator("#offer")).toHaveValue("AI_WORKSHOP");
-    await expect(page.locator("#svc1")).toContainText("monthly team support");
+    await expect(page.locator("#svc1")).toContainText("měsíční podpora týmu");
     await expect(page.locator('form select option[value="AI_TEAM_SUPPORT"]')).toHaveCount(0);
     await expect(page.locator("button[type=submit]")).toBeVisible();
   });
