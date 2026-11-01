@@ -238,6 +238,30 @@ function impReceiptAttachEventGroups_(ss,events){
   return events;
 }
 
+/**
+ * Optional community announcements after accepted adult RSVPs, never private
+ * participant chats or marketing opt-ins. Existing event-specific logistics
+ * invitations remain separate.
+ */
+function impCommunityInvite_(community,locale,age,status){
+ if(!/^adult$/i.test(String(age))||['REGISTERED','MAYBE'].indexOf(String(status).toUpperCase())<0)return null;
+ if(['cs','en','ru','uk'].indexOf(locale)<0)return null;
+ var name=String(community||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+ var dm=name.indexOf('druzina moravy')!==-1,bw=name.indexOf('brnowalkers')!==-1;
+ if(dm===bw)return null;
+ var telegram=locale==='ru'||locale==='uk';
+ var url=dm?
+  (telegram?'https://t.me/druzinamoravy_news':'https://chat.whatsapp.com/DuTpgF22mxMFy6L1Cfrcvu'):
+  (telegram?'https://t.me/pochody_brno_news':'https://chat.whatsapp.com/BSlQetCjMoL8IO45c6VnH0');
+ var copy={
+  cs:['Dobrovolné novinky komunity','Připojení je dobrovolné. Členové WhatsApp skupiny mohou vidět vaše telefonní číslo. Účast ještě není potvrzená.'],
+  en:['Optional community updates','Joining is voluntary. WhatsApp group members may see your phone number. Your attendance is not confirmed.'],
+  ru:['Новости сообщества по желанию','Вступление добровольное. Проверьте настройки приватности Telegram. Заявка ещё не подтверждает участие.'],
+  uk:['Новини спільноти за бажанням','Долучення добровільне. Перевірте налаштування приватності Telegram. Реєстрація ще не підтверджує участі.']
+ }[locale];
+ return {url:url,heading:copy[0]+' ('+(dm?'Družina Moravy':'BrnoWalkers')+', '+(telegram?'Telegram':'WhatsApp')+'):',note:copy[1]};
+}
+
 function impReceiptMessage_(kind,row,m,events){
  function v(n){return m[n]===undefined?'':String(row[m[n]]||'').trim().slice(0,300);}
  var id='',email=v('Email'),label='',lang=v('Receipt_Locale')||'cs',w=impReceiptWords_(lang);
@@ -278,6 +302,8 @@ function impReceiptMessage_(kind,row,m,events){
     var words=copy[lang]||copy.cs;
     parts.push('',words[0]+' '+group,words[1]);
   }
+  var communityInvite=impCommunityInvite_(e&&e.community,lang,v('Age'),v('RSVP_Status'));
+  if(communityInvite)parts.push('',communityInvite.heading,communityInvite.url,communityInvite.note);
   sender=v('Data_Controller').includes('Aliaksei Chareshneu')?'Aliaksei Chareshneu (OSVČ)':'Družina Moravy';
   parts.push(w[8]);
  }else if(kind==='TRAINING'){
