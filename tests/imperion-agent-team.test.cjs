@@ -236,3 +236,56 @@ test('rejects oversize batch rather than hanging',()=>{
   const x=sample();x.data.Leads=Array.from({length:4001},()=>({}));
   assert.throws(()=>A.validSnapshot(x),/INVALID_LEADS_ROWS/);
 });
+
+
+test('optional private closed-loop aggregate is source-only, not bank proof',()=>{
+  const x=sample();
+  assert.equal(A.closedLoop(x).state,'SOURCE_NOT_ATTACHED');
+  x.control_audit={
+    schema_version:1,mode:'READ_ONLY_PRIVATE_OWNER_AUDIT',
+    source:'EXISTING_IMPERION_COMMUNITY_HUB',checked_at:at,
+    counts:{bookings_total:0,booking_confirmed_claims:0,payments_total:2,
+      payment_partial_claims:2,payment_verified_claims_unverified_by_provider:0,
+      quotes_total:0,agent_jobs_total:3,agent_completed_claims:1,
+      completed_claims_without_stored_receipt:1,open_exceptions:21,
+      private_personal_name:'SHOULD_NOT_LEAK'},
+    hard_gates_unverified:['D18','D26'],
+    bank_readback:'NOT_PERFORMED',booking_provider_readback:'NOT_PERFORMED',
+    bank_verified_receipts:0,provider_verified_bookings:0,
+    provider_verified_agent_completion:0,paid_checkout_release_allowed:false,
+    published_or_sent_or_charged:0,new_triggers_or_records:0
+  };
+  const r=A.closedLoop(x);
+  assert.equal(r.state,'PRIVATE_CRM_CLAIMS_REVIEWED');
+  assert.equal(r.counts.payment_partial_claims,2);
+  assert.equal(r.outstanding_release_gates,2);
+  assert.equal(r.bank_verified,false);
+  assert.equal(r.paid_checkout_allowed,false);
+  assert.equal(r.provider_readback,'NOT_PERFORMED');
+  assert.doesNotMatch(JSON.stringify(r),/SHOULD_NOT_LEAK/);
+});
+test('forged paid, sent, provider or impossible counters fail closed',()=>{
+  const x=sample();
+  x.control_audit={
+    schema_version:1,mode:'READ_ONLY_PRIVATE_OWNER_AUDIT',
+    source:'EXISTING_IMPERION_COMMUNITY_HUB',checked_at:at,
+    counts:{bookings_total:0,booking_confirmed_claims:0,payments_total:0,
+      payment_partial_claims:0,payment_verified_claims_unverified_by_provider:0,
+      quotes_total:0,agent_jobs_total:0,agent_completed_claims:0,
+      completed_claims_without_stored_receipt:0,open_exceptions:0},
+    hard_gates_unverified:[],
+    bank_readback:'NOT_PERFORMED',booking_provider_readback:'NOT_PERFORMED',
+    bank_verified_receipts:0,provider_verified_bookings:0,
+    provider_verified_agent_completion:0,paid_checkout_release_allowed:false,
+    published_or_sent_or_charged:0,new_triggers_or_records:0
+  };
+  assert.equal(A.closedLoop(x).state,'PRIVATE_CRM_CLAIMS_REVIEWED');
+  for(const change of [{paid_checkout_release_allowed:true},{bank_verified_receipts:1},
+    {bank_readback:'PROVIDER_SUCCEEDED'},{published_or_sent_or_charged:1},
+    {counts:{...x.control_audit.counts,payments_total:-1}},
+    {checked_at:'2026-11-01'},{hard_gates_unverified:['D18','secret']}]) {
+    const bad={...x,control_audit:{...x.control_audit,...change}};
+    assert.equal(A.closedLoop(bad).state,'INVALID_OR_UNSAFE_SOURCE_AUDIT');
+    assert.equal(A.closedLoop(bad).paid_checkout_allowed,false);
+  }
+});
