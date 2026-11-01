@@ -489,14 +489,20 @@ function impSendAttendedFollowups_(ss,cfg){
   if(em[k]===undefined)throw Error('Missing Events.'+k);
  });
  ['Email','Event_ID','Source_Channel','Age','Check_In_At','RSVP_Status','Data_Controller',
-  'Registration_Locale','Marketing_Consent','Event_Followup_Status',
+  'Registration_Locale','Marketing_Consent','First_Name','Last_Name','Community_Chat_Invite_Sent_At','Event_Followup_Status',
   'Event_Followup_Attempts','Event_Followup_Sent_At'].forEach(function(k){
   if(m[k]===undefined)throw Error('Missing Registrations.'+k);
  });
- var now=Date.now(),byId={};
+ var now=Date.now(),byId={},allChatEvents={},chatConfig=impCommunityChatConfig_(ss);
  var evs=eventSheet.getDataRange().getValues();
  evs.slice(1).forEach(function(r){
   var id=String(r[em.Event_ID]||''),end=impEventEnd_(r[em.End_DateTime]);
+  var eventStatus=String(r[em.Status]||'');
+  if(id&&isFinite(end.getTime())&&end.getTime()<=now &&
+    ['Active','Completed','Archived'].indexOf(eventStatus)>=0){
+   allChatEvents[id]={brand:impChatBrand_(r[em.Community]),
+    controller:String(r[em.Data_Controller]||'').trim()};
+  }
   if(!id||!isFinite(end.getTime())||end.getTime()+18*3600000>now
     ||end.getTime()+14*86400000<now)return;
   if(['Active','Completed','Archived'].indexOf(String(r[em.Status]))<0)return;
@@ -521,9 +527,17 @@ function impSendAttendedFollowups_(ss,cfg){
   if(state&&state!=='RETRY')return; // exactly one follow-up per canonical row
   var attempts=Number(row[m.Event_Followup_Attempts]||0);
   if(attempts>=3){sh.getRange(i+2,m.Event_Followup_Status+1).setValue('FAILED_REVIEW');return;}
-  var msg=impAttendeeThankYou_(row,m,event,p);
+  var brand=impChatBrand_(event.community),chatInvite=null;
+  if(String(row[m.Marketing_Consent]||'').toUpperCase()==='CONFIRMED' &&
+     (brand==='DM'||brand==='BW') &&
+     !impChatAlreadyInvited_(rows,m,allChatEvents,row,brand) &&
+     impVerifiedChatVisits_(rows,m,allChatEvents,row,brand)>=(brand==='DM'?2:1)){
+   chatInvite=impPickCommunityChat_(chatConfig,brand,String(row[m.Registration_Locale]||'cs'));
+  }
+  var msg=impAttendeeThankYou_(row,m,event,p,chatInvite);
   try{
    MailApp.sendEmail({to:email,subject:msg.subject,body:msg.body,name:msg.sender,replyTo:cfg.email});
+   if(chatInvite)sh.getRange(i+2,m.Community_Chat_Invite_Sent_At+1).setValue(new Date());
    sh.getRange(i+2,m.Event_Followup_Sent_At+1).setValue(new Date());
    sh.getRange(i+2,m.Event_Followup_Status+1).setValue('SENT_TO_PROVIDER');
    sent++;
