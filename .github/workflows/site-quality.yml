@@ -91,6 +91,10 @@ jobs:
           node --test tests/imperion-intake-bridge-source.test.cjs
           node --test tests/imperion-receipt-mailer.test.cjs
 
+
+      - name: Check four-language information channels and gated chats
+        run: node --test tests/imperion-community-routing.test.cjs
+
       - name: Verify Apps Script universal registration and retention isolation
         run: node tests/universal-rsvp.test.cjs
 

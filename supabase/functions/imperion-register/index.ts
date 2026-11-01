@@ -72,6 +72,39 @@ async function allow(label: string, raw: string, max: number): Promise<boolean> 
   return data === true;
 }
 const INVITE_LINK = /^https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]{22}$/;
+
+// Canonical community announcement links (Drive 00 READ FIRST, checked 2026-11-01).
+// Chat invitation links are NEVER returned by an anonymous registration endpoint.
+const COMMUNITY_UPDATES = {
+  druzina: {
+    whatsapp: 'https://chat.whatsapp.com/DuTpgF22mxMFy6L1Cfrcvu',
+    telegram: 'https://t.me/druzinamoravy_news',
+  },
+  brnowalkers: {
+    whatsapp: 'https://chat.whatsapp.com/BSlQetCjMoL8IO45c6VnH0',
+    telegram: 'https://t.me/pochody_brno_news',
+  },
+} as const;
+const TG_PUBLIC_LINK = /^https:\/\/t\.me\/[A-Za-z0-9_]{5,32}$/;
+function communityChannels(community: string, locale: string, age: string, rsvp: string) {
+  // A submitted RSVP is NOT attendance/booking confirmation or marketing opt-in.
+  if (age !== 'adult' || rsvp === 'NO') return null;
+  const name = community.normalize('NFKC').trim().toLowerCase();
+  const key = name === 'družina moravy' || name === 'druzina moravy'
+    ? 'druzina'
+    : name === 'brnowalkers' || name === 'brnowalkers / osvč'
+      ? 'brnowalkers' : null;
+  if (!key) return null; // Never mix organizers or guess from an event category.
+  const platform = locale === 'cs' || locale === 'en' ? 'whatsapp'
+    : locale === 'ru' || locale === 'uk' ? 'telegram' : null;
+  if (!platform) return null;
+  return {
+    platform,
+    informationUrl: COMMUNITY_UPDATES[key][platform],
+    chatAccess: key === 'druzina' ? 'AFTER_ATTENDANCE_AND_NEXT_TRAINING_PAYMENT' : 'AFTER_ATTENDANCE',
+  };
+}
+
 const EVENT_COLS='event_id,title,community,category,begins_at,ends_at,venue,price_czk,data_controller,rules_url,contact_activity,is_open,registration_mode,action_url,public_note,price_verified,end_time_verified,source_active';
 
 Deno.serve(async (req:Request):Promise<Response>=>{
@@ -215,10 +248,15 @@ Deno.serve(async (req:Request):Promise<Response>=>{
   }
   // Event-specific logistics only, never marketing; intentionally excluded from
   // the anonymous GET catalog. Minors do not receive a public group invite.
-  const invite = v.age==='adult' && v.rsvp!=='NO' &&
-    typeof event.updates_group_url==='string' &&
-    INVITE_LINK.test(event.updates_group_url) ? event.updates_group_url : null;
+  const channels = communityChannels(String(event.community||''), v.locale, v.age, v.rsvp);
+  const rawEventGroup = typeof event.updates_group_url === 'string' ? event.updates_group_url : '';
+  // Event-specific logistics invitations remain POST-only and must match locale.
+  const invite = channels && (
+    (channels.platform === 'whatsapp' && INVITE_LINK.test(rawEventGroup)) ||
+    (channels.platform === 'telegram' && TG_PUBLIC_LINK.test(rawEventGroup))
+  ) ? rawEventGroup : null;
   return reply({ok:true,status:'RECEIVED',confirmed:false,
+    ...(channels ? {communityChannels:channels} : {}),
     ...(invite ? {updatesGroupUrl:invite} : {}),
     message:'Your RSVP request was received; the organizer must confirm participation separately.'},200,origin);
 });

@@ -301,47 +301,47 @@ function receiptContacts(el,eventData,body,payload){
   actions.append(a);
  }
  el.append(actions);
- const invite=String(payload?.updatesGroupUrl||'');
- const eventInvite=body.ageGroup==='adult' && body.rsvp!=='NO' &&
-  /^https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]{22}$/.test(invite);
- if(eventInvite){
-  const copy={
-   cs:['WhatsApp skupina pro aktuální informace k této akci:',
-       'Připojit se ke skupině pro tuto akci',
-       'Připojení je dobrovolné. Ostatní členové mohou vidět vaše telefonní číslo. Účast ještě není potvrzená. Pokud nechcete do skupiny, odpovězte na potvrzovací e-mail.'],
-   en:['WhatsApp group for updates about this event:',
-       'Join the event WhatsApp group',
-       'Joining is optional. Other members may see your phone number. Attendance is not confirmed yet. If you prefer email updates, reply to the registration email.'],
-   ru:['WhatsApp-группа для изменений и новостей об этом мероприятии:',
-       'Вступить в группу мероприятия',
-       'Вступление добровольное. Другие участники могут видеть ваш номер телефона. Участие пока не подтверждено. Если удобнее получать новости по почте, ответьте на письмо о регистрации.'],
-   uk:['WhatsApp-група для змін та новин щодо цієї події:',
-       'Приєднатися до групи події',
-       'Вступ добровільний. Інші учасники можуть бачити ваш номер телефону. Участь ще не підтверджено. Для оновлень електронною поштою дайте відповідь на лист реєстрації.']
-  }[lang]||[];
-  const section=document.createElement('section');
-  section.className='event-updates-group';
-  const title=document.createElement('p'),bold=document.createElement('strong');
-  bold.textContent=copy[0];title.append(bold);
-  const line=document.createElement('p'),join=document.createElement('a');
-  join.href=invite;join.target='_blank';join.rel='noopener noreferrer';
-  join.textContent=copy[1];join.className='button';
-  join.style.cssText='display:inline-flex;align-items:center;padding:10px 16px;min-height:44px;width:auto;text-decoration:none';
-  line.append(join);
-  const note=document.createElement('p');note.textContent=copy[2];
-  section.append(title,line,note);el.append(section);
+ const cp={
+  cs:{news:'Novinky komunity',event:'Aktualizace k této akci',chatWalk:'Diskusní chat: pozvánku lze zaslat po ověřené účasti na akci.',chatDruzina:'Diskusní chat: pozvánku lze zaslat až po účasti na úvodním tréninku a ověřené platbě za další trénink.',privacyWa:'Vstup je dobrovolný; ostatní členové WhatsApp skupiny mohou vidět vaše telefonní číslo.',privacyTg:'Vstup je dobrovolný; ostatní členové Telegramu mohou vidět váš profil a zprávy podle nastavení soukromí.'},
+  en:{news:'Community announcements',event:'Updates about this event',chatWalk:'Discussion chat: an invitation can follow verified event attendance.',chatDruzina:'Discussion chat: an invitation can follow an introductory training and verified payment for the next training.',privacyWa:'Joining is optional. WhatsApp group members may see your phone number.',privacyTg:'Joining is optional. Telegram members may see your profile and messages depending on your privacy settings.'},
+  ru:{news:'Новости сообщества',event:'Обновления по этому мероприятию',chatWalk:'Чат: приглашение можно получить после подтверждённого посещения мероприятия.',chatDruzina:'Чат: приглашение можно получить после вводной тренировки и подтверждённой оплаты следующей.',privacyWa:'Вступление добровольное. Участники WhatsApp могут видеть ваш номер телефона.',privacyTg:'Вступление добровольное. Участники Telegram могут видеть ваш профиль и сообщения в зависимости от настроек приватности.'},
+  uk:{news:'Новини спільноти',event:'Оновлення щодо цієї події',chatWalk:'Чат: запрошення можна отримати після підтвердженого відвідування заходу.',chatDruzina:'Чат: запрошення можна отримати після вступного тренування й підтвердженої оплати наступного.',privacyWa:'Вступ добровільний. Учасники WhatsApp можуть бачити ваш номер телефону.',privacyTg:'Вступ добровільний. Учасники Telegram можуть бачити ваш профіль і повідомлення відповідно до налаштувань приватності.'}
+ }[lang]||{};
+ const platform=lang==='cs'||lang==='en'?'whatsapp':'telegram';
+ const adult=body.ageGroup==='adult' && body.rsvp!=='NO';
+ const channels=payload?.communityChannels;
+ const validChannelUrl=(url)=>typeof url==='string' && (platform==='whatsapp'
+   ? /^https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]{22}$/.test(url)
+   : /^https:\/\/t\.me\/[A-Za-z0-9_]{5,32}$/.test(url));
+ const infoUrl=adult && channels?.platform===platform && validChannelUrl(channels?.informationUrl)
+   ? channels.informationUrl : null;
+ const privacy=platform==='whatsapp'?cp.privacyWa:cp.privacyTg;
+ if(infoUrl){
+   const section=document.createElement('section');section.className='event-updates-group';
+   const info=document.createElement('p'),link=document.createElement('a');
+   link.href=infoUrl;link.target='_blank';link.rel='noopener noreferrer';
+   link.textContent=cp.news+' · '+(platform==='whatsapp'?'WhatsApp':'Telegram');
+   info.append(link);section.append(info);
+   const note=document.createElement('p');note.textContent=privacy;section.append(note);
+   if(channels.chatAccess==='AFTER_ATTENDANCE' ||
+      channels.chatAccess==='AFTER_ATTENDANCE_AND_NEXT_TRAINING_PAYMENT'){
+     const chat=document.createElement('p');
+     chat.textContent=channels.chatAccess==='AFTER_ATTENDANCE_AND_NEXT_TRAINING_PAYMENT'
+       ? cp.chatDruzina : cp.chatWalk;
+     section.append(chat);
+   }
+   el.append(section);
  }
- const isDruzina=/družina|druzina/i.test(String(eventData?.community||''));
- const news=document.createElement('p'),newsLink=document.createElement('a');
- newsLink.href=isDruzina?'https://t.me/druzinamoravy_news':'https://t.me/pochody_brno_news';
- newsLink.target='_blank';newsLink.rel='noopener noreferrer';newsLink.textContent=d.community;
- news.append(newsLink);el.append(news);
- if(!eventInvite){
- const group=document.createElement('p'),groupLink=document.createElement('a');
- groupLink.href=isDruzina?'https://chat.whatsapp.com/DuTpgF22mxMFy6L1Cfrcvu':'https://chat.whatsapp.com/JCyEJNm746nBXNll3VzzX3';
- groupLink.target='_blank';groupLink.rel='noopener noreferrer';
- groupLink.textContent=isDruzina?d.announcements:d.group;
- group.append(groupLink);el.append(group);
+ const invite=String(payload?.updatesGroupUrl||'');
+ const eventInvite=adult && validChannelUrl(invite);
+ if(eventInvite && invite!==infoUrl){
+   const eventSection=document.createElement('section');eventSection.className='event-updates-group';
+   const p=document.createElement('p'),link=document.createElement('a');
+   link.href=invite;link.target='_blank';link.rel='noopener noreferrer';
+   link.textContent=cp.event+' · '+(platform==='whatsapp'?'WhatsApp':'Telegram');
+   p.append(link);eventSection.append(p);
+   const note=document.createElement('p');note.textContent=privacy;eventSection.append(note);
+   el.append(eventSection);
  }
 }
 function showReceipt(eventData,body,payload){

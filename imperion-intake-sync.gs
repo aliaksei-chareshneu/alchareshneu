@@ -238,6 +238,31 @@ function impReceiptAttachEventGroups_(ss,events){
   return events;
 }
 
+/** These routes are informational by default. The separate discussion chats are
+ * restricted and may only be sent by impSendApprovedChatInvites_ after operator approval.
+ * Canonical Drive links checked on 2026-11-01; no new CRM or mailing list.
+ */
+function impCommunityRoute_(community,lang){
+ var name=String(community||'').normalize('NFKC').trim().toLowerCase();
+ var key=name==='družina moravy'||name==='druzina moravy'?'druzina':
+   name==='brnowalkers'||name==='brnowalkers / osvč'?'brnowalkers':null;
+ if(!key||['cs','en','ru','uk'].indexOf(lang)<0)return null;
+ var platform=lang==='cs'||lang==='en'?'whatsapp':'telegram';
+ var links={
+  druzina:{
+   whatsapp:{news:'https://chat.whatsapp.com/DuTpgF22mxMFy6L1Cfrcvu',chatProperty:'IMPERION_CHAT_DRUZINA_WA'},
+   telegram:{news:'https://t.me/druzinamoravy_news',chatProperty:'IMPERION_CHAT_DRUZINA_TG'}},
+  brnowalkers:{
+   whatsapp:{news:'https://chat.whatsapp.com/BSlQetCjMoL8IO45c6VnH0',chatProperty:'IMPERION_CHAT_BRNOWALKERS_WA'},
+   telegram:{news:'https://t.me/pochody_brno_news',chatProperty:'IMPERION_CHAT_BRNOWALKERS_TG'}}
+ };
+ var route=links[key][platform];
+ var valid=platform==='whatsapp'?/^https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]{22}$/:
+   /^https:\/\/t\.me\/[A-Za-z0-9_]{5,32}$/;
+ if(!valid.test(route.news))return null;
+ return {community:key,platform:platform,news:route.news,chatProperty:route.chatProperty};
+}
+
 function impReceiptMessage_(kind,row,m,events){
  function v(n){return m[n]===undefined?'':String(row[m[n]]||'').trim().slice(0,300);}
  var id='',email=v('Email'),label='',lang=v('Receipt_Locale')||'cs',w=impReceiptWords_(lang);
@@ -263,7 +288,8 @@ function impReceiptMessage_(kind,row,m,events){
   // A WhatsApp invitation is event logistics, not marketing consent or
   // confirmation of a place. Do not invite a minor or a declined RSVP.
   var group=e&&String(e.updates_group_url||'').trim();
-  if(/^https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]{22}$/.test(group)&&
+  if((lang==='cs'||lang==='en')&&
+     /^https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]{22}$/.test(group)&&
      /^adult$/i.test(v('Age'))&&v('RSVP_Status')!=='DECLINED'){
     var copy={
      cs:['WhatsApp skupina pouze pro aktualizace k této akci:',
@@ -277,6 +303,21 @@ function impReceiptMessage_(kind,row,m,events){
     };
     var words=copy[lang]||copy.cs;
     parts.push('',words[0]+' '+group,words[1]);
+  }
+  // A link to a voluntary information channel is NOT a subscription or approved booking.
+  // Never offer community membership links to minors or declined applications.
+  if(/^adult$/i.test(v('Age'))&&v('RSVP_Status')!=='DECLINED'){
+    var route=impCommunityRoute_(e&&e.community,lang);
+    if(route){
+      var communityText={
+       cs:['Novinky komunity (dobrovolně):','Členové WhatsApp skupiny mohou vidět vaše telefonní číslo.','Členové Telegramu mohou vidět váš profil dle nastavení soukromí.','Diskusní chat se zpřístupňuje až po ověření účasti; u Družiny také po úhradě dalšího tréninku.'],
+       en:['Community announcements (optional):','WhatsApp group members may see your phone number.','Telegram members may see your profile depending on privacy settings.','The discussion chat requires verified attendance; Družina also requires payment for the next training.'],
+       ru:['Новости сообщества (добровольно):','Участники WhatsApp могут видеть ваш номер телефона.','Участники Telegram могут видеть ваш профиль в зависимости от настроек приватности.','Доступ в чат — после подтверждённого посещения, для Družina также после оплаты следующей тренировки.'],
+       uk:['Новини спільноти (добровільно):','Учасники WhatsApp можуть бачити ваш номер телефону.','Учасники Telegram можуть бачити ваш профіль відповідно до налаштувань приватності.','Доступ до чату — після підтвердженого відвідування, для Družina також після оплати наступного тренування.']
+      }[lang];
+      parts.push('',communityText[0]+' '+route.news,
+        route.platform==='whatsapp'?communityText[1]:communityText[2],communityText[3]);
+    }
   }
   sender=v('Data_Controller').includes('Aliaksei Chareshneu')?'Aliaksei Chareshneu (OSVČ)':'Družina Moravy';
   parts.push(w[8]);
@@ -670,11 +711,100 @@ function imperionSyncPrivateIntake(){
     impFlushOwnerDigest_(cfg,ss,events);
     var receipts=impSendReceiptQueue_(ss,cfg,events);
     var followups=impSendAttendedFollowups_(ss,cfg);
+    var chatInvites=impSendApprovedChatInvites_(ss,cfg);
     console.log('Private intake receipts: dispatched='+receipts.sent+', errors='+receipts.failed);
     console.log('Private intake: new RSVP='+addedR+', enquiries='+addedE+', corporate OSVC='+addedB+', acked='+processed);
-    return {newRsvps:addedR,newEnquiries:addedE,newB2B:addedB,acked:processed,receipts:receipts,followups:followups};
+    return {newRsvps:addedR,newEnquiries:addedE,newB2B:addedB,acked:processed,receipts:receipts,followups:followups,chatInvites:chatInvites};
   }finally{lock.releaseLock();}
 }
+
+/** Optional, separate, *approved* discussion-chat invite queue in canonical CRM.
+ * Disabled until IMPERION_CHAT_INVITES_LIVE=true. No RSVP alone can set the
+ * approval marker, and no chat URL is exposed to the public browser/API.
+ * Chat_Access_Approval must be set by an operator after checking evidence:
+ * BW = ATTENDED_VERIFIED; Družina = ATTENDED_AND_NEXT_TRAINING_PAID_VERIFIED.
+ */
+var IMP_CHAT_COLS=['Chat_Access_Approval','Chat_Invite_Status','Chat_Invite_Attempts','Chat_Invite_Sent_At'];
+function impEnsureChatCols_(sheet){
+ var h=impHeader_(sheet);
+ IMP_CHAT_COLS.forEach(function(name){
+  if(h.map[name]!==undefined)return;
+  var col=sheet.getLastColumn()+1;
+  if(col>sheet.getMaxColumns())sheet.insertColumnsAfter(sheet.getMaxColumns(),1);
+  sheet.getRange(1,col).setValue(name);h.map[name]=col-1;
+ });
+}
+function impSendApprovedChatInvites_(ss,cfg){
+ if(PropertiesService.getScriptProperties().getProperty('IMPERION_CHAT_INVITES_LIVE')!=='true')
+  return {sent:0,failed:0,disabled:true};
+ var regs=ss.getSheetByName('Registrations'),eventSheet=ss.getSheetByName('Events');
+ if(!regs||!eventSheet)throw Error('Canonical CRM tabs unavailable');
+ impEnsureChatCols_(regs);
+ var m=impHeader_(regs).map,em=impHeader_(eventSheet).map;
+ ['Email','Event_ID','Age','Check_In_At','RSVP_Status','Source_Channel',
+  'Registration_Locale','Data_Controller'].concat(IMP_CHAT_COLS).forEach(function(k){
+   if(m[k]===undefined)throw Error('Missing Registrations.'+k);
+ });
+ ['Event_ID','Community','Data_Controller','Status'].forEach(function(k){
+   if(em[k]===undefined)throw Error('Missing Events.'+k);
+ });
+ var byId={};
+ eventSheet.getDataRange().getDisplayValues().slice(1).forEach(function(row){
+  var id=String(row[em.Event_ID]||'').trim();
+  if(id&&!/cancel|zruš|withdraw/i.test(String(row[em.Status]||''))){
+   byId[id]={community:String(row[em.Community]||''),
+     controller:String(row[em.Data_Controller]||'').trim()};
+  }
+ });
+ var quota=Math.max(0,MailApp.getRemainingDailyQuota()-3),
+     max=Math.min(10,quota),sent=0,failed=0;
+ if(!max||regs.getLastRow()<2)return {sent:0,failed:0,quotaBlocked:!max};
+ var rows=regs.getRange(2,1,regs.getLastRow()-1,regs.getLastColumn()).getDisplayValues();
+ rows.forEach(function(row,i){
+  if(sent>=max)return;
+  var v=function(k){return String(row[m[k]]||'').trim();};
+  var ev=byId[v('Event_ID')];
+  if(!ev||!ev.controller||ev.controller!==v('Data_Controller')||
+     v('Source_Channel')!=='WEBSITE_RSVP_SUPABASE_UNCONFIRMED'||
+     !/^adult$/i.test(v('Age'))||!v('Check_In_At')||
+     /^(NO|DECLINED)$/i.test(v('RSVP_Status')))return;
+  var route=impCommunityRoute_(ev.community,v('Registration_Locale'));
+  if(!route)return;
+  var approval=route.community==='druzina'
+    ? 'ATTENDED_AND_NEXT_TRAINING_PAID_VERIFIED' : 'ATTENDED_VERIFIED';
+  if(v('Chat_Access_Approval')!==approval)return;
+  var email=v('Email'),state=v('Chat_Invite_Status'),
+      attempts=Number(v('Chat_Invite_Attempts')||0);
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)||state&&state!=='RETRY')return;
+  if(attempts>=3){regs.getRange(i+2,m.Chat_Invite_Status+1).setValue('FAILED_REVIEW');return;}
+  // Only private Script Properties carry gated chat invitations. No URLs in GitHub.
+  var chatUrl=String(PropertiesService.getScriptProperties().getProperty(route.chatProperty)||'').trim();
+  var chatPattern=route.platform==='whatsapp'?/^https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]{22}$/:
+    /^https:\/\/t\.me\/[A-Za-z0-9_]{5,32}$/;
+  if(!chatPattern.test(chatUrl))return; // Missing/revoked invitation: do not send.
+  var locale=v('Registration_Locale'),w={
+   cs:['Pozvánka do diskusního chatu','Po ověření podmínek přístupu vás zveme do diskusního chatu. Připojení je dobrovolné.','Ostatní členové WhatsAppu mohou vidět vaše telefonní číslo.','Ostatní členové Telegramu mohou vidět váš profil dle nastavení soukromí.'],
+   en:['Discussion chat invitation','After verifying the membership conditions, you are invited to the discussion chat. Joining is optional.','Other WhatsApp members may see your phone number.','Other Telegram members may see your profile depending on privacy settings.'],
+   ru:['Приглашение в чат сообщества','После проверки условий доступа приглашаем вас в чат. Вступление добровольное.','Участники WhatsApp могут видеть ваш номер телефона.','Участники Telegram могут видеть ваш профиль в зависимости от настроек приватности.'],
+   uk:['Запрошення до чату спільноти','Після перевірки умов доступу запрошуємо до чату. Вступ добровільний.','Учасники WhatsApp можуть бачити ваш номер телефону.','Учасники Telegram можуть бачити ваш профіль залежно від налаштувань приватності.']
+  }[locale]||[];
+  try{
+   MailApp.sendEmail({to:email,subject:w[0],body:[w[1],chatUrl,
+    route.platform==='whatsapp'?w[2]:w[3]].join('\n'),
+    name:route.community==='druzina'?'Družina Moravy':'BrnoWalkers',
+    replyTo:cfg.email});
+   regs.getRange(i+2,m.Chat_Invite_Sent_At+1).setValue(new Date());
+   regs.getRange(i+2,m.Chat_Invite_Status+1).setValue('SENT_TO_PROVIDER');
+   sent++;
+  }catch(e){
+   regs.getRange(i+2,m.Chat_Invite_Attempts+1).setValue(attempts+1);
+   regs.getRange(i+2,m.Chat_Invite_Status+1).setValue(attempts+1>=3?'FAILED_REVIEW':'RETRY');
+   failed++;console.error('Approved chat invite mail failed; canonical row retained');
+  }
+ });
+ return {sent:sent,failed:failed};
+}
+
 function imperionCleanupPrivateIntake(){
   var cfg=impPrivateConfig_(),ss=SpreadsheetApp.openById(cfg.sheetId),now=new Date(),cleared=0;
   var r=ss.getSheetByName('Registrations');
