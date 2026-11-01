@@ -5,7 +5,7 @@ const vm=require('node:vm');
 const fs=require('node:fs');
 const path=require('node:path');
 const src=fs.readFileSync(path.join(__dirname,'..','ImperionAgentSnapshot.gs'),'utf8');
-const HUB_ID='1igxEHQ7wFFCoCA9lg4kzT2OoMrVLgbBogfqTxGeUftY';
+const HUB_ID='synthetic-hub-id';
 function mockContext(tabs, zone='Europe/Prague', options={}) {
   const cells=Object.fromEntries(Object.entries(tabs).map(([name,body])=>[name,{
     getLastRow:()=>body.length,
@@ -15,6 +15,7 @@ function mockContext(tabs, zone='Europe/Prague', options={}) {
   const ctx={
     SPREADSHEET_ID:options.hubId || HUB_ID,
     ocOwner_:()=>{ if(options.denyOwner) throw Error('OWNER_SIGN_IN_REQUIRED'); },
+    ocId_:()=>HUB_ID,
     SpreadsheetApp:{openById:id=>{
       assert.equal(id,HUB_ID);
       return {getSpreadsheetTimeZone:()=>zone,getSheetByName:n=>cells[n]||null};
