@@ -89,8 +89,12 @@ test('Fio preview requires owner identity, secure read-only token and never cont
 const gate={Slot_State:'CONFIRMED',Venue_Permission_Verified:'VERIFIED',
   Instructor_Verified:'VERIFIED',Activity_Insurance_Verified:'VERIFIED',
   Equipment_Check:'VERIFIED',Participant_Safety_Form_Valid:'VERIFIED',
-  Guardian_Gate_If_Minors:'VERIFIED',BOOKABLE_TRAINING_PAX_FAIL_CLOSED_FORMULA:4,
-  Publish_Confirmed_Only:'YES'};
+  Guardian_Gate_If_Minors:'NOT_APPLICABLE',BOOKABLE_TRAINING_PAX_FAIL_CLOSED_FORMULA:4,
+  Publish_Confirmed_Only:'YES',Newcomer_Ready:'YES',
+  Evidence_Source:'signed date-specific organiser/venue proof',
+  Reviewer_and_proof_of_100_TOTAL_not_ready:'date-specific checked',
+  Max_Attendance_Checked:60,Staff_And_Marshals_Count:3,
+  Other_Humans_Count_Parents_Spectators:2};
 const flags={DRU_FIO_READONLY_CONFIRMED:'YES',
   DRU_FIO_SETTLEMENT_SELLER_CONFIRMED:'YES',DRU_PAID_BOOKING_APPROVED:'YES',
   DRU_LEGAL_SELLER_CONFIRMED:'YES'};
@@ -102,6 +106,24 @@ test('No live paid flow unless owner, beneficiary and each session gate is indep
  assert.equal(drufCanLaunch(config,flags,[{...gate,Equipment_Check:'UNVERIFIED'}]).code,'PER_DATE_SAFETY_GATE_UNVERIFIED');
  assert.equal(drufCanLaunch(config,flags,[{...gate,BOOKABLE_TRAINING_PAX_FAIL_CLOSED_FORMULA:0}]).code,'PER_DATE_SAFETY_GATE_UNVERIFIED');
  assert.equal(drufCanLaunch({...config,SAFETY_FORM_VERSION:''},flags,[gate]).code,'SAFETY_CONSENTS_UNVERIFIED');
+});
+
+
+test('Fio settlement cannot exceed total 100 humans or bypass signed staffing, venue and guardian evidence',()=>{
+ const config={SAFETY_FORM_VERSION:'v1',RULES_VERSION:'v1'};
+ const pass=gate;
+ assert.equal(drufCanLaunch(config,flags,[pass]).ok,true);
+ assert.equal(drufCanLaunch(config,flags,[{...pass,Guardian_Gate_If_Minors:'UNVERIFIED'}]).ok,false);
+ assert.equal(drufCanLaunch(config,flags,[{...pass,Newcomer_Ready:'NO'}]).ok,false);
+ assert.equal(drufCanLaunch(config,flags,[{...pass,Evidence_Source:''}]).ok,false);
+ assert.equal(drufCanLaunch(config,flags,[{...pass,Staff_And_Marshals_Count:''}]).ok,false);
+ assert.equal(drufCanLaunch(config,flags,[{...pass,Max_Attendance_Checked:101}]).ok,false);
+ assert.equal(drufCanLaunch(config,flags,[{...pass,Max_Attendance_Checked:100,
+   Staff_And_Marshals_Count:10,Other_Humans_Count_Parents_Spectators:15,
+   BOOKABLE_TRAINING_PAX_FAIL_CLOSED_FORMULA:76}]).ok,false);
+ assert.equal(drufCanLaunch(config,flags,[{...pass,Max_Attendance_Checked:100,
+   Staff_And_Marshals_Count:10,Other_Humans_Count_Parents_Spectators:15,
+   BOOKABLE_TRAINING_PAX_FAIL_CLOSED_FORMULA:75}]).ok,true);
 });
 
 test('Bank payment instructions create local Czech QR string only for authorized payee',()=>{
