@@ -74,6 +74,18 @@ function imperionAgentBuildSnapshot_() {
       return safe;
     });
   });
+  // Optional PRIVATE audit from the same owner-bound project. The aggregate
+  // is a read-only source CLAIM, never an independent bank/provider receipt.
+  if (typeof imperionClosedLoopAudit_ === 'function') {
+    var audit = imperionClosedLoopAudit_();
+    if (!audit || audit.mode !== 'READ_ONLY_PRIVATE_OWNER_AUDIT' ||
+        audit.source !== 'EXISTING_IMPERION_COMMUNITY_HUB' ||
+        audit.paid_checkout_release_allowed !== false ||
+        audit.bank_verified_receipts !== 0) {
+      throw new Error('IMPERION_CLOSED_LOOP_AUDIT_UNSAFE');
+    }
+    result.control_audit = audit;
+  }
   // This object stays in-memory in the owner Apps Script execution. It must
   // NEVER be logged or exposed as a public response or exported to public CI.
   return result;
