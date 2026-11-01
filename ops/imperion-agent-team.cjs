@@ -264,6 +264,59 @@ function video(snapshot, root=ROOT) {
     clips_rendered:0, uploaded:0, published:0,
     next:'Existing worker validates source files and renders only after its own safety gate; not invoked here.'};
 }
+/**
+ * Aggregate audit received from the private owner-bound Apps Script.
+ * This is ONLY a CRM source review, never an authenticated provider proof.
+ * Never forward unknown fields, row IDs, free text, or bank/merchant data.
+ */
+function closedLoop(snapshot) {
+  const unavailable={state:'SOURCE_NOT_ATTACHED',bank_verified:false,
+    paid_checkout_allowed:false,confirmed_bookings_by_provider:0,
+    provider_readback:'NOT_PERFORMED'};
+  const a=snapshot.control_audit;
+  if(a===undefined)return unavailable;
+  const invalid={state:'INVALID_OR_UNSAFE_SOURCE_AUDIT',bank_verified:false,
+    paid_checkout_allowed:false,confirmed_bookings_by_provider:0,
+    provider_readback:'NOT_PERFORMED'};
+  if(!a||typeof a!=='object'||Array.isArray(a)||
+     a.schema_version!==1||
+     a.mode!=='READ_ONLY_PRIVATE_OWNER_AUDIT'||
+     a.source!=='EXISTING_IMPERION_COMMUNITY_HUB'||
+     !iso(a.checked_at)||
+     !a.counts||typeof a.counts!=='object'||Array.isArray(a.counts)||
+     !Array.isArray(a.hard_gates_unverified)||
+     a.hard_gates_unverified.length>30||
+     a.hard_gates_unverified.some(x=>!/^D\d{2}$/.test(x))||
+     a.bank_readback!=='NOT_PERFORMED'||
+     a.booking_provider_readback!=='NOT_PERFORMED'||
+     a.bank_verified_receipts!==0||
+     a.provider_verified_bookings!==0||
+     a.provider_verified_agent_completion!==0||
+     a.paid_checkout_release_allowed!==false||
+     a.published_or_sent_or_charged!==0||
+     a.new_triggers_or_records!==0)return invalid;
+  const fields=['bookings_total','booking_confirmed_claims',
+    'payments_total','payment_partial_claims','payment_verified_claims_unverified_by_provider',
+    'quotes_total','agent_jobs_total','agent_completed_claims',
+    'completed_claims_without_stored_receipt','open_exceptions'];
+  const counts={};
+  for(const k of fields){
+    const n=a.counts[k];
+    if(!Number.isSafeInteger(n)||n<0||n>100000)return invalid;
+    counts[k]=n;
+  }
+  return {
+    state:'PRIVATE_CRM_CLAIMS_REVIEWED',
+    source_checked_at:iso(a.checked_at),
+    counts,
+    outstanding_release_gates:a.hard_gates_unverified.length,
+    bank_verified:false,
+    paid_checkout_allowed:false,
+    confirmed_bookings_by_provider:0,
+    provider_readback:'NOT_PERFORMED',
+    next:'VERIFY_SEPARATE_LEGAL_PAYEE_AND_INDEPENDENT_BANK_PROVIDER_RECEIPTS'
+  };
+}
 async function runAll(snapshot, options={}) {
   validSnapshot(snapshot);
   return {
@@ -271,6 +324,7 @@ async function runAll(snapshot, options={}) {
     mode:'READ_ONLY_PREVIEW', paid_api_calls:0, new_crm_records:0,
     chief:chief(snapshot), sales:sales(snapshot), social:await social(snapshot),
     seo:seo(options.root||ROOT), video:video(snapshot,options.root||ROOT),
+    closed_loop:closedLoop(snapshot),
     external_messages_sent:0, external_posts_published:0, payments_created:0,
     readback:'SOURCE_REVIEW_ONLY; NO_LIVE_PROVIDER_CONFIRMATION',
   };
@@ -285,4 +339,4 @@ if(require.main===module)main().catch(e=>{
   process.stderr.write((/^[A-Z0-9_: .-]+$/.test(e.message)?e.message:'AGENT_TEAM_FAILED')+'\n');
   process.exitCode=1;
 });
-module.exports={iso,pragueEventIso,rows,validSnapshot,dueState,chief,sales,social,seo,video,runAll};
+module.exports={iso,pragueEventIso,rows,validSnapshot,dueState,chief,sales,social,seo,video,closedLoop,runAll};
