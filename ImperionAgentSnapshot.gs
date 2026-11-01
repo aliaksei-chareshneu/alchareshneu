@@ -20,15 +20,16 @@ function imperionAgentBuildSnapshot_() {
   ];
   // Owner-only guard from the existing private Community Hub console.
   // Never export a customer snapshot from a standalone or unrelated script.
-  if (typeof ocOwner_ !== 'function') {
+  if (typeof ocOwner_ !== 'function' || typeof ocId_ !== 'function') {
     throw new Error('IMPERION_OWNER_GUARD_MISSING');
   }
   ocOwner_();
-  if (typeof SPREADSHEET_ID !== 'string' ||
-      SPREADSHEET_ID !== '1igxEHQ7wFFCoCA9lg4kzT2OoMrVLgbBogfqTxGeUftY') {
+  var hubId = ocId_();
+  if (typeof SPREADSHEET_ID !== 'string' || !SPREADSHEET_ID ||
+      SPREADSHEET_ID !== hubId) {
     throw new Error('IMPERION_WRONG_HUB_ID');
   }
-  var book = SpreadsheetApp.openById(SPREADSHEET_ID);
+  var book = SpreadsheetApp.openById(hubId);
   if (!book || book.getSpreadsheetTimeZone() !== 'Europe/Prague') {
     throw new Error('IMPERION_HUB_TIMEZONE_OR_BOUND_PROJECT_UNVERIFIED');
   }
