@@ -102,15 +102,36 @@ function drufBankMatch(transfer,quote,expectedAccountKey,alreadyUsedIds){
  * including exact paid seller and signed, per-session safe capacity. Unknown
  * venue/insurer/first aid/guardian availability => 0 sellable places.
  */
+/* A proposed bank settlement cannot bypass the same human-count and
+ * per-date evidence gate as the public booking server.
+ * All people (including staff, helpers, parents and spectators) count.
+ * Pure read-only predicate: no sheets, payments or external calls.
+ */
 function drufPositiveGate(row){
-  if(!row||String(row.Slot_State)!=='CONFIRMED')return false;
-  var yes=function(x){return x===true||String(x||'').toUpperCase()==='VERIFIED';};
-  if(!yes(row.Venue_Permission_Verified)||!yes(row.Instructor_Verified)||
-    !yes(row.Activity_Insurance_Verified)||!yes(row.Equipment_Check)||
-    !yes(row.Participant_Safety_Form_Valid)||!yes(row.Guardian_Gate_If_Minors))
-    return false;
-  var cap=Number(row.BOOKABLE_TRAINING_PAX_FAIL_CLOSED_FORMULA);
-  return Number.isInteger(cap)&&cap>0&&cap<=100&&row.Publish_Confirmed_Only==='YES';
+  if(!row||String(row.Slot_State)!=='CONFIRMED'||
+     String(row.Publish_Confirmed_Only)!=='YES'||
+     String(row.Newcomer_Ready)!=='YES')return false;
+  const verified=x=>x===true||String(x||'').trim().toUpperCase()==='VERIFIED';
+  for(const field of ['Venue_Permission_Verified','Instructor_Verified',
+    'Activity_Insurance_Verified','Equipment_Check','Participant_Safety_Form_Valid']){
+    if(!verified(row[field]))return false;
+  }
+  const guardian=String(row.Guardian_Gate_If_Minors||'').trim().toUpperCase();
+  if(!['VERIFIED','NOT_APPLICABLE'].includes(guardian))return false;
+  if(!String(row.Evidence_Source||'').trim()||
+     !String(row.Reviewer_and_proof_of_100_TOTAL_not_ready||'').trim())return false;
+  const asInt=(x,allowZero)=>{
+    const s=String(x==null?'':x).trim();
+    if(!/^(0|[1-9][0-9]{0,3})$/.test(s))return null;
+    const n=Number(s);return Number.isSafeInteger(n)&&(allowZero||n>0)?n:null;
+  };
+  const max=asInt(row.Max_Attendance_Checked,false);
+  const staff=asInt(row.Staff_And_Marshals_Count,false);
+  const others=asInt(row.Other_Humans_Count_Parents_Spectators,true);
+  const seats=asInt(row.BOOKABLE_TRAINING_PAX_FAIL_CLOSED_FORMULA,false);
+  if([max,staff,others,seats].some(x=>x===null))return false;
+  if(max>100||staff+others>=max||staff+others>=100)return false;
+  return seats<=max-staff-others&&seats<=100-staff-others;
 }
 function drufCanLaunch(config,properties,gates){
   if(!config||!properties)return {ok:false,code:'CONFIG_MISSING'};
