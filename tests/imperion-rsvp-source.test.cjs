@@ -33,11 +33,27 @@ for(const [community,links] of Object.entries(channels)){
   const route=communityInvites.resolve(community,locale,'adult','YES');
   assert.equal(route.url,url,'Wrong channel for '+community+' '+locale);
   assert.equal(route.platform,(locale==='ru'||locale==='uk')?'Telegram':'WhatsApp');
+  assert.equal(route.chatAfterVisits,community==='Družina Moravy'?2:1);
+  assert.ok(route.chatInfo.includes(String(route.chatAfterVisits)));
   assert.equal(communityInvites.resolve(community,locale,'adult','MAYBE').url,url);
   assert.equal(communityInvites.resolve(community,locale,'under18','YES'),null,'Minors must never be auto-invited');
   assert.equal(communityInvites.resolve(community,locale,'adult','NO'),null,'Declined RSVP must not be invited');
  }
 }
+const publicRouter=fs.readFileSync('register/community-invites.js','utf8');
+for(const secretInvite of [
+ 'https://t.me/druzinamoravy',
+ 'https://t.me/pochody_brno',
+ 'https://chat.whatsapp.com/JzeXAQF8I2XE3zQ2OqWsPz',
+ 'https://chat.whatsapp.com/JCyEJNm746nBXNll3VzzX3'
+]){
+ assert.ok(!publicRouter.includes(secretInvite),'Participant chat invite leaked to public router: '+secretInvite);
+ for(const locale of ['cs','en','ru','uk']){
+  const page=fs.readFileSync(locale==='cs'?'register/index.html':'register/'+locale+'/index.html','utf8');
+  assert.ok(!page.includes(secretInvite),'Participant chat invite leaked to public registration '+locale);
+ }
+}
+
 assert.equal(communityInvites.resolve('Unknown','ru','adult','YES'),null);
 assert.equal(communityInvites.resolve('BrnoWalkers Družina Moravy','ru','adult','YES'),null);
 assert.equal(communityInvites.resolve('Družina Moravy','de','adult','YES'),null);
@@ -50,6 +66,7 @@ for(const loc of ['cs','en','ru','uk']){
  const scriptTag=loc==='cs'?'<script src="./community-invites.js"></script>':'<script src="../community-invites.js"></script>';
  assert.ok(html.includes(scriptTag),'Shared community router missing in '+loc);
  assert.ok(html.includes('IMPERION_COMMUNITY_INVITES?.resolve('),'Post-success invitation render missing in '+loc);
+ assert.ok(html.includes('communityInvite.chatInfo'),'Chat access guidance missing in '+loc);
  assert.ok(!html.includes('JCyEJNm746nBXNll3VzzX3'),'Private BrnoWalkers chat must not be shown on registration '+loc);
 }
 
