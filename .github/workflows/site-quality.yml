@@ -87,6 +87,9 @@ jobs:
       - name: Verify Druzina 48h payment policy and read-only Fio match
         run: node --test tests/druzina-payment-policy.test.cjs
 
+      - name: Verify owner-only noncharging Druzina policy cloud health source
+        run: node --test tests/druzina-policy-owner-smoke.test.cjs
+
       - name: Verify Fio JSON intake, numeric VS and merchant safety gates
         run: node --test tests/druzina-fio-bridge.test.cjs
 
