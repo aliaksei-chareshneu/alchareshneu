@@ -93,6 +93,9 @@ jobs:
       - name: Verify p11 booking release fails closed on legal, Fio, consent and per-date capacity
         run: node --test tests/druzina-p11-safety-release.test.cjs
 
+      - name: Verify Senior starts next calendar month after four independently verified visits
+        run: node --test tests/druzina-p12-senior-policy.test.cjs
+
       - name: Verify Fio JSON intake, numeric VS and merchant safety gates
         run: node --test tests/druzina-fio-bridge.test.cjs
 
