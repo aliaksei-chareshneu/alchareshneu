@@ -72,3 +72,18 @@ test('aggregate-only owner health exposes counts but no client data',()=>{
   assert.equal(health.source_rows_by_tab.IMPERION_Agent_Jobs,1);
   assert.doesNotMatch(JSON.stringify(health),/fictional@example|secret notes|private caption/);
 });
+
+
+test('closed-loop aggregate attached without raw rows and unsafe reports rejected',()=>{
+  const ctx=mockContext(fixture());
+  const aggregate={schema_version:1,mode:'READ_ONLY_PRIVATE_OWNER_AUDIT',
+    source:'EXISTING_IMPERION_COMMUNITY_HUB',
+    bank_verified_receipts:0,paid_checkout_release_allowed:false,
+    counts:{bookings_total:0,payments_total:2}};
+  ctx.imperionClosedLoopAudit_=()=>aggregate;
+  const snap=ctx.imperionAgentBuildSnapshot_();
+  assert.equal(snap.control_audit,aggregate);
+  assert.doesNotMatch(JSON.stringify(snap.control_audit),/fictional@example|secret notes/);
+  ctx.imperionClosedLoopAudit_=()=>({...aggregate,paid_checkout_release_allowed:true});
+  assert.throws(()=>ctx.imperionAgentBuildSnapshot_(),/IMPERION_CLOSED_LOOP_AUDIT_UNSAFE/);
+});
