@@ -380,7 +380,7 @@ function impVerifiedChatVisits_(rows,m,eventMap,person,brand){
     String(r[m.Source_Channel]||'')!=='WEBSITE_RSVP_SUPABASE_UNCONFIRMED'||
     !/^adult$/i.test(String(r[m.Age]||''))||
     !String(r[m.Check_In_At]||'').trim()||
-    ['NO','DECLINED'].indexOf(String(r[m.RSVP_Status]||'').toUpperCase())>=0)return;
+    ['NO','DECLINED','CANCELLED'].indexOf(String(r[m.RSVP_Status]||'').toUpperCase())>=0)return;
   var eventId=String(r[m.Event_ID]||''),e=eventMap[eventId];
   if(e&&e.brand===brand&&e.controller==='Družina Moravy, z. s.')seen[eventId]=true;
  });
@@ -673,4 +673,183 @@ function imperionInstallPrivateIntake(){
   if(cleanups.length===0)
     ScriptApp.newTrigger('imperionCleanupPrivateIntake').timeBased().everyDays(1).atHour(4).create();
   return {installed:true,importerCreated:importers.length===0,retentionCreated:cleanups.length===0};
+}
+
+
+/**
+ * Owner-approved community discussion chat invitations, independent of private
+ * Supabase intake secrets, and running inside the EXISTING Community Hub CRM.
+ * Does NOT run the general attendee thank-you backlog or import/ack intake.
+ * Disabled unless explicitly installed by the owner in the bound Apps Script.
+ */
+var IMP_CHAT_INVITE_FLAG='IMPERION_COMMUNITY_CHAT_INVITES_LIVE';
+var IMP_CHAT_INVITE_HANDLER='imperionCommunityChatInvitesTick';
+var IMP_CHAT_INVITE_CRM='1igxEHQ7wFFCoCA9lg4kzT2OoMrVLgbBogfqTxGeUftY';
+var IMP_CHAT_INVITE_COLS=['Community_Chat_Invite_Sent_At',
+ 'Community_Chat_Invite_Status','Community_Chat_Invite_Attempts'];
+
+function impCommunityChatInviteSheet_(){
+ var props=PropertiesService.getScriptProperties();
+ var id=props.getProperty('IMPERION_CRM_SHEET_ID')||
+  (typeof SPREADSHEET_ID!=='undefined'?SPREADSHEET_ID:IMP_CHAT_INVITE_CRM);
+ if(id!==IMP_CHAT_INVITE_CRM)throw Error('Chat invite CRM ID mismatch: blocked');
+ return SpreadsheetApp.openById(id);
+}
+function impEnsureCommunityChatInviteCols_(sh){
+ var h=impHeader_(sh);
+ IMP_CHAT_INVITE_COLS.forEach(function(k){
+  if(h.map[k]!==undefined)return;
+  var c=sh.getLastColumn()+1;
+  if(c>sh.getMaxColumns())sh.insertColumnsAfter(sh.getMaxColumns(),1);
+  sh.getRange(1,c).setValue(k);h.map[k]=c-1;
+ });
+}
+function impCommunityChatInvitePlan_(ss,now){
+ var sh=ss.getSheetByName('Registrations'),ev=ss.getSheetByName('Events');
+ if(!sh||!ev)throw Error('Existing CRM Registrations/Events missing');
+ var m=impHeader_(sh).map,em=impHeader_(ev).map;
+ ['Email','First_Name','Last_Name','Event_ID','Age','Source_Channel',
+  'Check_In_At','RSVP_Status','Data_Controller','Registration_Locale',
+  'Marketing_Consent'].forEach(function(k){
+  if(m[k]===undefined)throw Error('Missing Registrations.'+k);
+ });
+ ['Event_ID','Community','End_DateTime','Status','Data_Controller'].forEach(function(k){
+  if(em[k]===undefined)throw Error('Missing Events.'+k);
+ });
+ var config=impCommunityChatConfig_(ss);
+ var required=['COMMUNITY_CHAT_DM_TELEGRAM','COMMUNITY_CHAT_DM_WHATSAPP',
+  'COMMUNITY_CHAT_BW_TELEGRAM','COMMUNITY_CHAT_BW_WHATSAPP'];
+ if(required.some(function(k){return !config[k]}))
+  throw Error('Missing one of four verified community chat links');
+ var ended={},eligibleAfter=new Date(2026,10,1).getTime(); // 01 Nov Prague
+ var es=ev.getDataRange().getValues();
+ es.slice(1).forEach(function(r){
+  var id=String(r[em.Event_ID]||''),end=impEventEnd_(r[em.End_DateTime]);
+  var controller=String(r[em.Data_Controller]||'').trim(),brand=impChatBrand_(r[em.Community]);
+  if(!id||!brand||controller!=='Družina Moravy, z. s.'||
+    !isFinite(end.getTime())||end.getTime()+3600000>now||
+    ['Active','Completed','Archived'].indexOf(String(r[em.Status]))<0)return;
+  ended[id]={brand:brand,controller:controller,recent:end.getTime()>=eligibleAfter};
+ });
+ var rows=sh.getLastRow()<2?[]:sh.getRange(2,1,sh.getLastRow()-1,sh.getLastColumn()).getDisplayValues();
+ var queue=[],taken={};
+ for(var i=rows.length-1;i>=0;i--){
+  var r=rows[i],event=ended[String(r[m.Event_ID]||'')];
+  if(!event||!event.recent||
+    String(r[m.Source_Channel]||'')!=='WEBSITE_RSVP_SUPABASE_UNCONFIRMED'||
+    !/^adult$/i.test(String(r[m.Age]||''))||
+    !String(r[m.Check_In_At]||'').trim()||
+    ['NO','DECLINED','CANCELLED'].indexOf(String(r[m.RSVP_Status]||'').toUpperCase())>=0||
+    String(r[m.Marketing_Consent]||'').toUpperCase()!=='CONFIRMED'||
+    String(r[m.Data_Controller]||'').trim()!=='Družina Moravy, z. s.')continue;
+  var identity=impChatIdentity_(r,m);
+  if(!identity||!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(r[m.Email]||'')))continue;
+  var id=identity+'|'+event.brand;
+  if(taken[id]||impChatAlreadyInvited_(rows,m,ended,r,event.brand))continue;
+  if(['SENT_TO_PROVIDER','SENDING_REVIEW'].indexOf(
+    String(r[m.Community_Chat_Invite_Status]||''))>=0)continue;
+  var attempts=Number(r[m.Community_Chat_Invite_Attempts]||0);
+  if(attempts>=3)continue;
+  if(impVerifiedChatVisits_(rows,m,ended,r,event.brand)<(event.brand==='DM'?2:1))continue;
+  var invite=impPickCommunityChat_(config,event.brand,String(r[m.Registration_Locale]||''));
+  if(!invite)continue;
+  queue.push({index:i,brand:event.brand,locale:String(r[m.Registration_Locale]),
+   url:invite.url,platform:invite.platform});
+  taken[id]=true;
+ }
+ return {sheet:sh,rows:rows,columns:m,queue:queue,allLinksVerified:true};
+}
+function impCommunityChatInviteMessage_(brand,locale,platform,url){
+ var label=brand==='DM'?'Družina Moravy':'BrnoWalkers';
+ var copy={
+  cs:['Pozvánka do chatu účastníků','Děkujeme za účast na našich akcích. Pokud chcete, můžete se dobrovolně připojit do diskusního chatu účastníků.',
+   'Ve WhatsApp skupině mohou ostatní členové vidět vaše telefonní číslo.','Zkontrolujte prosím své nastavení soukromí v Telegramu.'],
+  en:['Participant chat invitation','Thanks for joining our events. You can optionally join the participant discussion chat.',
+   'Other WhatsApp members may see your phone number.','Please review your Telegram privacy settings.'],
+  ru:['Приглашение в чат участников','Спасибо за участие! При желании можете вступить в чат участников.',
+   'В WhatsApp другие участники могут видеть ваш номер телефона.','Проверьте настройки приватности в Telegram.'],
+  uk:['Запрошення до чату учасників','Дякуємо за участь! За бажання можете долучитися до чату учасників.',
+   'У WhatsApp інші учасники можуть бачити ваш номер телефону.','Перевірте налаштування приватності в Telegram.']
+ }[locale];
+ if(!copy)return null;
+ var note=platform==='WHATSAPP'?copy[2]:copy[3];
+ return {subject:copy[0]+' · '+label,
+  body:[copy[1],'',label,platform+': '+url,'',note,
+   locale==='cs'?'Připojení nepotvrzuje další rezervaci. Odpovědí můžete odmítnout budoucí pozvánky.':
+   locale==='en'?'Joining does not confirm a future booking. Reply to opt out of future invitations.':
+   locale==='ru'?'Вступление не подтверждает запись на следующее событие. Ответьте на письмо, чтобы отказаться от дальнейших приглашений.':
+   'Вступ не підтверджує запис на наступну подію. Відповідайте на лист, щоб відмовитися від подальших запрошень.'].join('\n')};
+}
+function imperionCommunityChatInvitesTick(){
+ var p=PropertiesService.getScriptProperties();
+ if(p.getProperty(IMP_CHAT_INVITE_FLAG)!=='true')
+  return {enabled:false,eligible:0,sent:0};
+ var lock=LockService.getScriptLock();
+ if(!lock.tryLock(10000))return {enabled:true,busy:true,sent:0};
+ try{
+  var ss=impCommunityChatInviteSheet_(),sh=ss.getSheetByName('Registrations');
+  impEnsureCommunityChatInviteCols_(sh);
+  var plan=impCommunityChatInvitePlan_(ss,Date.now());
+  var quota=Math.max(0,MailApp.getRemainingDailyQuota()-5),max=Math.min(8,quota);
+  var sent=0,failed=0;
+  for(var i=0;i<plan.queue.length&&sent<max;i++){
+   var x=plan.queue[i],row=plan.rows[x.index],m=plan.columns;
+   var mail=impCommunityChatInviteMessage_(x.brand,x.locale,x.platform,x.url);
+   if(!mail)continue;
+   var email=String(row[m.Email]||'').trim(),attempts=Number(row[m.Community_Chat_Invite_Attempts]||0);
+   try{
+    MailApp.sendEmail({to:email,subject:mail.subject,body:mail.body,
+     name:x.brand==='DM'?'Družina Moravy':'BrnoWalkers',
+     replyTo:p.getProperty('IMPERION_NOTIFY_EMAIL')||'chereshnev.biochem@gmail.com'});
+    var at=new Date();
+    sh.getRange(x.index+2,m.Community_Chat_Invite_Sent_At+1).setValue(at);
+    row[m.Community_Chat_Invite_Sent_At]=at.toISOString();
+    sh.getRange(x.index+2,m.Community_Chat_Invite_Status+1).setValue('SENT_TO_PROVIDER');
+    sent++;
+   }catch(error){
+    sh.getRange(x.index+2,m.Community_Chat_Invite_Attempts+1).setValue(attempts+1);
+    sh.getRange(x.index+2,m.Community_Chat_Invite_Status+1)
+      .setValue(attempts+1>=3?'FAILED_REVIEW':'RETRY');
+    failed++;
+    console.error('Chat invite delivery failed: retained for owner review');
+   }
+  }
+  console.log('Community chat invites: eligible='+plan.queue.length+', sent='+sent+', failed='+failed);
+  return {enabled:true,eligible:plan.queue.length,sent:sent,failed:failed,
+   quotaBlocked:max===0};
+ }finally{lock.releaseLock();}
+}
+function imperionCommunityChatInvitesStatus(){
+ var p=PropertiesService.getScriptProperties();
+ var t=ScriptApp.getProjectTriggers().filter(function(x){
+  return x.getHandlerFunction()===IMP_CHAT_INVITE_HANDLER;
+ });
+ var n=impCommunityChatInvitePlan_(impCommunityChatInviteSheet_(),Date.now()).queue.length;
+ var status={enabled:p.getProperty(IMP_CHAT_INVITE_FLAG)==='true',
+  triggerCount:t.length,eligible:n,linksVerified:true};
+ console.log('Community chat invite status: '+JSON.stringify(status));
+ return status;
+}
+function imperionCommunityChatInvitesInstall(){
+ // Only the existing owner account may activate outgoing invitations.
+ var owner=Session.getEffectiveUser().getEmail().toLowerCase();
+ if(owner!=='chereshnev.biochem@gmail.com')throw Error('Owner identity mismatch');
+ var ss=impCommunityChatInviteSheet_();
+ var eligible=impCommunityChatInvitePlan_(ss,Date.now()).queue.length;
+ var all=ScriptApp.getProjectTriggers(),old=all.filter(function(x){
+  return x.getHandlerFunction()===IMP_CHAT_INVITE_HANDLER;
+ });
+ if(old.length>1)throw Error('Duplicate chat invite triggers: review required');
+ if(!old.length){
+  if(all.length>=19)throw Error('Trigger quota close to limit: manual review required');
+  ScriptApp.newTrigger(IMP_CHAT_INVITE_HANDLER).timeBased().everyHours(1).create();
+ }
+ var count=ScriptApp.getProjectTriggers().filter(function(x){
+  return x.getHandlerFunction()===IMP_CHAT_INVITE_HANDLER;
+ }).length;
+ if(count!==1)throw Error('Chat invite trigger verification failed');
+ PropertiesService.getScriptProperties().setProperty(IMP_CHAT_INVITE_FLAG,'true');
+ var status={enabled:true,triggerCount:count,eligibleNow:eligible,linksVerified:true};
+ console.log('Community chat invite activated: '+JSON.stringify(status));
+ return status;
 }
