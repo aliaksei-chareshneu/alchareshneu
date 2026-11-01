@@ -35,6 +35,27 @@ h2{font-size:clamp(1.25rem,2.8vw,1.7rem);margin:0 0 16px}.section{margin-top:30p
 footer{margin-top:36px;border-top:1px solid var(--line);padding:24px 0 36px;color:var(--muted);font-size:.9rem}
 ul{padding-left:22px}li{margin:6px 0}.tags{display:flex;flex-wrap:wrap;gap:7px}.tag{font-size:.82rem;border:1px solid #e3d0d3;color:#8a2332;background:#fff;border-radius:999px;padding:4px 10px}
 [hidden]{display:none!important}@media(max-width:680px){.hero{padding:38px 0 45px}.grid,.points{grid-template-columns:1fr}.wrap{padding:0 17px}.btn{width:100%;text-align:center}}
+
+/* Scope text contrast to light information cards; the shared dark brand theme
+   otherwise leaves pale body text on white backgrounds. */
+body[data-imperion-scope] .main .stat,
+body[data-imperion-scope] .main .stat *,
+body[data-imperion-scope] .main .panel,
+body[data-imperion-scope] .main .panel :not(a),
+body[data-imperion-scope] .main .notice,
+body[data-imperion-scope] .main .notice :not(a),
+body[data-imperion-scope] .main .point,
+body[data-imperion-scope] .main .point * {
+  color:#152333 !important;
+}
+body[data-imperion-scope] .main .panel a:not(.btn),
+body[data-imperion-scope] .main .notice a:not(.btn) {
+  color:#8e1927 !important;
+}
+body[data-imperion-scope] .main .notice a.btn.alt {
+  color:#152333 !important;
+}
+body[data-imperion-scope] footer a {color:#ffc2c8 !important;}
 </style></head>
 <body data-imperion-scope="shared">
 <header class="top"><div class="wrap topin">
