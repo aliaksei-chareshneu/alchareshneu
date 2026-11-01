@@ -1,6 +1,6 @@
 const {test,expect}=require('@playwright/test');
 const url='https://cmrknyhnnehyjpreehcf.supabase.co/functions/v1/imperion-register';
-const example={event_id:'PUB-HIKE-20261101',title:'BrnoWalkers: Hády – Růženin lom – Obřany',community:'BrnoWalkers',category:'Hike',begins_at:'2026-11-01T11:45:00Z',ends_at:'2026-11-01T15:15:00Z',venue:'Velká Klajdovka, Brno',price_czk:0,data_controller:'Družina Moravy, z. s.',rules_url:'https://aliaksei-chareshneu.github.io/alchareshneu/register/safety/',contact_activity:false,is_open:true,registration_mode:'FORM',price_verified:true,end_time_verified:true};
+const example={event_id:'PUB-HIKE-20261101',title:'BrnoWalkers: Hády – Růženin lom – Obřany',community:'BrnoWalkers',category:'Hike',begins_at:new Date(Date.now()+14*86400000).toISOString(),ends_at:new Date(Date.now()+14*86400000+12600000).toISOString(),venue:'Velká Klajdovka, Brno',price_czk:0,data_controller:'Družina Moravy, z. s.',rules_url:'https://aliaksei-chareshneu.github.io/alchareshneu/register/safety/',contact_activity:false,is_open:true,registration_mode:'FORM',price_verified:true,end_time_verified:true};
 function cors(){return {'access-control-allow-origin':'http://127.0.0.1:8000','access-control-allow-headers':'content-type','access-control-allow-methods':'GET, POST, OPTIONS'};}
 test('public registration sends one private request with independent consents',async({page})=>{
   let submitted=null;
@@ -35,6 +35,38 @@ test('public registration sends one private request with independent consents',a
   expect(submitted).toMatchObject({eventId:'PUB-HIKE-20261101',email:'synthetic-rsvp@example.test',safety:true,photo:'NO',futureUpdates:false,language:'cs'});
   expect(page.url()).not.toContain('synthetic-rsvp');
 });
+
+for(const [locale,community,news,count] of [
+ ['cs','BrnoWalkers','https://chat.whatsapp.com/BSlQetCjMoL8IO45c6VnH0','1'],
+ ['en','Družina Moravy','https://chat.whatsapp.com/DuTpgF22mxMFy6L1Cfrcvu','2'],
+ ['ru','BrnoWalkers','https://t.me/pochody_brno_news','1'],
+ ['uk','Družina Moravy','https://t.me/druzinamoravy_news','2']
+]){
+ test('RSVP success shows only authorized '+locale+' community news and chat threshold',async({page})=>{
+  const fixture={...example,community,event_id:'TEST-COMMUNITY-EVENT',title:community+' introductory event'};
+  await page.route(url,route=>{
+   if(route.request().method()==='OPTIONS')return route.fulfill({status:204,headers:cors()});
+   if(route.request().method()==='GET')return route.fulfill({status:200,contentType:'application/json',headers:cors(),body:JSON.stringify({events:[fixture]})});
+   return route.fulfill({status:200,contentType:'application/json',headers:cors(),body:JSON.stringify({ok:true,status:'RECEIVED',confirmed:false})});
+  });
+  const path='/register/'+(locale==='cs'?'':locale+'/')+'?event=TEST-COMMUNITY-EVENT';
+  await page.goto(path);
+  await expect(page.locator('#rsvpForm')).toBeVisible();
+  await page.locator('#firstName').fill('Synthetic');
+  await page.locator('#lastName').fill('Participant');
+  await page.locator('#email').fill('synthetic@example.invalid');
+  await page.locator('#phone').fill('+420 777 222 111');
+  await page.locator('#safety').check();
+  await page.locator('#submit').click();
+  await expect(page.locator('#rsvpForm')).toBeHidden();
+  const anchor=page.locator('#result .event-updates-group a[href="'+news+'"]');
+  await expect(anchor).toHaveCount(1);
+  await expect(page.locator('#result .event-updates-group')).toContainText(count);
+  const publicUrls=await page.locator('#result .event-updates-group a').evaluateAll(a=>a.map(x=>x.href));
+  expect(publicUrls).toEqual([news]);
+ });
+}
+
 test('minors require guardian and cannot grant marketing/publicity permissions',async({page})=>{
  await page.route(url,route=>route.fulfill({status:200,contentType:'application/json',headers:cors(),body:JSON.stringify({events:[example]})}));
  await page.goto('/register/?lang=en');
