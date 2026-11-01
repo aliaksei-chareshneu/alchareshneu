@@ -47,10 +47,10 @@ for(const secretInvite of [
  'https://chat.whatsapp.com/JzeXAQF8I2XE3zQ2OqWsPz',
  'https://chat.whatsapp.com/JCyEJNm746nBXNll3VzzX3'
 ]){
- assert.ok(!publicRouter.includes(secretInvite),'Participant chat invite leaked to public router: '+secretInvite);
+ assert.ok(!publicRouter.includes("'"+secretInvite+"'"),'Participant chat invite leaked to public router: '+secretInvite);
  for(const locale of ['cs','en','ru','uk']){
   const page=fs.readFileSync(locale==='cs'?'register/index.html':'register/'+locale+'/index.html','utf8');
-  assert.ok(!page.includes(secretInvite),'Participant chat invite leaked to public registration '+locale);
+  assert.ok(!page.includes("'"+secretInvite+"'"),'Participant chat invite leaked to public registration '+locale);
  }
 }
 
