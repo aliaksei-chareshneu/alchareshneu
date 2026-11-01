@@ -3,7 +3,7 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const vm=require('node:vm');
-const source=fs.readFileSync('supabase/functions/imperion-register/index.ts','utf8');
+const source=fs.readFileSync('supabase/functions/imperion-register/index.ts','utf8').replace(/\r\n/g,'\n');
 
 // Execute only the self-contained production date gate after dropping TypeScript
 // annotations; never invoke Deno.serve, secrets, PII storage or provider writes.
