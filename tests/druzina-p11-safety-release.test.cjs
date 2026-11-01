@@ -5,8 +5,10 @@ const fs=require('node:fs');
 const path=require('node:path');
 const vm=require('node:vm');
 const source=fs.readFileSync(path.join(__dirname,'../DruzinaSafetyRelease.gs'),'utf8');
+const fioReadiness=fs.readFileSync(path.join(__dirname,'../DruzinaFioReadiness.gs'),'utf8');
 function context(extra={}){
  const sandbox=vm.createContext({Date,Math,JSON, ...extra});
+ vm.runInContext(fioReadiness,sandbox,{filename:'DruzinaFioReadiness.gs'});
  vm.runInContext(source,sandbox,{filename:'DruzinaSafetyRelease.gs'});
  return sandbox;
 }
@@ -61,12 +63,15 @@ test('release blocks payments until verified account, insurance, legal and signe
  'DRU_OSVC_ACTIVITY_INSURANCE_VERIFIED','DRU_TRADE_AUTHORIZATION_VERIFIED',
  'DRU_BOOKING_OTP_LIVE_VERIFIED','DRU_BANK_RECONCILIATION_E2E_VERIFIED',
  'DRU_BOOKING_RELEASE_E2E_VERIFIED'])props[name]='YES';
- props.FIO_OSVC_READ_TOKEN='Z'.repeat(64);
- props.FIO_OSVC_EXPECTED_ACCOUNT_ID='1234567890';
- props.FIO_OSVC_ENTITY_CONFIRMED='true';
+ props.DRU_FIO_READONLY_TOKEN='Z'.repeat(64);
+ props.DRU_FIO_ACCOUNT_ID='1234567890';
+ props.DRU_FIO_BANK_ID='0800';
+ props.DRU_FIO_IBAN='CZ6508000000192000145399';
+ props.DRU_FIO_AUTOMATION_ENABLED='YES';
  assert.equal(e.drusPaidRelease_().ok,false,'missing independent form');
  cfg.SAFETY_FORM_VERSION='SAFETY_VERIFIED';
- assert.equal(e.drusPaidRelease_().ok,true,'only simulated fully cleared private configuration');
+ assert.equal(e.drusBankConfigReady_({getProperty:k=>props[k]||''}),true,'canonical bank properties recognized');
+ assert.equal(e.drusPaidRelease_().ok,false,'missing real payment adapter never passes release');
  cfg.NOV_POLICY_VERSION='DRU-2026-11-v1';
  assert.equal(e.drusPaidRelease_().ok,false,'old policy remains blocked');
  delete props.DRU_TRADE_AUTHORIZATION_VERIFIED;
