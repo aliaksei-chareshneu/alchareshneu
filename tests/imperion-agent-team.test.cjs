@@ -116,11 +116,11 @@ test('verified history still requires owner action, never auto-sends',()=>{
   assert.equal(out.candidates[0].next,'OWNER_REVIEW_NEXT_ACTION');
   assert.equal(out.candidates[0].external_message_sent,false);
 });
-test('social reuses existing public-only content pipeline, zero network and no post',async()=>{
+test('social source validation cannot be mistaken for generated content or a post',async()=>{
   const out=await A.social(sample());
   assert.equal(out.jobs[0].state,'SOURCE_VALIDATED_PREVIEW_NOT_RENDERED');
   assert.equal(out.jobs[0].preview_generated,false);
-  assert.equal(out.jobs[0].targets.length,3);
+  assert.equal(out.jobs[0].published,false);
   assert.equal(out.jobs[1].state,'NO_AUTORETRY_RECONCILE_PROVIDER');
   assert.equal(out.jobs[2].state,'PROVIDER_READBACK_NEEDED');
   assert.equal(out.jobs[3].state,'DUPLICATE_SOURCE_JOB_ID');
