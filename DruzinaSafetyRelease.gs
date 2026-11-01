@@ -26,9 +26,9 @@ function drusPaidRelease_(){
       return {ok:false,code:'BOOKING_PAUSED'};
     if(String(cfg.REQUIRE_BOOKING_VERIFICATION).toUpperCase()==='FALSE')
       return {ok:false,code:'BOOKING_PAUSED'};
-    if(!/^[A-Za-z0-9]{64}$/.test(String(p.getProperty('FIO_OSVC_READ_TOKEN')||'')) ||
-       !/^\d{6,20}$/.test(String(p.getProperty('FIO_OSVC_EXPECTED_ACCOUNT_ID')||'')) ||
-       p.getProperty('FIO_OSVC_ENTITY_CONFIRMED')!=='true')
+    // Canonical property keys of the existing DruzinaFioBridge, never
+    // the obsolete FIO_OSVC_* aliases. No token/account value is returned.
+    if(!drusBankConfigReady_(p)||!DRUS_PAID_BANK_ADAPTER_LIVE)
       return {ok:false,code:'BOOKING_PAUSED'};
     return {ok:true,code:'OWNER_RELEASE_GATES_CONFIGURED'};
   }catch(_){return {ok:false,code:'BOOKING_PAUSED'};}
