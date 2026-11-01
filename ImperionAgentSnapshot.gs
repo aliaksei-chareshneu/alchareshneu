@@ -18,7 +18,17 @@ function imperionAgentBuildSnapshot_() {
     ['Events', 'Event_ID', ['Event_ID','Status','Start_DateTime']],
     ['IMPERION_Agent_Jobs', 'Job_ID', ['Job_ID','Status','Priority','Deadline_At','Owner_Approval','Evidence_URI']]
   ];
-  var book = SpreadsheetApp.getActiveSpreadsheet();
+  // Owner-only guard from the existing private Community Hub console.
+  // Never export a customer snapshot from a standalone or unrelated script.
+  if (typeof ocOwner_ !== 'function') {
+    throw new Error('IMPERION_OWNER_GUARD_MISSING');
+  }
+  ocOwner_();
+  if (typeof SPREADSHEET_ID !== 'string' ||
+      SPREADSHEET_ID !== '1igxEHQ7wFFCoCA9lg4kzT2OoMrVLgbBogfqTxGeUftY') {
+    throw new Error('IMPERION_WRONG_HUB_ID');
+  }
+  var book = SpreadsheetApp.openById(SPREADSHEET_ID);
   if (!book || book.getSpreadsheetTimeZone() !== 'Europe/Prague') {
     throw new Error('IMPERION_HUB_TIMEZONE_OR_BOUND_PROJECT_UNVERIFIED');
   }
@@ -66,4 +76,21 @@ function imperionAgentBuildSnapshot_() {
   // This object stays in-memory in the owner Apps Script execution. It must
   // NEVER be logged or exposed as a public response or exported to public CI.
   return result;
+}
+
+/**
+ * Safe, aggregate-only owner readback.
+ * No contact details, record values, identifiers, secrets, or raw rows.
+ * Accessible only to the same owner allowed by ocOwner_().
+ */
+function imperionAgentSnapshotHealth() {
+  var snapshot = imperionAgentBuildSnapshot_();
+  var names = ['Leads','Revenue_Actions','SocialPublishing','Events','IMPERION_Agent_Jobs'];
+  var counts = {};
+  names.forEach(function(name) { counts[name] = snapshot.data[name].length; });
+  return {
+    ok: true, schema_version: 1, source_system: snapshot.source_system,
+    checked_at: snapshot.captured_at, read_only: true,
+    source_rows_by_tab: counts, external_actions: 0
+  };
 }
