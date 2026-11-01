@@ -100,14 +100,19 @@ function dueState(value, now) {
 }
 function chief(snapshot) {
   const now = snapshot.captured_at;
-  const tasks = rows(snapshot.data, 'agent_jobs').map((r, i) => ({
+  const allJobs = rows(snapshot.data, 'agent_jobs').map((r, i) => ({
     id: identity(r, ['Job_ID', 'job_id', 'ID'], i),
     status: upper(field(r, 'Status', 'status', 'State')),
     due: dueState(field(r, 'Due_At', 'Deadline_At', 'Due_Date', 'due_at'), now),
     due_at: str(field(r, 'Due_At', 'Deadline_At', 'Due_Date', 'due_at')),
     approval: upper(field(r, 'Owner_Approval', 'Approval_Status', 'approval_status')), 
     proof: !!str(field(r, 'Evidence_URI', 'Receipt_URL', 'evidence_url', 'Evidence')),
-  })).filter(x => !['DONE', 'CLOSED', 'VERIFIED', 'CANCELLED'].includes(x.status));
+  }));
+  // A user-entered DONE/VERIFIED state is only a claim, not a provider receipt.
+  // Never erase it from review simply because the spreadsheet says "DONE".
+  const closedClaim = new Set(['DONE', 'CLOSED', 'VERIFIED']);
+  const claimedCompleted = allJobs.filter(x => closedClaim.has(x.status));
+  const tasks = allJobs.filter(x => !closedClaim.has(x.status) && x.status !== 'CANCELLED');
   const rank = { OVERDUE: 0, WITHIN_24H: 1, DATE_REVIEW: 2, MISSING_DATE: 3, FUTURE: 4 };
   tasks.sort((a,b) => rank[a.due]-rank[b.due] || a.id.localeCompare(b.id));
   const events = rows(snapshot.data, 'events').map((r,i) => ({
@@ -122,6 +127,14 @@ function chief(snapshot) {
     state: 'REVIEW_REQUIRED', source: 'EXISTING_IMPERION_HUB/IMPERION_Agent_Jobs+Events',
     open_tasks: tasks.length, urgent: tasks.filter(t => ['OVERDUE','WITHIN_24H'].includes(t.due)).length,
     priority_tasks: tasks.slice(0, 20), next_7_days_events: events.slice(0,20),
+    // Presence of Evidence_URI only identifies a candidate source to check.
+    claimed_completed_total: claimedCompleted.length,
+    claimed_completed_missing_evidence: claimedCompleted.filter(x=>!x.proof).length,
+    completed_needing_readback: claimedCompleted.slice(0,20).map(x=>({
+      id:x.id, status:x.status, evidence_uri_present:x.proof,
+      independent_provider_readback:'NOT_CHECKED',
+      next:x.proof?'VERIFY_PROVIDER_RECORD':'LOCATE_RECEIPT_AND_VERIFY_PROVIDER',
+    })),
     unread_email: 'NOT_CHECKED', calendar_conflicts: 'NOT_CHECKED',
     accepted_results: 'REQUIRES_RECEIPTS', founder_minutes_saved: 'UNMEASURED',
   };
