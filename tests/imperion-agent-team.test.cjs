@@ -80,6 +80,26 @@ test('chief shows urgent but not done tasks and excludes draft events',()=>{
   assert.equal(out.unread_email,'NOT_CHECKED');
   assert.equal(out.accepted_results,'REQUIRES_RECEIPTS');
 });
+test('a DONE claim without receipt is surfaced for proof audit, never silently accepted',()=>{
+  const x=sample();
+  const out=A.chief(x);
+  assert.equal(out.open_tasks,1);
+  assert.equal(out.claimed_completed_total,1);
+  assert.equal(out.claimed_completed_missing_evidence,1);
+  assert.deepEqual(out.completed_needing_readback[0],{
+    id:'DONE-SYN',status:'DONE',evidence_uri_present:false,
+    independent_provider_readback:'NOT_CHECKED',next:'LOCATE_RECEIPT_AND_VERIFY_PROVIDER'
+  });
+  assert.equal(out.accepted_results,'REQUIRES_RECEIPTS');
+});
+test('a supplied evidence URL is not independent provider readback',()=>{
+  const x=sample();
+  x.data.IMPERION_Agent_Jobs[1].Evidence_URI='https://example.org/synthetic-receipt';
+  const out=A.chief(x);
+  assert.equal(out.claimed_completed_missing_evidence,0);
+  assert.equal(out.completed_needing_readback[0].independent_provider_readback,'NOT_CHECKED');
+  assert.equal(out.completed_needing_readback[0].next,'VERIFY_PROVIDER_RECORD');
+});
 test('sales preserves no-contact/closed gates, de-duplicates contacts and never sends',()=>{
   const out=A.sales(sample());
   assert.equal(out.closed_or_opted_out,2);
