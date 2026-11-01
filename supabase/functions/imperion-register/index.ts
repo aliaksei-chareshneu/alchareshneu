@@ -105,6 +105,8 @@ function communityChannels(community: string, locale: string, age: string, rsvp:
   };
 }
 
+const EVENT_COLS='event_id,title,community,category,begins_at,ends_at,venue,price_czk,data_controller,rules_url,contact_activity,is_open,registration_mode,action_url,public_note,price_verified,end_time_verified,source_active';
+
 // 01 Nov 2026 calendar readback: Orel 14 Nov free workshop accepts
 // preliminary RSVPs only through 01 Nov 23:59 Europe/Prague. This server
 // deadline must survive hourly public-catalog syncs and direct deep links.
@@ -116,8 +118,6 @@ function registrationStillOpen(eventId: string, atMs: number = Date.now()): bool
   const cutoff = REGISTRATION_CLOSES_AT[eventId as keyof typeof REGISTRATION_CLOSES_AT];
   return cutoff === undefined || (Number.isFinite(cutoff) && atMs < cutoff);
 }
-
-const EVENT_COLS='event_id,title,community,category,begins_at,ends_at,venue,price_czk,data_controller,rules_url,contact_activity,is_open,registration_mode,action_url,public_note,price_verified,end_time_verified,source_active';
 
 Deno.serve(async (req:Request):Promise<Response>=>{
   const origin=req.headers.get('origin');
