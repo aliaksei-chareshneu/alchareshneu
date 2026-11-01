@@ -371,7 +371,7 @@ function impSendReceiptQueue_(ss,cfg,events){
  * OFF by default. A manual Check_In_At is mandatory: submitting an RSVP
  * does NOT prove attendance. Never contact minors or marketing-only records.
  */
-var IMP_EVENT_FOLLOWUP_COLS=['Event_Followup_Status','Event_Followup_Attempts','Event_Followup_Sent_At'];
+var IMP_EVENT_FOLLOWUP_COLS=['Event_Followup_Status','Event_Followup_Attempts','Event_Followup_Sent_At','Community_Chat_Invite_Sent_At'];
 function impEnsureEventFollowupCols_(sh){
  var h=impHeader_(sh);
  IMP_EVENT_FOLLOWUP_COLS.forEach(function(k){
@@ -388,7 +388,64 @@ function impEventEnd_(v){
    Number(match[4]),Number(match[5]));
  return new Date(v);
 }
-function impAttendeeThankYou_(row,m,event,props){
+/** Private channel directory: existing Druzina_Config, never public registration source. */
+function impChatBrand_(community){
+ var n=String(community||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+ var dm=n.indexOf('druzina moravy')>=0,bw=n.indexOf('brnowalkers')>=0;
+ return dm===bw?'':(dm?'DM':'BW');
+}
+function impCommunityChatConfig_(ss){
+ var sh=ss&&ss.getSheetByName('Druzina_Config'),out={};
+ if(!sh||sh.getLastRow()<2)return out;
+ var m=impHeader_(sh).map;
+ if(['Key','Value','Status','Type'].some(function(k){return m[k]===undefined;}))return out;
+ sh.getRange(2,1,sh.getLastRow()-1,sh.getLastColumn()).getDisplayValues().forEach(function(r){
+  var key=String(r[m.Key]||''),url=String(r[m.Value]||'').trim();
+  if(!/^COMMUNITY_CHAT_(DM|BW)_(TELEGRAM|WHATSAPP)$/.test(key)||
+    String(r[m.Type])!=='community_chat'||String(r[m.Status])!=='LINK_VERIFIED_20261101')return;
+  var valid=key.endsWith('_TELEGRAM')?
+    /^https:\/\/t\.me\/[A-Za-z0-9_]{5,32}$/.test(url):
+    /^https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]{22}$/.test(url);
+  if(valid)out[key]=url;
+ });
+ return out;
+}
+function impChatIdentity_(row,m){
+ function v(k){return m[k]===undefined?'':String(row[m[k]]||'').trim().toLowerCase();}
+ var email=v('Email'),first=v('First_Name'),last=v('Last_Name'),ctrl=v('Data_Controller');
+ return email&&first&&last&&ctrl?[email,first,last,ctrl].join('|'):'';
+}
+function impVerifiedChatVisits_(rows,m,eventMap,person,brand){
+ var id=impChatIdentity_(person,m),seen={};
+ if(!id||!brand||String(person[m.Data_Controller]||'').trim()!=='Družina Moravy, z. s.')return 0;
+ rows.forEach(function(r){
+  if(impChatIdentity_(r,m)!==id||
+    String(r[m.Source_Channel]||'')!=='WEBSITE_RSVP_SUPABASE_UNCONFIRMED'||
+    !/^adult$/i.test(String(r[m.Age]||''))||
+    !String(r[m.Check_In_At]||'').trim()||
+    ['NO','DECLINED'].indexOf(String(r[m.RSVP_Status]||'').toUpperCase())>=0)return;
+  var eventId=String(r[m.Event_ID]||''),e=eventMap[eventId];
+  if(e&&e.brand===brand&&e.controller==='Družina Moravy, z. s.')seen[eventId]=true;
+ });
+ return Object.keys(seen).length;
+}
+function impChatAlreadyInvited_(rows,m,eventMap,person,brand){
+ var identity=impChatIdentity_(person,m);
+ return !!identity&&rows.some(function(r){
+  var event=eventMap[String(r[m.Event_ID]||'')];
+  return impChatIdentity_(r,m)===identity&&event&&event.brand===brand&&
+   !!String(r[m.Community_Chat_Invite_Sent_At]||'').trim();
+ });
+}
+function impPickCommunityChat_(config,brand,locale){
+ var suffix=(locale==='ru'||locale==='uk')?'TELEGRAM':
+  (locale==='cs'||locale==='en')?'WHATSAPP':'';
+ if(!brand||!suffix)return null;
+ var url=config['COMMUNITY_CHAT_'+brand+'_'+suffix];
+ return url?{url:url,platform:suffix}:null;
+}
+
+function impAttendeeThankYou_(row,m,event,props,chatInvite){
  var locale=String(row[m.Registration_Locale]||'cs'),isWalk=/walk|hike|výlet|proch|tour/i.test(String(event.category));
  var isDruzina=/družina|druzina/i.test(event.community);
  var words={
@@ -407,6 +464,15 @@ function impAttendeeThankYou_(row,m,event,props){
  // A request to opt in is not a confirmed marketing consent.
  if(String(row[m.Marketing_Consent]||'').toUpperCase()==='CONFIRMED'){
   body.push('',w[3]+' https://t.me/'+(isDruzina?'druzinamoravy_news':'pochody_brno_news'));
+ }
+ if(chatInvite&&chatInvite.url){
+  var wordsChat={
+   cs:['Diskusní chat účastníků (dobrovolně):','Ve WhatsApp skupině mohou ostatní členové vidět vaše číslo. Vstup do chatu nepotvrzuje rezervaci ani členství.'],
+   en:['Participant discussion chat (optional):','WhatsApp group members can see your phone number. Joining does not confirm a booking or membership.'],
+   ru:['Чат участников (вступление добровольное):','Проверьте настройки приватности Telegram. Вступление не означает подтверждённую запись или членство.'],
+   uk:['Чат учасників (добровільно):','Перевірте налаштування приватності Telegram. Вступ не підтверджує бронювання або членство.']
+  }[locale];
+  body.push('',wordsChat[0],chatInvite.url,wordsChat[1]);
  }
  return {subject:w[0]+' · '+String(event.title||'').slice(0,110),body:body.join('\n'),
   sender:isDruzina?'Družina Moravy':isWalk?'BrnoWalkers':'Community events'};
