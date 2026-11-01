@@ -20,28 +20,29 @@
       title: 'Chcete dostávat novinky z komunity',
       cta: 'Přidat se přes',
       tg: 'Připojení je dobrovolné. Na Telegramu si předem zkontrolujte nastavení soukromí. Účast na akci zatím není potvrzená.',
-      wa: 'Připojení je dobrovolné. Ve WhatsApp skupině mohou ostatní členové vidět vaše telefonní číslo. Účast na akci zatím není potvrzená.'
+      wa: 'Připojení je dobrovolné. Ve WhatsApp skupině mohou ostatní členové vidět vaše telefonní číslo. Účast na akci zatím není potvrzená.',
       chat: 'Diskusní chat pro účastníky je k dispozici po {count} ověřených účastech. Zájem o pozvánku můžete potvrdit odpovědí organizátorovi.',
     },
     en: {
       title: 'Want updates from the',
       cta: 'Join updates on',
       tg: 'Joining is optional. Check your Telegram privacy settings before joining. Your event attendance is not confirmed yet.',
-      wa: 'Joining is optional. Other WhatsApp group members may see your phone number. Your event attendance is not confirmed yet.'
+      wa: 'Joining is optional. Other WhatsApp group members may see your phone number. Your event attendance is not confirmed yet.',
       chat: 'The participant discussion chat is available after {count} verified visits. You can request the invitation by replying to the organiser.',
     },
     ru: {
       title: 'Хотите получать новости сообщества',
       cta: 'Подписаться через',
       tg: 'Вступление добровольное. Проверьте настройки приватности Telegram. Участие в мероприятии ещё не подтверждено.',
-      wa: 'Вступление добровольное. В WhatsApp участники группы могут видеть ваш номер. Участие ещё не подтверждено.'
+      wa: 'Вступление добровольное. В WhatsApp участники группы могут видеть ваш номер. Участие ещё не подтверждено.',
       chat: 'Чат участников доступен после {count} подтверждённых посещений. Приглашение можно запросить ответом организатору.',
     },
     uk: {
       title: 'Хочете отримувати новини спільноти',
       cta: 'Приєднатися через',
       tg: 'Приєднання добровільне. Перевірте налаштування приватності Telegram. Участь у події ще не підтверджена.',
-      wa: 'Приєднання добровільне. У WhatsApp учасники групи можуть бачити ваш номер. Участь у події ще не підтверджена.'
+      wa: 'Приєднання добровільне. У WhatsApp учасники групи можуть бачити ваш номер. Участь у події ще не підтверджена.',
+      chat: 'Чат учасників доступний після {count} підтверджених відвідувань. Запрошення можна запросити, відповівши організатору.'
     }
   });
   function resolve(community, language, ageGroup, rsvp) {
@@ -70,5 +71,4 @@
   const api = Object.freeze({ resolve: resolve });
   root.IMPERION_COMMUNITY_INVITES = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
-})(typeof globalThis !== 'undefined' ? globalThis : this);      chat: 'Чат учасників доступний після {count} підтверджених відвідувань. Запрошення можна запросити, відповівши організатору.',
-
+})(typeof globalThis !== 'undefined' ? globalThis : this);
