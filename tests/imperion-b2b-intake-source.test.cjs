@@ -52,6 +52,8 @@ function runtime({error=null,allowed=true,configured=true}={}){
 }
 async function request(handle,{method='POST',origin=ORIGIN,body=payload}={}){
  const headers=new Headers();
+ // Production Cloudflare supplies the client-IP header; TEST-NET address only.
+ headers.set('cf-connecting-ip','192.0.2.55');
  if(origin!==null)headers.set('Origin',origin);
  const options={method,headers};
  if(method==='POST'){
