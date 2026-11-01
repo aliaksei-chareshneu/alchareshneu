@@ -23,6 +23,8 @@ const FIELDS = Object.freeze({
   short_jobs: ['short_jobs', 'ShortFactory'],
 });
 const STOP_STAGES = new Set(['lost', 'closed', 'closed_hold', 'hold', 'do_not_contact', 'dormant', 'cancelled']);
+// Explicit fixture tags only: never infer QA from a legitimate buyer's name or work.
+const QA_ONLY_TAG = /(?:^|[_\s-])(?:QA_SYNTHETIC|SYNTHETIC_QA|QA_FIXTURE|TEST_FIXTURE|TEST_ONLY|DEMO_ONLY|MOCK_LEAD)(?:$|[_\s-])/;
 const LIMIT = 4000;
 function str(v) { return v === null || v === undefined ? '' : String(v).trim(); }
 function field(row, ...names) {
@@ -127,12 +129,17 @@ function chief(snapshot) {
 function sales(snapshot) {
   const source = rows(snapshot.data, 'revenue_actions');
   const contacts = source.length ? source : rows(snapshot.data, 'leads');
-  let closed=0, duplicate=0;
+  let closed=0, duplicate=0, qaOnly=0;
   const seen = new Set(), candidates = [];
+  // Revenue_Actions has Lead_ID but may omit Email/Company entirely. A
+  // stopped Lead_ID must also block an alias/repeated action of that lead.
   const tokens = r => [
+    ['lead_id',str(field(r,'Lead_ID','lead_id')).toLowerCase()],
     ['email',str(field(r,'Email','email')).toLowerCase()],
     ['org',str(field(r,'Company','Organisation','Organization','Company_Domain','Domain')).toLowerCase()]
   ].filter(([,v])=>v).map(([kind,v])=>kind+':'+v);
+  const qaOnlyRow = r => ['Source','Action_Status','Stage','Lead_ID']
+    .some(k => QA_ONLY_TAG.test(upper(field(r,k,k.toLowerCase()))));
   const stopped = r => {
     const stage = str(field(r,'Stage','stage','Status','status')).toLowerCase();
     const optOut = ['TRUE','YES'].includes(upper(field(r,'Opt_Out','opt_out','Do_Not_Contact')));
@@ -142,8 +149,10 @@ function sales(snapshot) {
   };
   // A stopped identity also blocks aliases/different rows sharing the same
   // normalized email or company, never bypassing an opt-out via a duplicate.
-  const blockedTokens = new Set(contacts.filter(stopped).flatMap(tokens));
+  // QA fixtures are quarantined, not interpreted as real opt-out evidence.
+  const blockedTokens = new Set(contacts.filter(r => !qaOnlyRow(r) && stopped(r)).flatMap(tokens));
   for (const [i,r] of contacts.entries()) {
+    if (qaOnlyRow(r)) { qaOnly++; continue; }
     const stage = str(field(r,'Stage','stage','Status','status')).toLowerCase();
     if (stopped(r) || tokens(r).some(t=>blockedTokens.has(t))) { closed++; continue; }
     const id = identity(r,['Lead_ID','Opportunity_ID','Action_ID','ID'],i);
@@ -169,7 +178,7 @@ function sales(snapshot) {
   candidates.sort((a,b) => rank[a.due]-rank[b.due] || (b.amount_czk||0)-(a.amount_czk||0));
   return {
     state: 'REVIEW_REQUIRED', source: source.length ? 'EXISTING_IMPERION_HUB/Revenue_Actions' : 'EXISTING_IMPERION_HUB/Leads',
-    source_rows: contacts.length, closed_or_opted_out: closed, duplicates_rejected: duplicate,
+    source_rows: contacts.length, qa_only_excluded: qaOnly, closed_or_opted_out: closed, duplicates_rejected: duplicate,
     candidates: candidates.slice(0, 100), candidates_total: candidates.length,
     outbound_sent: 0, contracted_verified: 'NOT_CHECKED', cleared_cash: 'NOT_CHECKED',
   };
