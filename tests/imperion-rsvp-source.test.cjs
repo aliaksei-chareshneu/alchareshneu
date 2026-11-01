@@ -12,8 +12,8 @@ for(const loc of ['cs','en','ru','uk']){
 }
 assert.ok(!front.includes('SUPABASE_SERVICE_ROLE_KEY'));
 assert.ok(front.includes("cache:'no-store'"));
-for(const contact of ['function receiptContacts(', 'https://t.me/Chareshneu','https://wa.me/420702914842','mailto:chereshnev.biochem@gmail.com','https://t.me/druzinamoravy_news','https://t.me/pochody_brno_news','https://chat.whatsapp.com/JCyEJNm746nBXNll3VzzX3','https://chat.whatsapp.com/DuTpgF22mxMFy6L1Cfrcvu']) assert.ok(front.includes(contact),'RSVP confirmation contact missing: '+contact);
-assert.ok(front.includes('receiptContacts(el,eventData,body);'),'Only a successful RSVP should show follow-up channels');
+for(const contact of ['function receiptContacts(', 'https://t.me/Chareshneu','https://wa.me/420702914842','mailto:chereshnev.biochem@gmail.com']) assert.ok(front.includes(contact),'RSVP confirmation contact missing: '+contact);
+assert.ok(front.includes('receiptContacts(el,eventData,body,payload);'),'Only a successful RSVP should show follow-up channels');
 // Duplicate submissions are intentionally idempotent: a public request cannot
 // disclose whether someone else's name/email already appears in the database.
 // The receipt therefore says "processed" rather than falsely claiming a new row.
@@ -133,3 +133,42 @@ for(const locale of locales){
  for(const label of ['Nezávazný zájem','Interest only','Предварительная заявка','Попередня заявка'])
    assert.ok(html.includes(label),'paid-interest label missing: '+label+' on '+locale);
 }
+
+// Community routing must be brand-specific, age-gated, and only displayed after
+// an accepted POST. Discussion chat links remain in private CRM config only.
+const inviteHelper=require('../register/community-invites.js');
+for(const [brand,community,count,telegram,whatsapp] of [
+ ['DM','Družina Moravy',2,'https://t.me/druzinamoravy_news','https://chat.whatsapp.com/DuTpgF22mxMFy6L1Cfrcvu'],
+ ['BW','BrnoWalkers',1,'https://t.me/pochody_brno_news','https://chat.whatsapp.com/BSlQetCjMoL8IO45c6VnH0']
+]){
+ for(const [locale,platform,url] of [
+  ['cs','WhatsApp',whatsapp],['en','WhatsApp',whatsapp],
+  ['ru','Telegram',telegram],['uk','Telegram',telegram]
+ ]){
+  const info=inviteHelper.resolve(community,locale,'adult','YES');
+  assert.ok(info,brand+' '+locale);
+  assert.equal(info.platform,platform);
+  assert.equal(info.url,url);
+  assert.equal(info.chatAfterVisits,count);
+  assert.ok(info.chatInfo.includes(String(count)));
+ }
+ assert.equal(inviteHelper.resolve(community,'ru','under18','YES'),null);
+ assert.equal(inviteHelper.resolve(community,'ru','adult','NO'),null);
+ assert.equal(inviteHelper.resolve(community,'ru','adult','DECLINED'),null);
+}
+assert.equal(inviteHelper.resolve('Unknown','ru','adult','YES'),null);
+assert.equal(inviteHelper.resolve('Družina Moravy BrnoWalkers','en','adult','YES'),null);
+const privateChats=['druzinamoravy','pochody_brno','JzeXAQF8I2XE3zQ2OqWsPz','JCyEJNm746nBXNll3VzzX3'];
+for(const loc of ['cs','en','ru','uk']){
+ const html=fs.readFileSync(loc==='cs'?'register/index.html':'register/'+loc+'/index.html','utf8');
+ const src=loc==='cs'?'./community-invites.js':'../community-invites.js';
+ assert.ok(html.includes('<script src="'+src+'"></script>'),'Community helper missing '+loc);
+ assert.ok(html.includes('communityInvite.chatInfo'),'Participant chat eligibility note missing '+loc);
+ assert.ok(html.includes('IMPERION_COMMUNITY_INVITES?.resolve('),'Routing missing '+loc);
+ assert.ok(html.includes('payload?.updatesGroupUrl'),'Event-specific invitations missing '+loc);
+ for(const invite of privateChats.filter(x=>x.includes('Jze')||x.includes('JCy')))
+  assert.ok(!html.includes(invite),'Private chat invite leaked into public HTML '+loc);
+}
+const helperSource=fs.readFileSync('register/community-invites.js','utf8');
+for(const token of ['JzeXAQF8I2XE3zQ2OqWsPz','JCyEJNm746nBXNll3VzzX3'])
+ assert.ok(!helperSource.includes(token),'Private chat invite leaked into browser JS');
