@@ -54,7 +54,7 @@ function setup() {
  ctx.audit_=()=>{};
  const movement={transactionId:'1000000009',amountCZK:240,amountHalers:24000,
    variableSymbol:'1234567890',currency:'CZK',direction:'CREDIT',
-   isReversal:false,accountKey:'123456789/2010'};
+   isReversal:false,accountKey:'123456789/2010',tokenAccountVerified:true};
  return {ctx,data,properties,quote,member,session,gate,movement};
 }
 test('Fio settlement creates exactly one verified payment + booking in existing CRM',()=>{
@@ -75,6 +75,14 @@ test('Fio settlement creates exactly one verified payment + booking in existing 
  assert.equal(replay.ok,false);
  assert.equal(data.payments.length,1);
  assert.equal(data.bookings.length,1);
+});
+test('Unverified client-made bank credit cannot produce a payment or booking',()=>{
+ const {ctx,data,movement}=setup();
+ const forged={...movement,tokenAccountVerified:false};
+ const res=ctx.drufCommitVerifiedBankTransaction_(forged);
+ assert.equal(res.code,'UNVERIFIED_BANK_FEED');
+ assert.equal(data.payments.length,0);
+ assert.equal(data.bookings.length,0);
 });
 test('Fio cannot settle with wrong receiving account or amount',()=>{
  const {ctx,data,movement}=setup();
