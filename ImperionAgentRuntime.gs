@@ -116,9 +116,12 @@ function impA5HttpGet_(url,parseJson) {
       IMP_A5_PUBLIC_SITE+'corporate/',
       'https://api.github.com/repos/aliaksei-chareshneu/alchareshneu/actions/workflows/imperion-autopilot.yml/runs?per_page=1'
      ].indexOf(url)<0)throw Error('NON_ALLOWLISTED_PUBLIC_URL');
+  var headers={'Accept':parseJson?'application/vnd.github+json':'text/plain'};
+  if(parseJson) headers['User-Agent']='IMPERION-Agent5-Proof/1.0';
   var response=UrlFetchApp.fetch(url,{method:'get',followRedirects:false,muteHttpExceptions:true,
-    headers:{'Accept':parseJson?'application/vnd.github+json':'text/plain'}});
-  if(response.getResponseCode()!==200)throw Error('PUBLIC_PROVIDER_HTTP_NOT_200');
+    headers:headers});
+  var code=response.getResponseCode();
+  if(code!==200)throw Error('PUBLIC_PROVIDER_HTTP_'+(Number.isInteger(code)?code:'UNVERIFIED'));
   var txt=response.getContentText();
   if(txt.length>350000)throw Error('PUBLIC_RESPONSE_TOO_LARGE');
   return parseJson?JSON.parse(txt):txt;
@@ -150,7 +153,12 @@ function impA5Proof_() {
       result.observed_ci_success=a.status==='completed'&&a.conclusion==='success';
       result.state=result.observed_ci_success?'CI_SUCCESS_PROVIDER_READBACK':'CI_NOT_VERIFIED';
     }
-  }catch(_){result.state='PROVIDER_UNAVAILABLE';}
+  }catch(error){
+    // Stable status only; never record provider bodies, tokens or responses.
+    var message=String(error&&error.message||'');
+    var match=/^PUBLIC_PROVIDER_HTTP_(\d{3})$/.exec(message);
+    result.state=match?'PROVIDER_HTTP_'+match[1]:'PROVIDER_UNAVAILABLE';
+  }
   return result;
 }
 function impA5Sheet_(book,name,expected) {

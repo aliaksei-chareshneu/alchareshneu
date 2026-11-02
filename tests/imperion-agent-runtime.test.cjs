@@ -134,3 +134,20 @@ test('one existing 6-hour time trigger is reused, and only matching UID may tick
   const report=owner.c.imperionAgentReviewTick({triggerUid:'triggeruid12345'});
   assert.equal(report.receipt.created,true);
 });
+
+test('GitHub proof requests explicit user-agent and failures expose only HTTP code',()=>{
+  const a=harness();
+  let called=false;
+  a.c.UrlFetchApp.fetch=(url,options)=>{
+    called=true;
+    assert.ok(url.startsWith('https://api.github.com/repos/'));
+    assert.equal(options.method,'get');
+    assert.equal(options.headers['User-Agent'],'IMPERION-Agent5-Proof/1.0');
+    return {getResponseCode:()=>403,getContentText:()=> 'private-provider-body-must-not-be-logged'};
+  };
+  const report=a.c.impA5Proof_();
+  assert.equal(called,true);
+  assert.equal(report.state,'PROVIDER_HTTP_403');
+  assert.equal(report.observed_ci_success,false);
+  assert.doesNotMatch(JSON.stringify(report),/private-provider-body/);
+});
