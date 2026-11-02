@@ -119,12 +119,12 @@ function communityChannels(community: string, locale: string, age: string, rsvp:
 
 const EVENT_COLS='event_id,title,community,category,begins_at,ends_at,venue,price_czk,data_controller,rules_url,contact_activity,is_open,registration_mode,action_url,public_note,price_verified,end_time_verified,source_active';
 
-// 01 Nov 2026 calendar readback: Orel 14 Nov free workshop accepts
-// preliminary RSVPs only through 01 Nov 23:59 Europe/Prague. This server
-// deadline must survive hourly public-catalog syncs and direct deep links.
-// Do not change access to unrelated events or the separate adult enquiry.
+// 02 Nov 2026 decision: the minimum attendance threshold is met.
+// Orel 14 Nov workshop accepts preliminary RSVPs until the event begins,
+// 14 Nov 2026 12:00 Europe/Prague; acceptance is NOT a confirmed place.
+// Keep this cutoff aligned with begins_at and do not change unrelated events.
 const REGISTRATION_CLOSES_AT = Object.freeze({
-  'PUB-OREL-20261114': Date.parse('2026-11-02T00:00:00+01:00'),
+  'PUB-OREL-20261114': Date.parse('2026-11-14T12:00:00+01:00'),
 });
 function registrationStillOpen(eventId: string, atMs: number = Date.now()): boolean {
   const cutoff = REGISTRATION_CLOSES_AT[eventId as keyof typeof REGISTRATION_CLOSES_AT];
