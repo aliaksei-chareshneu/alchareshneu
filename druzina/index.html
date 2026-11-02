@@ -507,6 +507,16 @@ html[lang="en"] #registration-notice [data-notice-lang="en"],html[lang="cs"] #re
         <a data-i18n="media.seznamLink" href="https://www.seznam.cz/komentare/279225879-sachovy-souboj-v-realnem-svete-nadsenec-z-brna-priblizuje-historicky-serm" target="_blank" rel="noopener noreferrer">Discussion on Seznam.cz ↗</a>
       </div>
     </article>
+    <!-- PRESS-20261102: verified independent November local newspaper coverage; links only, no reused photos or article text -->
+    <article class="dm-media-feature" id="dm-local-press-nov2026">
+      <p class="dm-media-meta"><strong>Nezávislá místní média / Independent local press</strong><span aria-hidden="true">·</span><time datetime="2026-11">listopad 2026</time></p>
+      <h3 lang="cs"><a href="https://www.sever.brno.cz/documents/10670111/0/severnik_11_2026.pdf/0a2a5020-8d24-8ed1-3ab6-3c0f3e4d4052" target="_blank" rel="noopener noreferrer">Severník 11/2026 — Družina Moravy: historický šerm žije i v Husovicích (str. 15) ↗</a></h3>
+      <p lang="cs">Listopadový Severník městské části Brno-sever představil náš místní šermířský spolek, začátečnický trénink a mezinárodní komunitu. Odkazujeme na nezávislý redakční příspěvek, nikoli placenou reklamu.</p>
+      <p lang="en">The November issue of the Brno-sever district newspaper features our historical-fencing community on page 15. This is editorial coverage, not a paid ad.</p>
+      <h3 lang="cs"><a href="https://zpravodaj.brno-stred.cz/11-2026/mistr-sveta-je-z-brna" target="_blank" rel="noopener noreferrer">Zpravodaj Brno-střed 11/2026 — vyzkoušejte historický šerm (str. 31) ↗</a></h3>
+      <p lang="cs">Další článek o Družině Moravy vyšel ve Zpravodaji Brno-střed. <strong>Upozornění:</strong> kontaktní e-mail v původním vydání obsahoval překlep; aktuální správný kontakt je <a href="mailto:chereshnev.biochem@gmail.com">chereshnev.biochem@gmail.com</a>. Redakci jsme požádali o opravu.</p>
+      <p lang="en">Brno-střed's November district magazine also covered the club. An email typo in the published article has been reported to the editor; the verified contact is <a href="mailto:chereshnev.biochem@gmail.com">chereshnev.biochem@gmail.com</a>.</p>
+    </article>
     <div class="dm-media-feature" id="dm-tanec-draku-recap" aria-labelledby="dm-tanec-draku-heading">
       <p class="dm-media-meta"><strong>Autorská reportáž účastníka / Participant video</strong><span aria-hidden="true">·</span><time datetime="2026-11-02">2. 11. 2026</time></p>
       <h3 id="dm-tanec-draku-heading" lang="cs"><a href="https://www.youtube.com/shorts/MByZEt1c_Jw" target="_blank" rel="noopener noreferrer">Tanec draků 2026: skutečná fantasy bitva v Brně-Kohoutovicích ↗</a></h3>
@@ -1058,6 +1068,25 @@ render(detectLang());
   });
  }
  document.addEventListener('site:language',sync);sync();
+})();
+</script>
+<script>
+/* PRESS-20261102: pass only safe campaign attribution from the public Družina landing page to its own registration links. */
+(function(){
+  'use strict';
+  var incoming=new URLSearchParams(location.search);
+  var keys=['utm_source','utm_medium','utm_campaign','utm_content','src'];
+  var tags={};
+  keys.forEach(function(k){var v=incoming.get(k);if(v && /^[A-Za-z0-9._~-]{1,96}$/.test(v))tags[k]=v;});
+  if(!Object.keys(tags).length)return;
+  document.addEventListener('click',function(e){
+    var a=e.target && e.target.closest?e.target.closest('a[href]'):null;
+    if(!a)return;
+    var u;try{u=new URL(a.href,location.href);}catch(_){return;}
+    if(u.origin!==location.origin || !(/\/alchareshneu\/register(?:\/|$)/.test(u.pathname)||/\/alchareshneu\/druzina\/prihlaska(?:\/|$)/.test(u.pathname)))return;
+    Object.keys(tags).forEach(function(k){if(!u.searchParams.has(k))u.searchParams.set(k,tags[k]);});
+    a.href=u.href;
+  },true);
 })();
 </script>
 </body>
