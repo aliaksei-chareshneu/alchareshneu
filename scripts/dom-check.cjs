@@ -16,7 +16,11 @@ if(require.main===module)(async()=>{let count=0;for(const path of ['index.html',
  assert.deepEqual(errors,[],path+' runtime errors');
  if(path.startsWith('academy')){const input=d.querySelector('#service-search');input.value='zzzzmissing';input.dispatchEvent(new w.Event('input'));assert.equal(d.querySelectorAll('.price-cat:not([hidden])').length,0);input.value='';input.dispatchEvent(new w.Event('input'));assert.equal(d.querySelectorAll('.price-cat:not([hidden])').length,9);assert.equal(d.querySelectorAll('.service-action').length,9);}
  if(path==='druzina/start/index.html'){
-   assert.equal(d.querySelectorAll('#action').length,1,'one primary club action');
+   assert.equal(d.querySelectorAll('#action').length,1,'one club-news action');
+   const first=new URL(d.querySelector('#enquiryCta')?.href||'',d.location.href);
+   assert.equal(first.pathname,'/alchareshneu/druzina/prihlaska/','primary newcomer CTA must reach real enquiry form');
+   assert.equal(first.searchParams.get('lang'),lang,'primary newcomer CTA locale');
+   assert.equal(first.searchParams.get('src'),'START','primary newcomer CTA attribution');
    assert.equal(d.querySelectorAll('form').length,0,'no forced form to join club');
    assert.ok(d.querySelector('[data-k="membership"]').textContent.length>45,'club participation separate from legal z.s. member status');
    assert.ok((d.querySelector('#action').href||'').startsWith(lang==='ru'?'https://t.me/druzinamoravy_news':'https://chat.whatsapp.com/'),'language-appropriate opt-in club updates');
