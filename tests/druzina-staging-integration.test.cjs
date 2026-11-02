@@ -1,6 +1,15 @@
 'use strict';
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const {harness}=require('./helpers/druzina-apps-script-harness.cjs');
+test('independent source readback matches the recovered fixture fingerprints after Git line-ending normalization',()=>{
+ const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
+ const root=path.join(__dirname,'fixtures/druzina-portal-p13');
+ const manifest=JSON.parse(fs.readFileSync(path.join(root,'source-sha256.json'),'utf8'));
+ for(const [name,hash] of Object.entries(manifest.git_normalized_lf_sha256)){
+  const source=fs.readFileSync(path.join(root,name),'utf8').replace(/\r\n/g,'\n');
+  assert.equal(crypto.createHash('sha256').update(source).digest('hex'),hash,name);
+ }
+});
 function stage(){
  const h=harness({enforceEmailAuth:true,futureReleaseSimulation:true,activeEmail:'owner@example.test'});
  Object.assign(h.properties,{

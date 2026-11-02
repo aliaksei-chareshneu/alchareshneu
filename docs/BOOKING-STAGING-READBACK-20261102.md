@@ -30,7 +30,7 @@ Read canon: 00 GLOBAL MASTER, Project 80, Project 20, Canonical Booking Portal S
 
 ## Reproducible validation
 
-`node --test tests/druzina-*.test.cjs`: **89/89 PASS**, including five integration scenarios executing recovered p13 functions with current staging extensions. Eleven recovered core files retain source SHA256 fingerprints; resource IDs in fixture Config are synthetic. No .clasp credentials or real member data are included.
+`node --test tests/druzina-*.test.cjs`: **90/90 PASS**, including five integration scenarios executing recovered p13 functions with current staging extensions and an independent fixture-fingerprint readback. Eleven recovered core files retain original saved-source and LF-normalized Git SHA256 fingerprints; resource IDs in fixture Config are synthetic. No .clasp credentials or real member data are included.
 
 Synthetic sequence: actual requestBookingCode/verifyBookingCode -> consent reviews -> authenticated quote -> numeric VS/SPD -> parsed synthetic statement -> exactly one payment/booking in in-memory canonical CRM -> existing session Calendar sync -> second sync creates zero duplicates -> authorized actual check-in -> one attendance increment. Same member can upgrade once for +560 after the verified 240 attended visit; exactly four total bookings and one plan. A separate actual-package test checks repeated NO_SHOW consumes one visit and leaves three of four.
 
