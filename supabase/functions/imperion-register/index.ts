@@ -167,12 +167,15 @@ Deno.serve(async (req:Request):Promise<Response>=>{
   if (body.intent==='DRUZINA_ENQUIRY') {
     let entry: {
       first:string;last:string;contact:string;kind:'email'|'phone';
-      type:string;day:string;date:string|null;lang:string;
+      type:string;day:string;date:string|null;lang:string;source:string;
     };
     try {
       const type=safeEnum(body.visitType,['FIRST','RETURNING']);
       const day=safeEnum(body.preferredDay,['NEXT','MON','SAT','DATE']);
       const lang=safeEnum(body.language||'cs',['cs','en','ru','uk']);
+      // Public campaign tags are never authorisation claims or personal data.
+      const rawAcquisition=String(body.acquisitionSource||'DIRECT');
+      const source=/^[A-Za-z0-9_-]{1,32}$/.test(rawAcquisition)?rawAcquisition:'DIRECT';
       const rawContact=text(body.contact,254);
       const kind: 'email'|'phone'=rawContact.includes('@')?'email':'phone';
       const contact=kind==='email'?safeEmail(rawContact):safePhone(rawContact);
@@ -189,7 +192,7 @@ Deno.serve(async (req:Request):Promise<Response>=>{
         throw new Error('date');
       }
       entry={first:safeName(body.firstName),last:safeName(body.lastName),
-        contact,kind,type,day,date,lang};
+        contact,kind,type,day,date,lang,source};
     } catch {
       return reply({error:'please_check_required_fields'},400,origin);
     }
@@ -205,7 +208,8 @@ Deno.serve(async (req:Request):Promise<Response>=>{
       preferred_date:entry.date,adult_confirmed:true,safety_acknowledged:true,
       safety_version:'2026-10-25-v2',language:entry.lang,
       data_controller:'Družina Moravy, z. s.',
-      source:'site-druzina-first-visit',status:'RECEIVED_UNCONFIRMED',
+      source:entry.source==='DIRECT'?'site-druzina-first-visit':'site-druzina-first-visit:'+entry.source,
+      status:'RECEIVED_UNCONFIRMED',
     }).select('id').single();
     if (error || !data?.id) return reply({error:'temporarily_unavailable'},503,origin);
     return reply({
