@@ -96,6 +96,17 @@ jobs:
 
       - name: Check four-language information channels and gated chats
         run: node --test tests/imperion-community-routing.test.cjs
+      - name: Verify private five-agent safety and proof logic
+        run: |
+          node --test tests/imperion-agent-snapshot.test.cjs tests/imperion-agent-team.test.cjs tests/imperion-closed-loop-audit.test.cjs tests/imperion-proof-auditor.test.cjs tests/imperion-agent-runtime.test.cjs
+      - name: Parse owner Apps Script installer without invoking it
+        shell: pwsh
+        run: |
+          $tokens = $null
+          $parseErrors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path 'ops/install-imperion-agent-owner.ps1').Path, [ref]$tokens, [ref]$parseErrors) | Out-Null
+          if ($parseErrors.Count -gt 0) { $parseErrors | ForEach-Object { Write-Error $_ }; exit 1 }
+
 
       - name: Verify Apps Script universal registration and retention isolation
         run: node tests/universal-rsvp.test.cjs
