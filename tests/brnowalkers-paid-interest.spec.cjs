@@ -11,8 +11,15 @@ test('BrnoWalkers two paid walks have distinct website-first interest links, not
   await expect(section).toContainText('we do not collect payment through this form');
   const a=page.locator('#bw-walk-20261117 a[href*="register"]');
   const b=page.locator('#bw-walk-20261129 a[href*="register"]');
-  await expect(a).toHaveAttribute('href',/register\/\?event=PUB-WALK-20261117/);
-  await expect(b).toHaveAttribute('href',/register\/\?event=PUB-WALK-20261129/);
+  await expect(a).toHaveAttribute('href',/register\/(?:en\/|ru\/|uk\/)?\?event=PUB-WALK-20261117/);
+  await expect(b).toHaveAttribute('href',/register\/(?:en\/|ru\/|uk\/)?\?event=PUB-WALK-20261129/);
+  for(const lang of ['cs','en','ru','uk']){
+    await page.locator('#langSwitch button[data-lang="'+lang+'"]').click();
+    const prefix=lang==='cs'?'../register/':'../register/'+lang+'/';
+    await expect(a).toHaveAttribute('href',prefix+'?event=PUB-WALK-20261117&utm_source=walkers&utm_medium=website&utm_campaign=bw_paid_202611');
+    await expect(b).toHaveAttribute('href',prefix+'?event=PUB-WALK-20261129&utm_source=walkers&utm_medium=website&utm_campaign=bw_paid_202611');
+    await expect(page.locator('#walktalk-20261111 a[href*="register"]')).toHaveAttribute('href',prefix+'?event=PUB-WALK-TALK-20261111');
+  }
   await expect(page.locator('#bw-walk-20261117')).toContainText('18+');
   await expect(page.locator('#bw-walk-20261117')).toContainText('390 Kč');
   await expect(page.locator('#bw-walk-20261129')).toContainText('450 Kč');
