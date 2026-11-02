@@ -30,7 +30,10 @@ function drusBankConfigReady_(props){
     read('DRU_FIO_SETTLEMENT_SELLER_CONFIRMED')==='YES'&&
     /^[a-zA-Z0-9]{64}$/.test(token)&&
     /^\d{1,16}$/.test(account)&&/^\d{4}$/.test(bank)&&
-    drusCzIbanValid_(iban)&&iban.slice(4,8)===bank;
+    drusCzIbanValid_(iban)&&iban.slice(4,8)===bank&&
+    // Czech BBAN: 6 prefix digits + 10 account digits. Preserve the prefix;
+    // matching just the bank could send QR payments to a different customer.
+    account.padStart(16,'0')===iban.slice(8);
 }
 function drusFioOwnerReadiness(){
   requireOwner_();

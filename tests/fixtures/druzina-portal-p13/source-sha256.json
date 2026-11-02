@@ -1,0 +1,17 @@
+{
+  "kind": "LOCAL_SAVED_P13_READBACK_2026_11_02_NOT_FRESH_CLOUD_PULL",
+  "unchanged_source_sha256": {
+    "Admin.js": "62c0abe08ef0008c987c1876341e85697145280e77322f438f360792f713e305",
+    "Auth.js": "d43e4f6e6bad9300d7489b21c5c8920f315d3b3402909e5846f9d9fb59d16e1a",
+    "Checkin.js": "904d5db0d3d68012bccc92e3c60cd04f8149be763c2aac6fcf85dda9ff80ef17",
+    "Code.js": "b03a22b552c9d82851d7325799c7c3561d59cf2faa53fcb051814d7f91ae4d3e",
+    "Manage.js": "e728730946aa48c9971be780889abe82e92d676c762d5bc85c185b41bd8e15de",
+    "Members.js": "44ee7773eb0d40c4b2d39b15a2c43fba98d5bc379a8b769ff2b349becac0b407",
+    "Payments.js": "00a36e983735ca8141533ac2b7076291698a024e2c8dbaeb9b12bd2df638a27e",
+    "Policy.js": "c4e2b40c5cd50721fbfd690141e488e7a6507f6f70eb135bc457103f2cc33d51",
+    "Quotes.js": "372a4405887d88bcbc648302a516221b90c714b288f02e6689f1fc49a5523cfb",
+    "Repository.js": "ff5ae53cfef967000258e284a3ed928380bc0ffd484a9783721ac187ed4528b1",
+    "Sessions.js": "b138c610d58ed0758f8ff09ab0862a156e2a7b96d5e390dc947e1e650a5c339c"
+  },
+  "config": "resource IDs replaced with synthetic IDs"
+}

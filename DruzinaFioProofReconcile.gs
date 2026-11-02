@@ -89,12 +89,27 @@ function drupReconcileExistingProof_(movement){
       if(!requested.includes(String(b.Session_ID)))requested.push(String(b.Session_ID));
     });
     var verified=requested.map(function(id){
-      return gates.filter(function(g){return String(g.Session_ID)===id;})[0];
+      var matches=gates.filter(function(g){return String(g.Session_ID)===id;});
+      return matches.length===1?matches[0]:null;
     });
     if(verified.some(function(g){return !g;}))
       return {ok:false,code:'SESSION_SAFETY_GATE_NOT_VERIFIED'};
     var active=drufCanLaunch(configMap_(),props,verified);
     if(!active.ok)return active;
+    // A cancelled session or missing individual consent cannot be resurrected
+    // by a later bank clearing. Preserve the money record for owner review.
+    try{
+      var member=findOne_(SHEETS.MEMBERS,function(r){
+        return String(r.Member_ID)===String(payment.Member_ID);
+      });
+      if(!member)throw Error('Member missing');
+      drusRequireMemberConsent_(member);
+      requested.forEach(function(id){
+        var session=sessionById_(id);
+        if(!session||String(session.Status)!=='OPEN'||
+            /CANCELLED/i.test(String(session.Notes||'')))throw Error('Session cancelled');
+      });
+    }catch(_){return {ok:false,code:'MEMBER_CONSENT_OR_SESSION_NOT_VERIFIED'};}
     // Existing portal's canonical reconciliation updates payment and linked
     // bookings/plan/ledger idempotently. It must be executed under the same
     // script lock; do NOT create a second booking/payment.

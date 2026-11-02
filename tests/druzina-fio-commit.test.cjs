@@ -3,8 +3,10 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
 const paths=['DruzinaBillingPolicy.gs','DruzinaFioBridge.gs','DruzinaFioCommit.gs'];
+// Fixed synthetic clock: these November policy tests must not expire in CI.
+class PolicyDate extends Date { constructor(...args){super(...(args.length?args:['2026-11-02T12:00:00Z']));} static now(){return Date.parse('2026-11-02T12:00:00Z');} }
 function setup() {
- const ctx=vm.createContext({});
+ const ctx=vm.createContext({Date:PolicyDate});
  paths.forEach(name=>vm.runInContext(fs.readFileSync(path.join(__dirname,'..',name),'utf8'),ctx,{filename:name}));
 // The real deployed code has this constant FALSE. Simulate a future audited release.
 vm.runInContext('const DRUS_PAID_BANK_ADAPTER_LIVE=true;',ctx);
@@ -43,6 +45,10 @@ ctx.drusPaidRelease_=()=>({ok:true});
  ctx.findAll_=(name,fn)=>(data[name]||[]).filter(fn);
  ctx.sessionById_=id=>id==='SES-A'?session:null;
  ctx.isTrialEligible_=m=>m.Attendance_Total===0;
+ ctx.drusRequireMemberConsent_=()=>{};
+ const products={'DRU-FIRSTVISIT-202611':{Active:true,Price_CZK:240}};
+ ctx.productMap_=()=>products;
+ ctx.money_=Number;
  ctx.revalidateQuote_=()=>JSON.parse(quote.Cart_JSON);
  ctx.patchRow_=(name,row,changes)=>Object.assign(data[name][row-2],changes);
  ctx.appendObj_=(name,obj)=>{const item={...obj,_row:data[name].length+2};data[name].push(item);return item};
@@ -58,7 +64,7 @@ ctx.drusPaidRelease_=()=>({ok:true});
  const movement={transactionId:'1000000009',amountCZK:240,amountHalers:24000,
    variableSymbol:'1234567890',currency:'CZK',direction:'CREDIT',
    isReversal:false,accountKey:'123456789/2010',tokenAccountVerified:true};
- return {ctx,data,properties,quote,member,session,gate,movement};
+ return {ctx,data,properties,quote,member,session,gate,movement,products};
 }
 test('Fio settlement creates exactly one verified payment + booking in existing CRM',()=>{
  const {ctx,data,movement,quote}=setup();
@@ -113,7 +119,7 @@ test('Merchant, supplier and per-date safety gates block writes before bank sett
 });
 test('Quote that crosses 48h cutoff before settlement must be repriced, not charged old rate',()=>{
  const {ctx,data,movement,session}=setup();
- session.Start_DateTime=new Date(Date.now()+47*3600000).toISOString();
+ session.Start_DateTime=new Date(PolicyDate.now()+47*3600000).toISOString();
  const res=ctx.drufCommitVerifiedBankTransaction_(movement);
  assert.equal(res.code,'QUOTE_CHANGED_OR_CUTOFF');
  assert.equal(data.payments.length,0);
@@ -131,8 +137,34 @@ test('Verified first-visit upgrade requires instructor attendance and settled 24
  data.bookings.push({_row:2,Booking_ID:'B-TRIAL',Member_ID:'M-1',Session_ID:'SES-A',
    Payment_ID:'PAY-TRIAL',Status:'ATTENDED',Attendance_Status:'PRESENT',Attendance_Checked:true,Plan_ID:''});
  data.payments.push({_row:2,Payment_ID:'PAY-TRIAL',Member_ID:'M-1',Verification_Status:'VERIFIED',
-   Received_Amount_CZK:240});
+   Received_Amount_CZK:240,Expected_Amount_CZK:240,Verified_At:'2026-11-01T18:00:00Z',
+   Reconciliation_Note:'FIO_SETTLED_ID=1000000008'});
  assert.equal(ctx.drufVerifiedFirstVisit_(member,'B-TRIAL').amountReceivedCZK,240);
  data.payments[0].Verification_Status='PROOF_SUBMITTED';
  assert.throws(()=>ctx.drufVerifiedFirstVisit_(member,'B-TRIAL'),/not bank verified/);
+});
+
+test('inactive or repriced product cannot settle even with hypothetical release flags',()=>{
+ for(const change of [{Active:false},{Price_CZK:300}]){
+  const h=setup();Object.assign(h.products['DRU-FIRSTVISIT-202611'],change);
+  assert.equal(h.ctx.drufCommitVerifiedBankTransaction_(h.movement).code,'QUOTE_CHANGED_OR_CUTOFF');
+  assert.equal(h.data.payments.length,0);assert.equal(h.data.bookings.length,0);
+ }
+});
+test('missing participant or guardian acceptance cannot be replaced by a date-wide gate',()=>{
+ const h=setup();h.ctx.drusRequireMemberConsent_=()=>{throw Error('No verified guardian')};
+ assert.equal(h.ctx.drufCommitVerifiedBankTransaction_(h.movement).ok,false);
+ assert.equal(h.data.payments.length,0);assert.equal(h.data.bookings.length,0);
+});
+test('interrupted bank commit stays COMMITTING and retry creates no duplicate',()=>{
+ const h=setup();h.ctx.createBooking_=()=>{throw Error('Synthetic Sheets failure')};
+ assert.throws(()=>h.ctx.drufCommitVerifiedBankTransaction_(h.movement),/Sheets failure/);
+ assert.equal(h.quote.Status,'COMMITTING');assert.equal(h.data.payments.length,1);
+ assert.equal(h.ctx.drufCommitVerifiedBankTransaction_(h.movement).ok,false);
+ assert.equal(h.data.payments.length,1);assert.equal(h.data.bookings.length,0);
+});
+test('invalid quote expiration cannot become an indefinite payment authorisation',()=>{
+ const h=setup();h.quote.Expires_At='not a date';
+ assert.equal(h.ctx.drufCommitVerifiedBankTransaction_(h.movement).code,'QUOTE_EXPIRED');
+ assert.equal(h.data.payments.length,0);
 });

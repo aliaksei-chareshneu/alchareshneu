@@ -161,6 +161,7 @@ test('Bank payment instructions create local Czech QR string only for authorized
 });
 test('new numeric quote wrapper is fail-closed before old createQuote is ever called',()=>{
   let called=false;
+  env.withLock_=fn=>fn();
   env.PropertiesService={getScriptProperties:()=>({getProperty:()=>''})};
   env.configMap_=()=>({SAFETY_FORM_VERSION:'',RULES_VERSION:''});
   env.rows_=()=>[];

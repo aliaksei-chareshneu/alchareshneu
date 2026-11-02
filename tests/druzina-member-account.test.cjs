@@ -58,7 +58,7 @@ test('unverified proof is never paid; full verified receipt is required',()=>{
   assert.equal(r.account.payments[0].status,'PENDING_VERIFICATION');
   assert.equal(r.account.payments[0].confirmedReceivedCZK,0);
   const fullyVerified={...base,payments:[{...base.payments[0],
-    Verification_Status:'VERIFIED',Verified_At:'2026-11-18T10:00:00Z'}]};
+    Verification_Status:'VERIFIED',Verified_At:'2026-11-18T10:00:00Z',Reconciliation_Note:'FIO_SETTLED_ID=1000000009'}]};
   const paid=env.druaPrivateView(auth,fullyVerified).account.payments[0];
   assert.equal(paid.status,'PAID_VERIFIED');
   assert.equal(paid.confirmedReceivedCZK,240);
@@ -70,7 +70,7 @@ test('unverified proof is never paid; full verified receipt is required',()=>{
 test('package shows consumed no-shows without inventing extra credits',()=>{
   const p=env.druaPrivateView(auth,base).account.packages[0];
   assert.equal(p.scheduled,4);
-  assert.equal(p.remaining,2);
+  assert.equal(p.remaining,3); // noShow is already included in Sessions_Used
 });
 test('progress is instructor verified and approved checkpoint only',()=>{
   const a=env.druaPrivateView(auth,base).account;
@@ -95,7 +95,7 @@ test('Google Calendar link is available only for confirmed bank-paid and venue-a
  const source={...base,
   payments:[{Member_ID:memberId,Payment_ID:'PAY-OK',Expected_Amount_CZK:240,
     Received_Amount_CZK:240,Verification_Status:'VERIFIED',
-    Verified_At:'2026-11-16T09:00:00Z'}],
+    Verified_At:'2026-11-16T09:00:00Z',Reconciliation_Note:'FIO_SETTLED_ID=1000000009'}],
   bookings:[{Member_ID:memberId,Payment_ID:'PAY-OK',Booking_ID:'B-1',Session_ID:'S-1',
     Status:'VERIFIED',Attendance_Status:'NOT_CHECKED',Applied_Price_CZK:240}],
   sessions:[{Session_ID:'S-1',Status:'OPEN',Start_DateTime:'2026-11-16T17:00:00Z',
