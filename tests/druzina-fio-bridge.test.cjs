@@ -6,6 +6,9 @@ const vm=require('node:vm');
 const path=require('node:path');
 const source=fs.readFileSync(path.join(__dirname,'../DruzinaFioBridge.gs'),'utf8');
 const env=vm.createContext({});vm.runInContext(source,env,{filename:'DruzinaFioBridge.gs'});
+// Positive fixtures simulate a future separately reviewed code release.
+vm.runInContext('const DRUS_PAID_BANK_ADAPTER_LIVE=true;',env);
+env.drusPaidRelease_=()=>({ok:true});
 const {drufVS,drufNumericVS,drufMoneyHalers,drufParseFioJSON,drufBankMatch,drufCanLaunch}=env;
 const account={accountId:'123456789',bankId:'2010'};
 const doc=(tx)=>({accountStatement:{info:{...account,currency:'CZK'},
@@ -128,6 +131,16 @@ test('Fio settlement cannot exceed total 100 humans or bypass signed staffing, v
    BOOKABLE_TRAINING_PAX_FAIL_CLOSED_FORMULA:75}]).ok,true);
 });
 
+test('Public adapter remains fail-closed even if all bank and safety flags are YES',()=>{
+  const paused=vm.createContext({});
+  vm.runInContext(source,paused,{filename:'DruzinaFioBridge.gs'});
+  paused.drusPaidRelease_=()=>({ok:true}); // absent explicit code-level release still blocks
+  const cfg={SAFETY_FORM_VERSION:'v1',RULES_VERSION:'v1'};
+  assert.equal(paused.drufCanLaunch(cfg,flags,[gate]).code,'CANONICAL_PAID_ADAPTER_DISABLED');
+  const payee={iban:'CZ6508000000192000145399',verifiedLegalPayee:true,
+    verifiedReadOnlyBankAccount:true,paidBookingLiveApproved:true};
+  assert.equal(paused.drufBankInstructions(expected,payee).code,'CANONICAL_PAID_ADAPTER_DISABLED');
+});
 test('Bank payment instructions create local Czech QR string only for authorized payee',()=>{
   const iban='CZ6508000000192000145399';
   assert.equal(env.drufCzIbanValid(iban),true);
