@@ -83,6 +83,26 @@ function impEnsureRsvpAttribution_(sh){
  });
  return impHeader_(sh);
 }
+function impAppendOrelSource_(ss,r){
+ if(String(r.event_id||'')!=='PUB-OREL-20261114')return;
+ var sh=ss.getSheetByName('OREL_20261114_Sources');if(!sh)return;
+ var email=String(r.email||'').toLowerCase().trim(),n=sh.getLastRow();
+ if(!email)return;
+ if(n>1&&sh.getRange(2,2,n-1,1).getDisplayValues().some(function(x){
+  return String(x[0]||'').toLowerCase().trim()===email;
+ }))return;
+ var channels={IS_MUNI:'IS MUNI',SPOLEK_MUNI:'Spolek přírodovědců MUNI',
+  FACEBOOK:'Facebook',INSTAGRAM:'Instagram',WHATSAPP:'WhatsApp',
+  TELEGRAM:'Telegram',FRIEND:'Friends',GOTOBRNO:'GOtoBRNO',
+  OTHER_SITE:'Other website',OTHER:'Other'};
+ var channel=channels[r.discovery_source]||'';
+ var detail=[r.utm_source?'UTM: '+r.utm_source:'',r.utm_campaign?'Campaign: '+r.utm_campaign:''].filter(Boolean).join('; ');
+ var row=[[r.first_name,r.last_name].filter(Boolean).join(' '),email,
+  r.rsvp_status||'',r.language||'',channel,detail,'','','',
+  channel?'FORM_REPORTED':(detail?'CAMPAIGN_TAGGED':'UNATTRIBUTED'),
+  'NOT_REQUESTED','',r.event_id||'','Automatic source data, no seat approval'];
+ sh.getRange(n+1,1,1,14).setValues([row]);
+}
 function impWriteRsvps_(ss,items,events){
   var sh=ss.getSheetByName('Registrations');if(!sh)throw Error('Missing Registrations');
   var h=(items||[]).some(function(r){return r&&Object.prototype.hasOwnProperty.call(r,'discovery_source');})?
@@ -123,6 +143,7 @@ function impWriteRsvps_(ss,items,events){
         Receipt_Status:'PENDING',Receipt_Attempts:0,Receipt_Locale:r.language||'cs'
       });
       existing[id]=true;added++;
+      try{impAppendOrelSource_(ss,r);}catch(e){console.error('Orel source mirror unavailable');}
     }
     ids.push(id);
   });
