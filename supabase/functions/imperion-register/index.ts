@@ -187,6 +187,10 @@ Deno.serve(async (req:Request):Promise<Response>=>{
     .gt('begins_at',new Date().toISOString()).maybeSingle();
   if (eventError) return reply({error:'temporarily_unavailable'},503,origin);
   if (!event) return reply({error:'event_not_available'},400,origin);
+  // Prevent a minor's interest submission for the adult-only paid city walk.
+  // Client-side disabled radio alone is not an authorization/safety barrier.
+  if (event.event_id==='PUB-WALK-20261117' && v.age!=='adult')
+    return reply({error:'adult_only_event'},400,origin);
   if (event.contact_activity && !/\/druzina\/(safety|rules)\//.test(String(event.rules_url)))
     return reply({error:'event_not_available'},400,origin);
   const ip=String(req.headers.get('cf-connecting-ip')||req.headers.get('x-real-ip')||
