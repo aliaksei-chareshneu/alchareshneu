@@ -84,7 +84,8 @@ function drufBankMatch(transfer,quote,expectedAccountKey,alreadyUsedIds){
     return {ok:false,code:'NOT_SETTLED_CZK_CREDIT'};
   if(transfer.variableSymbol!==reference)return {ok:false,code:'VS_MISMATCH'};
   if(!Number.isSafeInteger(transfer.amountHalers)||transfer.amountHalers<1||
-     transfer.amountHalers!==Number(quote.Expected_Amount_CZK)*100)
+     transfer.amountHalers!==Number(quote.Expected_Amount_CZK)*100||
+     drufMoneyHalers(transfer.amountCZK)!==transfer.amountHalers)
     return {ok:false,code:'AMOUNT_MISMATCH'};
   if(!transfer.transactionId||!/^\d{6,18}$/.test(String(transfer.transactionId)))
     return {ok:false,code:'BAD_BANK_TRANSACTION_ID'};
