@@ -34,7 +34,8 @@ function drupProofPreflight_(payment,quote,movement,payeeKey,usedBankIds,linkedB
   var due=Number(payment.Expected_Amount_CZK);
   if(!Number.isSafeInteger(due)||due<1||due!==Number(quote.Expected_Amount_CZK)||
      Number(payment.Amount_CZK)!==due ||
-     movement.amountHalers!==due*100)
+     movement.amountHalers!==due*100||
+     drufMoneyHalers(movement.amountCZK)!==movement.amountHalers)
     return {ok:false,code:'BANK_AMOUNT_NOT_EXACT'};
   var submittedAt=new Date(payment.Declared_At);
   if(!isFinite(submittedAt.getTime())||submittedAt.getTime()>Date.now()||
