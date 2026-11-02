@@ -134,6 +134,15 @@ function drufPositiveGate(row){
   if(max>100||staff+others>=max||staff+others>=100)return false;
   return seats<=max-staff-others&&seats<=100-staff-others;
 }
+function drufCanonicalPaidReady_(){
+  try{
+    // YES flags cannot activate a source-only bank adapter. The existing
+    // public release requires an independently reviewed, enabled adapter.
+    return typeof DRUS_PAID_BANK_ADAPTER_LIVE!=='undefined'&&
+      DRUS_PAID_BANK_ADAPTER_LIVE===true&&
+      typeof drusPaidRelease_==='function'&&drusPaidRelease_().ok===true;
+  }catch(_){return false;}
+}
 function drufCanLaunch(config,properties,gates){
   if(!config||!properties)return {ok:false,code:'CONFIG_MISSING'};
   if(String(properties.DRU_FIO_READONLY_CONFIRMED)!=='YES')
@@ -149,6 +158,8 @@ function drufCanLaunch(config,properties,gates){
     return {ok:false,code:'SAFETY_CONSENTS_UNVERIFIED'};
   if(!Array.isArray(gates)||gates.length<1||!gates.every(drufPositiveGate))
     return {ok:false,code:'PER_DATE_SAFETY_GATE_UNVERIFIED'};
+  if(!drufCanonicalPaidReady_())
+    return {ok:false,code:'CANONICAL_PAID_ADAPTER_DISABLED'};
   return {ok:true,code:'DRU_FIO_RELEASE_GATES_OK'};
 }
 /* Only verified owner-side Apps Script can call this. No token, account or
@@ -223,6 +234,8 @@ function drufCzIbanValid(value){
   return mod===1;
 }
 function drufBankInstructions(quote,merchant){
+  if(!drufCanonicalPaidReady_())
+    return {ok:false,code:'CANONICAL_PAID_ADAPTER_DISABLED'};
   if(!quote||!merchant||merchant.verifiedLegalPayee!==true||
       merchant.verifiedReadOnlyBankAccount!==true||
       merchant.paidBookingLiveApproved!==true)
