@@ -44,7 +44,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p _pages
-          for dir in academy autopilot calendar corporate dame-na-vas-2755 druzina ideas images media platform-evidence praha-hema register start walkers; do
+          for dir in academy autopilot brno-stories calendar corporate dame-na-vas-2755 druzina ideas images media platform-evidence praha-hema register start walkers; do
             if [ -d "$dir" ]; then
               cp -a "$dir" "_pages/$dir"
             fi
@@ -63,6 +63,9 @@ jobs:
           test -s _pages/index.html
           test -s _pages/sitemap.xml
           test -s _pages/dame-na-vas-2755/index.html
+          test -s _pages/brno-stories/index.html
+          test -s _pages/brno-stories/tanec-draku-2026/index.html
+          grep -q 'MByZEt1c_Jw' _pages/brno-stories/tanec-draku-2026/index.html
           grep -q 'paro.damenavas.cz/project/2755/' _pages/dame-na-vas-2755/index.html
           grep -q 'dame-na-vas-2755/' _pages/sitemap.xml
           du -sh _pages
