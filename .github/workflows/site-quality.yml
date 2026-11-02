@@ -98,7 +98,7 @@ jobs:
         run: node --test tests/imperion-community-routing.test.cjs
       - name: Verify private five-agent safety and proof logic
         run: |
-          node --test tests/imperion-agent-snapshot.test.cjs tests/imperion-agent-team.test.cjs tests/imperion-closed-loop-audit.test.cjs tests/imperion-proof-auditor.test.cjs
+          node --test tests/imperion-agent-snapshot.test.cjs tests/imperion-agent-team.test.cjs tests/imperion-closed-loop-audit.test.cjs tests/imperion-proof-auditor.test.cjs tests/imperion-agent-runtime.test.cjs
 
       - name: Verify Apps Script universal registration and retention isolation
         run: node tests/universal-rsvp.test.cjs
