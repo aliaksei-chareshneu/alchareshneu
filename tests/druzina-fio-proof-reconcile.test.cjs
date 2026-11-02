@@ -71,6 +71,8 @@ test('Wrong bank amount, payee, token permission or VS can never verify proof',(
  const {ctx,movement,getCalls}=setup();
  const wrong=[
   {...movement,amountHalers:12000,amountCZK:120},
+  {...movement,amountCZK:120},
+  {...movement,amountCZK:240.001},
   {...movement,accountKey:'999/2010'},
   {...movement,variableSymbol:'0000000001'},
   {...movement,tokenAccountVerified:false},
