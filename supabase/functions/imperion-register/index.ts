@@ -55,6 +55,18 @@ function safeEnum(v: unknown, allowed: readonly string[]): string {
   if (!allowed.includes(s)) throw new Error('option');
   return s;
 }
+// Participant-reported first discovery is optional and never a marketing opt-in.
+// Campaign codes are short ASCII tokens: no URLs, IP addresses, emails or click IDs.
+const DISCOVERY_CHOICES=['FACEBOOK','INSTAGRAM','WHATSAPP','TELEGRAM','FRIEND',
+  'GOTOBRNO','IS_MUNI','SPOLEK_MUNI','OTHER_SITE','OTHER'] as const;
+function discoveryCode(v:unknown):string|null {
+  const s=text(v,30).toUpperCase();
+  return DISCOVERY_CHOICES.includes(s as typeof DISCOVERY_CHOICES[number])?s:null;
+}
+function campaignCode(v:unknown,max:number):string|null {
+  const s=text(v,max+1);
+  return s.length>0&&s.length<=max&&/^[A-Za-z0-9][A-Za-z0-9_.-]*$/.test(s)?s:null;
+}
 async function hashedBucket(label: string, value: string): Promise<string> {
   // HMAC prevents later dictionary lookup of identifiable IP/email values.
   // Inputs are NOT written to request logs or the rate-limit table.
@@ -205,6 +217,7 @@ Deno.serve(async (req:Request):Promise<Response>=>{
     eventId:string;first:string;last:string;email:string;phone:string;age:string;
     guardianName:string|null;guardianPhone:string|null;photo:string;
     future:boolean;rsvp:string;locale:string;
+    discovery:string|null;utmSource:string|null;utmMedium:string|null;utmCampaign:string|null;
   };
   try {
     const age=safeEnum(body.ageGroup,['adult','under18']);
@@ -218,6 +231,10 @@ Deno.serve(async (req:Request):Promise<Response>=>{
       future:age==='adult'&&body.futureUpdates===true,
       rsvp:safeEnum(body.rsvp,['YES','MAYBE','NO']),
       locale:safeEnum(body.language||'en',['en','cs','ru','uk']),
+      discovery:discoveryCode(body.discoverySource),
+      utmSource:campaignCode(body.utmSource,48),
+      utmMedium:campaignCode(body.utmMedium,24),
+      utmCampaign:campaignCode(body.utmCampaign,64),
     };
     v.eventId=text(body.eventId,100);
     if (!/^[A-Za-z0-9-]{2,100}$/.test(v.eventId)) throw new Error('event');
@@ -250,6 +267,8 @@ Deno.serve(async (req:Request):Promise<Response>=>{
     rsvp_status:v.rsvp,safety_acknowledged:true,safety_version:'2026-10-25-v1',
     photo_choice:v.photo,marketing_requested:v.future,data_controller:event.data_controller,
     language:v.locale,retention_until:expiry.toISOString(),
+    discovery_source:v.discovery,utm_source:v.utmSource,
+    utm_medium:v.utmMedium,utm_campaign:v.utmCampaign,
   });
   // A duplicate is deliberately indistinguishable to avoid an identity oracle
   // and must never mutate existing contact information or consents.
