@@ -248,6 +248,9 @@ function imperionAgentRunPreview() {
   var book=impA5Owner_(null);
   var report=impA5Compute_(imperionAgentTrustedSnapshot_(book.getId()));
   report.seo=impA5Seo_();report.proof=impA5Proof_();
+  // Owner-only execution log: public provider state/ID, never Hub rows or PII.
+  console.log('IMPERION_AGENT5_PUBLIC_PROOF_STATE='+report.proof.state+
+    ' PUBLIC_GITHUB_RUN_ID='+(report.proof.workflow_id||'NONE'));
   return report;
 }
 function imperionAgentRunAndRecord() { return impA5Run_(impA5Owner_(null)); }
