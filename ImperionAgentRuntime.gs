@@ -192,7 +192,11 @@ function impA5Receipt_(book,report) {
   if(last>1){var old=sh.getRange(2,1,last-1,10).getDisplayValues();
     var found=old.filter(function(r){return r[0]===receiptId||r[9]===key;});
     if(found.length>1)throw Error('DUPLICATE_AGENT_RECEIPT_CONFLICT');
-    if(found.length===1)return {created:false,receipt_id:receiptId,row:old.findIndex(function(r){return r[0]===receiptId;})+2};
+    if(found.length===1){
+      var exact=old.findIndex(function(r){return r[0]===receiptId&&r[9]===key;});
+      if(exact<0)throw Error('AGENT_RECEIPT_IDEMPOTENCY_CONFLICT');
+      return {created:false,receipt_id:receiptId,row:exact+2};
+    }
   }
   if(last>=sh.getMaxRows())throw Error('AGENT_RECEIPTS_CAPACITY');
   var summary='CHIEF '+report.chief.review_needed+'/'+report.chief.overdue+
