@@ -151,3 +151,14 @@ test('GitHub proof requests explicit user-agent and failures expose only HTTP co
   assert.equal(report.observed_ci_success,false);
   assert.doesNotMatch(JSON.stringify(report),/private-provider-body/);
 });
+
+test('owner preview logs only public provider proof status without leaking Hub data',()=>{
+  const h=harness(),logs=[];h.c.console={log:m=>logs.push(String(m))};
+  const result=h.c.imperionAgentRunPreview();
+  assert.equal(result.proof.observed_ci_success,true);
+  assert.equal(logs.length,1);
+  assert.match(logs[0],/^IMPERION_AGENT5_PUBLIC_PROOF_STATE=CI_SUCCESS_PROVIDER_READBACK PUBLIC_GITHUB_RUN_ID=\d+$/);
+  assert.doesNotMatch(logs[0],/fictional@example|PRIVATE_DETAILS|valid-media-id|SECRET|Authorization/i);
+  assert.equal(h.jobs.rows.length,1);
+  assert.equal(h.receipts.rows.length,1);
+});
