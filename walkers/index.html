@@ -1511,7 +1511,15 @@ function render(lang) {
   });
   applyTranslations(lang);
   const registrationLink={cs:'../register/',en:'../register/en/',ru:'../register/ru/',uk:'../register/uk/'}[lang];
-  document.querySelectorAll('a[href^="../register/"]').forEach(a=>a.href=registrationLink);
+  // Preserve event/UTM deep links across all 4 language switches.
+  // The former rewrite erased ?event=... and diverted specific paid events.
+  document.querySelectorAll('a[href^="../register/"],a[data-register-original]').forEach(a=>{
+    const original=a.dataset.registerOriginal||a.getAttribute('href')||'';
+    if(!a.dataset.registerOriginal)a.dataset.registerOriginal=original;
+    const split=original.search(/[?#]/);
+    const suffix=split>=0?original.slice(split):'';
+    a.setAttribute('href',registrationLink+suffix);
+  });
 }
 
 bindLangButtons();
