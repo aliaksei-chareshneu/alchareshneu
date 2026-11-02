@@ -74,6 +74,8 @@ test('Strict bank match requires exact payee, decimal amount, VS and not duplica
  assert.equal(drufBankMatch({...move,accountKey:'222/2010'},expected,'123456789/2010',[]).code,'WRONG_PAYEE');
  assert.equal(drufBankMatch({...move,variableSymbol:'1'},expected,'123456789/2010',[]).code,'VS_MISMATCH');
  assert.equal(drufBankMatch({...move,amountHalers:30001},expected,'123456789/2010',[]).code,'AMOUNT_MISMATCH');
+ assert.equal(drufBankMatch({...move,amountCZK:299},expected,'123456789/2010',[]).code,'AMOUNT_MISMATCH');
+ assert.equal(drufBankMatch({...move,amountCZK:300.001},expected,'123456789/2010',[]).code,'AMOUNT_MISMATCH');
  assert.equal(drufBankMatch(move,expected,'123456789/2010',[move.transactionId]).code,'ALREADY_USED');
  assert.equal(drufBankMatch(move,{...expected,Status:'COMMITTED'},'123456789/2010',[]).code,'QUOTE_NOT_OPEN');
  assert.equal(drufBankMatch(move,{...expected,Expires_At:'2026-10-22T00:00:00Z'},'123456789/2010',[]).code,'QUOTE_EXPIRED');
