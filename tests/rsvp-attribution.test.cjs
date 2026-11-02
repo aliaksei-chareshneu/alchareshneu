@@ -54,3 +54,28 @@ test('attribution reaches the existing script-owned CRM through the authenticate
  assert.ok(crm.includes("Source_Channel:'WEBSITE_RSVP_SUPABASE_UNCONFIRMED'"));
  assert.ok(crm.includes("Receipt_Status:'PENDING'"));
 });
+
+test('new Orel source entries are idempotent, never mark a seat approved, never contact applicants',()=>{
+ const api=new Function(crm+';return {impAppendOrelSource_};')();
+ const rows=[];
+ const sheet={
+  getLastRow:()=>rows.length+1,
+  getRange:(row,col,n=1,w=1)=>({
+   getDisplayValues:()=>rows.slice(row-2,row-2+n).map(x=>[x[1]]),
+   setValues:values=>{if(col!==1||w!==14)throw Error('wrong source destination');rows.push(...values);}
+  })
+ };
+ const ss={getSheetByName:name=>name==='OREL_20261114_Sources'?sheet:null};
+ const item={event_id:'PUB-OREL-20261114',email:'source-test@example.invalid',
+  first_name:'Source',last_name:'Test',rsvp_status:'YES',language:'en',
+  discovery_source:'SPOLEK_MUNI',utm_source:'MUNI_EMAIL',utm_campaign:'HEMA_NOV14'};
+ api.impAppendOrelSource_(ss,item);
+ api.impAppendOrelSource_(ss,item);
+ assert.equal(rows.length,1);
+ assert.equal(rows[0][4],'Spolek přírodovědců MUNI');
+ assert.equal(rows[0][9],'FORM_REPORTED');
+ assert.equal(rows[0][10],'NOT_REQUESTED');
+ assert.match(rows[0][13],/no seat approval/i);
+ api.impAppendOrelSource_(ss,{...item,event_id:'UNRELATED'});
+ assert.equal(rows.length,1);
+});
