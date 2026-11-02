@@ -6,6 +6,9 @@ const paths=['DruzinaBillingPolicy.gs','DruzinaFioBridge.gs','DruzinaFioCommit.g
 function setup() {
  const ctx=vm.createContext({});
  paths.forEach(name=>vm.runInContext(fs.readFileSync(path.join(__dirname,'..',name),'utf8'),ctx,{filename:name}));
+// The real deployed code has this constant FALSE. Simulate a future audited release.
+vm.runInContext('const DRUS_PAID_BANK_ADAPTER_LIVE=true;',ctx);
+ctx.drusPaidRelease_=()=>({ok:true});
  const SHEETS={QUOTES:'quotes',MEMBERS:'members',PAYMENTS:'payments',PAYMENT_ITEMS:'payment_items',
    BOOKINGS:'bookings',HOLDS:'holds',AUDIT:'audit'};
  const future='2026-11-16T17:00:00.000Z'; // November-only product fixture, not a pre-Nov test date
@@ -75,6 +78,13 @@ test('Fio settlement creates exactly one verified payment + booking in existing 
  assert.equal(replay.ok,false);
  assert.equal(data.payments.length,1);
  assert.equal(data.bookings.length,1);
+});
+test('Fio credit never writes a booking when canonical paid release is blocked',()=>{
+ const {ctx,data,movement}=setup();
+ ctx.drusPaidRelease_=()=>({ok:false});
+ assert.equal(ctx.drufCommitVerifiedBankTransaction_(movement).code,'CANONICAL_PAID_ADAPTER_DISABLED');
+ assert.equal(data.payments.length,0);
+ assert.equal(data.bookings.length,0);
 });
 test('Unverified client-made bank credit cannot produce a payment or booking',()=>{
  const {ctx,data,movement}=setup();
