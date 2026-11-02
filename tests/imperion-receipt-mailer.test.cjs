@@ -8,7 +8,7 @@ function harness(){
    Submission_ID:ref,Event_ID:'PUB-HIKE-20261101',
    Source_Channel:'WEBSITE_RSVP_SUPABASE_UNCONFIRMED',
    Email:'applicant@example.invalid',Data_Controller:'Družina Moravy, z. s.',
-   Receipt_Status:'PENDING',Receipt_Attempts:'0',Receipt_Sent_At:'',Receipt_Locale:'ru'
+   Receipt_Status:'PENDING',Receipt_Attempts:'0',Receipt_Sent_At:'',Receipt_Locale:'ru',RSVP_Status:'REGISTERED'
  };
  const keys=Object.keys(record),rows=[keys,keys.map(k=>record[k])];
  const sheet={
@@ -63,6 +63,33 @@ test('rejects stale/wrong-source and non-email rows, including business rows out
  row[m.Source_Channel]='WEBSITE_RSVP_SUPABASE_UNCONFIRMED';
  row[m.Email]='not-a-valid-email';assert.equal(h.api.impReceiptMessage_('RSVP',row,m,{}),null);
 });
+test('RSVP receipt uses the saved answer, distinguishes pending seats and requests optional redacted screenshots',()=>{
+ const h=harness(),m=Object.fromEntries(h.keys.map((k,i)=>[k,i]));
+ const translations={
+  cs:{yes:'Zaznamenali jsme, že chcete přijít',screen:'snímek obrazovky',subject:'místo zatím nepotvrzeno'},
+  en:{yes:'You selected YES',screen:'screenshot',subject:'place not yet confirmed'},
+  ru:{yes:'Вы выбрали ДА',screen:'скриншот',subject:'место пока не подтверждено'},
+  uk:{yes:'Ви обрали ТАК',screen:'скриншот',subject:'місце ще не підтверджене'}
+ };
+ for(const [lang,expected] of Object.entries(translations)){
+  const row=h.rows[1].slice();
+  row[m.Receipt_Locale]=lang;
+  row[m.RSVP_Status]='REGISTERED';
+  const receipt=h.api.impReceiptMessage_('RSVP',row,m,{});
+  assert.ok(receipt);
+  assert.ok(receipt.subject.includes(expected.subject),lang);
+  assert.ok(receipt.body.includes(expected.yes),lang);
+  assert.ok(receipt.body.includes(expected.screen),lang);
+  assert.doesNotMatch(receipt.body,/Pokud plánujete přijít|If you plan to join us|Если вы планируете прийти|Якщо плануєте прийти/);
+  row[m.RSVP_Status]='MAYBE';
+  const maybe=h.api.impReceiptMessage_('RSVP',row,m,{});
+  assert.ok(!maybe.body.includes(expected.yes),lang+' maybe');
+  row[m.RSVP_Status]='DECLINED';
+  const declined=h.api.impReceiptMessage_('RSVP',row,m,{});
+  assert.ok(!declined.body.includes(expected.yes),lang+' declined');
+ }
+});
+
 test('source contains GDPR-safe dispatch, retry and 5-minute trigger not a marketing campaign',()=>{
  assert.doesNotThrow(()=>new Function(source));
  assert.match(source,/everyMinutes\(5\)/);
