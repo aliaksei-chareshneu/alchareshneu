@@ -263,10 +263,68 @@ function impCommunityRoute_(community,lang){
  return {community:key,platform:platform,news:route.news,chatProperty:route.chatProperty};
 }
 
+/** Transactional RSVP receipt: record the form answer, never request a second RSVP.
+ * A form submission is not organiser-approved attendance. Optional troubleshooting
+ * screenshots must have personal information hidden.
+ */
+function impRsvpReceiptCopy_(lang,status){
+ var messages={
+  cs:{
+   pending:'Přihláška přijata – místo zatím nepotvrzeno',
+   maybeSubject:'Přihláška přijata – účast zatím nerozhodnuta',
+   declinedSubject:'Vaše odpověď byla zaznamenána',
+   intro:'Děkujeme, Vaši odpověď z registračního formuláře jsme přijali. Toto je potvrzení přijetí, nikoli rezervace místa.',
+   yes:'Zaznamenali jsme, že chcete přijít (ANO). Nemusíte vyplňovat formulář znovu ani potvrzovat svou účast dalším e-mailem. Organizátor Vám po kontrole kapacity samostatně potvrdí místo nebo oznámí další postup.',
+   maybe:'Zaznamenali jsme odpověď MOŽNÁ. Místo zatím není rezervováno. Jakmile budete vědět, zda přijdete, stačí odpovědět na tento e-mail; formulář nevyplňujte znovu.',
+   no:'Zaznamenali jsme odpověď NE. S Vaší účastí nepočítáme. Pokud šlo o omyl, stačí odpovědět na tento e-mail; formulář nevyplňujte znovu.',
+   unknown:'Vaši žádost evidujeme, ale místo zatím potvrzené není. Po kontrole kapacity Vám organizátor samostatně oznámí další postup. Formulář není potřeba vyplňovat znovu.',
+   troubleshooting:'Pokud při registraci nastala chyba nebo něco nebylo jasné, napište nám prosím, co se zobrazilo. Pokud můžete, přiložte snímek obrazovky bez viditelných osobních údajů. Jestli vše fungovalo, nemusíte nic posílat.'
+  },
+  en:{
+   pending:'Registration received – place not yet confirmed',
+   maybeSubject:'Registration received – attendance undecided',
+   declinedSubject:'Your response has been recorded',
+   intro:'Thank you. We have received your form response. This acknowledges your submission; it is not a confirmed booking.',
+   yes:'You selected YES and we have saved it. You do not need to submit the form again or send another email to confirm your interest. After checking capacity, the organiser will separately confirm your place or explain the next step.',
+   maybe:'You selected MAYBE. No place is reserved yet. Once you know whether you can attend, just reply to this email; please do not submit the form again.',
+   no:'You selected NO. We are not expecting you to attend. If this was a mistake, reply to this email rather than submitting the form again.',
+   unknown:'We have recorded your request, but no place is confirmed yet. The organiser will tell you the next step after checking capacity. You do not need to re-submit the form.',
+   troubleshooting:'If you encountered an error or an unclear message while registering, please tell us what appeared. If possible, attach a screenshot with any personal information hidden. If everything worked, no reply is needed.'
+  },
+  ru:{
+   pending:'Заявка получена – место пока не подтверждено',
+   maybeSubject:'Заявка получена – решение об участии не принято',
+   declinedSubject:'Ваш ответ зарегистрирован',
+   intro:'Спасибо! Мы получили ответ из регистрационной формы. Это подтверждение получения заявки, но не бронирование места.',
+   yes:'Вы выбрали ДА, и мы сохранили ваш ответ. Повторно заполнять форму или подтверждать интерес отдельным письмом не нужно. После проверки вместимости организатор отдельно подтвердит место или сообщит о дальнейших действиях.',
+   maybe:'Вы выбрали ВОЗМОЖНО. Место пока не забронировано. Когда решите, сможете ли прийти, просто ответьте на это письмо; форму повторно заполнять не нужно.',
+   no:'Вы выбрали НЕТ. Мы не рассчитываем на ваше участие. Если это ошибка, просто ответьте на это письмо вместо повторной регистрации.',
+   unknown:'Ваша заявка сохранена, но место ещё не подтверждено. После проверки вместимости организатор сообщит о дальнейших действиях; повторная регистрация не требуется.',
+   troubleshooting:'Если при регистрации возникла ошибка или какое-то сообщение было непонятным, напишите, что именно отображалось. По возможности приложите скриншот, скрыв личные данные. Если всё работало, отвечать не нужно.'
+  },
+  uk:{
+   pending:'Заявку отримано – місце ще не підтверджене',
+   maybeSubject:'Заявку отримано – участь ще не визначена',
+   declinedSubject:'Вашу відповідь збережено',
+   intro:'Дякуємо! Ми отримали вашу відповідь із реєстраційної форми. Це підтвердження отримання, а не бронювання місця.',
+   yes:'Ви обрали ТАК, і ми зберегли вашу відповідь. Повторно заповнювати форму або підтверджувати намір окремим листом не потрібно. Після перевірки місткості організатор окремо підтвердить місце або повідомить про наступні дії.',
+   maybe:'Ви обрали МОЖЛИВО. Місце поки не заброньоване. Коли вирішите, чи прийдете, просто дайте відповідь на цей лист; повторно заповнювати форму не потрібно.',
+   no:'Ви обрали НІ. Ми не розраховуємо на вашу участь. Якщо це помилка, просто дайте відповідь на цей лист, а не реєструйтеся повторно.',
+   unknown:'Вашу заявку збережено, але місце ще не підтверджене. Після перевірки місткості організатор повідомить про наступні дії; повторна реєстрація не потрібна.',
+   troubleshooting:'Якщо під час реєстрації виникла помилка або щось було незрозуміло, напишіть, що саме відображалося. За можливості додайте скриншот, приховавши особисті дані. Якщо все працювало, відповідати не потрібно.'
+  }
+ };
+ var w=messages[lang]||messages.cs;
+ var selected=status==='DECLINED'?'no':status==='MAYBE'?'maybe':status==='REGISTERED'?'yes':'unknown';
+ return {intro:w.intro,next:w[selected],troubleshooting:w.troubleshooting,
+  subject:selected==='no'?w.declinedSubject:selected==='maybe'?w.maybeSubject:w.pending};
+}
+
 function impReceiptMessage_(kind,row,m,events){
  function v(n){return m[n]===undefined?'':String(row[m[n]]||'').trim().slice(0,300);}
  var id='',email=v('Email'),label='',lang=v('Receipt_Locale')||'cs',w=impReceiptWords_(lang);
- var parts=[w[1]],sender='Družina Moravy';
+ var receiptCopy=kind==='RSVP'?impRsvpReceiptCopy_(lang,v('RSVP_Status')):null;
+ var parts=[receiptCopy?receiptCopy.intro:w[1]],sender='Družina Moravy';
  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email))return null;
  if(kind==='RSVP'){
   id=v('Submission_ID');if(!/^[0-9a-f-]{36}$/i.test(id)||!/^WEBSITE_RSVP_SUPABASE_/.test(v('Source_Channel')))return null;
@@ -333,19 +391,13 @@ function impReceiptMessage_(kind,row,m,events){
  }else{return null;}
  parts.splice(1,0,w[2]+': '+id,w[3]+': '+label);
  if(kind==='RSVP'){
-  var followNote={
-   cs:'Pokud plánujete přijít, dejte nám prosím ještě krátce vědět. Vaše místo není potvrzené, dokud vám pořadatel neodpoví.',
-   en:'If you plan to join us, please send a short message. Your place is not confirmed until the organiser replies.',
-   ru:'Если вы планируете прийти, пожалуйста, напишите короткое сообщение организатору. Участие подтвердят ответным сообщением.',
-   uk:'Якщо плануєте прийти, будь ласка, напишіть організатору коротке повідомлення. Участь буде підтверджено окремою відповіддю.'
-  };
-  parts.push('',followNote[lang]||followNote.cs,
+  parts.push('',receiptCopy.next,'',receiptCopy.troubleshooting,
    'Telegram: https://t.me/Chareshneu',
    'WhatsApp: https://wa.me/420702914842',
    'Email: reply to this message');
  }
  parts.push('',w[10]);
- return {to:email,subject:w[0]+' · '+id.slice(0,8),body:parts.join('\n'),sender:sender};
+ return {to:email,subject:(receiptCopy?receiptCopy.subject:w[0])+' · '+id.slice(0,8),body:parts.join('\n'),sender:sender};
 }
 function impSendReceiptQueue_(ss,cfg,events){
  var tabs=[['Registrations','RSVP'],['Druzina_Requests','TRAINING'],['Leads','B2B']];
