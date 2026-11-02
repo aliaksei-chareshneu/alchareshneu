@@ -147,7 +147,7 @@ test('event logistics WhatsApp link is sourced from canonical Events, RSVP only 
  assert.ok(!h.impReceiptMessage_('RSVP',[...row.slice(0,4),'under18',...row.slice(5)],m,events).body.includes(link));
  assert.ok(!h.impReceiptMessage_('RSVP',[...row.slice(0,5),'DECLINED',...row.slice(6)],m,events).body.includes(link));
  assert.ok(!h.impReceiptMessage_('RSVP',row,m,{[evId]:{title:'Other event'}}).body.includes(link));
- assert.match(gs,/events=impReceiptAttachEventGroups_\(ss,events\|\|impReceiptCatalog_\(\)\)/);
+ assert.match(gs,/events=impReceiptAttachEventGroups_\(ss,events\|\|impReceiptCatalog_\(ss\)\)/);
 });
 
 test('owner digest summarizes the precise new event without disclosing applicant PII',()=>{
