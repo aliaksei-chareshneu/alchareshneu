@@ -208,16 +208,55 @@ function impReceiptWords_(lang){
  };
  return all[lang]||all.cs;
 }
-function impReceiptCatalog_(){
+/** A public catalog fetch can transiently fail. Fall back to the existing
+ * canonical Events CRM, never an invented event title/date.
+ */
+function impReceiptCatalog_(ss){
+ var map={};
  try{
   var res=UrlFetchApp.fetch('https://cmrknyhnnehyjpreehcf.supabase.co/functions/v1/imperion-register',
-     {muteHttpExceptions:true});
-  if(res.getResponseCode()!==200)return {};
-  var data=JSON.parse(res.getContentText()||'{}'),map={};
-  (Array.isArray(data.events)?data.events:[]).forEach(function(e){if(e&&e.event_id)map[e.event_id]=e;});
-  return map;
- }catch(e){console.error('Public event catalog unavailable to receipt mailer');return {};}
+    {muteHttpExceptions:true});
+  if(res.getResponseCode()===200){
+   var data=JSON.parse(res.getContentText()||'{}');
+   (Array.isArray(data.events)?data.events:[]).forEach(function(e){
+    if(e&&e.event_id)map[e.event_id]=e;
+   });
+  }else console.error('Public event catalog HTTP '+res.getResponseCode());
+ }catch(e){console.error('Public event catalog unavailable to receipt mailer');}
+ // The fallback is a READ-ONLY lookup: never change Events or Registrations here.
+ try{
+  var sh=ss&&ss.getSheetByName('Events');
+  if(!sh||sh.getLastRow()<2)return map;
+  var m=impHeader_(sh).map;
+  var required=['Event_ID','Status','Title','Start_DateTime','Location_Name','Location_Address',
+   'Price_CZK','Category','Community','Rules_URL'];
+  if(required.some(function(k){return m[k]===undefined;}))return map;
+  var records=sh.getRange(2,1,sh.getLastRow()-1,sh.getLastColumn()).getValues();
+  records.forEach(function(row){
+   var id=String(row[m.Event_ID]||'').trim();
+   if(!/^[A-Za-z0-9-]{2,100}$/.test(id)||
+      String(row[m.Status]||'').trim().toLowerCase()!=='active')return;
+   var price=String(row[m.Price_CZK]===undefined?'':row[m.Price_CZK]).trim();
+   var venue=[row[m.Location_Name],row[m.Location_Address]].filter(Boolean).join(', ').slice(0,180);
+   var fallback={
+    event_id:id,title:String(row[m.Title]||'').trim().slice(0,180),
+    begins_at:row[m.Start_DateTime],venue:venue,category:String(row[m.Category]||'').trim(),
+    community:String(row[m.Community]||'').trim(),
+    rules_url:String(row[m.Rules_URL]||'').trim(),
+    price_czk:/^\d{1,6}$/.test(price)?Number(price):null,
+    price_verified:/^\d{1,6}$/.test(price)
+   };
+   if(!fallback.title||!fallback.begins_at||!fallback.venue)return;
+   var e=map[id]||{};
+   Object.keys(fallback).forEach(function(k){
+    if(e[k]===undefined||e[k]===null||e[k]==='')e[k]=fallback[k];
+   });
+   map[id]=e;
+  });
+ }catch(e){console.error('Private Events catalog fallback unavailable');}
+ return map;
 }
+
 /** Optional per-event logistics link comes from the existing private Events CRM.
  * Do not put this field in anonymous event catalogs or mailing-list opt-ins.
  */
@@ -328,9 +367,16 @@ function impReceiptMessage_(kind,row,m,events){
  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email))return null;
  if(kind==='RSVP'){
   id=v('Submission_ID');if(!/^[0-9a-f-]{36}$/i.test(id)||!/^WEBSITE_RSVP_SUPABASE_/.test(v('Source_Channel')))return null;
-  var e=events[v('Event_ID')];label=e&&e.title?e.title:v('Event_ID');
+  var e=events&&events[v('Event_ID')];if(!e||!String(e.title||'').trim())return null;
+  label=e.title;
   if(e&&e.begins_at){
-   var d=new Date(e.begins_at);if(isFinite(d.getTime()))parts.push(w[4]+': '+Utilities.formatDate(d,'Europe/Prague','dd.MM.yyyy HH:mm'));
+   var originalTime=String(e.begins_at||'').trim();
+   var local=/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})$/.exec(originalTime);
+   if(local)parts.push(w[4]+': '+local[3]+'.'+local[2]+'.'+local[1]+' '+local[4]+':'+local[5]);
+   else{
+    var d=new Date(e.begins_at);
+    if(isFinite(d.getTime()))parts.push(w[4]+': '+Utilities.formatDate(d,'Europe/Prague','dd.MM.yyyy HH:mm'));
+   }
   }
   if(e&&e.venue)parts.push(w[5]+': '+String(e.venue).slice(0,200));
   if(e&&e.price_verified===true&&Number.isInteger(e.price_czk))parts.push(w[6]+': '+e.price_czk+' Kč');
@@ -403,7 +449,7 @@ function impSendReceiptQueue_(ss,cfg,events){
  var tabs=[['Registrations','RSVP'],['Druzina_Requests','TRAINING'],['Leads','B2B']];
  var quota=MailApp.getRemainingDailyQuota(),max=Math.min(30,Math.max(0,quota-1)),sent=0,failed=0;
  if(max<=0)return {sent:0,failed:0,quotaBlocked:true};
- events=impReceiptAttachEventGroups_(ss,events||impReceiptCatalog_());
+ events=impReceiptAttachEventGroups_(ss,events||impReceiptCatalog_(ss));
  tabs.forEach(function(pair){
   if(sent>=max)return;
   var sh=ss.getSheetByName(pair[0]);if(!sh||sh.getLastRow()<2)return;
@@ -417,7 +463,13 @@ function impSendReceiptQueue_(ss,cfg,events){
    var count=Number(row[m.Receipt_Attempts]||0);
    if(count>=5){sh.getRange(i+2,m.Receipt_Status+1).setValue('FAILED_REVIEW');return;}
    var msg=impReceiptMessage_(pair[1],row,m,events);
-   if(!msg){sh.getRange(i+2,m.Receipt_Status+1).setValue('REVIEW_NO_EMAIL');failed++;return;}
+   if(!msg){
+    if(pair[1]==='RSVP'&&(!events[String(row[m.Event_ID]||'').trim()]||!String(events[String(row[m.Event_ID]||'').trim()].title||'').trim())){
+      sh.getRange(i+2,m.Receipt_Attempts+1).setValue(count+1);
+      sh.getRange(i+2,m.Receipt_Status+1).setValue(count+1>=5?'FAILED_REVIEW':'RETRY');
+    }else sh.getRange(i+2,m.Receipt_Status+1).setValue('REVIEW_NO_EMAIL');
+    failed++;return;
+   }
    try{
     MailApp.sendEmail({to:msg.to,subject:msg.subject,body:msg.body,
       name:msg.sender,replyTo:cfg.email});
