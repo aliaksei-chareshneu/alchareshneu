@@ -138,6 +138,8 @@ document.getElementById('copyReceipt').addEventListener('click',function(){
   navigator.clipboard.writeText(receiptCopyText).then(function(){btn.textContent=t.copied;},function(){btn.textContent=t.copy;});
 });
 var params=new URLSearchParams(location.search);
+// This is campaign attribution only, not an authorisation or a reservation.
+var acquisitionTag=/^[A-Za-z0-9_-]{1,32}$/.test(params.get('src')||'')?params.get('src'):'DIRECT';
 var valid=['cs','en','ru','uk'];
 var saved='';try{saved=localStorage.getItem('dm_lang')||'';}catch(_){}
 var locale=valid.indexOf(params.get('lang'))>=0?params.get('lang'):valid.indexOf(saved)>=0?saved:valid.indexOf((navigator.language||'cs').slice(0,2).toLowerCase())>=0?(navigator.language||'cs').slice(0,2).toLowerCase():'cs';
@@ -183,7 +185,7 @@ form.addEventListener('submit',async function(ev){
    lastName:document.getElementById('lastName').value.trim(),
    contact:value,adultConfirmed:document.getElementById('adult').checked,
    safety:document.getElementById('safety').checked,
-   language:locale,website:document.getElementById('website').value};
+   language:locale,acquisitionSource:acquisitionTag,website:document.getElementById('website').value};
  result.className='state hidden';fallback.hidden=true;send.disabled=true;send.textContent=TEXT[locale].sending;
  try{
   var res=await fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},
