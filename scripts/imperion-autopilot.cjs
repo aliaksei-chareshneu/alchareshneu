@@ -8,11 +8,12 @@ const path = require('node:path');
 const API = 'https://cmrknyhnnehyjpreehcf.supabase.co/functions/v1/imperion-register';
 const ORIGIN = 'https://aliaksei-chareshneu.github.io';
 const OUTPUT = path.resolve(__dirname, '../autopilot');
-// Calendar independently checked on 2026-11-01 (Europe/Prague).
-// Explicit per-event cutoff is a safety fallback until the existing public
-// catalog provides a trusted registration_closes_at field. No private data.
+// Orel 14 Nov: on 02 Nov the organizer extended preliminary RSVP through
+// the workshop start (12:00 CET), subject to capacity and manual confirmation.
+// Per-event cutoff is a safety fallback until the public catalog provides a
+// trusted registration_closes_at field; this does not approve social posts.
 const CALENDAR_REGISTRATION_CUTOFFS = Object.freeze({
-  'PUB-OREL-20261114': '2026-11-02T00:00:00+01:00',
+  'PUB-OREL-20261114': '2026-11-14T12:00:00+01:00',
 });
 const UNCERTAIN = /\b(?:HOLD|TBD|TBC|planned|tentative|interest only|not a confirmed event|not yet confirmed)\b|план|не\s*подтвержд|уточня|nepotvrzen|předběžn(?:ý|á|é|í)/iu;
 function short(value, limit = 180) {
