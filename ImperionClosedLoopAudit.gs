@@ -4,12 +4,14 @@
  * No new triggers, menus, endpoints, invoices, charges, bookings or messages.
  */
 function imperionClosedLoopAudit_() {
-  'use strict';
-  if (typeof ocOwner_ !== 'function' || typeof ocId_ !== 'function') {
+  if (typeof ocOwner_ !== 'function' || typeof ocId_ !== 'function')
     throw new Error('IMPERION_OWNER_GUARD_MISSING');
-  }
   ocOwner_();
-  var hubId = ocId_();
+  return imperionClosedLoopAuditTrusted_(ocId_());
+}
+// Calls must be preceded by the same verified private owner/trigger guard.
+function imperionClosedLoopAuditTrusted_(hubId) {
+  'use strict';
   if (typeof SPREADSHEET_ID !== 'string' || !SPREADSHEET_ID ||
       SPREADSHEET_ID !== hubId) throw new Error('IMPERION_WRONG_HUB');
   var book = SpreadsheetApp.openById(hubId);
