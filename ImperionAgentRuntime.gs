@@ -68,17 +68,36 @@ function impA5Compute_(snap) {
   });
   var sales={uncontacted_review_candidates:0,blocked_or_closed:0,qa_excluded:0,
     duplicate_actions:0,history_and_optout_checked:false,messages_sent:0,cash_verified:false};
-  var actions=snap.data.Revenue_Actions.length?snap.data.Revenue_Actions:snap.data.Leads;
+  // Revenue_Actions is a QUERY spill. A single #REF! cell (for example,
+  // because F2 contains a manual note) must not suppress the canonical Leads
+  // source or be counted as a sales opportunity. Do NOT alter the source sheet.
+  var formulaError=/^#(?:REF!|ERROR!|VALUE!|N\\/A|DIV\\/0!|NAME\\?|NUM!|NULL!)$/i;
+  var revenueRows=snap.data.Revenue_Actions;
+  var invalidRevenue=revenueRows.filter(function(r){
+    return formulaError.test(impA5Text_(r.Lead_ID));
+  }).length;
+  var usableRevenue=revenueRows.some(function(r){
+    var id=impA5Text_(r.Lead_ID);
+    return !!id&&!formulaError.test(id);
+  });
+  // A partially broken array result is not a reliable subset of lead rows.
+  var useRevenue=revenueRows.length>0&&invalidRevenue===0&&usableRevenue;
+  var actions=useRevenue?revenueRows:snap.data.Leads;
+  sales.source_table=useRevenue?'Revenue_Actions':'Leads';
+  sales.source_formula_errors=invalidRevenue;
+  sales.source_integrity=invalidRevenue>0?'REVENUE_ACTIONS_FORMULA_ERROR_FALLBACK_TO_LEADS':
+    revenueRows.length&&!usableRevenue?'REVENUE_ACTIONS_UNUSABLE_FALLBACK_TO_LEADS':
+    revenueRows.length===0?'REVENUE_ACTIONS_EMPTY_FALLBACK_TO_LEADS':'OK';
   var blocked={},seenSales={};
   actions.forEach(function(r){
     var id=impA5Text_(r.Lead_ID);
-    if(!id||qa.test([id,r.Stage,r.Action_Status,r.Source].join(' ')))return;
+    if(!id||formulaError.test(id)||qa.test([id,r.Stage,r.Action_Status,r.Source].join(' ')))return;
     if(/STOP|CLOSED|DO_NOT_CONTACT|DORMANT|LOST|HOLD|CANCELLED/i.test(
       impA5Up_(r.Stage)+' '+impA5Up_(r.Action_Status)))blocked[id]=true;
   });
   actions.forEach(function(r){
     var id=impA5Text_(r.Lead_ID);
-    if(!id)return;
+    if(!id||formulaError.test(id))return;
     if(qa.test([id,r.Stage,r.Action_Status,r.Source].join(' '))){sales.qa_excluded++;return;}
     if(blocked[id]){sales.blocked_or_closed++;return;}
     if(seenSales[id]){sales.duplicate_actions++;return;}seenSales[id]=true;
