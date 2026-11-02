@@ -6,6 +6,9 @@ const names=['DruzinaBillingPolicy.gs','DruzinaFioBridge.gs','DruzinaFioProofRec
 function setup(){
  const ctx=vm.createContext({});
  names.forEach(name=>vm.runInContext(fs.readFileSync(path.join(__dirname,'..',name),'utf8'),ctx));
+// Simulates an independently reviewed future release; production stays FALSE.
+vm.runInContext('const DRUS_PAID_BANK_ADAPTER_LIVE=true;',ctx);
+ctx.drusPaidRelease_=()=>({ok:true});
  const id='P-001',reference='1234567890',txId='1000000009',submission='2026-10-24T13:00:00Z';
  const payment={Payment_ID:id,Member_ID:'M-1',Verification_Status:'PROOF_SUBMITTED',
   Payment_Reference:reference,Amount_CZK:240,Expected_Amount_CZK:240,
@@ -66,6 +69,13 @@ test('Fio proof submitted before T-48 and bank clearing later verifies same book
  const twice=ctx.drupReconcileExistingProof_(movement);
  assert.equal(twice.ok,false);
  assert.equal(getCalls(),1);
+});
+test('Fio proof cannot be reconciled while canonical paid booking remains paused',()=>{
+ const {ctx,movement,data,getCalls}=setup();
+ ctx.drusPaidRelease_=()=>({ok:false});
+ assert.equal(ctx.drupReconcileExistingProof_(movement).code,'CANONICAL_PAID_ADAPTER_DISABLED');
+ assert.equal(data.payments[0].Verification_Status,'PROOF_SUBMITTED');
+ assert.equal(getCalls(),0);
 });
 test('Wrong bank amount, payee, token permission or VS can never verify proof',()=>{
  const {ctx,movement,getCalls}=setup();
