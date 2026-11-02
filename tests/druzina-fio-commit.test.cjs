@@ -88,6 +88,8 @@ test('Fio cannot settle with wrong receiving account or amount',()=>{
  const {ctx,data,movement}=setup();
  assert.equal(ctx.drufCommitVerifiedBankTransaction_({...movement,accountKey:'999/2010'}).code,'WRONG_PAYEE');
  assert.equal(ctx.drufCommitVerifiedBankTransaction_({...movement,amountHalers:12000,amountCZK:120}).code,'AMOUNT_MISMATCH');
+ assert.equal(ctx.drufCommitVerifiedBankTransaction_({...movement,amountCZK:1}).code,'AMOUNT_MISMATCH');
+ assert.equal(ctx.drufCommitVerifiedBankTransaction_({...movement,amountCZK:240.001}).code,'AMOUNT_MISMATCH');
  assert.equal(data.payments.length,0);
 });
 test('Merchant, supplier and per-date safety gates block writes before bank settlement',()=>{
