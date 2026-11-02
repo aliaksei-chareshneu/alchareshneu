@@ -263,6 +263,17 @@ function renderEvents(){
 function showEvent(){
  const e=events.find(v=>v.event_id===$('eventId').value),info=$('eventInfo'),mode=eventMode(e);
  info.replaceChildren();$('rsvpDetails').hidden=mode!=='FORM';$('submit').disabled=mode!=='FORM';
+ const adultOnly=e?.event_id==='PUB-WALK-20261117';
+ const minorOption=document.querySelector('input[name=age][value=under18]');
+ if(minorOption){
+   if(adultOnly&&minorOption.checked){minorOption.checked=false;updateGuardian();}
+   minorOption.disabled=adultOnly;
+ }
+ if(adultOnly){
+   const ageRestriction=document.createElement('p');ageRestriction.className='event-paid-warning';
+   ageRestriction.textContent=({cs:'Pouze pro účastníky od 18 let. Mladší účastníci se nemohou registrovat.',en:'Adults 18+ only. Under-18 participants cannot register.',ru:'Только для совершеннолетних (18+). Несовершеннолетние не могут подать заявку.',uk:'Лише для дорослих 18+. Неповнолітні не можуть подати заявку.'})[lang];
+   info.append(ageRestriction);
+ }
  if(!e){info.hidden=true;return}info.hidden=false;
  const top=document.createElement('p');const strong=document.createElement('strong');strong.textContent=e.title;top.append(strong);info.append(top);
  const meta=document.createElement('p');meta.textContent=eventDate(e)+' · '+e.venue+' · '+(e.price_verified===false?t('payment'):Number(e.price_czk)===0?t('free'):Number(e.price_czk)+' Kč');info.append(meta);
