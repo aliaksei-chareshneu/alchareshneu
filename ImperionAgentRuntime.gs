@@ -71,7 +71,7 @@ function impA5Compute_(snap) {
   // Revenue_Actions is a QUERY spill. A single #REF! cell (for example,
   // because F2 contains a manual note) must not suppress the canonical Leads
   // source or be counted as a sales opportunity. Do NOT alter the source sheet.
-  var formulaError=/^#(?:REF!|ERROR!|VALUE!|N\\/A|DIV\\/0!|NAME\\?|NUM!|NULL!)$/i;
+  var formulaError=/^#(?:REF!|ERROR!|VALUE!|N\/A|DIV\/0!|NAME\?|NUM!|NULL!)$/i;
   var revenueRows=snap.data.Revenue_Actions;
   var invalidRevenue=revenueRows.filter(function(r){
     return formulaError.test(impA5Text_(r.Lead_ID));
