@@ -72,9 +72,42 @@ function impAppend_(sheet,headers,object){
      sheet.getRange(nextRow,headers.map[receipt]+1).getDisplayValue().trim()!==String(object[receipt]))
     throw Error('CRM append readback failed: '+receipt);
 }
+function impEnsureRsvpAttribution_(sh){
+ var h=impHeader_(sh);
+ ['Discovery_Source','UTM_Source','UTM_Medium','UTM_Campaign'].forEach(function(k){
+  if(h.map[k]!==undefined)return;
+  var col=sh.getLastColumn()+1;
+  if(col>sh.getMaxColumns())sh.insertColumnsAfter(sh.getMaxColumns(),1);
+  sh.getRange(1,col).setValue(k);
+  h.map[k]=col-1;
+ });
+ return impHeader_(sh);
+}
+function impAppendOrelSource_(ss,r){
+ if(String(r.event_id||'')!=='PUB-OREL-20261114')return;
+ var sh=ss.getSheetByName('OREL_20261114_Sources');if(!sh)return;
+ var email=String(r.email||'').toLowerCase().trim(),n=sh.getLastRow();
+ if(!email)return;
+ if(n>1&&sh.getRange(2,2,n-1,1).getDisplayValues().some(function(x){
+  return String(x[0]||'').toLowerCase().trim()===email;
+ }))return;
+ var channels={IS_MUNI:'IS MUNI',SPOLEK_MUNI:'Spolek přírodovědců MUNI',
+  FACEBOOK:'Facebook',INSTAGRAM:'Instagram',WHATSAPP:'WhatsApp',
+  TELEGRAM:'Telegram',FRIEND:'Friends',GOTOBRNO:'GOtoBRNO',
+  OTHER_SITE:'Other website',OTHER:'Other'};
+ var channel=channels[r.discovery_source]||'';
+ var detail=[r.utm_source?'UTM: '+r.utm_source:'',r.utm_campaign?'Campaign: '+r.utm_campaign:''].filter(Boolean).join('; ');
+ var row=[[r.first_name,r.last_name].filter(Boolean).join(' '),email,
+  r.rsvp_status||'',r.language||'',channel,detail,'','','',
+  channel?'FORM_REPORTED':(detail?'CAMPAIGN_TAGGED':'UNATTRIBUTED'),
+  'NOT_REQUESTED','',r.event_id||'','Automatic source data, no seat approval'];
+ sh.getRange(n+1,1,1,14).setValues([row]);
+}
 function impWriteRsvps_(ss,items,events){
   var sh=ss.getSheetByName('Registrations');if(!sh)throw Error('Missing Registrations');
-  var h=impHeader_(sh);if(h.map.Submission_ID===undefined)throw Error('Missing Submission_ID');
+  var h=(items||[]).some(function(r){return r&&Object.prototype.hasOwnProperty.call(r,'discovery_source');})?
+   impEnsureRsvpAttribution_(sh):impHeader_(sh);
+  if(h.map.Submission_ID===undefined)throw Error('Missing Submission_ID');
   var existing=impExisting_(sh,h.map.Submission_ID+1),ids=[],added=0;
   items.forEach(function(r){
     var id=String(r.id||'');if(!/^[a-f0-9-]{36}$/i.test(id))throw Error('Invalid RSVP id');
@@ -105,9 +138,12 @@ function impWriteRsvps_(ss,items,events){
         Rules_Version:r.safety_version||'',Consent_Recorded_At:impDate_(r.created_at),
         Marketing_Consent:r.marketing_requested===true?'REQUESTED_UNCONFIRMED':'NO',
         Data_Controller:r.data_controller||'',Registration_Locale:r.language||'',
+        Discovery_Source:r.discovery_source||'',UTM_Source:r.utm_source||'',
+        UTM_Medium:r.utm_medium||'',UTM_Campaign:r.utm_campaign||'',
         Receipt_Status:'PENDING',Receipt_Attempts:0,Receipt_Locale:r.language||'cs'
       });
       existing[id]=true;added++;
+      try{impAppendOrelSource_(ss,r);}catch(e){console.error('Orel source mirror unavailable');}
     }
     ids.push(id);
   });
