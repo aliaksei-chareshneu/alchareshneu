@@ -29,20 +29,27 @@ test('calendar tentative labels and unconfirmed public notes cannot be promoted'
   ])assert.equal(eligible(e,now),false,e.title);
 });
 
-test('real 14 Nov event stops public campaign at the verified 1 Nov 23:59 deadline',()=>{
+test('real 14 Nov event remains eligible for review-only promotion until its 12:00 CET start',()=>{
   const orel=event({
     event_id:'PUB-OREL-20261114',
     title:'FREE Beginner HEMA Workshop — Orel Husovice | Morava v pohybu',
     begins_at:'2026-11-14T11:00:00Z',ends_at:'2026-11-14T13:30:00Z',
     venue:'Orlovna Husovice',public_note:'Personal organiser confirmation required',
   });
-  const until=Date.parse('2026-11-01T22:59:59Z');
-  const after=Date.parse('2026-11-01T23:00:00Z');
-  assert.equal(eligible(orel,until),true);
-  assert.equal(eligible(orel,after),false);
-  const out=build({events:[orel],bookingConfirmed:false},after);
-  assert.equal(out.feed.events.length,0);
-  assert.equal(out.drafts.drafts.length,0);
+  const reopened=Date.parse('2026-11-02T09:00:00Z');
+  const justBefore=Date.parse('2026-11-14T10:59:59Z');
+  const atStart=Date.parse('2026-11-14T11:00:00Z');
+  assert.equal(eligible(orel,reopened),true);
+  assert.equal(eligible(orel,justBefore),true);
+  assert.equal(eligible(orel,atStart),false);
+  const preview=build({events:[orel],bookingConfirmed:false},reopened);
+  assert.equal(preview.feed.events.length,1);
+  assert.equal(preview.drafts.drafts.length,1);
+  assert.equal(preview.drafts.drafts[0].status,'HOLD_FOR_MANUAL_APPROVAL');
+  assert.equal(preview.drafts.drafts[0].posted,false);
+  const closed=build({events:[orel],bookingConfirmed:false},atStart);
+  assert.equal(closed.feed.events.length,0);
+  assert.equal(closed.drafts.drafts.length,0);
 });
 
 test('catalog-supplied cutoff takes precedence, malformed dates fail closed',()=>{
