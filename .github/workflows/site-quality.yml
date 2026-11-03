@@ -56,11 +56,7 @@ jobs:
             for language in en cs ru uk; do
               grep -q "data-notice-lang=\"$language\"" "$page"
             done
-            grep -q 'New paid HEMA bookings are paused' "$page"
-            grep -q 'Nové placené rezervace HEMA jsou pozastaveny' "$page"
-            grep -q 'Новые платные бронирования HEMA приостановлены' "$page"
-            grep -q 'Нові платні бронювання HEMA призупинено' "$page"
-            grep -q 'Ask about a date' "$page"
+            node ops/imperion-public-gates.cjs --json
             if grep -Eq 'docs[.]google[.]com/forms/d/e|revolut[.]me/' "$page"; then
               echo 'Paused HEMA page still links to a retired booking/payment path' >&2
               exit 1

@@ -23,6 +23,22 @@ function linkWithId(html, id) {
   return '';
 }
 
+// Current main accepts nonbinding applications while payment remains gated.
+// Require both individual confirmation and explicit no-pay/no-travel copy in
+// every locale; merely saying "open" must never satisfy the safety check.
+function hasDruzinaPaymentSafety(html) {
+  const required={
+    en:['paid attendance is confirmed individually','Do not pay or travel without written confirmation'],
+    cs:['placenou účast potvrzujeme jednotlivě','neplaťte ani necestujte'],
+    ru:['платное участие подтверждается индивидуально','Не платите и не приезжайте без письменного подтверждения'],
+    uk:['платну участь підтверджуємо індивідуально','Не сплачуйте й не приїжджайте без письмового підтвердження']
+  };
+  return Object.entries(required).every(([lang,phrases])=>{
+    const text=String(html).match(new RegExp('<p[^>]*data-notice-lang="'+lang+'"[^>]*>([\\s\\S]*?)</p>','i'))?.[1]||'';
+    return phrases.every(phrase=>text.includes(phrase));
+  });
+}
+
 function runAudit(pages) {
   const errors = [];
   const warnings = [];
@@ -107,8 +123,7 @@ function runAudit(pages) {
     dmForm.includes('id="safety" type="checkbox" required') &&
     dmForm.includes('id="adult" type="checkbox" required') &&
     dmForm.includes('out.confirmed!==false') &&
-    /New paid HEMA bookings are paused/i.test(druzina) &&
-    /Nové placené rezervace HEMA jsou pozastaveny/i.test(druzina),
+    hasDruzinaPaymentSafety(druzina),
     'Družina enquiry button must lead to guarded, consented non-booking intake with four-language payment safety');
   let walkersUrl='';
   try { walkersUrl=decodeURIComponent(linkWithId(walkers,'navBookBtn')); } catch { /* fail closed */ }
@@ -137,4 +152,4 @@ function main(args = process.argv.slice(2)) {
   return result.status === 'PASS' ? 0 : 1;
 }
 if (require.main === module) process.exitCode = main();
-module.exports = { REQUIRED, linkWithId, runAudit, main };
+module.exports = { REQUIRED, linkWithId, hasDruzinaPaymentSafety, runAudit, main };
