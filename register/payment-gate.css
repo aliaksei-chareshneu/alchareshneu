@@ -1,0 +1,18 @@
+/* Paid-event proof gate: used only when the public event price is verified > 0. */
+.payment-gate{margin:18px 0 26px;padding:18px;border:1px solid rgba(226,182,109,.55);
+ border-radius:17px;background:linear-gradient(140deg,rgba(230,191,128,.12),rgba(31,75,87,.14))}
+.payment-gate h3{margin:0 0 5px;font-size:1.2rem}
+.payment-gate .payment-help{font-size:.9rem;line-height:1.5;margin:6px 0 14px;color:var(--muted)}
+.payment-options{display:flex;gap:12px;flex-wrap:wrap;margin:12px 0 15px}
+.payment-options label{display:flex;align-items:center;gap:8px;min-width:160px;font-size:.92rem;
+ border:1px solid rgba(196,214,230,.28);padding:10px 13px;border-radius:10px;cursor:pointer}
+.payment-gate .payment-fields{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.payment-gate .payment-fields>label{display:block;font-size:.88rem;font-weight:700}
+.payment-gate .payment-fields input{width:100%;margin-top:5px;min-height:44px;box-sizing:border-box}
+.payment-gate input[type=file]{padding:9px;background:rgba(11,24,37,.65);border:1px solid rgba(173,199,217,.55);border-radius:10px}
+.payment-gate .payment-wide{grid-column:1/-1}
+.payment-gate .payment-alert{font-size:.9rem;line-height:1.55;margin:12px 0 0;
+ color:#f9dba8}
+.payment-gate .payment-alert strong{color:#ffe3b1}
+.payment-gate [hidden]{display:none!important}
+@media(max-width:620px){.payment-gate{padding:15px}.payment-gate .payment-fields{grid-template-columns:1fr}}
