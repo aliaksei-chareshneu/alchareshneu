@@ -21,7 +21,14 @@ if(require.main===module)(async()=>{let count=0;for(const path of ['index.html',
    assert.ok(d.querySelector('[data-k="membership"]').textContent.length>45,'club participation separate from legal z.s. member status');
    assert.ok((d.querySelector('#action').href||'').startsWith(lang==='ru'?'https://t.me/druzinamoravy_news':'https://chat.whatsapp.com/'),'language-appropriate opt-in club updates');
    assert.ok((d.querySelector('#question').href||'').startsWith(lang==='ru'?'https://t.me/Chareshneu':'https://wa.me/420702914842'),'separate human enquiry');
-   assert.ok(/paused|pozastaveny|приостановлены|призупинені/i.test(d.querySelector('[data-k="safety"]').textContent),'current booking pause preserved');
+   const safeApplicationCopy={
+    en:['Applications for planned HEMA sessions are open','Paid participation and equipment use are confirmed individually','Do not pay or travel without written confirmation'],
+    cs:['Přihlášky na plánované tréninky HEMA jsou otevřené','Placenou účast potvrzujeme jednotlivě','Bez písemného potvrzení neplať ani necestuj'],
+    ru:['Заявки на плановые тренировки HEMA открыты','Платную запись подтверждаем индивидуально','Не плати и не приезжай без письменного подтверждения'],
+    uk:['Заявки на планові тренування HEMA відкриті','Платну участь підтверджуємо окремо','Не сплачуй та не приїжджай без письмового підтвердження']
+   };
+   const safetyCopy=d.querySelector('[data-k="safety"]')?.textContent||'';
+   for(const phrase of safeApplicationCopy[lang])assert.ok(safetyCopy.includes(phrase),'current applications/paid-confirmation safety gate missing '+lang+': '+phrase);
   }
  if(path==='druzina/index.html'){
   const essentials=d.querySelector('.dm-hero-essentials');
@@ -37,14 +44,15 @@ if(require.main===module)(async()=>{let count=0;for(const path of ['index.html',
   }
   const notice=d.querySelector('#registration-notice');
   if(notice){
-   const paused={
-    en:'New paid HEMA bookings are paused',
-    ru:'Новые платные бронирования HEMA приостановлены',
-    cs:'Nové placené rezervace HEMA jsou pozastaveny',
-    uk:'Нові платні бронювання HEMA призупинено'
+   const safeNotice={
+    en:['New HEMA training applications are open; paid attendance is confirmed individually.','Do not pay or travel without written confirmation'],
+    cs:['Přihlášky na plánované tréninky HEMA jsou otevřené; placenou účast potvrzujeme jednotlivě.','Bez písemného potvrzení pořadatele, místa, času, podmínek a bezpečnosti neplaťte ani necestujte'],
+    ru:['Заявки на тренировки HEMA открыты; платное участие подтверждается индивидуально.','Не платите и не приезжайте без письменного подтверждения'],
+    uk:['Заявки на тренування HEMA відкриті; платну участь підтверджуємо індивідуально.','Не сплачуйте й не приїжджайте без письмового підтвердження']
    };
    const activeNotice=notice.querySelector('[data-notice-lang="'+lang+'"]');
-   assert.ok(activeNotice?.textContent.includes(paused[lang]),path+' missing '+lang+' paused-booking notice');
+   const noticeCopy=activeNotice?.textContent||'';
+   for(const phrase of safeNotice[lang])assert.ok(noticeCopy.includes(phrase),path+' missing '+lang+' written-confirmation gate '+phrase);
    assert.equal(d.querySelector('#tariff')?.getAttribute('aria-hidden'),'true','retired pricing anchor must be hidden');
    assert.equal(d.querySelector('#druzina-payment')?.getAttribute('aria-hidden'),'true','retired payment anchor must be hidden');
    const booking=d.querySelector('#navBookBtn')?.getAttribute('href')||'';
