@@ -103,6 +103,14 @@ function regpPhone_(value) {
   return phone;
 }
 
+function regpPaymentStatus_(price,rsvp){
+  // Empty / unknown prices are not a verified zero-cost event. A declined
+  // RSVP has no payment obligation, regardless of the event's price.
+  if(rsvp==='NO')return 'NOT_REQUIRED';
+  var text=String(price==null?'':price).trim();
+  return /^(?:0)(?:[.,]0{1,2})?$/.test(text)?'NOT_REQUIRED':'PENDING';
+}
+
 function regpSubmit(payload) {
   if (!regpLive_()) throw new Error('Registrations are not open yet');
   if (!payload || typeof payload !== 'object' || Array.isArray(payload)) throw new Error('Invalid form data');
@@ -188,7 +196,7 @@ function regpSubmit(payload) {
     fields.Reg_ID=Utilities.getUuid();
     fields.Timestamp=now;
     fields.Submission_ID='WEB-'+Utilities.getUuid();
-    fields.Payment_Status=Number(erow[eh.indexOf('Price_CZK')])===0?'NOT_REQUIRED':'PENDING';
+    fields.Payment_Status=regpPaymentStatus_(erow[eh.indexOf('Price_CZK')],rsvp);
     // The public success receipt never exposes whether the person existed.
     var out=heads.map(function(h){
       return Object.prototype.hasOwnProperty.call(fields,h)?fields[h]:'';

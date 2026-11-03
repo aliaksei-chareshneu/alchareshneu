@@ -12,7 +12,7 @@ function setup() {
 vm.runInContext('const DRUS_PAID_BANK_ADAPTER_LIVE=true;',ctx);
 ctx.drusPaidRelease_=()=>({ok:true});
  const SHEETS={QUOTES:'quotes',MEMBERS:'members',PAYMENTS:'payments',PAYMENT_ITEMS:'payment_items',
-   BOOKINGS:'bookings',HOLDS:'holds',AUDIT:'audit'};
+   BOOKINGS:'bookings',HOLDS:'holds',AUDIT:'audit',SESSIONS:'sessions'};
  const future='2026-11-16T17:00:00.000Z'; // November-only product fixture, not a pre-Nov test date
  const quote={_row:2,Quote_ID:'Q-1',Member_ID:'M-1',Status:'OPEN',
    Payment_Reference:'1234567890',Expires_At:'2099-01-01T00:00:00Z',
@@ -30,7 +30,7 @@ ctx.drusPaidRelease_=()=>({ok:true});
   Reviewer_and_proof_of_100_TOTAL_not_ready:'reviewed 100 total humans',
   Max_Attendance_Checked:20,Staff_And_Marshals_Count:3,
   Other_Humans_Count_Parents_Spectators:2};
- const data={quotes:[quote],members:[member],payments:[],payment_items:[],bookings:[],holds:[],audit:[],
+ const data={quotes:[quote],members:[member],sessions:[session],payments:[],payment_items:[],bookings:[],holds:[],audit:[],
   Druzina_Training_Capacity_Gate:[gate]};
  const properties={
   DRU_FIO_READONLY_CONFIRMED:'YES',DRU_FIO_SETTLEMENT_SELLER_CONFIRMED:'YES',

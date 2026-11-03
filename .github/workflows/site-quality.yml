@@ -106,7 +106,7 @@ jobs:
         run: node --test tests/druzina-fio-commit.test.cjs
 
       - name: Verify statement exceptions and isolated recovered p13 integration
-        run: node --test tests/druzina-bank-review.test.cjs tests/druzina-staging-integration.test.cjs
+        run: node --test tests/druzina-bank-review.test.cjs tests/druzina-staging-integration.test.cjs tests/druzina-checkout-conflicts.test.cjs tests/druzina-booking-api.test.cjs
 
       - name: Verify delayed Fio settlement of already-submitted proof without duplicate booking
         run: node --test tests/druzina-fio-proof-reconcile.test.cjs

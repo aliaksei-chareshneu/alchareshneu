@@ -10,52 +10,13 @@ test('independent source readback matches the recovered fixture fingerprints aft
   assert.equal(crypto.createHash('sha256').update(source).digest('hex'),hash,name);
  }
 });
-function stage(){
- const h=harness({enforceEmailAuth:true,futureReleaseSimulation:true,activeEmail:'owner@example.test'});
- Object.assign(h.properties,{
-  DRU_FIO_READONLY_TOKEN:'Q'.repeat(64),DRU_FIO_ACCOUNT_ID:'192000145399',DRU_FIO_BANK_ID:'0800',
-  DRU_FIO_IBAN:'CZ6508000000192000145399',DRU_FIO_AUTOMATION_ENABLED:'YES',
-  DRU_FIO_READONLY_CONFIRMED:'YES',DRU_FIO_SETTLEMENT_SELLER_CONFIRMED:'YES',
-  DRU_PAID_BOOKING_APPROVED:'YES',DRU_LEGAL_SELLER_CONFIRMED:'YES',
-  DRU_OSVC_ACTIVITY_INSURANCE_VERIFIED:'YES',DRU_TRADE_AUTHORIZATION_VERIFIED:'YES',
-  DRU_BOOKING_OTP_LIVE_VERIFIED:'YES',DRU_BANK_RECONCILIATION_E2E_VERIFIED:'YES',
-  DRU_BOOKING_RELEASE_E2E_VERIFIED:'YES'});
- h.config('SAFETY_FORM_VERSION','SYNTHETIC-SAFETY');h.config('RULES_VERSION','SYNTHETIC-RULES');
- h.add('Products',{Product_ID:'DRU-FIRSTVISIT-202611',Offer:'Synthetic First Visit',Price_CZK:240,Active:true});
- const email='synthetic-member@example.test';
- h.call('requestBookingCode',{email});
- const code=h.emails.at(-1).body.match(/code: ([A-F0-9]{10})/)[1];
- const auth=h.call('verifyBookingCode',{email,code,name:'Synthetic Member'});
- const member=h.rows('Members')[0];
- for(const kind of ['SAFETY_FORM','RULES','AGE_CLASSIFICATION'])h.call('recordDruzinaConsentReview',{
-  adminToken:h.properties.ADMIN_TOKEN,memberId:member.Member_ID,kind,
-  source:'https://example.test/synthetic-evidence',guardianRequired:false});
- const gateKeys=['Session_ID','Slot_State','Publish_Confirmed_Only','Newcomer_Ready','Instructor_Verified',
-  'Venue_Permission_Verified','Activity_Insurance_Verified','Participant_Safety_Form_Valid','Equipment_Check',
-  'Guardian_Gate_If_Minors','Evidence_Source','Reviewer_and_proof_of_100_TOTAL_not_ready',
-  'Max_Attendance_Checked','Staff_And_Marshals_Count','Other_Humans_Count_Parents_Spectators',
-  'BOOKABLE_TRAINING_PAX_FAIL_CLOSED_FORMULA'];
- const sheet=new (h.sheets.get('Products').constructor)('Druzina_Training_Capacity_Gate',gateKeys);
- h.sheets.set(sheet.name,sheet);
- function session(hours=72){
-  const s=h.session(hours,{Location:'Synthetic permitted site',Capacity:4});
-  h.context.appendObj_(sheet.name,{Session_ID:s.Session_ID,Slot_State:'CONFIRMED',Publish_Confirmed_Only:'YES',
-   Newcomer_Ready:'YES',Instructor_Verified:'VERIFIED',Venue_Permission_Verified:'VERIFIED',
-   Activity_Insurance_Verified:'VERIFIED',Participant_Safety_Form_Valid:'VERIFIED',Equipment_Check:'VERIFIED',
-   Guardian_Gate_If_Minors:'NOT_APPLICABLE',Evidence_Source:'synthetic signed evidence',
-   Reviewer_and_proof_of_100_TOTAL_not_ready:'synthetic owner',Max_Attendance_Checked:10,
-   Staff_And_Marshals_Count:2,Other_Humans_Count_Parents_Spectators:1,
-   BOOKABLE_TRAINING_PAX_FAIL_CLOSED_FORMULA:4});
-  return s;
- }
- return {h,auth,member,session};
-}
+const {stage}=require('./helpers/druzina-booking-stage.cjs');
 test('recovered p13 + staged adapters: OTP → consent → quote/VS → synthetic bank → CRM → Calendar → check-in',()=>{
  const {h,auth,member,session}=stage(),s=session();
  const payload={bookingToken:auth.bookingToken,requestId:'SYNTHETIC-ORDER-1',
   items:[{productCode:'DRU-FIRSTVISIT-202611',sessionId:s.Session_ID}]};
- const q=h.call('drufCreateQuoteWithVS_',payload);
- const replay=h.call('drufCreateQuoteWithVS_',payload);
+ const q=h.call('createDruzinaBankOrder',payload);
+ const replay=h.call('createDruzinaBankOrder',payload);
  assert.equal(replay.quoteId,q.quoteId);assert.equal(h.rows('Quotes').length,1);
  assert.equal(h.rows('Holds').length,1);
  assert.throws(()=>h.call('drufCreateQuoteWithVS_',{...payload,items:[{...payload.items[0],productCode:'OTHER'}]}),/different cart/);
@@ -74,6 +35,11 @@ test('recovered p13 + staged adapters: OTP → consent → quote/VS → syntheti
  assert.equal(privateAccount.account.payments[0].confirmedReceivedCZK,240);
  assert.doesNotMatch(JSON.stringify(privateAccount),/Manage_Token|FIO_SETTLED_ID|bookingToken/);
  assert.equal(h.rows('Bookings')[0].Status,'VERIFIED');
+ const ops=h.call('getDruzinaBookingOperations',{adminToken:h.properties.ADMIN_TOKEN});
+ assert.equal(ops.bankRecordedPayments,1);assert.equal(ops.sessions[0].available,3);
+ assert.equal(ops.sessions[0].minimumGroupReview,true);
+ assert.equal(ops.bankReadback,'NOT_PERFORMED');assert.equal(ops.automaticCancellations,0);
+ assert.doesNotMatch(JSON.stringify(ops),/synthetic-member@example|FIO_SETTLED_ID|adminToken/);
  assert.equal(h.call('drufCommitVerifiedBankTransaction_',tx).ok,false);
  assert.equal(h.rows('Payments').length,1);assert.equal(h.rows('Bookings').length,1);
  h.config('CALENDAR_SYNC_ENABLED',true);h.config('PORTAL_URL','https://example.test/synthetic-portal');
@@ -111,6 +77,8 @@ test('default recovered runtime remains paused with no quote/payment/Calendar si
  const h=harness({enforceEmailAuth:true});
  assert.equal(h.call('getBootstrap').bookingEnabled,false);
  assert.throws(()=>h.call('createQuote',{items:[]}),/paused/);
+ assert.throws(()=>h.call('createDruzinaBankOrder',{items:[]}),/paused/);
+ assert.throws(()=>h.call('getDruzinaBookingOperations',{}),/Unauthorized/);
  assert.equal(h.rows('Payments').length,0);assert.equal(h.rows('Bookings').length,0);
  assert.equal(h.calendarEvents.length,0);assert.equal(h.emails.length,0);
 });

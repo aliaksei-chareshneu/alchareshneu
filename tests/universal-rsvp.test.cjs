@@ -123,4 +123,12 @@ assert.equal(cleanup.purged,1);
 assert.equal(rows.Registrations[3][RH.indexOf('Email')],'');
 assert.equal(rows.Registrations[3][RH.indexOf('Source_Channel')],'WEBSITE_RSVP_PURGED');
 assert.equal(rows.Registrations[3][RH.indexOf('Event_ID')],'','Expired row must not retain event linkage');
+for(const [i,price] of [0,'0.00','0,00','',null,'unknown',240].entries()){
+ rows.Events[1][EH.indexOf('Price_CZK')]=price;
+ context.regpSubmit({...good,email:'price-'+i+'@example.test',futureUpdates:false});
+ assert.equal(rows.Registrations.at(-1)[RH.indexOf('Payment_Status')],i<3?'NOT_REQUIRED':'PENDING');
+ assert.equal(rows.Registrations.at(-1)[RH.indexOf('Waiver_Accepted')],'');
+}
+context.regpSubmit({...good,email:'declined@example.test',rsvp:'NO'});
+assert.equal(rows.Registrations.at(-1)[RH.indexOf('Payment_Status')],'NOT_REQUIRED');
 console.log('Universal portal: required fields, 4 locales, active-only events, private duplicate immutability, minors, separate consents, minimal retention and injection boundaries (synthetic fixtures).');

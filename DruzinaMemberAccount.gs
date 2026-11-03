@@ -30,7 +30,9 @@ function getDruzinaMemberAccount(payload){
     });
   }catch(_){/* Account history remains visible; travel links require current consent. */}
   return druaPrivateView({serverOtpVerified:true,sessionOwnerVerified:true,memberId:id},{
-    member:member,payments:own(SHEETS.PAYMENTS),plans:own(SHEETS.PLANS),
+    // Check duplicate payment/bank IDs across members on the server. Only the
+    // allowlisted own rows below can enter the response.
+    member:member,payments:rows_(SHEETS.PAYMENTS),plans:own(SHEETS.PLANS),
     bookings:bookings,ledger:own(SHEETS.LEDGER),capacityGates:gates,
     sessions:rows_(SHEETS.SESSIONS).filter(function(s){return ids.includes(String(s.Session_ID));})
   });
@@ -38,10 +40,25 @@ function getDruzinaMemberAccount(payload){
 function druaBankVerified_(r){
   return String(r.Verification_Status)==='VERIFIED'&&!!r.Verified_At&&
     Number.isFinite(new Date(r.Verified_At).getTime())&&
-    /FIO_SETTLED_ID=\d{6,18}(?:;|$)/.test(String(r.Reconciliation_Note||''))&&
+    /^(?:FIO_SETTLED_ID=\d{6,18})(?:;|$)/.test(String(r.Reconciliation_Note||''))&&
+    (String(r.Reconciliation_Note||'').match(/FIO_SETTLED_ID=/g)||[]).length===1&&
     !/REFUND|REVERS|CHARGEBACK/i.test(String(r.Reconciliation_Note||''))&&
     druaSafeInt(r.Expected_Amount_CZK)>0&&
     druaSafeInt(r.Received_Amount_CZK)===druaSafeInt(r.Expected_Amount_CZK);
+}
+function druaVerifiedPaymentIndex_(payments){
+  var ids=Object.create(null),bankIds=Object.create(null),valid=Object.create(null);
+  (payments||[]).filter(Boolean).forEach(function(p){
+    var id=String(p.Payment_ID||'');
+    ids[id]=(ids[id]||0)+1;
+    var m=String(p.Reconciliation_Note||'').match(/^FIO_SETTLED_ID=(\d{6,18})(?:;|$)/);
+    if(m)bankIds[m[1]]=(bankIds[m[1]]||0)+1;
+  });
+  (payments||[]).filter(Boolean).forEach(function(p){
+    var id=String(p.Payment_ID||''),m=String(p.Reconciliation_Note||'').match(/^FIO_SETTLED_ID=(\d{6,18})(?:;|$)/);
+    if(id&&ids[id]===1&&m&&bankIds[m[1]]===1&&druaBankVerified_(p))valid[id]=p;
+  });
+  return valid;
 }
 function druaPrivateView(auth,source) {
   if (!auth||auth.serverOtpVerified!==true||auth.sessionOwnerVerified!==true||
@@ -59,9 +76,10 @@ function druaPrivateView(auth,source) {
       (r.Blocks_Booking===true||String(r.Blocks_Booking).toUpperCase()==='TRUE');
   });
   var debt=debtLines.reduce(function(s,r){return s+druaSafeInt(r.Amount_CZK);},0);
+  var validPaymentById=druaVerifiedPaymentIndex_(Array.isArray(source.payments)?source.payments:[]);
   var payments=own(source.payments).map(function(r){
     var status=String(r.Verification_Status||'');
-    var verified=druaBankVerified_(r);
+    var verified=validPaymentById[String(r.Payment_ID)]===r;
     return {
       paymentId:druaText(r.Payment_ID,120),
       productCode:druaText(r.Product_Code,80),
@@ -81,14 +99,12 @@ function druaPrivateView(auth,source) {
       // Sessions_Used. Sessions_NoShow is a subset, not another debit.
       scheduled:total,used:used,noShow:noShow,remaining:Math.max(0,total-used)};
   }).slice(0,20);
-  var sessions={};
+  var sessions=Object.create(null);
   (Array.isArray(source.sessions)?source.sessions:[]).forEach(function(r){
-    if(r && r.Session_ID) sessions[String(r.Session_ID)]=r;
-  });
-  var validPaymentById={};
-  own(source.payments).forEach(function(p){
-    if(druaBankVerified_(p))
-      validPaymentById[String(p.Payment_ID)]=true;
+    if(r && r.Session_ID){
+      var key=String(r.Session_ID);
+      sessions[key]=Object.prototype.hasOwnProperty.call(sessions,key)?null:r;
+    }
   });
   var gateBySession={};
   (Array.isArray(source.capacityGates)?source.capacityGates:[]).forEach(function(g){
@@ -97,13 +113,17 @@ function druaPrivateView(auth,source) {
   var bookings=own(source.bookings).map(function(r){
     var s=sessions[String(r.Session_ID)]||{};
     var time=String(s.Start_DateTime||s.Starts_At||'');
+    var paid=validPaymentById[String(r.Payment_ID)];
+    var verified=!!paid&&String(paid.Member_ID)===id;
+    var cancelled=['CANCELLED','CLUB_CANCELLED'].includes(String(s.Status))||/CANCELLED/i.test(String(s.Notes||''));
     return {bookingId:druaText(r.Booking_ID,120),sessionId:druaText(r.Session_ID,120),
       starts:time&&/^\d{4}-\d{2}-\d{2}/.test(time)?druaText(time,40):'UNCONFIRMED',
       status:druaText(r.Status,60),attendance:druaText(r.Attendance_Status,40),
-      bookingState:String(r.Status)==='VERIFIED'?'BOOKED':
+      bookingState:cancelled?'CANCELLED':String(r.Status)==='VERIFIED'?
+        (verified&&String(s.Status)==='OPEN'?'BOOKED':'PENDING_PAYMENT'):
         String(r.Status)==='PROVISIONAL_CONFIRMED'?'PENDING_PAYMENT':druaText(r.Status,60),
       appliedPriceCZK:druaSafeInt(r.Applied_Price_CZK),
-      googleCalendarUrl:String(r.Status)==='VERIFIED'&&validPaymentById[String(r.Payment_ID)]?
+      googleCalendarUrl:!cancelled&&String(r.Status)==='VERIFIED'&&verified?
         druaGoogleCalendarLink_(s,gateBySession[String(r.Session_ID)]):null};
   }).slice(0,30);
   var checkpoints={};

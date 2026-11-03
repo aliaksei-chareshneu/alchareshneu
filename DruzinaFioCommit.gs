@@ -134,6 +134,7 @@ function drufGuardBankCommit_(tx,quote,items,member) {
     // The date-wide safety gate is not an individual participant consent.
     // Missing p11 source or an unsigned/unknown guardian must fail closed.
     drusRequireMemberConsent_(member);
+    drufAssertSessionConflicts_(member,ids,quote.Quote_ID);
     // Recheck same rules at bank settlement time; T-48 is not frozen by quote.
     revalidateQuote_(quote,member);
     drufVerifyCartPricing_(quote,items,member);

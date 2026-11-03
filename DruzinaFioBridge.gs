@@ -278,6 +278,47 @@ function drufUniqueVSForQuote_(){
   return drufNumericVS(q.concat(p));
 }
 
+/* Called under the existing script lock at quote creation AND settlement.
+ * Distinct session IDs do not imply distinct times. Never move or cancel an
+ * existing right to make a new cart fit; require the organizer to resolve it.
+ * Own holds for a replayed quote are excluded; other live holds still count. */
+function drufAssertSessionConflicts_(member,ids,ignoreQuoteId){
+  var sessions=rows_(SHEETS.SESSIONS),map=Object.create(null);
+  sessions.forEach(function(s){
+    var key=String(s.Session_ID||'');
+    if(key)map[key]=Object.prototype.hasOwnProperty.call(map,key)?null:s;
+  });
+  var interval=function(id){
+    var s=map[String(id)],start=s&&new Date(s.Start_DateTime).getTime(),
+      end=s&&new Date(s.End_DateTime).getTime();
+    if(!s||!s.Start_DateTime||!s.End_DateTime||!Number.isFinite(start)||
+        !Number.isFinite(end)||end<=start)throw Error('Session identity or interval requires review');
+    return {id:String(id),start:start,end:end};
+  };
+  var overlaps=function(a,b){return a.start<b.end&&b.start<a.end;};
+  var selected=ids.map(interval);
+  selected.forEach(function(a,i){
+    if(selected.slice(0,i).some(function(b){return overlaps(a,b);}))
+      throw Error('Selected session times overlap');
+  });
+  var memberId=String(member.Member_ID),blocking=['PROVISIONAL_CONFIRMED','VERIFIED','CONFIRMED','ATTENDED','NO_SHOW'];
+  var conflicts=rows_(SHEETS.BOOKINGS).filter(function(b){
+    return String(b.Member_ID)===memberId&&blocking.includes(String(b.Status));
+  }).map(function(b){return String(b.Session_ID);});
+  rows_(SHEETS.HOLDS).forEach(function(h){
+    if(String(h.Member_ID)!==memberId||String(h.Status)!=='ACTIVE'||
+        (ignoreQuoteId&&String(h.Request_ID)===String(ignoreQuoteId)))return;
+    var expiry=new Date(h.Expires_At).getTime();
+    if(!h.Expires_At||!Number.isFinite(expiry))throw Error('Existing session hold requires review');
+    if(expiry>Date.now())conflicts.push(String(h.Session_ID));
+  });
+  conflicts.forEach(function(id){
+    var other=interval(id);
+    if(selected.some(function(s){return overlaps(s,other);}))
+      throw Error('Selected session overlaps an existing booking or checkout hold');
+  });
+}
+
 /* Czech QR payment string: no third-party QR API is called. Only server
  * provided and independently verified merchant IBAN/quote may enter this.
  * The frontend can render the SPD locally with an offline QR encoder.
@@ -360,13 +401,14 @@ function drufCreateQuoteWithVS_(payload){
     try{stored=JSON.parse(String(prior.Notes||''));}catch(_){throw Error('Checkout request requires owner recovery');}
     if(!stored||stored.cartKey!==cartKey)throw Error('Checkout requestId was already used for a different cart');
   }
-  if(!prior)appendObj_(SHEETS.REQUESTS,{Request_ID:requestKey,Member_ID:member.Member_ID,
-    Status:'PROCESSING',Notes:'Bank quote creation reserved under script lock'});
   // createQuote() is the existing p10 authenticated, locked, price-resolving
   // function. This adapter does not bypass its identity/price/capacity gates.
   var existing=prior?quoteById_(String(stored.quoteId||'')):null;
   if(prior&&(!existing||String(existing.Member_ID)!==String(member.Member_ID)))
     throw Error('Checkout request quote is unavailable; owner recovery required');
+  drufAssertSessionConflicts_(member,ids,existing&&existing.Quote_ID);
+  if(!prior)appendObj_(SHEETS.REQUESTS,{Request_ID:requestKey,Member_ID:member.Member_ID,
+    Status:'PROCESSING',Notes:'Bank quote creation reserved under script lock'});
   var result=existing?{quoteId:existing.Quote_ID,expiresAt:existing.Expires_At,
     amount:existing.Expected_Amount_CZK,items:JSON.parse(String(existing.Cart_JSON||'[]'))}:createQuote(payload);
   return withLock_(function(){

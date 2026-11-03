@@ -128,7 +128,7 @@ function harness(options = {}) {
   for (const filename of fs.readdirSync(projectRoot).filter(x => x.endsWith('.js')).sort())
     vm.runInContext(fs.readFileSync(path.join(projectRoot, filename), 'utf8'), context, { filename });
   for(const filename of ['DruzinaBillingPolicy.gs','DruzinaFioReadiness.gs','DruzinaSafetyRelease.gs',
-    'DruzinaSeniorEvidence.gs','DruzinaFioBridge.gs','DruzinaFioCommit.gs','DruzinaFioProofReconcile.gs','DruzinaMemberAccount.gs']){
+    'DruzinaSeniorEvidence.gs','DruzinaFioBridge.gs','DruzinaFioCommit.gs','DruzinaFioProofReconcile.gs','DruzinaMemberAccount.gs','DruzinaBookingApi.gs']){
     let source=fs.readFileSync(path.resolve(__dirname,'../..',filename),'utf8');
     if(options.futureReleaseSimulation===true && filename==='DruzinaFioReadiness.gs')
       source=source.replace('const DRUS_PAID_BANK_ADAPTER_LIVE = false;','const DRUS_PAID_BANK_ADAPTER_LIVE = true;');

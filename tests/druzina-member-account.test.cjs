@@ -116,3 +116,25 @@ test('Google Calendar link is available only for confirmed bank-paid and venue-a
  assert.equal(env.druaPrivateView(auth,{...source,
    sessions:[{...source.sessions[0],Location:'Dukelská třída 157/44'}]}).account.bookings[0].googleCalendarUrl,null);
 });
+
+test('a VERIFIED booking row without unique matching bank payment is not BOOKED',()=>{
+ const payment={...base.payments[0],Payment_ID:'PAY-OK',Verification_Status:'VERIFIED',
+  Verified_At:'2026-11-01T10:00:00Z',Reconciliation_Note:'FIO_SETTLED_ID=1000000009'};
+ const session={Session_ID:'S-1',Status:'OPEN',Start_DateTime:'2026-11-16T17:00:00Z'};
+ const source={...base,payments:[payment],sessions:[session],bookings:[{
+  Member_ID:'MEM-1',Booking_ID:'B-1',Session_ID:'S-1',Payment_ID:'PAY-OK',Status:'VERIFIED'}]};
+ const view=patch=>env.druaPrivateView(auth,{...source,...patch}).account;
+ assert.equal(view({}).bookings[0].bookingState,'BOOKED');
+ for(const payments of [[],[{...payment,Received_Amount_CZK:120}],
+  [payment,{...payment,Payment_ID:'PAY-OTHER',Member_ID:'MEM-2'}],
+  [payment,{...payment,Reconciliation_Note:'FIO_SETTLED_ID=1000000010'}],
+  [{...payment,Reconciliation_Note:'FIO_SETTLED_ID=1000000009; FIO_SETTLED_ID=1000000010'}]]){
+  const a=view({payments});
+  assert.equal(a.bookings[0].bookingState,'PENDING_PAYMENT');
+  assert.equal(a.bookings[0].googleCalendarUrl,null);
+  assert.ok(a.payments.every(p=>p.confirmedReceivedCZK===0));
+  assert.doesNotMatch(JSON.stringify(a),/PAY-OTHER|MEM-2/);
+ }
+ assert.equal(view({sessions:[{...session,Status:'CANCELLED'}]}).bookings[0].bookingState,'CANCELLED');
+ assert.equal(view({sessions:[session,session]}).bookings[0].bookingState,'PENDING_PAYMENT');
+});
