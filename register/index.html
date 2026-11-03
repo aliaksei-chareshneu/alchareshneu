@@ -66,6 +66,7 @@ a{color:var(--mint)}button,input,select{font:inherit}button{cursor:pointer}.skip
 .extras{border:1px solid #435d67;border-radius:12px;padding:12px 14px;margin:18px 0}.extras summary{cursor:pointer;color:var(--muted);font-weight:650}.extras .check{margin:12px 0;padding:10px}
 
 </style>
+<link rel="stylesheet" href="/alchareshneu/register/event-calendar.css">
 <link rel="stylesheet" href="../brand-theme.css?v=20261025">
 <link rel="stylesheet" href="../site-design.css?v=20261027">
 </head>
@@ -91,7 +92,17 @@ a{color:var(--mint)}button,input,select{font:inherit}button{cursor:pointer}.skip
       <h2 id="title" data-i18n="title">Registrace na akci</h2><p class="sub" data-i18n="subtitle">Vyberte akci, doplňte kontakty a odešlete.</p>
       <p id="loading" class="state" role="status" data-i18n="loading">Načítám aktuální akce…</p>
       <form id="rsvpForm" hidden novalidate>
-        <div class="field event-picker" id="eventPicker"><label class="required" for="eventSearch" data-i18n="event">Akce</label><input type="search" id="eventSearch" class="event-search" role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="eventMatches" autocomplete="off"><div id="eventMatches" class="event-matches" role="listbox" hidden></div><select id="eventId" required class="screenreader" aria-label="Selected event"><option value="">Vyberte akci…</option></select><p id="catalogSummary" class="catalog-summary" role="status" aria-live="polite"></p></div>
+        <div class="event-selection-layout">
+          <div class="field event-picker" id="eventPicker"><label class="required" for="eventSearch" data-i18n="event">Akce</label><input type="search" id="eventSearch" class="event-search" role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="eventMatches" autocomplete="off"><div id="eventMatches" class="event-matches" role="listbox" hidden></div><select id="eventId" required class="screenreader" aria-label="Selected event"><option value="">Vyberte akci…</option></select><p id="catalogSummary" class="catalog-summary" role="status" aria-live="polite"></p></div>
+          <section class="event-calendar" aria-labelledby="eventCalendarHeading">
+            <h3 id="eventCalendarHeading">Kalendář akcí</h3>
+            <div class="calendar-controls"><button id="calendarPrev" type="button" aria-label="Předchozí měsíc" title="Předchozí měsíc">‹</button><strong id="calendarMonth" role="status" aria-live="polite"></strong><button id="calendarNext" type="button" aria-label="Další měsíc" title="Další měsíc">›</button></div>
+            <div id="calendarWeekdays" class="calendar-weekdays" aria-hidden="true"></div>
+            <div id="calendarGrid" class="calendar-grid" role="group" aria-labelledby="eventCalendarHeading"></div>
+            <div id="calendarDayEvents" class="calendar-day-events" hidden></div>
+            <p id="calendarHint" class="calendar-hint"></p>
+          </section>
+        </div>
         <div id="eventInfo" class="info" aria-live="polite" hidden></div><div id="rsvpDetails" hidden>
         <fieldset class="consent-choices" id="optionalConsents"><legend id="optionalConsentLabel">Dobrovolné volby</legend><p id="optionalConsentNote" class="consent-help"></p><div class="consent-toolbar"><button type="button" id="optInAll" class="consent-select-all" aria-pressed="false" aria-controls="photo future" aria-describedby="optionalConsentNote">Souhlasím s fotografiemi i pozvánkami</button><span id="optionalConsentCount" class="consent-count" role="status" aria-live="polite">0 ze 2 vybráno</span></div><div class="check"><label><input id="photo" type="checkbox"><span><strong data-i18n="photoHead">Volitelně povoluji své fotografie/video</strong> <span data-i18n="photoNote">pro zveřejnění na kanálech pořadatele. Bez souhlasu se můžete zúčastnit také. U nezletilých je potřebné zvláštní potvrzení rodiče.</span></span></label></div>
         <div class="check"><label><input id="future" type="checkbox"><span><strong data-i18n="updatesHead">Chci občasné pozvánky na další akce (volitelné).</strong> <span data-i18n="updatesNote">Nejde o spam. Pozvánky vyžadují samostatné potvrzení; odhlášení kdykoli.</span></span></label></div>
@@ -126,6 +137,7 @@ a{color:var(--mint)}button,input,select{font:inherit}button{cursor:pointer}.skip
   <section class="explainer" aria-labelledby="about-registration"><h2 id="about-registration" data-i18n="explainerTitle">Jak funguje registrace na komunitní akce v Brně?</h2><p data-i18n="explainerText">Vyberte akci, vyplňte kontakt a odešlete přihlášku. Další podrobnosti najdete u konkrétní akce.</p><p class="explainer-links"><a href="../walkers/" data-i18n="walkersInfo">Výlety a vycházky BrnoWalkers</a><span aria-hidden="true">·</span><a href="../druzina/" data-i18n="druzinaInfo">O klubu Družina Moravy</a></p></section>
   <footer><span>© 2026 · Družina Moravy, z. s. / BrnoWalkers / Aliaksei Chareshneu OSVČ</span><nav class="bottom"><a href="./privacy/" data-i18n="privacyLink">Soukromí</a><a href="./safety/" data-i18n="safetyLink">Bezpečnost</a><a href="../calendar/" data-i18n="eventsLink">Kalendář</a><a href="../" data-i18n="homeLink">Zpět na web</a></nav></footer>
 </div>
+<script src="/alchareshneu/register/event-calendar.js"></script>
 <script>
 'use strict';
 const ENDPOINT='https://cmrknyhnnehyjpreehcf.supabase.co/functions/v1/imperion-register';
@@ -205,7 +217,7 @@ function eventDate(e){return new Intl.DateTimeFormat(lang==='uk'?'uk-UA':lang===
 function eventLabel(e){return eventDate(e)+' · '+e.title}
 function statusLabel(e){return ct(eventMode(e)==='FORM'?'open':eventMode(e)==='CONTACT'?'manual':'planned')}
 function closeMatches(){$('eventMatches').hidden=true;$('eventSearch').setAttribute('aria-expanded','false')}
-function chooseEvent(id){const e=events.find(v=>v.event_id===id);if(!e)return;$('eventId').value=id;$('eventSearch').value=eventLabel(e);closeMatches();showEvent()}
+function chooseEvent(id){const e=events.find(v=>v.event_id===id);if(!e)return;$('eventId').value=id;$('eventSearch').value=eventLabel(e);closeMatches();showEvent();if(typeof renderCalendar==='function'){calendarJumpTo(calendarDayKey(e));calendarExpandedDay='';renderCalendar()}}
 function renderMatches(){
  const list=$('eventMatches'),val=$('eventSearch').value.trim().toLocaleLowerCase(),selected=events.find(v=>v.event_id===$('eventId').value);
  const q=selected&&val===eventLabel(selected).toLocaleLowerCase()?'':val;list.replaceChildren();
@@ -213,7 +225,7 @@ function renderMatches(){
  if(!hits.length){const empty=document.createElement('p');empty.className='match-empty';empty.textContent=ct('empty');list.append(empty)}
  for(const e of hits){
    const item=document.createElement('button');item.type='button';item.setAttribute('role','option');item.className='match-option';
-   const name=document.createElement('span');name.className='match-title';name.textContent=eventLabel(e);
+   const name=document.createElement('span');name.className='match-title';name.textContent=(typeof calendarIcon==='function'?calendarIcon(e)+' ':'')+eventLabel(e);
    const status=document.createElement('span');status.className='match-status '+eventMode(e).toLowerCase();status.textContent=statusLabel(e);
    item.append(name,status);item.addEventListener('click',()=>chooseEvent(e.event_id));list.append(item);
  }
@@ -253,7 +265,8 @@ function renderEvents(){
  $('eventSearch').placeholder=ct('search');$('eventSearch').setAttribute('aria-label',t('event'));$('optionalConsentLabel').textContent=ct('options');$('optionalConsentNote').textContent=(CONTACT_COPY[lang]||CONTACT_COPY.cs).consent;refreshOptIns();
  const modes=events.map(eventMode);
  $('catalogSummary').textContent=ct('total')+': '+events.length+' · '+ct('open')+': '+modes.filter(m=>m==='FORM').length+' · '+ct('manual')+': '+modes.filter(m=>m==='CONTACT').length+' · '+ct('planned')+': '+modes.filter(m=>m==='PLANNED').length;
- closeMatches();showEvent();
+ if(events.length&&typeof calendarInitialized!=='undefined'&&!calendarInitialized){const chosen=events.find(e=>e.event_id===select.value);const next=events.filter(e=>Date.parse(e.begins_at)>=Date.now()).sort((a,b)=>Date.parse(a.begins_at)-Date.parse(b.begins_at))[0];calendarJumpTo(calendarDayKey(chosen||next||{begins_at:new Date().toISOString()}));calendarInitialized=true;}
+ closeMatches();showEvent();if(typeof renderCalendar==='function')renderCalendar();
 }
 function showEvent(){
  const e=events.find(v=>v.event_id===$('eventId').value),info=$('eventInfo'),mode=eventMode(e);
@@ -285,13 +298,13 @@ function showEvent(){
  const safe=String(e.rules_url||'');$('rulesLink').href=/^https:\/\/aliaksei-chareshneu\.github\.io\/alchareshneu\//.test(safe)?safe:policyBase+'safety/';
 }
 $('eventSearch').addEventListener('focus',renderMatches);
-$('eventSearch').addEventListener('input',()=>{const e=events.find(v=>v.event_id===$('eventId').value);if(e&&$('eventSearch').value!==eventLabel(e)){$('eventId').value='';showEvent()}renderMatches()});
+$('eventSearch').addEventListener('input',()=>{const e=events.find(v=>v.event_id===$('eventId').value);if(e&&$('eventSearch').value!==eventLabel(e)){$('eventId').value='';showEvent();if(typeof renderCalendar==='function')renderCalendar()}renderMatches()});
 $('eventSearch').addEventListener('keydown',e=>{if(e.key==='Escape'){closeMatches();return}if(e.key==='ArrowDown'){e.preventDefault();if($('eventMatches').hidden)renderMatches();$('eventMatches').querySelector('.match-option')?.focus()}if(e.key==='Enter'&&!$('eventMatches').hidden){e.preventDefault();$('eventMatches').querySelector('.match-option')?.click()}});
 $('eventMatches').addEventListener('keydown',e=>{if(e.key==='Escape'){closeMatches();$('eventSearch').focus()}const opts=[...$('eventMatches').querySelectorAll('.match-option')],i=opts.indexOf(document.activeElement);if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();opts[Math.max(0,Math.min(opts.length-1,i+(e.key==='ArrowDown'?1:-1)))]?.focus()}});
 document.addEventListener('click',e=>{if(!$('eventPicker').contains(e.target))closeMatches()});
 
 for(const btn of document.querySelectorAll('[data-lang]'))btn.addEventListener('click',()=>setLang(btn.dataset.lang));
-$('eventId').addEventListener('change',()=>{const e=events.find(v=>v.event_id===$('eventId').value);$('eventSearch').value=e?eventLabel(e):'';closeMatches();showEvent()});
+$('eventId').addEventListener('change',()=>{const e=events.find(v=>v.event_id===$('eventId').value);$('eventSearch').value=e?eventLabel(e):'';closeMatches();showEvent();if(typeof renderCalendar==='function'){if(e)calendarJumpTo(calendarDayKey(e));calendarExpandedDay='';renderCalendar()}});
 function updateGuardian(){const minor=document.querySelector('input[name=age]:checked')?.value==='under18';
   $('guardian').hidden=!minor;$('guardianName').required=minor;$('guardianPhone').required=minor;
   $('photo').disabled=minor;$('future').disabled=minor;if(minor){$('photo').checked=false;$('future').checked=false;}refreshOptIns();}
