@@ -62,8 +62,9 @@ test('Three qualification lines are never confused with opt-in Senior Corps',()=
  expect(news).toContain('Добровольная полезная помощь клубу');
  expect(news).toContain('Senior Flex');
  expect(news).toContain('7 ноября регулярная тренировка ОТМЕНЕНА');
- expect(news).toContain('ПОКА НЕ ОПЛАЧИВАТЬ');
- expect(news).toContain('Новые платные записи пока НЕ открыты');
+ expect(news).toContain('НЕ ПЛАТИТЬ без личного письменного подтверждения условий');
+ expect(news).toContain('Заявки на плановые тренировки ОТКРЫТЫ; платное участие подтверждается отдельно');
+ expect(news).toContain('Приём новых оплат ещё не открыт.');
  expect(home).toContain('пилот оценки квалификаций B/C/K');
  expect(home).toContain('Помощь клубу добровольна.');
  expect(ranks).toContain('Проверка квалификаций · прогресс и достижения');

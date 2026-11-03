@@ -25,3 +25,14 @@ test('precise unverified business location is a blocker', () => {
   const report = runAudit(docs);
   assert.ok(report.errors.some(item => item.id === 'schema:unverified-address'), JSON.stringify(report.errors));
 });
+
+
+test('every language must retain both individual confirmation and no-payment guards',()=>{
+ const {hasDruzinaPaymentSafety}=require('../ops/imperion-public-gates.cjs');
+ const page=fs.readFileSync(path.join(__dirname,'../druzina/index.html'),'utf8');
+ assert.equal(hasDruzinaPaymentSafety(page),true);
+ for(const phrase of ['paid attendance is confirmed individually','neplaťte ani necestujte',
+   'Не платите и не приезжайте без письменного подтверждения','платну участь підтверджуємо індивідуально']){
+  assert.equal(hasDruzinaPaymentSafety(page.replace(phrase,'')),false);
+ }
+});

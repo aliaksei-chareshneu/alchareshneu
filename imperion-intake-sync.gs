@@ -215,11 +215,31 @@ function impWriteB2B_(ss,items){
         Priority:priority,
         Receipt_Status:'PENDING',Receipt_Attempts:0,Receipt_Locale:'en'
       });
+      impB2BReadback_(sh,h,sh.getLastRow(),id,true);
       existing[key]=true;added++;
     }
+    // A previous interrupted append is not sufficient proof for ACK either.
+    var matches=sh.getRange(2,h.map.Submission_ID+1,sh.getLastRow()-1,1).getDisplayValues();
+    var matching=[];
+    matches.forEach(function(row,i){if(row[0]===key)matching.push(i+2);});
+    if(matching.length!==1)throw Error('B2B_DUPLICATE_SOURCE_CONFLICT');
+    impB2BReadback_(sh,h,matching[0],id,false);
     ids.push(id);
   });
   return {ids:ids,added:added};
+}
+function impB2BReadback_(sh,h,row,id,initial){
+  var saved=sh.getRange(row,1,1,h.names.length).getDisplayValues()[0];
+  var required={Lead_ID:'B2B-'+id,Submission_ID:'OSVC-B2B-'+id};
+  if(initial){required.Stage='New';required.Owner='Aliaksei';
+    required.Action_Status='OSVC_B2B_INBOUND_REVIEW_NO_ORDER_NO_CASH';}
+  Object.keys(required).forEach(function(k){
+    if(String(saved[h.map[k]]||'')!==required[k])throw Error('B2B_HANDOFF_READBACK_FAILED');
+  });
+  ['Stage','Owner','Action_Status','Next_Action_At'].forEach(function(k){
+    if(h.map[k]===undefined||!String(saved[h.map[k]]||'').trim())
+      throw Error('B2B_HANDOFF_READBACK_FAILED');
+  });
 }
 
 

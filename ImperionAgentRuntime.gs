@@ -3,7 +3,7 @@
  * Reuses the EXISTING Community Hub and receipt ledger. Never exports PII.
  * No Gmail, social POST, video render, merchant, checkout or bank request.
  */
-var IMP_A5_VERSION = '2026-11-02-agent5-private-v1';
+var IMP_A5_VERSION = '2026-11-03-agent5-private-v2';
 var IMP_A5_JOB = 'JOB-IMP-AGENT5-PRIVATE-20261102';
 var IMP_A5_HANDLER = 'imperionAgentReviewTick';
 var IMP_A5_PUBLIC_SITE = 'https://aliaksei-chareshneu.github.io/alchareshneu/';
@@ -68,20 +68,47 @@ function impA5Compute_(snap) {
   });
   var sales={uncontacted_review_candidates:0,blocked_or_closed:0,qa_excluded:0,
     duplicate_actions:0,history_and_optout_checked:false,messages_sent:0,cash_verified:false};
-  var actions=snap.data.Revenue_Actions.length?snap.data.Revenue_Actions:snap.data.Leads;
-  var blocked={},seenSales={};
-  actions.forEach(function(r){
+  // Revenue_Actions is a QUERY spill. A single #REF! cell (for example,
+  // because F2 contains a manual note) must not suppress the canonical Leads
+  // source or be counted as a sales opportunity. Do NOT alter the source sheet.
+  var formulaError=/^#(?:REF!|ERROR!|VALUE!|N\/A|DIV\/0!|NAME\?|NUM!|NULL!)$/i;
+  var revenueRows=snap.data.Revenue_Actions;
+  var invalidRevenue=revenueRows.filter(function(r){
+    return formulaError.test(impA5Text_(r.Lead_ID));
+  }).length;
+  var usableRevenue=revenueRows.some(function(r){
     var id=impA5Text_(r.Lead_ID);
-    if(!id||qa.test([id,r.Stage,r.Action_Status,r.Source].join(' ')))return;
+    return !!id&&!formulaError.test(id);
+  });
+  // A partially broken array result is not a reliable subset of lead rows.
+  var useRevenue=revenueRows.length>0&&invalidRevenue===0&&usableRevenue;
+  var actions=useRevenue?revenueRows:snap.data.Leads;
+  sales.source_table=useRevenue?'Revenue_Actions':'Leads';
+  sales.source_formula_errors=invalidRevenue;
+  sales.source_integrity=invalidRevenue>0?'REVENUE_ACTIONS_FORMULA_ERROR_FALLBACK_TO_LEADS':
+    revenueRows.length&&!usableRevenue?'REVENUE_ACTIONS_UNUSABLE_FALLBACK_TO_LEADS':
+    revenueRows.length===0?'REVENUE_ACTIONS_EMPTY_FALLBACK_TO_LEADS':'OK';
+  var blocked={},seenSales={},canonicalEmails={},blockedEmails={};
+  snap.data.Leads.forEach(function(r){
+    var id=impA5Text_(r.Lead_ID),email=impA5Text_(r.Email).toLowerCase();
+    if(id&&email&&!formulaError.test(id))canonicalEmails[id]=email;
+  });
+  actions.concat(snap.data.Leads).forEach(function(r){
+    var id=impA5Text_(r.Lead_ID);
+    if(!id||formulaError.test(id)||qa.test([id,r.Stage,r.Action_Status,r.Source].join(' ')))return;
     if(/STOP|CLOSED|DO_NOT_CONTACT|DORMANT|LOST|HOLD|CANCELLED/i.test(
-      impA5Up_(r.Stage)+' '+impA5Up_(r.Action_Status)))blocked[id]=true;
+      impA5Up_(r.Stage)+' '+impA5Up_(r.Action_Status))){
+      blocked[id]=true;
+      if(canonicalEmails[id])blockedEmails[canonicalEmails[id]]=true;
+    }
   });
   actions.forEach(function(r){
     var id=impA5Text_(r.Lead_ID);
-    if(!id)return;
+    if(!id||formulaError.test(id))return;
     if(qa.test([id,r.Stage,r.Action_Status,r.Source].join(' '))){sales.qa_excluded++;return;}
-    if(blocked[id]){sales.blocked_or_closed++;return;}
-    if(seenSales[id]){sales.duplicate_actions++;return;}seenSales[id]=true;
+    var contactKey=canonicalEmails[id]||id;
+    if(blocked[id]||blockedEmails[contactKey]){sales.blocked_or_closed++;return;}
+    if(seenSales[contactKey]){sales.duplicate_actions++;return;}seenSales[contactKey]=true;
     // No action is contact-ready until an actual cross-channel history,
     // consent/opt-out and ownership check has been completed.
     sales.uncontacted_review_candidates++;
@@ -189,12 +216,12 @@ function impA5Job_(book,at) {
     '',at,'IMP-A5-JOB-20261102']]);
   return true;
 }
-function impA5Receipt_(book,report) {
+function impA5ReceiptSlot_(book,at) {
   var headers=['Receipt_ID','Job_ID','Attempt_ID','Event_Type','Legal_Entity','Status',
     'Started_At','Finished_At','Source_Version','Idempotency_Key','Target_System','Target_ID',
     'Expected_Result','Observed_Result','Evidence_URI','Verified_At','Verifier','Visibility'];
   var sh=impA5Sheet_(book,'IMPERION_Execution_Receipts',headers);
-  var at=report.checked_at,slot=Math.floor(Date.parse(at)/(6*3600000));
+  var slot=Math.floor(Date.parse(at)/(6*3600000));
   var key='IMP-A5-'+slot, receiptId='REC-IMP-A5-'+slot;
   var last=sh.getLastRow();
   if(last>1){var old=sh.getRange(2,1,last-1,10).getDisplayValues();
@@ -203,9 +230,21 @@ function impA5Receipt_(book,report) {
     if(found.length===1){
       var exact=old.findIndex(function(r){return r[0]===receiptId&&r[9]===key;});
       if(exact<0)throw Error('AGENT_RECEIPT_IDEMPOTENCY_CONFLICT');
+      var saved=sh.getRange(exact+2,1,1,18).getDisplayValues()[0];
+      if(saved[1]!==IMP_A5_JOB||saved[3]!=='PRIVATE_OWNER_FIVE_AGENT_REVIEW'||
+         saved[5]!=='INTERNAL_REVIEW_OBSERVED_NO_CUSTOMER_EFFECT'||
+         !isFinite(Date.parse(saved[7]))||Math.floor(Date.parse(saved[6])/(6*3600000))!==slot)
+        throw Error('AGENT_RECEIPT_CONTENT_CONFLICT');
       return {created:false,receipt_id:receiptId,row:exact+2};
     }
   }
+  return {sheet:sh,last:last,slot:slot,key:key,receipt_id:receiptId};
+}
+function impA5Receipt_(book,report) {
+  var found=impA5ReceiptSlot_(book,report.checked_at);
+  if(found.created===false)return found;
+  var sh=found.sheet,last=found.last,slot=found.slot,key=found.key,receiptId=found.receipt_id;
+  var at=report.checked_at;
   if(last>=sh.getMaxRows())throw Error('AGENT_RECEIPTS_CAPACITY');
   var summary='CHIEF '+report.chief.review_needed+'/'+report.chief.overdue+
     '; SALES review '+report.sales.uncontacted_review_candidates+
@@ -230,6 +269,12 @@ function impA5Run_(book) {
   if(typeof imperionAgentTrustedSnapshot_!=='function')throw Error('PRIVATE_SNAPSHOT_NOT_INSTALLED');
   var lock=LockService.getScriptLock();if(!lock.tryLock(5000))return {status:'LOCK_BUSY'};
   try{
+    // Reuse immutable slot receipt BEFORE reading CRM or contacting providers.
+    var existing=impA5ReceiptSlot_(book,new Date().toISOString());
+    if(existing.created===false)return {status:'EXISTING_SLOT_RECEIPT_REUSED',
+      version:IMP_A5_VERSION,job_created:false,receipt:existing,source_reads:0,public_http_requests:0,
+      paid_api_calls:0,independent_readback:'REQUIRED'};
+    var started=Date.now();
     var snapshot=imperionAgentTrustedSnapshot_(book.getId());
     var report=impA5Compute_(snapshot);
     report.seo=impA5Seo_();
@@ -239,6 +284,7 @@ function impA5Run_(book) {
     var receipt=impA5Receipt_(book,report);
     return {status:'OWNER_PRIVATE_RUN_RECORDED',version:report.version,
       checked_at:report.checked_at,job_created:jobCreated,receipt:receipt,
+      resource_usage:{paid_api_calls:0,llm_calls:0,public_http_requests_max:4,elapsed_ms:Date.now()-started},
       chief:report.chief,sales:report.sales,social:report.social,video:report.video,
       seo:report.seo,proof:report.proof,
       customer_messages:0,posts:0,charges:0,bookings:0,bank_verified:false};

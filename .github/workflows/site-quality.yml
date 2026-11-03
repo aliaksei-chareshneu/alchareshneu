@@ -4,6 +4,12 @@ on:
   push:
   pull_request:
 
+# push + pull_request can target the same feature commit. Keep one latest
+# validation per source branch; preserve both event types and all release checks.
+concurrency:
+  group: site-quality-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
@@ -56,11 +62,7 @@ jobs:
             for language in en cs ru uk; do
               grep -q "data-notice-lang=\"$language\"" "$page"
             done
-            grep -q 'New paid HEMA bookings are paused' "$page"
-            grep -q 'Nové placené rezervace HEMA jsou pozastaveny' "$page"
-            grep -q 'Новые платные бронирования HEMA приостановлены' "$page"
-            grep -q 'Нові платні бронювання HEMA призупинено' "$page"
-            grep -q 'Ask about a date' "$page"
+            node ops/imperion-public-gates.cjs --json
             if grep -Eq 'docs[.]google[.]com/forms/d/e|revolut[.]me/' "$page"; then
               echo 'Paused HEMA page still links to a retired booking/payment path' >&2
               exit 1
@@ -96,6 +98,11 @@ jobs:
 
       - name: Check four-language information channels and gated chats
         run: node --test tests/imperion-community-routing.test.cjs
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify recovered B2B endpoint and private handoff without network
+        run: node --test tests/imperion-b2b-intake-source.test.cjs tests/imperion-b2b-handoff.test.cjs tests/deal-proof-gate.test.cjs
       - name: Verify private five-agent safety and proof logic
         run: |
           node --test tests/imperion-agent-snapshot.test.cjs tests/imperion-agent-team.test.cjs tests/imperion-closed-loop-audit.test.cjs tests/imperion-proof-auditor.test.cjs tests/imperion-agent-runtime.test.cjs

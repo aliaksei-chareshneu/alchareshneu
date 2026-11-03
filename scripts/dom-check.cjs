@@ -1,3 +1,4 @@
+const {hasDruzinaPaymentSafety}=require('../ops/imperion-public-gates.cjs');
 const {JSDOM}=require('jsdom');const fs=require('fs');const assert=require('node:assert/strict');
 async function load(path,language){
  const html=fs.readFileSync(path,'utf8');const dom=new JSDOM(html,{url:'https://aliaksei-chareshneu.github.io/alchareshneu/'+path.replace('index.html','')+'?lang='+language,runScripts:'outside-only',pretendToBeVisual:true});const w=dom.window;
@@ -21,7 +22,7 @@ if(require.main===module)(async()=>{let count=0;for(const path of ['index.html',
    assert.ok(d.querySelector('[data-k="membership"]').textContent.length>45,'club participation separate from legal z.s. member status');
    assert.ok((d.querySelector('#action').href||'').startsWith(lang==='ru'?'https://t.me/druzinamoravy_news':'https://chat.whatsapp.com/'),'language-appropriate opt-in club updates');
    assert.ok((d.querySelector('#question').href||'').startsWith(lang==='ru'?'https://t.me/Chareshneu':'https://wa.me/420702914842'),'separate human enquiry');
-   assert.ok(/paused|pozastaveny|приостановлены|призупинені/i.test(d.querySelector('[data-k="safety"]').textContent),'current booking pause preserved');
+   assert.ok(/written confirmation|písemného potvrzení|письменного подтверждения|письмового підтвердження/i.test(d.querySelector('[data-k="safety"]').textContent),'individual written confirmation remains mandatory');
   }
  if(path==='druzina/index.html'){
   const essentials=d.querySelector('.dm-hero-essentials');
@@ -37,14 +38,7 @@ if(require.main===module)(async()=>{let count=0;for(const path of ['index.html',
   }
   const notice=d.querySelector('#registration-notice');
   if(notice){
-   const paused={
-    en:'New paid HEMA bookings are paused',
-    ru:'Новые платные бронирования HEMA приостановлены',
-    cs:'Nové placené rezervace HEMA jsou pozastaveny',
-    uk:'Нові платні бронювання HEMA призупинено'
-   };
-   const activeNotice=notice.querySelector('[data-notice-lang="'+lang+'"]');
-   assert.ok(activeNotice?.textContent.includes(paused[lang]),path+' missing '+lang+' paused-booking notice');
+   assert.ok(hasDruzinaPaymentSafety(d.documentElement.outerHTML),path+' missing four-language payment and individual confirmation gates');
    assert.equal(d.querySelector('#tariff')?.getAttribute('aria-hidden'),'true','retired pricing anchor must be hidden');
    assert.equal(d.querySelector('#druzina-payment')?.getAttribute('aria-hidden'),'true','retired payment anchor must be hidden');
    const booking=d.querySelector('#navBookBtn')?.getAttribute('href')||'';
