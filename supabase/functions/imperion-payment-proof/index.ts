@@ -80,9 +80,10 @@ Deno.serve(async req=>{
     return response({error:'invalid_upload'},400,origin);
  }
  const {data:event,error:lookupError}=await api.from('imperion_rsvp_events')
-  .select('event_id,price_czk,data_controller,ends_at')
+  .select('event_id,price_czk,data_controller,ends_at,payment_gate_mode')
   .eq('event_id',eventId).eq('public_listing',true).eq('is_open',true)
   .eq('source_active',true).eq('registration_mode','FORM')
+  .eq('payment_gate_mode','PROOF_OR_PACKAGE')
   .eq('price_verified',true).eq('end_time_verified',true)
   .gt('begins_at',new Date().toISOString()).maybeSingle();
  if(lookupError)return response({error:'temporarily_unavailable'},503,origin);
