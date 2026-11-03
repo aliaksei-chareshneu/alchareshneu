@@ -55,7 +55,7 @@ function impDhRow_(r){
  var score=Number(r.fit_score);
  if(!Number.isInteger(score)||score<40||score>100)throw Error('INVALID_FIT_SCORE');
  return [
-  'OPP-'+id,new Date().toISOString().slice(0,10),
+  'OPP-'+id,Utilities.formatDate(new Date(),'Europe/Prague','yyyy-MM-dd'),
   'TED Official',title,exactUrl,'https://ted.europa.eu/en/',
   'TED public procurement / '+buyer,score,'REVIEW_UNCOSTED',
   'OFFICIAL_TENDER_PORTAL_REQUIRES_ELIGIBILITY_CHECK','NOT_VERIFIED',
