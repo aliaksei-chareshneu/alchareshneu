@@ -20,6 +20,20 @@
 - Pending private candidates:
   \`select source_key,title,buyer,source_url,fit_score,economics_gate,crm_synced_at from public.imperion_deal_hunter_candidates order by first_seen_at desc limit 40;\`.
 
+## Protected Google Sheets importer adapter (STAGED — owner installation required)
+
+- Deployed Supabase Edge Function `imperion-deal-hunter-crm` v1 is ACTIVE, source `supabase/functions/imperion-deal-hunter-crm/index.ts`.
+- GET returns only unsynced, public TED candidates (up to 15), POST with `{action:"ack", ids:[...]}` marks source rows synced only AFTER confirmed Sheets persistence. Both require the existing private Apps Script bearer key (`IMPERION_INTAKE_BRIDGE_KEY`) verified via the already deployed server-side intake credential RPC. No extra key, PII, email, marketing, grants or payments.
+- Authenticated GET HTTP 200 returned pending candidates; authenticated POST empty ACK HTTP 200 returned `acked:0`; unauthenticated ACK HTTP 401. Real Apps Script-run write→ACK is **NOT VERIFIED**.
+- Prepared `imperion-deal-hunter-sync.gs` is a new Apps Script file for the EXISTING owner-controlled Community Hub script project, not a second CRM. It checks owner and exact sheet ID, verifies 15 stable headers, Source_ID and link dedup, appends `REVIEW_UNCOSTED` rows, reads back each inserted row, then ACKs.
+- **One required owner installation:** in the existing bound [Apps Script project](https://script.google.com/u/0/home/projects/1a_AHisFPBBLsi7I_T5rXBL0NmikoA4Iux7UaqLVAiX8aYLtPY-G3CRhl/edit), add `imperion-deal-hunter-sync.gs` as a NEW script file without overwriting existing sources; run `imperionInstallDealHunterSync` as the script owner once and authorize its scopes. Then run `imperionDealHunterSync` and independently compare a new CRM row ID+URL and Supabase `crm_synced_at`. No further payment or external sending GO is granted.
+- Committing source on GitHub DOES NOT install it into the live bound Google Apps Script project. Until this step, only the original seven connector-written rows are synced; recurring automatic Google Sheets sync is BLOCKED.
+
+## Cron end-to-end proof on 3 Nov 2026
+
+- Temporary `pg_cron` probe job **10** triggered at 2026-11-03 19:35:00 UTC with source `mode:"manual"` (to test off-slot). `cron.job_run_details.status=succeeded`, `pg_net` HTTP 200, and independent run receipt `SOURCE_OK`, 60 searched, 44 screened, 0 newly inserted, 44 persisted. Probe job 10 was then **unscheduled successfully**; job **9** is the only remaining Deal Hunter cron job, active.
+- This proves cron→authenticated Edge→TED→DB off-slot. The **actual first routine 07:20 Prague production schedule with `mode:"cron"`** remains pending next-day evidence. Unit tests cover timezone gates.
+
 ## Important boundary: automatic Google Sheet synchronization is NOT LIVE
 
 Only the first 7 records were manually written to the existing Google Sheet by authenticated Google Drive connector, then independently verified. The current Edge function does not write Google Sheets and intentionally returns \`crm_sync: NOT_IMPLEMENTED\`. Recurrent automatic source search is installed; recurrent CRM append awaits a **separately authorized, privately installed Apps Script importer** with documented source ID, de-duplication, and ACK-after-Sheets-readback. Do not send cold mail, simulate inbound form requests, put private keys in Github, or copy any data to a new CRM.
