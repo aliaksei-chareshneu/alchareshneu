@@ -91,3 +91,29 @@ inputs return unknown. It does not promote CRM stages or verify bank cash.
 All production installation, synthetic live submissions, outbound messages,
 publications, signatures, grant submissions and financial commitments still
 require the applicable owner GO. Existing #04/#09 and ten enabled tasks are reused.
+
+
+### B2B interrupted-run recovery (review-only follow-up)
+
+A B2B append now persists its owner notification per source UUID in the EXISTING
+`IMPERION_INTAKE_NOTIFY_PENDING` Script Property, after persisted-row validation
+and before returning source ACK IDs. Replaying an existing unacknowledged lead
+recovers a missing notification and does not increment an already queued UUID.
+The outer importer no longer adds B2B aggregate counts a second time. UUIDs stay
+private; owner email copy uses counters and existing CRM row links only.
+
+The same JSON property atomically stores counts, dedup keys and bounded samples.
+Legacy nonzero B2B aggregates without corresponding keys stop with
+`LEGACY_B2B_DIGEST_RECONCILIATION_REQUIRED`; do not guess their source mapping.
+Property capacity stops with `B2B_DIGEST_CAPACITY_REVIEW_REQUIRED`, preserves
+prior pending state, and withholds ACK. These conditions require owner-side
+queue reconciliation before resuming; do not delete pending evidence blindly.
+Missing Next_Action_At schema fails before CRM writes.
+
+Offline regression now executes the actual private bridge handler, proves that
+401/403 requests cannot read rows, simulates an ACK outage, replays the importer,
+and independently reads one CRM lead, one queued owner notification, idempotent
+ACK and an empty subsequent pending-source response. It also covers a partial
+batch and a property outage after append. Backend and Sheets are memory fixtures;
+no live writes, emails, deployments, new properties outside the existing queue,
+or trigger/schedule changes are part of these tests.

@@ -48,7 +48,7 @@ test('offline E2E: real endpoint handler → one private lead → owner action �
  assert.equal((await first.json()).status,'RECEIVED_UNCONFIRMED');
  const h=harness(),source=[...inserted.values()];
  const result=h.c.impWriteB2B_(h.book,source);
- h.c.impQueueOwnerDigest_(0,0,result.added,h.book);
+ // The importer persists the owner notification before returning ACK IDs.
  assert.equal(result.added,1);
  assert.equal(h.c.impWriteB2B_(h.book,source).added,0);
  // Independent persisted-state reads (no trust in import return value).
@@ -95,4 +95,96 @@ test('action queue without email still respects opt-out on another canonical ema
    {Lead_ID:'STOP',Stage:'Lost',Email:'Buyer@example.invalid'},
    {Lead_ID:'ALIAS',Stage:'New',Email:'buyer@example.invalid'}]}});
  assert.equal(result.candidates_total,0);assert.equal(result.closed_or_opted_out,1);
+});
+
+
+test('crash after row append recovers one owner notification and retry never increments it',()=>{
+ const h=harness(),source={id,offer:'DATA_PILOT',created_at:new Date().toISOString(),retention_until:'2027-01-01T00:00:00Z'};
+ const queue=h.c.impQueueB2BHandoff_;
+ h.c.impQueueB2BHandoff_=()=>{throw Error('SIMULATED_PROPERTY_OUTAGE');};
+ assert.throws(()=>h.c.impWriteB2B_(h.book,[source]),/SIMULATED_PROPERTY_OUTAGE/);
+ assert.equal(h.rows.length,2);assert.equal(h.kv.size,0);
+ h.c.impQueueB2BHandoff_=queue;
+ assert.equal(h.c.impWriteB2B_(h.book,[source]).added,0);
+ assert.equal(h.c.impWriteB2B_(h.book,[source]).added,0);
+ const pending=JSON.parse(h.kv.get('IMPERION_INTAKE_NOTIFY_PENDING'));
+ assert.equal(pending.b2b,1);assert.deepEqual(pending.b2b_keys,[id]);
+ assert.equal(pending.items[0].row,2);
+});
+test('missing next-action schema is rejected before any CRM append',()=>{
+ const h=harness();h.rows[0][headers.indexOf('Next_Action_At')]='Legacy_Date';
+ assert.throws(()=>h.c.impWriteB2B_(h.book,[{id}]),/Missing Leads header: Next_Action_At/);
+ assert.equal(h.rows.length,1);
+});
+test('ambiguous legacy digest and capacity fail closed without overwriting pending state',()=>{
+ const h=harness();
+ const legacy=JSON.stringify({rsvps:0,enquiries:0,b2b:1,items:[]});
+ h.kv.set('IMPERION_INTAKE_NOTIFY_PENDING',legacy);
+ assert.throws(()=>h.c.impQueueB2BHandoff_(id,2),/LEGACY_B2B_DIGEST_RECONCILIATION_REQUIRED/);
+ assert.equal(h.kv.get('IMPERION_INTAKE_NOTIFY_PENDING'),legacy);
+ const keys=Array.from({length:180},(_,i)=>'00000000-0000-4000-8000-'+String(i+1000).padStart(12,'0'));
+ const full=JSON.stringify({rsvps:0,enquiries:0,b2b:180,b2b_keys:keys,items:[]});
+ h.kv.set('IMPERION_INTAKE_NOTIFY_PENDING',full);
+ assert.throws(()=>h.c.impQueueB2BHandoff_(id,2),/B2B_DIGEST_CAPACITY_REVIEW_REQUIRED/);
+ assert.equal(h.kv.get('IMPERION_INTAKE_NOTIFY_PENDING'),full);
+});
+
+function privateBridge(source){
+ const raw=fs.readFileSync('supabase/functions/imperion-intake-bridge/index.ts','utf8');
+ const js=stripTypeScriptTypes(raw.replace(/^import .*;\s*$/gm,''),{mode:'strip'});
+ const records=source.map(r=>({...r,crm_synced_at:null}));let handler,reads=0,failAck=false;
+ vm.runInNewContext(js,{Request,Response,Headers,console:{error:()=>{}},
+  Deno:{env:{get:()=> 'synthetic'},serve:f=>{handler=f;}},
+  createClient:()=>({rpc:async(_name,args)=>({data:args.p_token==='a'.repeat(64),error:null}),
+   from:name=>{
+    if(name!=='imperion_b2b_inquiries')return {select:()=>({is:()=>({order:()=>({limit:async()=>({data:[],error:null})})})})};
+    return {
+     select:()=>({is:()=>({order:()=>({limit:async()=>{reads++;return {data:records.filter(r=>!r.crm_synced_at),error:null};}})})}),
+     update:value=>({in:(_field,ids)=>({is:()=>({select:async()=>{
+      if(failAck){failAck=false;return {data:null,error:{code:'synthetic_outage'}};}
+      const selected=records.filter(r=>ids.includes(r.id)&&!r.crm_synced_at);
+      selected.forEach(r=>Object.assign(r,value));return {data:selected.map(r=>({id:r.id})),error:null};
+     }})})})
+    };
+   }})
+ });
+ return {records,get reads(){return reads;},failNextAck:()=>{failAck=true;},
+  request:async(method='GET',payload,token='a'.repeat(64))=>{
+   const headers={'content-type':'application/json'};
+   if(token!==null)headers.authorization='Bearer '+token;
+   const response=await handler(new Request('https://offline.invalid/private-bridge',{
+    method,headers,...(payload?{body:JSON.stringify(payload)}:{})}));
+   return {status:response.status,body:await response.json()};
+  }};
+}
+test('actual private bridge auth → importer/outbox → failed ACK → replay → ACK → independent empty-source readback',async()=>{
+ const source={id,offer:'DATA_PILOT',created_at:new Date().toISOString(),retention_until:'2027-01-01T00:00:00Z'};
+ const bridge=privateBridge([source]);
+ assert.equal((await bridge.request('GET',undefined,null)).status,401);
+ assert.equal((await bridge.request('GET',undefined,'b'.repeat(64))).status,403);
+ assert.equal(bridge.reads,0,'unauthorized calls cannot read private rows');
+ const first=await bridge.request();assert.equal(first.body.protocol,'imperion-intake-bridge-v1');
+ const h=harness(),initial=h.c.impWriteB2B_(h.book,first.body.b2b);
+ const ack={action:'ack',rsvps:[],enquiries:[],b2b:Array.from(initial.ids)};
+ bridge.failNextAck();assert.equal((await bridge.request('POST',ack)).status,503);
+ const retry=await bridge.request();assert.equal(retry.body.b2b.length,1);
+ assert.equal(h.c.impWriteB2B_(h.book,retry.body.b2b).added,0);
+ assert.equal(h.rows.length,2);
+ assert.equal(JSON.parse(h.kv.get('IMPERION_INTAKE_NOTIFY_PENDING')).b2b,1);
+ const accepted=await bridge.request('POST',ack);assert.equal(accepted.body.acked.b2b,1);
+ assert.equal((await bridge.request('POST',ack)).body.acked.b2b,0,'ACK itself is idempotent');
+ assert.equal((await bridge.request()).body.b2b.length,0);
+ assert.ok(bridge.records[0].crm_synced_at);
+ assert.equal(rowObject(h.rows[1]).Stage,'New');
+ assert.equal(rowObject(h.rows[1]).Owner,'Aliaksei');
+ assert.equal(JSON.parse(h.kv.get('IMPERION_INTAKE_NOTIFY_PENDING')).items[0].row,2);
+});
+test('partial batch failure keeps the first notification durable and retry adds only the remaining lead',()=>{
+ const h=harness(),source={id,offer:'DATA_PILOT',created_at:new Date().toISOString(),retention_until:'2027-01-01T00:00:00Z'};
+ const second={...source,id:'00000000-0000-4000-8000-000000000124',offer:'INVALID'};
+ assert.throws(()=>h.c.impWriteB2B_(h.book,[source,second]),/Invalid B2B offer/);
+ assert.equal(JSON.parse(h.kv.get('IMPERION_INTAKE_NOTIFY_PENDING')).b2b,1);
+ second.offer='DATA_PILOT';h.c.impWriteB2B_(h.book,[source,second]);
+ assert.equal(h.rows.length,3);
+ assert.equal(JSON.parse(h.kv.get('IMPERION_INTAKE_NOTIFY_PENDING')).b2b,2);
 });

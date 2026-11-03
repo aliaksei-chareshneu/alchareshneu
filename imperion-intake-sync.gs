@@ -179,7 +179,7 @@ function impWriteEnquiries_(ss,items){
 function impWriteB2B_(ss,items){
   var sh=ss.getSheetByName('Leads');if(!sh)throw Error('Missing Leads');
   var h=impHeader_(sh);
-  ['Lead_ID','Submission_ID','Stage','Source','Service','Owner','Action_Status'].forEach(function(k){
+  ['Lead_ID','Submission_ID','Stage','Source','Service','Owner','Action_Status','Next_Action_At'].forEach(function(k){
     if(h.map[k]===undefined)throw Error('Missing Leads header: '+k);
   });
   var existing=impExisting_(sh,h.map.Submission_ID+1),ids=[],added=0;
@@ -224,6 +224,8 @@ function impWriteB2B_(ss,items){
     matches.forEach(function(row,i){if(row[0]===key)matching.push(i+2);});
     if(matching.length!==1)throw Error('B2B_DUPLICATE_SOURCE_CONFLICT');
     impB2BReadback_(sh,h,matching[0],id,false);
+    // Recover a crash between CRM append and notification persistence.
+    impQueueB2BHandoff_(id,matching[0]);
     ids.push(id);
   });
   return {ids:ids,added:added};
@@ -654,15 +656,18 @@ var IMP_PRIVATE_NOTIFY_PENDING='IMPERION_INTAKE_NOTIFY_PENDING';
 var IMP_OWNER_DIGEST_SAMPLE_LIMIT=12;
 function impPendingDigest_(){
   var raw=PropertiesService.getScriptProperties().getProperty(IMP_PRIVATE_NOTIFY_PENDING);
-  if(!raw)return {rsvps:0,enquiries:0,b2b:0,items:[]};
+  if(!raw)return {rsvps:0,enquiries:0,b2b:0,items:[],b2b_keys:[]};
   var data;
   try{data=JSON.parse(raw)}catch(e){throw Error('Invalid pending digest state');}
   if(!data||!Number.isSafeInteger(data.rsvps)||!Number.isSafeInteger(data.enquiries)||
      data.rsvps<0||data.enquiries<0||
      (data.b2b!==undefined&&(!Number.isSafeInteger(data.b2b)||data.b2b<0)))
     throw Error('Invalid pending digest counters');
+  if(data.b2b_keys!==undefined&&(!Array.isArray(data.b2b_keys)||
+     data.b2b_keys.length>180||data.b2b_keys.some(function(k){return !/^[a-f0-9-]{36}$/i.test(k);})||
+     new Set(data.b2b_keys).size!==data.b2b_keys.length))throw Error('Invalid B2B digest keys');
   return {rsvps:data.rsvps,enquiries:data.enquiries,b2b:data.b2b||0,
-    items:Array.isArray(data.items)?data.items.slice(-IMP_OWNER_DIGEST_SAMPLE_LIMIT):[]};
+    b2b_keys:data.b2b_keys||[],items:Array.isArray(data.items)?data.items.slice(-IMP_OWNER_DIGEST_SAMPLE_LIMIT):[]};
 }
 /** Snapshot only the freshly appended rows, never old CRM contacts or test data.
  * Row numbers are pointers for the owner; counts remain authoritative if this
@@ -715,7 +720,7 @@ function impQueueOwnerDigest_(rsvps,enquiries,b2b,ss){
   catch(e){console.error('Optional owner digest details unavailable; counts retained');}
   var state={
     rsvps:pending.rsvps+rsvps,enquiries:pending.enquiries+enquiries,b2b:pending.b2b+b2b,
-    items:pending.items.concat(fresh).slice(-IMP_OWNER_DIGEST_SAMPLE_LIMIT)
+    b2b_keys:pending.b2b_keys,items:pending.items.concat(fresh).slice(-IMP_OWNER_DIGEST_SAMPLE_LIMIT)
   };
   var serialized=JSON.stringify(state);
   while(serialized.length>7800&&state.items.length){
@@ -723,6 +728,30 @@ function impQueueOwnerDigest_(rsvps,enquiries,b2b,ss){
     serialized=JSON.stringify(state);
   }
   p.setProperty(IMP_PRIVATE_NOTIFY_PENDING,serialized);
+}
+/** Same private notification state, keyed by source UUID. Never write contact
+ * values here. CRM dedup must not suppress an unsaved owner notification.
+ * Counts + keys are persisted atomically as ONE property before source ACK.
+ */
+function impQueueB2BHandoff_(id,row){
+  if(!/^[a-f0-9-]{36}$/i.test(id)||!Number.isSafeInteger(row)||row<2)
+    throw Error('INVALID_B2B_HANDOFF_KEY');
+  var pending=impPendingDigest_();
+  if(pending.b2b_keys.indexOf(id)>=0)return false;
+  // Older aggregate counts cannot safely be guessed to match source UUIDs.
+  if(pending.b2b!==pending.b2b_keys.length)
+    throw Error('LEGACY_B2B_DIGEST_RECONCILIATION_REQUIRED');
+  pending.b2b++;pending.b2b_keys.push(id);
+  pending.items.push({kind:'B2B',row:row});
+  pending.items=pending.items.slice(-IMP_OWNER_DIGEST_SAMPLE_LIMIT);
+  var value=JSON.stringify(pending);
+  while(value.length>7800&&pending.items.length){
+    pending.items.shift();value=JSON.stringify(pending);
+  }
+  // Preserve the old queue and leave source unacknowledged on capacity errors.
+  if(value.length>7800||pending.b2b_keys.length>180)throw Error('B2B_DIGEST_CAPACITY_REVIEW_REQUIRED');
+  PropertiesService.getScriptProperties().setProperty(IMP_PRIVATE_NOTIFY_PENDING,value);
+  return true;
 }
 /** Public event title/date from the existing catalog or the existing RSVP
  * control tab; neither source exposes attendee contact details here.
@@ -860,7 +889,7 @@ function imperionSyncPrivateIntake(){
       var c=impWriteB2B_(ss,batch.b2b);
       // Persist the owner-notification receipt BEFORE acknowledging the source;
       // a mail outage or later crash must not silently discard new leads.
-      impQueueOwnerDigest_(a.added,b.added,c.added,ss);
+      impQueueOwnerDigest_(a.added,b.added,0,ss); // B2B is persisted per source UUID by impWriteB2B_.
       // Acknowledge only AFTER CRM writes/readback and notification queuing succeed.
       impPrivateFetch_(cfg,{action:'ack',rsvps:a.ids,enquiries:b.ids,b2b:c.ids});
       addedR+=a.added;addedE+=b.added;addedB+=c.added;
