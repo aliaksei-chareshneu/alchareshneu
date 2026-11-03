@@ -223,9 +223,9 @@ function impWriteB2B_(ss,items){
     var matching=[];
     matches.forEach(function(row,i){if(row[0]===key)matching.push(i+2);});
     if(matching.length!==1)throw Error('B2B_DUPLICATE_SOURCE_CONFLICT');
-    impB2BReadback_(sh,h,matching[0],id,false);
+    var notification=impB2BReadback_(sh,h,matching[0],id,false);
     // Recover a crash between CRM append and notification persistence.
-    impQueueB2BHandoff_(id,matching[0]);
+    impQueueB2BHandoff_(id,matching[0],notification);
     ids.push(id);
   });
   return {ids:ids,added:added};
@@ -242,6 +242,12 @@ function impB2BReadback_(sh,h,row,id,initial){
     if(h.map[k]===undefined||!String(saved[h.map[k]]||'').trim())
       throw Error('B2B_HANDOFF_READBACK_FAILED');
   });
+  return impB2BDigestItem_({Service:saved[h.map.Service],Priority:saved[h.map.Priority],Notes:saved[h.map.Notes]},row);
+}
+function impB2BDigestItem_(source,row){
+  var budget=/;\s*Budget:\s*([A-Za-z0-9+_-]{1,24})\s*CZK(?:;|$)/.exec(String(source.Notes||''));
+  return {kind:'B2B',row:row,service:String(source.Service||'').slice(0,45),
+    priority:String(source.Priority||'').slice(0,6),budget:budget?budget[1]:''};
 }
 
 
@@ -702,9 +708,7 @@ function impDigestNewRows_(ss,rsvps,enquiries,b2b){
           training:v(row,'Request_Type')==='RETURNING_TRAINING_ENQUIRY'?'RETURNING':'FIRST'});
       }else{
         if(!/^OSVC-B2B-[0-9a-f-]{36}$/i.test(v(row,'Submission_ID')))return;
-        var budget=/;\s*Budget:\s*([A-Za-z0-9+_-]{1,24})\s*CZK(?:;|$)/.exec(v(row,'Notes'));
-        samples.push({kind:'B2B',row:n,service:v(row,'Service').slice(0,45),
-          priority:v(row,'Priority').slice(0,6),budget:budget?budget[1]:''});
+        samples.push(impB2BDigestItem_({Service:v(row,'Service'),Priority:v(row,'Priority'),Notes:v(row,'Notes')},n));
       }
     });
   });
@@ -733,7 +737,7 @@ function impQueueOwnerDigest_(rsvps,enquiries,b2b,ss){
  * values here. CRM dedup must not suppress an unsaved owner notification.
  * Counts + keys are persisted atomically as ONE property before source ACK.
  */
-function impQueueB2BHandoff_(id,row){
+function impQueueB2BHandoff_(id,row,notification){
   if(!/^[a-f0-9-]{36}$/i.test(id)||!Number.isSafeInteger(row)||row<2)
     throw Error('INVALID_B2B_HANDOFF_KEY');
   var pending=impPendingDigest_();
@@ -742,7 +746,7 @@ function impQueueB2BHandoff_(id,row){
   if(pending.b2b!==pending.b2b_keys.length)
     throw Error('LEGACY_B2B_DIGEST_RECONCILIATION_REQUIRED');
   pending.b2b++;pending.b2b_keys.push(id);
-  pending.items.push({kind:'B2B',row:row});
+  pending.items.push(notification||{kind:'B2B',row:row});
   pending.items=pending.items.slice(-IMP_OWNER_DIGEST_SAMPLE_LIMIT);
   var value=JSON.stringify(pending);
   while(value.length>7800&&pending.items.length){

@@ -59,6 +59,7 @@ test('offline E2E: real endpoint handler → one private lead → owner action �
  assert.ok(new Date(saved.Next_Action_At)>new Date());
  assert.equal(saved.Receipt_Status,'PENDING');assert.equal(pending.b2b,1);
  assert.equal(pending.items[0].kind,'B2B');assert.equal(pending.items[0].row,2);
+ assert.equal(pending.items[0].service,'IT/Science');assert.equal(pending.items[0].budget,'15000-30000');
  const action=sales({captured_at:new Date().toISOString(),data:{Leads:[saved]}});
  assert.equal(action.candidates[0].next,'VERIFY_HISTORY_AND_STOP_LIST');
  assert.equal(action.outbound_sent,0);
