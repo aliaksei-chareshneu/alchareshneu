@@ -141,7 +141,7 @@ function buildFiles(result,now=new Date(),testMode=false) {
     already_in_public_id_cache:result.seen_before,
     crm_deduplicated:false,history_checked:false,qualified_buyers:0,applications_sent:0,
     contracts_verified:0,payments_bank_verified:0,owner_review_required:true,
-    candidates:result.fresh};
+    candidates:result.fresh,active_candidates:result.all};
   const lines=[
     '# IMPERION / B2B public-request review',
     '',`Generated: ${now.toISOString()}`,
@@ -150,7 +150,7 @@ function buildFiles(result,now=new Date(),testMode=false) {
     `CRM/Gmail/opt-out checks: NOT PERFORMED. Applications: 0. Payments: 0.`,
     '', '| Score (heuristic) | Buyer | Published | Notice | Deadline |',
     '|---:|---|---|---|---|',
-    ...result.fresh.slice(0,20).map(x=>`| ${x.fit_score} | ${x.buyer_name.replaceAll('|','/')} | ${x.publication_date} | [${x.title.replaceAll('|','/').replaceAll(']','')} ](${x.source_url}) | ${x.deadline??'NOT VERIFIED'} |`),
+    ...result.all.slice(0,20).map(x=>`| ${x.fit_score} | ${x.buyer_name.replaceAll('|','/')} | ${x.publication_date} | [${x.title.replaceAll('|','/').replaceAll(']','')} ](${x.source_url}) | ${x.deadline??'NOT VERIFIED'} |`),
     '',`Next: check official notice + buyer eligibility, then existing Gmail/SENT and CRM; only use legal tender/application path. Do not send marketing emails.`
   ];
   return {csv,summary,markdown:lines.join('\n')+'\n'};
