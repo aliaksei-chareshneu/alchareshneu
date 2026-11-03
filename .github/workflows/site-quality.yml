@@ -12,6 +12,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
 
       - name: Verify required public pages
         shell: bash
@@ -91,6 +94,7 @@ jobs:
       - name: Verify CRM-only transactional receipt queue and retries
         run: |
           node --test tests/imperion-intake-bridge-source.test.cjs
+          node --test tests/imperion-b2b-intake-source.test.cjs
           node --test tests/imperion-receipt-mailer.test.cjs
 
 
