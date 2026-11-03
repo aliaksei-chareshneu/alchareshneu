@@ -168,6 +168,16 @@
 <footer class="revenue-foot"><div class="revenue-wrap">© Aliaksei Chareshneu · <a href="../academy/">Academy</a> · <a href="../#contacts">Contacts</a> · <a href="../#terms">Terms</a></div></footer>
 <script>
 (function(){
+// Forward bounded campaign codes through the existing B2B CTA; never copy arbitrary query data.
+var attribution=new URLSearchParams(location.search);
+document.querySelectorAll('a[href^="request/"]').forEach(function(a){
+ var target=new URL(a.getAttribute('href'),location.href);
+ ['utm_source','utm_medium','utm_campaign'].forEach(function(key){
+  var value=attribution.get(key)||'';
+  if(/^[a-zA-Z0-9][a-zA-Z0-9._-]{0,63}$/.test(value))target.searchParams.set(key,value);
+ });
+ a.href=target.href;
+});
 var buttons=Array.from(document.querySelectorAll('[data-lang]'));
 var blocks=Array.from(document.querySelectorAll('[data-locale]'));
 function setLang(lang){if(['en','cs','ru','uk'].indexOf(lang)<0)lang='en';document.documentElement.lang=lang;

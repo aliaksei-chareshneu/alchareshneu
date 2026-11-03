@@ -31,19 +31,32 @@ function reply(payload:object,code:number,origin:string|null) {
 function field(o:Record<string,unknown>,name:string,max=150) {
  const x=o[name]; return typeof x==='string' ? x.trim().slice(0,max+1) : '';
 }
+async function boundedBody(req:Request) {
+ const reader=req.body?.getReader();
+ if(!reader)throw Error('body');
+ const decoder=new TextDecoder();let size=0,raw='';
+ while(true){
+   const part=await reader.read();if(part.done)break;
+   size+=part.value.byteLength;
+   if(size>8192){await reader.cancel();throw Error('size');}
+   raw+=decoder.decode(part.value,{stream:true});
+ }
+ return raw+decoder.decode();
+}
 async function digest(s:string) {
  const buf=await crypto.subtle.digest('SHA-256',encoder.encode(s));
  return Array.from(new Uint8Array(buf)).map(n=>n.toString(16).padStart(2,'0')).join('');
 }
 async function allowed(scope:string,key:string,limit:number) {
  if (!api) return false;
- const hash=await digest(KEY.slice(0,48)+'|osvc_b2b_v1|'+scope+'|'+key);
+ const hash=await digest(KEY+'|osvc_b2b_v1|'+scope+'|'+key);
  const {data,error}=await api.rpc('imperion_rsvp_allow_request',{p_key:hash,p_limit:limit});
- if (error) { console.error('rate limit unavailable'); return false; }
+ if (error) { console.error('rate limit unavailable'); throw Error('rate unavailable'); }
  return data===true;
 }
 Deno.serve(async(req:Request):Promise<Response>=>{
  const origin=req.headers.get('origin');
+ try{
  if(req.method==='OPTIONS')return origin===ORIGIN
    ? new Response(null,{status:204,headers:headers(origin)})
    : reply({error:'forbidden_origin'},403,null);
@@ -56,13 +69,12 @@ Deno.serve(async(req:Request):Promise<Response>=>{
    return reply({error:'invalid_request'},400,origin);
  let body:Record<string,unknown>;
  try{
-   const raw=await req.text();
-   if(raw.length>8192)throw Error('size');
+   const raw=await boundedBody(req);
    body=JSON.parse(raw);
    if(!body||typeof body!=='object'||Array.isArray(body))throw Error('body');
  }catch{return reply({error:'invalid_request'},400,origin);}
  // Hidden field: disarm bots, never persist fabricated data.
- if(body.website)return reply({ok:true,status:'RECEIVED_UNCONFIRMED',confirmed:false},200,origin);
+ if(body.website)return reply({error:'please_check_required_fields'},400,origin);
  const company=field(body,'company',150), contact_name=field(body,'contactName',110);
  const email=field(body,'email',180).toLowerCase(),phone=field(body,'phone',42);
  const offer=field(body,'offer',35),summary=field(body,'summary',1300);
@@ -78,18 +90,36 @@ Deno.serve(async(req:Request):Promise<Response>=>{
  const ip=String(req.headers.get('cf-connecting-ip')||req.headers.get('x-forwarded-for')||'').split(',')[0].trim().slice(0,80);
  if(ip && !(await allowed('ip',ip,12)))return reply({error:'too_many_requests'},429,origin);
  if(!(await allowed('email',email,5)))return reply({error:'too_many_requests'},429,origin);
- const idempotency_key=await digest(KEY.slice(0,48)+'|dedup|'+new Date().toISOString().slice(0,10)+'|'+email+'|'+offer);
+ const utm = (name:string) => {
+   const value=field(body,name,64);
+   return /^[a-zA-Z0-9][a-zA-Z0-9._-]{0,63}$/.test(value)?value:null;
+ };
+ // Bind deduplication to the complete enquiry: guessed email/offer must not reveal another UUID.
+ const idempotency_key=await digest(KEY+'|b2b-content-v2|'+JSON.stringify([
+   email,offer,company,contact_name,phone,summary,budget_band,preferred_timeframe,team_size
+ ]));
  const {data,error}=await api.from('imperion_b2b_inquiries').insert({
     company,contact_name,email,phone:phone||null,offer,summary,
     budget_band,preferred_timeframe,team_size,source:safeSource,
-    privacy_acknowledged:true,idempotency_key
+    privacy_acknowledged:true,idempotency_key,
+    utm_source:utm('utmSource'),utm_medium:utm('utmMedium'),utm_campaign:utm('utmCampaign')
  }).select('id').single();
  if(error){
-   if(error.code==='23505')return reply({ok:true,status:'RECEIVED_UNCONFIRMED',confirmed:false,duplicate:true},200,origin);
+   // Only return a receipt after reading the canonical persisted row.
+   if(error.code==='23505'){
+     const existing=await api.from('imperion_b2b_inquiries').select('id')
+       .eq('idempotency_key',idempotency_key).single();
+     if(!existing.error&&existing.data?.id)return reply({ok:true,status:'RECEIVED_UNCONFIRMED',
+       confirmed:false,duplicate:true,reference:existing.data.id},200,origin);
+   }
    console.error('private intake write failed',error.code);
    return reply({error:'temporarily_unavailable'},503,origin);
  }
  if(!data?.id)return reply({error:'temporarily_unavailable'},503,origin);
  return reply({ok:true,status:'RECEIVED_UNCONFIRMED',confirmed:false,reference:data.id,
    message:'Request received for review. No booking, payment, or contract is formed.'},200,origin);
+ }catch{
+   console.error('private intake unavailable');
+   return reply({error:'temporarily_unavailable'},503,origin);
+ }
 });

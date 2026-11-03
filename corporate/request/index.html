@@ -139,23 +139,26 @@ function showB2bReceipt(b,server){
 }
 form.addEventListener('submit',async e=>{
  e.preventDefault();
+ $('receiptDetails').hidden=true;
  if(!form.reportValidity()||$('summary').value.trim().length<15){show(dict[lang].invalid,true);return;}
  btn.disabled=true;btn.textContent=dict[lang].sending;result.hidden=true;
  const baseSource=/^[a-zA-Z0-9_-]{2,65}$/.test(qp.get('src')||'')?qp.get('src'):'corporate_website';
-const utmLabels=['utm_source','utm_medium','utm_campaign'].map(function(key){
+const utm = key => {
   const value=qp.get(key)||'';
-  return /^[a-zA-Z0-9][a-zA-Z0-9._-]{0,63}$/.test(value)?value.replace(/[.-]/g,'_'):null;
-}).filter(Boolean);
-const source=utmLabels.length?(baseSource+'__'+utmLabels.join('_')).slice(0,65):baseSource;
+  return /^[a-zA-Z0-9][a-zA-Z0-9._-]{0,63}$/.test(value)?value:null;
+};
+const source=baseSource;
  const body={company:$('company').value.trim(),contactName:$('contactName').value.trim(),
   email:$('email').value.trim(),phone:$('phone').value.trim(),offer:$('offer').value,
   budgetBand:$('budgetBand').value,timeframe:$('timeframe').value.trim(),
   teamSize:$('teamSize').value?Number($('teamSize').value):null,summary:$('summary').value.trim(),
-  privacyAcknowledged:$('privacyAck').checked,website:$('website').value,source};
+  privacyAcknowledged:$('privacyAck').checked,website:$('website').value,source,
+  utmSource:utm('utm_source'),utmMedium:utm('utm_medium'),utmCampaign:utm('utm_campaign')};
  try{
   const response=await fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),cache:'no-store',signal:AbortSignal.timeout(12000)});
   const obj=await response.json().catch(()=>({}));
-  if(!response.ok||obj.ok!==true||obj.status!=='RECEIVED_UNCONFIRMED')throw Error('server');
+  if(!response.ok||obj.ok!==true||obj.status!=='RECEIVED_UNCONFIRMED'||
+     !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(obj.reference||''))throw Error('server');
   showB2bReceipt(body,obj);form.reset();show(dict[lang].received,false);
  }catch{show(dict[lang].fail,true);}
  finally{btn.disabled=false;btn.textContent=dict[lang].submit}

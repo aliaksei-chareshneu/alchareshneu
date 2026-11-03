@@ -40,7 +40,7 @@ Deno.serve(async (req:Request):Promise<Response>=>{
           .is("crm_synced_at",null).order("created_at",{ascending:true}).limit(40),
         // OSVC enquiries are returned only to the existing privately authenticated CRM importer.
         api.from("imperion_b2b_inquiries")
-          .select("id,created_at,company,contact_name,email,phone,offer,summary,budget_band,preferred_timeframe,team_size,source,status,retention_until")
+          .select("id,created_at,company,contact_name,email,phone,offer,summary,budget_band,preferred_timeframe,team_size,source,status,retention_until,utm_source,utm_medium,utm_campaign")
           .is("crm_synced_at",null).order("created_at",{ascending:true}).limit(40),
       ]);
       if(rsvp.error||enquiry.error||b2b.error)throw Error("pending read");

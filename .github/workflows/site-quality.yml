@@ -94,7 +94,7 @@ jobs:
       - name: Verify CRM-only transactional receipt queue and retries
         run: |
           node --test tests/imperion-intake-bridge-source.test.cjs
-          node --test tests/imperion-b2b-intake-source.test.cjs
+          node --test tests/imperion-b2b-intake-source.test.cjs tests/imperion-b2b-handoff.test.cjs tests/deal-proof-gate.test.cjs
           node --test tests/imperion-receipt-mailer.test.cjs
 
 
@@ -140,6 +140,28 @@ jobs:
           }
           if (failed) process.exit(1);
           NODE
+
+  b2b-isolated:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: timeout 240s npx playwright install chromium
+      - name: Disposable PostgreSQL, real REST, Edge sources and local Google adapters
+        run: npm run test:b2b:isolated
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: b2b-isolated-readback
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
 
   browser-regression:
     # Playwright 1.51.1 does not support the ubuntu-26.04 image selected by ubuntu-latest in Oct 2026.

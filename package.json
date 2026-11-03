@@ -4,10 +4,12 @@
   "scripts": {
     "test": "playwright test",
     "test:dom": "node scripts/dom-check.cjs",
+    "test:b2b:isolated": "node scripts/test-b2b-isolated.cjs",
     "test:security": "node scripts/security-check.cjs"
   },
   "devDependencies": {
     "@playwright/test": "1.51.1",
+    "@supabase/supabase-js": "2.112.3",
     "jsdom": "^26.0.0"
   }
 }

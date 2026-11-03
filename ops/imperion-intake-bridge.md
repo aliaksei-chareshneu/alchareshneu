@@ -64,3 +64,7 @@ Supabase `imperion_rsvp_submissions` → private GET → existing tab `Registrat
 ## Future verification
 
 Use adult synthetic QA and an owner-controlled Gmail plus-alias for actual email delivery checks; use `.invalid` contacts only when delivery is not being tested. Check exactly one new row in the appropriate existing tab, matching source UUID and `crm_synced_at`, owner digest and applicant receipt in the actual mailbox. Re-run: zero new rows and zero repeated notifications. Before removing QA records, verify their exact IDs and identities in both systems. Do not infer deployment or inbox delivery from GitHub source or `SENT_TO_PROVIDER` alone.
+
+## Review-only B2B hardening — 3 November 2026
+
+The 28 October evidence above describes the earlier installed version, not deployment of the new PR. See [current audit, isolated readback and owner-GO release sequence](../docs/B2B-REVENUE-READINESS.md). B2B owner digests now carry the source UUID; pending B2B handoffs recover from canonical Leads after an interrupted append/queue. Frontend, schema, bridge and GAS changes must be released together after approval.

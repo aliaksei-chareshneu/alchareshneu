@@ -20,12 +20,12 @@ const payload={company:'Synthetic Example Ltd',contactName:'Test Contact',
  budgetBand:'15000-30000',timeframe:'November 2026',teamSize:3,
  source:'offline_test',privacyAcknowledged:true,website:''};
 
-function runtime({error=null,allowed=true,configured=true}={}){
+function runtime({error=null,allowed=true,configured=true,existingError=false,transportError=false}={}){
  const inserted=[],checks=[],client=()=>({
-  rpc:async(name)=>{assert.equal(name,'imperion_rsvp_allow_request');checks.push(name);return {data:allowed,error:null};},
+  rpc:async(name)=>{if(transportError)throw Error('synthetic transport outage');assert.equal(name,'imperion_rsvp_allow_request');checks.push(name);return {data:allowed,error:null};},
   from:(name)=>{
    assert.equal(name,'imperion_b2b_inquiries');
-   return {insert:(row)=>{
+   return {select:()=>({eq:()=>({single:async()=>({data:existingError?null:{id:'00000000-0000-4000-8000-000000000123'},error:existingError?{code:'synthetic'}:null})})}),insert:(row)=>{
     inserted.push(row);
     return {select:(fields)=>{
      assert.equal(fields,'id');
@@ -40,7 +40,7 @@ function runtime({error=null,allowed=true,configured=true}={}){
  const js=stripTypeScriptTypes(clean,{mode:'strip'});
  let handler;
  vm.runInNewContext(js,{
-  createClient:client,TextEncoder,Request,Response,Headers,crypto:webcrypto,
+  createClient:client,TextEncoder,TextDecoder,Request,Response,Headers,crypto:webcrypto,
   console:{error:()=>{}},
   Deno:{env:{get:(key)=>configured?({
    SUPABASE_URL:'https://example.invalid',
@@ -65,7 +65,7 @@ async function request(handle,{method='POST',origin=ORIGIN,body=payload}={}){
   body:res.status===204?null:await res.json()};
 }
 
-test('source is deployed contract, no embedded credentials',()=>{
+test('source preserves public receipt contract, no embedded credentials',()=>{
  assert.match(source,/osvc_b2b_intake_v1/);
  assert.match(source,/SUPABASE_SERVICE_ROLE_KEY/);
  assert.doesNotMatch(source,/sk_(?:live|test)_\w{12,}|sb_secret_\w{12,}/);
@@ -116,17 +116,17 @@ test('required consent, service and valid contact cannot be bypassed',async()=>{
  }
  assert.equal(r.inserted.length,0);
 });
-test('honeypot does not create lead, even with success-looking response',async()=>{
+test('honeypot never claims a saved lead',async()=>{
  const r=runtime(),out=await request(r.handler,{body:{...payload,website:'spam'}});
- assert.equal(out.status,200);
- assert.equal(out.body.confirmed,false);
+ assert.equal(out.status,400);
+ assert.equal(out.body.reference,undefined);
  assert.equal(r.inserted.length,0);
 });
 test('duplicate is idempotent; database failure fails closed',async()=>{
  const dup=await request(runtime({error:'23505'}).handler);
  assert.equal(dup.status,200);
  assert.equal(dup.body.duplicate,true);
- assert.equal(dup.body.reference,undefined);
+ assert.equal(dup.body.reference,'00000000-0000-4000-8000-000000000123');
  const failed=await request(runtime({error:'23503'}).handler);
  assert.equal(failed.status,503);
  assert.equal(failed.body.reference,undefined);
@@ -139,4 +139,27 @@ test('rate limit and missing server credentials stop writes',async()=>{
  assert.equal((await request(offline.handler)).status,503);
  assert.equal(offline.inserted.length,0);
  assert.equal((await request(offline.handler,{method:'GET'})).body.accepting,false);
+});
+
+test('duplicate readback failure and thrown transport failure never claim receipt',async()=>{
+ for(const options of [{error:'23505',existingError:true},{transportError:true}]){
+  const out=await request(runtime(options).handler);
+  assert.equal(out.status,503);assert.equal(out.body.reference,undefined);
+ }
+});
+test('streamed payload size is bounded in bytes even without content-length',async()=>{
+ const r=runtime();
+ const out=await request(r.handler,{body:{...payload,summary:'Ж'.repeat(5000)}});
+ assert.equal(out.status,400);assert.equal(r.inserted.length,0);
+});
+test('dedup binds private request contents, so guessed email does not disclose another reference',async()=>{
+ const first=runtime(),second=runtime();
+ await request(first.handler);await request(second.handler,{body:{...payload,summary:'A completely different synthetic request on the same day.'}});
+ assert.notEqual(first.inserted[0].idempotency_key,second.inserted[0].idempotency_key);
+ assert.equal(first.inserted[0].idempotency_key.length,64);
+});
+test('unsafe UTM values are discarded before persistence',async()=>{
+ const r=runtime();await request(r.handler,{body:{...payload,utmSource:'private@example.invalid',utmMedium:'https://bad.invalid',utmCampaign:'safe-campaign'}});
+ assert.equal(r.inserted[0].utm_source,null);assert.equal(r.inserted[0].utm_medium,null);
+ assert.equal(r.inserted[0].utm_campaign,'safe-campaign');
 });

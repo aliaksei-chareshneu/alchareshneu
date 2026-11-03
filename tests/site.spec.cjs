@@ -93,7 +93,7 @@ test('portrait event photos stay bounded at the mobile breakpoint', async ({page
   await page.goto('/calendar/?lang=en');
   await expect(page.locator('.event-upcoming-card')).toHaveCount(2);
   await page.locator('.eu-img').first().scrollIntoViewIfNeeded();
-  await page.waitForFunction(()=>[...document.querySelectorAll('.eu-img img')].every(i=>i.complete && i.naturalWidth>0));
+  await expect.poll(()=>page.locator('.eu-img img').evaluateAll(images=>images.every(i=>i.complete && i.naturalWidth>0))).toBe(true);
   const sizes=await page.locator('.event-upcoming-card').evaluateAll(cards=>cards.map(c=>({card:c.getBoundingClientRect().height,image:c.querySelector('.eu-img').getBoundingClientRect().height})));
   for(const s of sizes){expect(s.card).toBeLessThan(750);if(width<=560)expect(s.image).toBe(140);}
   expect(Math.abs(sizes[0].card-sizes[1].card)).toBeLessThan(2);

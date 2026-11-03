@@ -117,6 +117,23 @@ test('existing B2B lead source includes allowed organic channel tags, not person
  await page.locator('#submit').click();
  await expect(page.locator('#result')).toBeVisible();
  expect(request).not.toBeNull();
- expect(request.source).toBe('start_company__instagram_bio_nov2026');
+ expect(request.source).toBe('start_company');
+ expect(request.utmSource).toBe('instagram');
+ expect(request.utmMedium).toBe('bio');
+ expect(request.utmCampaign).toBe('nov2026');
  expect(request.source).not.toContain('nobody@example.invalid');
 });
+
+for(const lang of LANGS){
+ test('B2B mobile campaign CTA preserves attribution '+lang,async({page},info)=>{
+  await page.setViewportSize({width:375,height:812});
+  await page.goto('/corporate/?lang='+lang+'&utm_source=instagram&utm_medium=bio&utm_campaign=nov2026');
+  await page.locator('a[data-locale="'+lang+'"][href*="src=corporate_hero"]').click();
+  await expect(page).toHaveURL(/utm_source=instagram/);
+  await expect(page).toHaveURL(/utm_medium=bio/);
+  await expect(page).toHaveURL(/utm_campaign=nov2026/);
+  await expect(page.locator('html')).toHaveAttribute('lang',lang);
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+  await info.attach('b2b-mobile-'+lang,{body:await page.screenshot({fullPage:true}),contentType:'image/png'});
+ });
+}
