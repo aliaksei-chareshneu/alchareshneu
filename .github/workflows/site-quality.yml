@@ -89,6 +89,9 @@ jobs:
           node tests/imperion-rsvp-source.test.cjs
           node --test tests/imperion-registration-window.test.cjs
 
+      - name: Verify safe payment proof gates, bank-only verification and package ledger
+        run: node --test tests/imperion-paid-registration.test.cjs
+
       - name: Verify CRM-only transactional receipt queue and retries
         run: |
           node --test tests/imperion-intake-bridge-source.test.cjs
