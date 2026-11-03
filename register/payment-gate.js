@@ -52,7 +52,7 @@ function toggleMode(){
  id('packageCode').required=usingPass&&!id('paymentGate').hidden;
 }
 function update(event,mode,locale){
- const paid=Boolean(event&&mode==='FORM'&&event.price_verified===true&&Number(event.price_czk)>0);
+ const paid=Boolean(event&&mode==='FORM'&&event.price_verified===true&&Number(event.price_czk)>0&&event.payment_gate_mode==='PROOF_OR_PACKAGE');
  id('paymentGate').hidden=!paid;
  if(paid){
   if(activeEventId!==event.event_id){
@@ -74,7 +74,7 @@ function update(event,mode,locale){
  toggleMode();
 }
 async function prepare(body,event,locale){
- if(!event||Number(event.price_czk)<=0)return;
+ if(!event||event.payment_gate_mode!=='PROOF_OR_PACKAGE')return;
  if(id('paymentGate').hidden)throw Error('payment_proof_required');
  if(id('paymentModePackage').checked){
   const code=id('packageCode').value.trim();
