@@ -61,7 +61,7 @@ jobs:
             grep -Fq 'Заявки на тренировки HEMA открыты; платное участие подтверждается индивидуально.' "$page"
             grep -Fq 'Заявки на тренування HEMA відкриті; платну участь підтверджуємо індивідуально.' "$page"
             grep -Fq 'Do not pay or travel without written confirmation' "$page"
-            grep -q 'Ask about a date' "$page"
+            grep -Fq 'No online payment.' "$page"
             if grep -Eq 'docs[.]google[.]com/forms/d/e|revolut[.]me/' "$page"; then
               echo 'Paused HEMA page still links to a retired booking/payment path' >&2
               exit 1
