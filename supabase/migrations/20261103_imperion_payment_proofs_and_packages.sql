@@ -448,7 +448,7 @@ begin
    or p_amount_czk not between 1 and 1000000
    or p_actor is null or length(trim(p_actor))<3
  then raise exception 'invalid_package_terms'; end if;
- v_code:=encode(pg_catalog.gen_random_bytes(24),'hex');
+ v_code:=encode(extensions.gen_random_bytes(24),'hex');
  insert into public.imperion_paid_packages
    (code_sha256,owner_email,data_controller,total_uses,paid_total_czk,status,issued_by)
  values
