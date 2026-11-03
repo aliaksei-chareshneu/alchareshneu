@@ -118,7 +118,7 @@ function impWriteRsvps_(ss,items,events){
       if(!Object.prototype.hasOwnProperty.call(states,intent))throw Error('Invalid public RSVP intent');
       var event=events&&events[String(r.event_id||'')];
       var isFree=!!(event&&event.price_verified===true&&Number(event.price_czk)===0);
-      var paymentStatus=(intent==='NO'||isFree)?'NOT_REQUIRED':'PENDING';
+      var paymentStatus=(intent==='NO'||isFree||r.payment_gate==='INQUIRY_NO_PAYMENT')?'NOT_REQUIRED':'PENDING';
       impAppend_(sh,h,{
         Reg_ID:'WEB-'+id,Event_ID:r.event_id||'',Timestamp:impDate_(r.created_at),
         Full_Name:[r.first_name,r.last_name].filter(Boolean).join(' '),
@@ -131,6 +131,8 @@ function impWriteRsvps_(ss,items,events){
         Retention_Until:impDate_(r.retention_until),Submission_ID:id,
         RSVP_Status:states[intent],RSVP_Status_At:impDate_(r.created_at),
         Payment_Status:paymentStatus,
+         Payment_Gate:r.payment_gate||'LEGACY_UNVERIFIED',
+         Payment_Evidence_ID:r.payment_evidence_id||'',
         Reply_Contact:r.email||r.phone||'',
         Source_Channel:'WEBSITE_RSVP_SUPABASE_UNCONFIRMED',
         Email:r.email||'',First_Name:r.first_name||'',Last_Name:r.last_name||'',
@@ -224,7 +226,8 @@ function impWriteB2B_(ss,items){
 
 
 /** Transactional applicant receipts: no marketing, no booking or payment. */
-var IMP_RC_COLS=['Receipt_Status','Receipt_Attempts','Receipt_Sent_At','Receipt_Locale'];
+var IMP_RC_COLS=['Receipt_Status','Receipt_Attempts','Receipt_Sent_At','Receipt_Locale',
+  'Payment_Gate','Payment_Evidence_ID'];
 function impEnsureReceiptCols_(sheet){
  if(!sheet)throw Error('Missing canonical CRM sheet');
  var h=impHeader_(sheet);
