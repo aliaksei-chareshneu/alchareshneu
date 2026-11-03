@@ -66,3 +66,11 @@ test('fixture runs without network and never writes live persistent ID cache',as
     assert.equal(JSON.parse(fs.readFileSync(path.join(out,'candidates.json'),'utf8')).applications_sent,0);
   }finally{fs.rmSync(base,{recursive:true,force:true});}
 });
+test('rejects broad category matches that are irrelevant to solo consulting',()=>{
+  const training=m.DEFAULT_LANES.find(x=>x.focus==='CORPORATE_TRAINING');
+  const hardware=m.DEFAULT_LANES.find(x=>x.focus==='AI_DATA_PYTHON');
+  assert.equal(m.normalize({...sample,'notice-title':'Czechia – Education and training services – Legal and accounting courses without digital skills'},training,NOW),null);
+  assert.equal(m.normalize({...sample,'notice-title':'Czechia – IT services – Cisco security network equipment maintenance'},hardware,NOW),null);
+  assert.equal(m.normalize({...sample,'notice-title':'Czechia – Air-conditioning appliances – Installation of air conditioning in tram vehicles'},training,NOW),null);
+  assert.ok(m.normalize({...sample,'notice-title':'Poland – Software services – Build an Open Data portal for a municipality'},hardware,NOW));
+});
