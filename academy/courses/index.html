@@ -23,6 +23,7 @@
 </style>
 <link rel="stylesheet" href="../../brand-theme.css?v=20261025">
 <link rel="stylesheet" href="../../site-design.css?v=20261027">
+<link rel="stylesheet" href="./visual.css?v=20261103">
 </head>
 <body data-imperion-scope="dark">
 <header class="top"><div class="top-inner"><a class="brand" href="../../">Aliaksei Chareshneu, PhD</a><a class="back" href="../"><span data-locale="en" >Academy &amp; prices</span><span data-locale="cs" hidden>Akademie a ceník</span><span data-locale="ru" hidden>Академия и цены</span></a><nav class="lang" aria-label="Language"><button type="button" data-lang="en" aria-pressed="true">EN</button><button type="button" data-lang="cs" aria-pressed="false">CZ</button><button type="button" data-lang="ru" aria-pressed="false">RU</button></nav></div></header>
@@ -101,4 +102,5 @@ document.querySelectorAll('[data-filter]').forEach(b=>b.addEventListener('click'
 let supplied=new URLSearchParams(location.search).get('lang');let preferred=supplied||((navigator.language||'en').slice(0,2).toLowerCase());langSet(preferred);
 })();
 </script>
+<script src="./visual.js?v=20261103"></script>
 </body></html>
