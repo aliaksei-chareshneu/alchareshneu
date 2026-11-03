@@ -107,8 +107,13 @@ function runAudit(pages) {
     dmForm.includes('id="safety" type="checkbox" required') &&
     dmForm.includes('id="adult" type="checkbox" required') &&
     dmForm.includes('out.confirmed!==false') &&
-    /New paid HEMA bookings are paused/i.test(druzina) &&
-    /Nové placené rezervace HEMA jsou pozastaveny/i.test(druzina),
+    druzina.includes('New HEMA training applications are open; paid attendance is confirmed individually.') &&
+    druzina.includes('Přihlášky na plánované tréninky HEMA jsou otevřené; placenou účast potvrzujeme jednotlivě.') &&
+    druzina.includes('Заявки на тренировки HEMA открыты; платное участие подтверждается индивидуально.') &&
+    druzina.includes('Заявки на тренування HEMA відкриті; платну участь підтверджуємо індивідуально.') &&
+    druzina.includes('Do not pay or travel without written confirmation') &&
+    druzina.includes('No online payment.') &&
+    !/docs[.]google[.]com\/forms\/d\/e|revolut[.]me\//i.test(druzina),
     'Družina enquiry button must lead to guarded, consented non-booking intake with four-language payment safety');
   let walkersUrl='';
   try { walkersUrl=decodeURIComponent(linkWithId(walkers,'navBookBtn')); } catch { /* fail closed */ }
