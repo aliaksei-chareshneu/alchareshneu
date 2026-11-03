@@ -117,7 +117,7 @@ function communityChannels(community: string, locale: string, age: string, rsvp:
   };
 }
 
-const EVENT_COLS='event_id,title,community,category,begins_at,ends_at,venue,price_czk,data_controller,rules_url,contact_activity,is_open,registration_mode,action_url,public_note,price_verified,end_time_verified,source_active';
+const EVENT_COLS='event_id,title,community,category,begins_at,ends_at,venue,price_czk,data_controller,rules_url,contact_activity,is_open,registration_mode,action_url,public_note,price_verified,end_time_verified,source_active,payment_gate_mode';
 
 // 02 Nov 2026 decision: the minimum attendance threshold is met.
 // Orel 14 Nov workshop accepts preliminary RSVPs until the event begins,
@@ -263,11 +263,12 @@ Deno.serve(async (req:Request):Promise<Response>=>{
   // For paid events proof is required; a screenshot NEVER verifies payment.
   // An existing bank-verified package may be used instead of a new upload.
   const price=Number(event.price_czk);
-  if(price>0 && v.rsvp!=='YES')return reply({error:'paid_event_requires_yes'},400,origin);
+  const requiresProof=price>0 && event.payment_gate_mode==='PROOF_OR_PACKAGE';
+  if(requiresProof && v.rsvp!=='YES')return reply({error:'paid_event_requires_yes'},400,origin);
   let packageBalance:Record<string,number>|null=null;
   let paymentState='FREE';
   let reference:string|null=null;
-  if(price>0 && typeof body.packageCode==='string' && body.packageCode.trim()){
+  if(requiresProof && typeof body.packageCode==='string' && body.packageCode.trim()){
     const code=body.packageCode.trim();
     if(!/^[A-Za-z0-9]{16,64}$/.test(code))
       return reply({error:'invalid_or_exhausted_package'},400,origin);
@@ -287,7 +288,7 @@ Deno.serve(async (req:Request):Promise<Response>=>{
     packageBalance={consumed:Number(data.consumed)||0,
       reserved:Number(data.reserved)||0,available:Number(data.available)||0};
     reference=String(data.submissionId||'');
-  } else if(price>0){
+  } else if(requiresProof){
     const id=typeof body.paymentEvidenceId==='string'?body.paymentEvidenceId:'';
     if(!/^[0-9a-fA-F-]{36}$/.test(id))
       return reply({error:'payment_proof_required'},400,origin);
@@ -329,7 +330,8 @@ Deno.serve(async (req:Request):Promise<Response>=>{
       photo_choice:v.photo,marketing_requested:v.future,data_controller:event.data_controller,
       language:v.locale,retention_until:expiry.toISOString(),
       discovery_source:v.discovery,utm_source:v.utmSource,
-      utm_medium:v.utmMedium,utm_campaign:v.utmCampaign,payment_gate:'FREE',
+      utm_medium:v.utmMedium,utm_campaign:v.utmCampaign,
+      payment_gate:price>0?'INQUIRY_NO_PAYMENT':'FREE',
     });
     // Keep legacy duplicate behavior for free, nonbinding RSVPs.
     if(writeError&&writeError.code!=='23505')
