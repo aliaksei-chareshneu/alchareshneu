@@ -19,6 +19,8 @@ on:
       - "robots.txt"
       - ".github/workflows/pages-production.yml"
   workflow_dispatch:
+  schedule:
+    - cron: '17 */6 * * *'
 
 permissions:
   contents: read
@@ -38,6 +40,15 @@ jobs:
         uses: actions/checkout@v4
         with:
           persist-credentials: false
+
+      - name: Prepare safe public event feed (no private CRM, no social POST)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Enforce source, model and single-publisher regression gates
+        run: node --test tests/imperion-autopilot.test.cjs tests/imperion-live-readback.test.cjs tests/imperion-free-model-router.test.cjs tests/imperion-autopilot-workflow-gate.test.cjs
+      - name: Build fresh public feed from verified existing catalogue
+        run: node scripts/imperion-autopilot.cjs
 
       - name: Copy only public website assets
         shell: bash
@@ -70,6 +81,14 @@ jobs:
           grep -q 'dame-na-vas-2755/' _pages/sitemap.xml
           du -sh _pages
 
+      - name: Upload exact expected public-only snapshot for post-deploy proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: imperion-pages-proof-${{ github.run_id }}
+          path: _pages/autopilot/
+          if-no-files-found: error
+          retention-days: 3
+
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
@@ -82,6 +101,7 @@ jobs:
     name: Deploy production static site
     needs: build
     runs-on: ubuntu-24.04
+    timeout-minutes: 9
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -89,3 +109,21 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+      - name: Checkout exact readback verifier
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Restore generated snapshot from THIS build, not stale main files
+        uses: actions/download-artifact@v4
+        with:
+          name: imperion-pages-proof-${{ github.run_id }}
+          path: autopilot
+      - name: Independently compare public HTTP response to uploaded build bytes
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/imperion-live-readback.cjs | tee "$RUNNER_TEMP/imperion-pages-provider-readback.json"
+          echo 'Public GitHub Pages HTTP matches four exact build asset SHA-256 hashes.' >> "$GITHUB_STEP_SUMMARY"
