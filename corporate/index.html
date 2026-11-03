@@ -207,6 +207,17 @@ blocks.forEach(function(el){var effective=lang;if(lang==='uk'&&el.dataset.locale
 buttons.forEach(function(b){b.addEventListener('click',function(){setLang(b.dataset.lang);});});
 var saved;try{saved=localStorage.getItem('dm_lang');}catch(e){}
 setLang(new URLSearchParams(location.search).get('lang')||saved||(navigator.language||'en').slice(0,2).toLowerCase());
+/* private-hema-attribution: preserve the source of public website traffic into the existing qualified enquiry; never forward PII. */
+var landingParams=new URLSearchParams(location.search);
+Array.from(document.querySelectorAll('#private-hema-cta a, #care-cta a')).forEach(function(a){
+ var dest=new URL(a.getAttribute('href'),location.href);
+ ['utm_source','utm_medium','utm_campaign'].forEach(function(k){
+  var value=landingParams.get(k)||'';
+  if(/^[a-zA-Z0-9][a-zA-Z0-9._-]{0,63}$/.test(value))dest.searchParams.set(k,value);
+ });
+ a.setAttribute('href',dest.pathname+dest.search);
+});
+
 })();
 </script>
 </body>
