@@ -427,3 +427,39 @@ where e.review_status='PENDING_BANK_REVIEW'
 revoke all on public.imperion_bank_evidence_candidates
  from PUBLIC,anon,authenticated;
 grant select on public.imperion_bank_evidence_candidates to service_role;
+
+-- Generate a one-time high-entropy owner-only pass code. A code alone grants
+-- NOTHING until activation from a bank movement by the reconciliation RPC.
+alter table public.imperion_paid_packages
+ add column if not exists issued_by text;
+create or replace function public.imperion_issue_pending_package(
+  p_email text, p_controller text, p_uses integer, p_amount_czk integer,
+  p_actor text
+) returns jsonb
+language plpgsql security invoker set search_path=''
+as $$
+declare
+ v_code text;
+ v_id uuid;
+begin
+ if p_email is null or p_email !~ '^[^[:space:]@]+@[^[:space:]@]+[.][^[:space:]@]+$'
+   or p_controller is null or length(trim(p_controller))<3
+   or p_uses not between 1 and 1000
+   or p_amount_czk not between 1 and 1000000
+   or p_actor is null or length(trim(p_actor))<3
+ then raise exception 'invalid_package_terms'; end if;
+ v_code:=encode(pg_catalog.gen_random_bytes(24),'hex');
+ insert into public.imperion_paid_packages
+   (code_sha256,owner_email,data_controller,total_uses,paid_total_czk,status,issued_by)
+ values
+   (encode(pg_catalog.sha256(pg_catalog.convert_to(upper(v_code),'UTF8')),'hex'),
+    lower(trim(p_email)),trim(p_controller),p_uses,p_amount_czk,'PENDING',left(trim(p_actor),140))
+ returning id into v_id;
+ return jsonb_build_object('ok',true,'packageId',v_id,
+  'status','PENDING','codeOnce',v_code,'verified',false);
+end;
+$$;
+revoke all on function public.imperion_issue_pending_package(text,text,integer,integer,text)
+ from PUBLIC,anon,authenticated;
+grant execute on function public.imperion_issue_pending_package(text,text,integer,integer,text)
+ to service_role;
