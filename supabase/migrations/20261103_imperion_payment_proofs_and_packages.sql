@@ -82,9 +82,11 @@ create table if not exists public.imperion_package_visits (
   reserved_at timestamptz not null default now(),
   consumed_at timestamptz,
   consumed_by text,
+  attendance_ref text,
   release_reason text,
   constraint imperion_visit_attendance_readback check
-    (state <> 'CONSUMED' or (consumed_at is not null and consumed_by is not null))
+    (state <> 'CONSUMED' or (consumed_at is not null and consumed_by is not null
+      and attendance_ref is not null and length(trim(attendance_ref)) >= 3))
 );
 create index if not exists imperion_package_visits_balance_idx
  on public.imperion_package_visits(package_id,state);
@@ -212,7 +214,7 @@ on conflict (id) do nothing;
 -- A mere registration or reservation never consumes a visit.
 create or replace function public.imperion_set_package_visit_state(
   p_submission_id uuid, p_state text, p_actor text,
-  p_reason text default null
+  p_attendance_ref text, p_reason text default null
 ) returns jsonb
 language plpgsql security invoker set search_path=''
 as $$
@@ -234,8 +236,12 @@ begin
   end if;
   if v_visit.state<>'RESERVED' then raise exception 'state_transition_forbidden'; end if;
   if p_state='CONSUMED' then
+    if p_attendance_ref is null or length(trim(p_attendance_ref))<3 then
+      raise exception 'verified_attendance_reference_required';
+    end if;
     update public.imperion_package_visits
-       set state='CONSUMED',consumed_at=now(),consumed_by=left(trim(p_actor),140)
+       set state='CONSUMED',consumed_at=now(),consumed_by=left(trim(p_actor),140),
+           attendance_ref=left(trim(p_attendance_ref),180)
      where id=v_visit.id;
   else
     if p_reason is null or length(trim(p_reason))<3 then
@@ -252,9 +258,9 @@ begin
     'available',v_remaining);
 end;
 $$;
-revoke all on function public.imperion_set_package_visit_state(uuid,text,text,text)
+revoke all on function public.imperion_set_package_visit_state(uuid,text,text,text,text)
   from PUBLIC,anon,authenticated;
-grant execute on function public.imperion_set_package_visit_state(uuid,text,text,text)
+grant execute on function public.imperion_set_package_visit_state(uuid,text,text,text,text)
   to service_role;
 
 -- Duplicate financial transaction IDs must never approve two independent receipts.
