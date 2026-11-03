@@ -26,8 +26,13 @@ const DEFAULT_LANES = Object.freeze([
   {id:'CZ_TRAINING', country:'buyer-country=CZE', cpv:'classification-cpv=805*', focus:'CORPORATE_TRAINING'},
   {id:'NEIGHBOUR_IT_DATA', country:'buyer-country IN (AUT DEU POL SVK)', cpv:'classification-cpv=72*', focus:'AI_DATA_PYTHON'}
 ]);
-const FIT = /\b(?:python|data|machine learning|artificial intelligence|ai solutions|ai training|automation|automatis|automatiz|analytics|analysis|analytik|science|scientific|research|vyzkum|vyzkum|forschung|datenanalyse|datenverarbeitung|skoleni|schulung|training|workshop|digitalizac|digitalisierung|umela inteligence|umel[eay] inteligenc|business intelligence)\b/i;
-const UNSUITABLE = /\b(?:hardware|printer|cable|firewall appliance|laptop|desktop computers|construction|datacent(?:er|re) building|telecommunication equipment)\b/i;
+// Require a concrete match in the buyer-written scope, not in TED's broad CPV label.
+const SUBJECT_MATCH = Object.freeze({
+  AI_DATA_PYTHON: /(?:python|machine learning|artificial intelligence|\bai\b|automatiz|automatis|automation|anal[yý]z|analyse|data analytics|datov[ýaée]|open data|bpmn|process[ -]modell|procesn[íi]|workflow|digitaliz|digitalis|digit[aá]ln[íi]|web[ -]plat|webov[áé]? aplik|software development|softwarov[ée] [řr]e[sš]en|custom software|port[aá]l|information system|informa[čc]n[íi] syst[eé]m|vývoj software|entwicklung einer web)/iu,
+  RESEARCH: /(?:v[ýy]zkum|research|experiment[aá]ln|applied science|vývoj|forschung|wissenschaft|r&d)/iu,
+  CORPORATE_TRAINING: /(?:anglick[ée]ho jazyk|english[ -]language|business english|python|um[eě]l[aá] inteligence|artificial intelligence|digital|digit[aá]ln|data analys|anal[yý]za dat|programov[aá]n|automatiz|automatis|information technolog|it training|corporate training|management training)/iu
+});
+const HARD_EXCLUSIONS = /(?:without digital skills|non-digital|bez digit[aá]ln[ií]ch dovednost[ií]|\bcisco\b|\bcheck point\b|\boracle css\b|\bsap sybase\b|maintenance k produkt|software maintenance|p[řr]edplatn[eé]ho bezpe[čc]nost|klimatizac|v[ýy]m[eě]n[ií]k[ůu]|po[žz][aá]rn[ií] ochran|po[řr]adatelsk[eé] slu[žz]b|serverov[eé]|\bsan\b|\braid\b|\biaas\b|datacent(?:er|re)|data center|kolokac|cloud hosting|z[aá]lohov[aá]n[ií] dat|firewall|tender for hardware|network equipment|s[ií]ťov[ée] bezpe[čc]nost|hardware|new passenger coaches|railway coaches|tramvaj[ií]|dod[aá]vka server|printer|diskov[aá] pole|licenc[ei]|subskripc)/iu;
 
 function text(value, max=300) {
   if (typeof value === 'string') return value.normalize('NFKC').replace(/[\u0000-\u001f\u007f]+/g,' ').replace(/\s+/g,' ').trim().slice(0,max);
@@ -81,16 +86,15 @@ function normalize(n,lane,now=new Date()) {
   const deadline=earliestDeadline(n['deadline-receipt-tender-date-lot']);
   if(deadline && deadline<now.toISOString().slice(0,10))return null;
   const cpv=text(n['classification-cpv'],100),country=text(n['buyer-country'],10);
-  // Ranking prioritises matching tasks, not the existence of an organisation alone.
+  const parts=title.split(' – ');
+  const buyerScope=parts.length>=3?parts.slice(2).join(' – '):title;
+  // A broad CPV category match is NOT a consulting job. Require buyer scope fit.
+  if(HARD_EXCLUSIONS.test(buyerScope) || !SUBJECT_MATCH[lane.focus]?.test(buyerScope))return null;
   const focus=lane.focus;
-  const evidence=[title,buyer].join(' ');
-  let score=30 + (country==='CZE'?10:0) + (FIT.test(evidence)?28:0) +
-    (focus==='CORPORATE_TRAINING' && /training|skoleni|schulung|vzdelav/i.test(title)?12:0) +
-    (deadline?7:0) - (UNSUITABLE.test(title)?25:0);
-  score=Math.max(0,Math.min(90,score));
-  if(score<42)return null;
+  const score=Math.min(90,40+(country==='CZE'?12:0)+20+(deadline?6:0)+
+    (/(?:python|automatiz|automatis|automation|anal[yý]z|bpmn|open data|anglick[ée]ho jazyk|english language)/iu.test(buyerScope)?8:0));
   const url='https://ted.europa.eu/en/notice/-/detail/'+num;
-  const reason=`OFFICIAL_TED_INDEX; published=${published}; buyer=${buyer}; buyer_country=${country||'NOT_VERIFIED'}; deadline=${deadline||'NOT_VERIFIED'}; CPV=${cpv||'NOT_VERIFIED'}; scope=ACTIVE; eligibility, subcontracting, budget for this consultant and tender status require independent notice review. No contact permission, application, contract or payment confirmed.`;
+  const reason=`OFFICIAL_TED_INDEX; published=${published}; buyer=${buyer}; buyer_country=${country||'NOT_VERIFIED'}; deadline=${deadline||'NOT_VERIFIED'}; CPV=${cpv||'NOT_VERIFIED'}; scope=ACTIVE; buyer-written scope matched conservatively; eligibility, subcontracting, budget for this consultant and tender status require independent notice review. No contact permission, application, contract or payment confirmed.`;
   return {id:'TED:'+num,publication_number:num,publication_date:published,buyer_name:buyer,
     title,source_url:url,source:'TED_API_V3',focus,fit_score:score,
     deadline:deadline||null, country:country||null, evidence_classification:reason,
