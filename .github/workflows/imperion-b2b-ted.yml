@@ -6,16 +6,23 @@ on:
       - 'scripts/imperion-b2b-ted.cjs'
       - 'tests/imperion-b2b-ted.test.cjs'
       - 'ops/imperion-b2b-ted.md'
+      - 'scripts/imperion-market-signals.cjs'
+      - 'tests/imperion-market-signals.test.cjs'
+      - 'ops/imperion-market-signals.md'
       - '.github/workflows/imperion-b2b-ted.yml'
   pull_request:
     paths:
       - 'scripts/imperion-b2b-ted.cjs'
       - 'tests/imperion-b2b-ted.test.cjs'
       - 'ops/imperion-b2b-ted.md'
+      - 'scripts/imperion-market-signals.cjs'
+      - 'tests/imperion-market-signals.test.cjs'
+      - 'ops/imperion-market-signals.md'
       - '.github/workflows/imperion-b2b-ted.yml'
   workflow_dispatch:
   schedule:
-    - cron: '17 2,8,14,20 * * *'
+    - cron: '17 2 * * *'
+    - cron: '17 8,14,20 * * *'
 permissions:
   contents: read
 concurrency:
@@ -33,7 +40,9 @@ jobs:
         with:
           node-version: '22'
       - name: Run deterministic offline tests
-        run: node --test tests/imperion-b2b-ted.test.cjs
+        run: |
+          node --test tests/imperion-b2b-ted.test.cjs
+          node --test tests/imperion-market-signals.test.cjs
   public-search:
     needs: tests
     runs-on: ubuntu-24.04
@@ -59,6 +68,25 @@ jobs:
         with:
           path: .cache/b2b-ted-state.json
           key: imperion-b2b-sourceids-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: Restore public-only research evidence keys
+        if: github.event_name != 'schedule' || github.event.schedule == '17 2 * * *'
+        uses: actions/cache/restore@v4
+        with:
+          path: .cache/market-signals-state.json
+          key: imperion-market-signals-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            imperion-market-signals-
+      - name: Scan primary market research (isolated from TED)
+        if: github.event_name != 'schedule' || github.event.schedule == '17 2 * * *'
+        id: market_signals
+        continue-on-error: true
+        run: node scripts/imperion-market-signals.cjs --out "$RUNNER_TEMP/imperion-b2b-review" --state .cache/market-signals-state.json
+      - name: Preserve public-only research evidence keys
+        if: (github.event_name != 'schedule' || github.event.schedule == '17 2 * * *') && steps.market_signals.outcome == 'success'
+        uses: actions/cache/save@v4
+        with:
+          path: .cache/market-signals-state.json
+          key: imperion-market-signals-${{ github.run_id }}-${{ github.run_attempt }}
       - name: Upload public-source review package, never private contacts
         uses: actions/upload-artifact@v4
         with:
@@ -68,5 +96,5 @@ jobs:
           if-no-files-found: error
       - name: Explicit no-action receipt
         run: |
-          echo 'TED public source GET/POST search only. No CRM write, email, contact scraping, payment or application.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'TED and Deloitte/EC public research; read-only source requests only. No CRM write, email, contact scraping, payment or application.' >> "$GITHUB_STEP_SUMMARY"
           echo 'Review artifact is not a verified buyer, bid, contract or bank payment.' >> "$GITHUB_STEP_SUMMARY"
