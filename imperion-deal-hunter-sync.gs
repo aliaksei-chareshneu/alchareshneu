@@ -55,14 +55,14 @@ function impDhRow_(r){
  var score=Number(r.fit_score);
  if(!Number.isInteger(score)||score<40||score>100)throw Error('INVALID_FIT_SCORE');
  return [
-  'OPP-'+id,impDhSafe_(r.published_on||new Date().toISOString().slice(0,10),20),
+  'OPP-'+id,new Date().toISOString().slice(0,10),
   'TED Official',title,exactUrl,'https://ted.europa.eu/en/',
   'TED public procurement / '+buyer,score,'REVIEW_UNCOSTED',
   'OFFICIAL_TENDER_PORTAL_REQUIRES_ELIGIBILITY_CHECK','NOT_VERIFIED',
   'NOT_CHECKED_IN_GMAIL',
   'Check actual deadline, sole trader eligibility, budget for OSVC scope, ALL owner hours, net >=1000 CZK/hour; owner GO before application',
   'Aliaksei',
-  'Official TED public notice '+source+
+  'Official TED public notice '+source+'; source publication: '+impDhSafe_(r.published_on||'NOT_VERIFIED',20)+
    '; buyer interest, OSVC eligibility, application status, budget, working hours, contract and cash NOT VERIFIED; source '+exactUrl
  ];
 }
