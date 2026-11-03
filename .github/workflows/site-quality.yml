@@ -4,6 +4,12 @@ on:
   push:
   pull_request:
 
+# push + pull_request can target the same feature commit. Keep one latest
+# validation per source branch; preserve both event types and all release checks.
+concurrency:
+  group: site-quality-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
