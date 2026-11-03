@@ -2,9 +2,14 @@
 (function(){
 'use strict';
 const root='../../images/';
-const photos={
- data:'hero-scholar.webp', ai:'main_hero.webp', science:'portrait_cave.webp',
- languages:'walkers_group.webp', exams:'boardgames.webp', skills:'druzina_larp.webp'
+/* Rotate only existing first-party media; no image hotlinking or invented class photos. */
+const photoPools={
+ data:['hero-scholar.webp','portrait_face.webp','main_hero.webp','hero-ranger.webp','portrait_cave.webp'],
+ ai:['main_hero.webp','hero-scholar.webp','hero-ranger.webp','hero-knight.webp','og-cover.jpg'],
+ science:['portrait_cave.webp','hero-scholar.webp','portrait_face.webp','walkers_cave.webp'],
+ languages:['walkers_group.webp','portrait_face.webp','walkers_cave.webp','hero-scholar.webp','boardgames.webp'],
+ exams:['boardgames.webp','hero-scholar.webp','walkers_group.webp','portrait_cave.webp'],
+ skills:['druzina_larp.webp','druzina_train.webp','hero-knight.webp','hero-ranger.webp','walkers_cave.webp']
 };
 const glyphs={
  PY01:'🐍',PY02:'📊',PY03:'📈',PY04:'🔬',PY05:'🧮',PY06:'🗃️',PY07:'⚙️',
@@ -44,10 +49,12 @@ function relabel(){
   s.textContent=({en:'See syllabus',cs:'Zobrazit osnovu',ru:'Посмотреть программу'})[locale];
  });
 }
-document.querySelectorAll('#catalog article.course').forEach(card=>{
+document.querySelectorAll('#catalog article.course').forEach((card,index)=>{
  const group=card.dataset.group||'science';
  const art=document.createElement('div');art.className='course-visual';art.setAttribute('aria-hidden','true');
- const img=document.createElement('img');img.src=root+(photos[group]||photos.science);img.alt='';img.loading='lazy';img.decoding='async';
+ const img=document.createElement('img');const pool=photoPools[group]||photoPools.science;
+ img.src=root+pool[index%pool.length];img.alt='';img.loading='lazy';img.decoding='async';
+ img.style.objectPosition=(30+(index*17)%45)+'% '+(25+(index*13)%45)+'%';
  const num=document.createElement('span');num.className='visual-index';num.textContent=card.id;
  const glyph=document.createElement('span');glyph.className='glyph';glyph.textContent=glyphs[card.id]||'📚';
  art.append(img,num,glyph);card.prepend(art);
