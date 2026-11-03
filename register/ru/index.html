@@ -67,6 +67,7 @@ a{color:var(--mint)}button,input,select{font:inherit}button{cursor:pointer}.skip
 
 </style>
 <link rel="stylesheet" href="/alchareshneu/register/event-calendar.css">
+<link rel="stylesheet" href="/alchareshneu/register/payment-gate.css?v=20261103">
 <link rel="stylesheet" href="../../brand-theme.css?v=20261025">
 <link rel="stylesheet" href="../../site-design.css?v=20261027">
 </head>
@@ -138,6 +139,7 @@ a{color:var(--mint)}button,input,select{font:inherit}button{cursor:pointer}.skip
   <footer><span>© 2026 · Družina Moravy, z. s. / BrnoWalkers / Aliaksei Chareshneu OSVČ</span><nav class="bottom"><a href="../privacy/" data-i18n="privacyLink">Конфиденциальность</a><a href="../safety/" data-i18n="safetyLink">Безопасность</a><a href="../../calendar/" data-i18n="eventsLink">Календарь</a><a href="../../" data-i18n="homeLink">На главную</a></nav></footer>
 </div>
 <script src="/alchareshneu/register/event-calendar.js"></script>
+<script src="/alchareshneu/register/payment-gate.js?v=20261103"></script>
 <script>
 'use strict';
 const ENDPOINT='https://cmrknyhnnehyjpreehcf.supabase.co/functions/v1/imperion-register';
@@ -271,6 +273,7 @@ function renderEvents(){
 function showEvent(){
  const e=events.find(v=>v.event_id===$('eventId').value),info=$('eventInfo'),mode=eventMode(e);
  info.replaceChildren();$('rsvpDetails').hidden=mode!=='FORM';$('submit').disabled=submitting||mode!=='FORM';
+  window.ImperionPayment?.update(e,mode,lang);
  if(!e){info.hidden=true;return}info.hidden=false;
  const top=document.createElement('p');const strong=document.createElement('strong');strong.textContent=e.title;top.append(strong);info.append(top);
  const meta=document.createElement('p');meta.textContent=eventDate(e)+' · '+e.venue+' · '+(e.price_verified===false?t('payment'):Number(e.price_czk)===0?t('free'):Number(e.price_czk)+' Kč');info.append(meta);
@@ -400,7 +403,8 @@ function showReceipt(eventData,body,payload){
   .then(()=>{copy.textContent=dict.copied;},()=>{copy.textContent=dict.copy;});});
  const again=document.createElement('button');again.type='button';again.textContent=dict.back;
  again.addEventListener('click',()=>{el.hidden=true;$('rsvpForm').hidden=false;renderEvents();$('eventSearch').focus();});
- actions.append(copy,again);el.append(actions);receiptContacts(el,eventData,body,payload);el.hidden=false;
+ actions.append(copy,again);el.append(actions);receiptContacts(el,eventData,body,payload);
+  window.ImperionPayment?.receipt(payload,lang);el.hidden=false;
 }
 $('rsvpForm').addEventListener('submit',async event=>{event.preventDefault();const form=$('rsvpForm');
   if(submitting)return;
@@ -418,11 +422,13 @@ $('rsvpForm').addEventListener('submit',async event=>{event.preventDefault();con
   body.utmSource=query.get('utm_source')||query.get('src')||'';
   body.utmMedium=query.get('utm_medium')||'';
   body.utmCampaign=query.get('utm_campaign')||'';
-  try {const response=await fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),cache:'no-store',signal:AbortSignal.timeout(12000)});
-    if(!response.ok)throw Error('submission_failed');const payload=await response.json();if(!payload.ok)throw Error('submission_rejected');
+  try {await window.ImperionPayment?.prepare(body,events.find(e=>e.event_id===body.eventId),lang);
+    const response=await fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),cache:'no-store',signal:AbortSignal.timeout(12000)});
+    const payload=await response.json().catch(()=>({}));
+    if(!response.ok)throw Error(payload.error||'submission_failed');if(!payload.ok)throw Error('submission_rejected');
     result.className='state success';showReceipt(events.find(e=>e.event_id===body.eventId),body,payload);
-    form.reset();updateGuardian();form.querySelectorAll('[type=checkbox]').forEach(el=>el.checked=false);renderEvents();form.hidden=true;
-  }catch(error){result.className='state error';result.textContent=t('failure');result.hidden=false;}
+    form.reset();window.ImperionPayment?.reset();updateGuardian();form.querySelectorAll('[type=checkbox]').forEach(el=>el.checked=false);renderEvents();form.hidden=true;
+  }catch(error){result.className='state error';result.textContent=window.ImperionPayment?.errorText(error,lang)||t('failure');result.hidden=false;}
   finally{submitting=false;form.removeAttribute('aria-busy');btn.disabled=eventMode(events.find(e=>e.event_id===$('eventId').value))!=='FORM';btn.textContent=t('send');result.focus({preventScroll:true});result.scrollIntoView({block:'nearest'});}
 });
 async function loadEvents(){
