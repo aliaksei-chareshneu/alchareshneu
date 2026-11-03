@@ -1,6 +1,15 @@
 -- Prepared additive migration: payments are NEVER verified from an uploaded screenshot.
 -- Deployment requires owner GO and reconciliation with the live register Edge Function.
 -- The upload bucket is private; only service-role server functions access records.
+-- Payment collection is a separate, explicit event approval.
+-- A price on an unconfirmed / interest-only event must NOT invite prepayment.
+alter table public.imperion_rsvp_events
+ add column if not exists payment_gate_mode text not null default 'NONE'
+ check (payment_gate_mode in ('NONE','PROOF_OR_PACKAGE'));
+alter table public.imperion_rsvp_events
+ add constraint imperion_event_payment_gate_positive
+ check (payment_gate_mode <> 'PROOF_OR_PACKAGE' or price_czk > 0);
+
 create table if not exists public.imperion_payment_evidence (
   id uuid primary key default gen_random_uuid(),
   event_id text not null references public.imperion_rsvp_events(event_id),
@@ -36,7 +45,7 @@ alter table public.imperion_rsvp_submissions
   add column if not exists payment_evidence_id uuid unique
     references public.imperion_payment_evidence(id),
   add column if not exists payment_gate text
-    check (payment_gate in ('FREE','PROOF_PENDING','PROOF_VERIFIED','PACKAGE_VERIFIED'));
+    check (payment_gate in ('FREE','INQUIRY_NO_PAYMENT','PROOF_PENDING','PROOF_VERIFIED','PACKAGE_VERIFIED'));
 comment on column public.imperion_rsvp_submissions.payment_gate is
  'NULL = historic unverified legacy submission; PROOF_PENDING is NEVER a paid place.';
 
@@ -97,7 +106,7 @@ group by p.id;
 create or replace function public.imperion_reserve_package_registration(
   p_code text, p_registration jsonb
 ) returns jsonb
-language plpgsql security definer set search_path=''
+language plpgsql security invoker set search_path=''
 as $$
 declare
   v_event public.imperion_rsvp_events%rowtype;
@@ -117,7 +126,7 @@ begin
    where event_id=v_event_id and is_open=true and public_listing=true
      and source_active=true and registration_mode='FORM'
      and price_verified=true and end_time_verified=true
-     and price_czk>0 and begins_at>now();
+     and price_czk>0 and payment_gate_mode='PROOF_OR_PACKAGE' and begins_at>now();
   if not found then raise exception 'event_unavailable'; end if;
   select * into v_pack from public.imperion_paid_packages
    where code_sha256=encode(pg_catalog.sha256(pg_catalog.convert_to(upper(trim(p_code)),'UTF8')),'hex')
@@ -161,7 +170,7 @@ $$;
 
 create or replace function public.imperion_evidence_review_sync()
 returns trigger
-language plpgsql security definer set search_path=''
+language plpgsql security invoker set search_path=''
 as $$
 begin
   if new.review_status='VERIFIED' and old.review_status <> 'VERIFIED' then
