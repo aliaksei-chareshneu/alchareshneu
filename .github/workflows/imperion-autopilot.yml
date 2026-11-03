@@ -26,7 +26,7 @@ jobs:
         with:
           node-version: '22'
       - name: Verify safety, no-spam, open-status and duplicate gates
-        run: node --test tests/imperion-autopilot.test.cjs tests/imperion-live-readback.test.cjs
+        run: node --test tests/imperion-autopilot.test.cjs tests/imperion-live-readback.test.cjs tests/imperion-free-model-router.test.cjs tests/imperion-autopilot-workflow-gate.test.cjs
       - name: Read only already-public, approved signup catalog
         run: node scripts/imperion-autopilot.cjs
       - name: Check out verified GitHub Pages publication branch
@@ -55,7 +55,9 @@ jobs:
           echo 'Verified public-only events published to growth-experience (the actual Pages branch).' >> "$GITHUB_STEP_SUMMARY"
           echo 'Social drafts require approval. No direct Facebook/group posts or private CRM export.' >> "$GITHUB_STEP_SUMMARY"
       - name: Independently verify published Pages responses (fail closed)
+        shell: bash
         run: |
+          set -euo pipefail
           node scripts/imperion-live-readback.cjs | tee "$RUNNER_TEMP/imperion-pages-readback.json"
           echo '### Independent live Pages provider readback: VERIFIED' >> "$GITHUB_STEP_SUMMARY"
           echo 'Source output and actual Pages HTTP response SHA-256 match for four public assets.' >> "$GITHUB_STEP_SUMMARY"
