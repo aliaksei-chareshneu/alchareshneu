@@ -32,8 +32,8 @@ jobs:
       - name: Restore public Apache-2.0 open-model cache (no tokens or credits)
         uses: actions/cache@v4
         with:
-          path: .ollama-models
-          key: imperion-apache2-qwen3-4b-instruct-20261103-v1
+          path: .ollama-models/models
+          key: imperion-apache2-qwen3-4b-instruct-20261103-v2
       - name: Run temporary local-only CPU Ollama on GitHub-hosted runner
         shell: bash
         run: |
@@ -42,7 +42,7 @@ jobs:
           docker run -d --rm --name imperion-qwen --cpus=2 \
             -p 127.0.0.1:11434:11434 \
             -v "$GITHUB_WORKSPACE/.ollama-models:/root/.ollama" \
-            ollama/ollama:latest
+            ollama/ollama@sha256:ebaef4f4c5d93660e1f25f8ad085a112f51ccfb0e8458073e71793959dba91c9
           for i in $(seq 1 45); do
             if curl -fsS http://127.0.0.1:11434/api/version > "$RUNNER_TEMP/ollama-version.json"; then break; fi
             sleep 2
@@ -68,3 +68,13 @@ jobs:
         if: always()
         shell: bash
         run: docker rm -f imperion-qwen || true
+      - name: Restore safe runner ownership of cacheable public model weights
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -d .ollama-models/models ]; then
+            sudo chown -R "$(id -u):$(id -g)" .ollama-models/models
+            chmod -R u+rwX .ollama-models/models
+          fi
+          echo 'Only public Qwen weights/manifests will be cached; generated Ollama private identity key is excluded.' >> "$GITHUB_STEP_SUMMARY"
