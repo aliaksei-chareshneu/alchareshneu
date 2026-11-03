@@ -47,8 +47,8 @@ test('server never accepts payment claims from a forged direct POST',()=>{
  assert.ok(server.includes("event.payment_gate_mode==='PROOF_OR_PACKAGE'"));
  assert.ok(server.includes("error:'payment_proof_required'"));
  assert.ok(server.includes("imperion_reserve_package_registration"));
- assert.ok(server.includes("payment_gate:'PROOF_PENDING'"));
- assert.ok(server.includes("status:'PAYMENT_PENDING_VERIFICATION'"));
+ assert.ok(server.includes("payment_gate:proof.review_status==='VERIFIED'?'PROOF_VERIFIED':'PROOF_PENDING'"));
+ assert.ok(server.includes("'PAYMENT_PENDING_VERIFICATION'"));
  assert.ok(server.includes("payment_gate:price>0?'INQUIRY_NO_PAYMENT':'FREE'"));
  assert.ok(server.includes(".eq('data_controller',event.data_controller)"));
  assert.ok(server.includes("!['PENDING_BANK_REVIEW','VERIFIED'].includes(proof.review_status)"));
