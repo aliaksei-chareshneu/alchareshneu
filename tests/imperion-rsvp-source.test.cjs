@@ -62,6 +62,10 @@ for(const locale of locales){
   assert.ok(page.includes(heading),'visible localized text '+locale);
   assert.ok(page.includes('id="eventId" required')&&page.includes('id="retry"'),'form and retry '+locale);
   assert.ok(page.includes('id="result" class="state" role="status" aria-live="polite" tabindex="-1"'),'accessible feedback '+locale);
+  assert.ok(page.includes('<details id="bw-cancel-20261028"'),'expired cancellation must be archived '+locale);
+  assert.ok(!page.includes('<aside id="bw-cancel-20261028"'),'past-date alert must not be prominent '+locale);
+  assert.ok(page.includes('BrnoWalkers%2028.10%20refund'),'refund contact retained '+locale);
+  assert.ok(!page.includes('id="hady-rsvp-20261101"'),'past hike pre-registration banner must be removed '+locale);
   assert.ok(!page.includes('"@type":"Event"'),'listing page must not masquerade as event leaf '+locale);
   assert.ok(page.includes('<link rel="alternate" hreflang="x-default"'),'fallback hreflang '+locale);
   for(const other of locales)assert.ok(page.includes('<link rel="alternate" hreflang="'+other+'" href="'+pages[other][1]+'">'),'reciprocal hreflang '+locale+'/'+other);
