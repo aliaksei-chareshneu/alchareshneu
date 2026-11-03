@@ -297,7 +297,7 @@ Deno.serve(async (req:Request):Promise<Response>=>{
       .eq('id',id).eq('event_id',v.eventId).eq('attendee_email',v.email)
       .eq('data_controller',event.data_controller).maybeSingle();
     if(proofError)return reply({error:'temporarily_unavailable'},503,origin);
-    if(!proof||proof.review_status!=='PENDING_BANK_REVIEW'||
+    if(!proof||!['PENDING_BANK_REVIEW','VERIFIED'].includes(proof.review_status)||
       proof.expected_amount_czk!==price||proof.declared_amount_czk!==price)
       return reply({error:'payment_proof_required'},400,origin);
     const {data:prior}=await api.from('imperion_rsvp_submissions')
@@ -312,15 +312,21 @@ Deno.serve(async (req:Request):Promise<Response>=>{
       language:v.locale,retention_until:expiry.toISOString(),
       discovery_source:v.discovery,utm_source:v.utmSource,
       utm_medium:v.utmMedium,utm_campaign:v.utmCampaign,
-      payment_evidence_id:id,payment_gate:'PROOF_PENDING',status:'PAYMENT_PENDING_VERIFICATION',
+      payment_evidence_id:id,
+      payment_gate:proof.review_status==='VERIFIED'?'PROOF_VERIFIED':'PROOF_PENDING',
+      status:proof.review_status==='VERIFIED'?'RECEIVED_UNCONFIRMED':'PAYMENT_PENDING_VERIFICATION',
     }).select('id').single();
     if(paidError||!inserted?.id)return reply({
       error:paidError?.code==='23505'?'duplicate_or_reused_proof':'temporarily_unavailable'
     },paidError?.code==='23505'?409:503,origin);
     // Do not send a group invitation / claim a reserved place before bank readback.
-    return reply({ok:true,status:'PAYMENT_PENDING_VERIFICATION',paymentGate:'PROOF_PENDING',
+    return reply({ok:true,
+      status:proof.review_status==='VERIFIED'?'RECEIVED_UNCONFIRMED':'PAYMENT_PENDING_VERIFICATION',
+      paymentGate:proof.review_status==='VERIFIED'?'PROOF_VERIFIED':'PROOF_PENDING',
       confirmed:false,reference:inserted.id,
-      message:'Proof received. Bank payment must be checked before this is a paid registration.'},200,origin);
+      message:proof.review_status==='VERIFIED'
+        ?'Bank payment verified. Attendance still requires organiser confirmation.'
+        :'Proof received. Bank payment must be checked before this is a paid registration.'},200,origin);
   } else {
     const expiry=new Date(new Date(event.ends_at).getTime()+90*86400000);
     const {error:writeError}=await api.from('imperion_rsvp_submissions').insert({
