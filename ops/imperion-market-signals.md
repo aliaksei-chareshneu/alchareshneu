@@ -16,11 +16,15 @@ remain canonical for *actual* B2B public requests.
 - PwC/FERMA Global Risk Manager Survey (2026-10-05)
 - PwC Global CEO Snapshot (2026-10-19)
 - Deloitte State of AI in the Enterprise (2026)
+- OECD: Empowering SMEs in the age of AI (2026-04-13)
+- OECD: AI and skills (2026-06-05)
+- European Commission: State of the Digital Decade (2026-06-17)
+- McKinsey: The state of AI in 2026 (2026-08-25)
 Exact URLs and source identifiers: scripts/imperion-market-signals.cjs.
 Publication dates not visible on a source are deliberately null.
 
 ## Mechanics
-1. Fetch only the above four public official HTML pages (GET, 15s timeout/source,
+1. Fetch only the above eight public official HTML pages (GET, 15s timeout/source,
    <=2.5MB each, no redirects accepted, no cookies or personal information).
 2. Strip scripts, navigation and HTML; require AI plus an operational pain term
    **in the same sentence**. No external AI inference and no scraping of contacts.
@@ -58,3 +62,6 @@ scan step with successful fetch count, and two market-signals files in the
 actual run artifact. A green Workflow badge **alone** is insufficient.
 If official domains block GitHub's fetch, status is SOURCE_PARTIAL / SOURCE_FAILED
 and the result is NOT LIVE for that source; adapt only after reviewing evidence.
+
+## Live source restrictions observed 2026-11-03
+The first GitHub PR run (41725073483) fetched Deloitte successfully (2 signals) but all 3 PwC URLs replied HTTP 403. We do not bypass publisher restrictions. Four other primary sites were added for independent data; require a new live run to verify their accessibility and update documentation.
