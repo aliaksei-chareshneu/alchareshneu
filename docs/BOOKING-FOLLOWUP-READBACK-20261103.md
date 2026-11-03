@@ -2,6 +2,8 @@
 
 **STAGED; PRODUCTION NO-GO; DONE not reached.** This change continues the existing `feat/druzina-booking-readback-20261102` branch at `7696df9fce852fc31448e64fc1f75726814c9594`. It does not replace the booking system or the Community Hub. Review against that branch, not as an independent replacement for PR #128. Its historical PR/deployment claims have not been freshly verified in this session.
 
+Implementation commit: `193960b5322267ef8739cb203b36f80f1c62ce5c`, successfully pushed to [codex/druzina-booking-staging-fixes](https://github.com/aliaksei-chareshneu/alchareshneu/tree/codex/druzina-booking-staging-fixes). Draft PR creation was attempted with base `feat/druzina-booking-readback-20261102`; `POST https://api.github.com/graphql` returned Forbidden. **No new PR is confirmed created.** Review body is prepared locally at `/tmp/imperion-booking-pr-body.md`; retry that exact operation after network policy is applied. No production merge/deploy was attempted.
+
 ## Current evidence / gap map
 
 | Component | Current observation | Result |
