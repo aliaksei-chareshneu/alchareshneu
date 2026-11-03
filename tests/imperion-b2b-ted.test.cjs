@@ -48,6 +48,7 @@ test('CSV sanitizes formula injection from untrusted titles',()=>{
   assert.match(f.csv,/"'=1\+1 Python automation"/);
   assert.match(f.summary.execution_status,/SIMULATED/);
   assert.equal(f.summary.crm_deduplicated,false);
+  assert.equal(f.summary.active_candidates.length,1);
 });
 test('API parse fails closed rather than claiming leads from an error',async()=>{
   await assert.rejects(()=>m.requestOne({},async()=>({ok:false,status:429,headers:new Headers(),text:async()=>''})),/TED_HTTP_429/);
