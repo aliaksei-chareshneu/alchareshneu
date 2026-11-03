@@ -64,3 +64,30 @@ Supabase `imperion_rsvp_submissions` → private GET → existing tab `Registrat
 ## Future verification
 
 Use adult synthetic QA and an owner-controlled Gmail plus-alias for actual email delivery checks; use `.invalid` contacts only when delivery is not being tested. Check exactly one new row in the appropriate existing tab, matching source UUID and `crm_synced_at`, owner digest and applicant receipt in the actual mailbox. Re-run: zero new rows and zero repeated notifications. Before removing QA records, verify their exact IDs and identities in both systems. Do not infer deployment or inbox delivery from GitHub source or `SENT_TO_PROVIDER` alone.
+
+
+### 2026-11-03 review-only B2B handoff hardening
+
+`impWriteB2B_` now reads persisted Lead_ID, Submission_ID, owner, stage,
+action status and next-action presence before source ACK. A partial prior
+append or duplicate source ID blocks ACK on retry; it cannot silently count as
+an imported lead. Owner resolves conflicting records in the existing Leads tab.
+The recovered `imperion-b2b-intake/index.ts` is the unchanged deployed v1 source
+from PR #167; no new endpoint or deployment. Offline behavioral tests plus
+`tests/imperion-b2b-handoff.test.cjs` exercise the handler, duplicate insert,
+private import, owner-action selection and pending receipt queue. Memory-backed
+readback is synthetic verification, not a production bridge/CRM/email result.
+
+Agent runtime reuses PR #198's formula-error fallback. Canonical Leads stop
+statuses override stale action rows. Within an existing six-hour slot, the
+immutable receipt is checked before snapshot/HTTP work; no trigger cadence is
+changed. A receipt's identity, job, event, status and timestamps must match before
+reuse. The existing independent Sheets/provider readback requirement remains.
+
+`ops/deal-proof-gate.cjs` reuses PR #111's offline evidence checker. Full net
+scenarios require sales, preparation, delivery, travel, administration and followup
+hours plus explicit costs/tax; payment timing requires its own source. Missing
+inputs return unknown. It does not promote CRM stages or verify bank cash.
+All production installation, synthetic live submissions, outbound messages,
+publications, signatures, grant submissions and financial commitments still
+require the applicable owner GO. Existing #04/#09 and ten enabled tasks are reused.

@@ -162,3 +162,77 @@ test('owner preview logs only public provider proof status without leaking Hub d
   assert.equal(h.jobs.rows.length,1);
   assert.equal(h.receipts.rows.length,1);
 });
+
+
+test('broken Revenue_Actions #REF! does not hide canonical Leads or count as a buyer',()=>{
+  const {c}=harness();
+  const snap=sample();
+  snap.data.Revenue_Actions=[{Lead_ID:'#REF!',Stage:'',Action_Status:'PAYROLL_NOTE_NOT_AN_OPPORTUNITY'}];
+  snap.data.Leads=[
+    {Lead_ID:'LEAD-WARM-1',Stage:'Qualified',Email:'private@example.test'},
+    {Lead_ID:'LEAD-STOP',Stage:'Lost'},
+    {Lead_ID:'QA_SYNTHETIC-LEAD',Stage:'New'}
+  ];
+  const result=c.impA5Compute_(snap);
+  assert.equal(result.sales.source_table,'Leads');
+  assert.equal(result.sales.source_formula_errors,1);
+  assert.equal(result.sales.source_integrity,'REVENUE_ACTIONS_FORMULA_ERROR_FALLBACK_TO_LEADS');
+  assert.equal(result.sales.uncontacted_review_candidates,1);
+  assert.equal(result.sales.blocked_or_closed,1);
+  assert.equal(result.sales.qa_excluded,1);
+  assert.equal(result.sales.messages_sent,0);
+  assert.equal(result.sales.history_and_optout_checked,false);
+  assert.doesNotMatch(JSON.stringify(result),/private@example|PAYROLL_NOTE|LEAD-WARM-1|#REF!/);
+});
+
+test('partly broken Revenue_Actions never masks missing closed leads',()=>{
+  const {c}=harness();
+  const snap=sample();
+  snap.data.Revenue_Actions=[
+    {Lead_ID:'SOME-LEAD',Stage:'New'},
+    {Lead_ID:'#REF!',Stage:'New'}
+  ];
+  snap.data.Leads=[
+    {Lead_ID:'LEAD-OPEN',Stage:'New'},
+    {Lead_ID:'LEAD-CLOSED',Stage:'Closed'}
+  ];
+  const sales=c.impA5Compute_(snap).sales;
+  assert.equal(sales.source_table,'Leads');
+  assert.equal(sales.uncontacted_review_candidates,1);
+  assert.equal(sales.blocked_or_closed,1);
+  assert.equal(sales.source_formula_errors,1);
+});
+
+test('valid Revenue_Actions still takes priority over canonical Leads',()=>{
+  const {c}=harness();
+  const snap=sample();
+  const sales=c.impA5Compute_(snap).sales;
+  assert.equal(sales.source_table,'Revenue_Actions');
+  assert.equal(sales.source_formula_errors,0);
+  assert.equal(sales.source_integrity,'OK');
+  assert.equal(sales.uncontacted_review_candidates,1);
+});
+
+
+test('same-slot retry skips ALL snapshot and public HTTP work, retains independent verification requirement',()=>{
+  const h=harness();let reads=0,http=0;
+  const original=h.c.UrlFetchApp.fetch;
+  h.c.UrlFetchApp.fetch=(...args)=>{http++;return original(...args);};
+  h.c.imperionAgentTrustedSnapshot_=()=>{reads++;return sample();};
+  const first=h.c.impA5Run_(h.b), second=h.c.impA5Run_(h.b);
+  assert.equal(reads,1);assert.equal(http,4);
+  assert.equal(first.resource_usage.llm_calls,0);
+  assert.equal(second.status,'EXISTING_SLOT_RECEIPT_REUSED');
+  assert.equal(second.public_http_requests,0);
+  assert.equal(second.independent_readback,'REQUIRED');
+  h.receipts.rows[1][5]='PAID';
+  assert.throws(()=>h.c.impA5Run_(h.b),/AGENT_RECEIPT_CONTENT_CONFLICT/);
+});
+test('canonical Leads stop status blocks an apparently open Revenue_Actions row',()=>{
+  const h=harness(),snap=sample();
+  snap.data.Revenue_Actions=[{Lead_ID:'STOPPED',Stage:'New'}];
+  snap.data.Leads=[{Lead_ID:'STOPPED',Stage:'Lost'}];
+  const result=h.c.impA5Compute_(snap);
+  assert.equal(result.sales.uncontacted_review_candidates,0);
+  assert.equal(result.sales.blocked_or_closed,1);
+});
