@@ -226,8 +226,20 @@ function impWriteB2B_(ss,items){
 
 
 /** Transactional applicant receipts: no marketing, no booking or payment. */
-var IMP_RC_COLS=['Receipt_Status','Receipt_Attempts','Receipt_Sent_At','Receipt_Locale',
-  'Payment_Gate','Payment_Evidence_ID'];
+var IMP_RC_COLS=['Receipt_Status','Receipt_Attempts','Receipt_Sent_At','Receipt_Locale'];
+// Payment metadata belongs to the existing CRM, not to the receipt-mailer contract.
+function impEnsurePaymentCols_(sheet){
+ if(!sheet)throw Error('Missing canonical CRM sheet');
+ var h=impHeader_(sheet);
+ ['Payment_Gate','Payment_Evidence_ID'].forEach(function(name){
+  if(h.map[name]!==undefined)return;
+  var col=sheet.getLastColumn()+1;
+  if(col>sheet.getMaxColumns())sheet.insertColumnsAfter(sheet.getMaxColumns(),1);
+  sheet.getRange(1,col).setValue(name);
+  h.map[name]=col-1;
+ });
+}
+
 function impEnsureReceiptCols_(sheet){
  if(!sheet)throw Error('Missing canonical CRM sheet');
  var h=impHeader_(sheet);
@@ -829,6 +841,7 @@ function imperionSyncPrivateIntake(){
   try{
     var cfg=impPrivateConfig_(),ss=SpreadsheetApp.openById(cfg.sheetId);
     ['Registrations','Druzina_Requests','Leads'].forEach(function(n){impEnsureReceiptCols_(ss.getSheetByName(n));});
+    impEnsurePaymentCols_(ss.getSheetByName('Registrations'));
     var addedR=0,addedE=0,addedB=0,processed=0;
     // One safe public price lookup; never infer paid status from a blank/unknown fee.
     var events=impReceiptCatalog_();
