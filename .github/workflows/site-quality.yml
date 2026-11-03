@@ -97,6 +97,9 @@ jobs:
 
       - name: Check four-language information channels and gated chats
         run: node --test tests/imperion-community-routing.test.cjs
+      - name: Verify free public-only AI router and fail-closed Pages proof
+        run: node --test tests/imperion-free-model-router.test.cjs tests/imperion-autopilot-workflow-gate.test.cjs
+
       - name: Verify private five-agent safety and proof logic
         run: |
           node --test tests/imperion-agent-snapshot.test.cjs tests/imperion-agent-team.test.cjs tests/imperion-closed-loop-audit.test.cjs tests/imperion-proof-auditor.test.cjs tests/imperion-agent-runtime.test.cjs
