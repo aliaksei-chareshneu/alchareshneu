@@ -28,7 +28,6 @@ jobs:
       - name: Run deterministic offline tests
         run: node --test tests/imperion-b2b-ted.test.cjs
   public-search:
-    if: github.event_name != 'pull_request'
     needs: tests
     runs-on: ubuntu-24.04
     timeout-minutes: 8
