@@ -93,7 +93,6 @@ a{color:var(--mint)}button,input,select{font:inherit}button{cursor:pointer}.skip
       <p id="loading" class="state" role="status" data-i18n="loading">Loading available events…</p>
       <form id="rsvpForm" hidden novalidate>
         <div class="event-selection-layout">
-          <div class="field event-picker" id="eventPicker"><label class="required" for="eventSearch" data-i18n="event">Event</label><input type="search" id="eventSearch" class="event-search" role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="eventMatches" autocomplete="off"><div id="eventMatches" class="event-matches" role="listbox" hidden></div><select id="eventId" required class="screenreader" aria-label="Selected event"><option value="">Vyberte akci…</option></select><p id="catalogSummary" class="catalog-summary" role="status" aria-live="polite"></p></div>
           <section class="event-calendar" aria-labelledby="eventCalendarHeading">
             <h3 id="eventCalendarHeading">Kalendář akcí</h3>
             <div class="calendar-controls"><button id="calendarPrev" type="button" aria-label="Předchozí měsíc" title="Předchozí měsíc">‹</button><strong id="calendarMonth" role="status" aria-live="polite"></strong><button id="calendarNext" type="button" aria-label="Další měsíc" title="Další měsíc">›</button></div>
@@ -102,6 +101,7 @@ a{color:var(--mint)}button,input,select{font:inherit}button{cursor:pointer}.skip
             <div id="calendarDayEvents" class="calendar-day-events" hidden></div>
             <p id="calendarHint" class="calendar-hint"></p>
           </section>
+          <div class="field event-picker" id="eventPicker"><label class="required" for="eventSearch" data-i18n="event">Event</label><input type="search" id="eventSearch" class="event-search" role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="eventMatches" autocomplete="off"><div id="eventMatches" class="event-matches" role="listbox" hidden></div><select id="eventId" required class="screenreader" aria-label="Selected event"><option value="">Vyberte akci…</option></select><p id="catalogSummary" class="catalog-summary" role="status" aria-live="polite"></p></div>
         </div>
         <div id="eventInfo" class="info" aria-live="polite" hidden></div><div id="rsvpDetails" hidden>
         <fieldset class="consent-choices" id="optionalConsents"><legend id="optionalConsentLabel">Dobrovolné volby</legend><p id="optionalConsentNote" class="consent-help"></p><div class="consent-toolbar"><button type="button" id="optInAll" class="consent-select-all" aria-pressed="false" aria-controls="photo future" aria-describedby="optionalConsentNote">Souhlasím s fotografiemi i pozvánkami</button><span id="optionalConsentCount" class="consent-count" role="status" aria-live="polite">0 ze 2 vybráno</span></div><div class="check"><label><input id="photo" type="checkbox"><span><strong data-i18n="photoHead">I optionally allow photos/video of me</strong> <span data-i18n="photoNote">to be published on organizer channels. Declining does not exclude participation. Minors require separate guardian authorization.</span></span></label></div>
