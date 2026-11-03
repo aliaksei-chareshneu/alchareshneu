@@ -12,7 +12,11 @@ const SOURCES=Object.freeze([
  {id:'PWC_CEE_CEO_2026',publisher:'PwC CEE',url:'https://cee.pwc.com/pwc-29th-annual-global-ceo-survey.html',date:null},
  {id:'PWC_RISK_OCT_2026',publisher:'PwC / FERMA',url:'https://www.pwc.com/gx/en/issues/risk-regulation/global-risk-manager-survey.html',date:'2026-10-05'},
  {id:'PWC_CEO_OCT_2026',publisher:'PwC',url:'https://www.pwc.com/gx/en/1/issues/c-suite-insights/ceo-survey/mid-year-snapshot-2026.html',date:'2026-10-19'},
- {id:'DELOITTE_AI_2026',publisher:'Deloitte',url:'https://www.deloitte.com/us/en/what-we-do/capabilities/applied-artificial-intelligence/content/state-of-ai-in-the-enterprise.html',date:null}
+ {id:'DELOITTE_AI_2026',publisher:'Deloitte',url:'https://www.deloitte.com/us/en/what-we-do/capabilities/applied-artificial-intelligence/content/state-of-ai-in-the-enterprise.html',date:null},
+ {id:'OECD_SME_AI_2026',publisher:'OECD',url:'https://www.oecd.org/en/publications/empowering-smes-in-the-age-of-ai_bf5a9816-en.html',date:'2026-04-13'},
+ {id:'OECD_AI_SKILLS_2026',publisher:'OECD',url:'https://www.oecd.org/en/publications/ai-and-skills_f843b352-en/full-report.html',date:'2026-06-05'},
+ {id:'EU_DIGITAL_DECADE_2026',publisher:'European Commission',url:'https://commission.europa.eu/news-and-media/news/state-digital-decade-report-progress-made-gaps-remain-2026-06-17_en',date:'2026-06-17'},
+ {id:'MCKINSEY_AI_ROI_2026',publisher:'McKinsey',url:'https://www.mckinsey.com/capabilities/quantumblack/our-insights/the-state-of-ai',date:'2026-08-25'}
 ]);
 const LENSES=Object.freeze([
  {id:'AI_VALUE',title:'AI: измеряемая отдача вместо демонстраций',
@@ -40,7 +44,7 @@ function allowedSource(s) {
  const reference=SOURCES.find(x=>x.id===s.id);
  if(!reference||reference.url!==s.url)return false;
  const u=new URL(s.url);
- return u.protocol==='https:' && ['www.pwc.com','cee.pwc.com','www.deloitte.com'].includes(u.hostname);
+ return u.protocol==='https:' && ['www.pwc.com','cee.pwc.com','www.deloitte.com','www.oecd.org','commission.europa.eu','www.mckinsey.com'].includes(u.hostname);
 }
 function visibleText(html) {
  if(typeof html!=='string'||html.length>2500000)throw Error('HTML_INVALID_OR_OVERSIZE');
