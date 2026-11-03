@@ -13,7 +13,7 @@ const fakeFetch=(html,status=200)=>(url,options)=>{
  return Promise.resolve({status,url,headers:{get:()=> 'text/html; charset=utf-8'},text:async()=>html});
 };
 test('only exact public research URLs are accepted; redirect and non-HTML fail closed',async()=>{
- assert.equal(m.SOURCES.length,8);
+ assert.equal(m.SOURCES.length,6);
  for(const s of m.SOURCES)assert.equal(m.allowedSource(s),true);
  assert.equal(m.allowedSource({...m.SOURCES[0],url:'https://evil.example/steal'}),false);
  await assert.rejects(m.readSource({...m.SOURCES[0],url:'https://evil.example/steal'},fakeFetch('x')),/SOURCE_NOT_ALLOWLISTED/);
@@ -76,7 +76,7 @@ test('partial availability is explicit; no invented publication dates',async()=>
   ({status:403,url,headers:{get:()=> 'text/html'},text:async()=>''})});
  assert.equal(r.status,'SOURCE_PARTIAL');
  assert.equal(r.source_success,1);
- assert.equal(r.source_failures.length,7);
+ assert.equal(r.source_failures.length,5);
  assert.equal(r.hypotheses[0].sources[0].publication_date,null);
  assert.match(m.markdown(r),/publication date not verified/);
 });
