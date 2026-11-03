@@ -13,7 +13,7 @@ async function ready(check){for(let i=0;i<60;i++){try{if(await check())return;}c
  docker('network','create',prefix);
  docker('run','-d','--name',db,'--network',prefix,'-e','POSTGRES_PASSWORD=synthetic-local-only',
   'postgres:17.6-alpine@sha256:ef257d85f76e48da1c64832459b59fcaba1a4dac97bf5d7450c77753542eee94');
- await ready(()=>docker('exec',db,'pg_isready','-U','postgres').includes('accepting connections'));
+ await ready(()=>docker('exec',db,'pg_isready','-h','127.0.0.1','-U','postgres').includes('accepting connections'));
  sql("create role anon nologin; create role authenticated nologin; create role service_role nologin bypassrls; grant anon,authenticated,service_role to postgres;");
  const migration=fs.readFileSync('supabase/migrations/20261103062215_imperion_b2b_revenue_hardening.sql','utf8');
  sql(migration);sql(migration); // repeatability against the existing table

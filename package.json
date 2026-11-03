@@ -8,7 +8,7 @@
     "test:security": "node scripts/security-check.cjs"
   },
   "devDependencies": {
-    "@playwright/test": "1.51.1",
+    "@playwright/test": "1.55.1",
     "@supabase/supabase-js": "2.112.3",
     "jsdom": "^26.0.0"
   }

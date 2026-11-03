@@ -2,8 +2,8 @@
 const fs=require('node:fs'),vm=require('node:vm');
 const {stripTypeScriptTypes}=require('node:module');
 const {webcrypto}=require('node:crypto');
-const {createClient}=require('@supabase/supabase-js');
-function edge(name,env,client=createClient){
+function edge(name,env,client){
+ client ||= require('@supabase/supabase-js').createClient;
  let handler;
  const source=fs.readFileSync(`supabase/functions/${name}/index.ts`,'utf8');
  const clean=source.replace(/^import .*;\s*$/gm,'');

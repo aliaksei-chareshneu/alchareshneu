@@ -33,6 +33,8 @@ Read-only проверка Google выполнена через Google Drive/She
 7. Поток тела ограничен 8192 байтами; исключения транспорта дают generic 503 без PII. Неуспех скрывает предыдущий receipt.
 8. Унаследованный красный глобальный тест `application script drift en` устранён той же точечной синхронизацией JS EN/RU/UK с canonical CS, которая уже подготовлена в #198. Метаданные и переводная HTML-разметка сохранены. Старый layout-тест также использовал CSP-несовместимый waitForFunction в Chromium этой среды: заменён на expect.poll с locator.evaluateAll, без ослабления CSP или критериев размеров.
 
+9. npm audit выявил унаследованную high severity проблему проверки TLS при загрузке браузера в Playwright <1.55.1 ([GHSA-7mvr-c777-76hp](https://github.com/advisories/GHSA-7mvr-c777-76hp)). Test-only зависимость и lock обновлены минимально до 1.55.1. Статическая job загружает тестовый SDK только при необходимости; Docker readiness ждёт TCP-сервер после завершения init, а не временный Unix-only сервер.
+
 ## Воспроизведение без production
 
 Требуются Node 22.16+ (CI использует текущий Node 22), Docker с локальным сокетом, Python 3 и Chromium.
@@ -47,14 +49,14 @@ npm test
 npm run test:b2b:isolated
 ```
 
-На Debian 13 в этой среде старый bundled Chromium 134 падал на загрузке страниц; локальная проверка использует установленный Chromium:
+На Debian 13 в этой среде исходный bundled Chromium 134 падал на загрузке страниц; добавлен необязательный выбор установленного Chromium:
 
 ```sh
 PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm test
 PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run test:b2b:isolated
 ```
 
-CI использует поддерживаемый Ubuntu 24.04 и pinned Playwright 1.51.1. Новая job `b2b-isolated` сама запускает и удаляет контейнеры с уникальными именами и отдельной Docker-сетью. Порт REST привязан только к loopback, образы закреплены digest. Реальных ключей Supabase/Google не нужно.
+CI использует поддерживаемый Ubuntu 24.04 и pinned Playwright 1.55.1. Новая job `b2b-isolated` сама запускает и удаляет контейнеры с уникальными именами и отдельной Docker-сетью. Порт REST привязан только к loopback, образы закреплены digest. Реальных ключей Supabase/Google не нужно.
 
 Изолированный тест выполняет actual версии исходников Edge Functions с Deno.serve/env shim и настоящим pinned supabase-js через настоящий PostgREST к PostgreSQL. Для двух посторонних пустых очередей bridge созданы только необходимые контракты колонок; rate-limit SQL взят из существующей миграции. Проверка Vault заменена SQL-fixture с синтетическим ключом. GAS mapping/recovery/digest выполняются из actual исходника с локальными Sheets/Properties/Mail adapters. Это интеграционная проверка кода; облачные Deno gateway, Google IAM/триггеры и доставку Gmail она не подтверждает.
 
