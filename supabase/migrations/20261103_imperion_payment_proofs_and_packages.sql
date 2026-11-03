@@ -404,3 +404,26 @@ revoke all on function public.imperion_activate_package_from_bank(uuid,uuid,text
  from PUBLIC,anon,authenticated;
 grant execute on function public.imperion_activate_package_from_bank(uuid,uuid,text)
  to service_role;
+
+-- Owner-only candidate matching for legitimate imported bank transactions.
+-- Amount/reference alone only makes a candidate, NEVER a verified payment.
+create or replace view public.imperion_bank_evidence_candidates
+with (security_invoker=true) as
+select e.id as evidence_id,e.event_id,e.attendee_email,e.data_controller,
+  e.expected_amount_czk,e.declared_reference,
+  b.id as bank_movement_id,b.provider_transaction_id,b.booked_on,b.amount_czk,
+  b.source_kind,b.imported_by,
+  count(*) over (partition by e.id) as matching_statement_rows,
+  count(*) over (partition by b.id) as competing_receipts
+from public.imperion_payment_evidence e
+join public.imperion_bank_movements b
+ on b.data_controller=e.data_controller
+ and b.amount_czk=e.expected_amount_czk
+ and e.declared_reference is not null
+ and b.payment_reference is not null
+ and lower(trim(b.payment_reference))=lower(trim(e.declared_reference))
+where e.review_status='PENDING_BANK_REVIEW'
+ and b.matched_evidence_id is null and b.matched_package_id is null;
+revoke all on public.imperion_bank_evidence_candidates
+ from PUBLIC,anon,authenticated;
+grant select on public.imperion_bank_evidence_candidates to service_role;
