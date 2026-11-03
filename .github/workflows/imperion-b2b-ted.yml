@@ -1,5 +1,12 @@
 name: IMPERION B2B public-request monitor (review only)
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/imperion-b2b-ted.cjs'
+      - 'tests/imperion-b2b-ted.test.cjs'
+      - 'ops/imperion-b2b-ted.md'
+      - '.github/workflows/imperion-b2b-ted.yml'
   pull_request:
     paths:
       - 'scripts/imperion-b2b-ted.cjs'
