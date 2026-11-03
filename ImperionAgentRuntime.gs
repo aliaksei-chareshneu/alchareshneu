@@ -88,19 +88,27 @@ function impA5Compute_(snap) {
   sales.source_integrity=invalidRevenue>0?'REVENUE_ACTIONS_FORMULA_ERROR_FALLBACK_TO_LEADS':
     revenueRows.length&&!usableRevenue?'REVENUE_ACTIONS_UNUSABLE_FALLBACK_TO_LEADS':
     revenueRows.length===0?'REVENUE_ACTIONS_EMPTY_FALLBACK_TO_LEADS':'OK';
-  var blocked={},seenSales={};
+  var blocked={},seenSales={},canonicalEmails={},blockedEmails={};
+  snap.data.Leads.forEach(function(r){
+    var id=impA5Text_(r.Lead_ID),email=impA5Text_(r.Email).toLowerCase();
+    if(id&&email&&!formulaError.test(id))canonicalEmails[id]=email;
+  });
   actions.concat(snap.data.Leads).forEach(function(r){
     var id=impA5Text_(r.Lead_ID);
     if(!id||formulaError.test(id)||qa.test([id,r.Stage,r.Action_Status,r.Source].join(' ')))return;
     if(/STOP|CLOSED|DO_NOT_CONTACT|DORMANT|LOST|HOLD|CANCELLED/i.test(
-      impA5Up_(r.Stage)+' '+impA5Up_(r.Action_Status)))blocked[id]=true;
+      impA5Up_(r.Stage)+' '+impA5Up_(r.Action_Status))){
+      blocked[id]=true;
+      if(canonicalEmails[id])blockedEmails[canonicalEmails[id]]=true;
+    }
   });
   actions.forEach(function(r){
     var id=impA5Text_(r.Lead_ID);
     if(!id||formulaError.test(id))return;
     if(qa.test([id,r.Stage,r.Action_Status,r.Source].join(' '))){sales.qa_excluded++;return;}
-    if(blocked[id]){sales.blocked_or_closed++;return;}
-    if(seenSales[id]){sales.duplicate_actions++;return;}seenSales[id]=true;
+    var contactKey=canonicalEmails[id]||id;
+    if(blocked[id]||blockedEmails[contactKey]){sales.blocked_or_closed++;return;}
+    if(seenSales[contactKey]){sales.duplicate_actions++;return;}seenSales[contactKey]=true;
     // No action is contact-ready until an actual cross-channel history,
     // consent/opt-out and ownership check has been completed.
     sales.uncontacted_review_candidates++;

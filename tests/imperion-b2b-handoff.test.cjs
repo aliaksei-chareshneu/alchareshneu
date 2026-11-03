@@ -87,3 +87,12 @@ test('canonical opt-out overrides action queue and formula errors fall back to L
  assert.equal(result.source,'EXISTING_IMPERION_HUB/Leads');
  assert.equal(result.candidates_total,1);assert.equal(result.candidates[0].id,'TWO');
 });
+
+
+test('action queue without email still respects opt-out on another canonical email alias',()=>{
+ const result=sales({captured_at:new Date().toISOString(),data:{
+  Revenue_Actions:[{Lead_ID:'ALIAS',Stage:'New'}],Leads:[
+   {Lead_ID:'STOP',Stage:'Lost',Email:'Buyer@example.invalid'},
+   {Lead_ID:'ALIAS',Stage:'New',Email:'buyer@example.invalid'}]}});
+ assert.equal(result.candidates_total,0);assert.equal(result.closed_or_opted_out,1);
+});

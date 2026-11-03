@@ -236,3 +236,14 @@ test('canonical Leads stop status blocks an apparently open Revenue_Actions row'
   assert.equal(result.sales.uncontacted_review_candidates,0);
   assert.equal(result.sales.blocked_or_closed,1);
 });
+
+
+test('canonical email alias cannot evade stop-list through another action Lead_ID',()=>{
+ const h=harness(),snap=sample();
+ snap.data.Revenue_Actions=[{Lead_ID:'ALIAS',Stage:'New'}];
+ snap.data.Leads=[{Lead_ID:'STOP',Stage:'Lost',Email:'Buyer@example.invalid'},
+  {Lead_ID:'ALIAS',Stage:'New',Email:'buyer@example.invalid'}];
+ const result=h.c.impA5Compute_(snap).sales;
+ assert.equal(result.uncontacted_review_candidates,0);
+ assert.equal(result.blocked_or_closed,1);
+});

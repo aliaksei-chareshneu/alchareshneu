@@ -149,9 +149,13 @@ function sales(snapshot) {
   const seen = new Set(), candidates = [];
   // Revenue_Actions has Lead_ID but may omit Email/Company entirely. A
   // stopped Lead_ID must also block an alias/repeated action of that lead.
+  const leadEmails = new Map(leads.map(r=>[
+    str(field(r,'Lead_ID','lead_id')).toLowerCase(),str(field(r,'Email','email')).toLowerCase()]));
+  const emailFor = r => str(field(r,'Email','email')).toLowerCase() ||
+    leadEmails.get(str(field(r,'Lead_ID','lead_id')).toLowerCase()) || '';
   const tokens = r => [
     ['lead_id',str(field(r,'Lead_ID','lead_id')).toLowerCase()],
-    ['email',str(field(r,'Email','email')).toLowerCase()],
+    ['email',emailFor(r)],
     ['org',str(field(r,'Company','Organisation','Organization','Company_Domain','Domain')).toLowerCase()]
   ].filter(([,v])=>v).map(([kind,v])=>kind+':'+v);
   const qaOnlyRow = r => ['Source','Action_Status','Stage','Lead_ID']
@@ -173,7 +177,7 @@ function sales(snapshot) {
     const stage = str(field(r,'Stage','stage','Status','status')).toLowerCase();
     if (stopped(r) || tokens(r).some(t=>blockedTokens.has(t))) { closed++; continue; }
     const id = identity(r,['Lead_ID','Opportunity_ID','Action_ID','ID'],i);
-    const email = str(field(r,'Email','email')).toLowerCase();
+    const email = emailFor(r);
     const org = str(field(r,'Company','Organisation','Organization','Company_Domain','Domain')).toLowerCase();
     const dedup = email || org || id.toLowerCase();
     if (id.startsWith('MISSING_ID_') || !dedup || seen.has(dedup)) { duplicate++; continue; }
