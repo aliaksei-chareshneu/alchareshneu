@@ -107,6 +107,19 @@ const extraCopy={"cs":{"privacyTitle":"Informace o osobních údajích","privacy
 for(const l of Object.keys(extraCopy))Object.assign(dict[l],extraCopy[l]);
 const ids=['back','eyebrow','headline','intro','formTitle','companyLabel','nameLabel','emailLabel','phoneLabel','serviceLabel','budgetLabel','sizeLabel','whenLabel','summaryLabel','summaryNote','submitHint','choose','svc1','svc2','svc3','svc4','budgetChoose','budgetUnsure','fallbackTitle','fallbackText','privacyTitle','privacyText','card1','card2','card3','note1','note2','note3'];
 let lang='cs';const qp=new URLSearchParams(location.search);
+const privateGroupEnquiry=qp.get('src')==='private_hema';
+if(privateGroupEnquiry){
+ const groupText={
+  cs:{headline:'Soukromé historické šermování pro vaši skupinu',intro:'Nezávazně poptejte navrhovaný 120minutový program pro 5–8 dospělých v Brně. Název skupiny stačí neformální. Termín a cenu potvrdíme až po ověření místa, instruktorů, pojištění a podmínek. Žádná platba zde neprobíhá.',formTitle:'Nezávazná poptávka soukromé skupiny',companyLabel:'Název vaší skupiny *',emailLabel:'Kontaktní e-mail *',summaryLabel:'Co si má vaše skupina vyzkoušet? *'},
+  en:{headline:'Private historical fencing for your group',intro:'Request a proposed 120-minute beginner experience for 5–8 adults in Brno. An informal group name is fine. Date and final quote depend on venue, instructors, insurance and agreed terms. No payment takes place here.',formTitle:'Private-group enquiry (non-binding)',companyLabel:'Your group name *',emailLabel:'Contact email *',summaryLabel:'What would your group enjoy? *'},
+  ru:{headline:'Историческое фехтование для вашей группы',intro:'Необязательный запрос двухчасового занятия для 5–8 взрослых в Брно. Название группы может быть неофициальным. Дата и итоговая цена подтверждаются после проверки площадки, инструкторов, страховки и условий. Оплаты здесь нет.',formTitle:'Запрос для закрытой группы',companyLabel:'Название вашей группы *',emailLabel:'Контактный email *',summaryLabel:'Что интересно вашей группе? *'},
+  uk:{headline:'Історичне фехтування для вашої групи',intro:'Запит на двогодинну програму для 5–8 дорослих у Брно без зобов’язань. Можна вказати неофіційну назву групи. Дату й остаточну ціну погоджують після перевірки місця, інструкторів, страхування та умов. Оплата тут не здійснюється.',formTitle:'Запит для приватної групи',companyLabel:'Назва вашої групи *',emailLabel:'Контактний email *',summaryLabel:'Що цікавить вашу групу? *'}
+ };
+ for(const key of Object.keys(groupText))Object.assign(dict[key],groupText[key]);
+ $('company').placeholder='Např. Parta přátel / Friends group';$('company').setAttribute('autocomplete','off');
+ document.title='Soukromý šerm — nezávazná poptávka / Private fencing enquiry';
+}
+
 function setLang(next){
  lang=dict[next]?next:'cs';document.documentElement.lang=lang;
  for(const el of document.querySelectorAll('[data-lang]'))el.setAttribute('aria-pressed',String(el.dataset.lang===lang));
