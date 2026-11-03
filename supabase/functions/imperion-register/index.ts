@@ -260,26 +260,88 @@ Deno.serve(async (req:Request):Promise<Response>=>{
   // A direct POST must not bypass the calendar registration cutoff even when
   // the sheet feed still says is_open=true. Recheck after database read.
   if (!registrationStillOpen(v.eventId)) return reply({error:'event_not_available'},400,origin);
-  const expiry=new Date(new Date(event.ends_at).getTime()+90*86400000);
-  const {error:writeError}=await api.from('imperion_rsvp_submissions').insert({
-    event_id:v.eventId,first_name:v.first,last_name:v.last,email:v.email,phone:v.phone,
-    age_group:v.age,guardian_name:v.guardianName,guardian_phone:v.guardianPhone,
-    rsvp_status:v.rsvp,safety_acknowledged:true,safety_version:'2026-10-25-v1',
-    photo_choice:v.photo,marketing_requested:v.future,data_controller:event.data_controller,
-    language:v.locale,retention_until:expiry.toISOString(),
-    discovery_source:v.discovery,utm_source:v.utmSource,
-    utm_medium:v.utmMedium,utm_campaign:v.utmCampaign,
-  });
-  // A duplicate is deliberately indistinguishable to avoid an identity oracle
-  // and must never mutate existing contact information or consents.
-  if (writeError && writeError.code!=='23505') return reply({error:'temporarily_unavailable'},503,origin);
-  if (!writeError && v.future) {
+  // For paid events proof is required; a screenshot NEVER verifies payment.
+  // An existing bank-verified package may be used instead of a new upload.
+  const price=Number(event.price_czk);
+  if(price>0 && v.rsvp!=='YES')return reply({error:'paid_event_requires_yes'},400,origin);
+  let packageBalance:Record<string,number>|null=null;
+  let paymentState='FREE';
+  let reference:string|null=null;
+  if(price>0 && typeof body.packageCode==='string' && body.packageCode.trim()){
+    const code=body.packageCode.trim();
+    if(!/^[A-Za-z0-9]{16,64}$/.test(code))
+      return reply({error:'invalid_or_exhausted_package'},400,origin);
+    const {data,error}=await api.rpc('imperion_reserve_package_registration',{
+      p_code:code,
+      p_registration:{
+        event_id:v.eventId,first_name:v.first,last_name:v.last,email:v.email,
+        phone:v.phone,age_group:v.age,guardian_name:v.guardianName,
+        guardian_phone:v.guardianPhone,photo_choice:v.photo,
+        marketing_requested:v.future,rsvp_status:v.rsvp,language:v.locale,
+        discovery_source:v.discovery,utm_source:v.utmSource,
+        utm_medium:v.utmMedium,utm_campaign:v.utmCampaign
+      }
+    });
+    if(error||!data?.ok)return reply({error:'invalid_or_exhausted_package'},400,origin);
+    paymentState='PACKAGE_VERIFIED';
+    packageBalance={consumed:Number(data.consumed)||0,
+      reserved:Number(data.reserved)||0,available:Number(data.available)||0};
+    reference=String(data.submissionId||'');
+  } else if(price>0){
+    const id=typeof body.paymentEvidenceId==='string'?body.paymentEvidenceId:'';
+    if(!/^[0-9a-fA-F-]{36}$/.test(id))
+      return reply({error:'payment_proof_required'},400,origin);
+    const {data:proof,error:proofError}=await api.from('imperion_payment_evidence')
+      .select('id,event_id,attendee_email,data_controller,expected_amount_czk,declared_amount_czk,review_status')
+      .eq('id',id).eq('event_id',v.eventId).eq('attendee_email',v.email)
+      .eq('data_controller',event.data_controller).maybeSingle();
+    if(proofError)return reply({error:'temporarily_unavailable'},503,origin);
+    if(!proof||proof.review_status!=='PENDING_BANK_REVIEW'||
+      proof.expected_amount_czk!==price||proof.declared_amount_czk!==price)
+      return reply({error:'payment_proof_required'},400,origin);
+    const {data:prior}=await api.from('imperion_rsvp_submissions')
+      .select('id').eq('payment_evidence_id',id).limit(1);
+    if(prior?.length)return reply({error:'payment_proof_already_used'},409,origin);
+    const expiry=new Date(new Date(event.ends_at).getTime()+90*86400000);
+    const {data:inserted,error:paidError}=await api.from('imperion_rsvp_submissions').insert({
+      event_id:v.eventId,first_name:v.first,last_name:v.last,email:v.email,phone:v.phone,
+      age_group:v.age,guardian_name:v.guardianName,guardian_phone:v.guardianPhone,
+      rsvp_status:v.rsvp,safety_acknowledged:true,safety_version:'2026-10-25-v1',
+      photo_choice:v.photo,marketing_requested:v.future,data_controller:event.data_controller,
+      language:v.locale,retention_until:expiry.toISOString(),
+      discovery_source:v.discovery,utm_source:v.utmSource,
+      utm_medium:v.utmMedium,utm_campaign:v.utmCampaign,
+      payment_evidence_id:id,payment_gate:'PROOF_PENDING',status:'PAYMENT_PENDING_VERIFICATION',
+    }).select('id').single();
+    if(paidError||!inserted?.id)return reply({
+      error:paidError?.code==='23505'?'duplicate_or_reused_proof':'temporarily_unavailable'
+    },paidError?.code==='23505'?409:503,origin);
+    // Do not send a group invitation / claim a reserved place before bank readback.
+    return reply({ok:true,status:'PAYMENT_PENDING_VERIFICATION',paymentGate:'PROOF_PENDING',
+      confirmed:false,reference:inserted.id,
+      message:'Proof received. Bank payment must be checked before this is a paid registration.'},200,origin);
+  } else {
+    const expiry=new Date(new Date(event.ends_at).getTime()+90*86400000);
+    const {error:writeError}=await api.from('imperion_rsvp_submissions').insert({
+      event_id:v.eventId,first_name:v.first,last_name:v.last,email:v.email,phone:v.phone,
+      age_group:v.age,guardian_name:v.guardianName,guardian_phone:v.guardianPhone,
+      rsvp_status:v.rsvp,safety_acknowledged:true,safety_version:'2026-10-25-v1',
+      photo_choice:v.photo,marketing_requested:v.future,data_controller:event.data_controller,
+      language:v.locale,retention_until:expiry.toISOString(),
+      discovery_source:v.discovery,utm_source:v.utmSource,
+      utm_medium:v.utmMedium,utm_campaign:v.utmCampaign,payment_gate:'FREE',
+    });
+    // Keep legacy duplicate behavior for free, nonbinding RSVPs.
+    if(writeError&&writeError.code!=='23505')
+      return reply({error:'temporarily_unavailable'},503,origin);
+  }
+  if(v.future){
     const {error:inviteError}=await api.from('imperion_rsvp_invite_requests').insert({
       data_controller:event.data_controller,email:v.email,first_name:v.first,
       confirmation_status:'PENDING_CONFIRMATION',
     });
-    // RSVP remains valid; an opt-in request is NEVER an active mailing list entry.
-    if (inviteError && inviteError.code!=='23505') console.error('Invitation request storage unavailable');
+    if(inviteError&&inviteError.code!=='23505')
+      console.error('Invitation request storage unavailable');
   }
   // Event-specific logistics only, never marketing; intentionally excluded from
   // the anonymous GET catalog. Minors do not receive a public group invite.
@@ -290,7 +352,8 @@ Deno.serve(async (req:Request):Promise<Response>=>{
     (channels.platform === 'whatsapp' && INVITE_LINK.test(rawEventGroup)) ||
     (channels.platform === 'telegram' && TG_PUBLIC_LINK.test(rawEventGroup))
   ) ? rawEventGroup : null;
-  return reply({ok:true,status:'RECEIVED',confirmed:false,
+  return reply({ok:true,status:'RECEIVED',confirmed:false,paymentGate:paymentState,reference,
+    ...(packageBalance ? {packageBalance} : {}),
     ...(channels ? {communityChannels:channels} : {}),
     ...(invite ? {updatesGroupUrl:invite} : {}),
     message:'Your RSVP request was received; the organizer must confirm participation separately.'},200,origin);
