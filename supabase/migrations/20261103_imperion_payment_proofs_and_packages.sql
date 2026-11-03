@@ -205,3 +205,77 @@ insert into storage.buckets(id,name,public,file_size_limit,allowed_mime_types)
 values('imperion-payment-private','imperion-payment-private',false,4194304,
   array['image/png','image/jpeg','image/webp','application/pdf'])
 on conflict (id) do nothing;
+
+
+-- A service-role-only owner action after actual attendance is reconciled
+-- to the existing CRM / attendance journal. It is idempotent.
+-- A mere registration or reservation never consumes a visit.
+create or replace function public.imperion_set_package_visit_state(
+  p_submission_id uuid, p_state text, p_actor text,
+  p_reason text default null
+) returns jsonb
+language plpgsql security invoker set search_path=''
+as $$
+declare
+  v_visit public.imperion_package_visits%rowtype;
+  v_pack public.imperion_paid_packages%rowtype;
+  v_remaining integer;
+begin
+  if p_state not in ('CONSUMED','RELEASED') or length(trim(p_actor))<3 then
+    raise exception 'invalid_state_or_actor';
+  end if;
+  select * into v_visit from public.imperion_package_visits
+    where submission_id=p_submission_id for update;
+  if not found then raise exception 'visit_not_found'; end if;
+  select * into v_pack from public.imperion_paid_packages
+    where id=v_visit.package_id for update;
+  if v_visit.state=p_state then
+    return jsonb_build_object('ok',true,'unchanged',true,'state',v_visit.state);
+  end if;
+  if v_visit.state<>'RESERVED' then raise exception 'state_transition_forbidden'; end if;
+  if p_state='CONSUMED' then
+    update public.imperion_package_visits
+       set state='CONSUMED',consumed_at=now(),consumed_by=left(trim(p_actor),140)
+     where id=v_visit.id;
+  else
+    if p_reason is null or length(trim(p_reason))<3 then
+      raise exception 'release_reason_required';
+    end if;
+    update public.imperion_package_visits
+       set state='RELEASED',release_reason=left(trim(p_reason),400)
+     where id=v_visit.id;
+  end if;
+  select (v_pack.total_uses-count(*))::integer into v_remaining
+    from public.imperion_package_visits
+   where package_id=v_pack.id and state in ('CONSUMED','RESERVED');
+  return jsonb_build_object('ok',true,'unchanged',false,'state',p_state,
+    'available',v_remaining);
+end;
+$$;
+revoke all on function public.imperion_set_package_visit_state(uuid,text,text,text)
+  from PUBLIC,anon,authenticated;
+grant execute on function public.imperion_set_package_visit_state(uuid,text,text,text)
+  to service_role;
+
+-- Duplicate financial transaction IDs must never approve two independent receipts.
+-- The true bank transaction identity must be recorded with the paying entity/controller.
+create unique index if not exists imperion_payment_evidence_bank_ref_unique
+ on public.imperion_payment_evidence(data_controller,bank_transaction_reference)
+ where review_status='VERIFIED';
+create unique index if not exists imperion_paid_packages_bank_ref_unique
+ on public.imperion_paid_packages(data_controller,bank_transaction_reference)
+ where status='ACTIVE';
+
+-- Readback for authorised service-role owner: grouped by controller, event and gate.
+-- PII remains inside the database and is not exposed to anon/authenticated roles.
+create or replace view public.imperion_payment_gate_readback
+with (security_invoker=true) as
+select e.event_id,e.data_controller,
+ count(s.id) filter (where s.payment_gate='PROOF_PENDING')::integer as awaiting_bank,
+ count(s.id) filter (where s.payment_gate='PROOF_VERIFIED')::integer as bank_checked,
+ count(s.id) filter (where s.payment_gate='PACKAGE_VERIFIED')::integer as valid_package_reservations
+from public.imperion_rsvp_events e
+left join public.imperion_rsvp_submissions s on s.event_id=e.event_id
+group by e.event_id,e.data_controller;
+revoke all on public.imperion_payment_gate_readback from PUBLIC,anon,authenticated;
+grant select on public.imperion_payment_gate_readback to service_role;
