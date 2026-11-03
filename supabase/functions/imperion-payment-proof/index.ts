@@ -37,7 +37,7 @@ function normalized(value:FormDataEntryValue|null,max:number):string {
  return typeof value==='string'?value.normalize('NFKC').trim().slice(0,max):'';
 }
 function emailOk(value:string):boolean {
- return value.length>=5&&value.length<=254&&/^[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}$/.test(value);
+ return value.length>=5&&value.length<=254&&/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value);
 }
 async function throttle(key:string,value:string,max:number):Promise<boolean>{
  if(!api)return false;
@@ -70,8 +70,8 @@ Deno.serve(async req=>{
  const file=body.get('proof');
  if(!/^[A-Za-z0-9-]{2,100}$/.test(eventId)||!emailOk(email)||
   !Number.isSafeInteger(declaredAmount)||declaredAmount<1||
-  (reference&&!/^[\\p{L}\\p{N}\\s.\\/-]{1,80}$/u.test(reference))||
-  (date&&!/^\\d{4}-\\d{2}-\\d{2}$/.test(date))||
+  (reference&&!/^[\p{L}\p{N}\s.\/-]{1,80}$/u.test(reference))||
+  (date&&!/^\d{4}-\d{2}-\d{2}$/.test(date))||
   !(file instanceof File)||file.size<1024||file.size>4194304||
   !MIME[file.type])return response({error:'invalid_upload'},400,origin);
  if(date){
