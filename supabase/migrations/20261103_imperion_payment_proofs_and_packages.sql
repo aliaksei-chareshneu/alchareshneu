@@ -279,3 +279,128 @@ left join public.imperion_rsvp_submissions s on s.event_id=e.event_id
 group by e.event_id,e.data_controller;
 revoke all on public.imperion_payment_gate_readback from PUBLIC,anon,authenticated;
 grant select on public.imperion_payment_gate_readback to service_role;
+
+
+-- Independent bank-statement reconciliation, not screenshot OCR.
+-- Only a trusted owner-side statement import/bank API is permitted to populate this.
+create table if not exists public.imperion_bank_movements (
+  id uuid primary key default gen_random_uuid(),
+  data_controller text not null,
+  provider_transaction_id text not null check (length(provider_transaction_id) between 5 and 180),
+  source_kind text not null
+    check (source_kind in ('BANK_API','OWNER_STATEMENT_EXPORT')),
+  imported_by text not null check (length(imported_by) between 3 and 180),
+  imported_at timestamptz not null default now(),
+  booked_on date not null,
+  amount_czk integer not null check (amount_czk > 0),
+  payment_reference text,
+  matched_evidence_id uuid unique references public.imperion_payment_evidence(id),
+  matched_package_id uuid unique references public.imperion_paid_packages(id),
+  matched_at timestamptz,
+  matched_by text,
+  constraint imperion_bank_use_once check
+    (matched_evidence_id is null or matched_package_id is null),
+  constraint imperion_bank_marked_by_actor check
+    ((matched_evidence_id is null and matched_package_id is null and
+      matched_at is null and matched_by is null)
+     or ((matched_evidence_id is not null or matched_package_id is not null)
+       and matched_at is not null and matched_by is not null)),
+  unique (data_controller,provider_transaction_id)
+);
+alter table public.imperion_bank_movements enable row level security;
+revoke all on public.imperion_bank_movements from PUBLIC,anon,authenticated;
+grant select,insert,update,delete on public.imperion_bank_movements to service_role;
+
+alter table public.imperion_payment_evidence
+  add column if not exists bank_movement_id uuid unique
+    references public.imperion_bank_movements(id);
+alter table public.imperion_paid_packages
+  add column if not exists bank_movement_id uuid unique
+    references public.imperion_bank_movements(id);
+alter table public.imperion_payment_evidence
+  add constraint imperion_verified_requires_trusted_bank_movement
+  check (review_status <> 'VERIFIED' or bank_movement_id is not null);
+alter table public.imperion_paid_packages
+  add constraint imperion_active_requires_trusted_bank_movement
+  check (status <> 'ACTIVE' or bank_movement_id is not null);
+
+-- Owner readback must import bank records from the correct legal entity,
+-- match the real statement transaction and identity, then execute this RPC.
+-- A receipt, text or image alone can NEVER produce VERIFIED.
+create or replace function public.imperion_reconcile_bank_evidence(
+  p_evidence_id uuid, p_bank_movement_id uuid, p_actor text
+) returns jsonb
+language plpgsql security invoker set search_path=''
+as $$
+declare
+ v_proof public.imperion_payment_evidence%rowtype;
+ v_bank public.imperion_bank_movements%rowtype;
+begin
+ if length(trim(p_actor))<3 then raise exception 'actor_required'; end if;
+ select * into v_proof from public.imperion_payment_evidence
+  where id=p_evidence_id for update;
+ if not found or v_proof.review_status<>'PENDING_BANK_REVIEW' then
+  raise exception 'evidence_not_pending';
+ end if;
+ select * into v_bank from public.imperion_bank_movements
+  where id=p_bank_movement_id for update;
+ if not found or v_bank.matched_evidence_id is not null or
+   v_bank.matched_package_id is not null or
+   v_bank.data_controller<>v_proof.data_controller or
+   v_bank.amount_czk<>v_proof.expected_amount_czk
+ then raise exception 'bank_match_invalid'; end if;
+ if v_proof.declared_reference is not null and v_bank.payment_reference is not null and
+    lower(trim(v_proof.declared_reference))<>lower(trim(v_bank.payment_reference))
+ then raise exception 'reference_mismatch'; end if;
+ update public.imperion_bank_movements set
+  matched_evidence_id=v_proof.id,matched_at=now(),matched_by=left(trim(p_actor),140)
+  where id=v_bank.id;
+ update public.imperion_payment_evidence set
+  review_status='VERIFIED',bank_movement_id=v_bank.id,
+  bank_transaction_reference=v_bank.provider_transaction_id,
+  verified_by=left(trim(p_actor),140),verified_at=now()
+  where id=v_proof.id;
+ return jsonb_build_object('ok',true,'status','VERIFIED','evidenceId',v_proof.id);
+end;
+$$;
+revoke all on function public.imperion_reconcile_bank_evidence(uuid,uuid,text)
+ from PUBLIC,anon,authenticated;
+grant execute on function public.imperion_reconcile_bank_evidence(uuid,uuid,text)
+ to service_role;
+
+create or replace function public.imperion_activate_package_from_bank(
+  p_package_id uuid, p_bank_movement_id uuid, p_actor text
+) returns jsonb
+language plpgsql security invoker set search_path=''
+as $$
+declare
+ v_pack public.imperion_paid_packages%rowtype;
+ v_bank public.imperion_bank_movements%rowtype;
+begin
+ if length(trim(p_actor))<3 then raise exception 'actor_required'; end if;
+ select * into v_pack from public.imperion_paid_packages
+  where id=p_package_id for update;
+ if not found or v_pack.status<>'PENDING' then raise exception 'package_not_pending'; end if;
+ select * into v_bank from public.imperion_bank_movements
+  where id=p_bank_movement_id for update;
+ if not found or v_bank.matched_evidence_id is not null or
+   v_bank.matched_package_id is not null or
+   v_bank.data_controller<>v_pack.data_controller or
+   v_bank.amount_czk<>v_pack.paid_total_czk
+ then raise exception 'bank_match_invalid'; end if;
+ update public.imperion_bank_movements set
+  matched_package_id=v_pack.id,matched_at=now(),matched_by=left(trim(p_actor),140)
+  where id=v_bank.id;
+ update public.imperion_paid_packages set
+  status='ACTIVE',bank_movement_id=v_bank.id,
+  bank_transaction_reference=v_bank.provider_transaction_id,
+  verified_by=left(trim(p_actor),140),verified_at=now()
+  where id=v_pack.id;
+ return jsonb_build_object('ok',true,'status','ACTIVE','packageId',v_pack.id,
+   'totalUses',v_pack.total_uses,'availableUses',v_pack.total_uses);
+end;
+$$;
+revoke all on function public.imperion_activate_package_from_bank(uuid,uuid,text)
+ from PUBLIC,anon,authenticated;
+grant execute on function public.imperion_activate_package_from_bank(uuid,uuid,text)
+ to service_role;
