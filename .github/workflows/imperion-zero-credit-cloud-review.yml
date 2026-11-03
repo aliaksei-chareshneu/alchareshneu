@@ -27,7 +27,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Offline safety tests: public-only inputs, model draft output, no sends
+      - name: Offline safety tests - public-only inputs, model draft output, no sends
         run: node --test tests/imperion-zero-credit-cloud-review.test.cjs
       - name: Restore public Apache-2.0 open-model cache (no tokens or credits)
         uses: actions/cache@v4
