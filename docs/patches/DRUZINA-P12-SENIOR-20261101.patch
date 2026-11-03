@@ -1,0 +1,56 @@
+# Druzina p11 to p12 portable patch: previous-calendar-month Senior, preserve legacy paid rights.
+# Applies to owner-bound Apps Script p11 source; new helper DruzinaSeniorEvidence.js is separate.
+
+diff --git a/Members.js b/Members.js
+index ce4338f..b361438 100644
+--- a/Members.js
++++ b/Members.js
+@@ -111,17 +111,26 @@ function hasPaidSeniorCycle_(member){
+ }
+ 
+ function refreshMemberTier_(member, attendanceCount){
+-  if(!Object.prototype.hasOwnProperty.call(member,'Tier_Eligibility_Source')) ensureSeniorTierColumn_();
++  if(!Object.prototype.hasOwnProperty.call(member,'Tier_Eligibility_Source'))
++    ensureSeniorTierColumn_();
++  // Attendance_30d is a reporting metric, never same-month price eligibility.
+   const count=attendanceCount===undefined?recomputeAttendance30d_(member.Member_ID):Number(attendanceCount||0);
++  const month=druseSeniorPreviousMonth_(member.Member_ID,new Date().toISOString());
++  const earned=month.ok===true&&month.seniorEligible===true;
+   const prior=String(member.Tier_Eligibility_Source||'');
+-  // Existing Senior records predate the portal and may have paid attendance elsewhere.
+-  // Leave them in review rather than silently withdrawing existing pricing rights.
+-  const legacySenior=prior==='LEGACY_REVIEW'||(!prior&&String(member.Tier)==='Senior');
+-  const source=legacySenior?'LEGACY_REVIEW':prior==='AUTO_30D'||count>=4?'AUTO_30D':prior;
+-  const tier=count>=4||hasPaidSeniorCycle_(member)||legacySenior?'Senior':'Junior';
++  const priorSenior=String(member.Tier)==='Senior';
++  const paidCycle=hasPaidSeniorCycle_(member);
++  // Prior senior benefits may predate this policy. Never withdraw an existing
++  // entitlement without review: retain it as LEGACY_REVIEW if unsupported.
++  const legacySenior=prior==='LEGACY_REVIEW'||
++    (priorSenior&&!earned&&!paidCycle&&prior!=='AUTO_PREV_MONTH');
++  const source=legacySenior?'LEGACY_REVIEW':'AUTO_PREV_MONTH';
++  const tier=earned||paidCycle||legacySenior?'Senior':'Junior';
+   if(Number(member.Attendance_30d||0)!==count||String(member.Tier||'Junior')!==tier||prior!==source){
+-    patchRow_(SHEETS.MEMBERS,member._row,{Attendance_30d:count,Tier:tier,Tier_Eligibility_Source:source});
+-    member.Attendance_30d=count; member.Tier=tier; member.Tier_Eligibility_Source=source;
++    patchRow_(SHEETS.MEMBERS,member._row,{
++      Attendance_30d:count,Tier:tier,Tier_Eligibility_Source:source
++    });
++    member.Attendance_30d=count;member.Tier=tier;member.Tier_Eligibility_Source=source;
+   }
+   return member;
+ }
+
+diff --git a/Config.js b/Config.js
+index 1c3d40b..519d6aa 100644
+--- a/Config.js
++++ b/Config.js
+@@ -10,7 +10,7 @@ const APP = Object.freeze({
+   HOLD_MINUTES: 20,
+   MAX_PROOF_BYTES: 5 * 1024 * 1024,
+   ALLOWED_PROOF_MIME: ['image/jpeg', 'image/png', 'application/pdf'],
+-  VERSION: 'DRU-PORTAL-2026-11-01-v2.2-p11-SAFE'
++  VERSION: 'DRU-PORTAL-2026-11-01-v2.3-p12-SENIOR-SAFE'
+ });
+ 
+ const SHEETS = Object.freeze({
