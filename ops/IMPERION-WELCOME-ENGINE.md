@@ -1,6 +1,6 @@
 # IMPERION Welcome Engine — staged extension (04 Nov 2026)
 
-Status 2026-11-04: Supabase Edge Function v2 ACTIVE but DRY_RUN / NO LIVE MESSAGES. This is a module of existing alchareshneu + Supabase browser-bridge, not a new CRM. The existing read-only imperion-social-mcp-stage endpoint, operator worker and publishing system must remain unchanged.
+Current status 2026-11-04: Supabase Edge Function v4 ACTIVE in DRY_RUN, no Telegram messages. Bot token, verified admin IDs and webhook are still absent. This is a module of existing alchareshneu + Supabase browser-bridge, not a new CRM. The existing read-only imperion-social-mcp-stage endpoint, operator worker and publishing system must remain unchanged.
 
 ## Platform capability and restrictions
 
@@ -52,3 +52,17 @@ Risk controls: fail closed on missing config; keep owner-controlled allowlist; n
 - Cloud function redeployed as v2, ACTIVE, default dry-run; independently fetched HTTP health after deployment: mode=dry-run. `index.ts` has fail-closed secret validation, no webhook/token connected. Current LIVE gate remains BOT TOKEN + SECRET in Supabase, verified non-disruptive group admin/Telegram webhook, actual one-message readback.
 - Offline Node tests 18/18 PASS. Synthetic SQL smoke inserts duplicate receipt and suppression keys, verifies exactly one of each, deletes both, independently reads zero residual rows in both tables.
 - Public site CI browser-regression remains unrelated failed (weekly page missing brand stylesheet on both main and PR); PR stays DRAFT, no merge.
+
+
+## Version 4: multi-community and safe connection (2026-11-04)
+
+- Telegram group chat_member welcomes stay inside the group; they never initiate unsolicited private messages.
+- Approved private start payloads (/start dm and /start bw) route Druzina and BrnoWalkers to separate RU/UA copy and respective website paths. Unknown payloads fail closed.
+- Private /stop now suppresses the user across ALL groups managed by this Telegram bot. /resume lifts that suppression. The hashed suppression key persists until /resume; never rotate the pepper without migrating opt-out preferences.
+- The read-only-by-default script scripts/imperion-welcome-telegram-attach.mjs checks getMe, getWebhookInfo, group IDs, membership and can_send_welcome_messages rights before any change. A different existing webhook is a hard stop. For blank webhooks, an explicit WELCOME_NO_POLLING_CONFIRMED=yes gate guards against interrupting long-polling workers.
+- --apply additionally requires WELCOME_ATTACH_GO=yes, verified bot username and webhook secret, then sets allowed_updates message/chat_member with drop_pending_updates=false and independently reads getWebhookInfo. It never turns on actual Welcome Engine LIVE sending.
+- Required secure settings: WELCOME_TELEGRAM_BOT_TOKEN, WELCOME_TELEGRAM_WEBHOOK_SECRET, WELCOME_RECEIPT_PEPPER, WELCOME_GROUPS_JSON, WELCOME_PRIVATE_START_JSON, WELCOME_ENGINE_MODE (keep dry-run until the live test), and for preflight WELCOME_EXPECTED_BOT_USERNAME. Secret values must never appear in the repository, public site, Sheets or chat.
+- WELCOME_GROUPS_JSON keys must be verified numeric group IDs; every item specifies one of druzina/brnowalkers/osvc, language ru/ua, and a group greeting text pointing to the appropriate existing website. The private configuration can contain default, dm and bw. Do not invent IDs, mix NGO/OSVC or convert community joins into marketing consent.
+- Local test command: node --test tests/imperion-welcome-engine.test.mjs tests/imperion-welcome-telegram-attach.test.mjs. Verified 28/28 PASS. Added the same test command to CI site-quality static-checks.
+- Github CI brand styling blocker on brno-stories/weekly was fixed on the PR branch, with earlier browser-regression and static-checks GREEN; latest commit should get its own independent CI readback.
+- LIVE acceptance is still BLOCKED pending bot/group ownership and secrets. Actual test: Telegram join -> one authorized group welcome -> Telegram message_id -> independent visible group post -> database receipt -> replay dedupe and /stop cross-community verification. HTTP 200 health and dry-run are not LIVE.
