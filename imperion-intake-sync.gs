@@ -190,7 +190,7 @@ function impWriteB2B_(ss,items){
       var offer=String(r.offer||''),allowed={
         AI_WORKSHOP:'IT/Science',DATA_PILOT:'IT/Science',
         SCIENTIFIC_CONSULTING:'IT/Science',HEMA_CORPORATE:'Other',
-        EVENT_HOST:'Other',EVENT_PROGRAM:'Other'
+         EVENT_HOST:'Other',EVENT_PROGRAM:'Other',MEDIA_SPONSOR:'Marketing / Media'
       };
       if(!Object.prototype.hasOwnProperty.call(allowed,offer))throw Error('Invalid B2B offer');
       var band=String(r.budget_band||'unknown');
