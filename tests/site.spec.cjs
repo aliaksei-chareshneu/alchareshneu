@@ -68,7 +68,7 @@ test('language persistence, catalog anchors, keyboard and back navigation',async
  await page.getByRole('button',{name:'Русский',exact:true}).click();await expect(page.locator('html')).toHaveAttribute('lang','ru');
  await page.locator('.venture-card[href="academy/"]').click();await expect(page.locator('html')).toHaveAttribute('lang','ru');
  await page.locator('[data-service="price-fit"]').first().click();await expect(page).toHaveURL(/#price-fit$/);await expect(page.locator('#price-fit')).toBeInViewport();
- await page.goBack();await page.goBack();await expect(page.locator('h1')).toContainText('Учись');
+ await page.goBack();await page.goBack();await expect(page.locator('h1')).toContainText('Мероприятие под контролем');
  await page.keyboard.press('Control+Home');await page.keyboard.press('Tab');
 });
 test('event content is escaped, malformed entries ignored and failures actionable',async({page})=>{
