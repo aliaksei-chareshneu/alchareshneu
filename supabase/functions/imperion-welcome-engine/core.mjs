@@ -23,7 +23,7 @@ function newlyJoined(change) {
   const next = change.new_chat_member;
   const wasMember = ACTIVE.has(old.status) || (old.status === 'restricted' && old.is_member === true);
   const isMember = ACTIVE.has(next.status) || (next.status === 'restricted' && next.is_member === true);
-  return !wasMember && isMember && Number.isSafeInteger(next.user?.id);
+  return !wasMember && isMember && next.user?.is_bot !== true && Number.isSafeInteger(next.user?.id);
 }
 function validConfig(config) {
   return config && SUBJECTS.has(config.subject) && LANGS.has(config.language) &&
@@ -79,8 +79,9 @@ export async function processTelegramUpdate(update, opts) {
     sent = await opts.sender.send(decision.chatId,decision.text);
     if (!Number.isSafeInteger(sent?.message_id)) throw Error('provider_acceptance_missing');
   } catch (error) {
-    await opts.store.complete(key,'FAILED',{reason:'provider_send_failed'}).catch(()=>{});
-    return {status:'FAILED_REVIEW_REQUIRED',externalSend:false};
+    await opts.store.complete(key,'SEND_UNCERTAIN',{reason:'provider_outcome_unverified'}).catch(()=>{});
+    // A timeout might have happened after Telegram accepted the message. Never claim no send.
+    return {status:'SEND_UNCERTAIN',externalSend:null};
   }
   try {
     await opts.store.complete(key,'API_ACCEPTED',{provider_message_id:sent.message_id});
