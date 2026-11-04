@@ -121,3 +121,27 @@ test('suppression key stable for same user/subject across group/private chat',as
  const p=parseTelegramUpdate(start(),conf.groups,conf.privateStarts);
  assert.equal(await digestSuppressionKey('test-pepper-not-for-production-123456',g),await digestSuppressionKey('test-pepper-not-for-production-123456',p));
 });
+
+
+test('global stop applies to both communities, even with distinct brand configuration',async()=>{
+ const pepper='test-pepper-not-for-production-123456';
+ const extra={...conf.groups,'-100999':{subject:'brnowalkers',language:'ua',text:'Вітаємо! Більше на https://aliaksei-chareshneu.github.io/alchareshneu/walkers/'}};
+ const g1=parseTelegramUpdate(join(999,45),extra);
+ const j=join(1000,45); j.chat_member.chat.id=-100999;
+ const g2=parseTelegramUpdate(j,extra);
+ assert.equal(g1.subject,'druzina');assert.equal(g2.subject,'brnowalkers');
+ assert.equal(await digestSuppressionKey(pepper,g1),await digestSuppressionKey(pepper,g2));
+ const blocked=new Set();let sends=0;
+ const store={
+  async isSuppressed(k){return blocked.has(k);},
+  async suppress(v){blocked.add(v.suppress_key);return 'saved';},
+  async unsuppress(k){blocked.delete(k);return 'removed';},
+  async reserve(){return 'reserved';},async complete(){}
+ };
+ const sender={async send(){sends++;return {message_id:sends};}};
+ const stop=start(1001); stop.message.text='/stop';
+ const opts={...conf,groups:extra,mode:'live',pepper,store,sender};
+ assert.equal((await processTelegramUpdate(stop,opts)).status,'OPT_OUT_SAVED_API_ACCEPTED');
+ assert.equal((await processTelegramUpdate(j,opts)).status,'BLOCKED_OPT_OUT');
+ assert.equal(sends,1);
+});
