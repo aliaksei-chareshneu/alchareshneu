@@ -167,6 +167,8 @@ if(dict[qp.get('lang')])lang=qp.get('lang');else if((navigator.language||'').sta
 setLang(lang);
 const requested=qp.get('service')||'';
 if(['EVENT_HOST','EVENT_PROGRAM','AI_WORKSHOP','DATA_PILOT','SCIENTIFIC_CONSULTING','HEMA_CORPORATE'].includes(requested))$('offer').value=requested;
+// Do not make a prospect invent a budget before discussing the actual problem.
+if(['EVENT_HOST','EVENT_PROGRAM'].includes(requested))$('budgetBand').value='unknown';
 const form=$('request'),btn=$('submit'),result=$('result');
 function show(message,error){
  result.hidden=false;result.className=error?'err':'ok';result.textContent=message;
