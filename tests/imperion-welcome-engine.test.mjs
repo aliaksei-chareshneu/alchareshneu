@@ -45,7 +45,7 @@ test('provider failure is not silently retried and does not claim SENT',async()=
  const store={async reserve(){return 'reserved';},async complete(...p){updates.push(p);}};
  const sender={async send(){sends++;throw Error('offline');}};
  const r=await processTelegramUpdate(join(),{...conf,mode:'live',pepper:'test-pepper-not-for-production-123456',store,sender});
- assert.equal(r.status,'FAILED_REVIEW_REQUIRED');assert.equal(r.externalSend,false);assert.equal(sends,1);assert.equal(updates[0][1],'FAILED');
+ assert.equal(r.status,'SEND_UNCERTAIN');assert.equal(r.externalSend,null);assert.equal(sends,1);assert.equal(updates[0][1],'SEND_UNCERTAIN');
 });
 test('bad group config cannot send; no cross-subject substitution',()=>{
  const x={groups:{'-100567':{subject:'osvc',language:'ru',text:'Hello unrelated'}}};
@@ -73,4 +73,18 @@ test('provider API acceptance is preserved if receipt write fails',async()=>{
 test('Telegram community requires approved RU/UA language configuration',()=>{
  const config={groups:{'-100567':{subject:'druzina',language:'en',text}}};
  assert.equal(parseTelegramUpdate(join(),config.groups).status,'GROUP_NOT_APPROVED');
+});
+
+test('newly joined bot accounts are never welcomed',()=>{
+ const x=join();x.chat_member.new_chat_member.user.is_bot=true;
+ assert.equal(parseTelegramUpdate(x,conf.groups).status,'NOT_A_NEW_MEMBER');
+});
+test('uncertain provider send is never repeated for the same member',async()=>{
+ const seen=new Set();let attempts=0;
+ const store={async reserve(r){if(seen.has(r.dedupe_key))return 'duplicate';seen.add(r.dedupe_key);return 'reserved';},async complete(){}};
+ const sender={async send(){attempts++;throw new Error('network timeout after send');}};
+ const opts={...conf,mode:'live',pepper:'test-pepper-not-for-production-123456',store,sender};
+ const r1=await processTelegramUpdate(join(),opts);
+ const r2=await processTelegramUpdate(join(999),opts);
+ assert.equal(r1.status,'SEND_UNCERTAIN');assert.equal(r2.status,'DUPLICATE');assert.equal(attempts,1);
 });
