@@ -1,6 +1,6 @@
 # IMPERION Welcome Engine — staged extension (04 Nov 2026)
 
-Status 2026-11-04: Supabase Edge Function v1 ACTIVE but DRY_RUN / NO LIVE MESSAGES. This is a module of existing alchareshneu + Supabase browser-bridge, not a new CRM. The existing read-only imperion-social-mcp-stage endpoint, operator worker and publishing system must remain unchanged.
+Status 2026-11-04: Supabase Edge Function v2 ACTIVE but DRY_RUN / NO LIVE MESSAGES. This is a module of existing alchareshneu + Supabase browser-bridge, not a new CRM. The existing read-only imperion-social-mcp-stage endpoint, operator worker and publishing system must remain unchanged.
 
 ## Platform capability and restrictions
 
@@ -45,3 +45,10 @@ Risk controls: fail closed on missing config; keep owner-controlled allowlist; n
 - Unit tests: 15/15 PASS; includes ignoring bot join updates and preserving SEND_UNCERTAIN on network ambiguity.
 - GitHub PR #214 remains DRAFT because site browser-regression workflow 41807810342 fails on an existing unrelated weekly page missing brand-theme/site-design CSS in both main and PR. Do not claim full CI green or merge until resolved, unless independently scoped.
 - Security GO: production LIVE prohibited until opt-out/suppression handling for user-specific greeting, secret provisioning, verified Telegram bot/group ownership and actual supervised readback. Do not modify existing Apps Script Telegram webhook or BotFather identity without verifying its current integration.
+
+## Security extension (2026-11-04, v2)
+- User-initiated Telegram `/stop` atomically writes hashed per-user/subject suppression; all future group join welcomes and private starts check suppression before sending. `/resume` removes only the same user's/subject's suppression. Both responses are transactional acknowledgments, not marketing.
+- `ops/imperion-welcome-suppression.sql` APPLIED as Supabase migration `imperion_welcome_suppressions_v1`; RLS enabled; anon/authenticated SELECT denied; service_role has select/insert/delete. Contains no raw Telegram IDs/names. Opt-out retained until `/resume` so withdrawals remain effective.
+- Cloud function redeployed as v2, ACTIVE, default dry-run; independently fetched HTTP health after deployment: mode=dry-run. `index.ts` has fail-closed secret validation, no webhook/token connected. Current LIVE gate remains BOT TOKEN + SECRET in Supabase, verified non-disruptive group admin/Telegram webhook, actual one-message readback.
+- Offline Node tests 18/18 PASS. Synthetic SQL smoke inserts duplicate receipt and suppression keys, verifies exactly one of each, deletes both, independently reads zero residual rows in both tables.
+- Public site CI browser-regression remains unrelated failed (weekly page missing brand stylesheet on both main and PR); PR stays DRAFT, no merge.
