@@ -89,6 +89,9 @@ jobs:
           node tests/imperion-rsvp-source.test.cjs
           node --test tests/imperion-registration-window.test.cjs
 
+      - name: Verify compliant Welcome Engine and safe Telegram webhook attach
+        run: node --test tests/imperion-welcome-engine.test.mjs tests/imperion-welcome-telegram-attach.test.mjs
+
       - name: Verify CRM-only transactional receipt queue and retries
         run: |
           node --test tests/imperion-intake-bridge-source.test.cjs
