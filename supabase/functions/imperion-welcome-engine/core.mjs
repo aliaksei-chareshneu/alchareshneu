@@ -45,13 +45,17 @@ export function parseTelegramUpdate(update, groups = {}, privateStarts = {}) {
       text:config.text,updateId:update.update_id};
   }
   const m = update.message;
-  if (!m || m.chat?.type !== 'private' || !/^\/start(?:@\w+)?(?:\s|$)/.test(m.text || '') ||
+  if (!m || m.chat?.type !== 'private' ||
       !Number.isSafeInteger(m.from?.id) || !Number.isSafeInteger(m.chat?.id) || m.from.id !== m.chat.id) {
     return {status:'NOT_AN_ELIGIBLE_EVENT'};
   }
+  const command = (m.text || '').match(/^\/(start|stop|resume)(?:@\w+)?(?:\s|$)/i);
+  if (!command) return {status:'NOT_AN_ELIGIBLE_EVENT'};
   const config = privateStarts.default;
   if (!validConfig(config)) return {status:'PRIVATE_START_NOT_CONFIGURED'};
-  return {status:'READY',action:'USER_INITIATED_REPLY',platform:'telegram',subject:config.subject,
+  const action = command[1].toLowerCase() === 'stop' ? 'OPT_OUT_REQUEST'
+    : command[1].toLowerCase() === 'resume' ? 'OPT_IN_REQUEST' : 'USER_INITIATED_REPLY';
+  return {status:'READY',action,platform:'telegram',subject:config.subject,
     language:config.language,chatId:m.chat.id,actorId:m.from.id,text:config.text,updateId:update.update_id};
 }
 export async function digestKey(pepper, decision) {
@@ -62,14 +66,41 @@ export async function digestKey(pepper, decision) {
   const digest = await crypto.subtle.digest('SHA-256',bytes);
   return Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,'0')).join('');
 }
-/** Atomic reservation is required for LIVE mode. On retries never send twice. */
+export async function digestSuppressionKey(pepper, decision) {
+  return digestKey(pepper,{platform:'telegram',action:'SUPPRESSED_USER',subject:decision.subject,
+    chatId:'global',actorId:decision.actorId});
+}
+/** Atomic reservation and first-party opt-out are required in LIVE mode. */
 export async function processTelegramUpdate(update, opts) {
   const decision = parseTelegramUpdate(update, opts.groups, opts.privateStarts);
   if (decision.status !== 'READY') return {status:decision.status,externalSend:false};
   if (opts.mode !== 'live') return {status:'DRY_RUN',action:decision.action,subject:decision.subject,externalSend:false};
-  if (!opts.store?.reserve || !opts.store?.complete || !opts.sender?.send || !opts.pepper) {
+  if (!opts.store?.reserve || !opts.store?.complete || !opts.store?.isSuppressed ||
+      !opts.store?.suppress || !opts.store?.unsuppress || !opts.sender?.send || !opts.pepper) {
     return {status:'BLOCKED_CONFIG',externalSend:false};
   }
+  const suppressKey = await digestSuppressionKey(opts.pepper,decision);
+  if (decision.action === 'OPT_OUT_REQUEST') {
+    const state = await opts.store.suppress({suppress_key:suppressKey,platform:'telegram',subject:decision.subject});
+    if (state === 'duplicate') return {status:'OPT_OUT_ALREADY_SAVED',externalSend:false};
+    if (state !== 'saved') return {status:'BLOCKED_STORAGE',externalSend:false};
+    const notice = decision.language === 'ua' ? 'Автоматичні привітання вимкнено. Щоб увімкнути знову, надішліть /resume.'
+      : 'Автоматические приветствия отключены. Чтобы включить снова, отправьте /resume.';
+    try {const sent=await opts.sender.send(decision.chatId,notice);
+      return {status:'OPT_OUT_SAVED_API_ACCEPTED',externalSend:true,providerMessageId:sent.message_id};
+    } catch {return {status:'OPT_OUT_SAVED_ACK_UNVERIFIED',externalSend:null};}
+  }
+  if (decision.action === 'OPT_IN_REQUEST') {
+    const state = await opts.store.unsuppress(suppressKey);
+    if (state === 'already') return {status:'OPT_IN_ALREADY_SAVED',externalSend:false};
+    if (state !== 'removed') return {status:'BLOCKED_STORAGE',externalSend:false};
+    const notice = decision.language === 'ua' ? 'Автоматичні привітання знову ввімкнено.'
+      : 'Автоматические приветствия снова включены.';
+    try {const sent=await opts.sender.send(decision.chatId,notice);
+      return {status:'OPT_IN_SAVED_API_ACCEPTED',externalSend:true,providerMessageId:sent.message_id};
+    } catch {return {status:'OPT_IN_SAVED_ACK_UNVERIFIED',externalSend:null};}
+  }
+  if (await opts.store.isSuppressed(suppressKey)) return {status:'BLOCKED_OPT_OUT',externalSend:false};
   const key = await digestKey(opts.pepper,decision);
   const reserved = await opts.store.reserve({dedupe_key:key, platform:'telegram', subject:decision.subject, action:decision.action});
   if (reserved === 'duplicate') return {status:'DUPLICATE',externalSend:false};
