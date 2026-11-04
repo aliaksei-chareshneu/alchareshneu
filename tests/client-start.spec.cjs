@@ -15,7 +15,7 @@ for (const lang of ['en', 'cs', 'ru', 'uk']) {
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);
       for (const link of await page.locator('.locale:visible .primary').all()) {
         const href = await link.getAttribute('href');
-        expect(href).toMatch(/^(?:mailto:|https:\/\/(?:wa\.me|t\.me)\/|\.\.\/corporate\/request\/\?)/);
+        expect(href).toMatch(/^(?:mailto:|https:\/\/(?:wa\.me|t\.me)\/|\.\.\/(?:corporate\/request\/\?|academy\/\?))/);
         expect(href).not.toMatch(/^https:\/\/(?:revolut\.me|checkout\.)/i);
       }
       expect(errors).toEqual([]);
@@ -72,8 +72,13 @@ test('source labels survive language switch and follow-up routes without a track
   expect(corporate.searchParams.get('utm_medium')).toBe('profile');
   expect(corporate.searchParams.get('utm_campaign')).toBe('nov2026');
 
-  const message = new URL(await page.locator('.locale:visible .card').nth(1).locator('a.primary').getAttribute('href'));
-  expect(message.searchParams.get('text')).toContain('[IMPERION source: utm_source=instagram&utm_medium=profile&utm_campaign=nov2026]');
+  // Learning is now website-first; retain allowlisted source tags on its Academy route.
+  const academy = new URL(await page.locator('.locale:visible .card').nth(1).locator('a.primary').getAttribute('href'), page.url());
+  expect(academy.pathname).toMatch(/\/academy\/$/);
+  expect(academy.searchParams.get('utm_source')).toBe('instagram');
+  expect(academy.searchParams.get('utm_medium')).toBe('profile');
+  expect(academy.searchParams.get('utm_campaign')).toBe('nov2026');
+  expect(academy.searchParams.get('lang')).toBe('en');
 
   await page.locator('.langs a[data-lang="cs"]').click();
   await expect(page.locator('html')).toHaveAttribute('lang', 'cs');
@@ -84,9 +89,10 @@ test('source labels survive language switch and follow-up routes without a track
 
 test('suspicious attribution values are rejected and never sent to messengers', async ({ page }) => {
   await page.goto('/start/?lang=en&utm_source=bad%20source%0D%0Aemail%3Dprivate&utm_campaign=nov2026');
-  const message = new URL(await page.locator('.locale:visible .card').nth(1).locator('a.primary').getAttribute('href'));
-  expect(message.searchParams.get('text')).not.toContain('private');
-  expect(message.searchParams.get('text')).toContain('utm_campaign=nov2026');
+  const academy = new URL(await page.locator('.locale:visible .card').nth(1).locator('a.primary').getAttribute('href'), page.url());
+  expect(academy.href).not.toContain('private');
+  expect(academy.searchParams.has('utm_source')).toBe(false);
+  expect(academy.searchParams.get('utm_campaign')).toBe('nov2026');
   const corporate = new URL(await page.locator('.locale:visible .card').first().locator('a.primary').getAttribute('href'), page.url());
   expect(corporate.searchParams.has('utm_source')).toBe(false);
 });
