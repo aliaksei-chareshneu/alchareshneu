@@ -11,6 +11,10 @@ const REQUIRED = Object.freeze([
   'academy/index.html',
   'druzina/index.html',
   'walkers/index.html',
+  // Event Command v1 requires a coordinated backend and existing CRM importer.
+  'supabase/functions/imperion-b2b-intake/index.ts',
+  'ops/site-event-offers-go.sql',
+  'imperion-intake-sync.gs',
 ]);
 
 function linkWithId(html, id) {
@@ -50,10 +54,19 @@ function runAudit(pages) {
     && /imperion-b2b-intake/.test(b2bQuote)
     && /RECEIVED_UNCONFIRMED/.test(b2bQuote)
     && /bookingConfirmed:false|Nezávazná|non-binding/i.test(b2bQuote);
+  const stagedEventCodes = /<option value="EVENT_HOST"/.test(b2bQuote)
+    && /<option value="EVENT_PROGRAM"/.test(b2bQuote)
+    && /'EVENT_HOST'/.test(pages['supabase/functions/imperion-b2b-intake/index.ts'] || '')
+    && /'EVENT_PROGRAM'/.test(pages['supabase/functions/imperion-b2b-intake/index.ts'] || '')
+    && /'EVENT_HOST'/.test(pages['ops/site-event-offers-go.sql'] || '')
+    && /'EVENT_PROGRAM'/.test(pages['ops/site-event-offers-go.sql'] || '')
+    && /EVENT_HOST:'Other'/.test(pages['imperion-intake-sync.gs'] || '')
+    && /EVENT_PROGRAM:'Other'/.test(pages['imperion-intake-sync.gs'] || '');
   verify('root:corporate-route',
     heroCorporateRoute==='corporate/technical-answers/?lang=en'
-    || (heroCorporateRoute==='corporate/request/?lang=en&service=DATA_PILOT&src=home_hero'&&b2bGuarded),
-    'Corporate hero CTA must open an existing documented service or guarded non-binding quote form');
+    || (heroCorporateRoute==='corporate/request/?lang=en&service=DATA_PILOT&src=home_hero'&&b2bGuarded)
+    || (heroCorporateRoute==='corporate/request/?lang=en&service=EVENT_HOST&src=home_hero'&&b2bGuarded&&stagedEventCodes),
+    'Corporate hero CTA must have an existing guarded quote form, server allowlist, schema gate and CRM importer. Source validation is not LIVE proof.');
   verify('root:audience-route', linkWithId(home, 'heroCorporateCta') === 'start/',
     'Personal/community hero CTA must open the relevant choices');
   const clubCard = home.match(/<a\b[^>]*class=["'][^"']*\bventure-card\b[^"']*["'][^>]*href=["']druzina\/["'][^>]*>([\s\S]*?)<\/a>/i)?.[1] || '';

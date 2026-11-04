@@ -95,13 +95,15 @@ test('navigation and primary links remain available without JavaScript', async (
 
 test('every public page resolves the new stylesheet inside the existing site', async () => {
   const ignored = new Set(['.git', '.github', 'node_modules', 'test-results', 'playwright-report']);
+  // Fixture generators may write untracked pages; inspect only files that Pages can commit.
+  const trackedFiles = new Set(require('node:child_process').execFileSync('git', ['ls-files','-z'], {encoding:'utf8'}).split('\0'));
   let count = 0;
   function visit(directory) {
     for (const entry of fs.readdirSync(directory, {withFileTypes:true})) {
       if (ignored.has(entry.name)) continue;
       const file = path.join(directory, entry.name);
       if (entry.isDirectory()) visit(file);
-      else if (file.endsWith('.html') && entry.name !== 'RegistrationPortal.html') {
+      else if (file.endsWith('.html') && entry.name !== 'RegistrationPortal.html' && trackedFiles.has(file.split(path.sep).join('/'))) {
         const html = fs.readFileSync(file, 'utf8');
         const matches = [...html.matchAll(/href="([^"]*site-design\.css\?v=20261027)"/g)];
         expect(matches, file).toHaveLength(1);
