@@ -85,7 +85,7 @@ test('network failure does not present a successful order or charge',async({page
 
 test('business landing pages link to direct quote form',async({page})=>{
  await page.goto('/');
- await expect(page.locator('#heroCta')).toHaveAttribute('href',/corporate\/\?lang=/);
+ await expect(page.locator('#heroCta')).toHaveAttribute('href',/corporate\/request\/\?lang=en&service=EVENT_HOST/);
  await page.goto('/corporate/');
  await expect(page.locator('a[href*="request/?lang=en"]')).not.toHaveCount(0);
  await page.goto('/start/?lang=cs');
