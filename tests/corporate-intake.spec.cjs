@@ -166,3 +166,41 @@ test('event enquiry reuses original private API shape and protects consent',asyn
  expect(posts[0].budgetBand).toBe('unknown');
  expect(posts[0].privacyAcknowledged).toBe(true);
 });
+
+async function fillP0Synthetic(page){
+ await page.locator('#company').fill('Synthetic QA organisation');
+ await page.locator('#contactName').fill('Synthetic Test Contact');
+ await page.locator('#email').fill('nobody@example.invalid');
+ await page.locator('#budgetBand').selectOption('unknown');
+ await page.locator('#timeframe').fill('November 2026');
+ await page.locator('#summary').fill('Synthetic QA only: check source UUID before confirming a CRM-bound enquiry.');
+ await page.locator('#privacyAck').check();
+}
+for(const language of LANGS){
+ test('source UUID is mandatory for a confirmed on-screen intake '+language,async({page})=>{
+  await page.route(ENDPOINT,route=>route.fulfill({status:200,contentType:'application/json',
+   body:JSON.stringify({ok:true,status:'RECEIVED_UNCONFIRMED',confirmed:false})}));
+  await page.goto('/corporate/request/?lang='+language+'&service=DATA_PILOT');
+  await fillP0Synthetic(page);
+  await page.locator('#submit').click();
+  await expect(page.locator('#result')).toHaveClass(/err/);
+  await expect(page.locator('#receiptDetails')).toBeHidden();
+  await expect(page.locator('#company')).toHaveValue('Synthetic QA organisation');
+ });
+}
+test('a duplicate acknowledgement never creates a new visual receipt or stale proof',async({page})=>{
+ let call=0;
+ await page.route(ENDPOINT,route=>route.fulfill({status:200,contentType:'application/json',
+  body:JSON.stringify(++call===1?
+   {ok:true,status:'RECEIVED_UNCONFIRMED',confirmed:false,reference:'00000000-0000-0000-0000-000000000022'}:
+   {ok:true,status:'RECEIVED_UNCONFIRMED',confirmed:false,duplicate:true})}));
+ await page.goto('/corporate/request/?lang=en&service=DATA_PILOT');
+ await fillP0Synthetic(page);
+ await page.locator('#submit').click();
+ await expect(page.locator('#receiptDetails')).toBeVisible();
+ await fillP0Synthetic(page);
+ await page.locator('#submit').click();
+ await expect(page.locator('#result')).toHaveClass(/err/);
+ await expect(page.locator('#receiptDetails')).toBeHidden();
+ expect(call).toBe(2);
+});
