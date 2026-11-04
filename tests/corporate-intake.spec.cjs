@@ -85,7 +85,7 @@ test('network failure does not present a successful order or charge',async({page
 
 test('business landing pages link to direct quote form',async({page})=>{
  await page.goto('/');
- await expect(page.locator('#heroCta')).toHaveAttribute('href',/corporate\/request\//);
+ await expect(page.locator('#heroCta')).toHaveAttribute('href',/corporate\/\?lang=/);
  await page.goto('/corporate/');
  await expect(page.locator('a[href*="request/?lang=en"]')).not.toHaveCount(0);
  await page.goto('/start/?lang=cs');
@@ -119,4 +119,50 @@ test('existing B2B lead source includes allowed organic channel tags, not person
  expect(request).not.toBeNull();
  expect(request.source).toBe('start_company__instagram_bio_nov2026');
  expect(request.source).not.toContain('nobody@example.invalid');
+});
+
+test('event hosting page names the buyer problem and shows only attributable proof in four languages',async({page})=>{
+ for(const language of LANGS){
+  await page.goto('/corporate/?lang='+language);
+  const title=page.locator('.revenue-head h1:visible');
+  await expect(title).toHaveCount(1);
+  await expect(title).not.toContainText('14,900');
+  await expect(page.locator('#event-solutions [data-locale="'+language+'"]')).toBeVisible();
+  await expect(page.locator('#why-trust [data-locale="'+language+'"] a[href*="brnoconvention."]')).toBeVisible();
+  const host=new URL(await page.locator('#corporate-live-quote a:visible').first().getAttribute('href'),page.url());
+  expect(host.pathname).toContain('/corporate/request/');
+  expect(host.searchParams.get('service')).toBe('EVENT_HOST');
+  expect(host.searchParams.get('lang')).toBe(language);
+ }
+});
+
+test('event enquiry reuses original private API shape and protects consent',async({page})=>{
+ let posts=[];
+ await page.route(ENDPOINT,async route=>{
+  posts.push(route.request().postDataJSON());
+  await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({ok:true,status:'RECEIVED_UNCONFIRMED',confirmed:false,reference:'00000000-0000-0000-0000-000000000099'})});
+ });
+ await page.goto('/corporate/request/?lang=cs&service=EVENT_HOST&src=event_hero');
+ await expect(page.locator('#offer')).toHaveValue('EVENT_HOST');
+ await expect(page.locator('#headline')).toContainText('akci');
+ // Specialist prices are still available, but appear after the actual enquiry.
+ const top=await page.locator('.panel').boundingBox();
+ const prices=await page.locator('.cards').boundingBox();
+ expect(top&&prices&&prices.y>top.y).toBeTruthy();
+ await page.locator('#company').fill('Testovací instituce');
+ await page.locator('#contactName').fill('Test Contact');
+ await page.locator('#email').fill('example@example.invalid');
+ await page.locator('#budgetBand').selectOption('unknown');
+ await page.locator('#timeframe').fill('prosinec 2026');
+ await page.locator('#summary').fill('Potřebujeme moderátora a předem definované přechody mezi částmi programu.');
+ await page.locator('#submit').click();
+ expect(posts).toHaveLength(0);
+ await page.locator('#privacyAck').check();
+ await page.locator('#submit').click();
+ await expect(page.locator('#result')).toContainText('přijata');
+ expect(posts).toHaveLength(1);
+ expect(posts[0].offer).toBe('EVENT_HOST');
+ expect(posts[0].source).toBe('event_hero');
+ expect(posts[0].budgetBand).toBe('unknown');
+ expect(posts[0].privacyAcknowledged).toBe(true);
 });
