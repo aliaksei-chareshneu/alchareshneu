@@ -7,7 +7,7 @@ Solve an organiser's real problems (keeping the programme clear, participants en
 
 ## Files and owner
 - `index.html` and `experience.js` — problem-first homepage with 4 languages, removal of stale AI-price headline and unverified Google review counters.
-- `corporate/index.html` — Event Command / facilitator, clear 3 use cases, written scope, direct honest proof.
+- `corporate/index.html` — Event Command / facilitator, clear 3 use cases, written scope, and a clearly attributed public association programme. The Brno Convention Bureau deep link was NOT independently accessible from verification tools; no independent third-party endorsement is claimed. Add outside validation later only after URL and permission readback.
 - `corporate/request/index.html` — existing single corporate form, event-specific values EVENT_HOST and EVENT_PROGRAM, pricing cards secondary.
 - `supabase/functions/imperion-b2b-intake/index.ts` — exact deployed v1 source with only the offer allowlist expanded. Do NOT treat a repository file as deployed.
 - `ops/site-event-offers-go.sql` — existing CHECK constraint expansion, never run without separate approval.
