@@ -1,0 +1,45 @@
+# Disposable P0 proof of GitHub Pages static form after already-verified production deployment.
+name: P0 public OSVC form live readback
+on:
+  push:
+    branches:
+      - hotfix/osvc-b2b-receipt-guard-20261104
+    paths:
+      - .github/workflows/p0-public-intake-readback-20261104.yml
+permissions:
+  contents: read
+jobs:
+  exact-public-http-readback:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify live public Pages form and scoped production release
+        shell: bash
+        run: |
+          node <<'NODE'
+          (async()=>{
+            const u='https://aliaksei-chareshneu.github.io/alchareshneu/corporate/request/?lang=en&service=DATA_PILOT&src=p0_guard_live';
+            let response,html;
+            for(let i=0;i<5;i++){
+              response=await fetch(u,{redirect:'follow',headers:{'Cache-Control':'no-cache'}});
+              html=await response.text();
+              if(response.status===200&&html.includes('const INTAKE_UNVERIFIED=')
+                  &&html.includes('obj.duplicate===true')&&html.includes("showB2bReceipt(body,obj);"))break;
+              await new Promise(r=>setTimeout(r,1000));
+            }
+            const tests={
+              http200:response.status===200,
+              correctPage:/id="request"/.test(html),
+              sourceUuidGuard:html.includes('const INTAKE_UNVERIFIED='),
+              duplicateHandled:html.includes('obj.duplicate===true'),
+              oldServicesPreserved:html.includes('DATA_PILOT')&&html.includes('AI_WORKSHOP'),
+              eventNotExposed:!html.includes('<option value="EVENT_HOST"')&&!html.includes('<option value="EVENT_PROGRAM"'),
+              noPrivateCredentials:!html.includes('SUPABASE_SERVICE_ROLE_KEY')&&!html.includes('IMPERION_PRIVATE_BRIDGE_KEY')
+            };
+            console.log('PUBLIC_OSVC_FORM_READBACK '+JSON.stringify({url:u,status:response.status,tests,bytes:html.length}));
+            if(Object.values(tests).some(v=>v!==true))throw Error('PUBLIC_READBACK_MISMATCH');
+          })().catch(e=>{console.error('PUBLIC_READBACK_FAILURE '+e.message);process.exit(1)});
+          NODE
