@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import {routePlatformEvent,parseTelegramUpdate,processTelegramUpdate,digestKey} from '../supabase/functions/imperion-welcome-engine/core.mjs';
+import {routePlatformEvent,parseTelegramUpdate,processTelegramUpdate,digestKey,digestSuppressionKey} from '../supabase/functions/imperion-welcome-engine/core.mjs';
 import {validWebhookSecret,decodeAllowlist} from '../supabase/functions/imperion-welcome-engine/security.mjs';
+const defaultSuppression={async isSuppressed(){return false;},async suppress(){return 'saved';},async unsuppress(){return 'removed';}};
 const text='Welcome, see https://aliaksei-chareshneu.github.io/alchareshneu/druzina/';
 const conf={groups:{'-100567':{subject:'druzina',language:'ru',text}},privateStarts:{default:{subject:'druzina',language:'ru',text}}};
 const join=(i=123,user=45)=>({update_id:i,chat_member:{chat:{id:-100567,type:'supergroup'},old_chat_member:{status:'left',user:{id:user}},new_chat_member:{status:'member',user:{id:user}}}});
@@ -34,7 +35,7 @@ test('live mode requires strong pepper, store and sender',async()=>{
 });
 test('live acceptance with atomic dedupe, no duplicate provider messages',async()=>{
  const memory=new Set();let sends=0;
- const store={async reserve(r){if(memory.has(r.dedupe_key))return 'duplicate';memory.add(r.dedupe_key);return 'reserved';},async complete(){}};
+ const store={...defaultSuppression,async reserve(r){if(memory.has(r.dedupe_key))return 'duplicate';memory.add(r.dedupe_key);return 'reserved';},async complete(){}};
  const sender={async send(){sends++;return {message_id:2026};}};
  const opts={...conf,mode:'live',pepper:'test-pepper-not-for-production-123456',store,sender};
  const first=await processTelegramUpdate(join(),opts);const second=await processTelegramUpdate(join(125),opts);
@@ -42,7 +43,7 @@ test('live acceptance with atomic dedupe, no duplicate provider messages',async(
 });
 test('provider failure is not silently retried and does not claim SENT',async()=>{
  const updates=[];let sends=0;
- const store={async reserve(){return 'reserved';},async complete(...p){updates.push(p);}};
+ const store={...defaultSuppression,async reserve(){return 'reserved';},async complete(...p){updates.push(p);}};
  const sender={async send(){sends++;throw Error('offline');}};
  const r=await processTelegramUpdate(join(),{...conf,mode:'live',pepper:'test-pepper-not-for-production-123456',store,sender});
  assert.equal(r.status,'SEND_UNCERTAIN');assert.equal(r.externalSend,null);assert.equal(sends,1);assert.equal(updates[0][1],'SEND_UNCERTAIN');
@@ -65,7 +66,7 @@ test('bad allowlists fail closed',()=>{
 });
 test('provider API acceptance is preserved if receipt write fails',async()=>{
  let sends=0;
- const store={async reserve(){return 'reserved';},async complete(){throw Error('db unavailable');}};
+ const store={...defaultSuppression,async reserve(){return 'reserved';},async complete(){throw Error('db unavailable');}};
  const sender={async send(){sends++;return {message_id:777};}};
  const r=await processTelegramUpdate(join(),{...conf,mode:'live',pepper:'test-pepper-not-for-production-123456',store,sender});
  assert.equal(r.status,'API_ACCEPTED_RECEIPT_UNVERIFIED');assert.equal(r.externalSend,true);assert.equal(sends,1);
@@ -81,10 +82,42 @@ test('newly joined bot accounts are never welcomed',()=>{
 });
 test('uncertain provider send is never repeated for the same member',async()=>{
  const seen=new Set();let attempts=0;
- const store={async reserve(r){if(seen.has(r.dedupe_key))return 'duplicate';seen.add(r.dedupe_key);return 'reserved';},async complete(){}};
+ const store={...defaultSuppression,async reserve(r){if(seen.has(r.dedupe_key))return 'duplicate';seen.add(r.dedupe_key);return 'reserved';},async complete(){}};
  const sender={async send(){attempts++;throw new Error('network timeout after send');}};
  const opts={...conf,mode:'live',pepper:'test-pepper-not-for-production-123456',store,sender};
  const r1=await processTelegramUpdate(join(),opts);
  const r2=await processTelegramUpdate(join(999),opts);
  assert.equal(r1.status,'SEND_UNCERTAIN');assert.equal(r2.status,'DUPLICATE');assert.equal(attempts,1);
+});
+
+test('private /stop and /resume are allowed only after user commands',()=>{
+ assert.equal(parseTelegramUpdate({...start(304),message:{...start(304).message,text:'/stop'}},conf.groups,conf.privateStarts).action,'OPT_OUT_REQUEST');
+ assert.equal(parseTelegramUpdate({...start(305),message:{...start(305).message,text:'/resume'}},conf.groups,conf.privateStarts).action,'OPT_IN_REQUEST');
+});
+test('/stop saves pseudonymous suppression and future messages are blocked until /resume',async()=>{
+ const blocked=new Set();const sent=[];
+ const store={...defaultSuppression,
+  async isSuppressed(k){return blocked.has(k);},
+  async suppress({suppress_key}){if(blocked.has(suppress_key))return 'duplicate';blocked.add(suppress_key);return 'saved';},
+  async unsuppress(k){if(!blocked.has(k))return 'already';blocked.delete(k);return 'removed';},
+  async reserve(){return 'reserved';},async complete(){}
+ };
+ const sender={async send(chat,text){sent.push({chat,text});return {message_id:40+sent.length};}};
+ const opts={...conf,mode:'live',pepper:'test-pepper-not-for-production-123456',store,sender};
+ const makeCmd=(cmd,id)=>({...start(id),message:{...start(id).message,text:cmd}});
+ const stop=await processTelegramUpdate(makeCmd('/stop',306),opts);
+ assert.equal(stop.status,'OPT_OUT_SAVED_API_ACCEPTED');assert.equal(sent.length,1);
+ const stopped=await processTelegramUpdate(join(307),opts);
+ assert.equal(stopped.status,'BLOCKED_OPT_OUT');assert.equal(sent.length,1);
+ const again=await processTelegramUpdate(makeCmd('/stop',308),opts);
+ assert.equal(again.status,'OPT_OUT_ALREADY_SAVED');assert.equal(sent.length,1);
+ const resume=await processTelegramUpdate(makeCmd('/resume',309),opts);
+ assert.equal(resume.status,'OPT_IN_SAVED_API_ACCEPTED');assert.equal(sent.length,2);
+ const next=await processTelegramUpdate(join(310),opts);
+ assert.equal(next.status,'API_ACCEPTED');assert.equal(sent.length,3);
+});
+test('suppression key stable for same user/subject across group/private chat',async()=>{
+ const g=parseTelegramUpdate(join(),conf.groups);
+ const p=parseTelegramUpdate(start(),conf.groups,conf.privateStarts);
+ assert.equal(await digestSuppressionKey('test-pepper-not-for-production-123456',g),await digestSuppressionKey('test-pepper-not-for-production-123456',p));
 });
