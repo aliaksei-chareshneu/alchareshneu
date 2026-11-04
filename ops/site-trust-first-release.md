@@ -11,10 +11,12 @@ Solve an organiser's real problems (keeping the programme clear, participants en
 - `corporate/request/index.html` — existing single corporate form, event-specific values EVENT_HOST and EVENT_PROGRAM, pricing cards secondary.
 - `supabase/functions/imperion-b2b-intake/index.ts` — exact deployed v1 source with only the offer allowlist expanded. Do NOT treat a repository file as deployed.
 - `ops/site-event-offers-go.sql` — existing CHECK constraint expansion, never run without separate approval.
+- `imperion-intake-sync.gs` — extend the EXISTING authorised private CRM importer allowlist, keeping event offers in OSVČ Leads (not NGO). Source update is NOT an Apps Script deployment.
+- `tests/corporate-intake.spec.cjs` — tests 4 language landing and simulated event enquiry API contract.
 
 ## P0: explicit owner GO needed for production
 1. Inspect and approve public claims and the coordinated release. No event quote should be presented as an approved tariff before buyer qualification and rights/insurance/venue checks.
-2. Apply checked DB constraint, deploy the reviewed version of existing Edge Function, confirm GET health, test with approved non-personal test data (do not create fake business leads without separate test authorization), verify private intake record and existing Community Hub importer classification.
+2. Apply checked DB constraint, deploy the reviewed version of existing Edge Function, and update the EXISTING bound Apps Script importer (no new trigger or CRM). Confirm GET health; test with approved non-personal test data (do not create fake business leads without separate test authorization), verify private intake record and existing Community Hub Leads classification.
 3. Merge this review PR to main and verify deployed GitHub Pages, 4 languages, keyboard/mobile, form submission, private intake-to-CRM delivery, and attribution (source codes event_hero, event_process, event_proof). No PR/CI result by itself proves LIVE.
 
 ## Do not disturb
