@@ -15,6 +15,17 @@ if(require.main===module)(async()=>{let count=0;for(const path of ['index.html',
  const bad=[...d.querySelectorAll('main a[href^="#"]')].filter(a=>a.hash.length>1&&!d.getElementById(decodeURIComponent(a.hash.slice(1)))).map(a=>a.hash);assert.deepEqual(bad,[],path+' anchors');
  assert.deepEqual(errors,[],path+' runtime errors');
  if(path.startsWith('academy')){const input=d.querySelector('#service-search');input.value='zzzzmissing';input.dispatchEvent(new w.Event('input'));assert.equal(d.querySelectorAll('.price-cat:not([hidden])').length,0);input.value='';input.dispatchEvent(new w.Event('input'));assert.equal(d.querySelectorAll('.price-cat:not([hidden])').length,9);assert.equal(d.querySelectorAll('.service-action').length,9);}
+ if(path==='academy/index.html'){
+   const pricing=d.querySelector('[data-i18n="academyPricing"]');
+   assert.ok(pricing,'Academy must present a programme menu');
+   assert.equal(pricing.querySelectorAll('.academy-pack-grid [data-plan]').length,4,'1, 5, 10, 20 paid-session choices');
+   assert.equal(pricing.querySelectorAll('.academy-services-grid .price-cat').length,9,'nine service categories preserved');
+   assert.ok(pricing.querySelector('#consultation-15')?.textContent.includes('250 Kč'),'15-minute paid choice consultation');
+   for(const p of ['1 000 Kč','5 000 Kč','9 000 Kč','16 000 Kč'])assert.ok(pricing.textContent.includes(p),lang+' missing approved programme price '+p);
+   assert.ok(!/first lesson.{0,40}300|первы[йе].{0,40}300|првн.{0,40}300/i.test(pricing.textContent),'retired introductory offer must not be visible');
+   assert.ok(!decodeURIComponent(d.querySelector('#navBookBtn')?.href||'').includes('300 CZK'),'nav must not offer stale 300 CZK');
+ }
+
  if(path==='druzina/start/index.html'){
    assert.equal(d.querySelectorAll('#action').length,1,'one primary club action');
    assert.equal(d.querySelectorAll('form').length,0,'no forced form to join club');
@@ -64,4 +75,10 @@ if(require.main===module)(async()=>{let count=0;for(const path of ['index.html',
  const languageButton=d.querySelector('[data-lang="ru"]');languageButton.click();await new Promise(r=>setTimeout(r,10));assert.equal(d.documentElement.lang,'ru');assert.equal(d.querySelectorAll('h1').length,1);assert.deepEqual(errors,[]);
  console.log('PASS',path,lang);count++;
  }finally{dom.window.close();}
- }console.log(count+' DOM/language cases passed (no layout engine; browser checks remain required)');})().catch(e=>{console.error(e);process.exit(1)});
+ }
+ // Cross-page safety: no retired first-lesson CTA, old public Google Form or 300-CZK Stripe link in the Academy commercial funnel.
+ for(const file of ['start/index.html','academy/a2/index.html','academy/a2/quiz.js','academy/courses/index.html']){
+   const text=fs.readFileSync(file,'utf8');
+   assert.ok(!/first.lesson.{0,80}300|Úvodní lekce 300|Первый урок 300|Перший урок 300|300%20CZK|docs[.]google[.]com\/forms\/d\/e|buy[.]stripe[.]com/i.test(text),file+' retained a stale Academy first-lesson sales path');
+ }
+console.log(count+' DOM/language cases passed (no layout engine; browser checks remain required)');})().catch(e=>{console.error(e);process.exit(1)});
