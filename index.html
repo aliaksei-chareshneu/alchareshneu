@@ -162,7 +162,7 @@
       <p class="eyebrow" data-i18n="hero.eyebrow">Brno · Movement · Mind</p>
       <h1 data-exp="homeTitle">A group event that works. People who feel included.</h1>
       <p class="tagline" data-exp="homeIntro">For organisations: structured group experiences, clear roles and confident live facilitation. For individuals: learning, walks and historical fencing through separate programmes in Brno.</p>
-      <a id="heroCta" class="btn solid plausible-event-name=Hero-CTA" href="corporate/?lang=en&amp;src=home_hero">Planning a group event? Start here</a>
+      <a id="heroCta" class="btn solid plausible-event-name=Hero-CTA" href="corporate/request/?lang=en&amp;service=EVENT_HOST&amp;src=home_hero">Planning a group event? Start here</a>
       <a id="heroCorporateCta" class="btn" href="start/">Explore learning &amp; communities</a>
       <a class="reviews-badge" href="https://maps.app.goo.gl/fEbnJHxiVoAx1v498" target="_blank" rel="noopener">
         <span class="star">⭐</span><span data-i18n="reviewsBadge">Read Google reviews</span>
@@ -2750,10 +2750,10 @@ const REVIEWS = {
   eyebrow: {ru:'Отзывы', en:'Reviews', cs:'Recenze', uk:'Відгуки'},
   title:   {ru:'Что говорят участники', en:'What participants say', cs:'Co říkají účastníci', uk:'Що кажуть учасники'},
   ratingNote: {
-    ru:`${GOOGLE_REVIEW_COUNT}+ отзывов на Google Картах · 5.0 ★`,
-    en:`${GOOGLE_REVIEW_COUNT}+ reviews on Google Maps · 5.0 ★`,
-    cs:`${GOOGLE_REVIEW_COUNT}+ recenzí na Google Mapách · 5.0 ★`,
-    uk:`${GOOGLE_REVIEW_COUNT}+ відгуків на Google Картах · 5.0 ★`
+    ru:'Публичные отзывы на Google Картах',
+    en:'Public reviews on Google Maps',
+    cs:'Veřejné recenze na Google Mapách',
+    uk:'Публічні відгуки на Google Картах'
   },
   seeAll: {ru:'Все отзывы на Google →', en:'All reviews on Google →', cs:'Všechny recenze na Google →', uk:'Усі відгуки на Google →'},
   items: [
@@ -3135,10 +3135,10 @@ function applyTranslations(lang) {
 // its own small lookup + setter rather than bolting attribute-switching
 // onto the generic data-i18n system for one element.
 const HERO_CTA = {
-  en:{text:'Planning a group event? Start here', href:'corporate/?lang=en&src=home_hero'},
-  cs:{text:'Pořádáte skupinovou akci? Začněte zde', href:'corporate/?lang=cs&src=home_hero'},
-  ru:{text:'Организуете мероприятие? Начните здесь', href:'corporate/?lang=ru&src=home_hero'},
-  uk:{text:'Організовуєте подію? Почніть тут', href:'corporate/?lang=uk&src=home_hero'}
+  en:{text:'Planning a group event? Start here', href:'corporate/request/?lang=en&service=EVENT_HOST&src=home_hero'},
+  cs:{text:'Pořádáte skupinovou akci? Začněte zde', href:'corporate/request/?lang=cs&service=EVENT_HOST&src=home_hero'},
+  ru:{text:'Организуете мероприятие? Начните здесь', href:'corporate/request/?lang=ru&service=EVENT_HOST&src=home_hero'},
+  uk:{text:'Організовуєте подію? Почніть тут', href:'corporate/request/?lang=uk&service=EVENT_HOST&src=home_hero'}
 };
 function updateHeroCta(lang) {
   const el = document.getElementById('heroCta');
