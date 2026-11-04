@@ -5,7 +5,7 @@ create table if not exists public.imperion_welcome_receipts (
   platform text not null check (platform in ('telegram')),
   subject text not null check (subject in ('druzina','brnowalkers','osvc')),
   action text not null check (action in ('GROUP_GREETING','USER_INITIATED_REPLY')),
-  state text not null check (state in ('RESERVED','API_ACCEPTED','FAILED')),
+  state text not null check (state in ('RESERVED','API_ACCEPTED','SEND_UNCERTAIN')),
   receipt jsonb not null default '{}'::jsonb,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
