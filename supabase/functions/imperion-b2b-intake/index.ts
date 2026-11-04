@@ -11,7 +11,7 @@ const api = URL && KEY ? createClient(URL, KEY, {
   auth: { persistSession: false, autoRefreshToken: false }
 }) : null;
 const encoder = new TextEncoder();
-const OFFERS = new Set(['AI_WORKSHOP','DATA_PILOT','SCIENTIFIC_CONSULTING','HEMA_CORPORATE','EVENT_HOST','EVENT_PROGRAM']);
+const OFFERS = new Set(['AI_WORKSHOP','DATA_PILOT','SCIENTIFIC_CONSULTING','HEMA_CORPORATE','EVENT_HOST','EVENT_PROGRAM','MEDIA_SPONSOR']);
 const BANDS = new Set(['<15000','15000-30000','30000-70000','70000+','unknown']);
 function headers(origin:string|null) {
  const h:Record<string,string> = {
