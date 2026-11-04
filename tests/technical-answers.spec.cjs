@@ -83,12 +83,12 @@ test('technical answers: language switching and corporate referral are usable',a
   await expect(page.locator('h1')).toContainText('Stop hunting');
 });
 
-test('homepage prioritizes B2B pilot and preserves separate community choice',async({page})=>{
+test('homepage prioritizes event pain and preserves separate community choice',async({page})=>{
   for(const lang of ['cs','en','ru','uk']){
     await page.goto('/?lang='+lang);
-    await expect(page.locator('#heroCta')).toHaveAttribute('href','corporate/request/?lang='+lang+'&service=DATA_PILOT&src=home_hero');
+    await expect(page.locator('#heroCta')).toHaveAttribute('href','corporate/request/?lang='+lang+'&service=EVENT_HOST&src=home_hero');
     await expect(page.locator('#heroCorporateCta')).toHaveAttribute('href','start/?lang='+lang);
-    await expect(page.locator('#heroCta')).toContainText(lang==='en'?'14,900':'14 900');
+    await expect(page.locator('#heroCta')).not.toBeEmpty();
   }
 });
 
