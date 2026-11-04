@@ -17,7 +17,7 @@
 
 **Source/readback:** owner approved 04NOV2026; canonical manifesto chapter 3 and 20 Družina Project Context updated; GitHub public site first-screen copy and multilingual homepage card source updated. This SOP update is not proof of any new live social post.
 
-**Distribution discovery update 04NOV:** canonical cross-project registry CH489–CH498 added (Otaku/Animefest, Lorekeepers, Společenstvo Gwintu Brno, Stisk, Klub Geocacherů Brno, Fandomář, Hry na hrdiny Brno, Lužánky Legato, Snapchat Spotlight, Pinterest); neither account creation nor posting has been claimed. Crucial history corrections: Lorekeepers was **already emailed 21OCT and 02NOV** and **replied 03NOV** that its team will consider it; await reply, no duplicate. Legato **rejected a competing sword course 27OCT** and received noncombat alternatives that day; do not repitch sword classes. Historic link `src=CH152` in earlier Lorekeepers outreach referred to an unrelated current registry record (Superprof): avoid reusing this misattribution and never rewrite historic sent mail.
+**Distribution discovery update 04NOV:** 10 additional channel candidates recorded in the existing restricted canonical registry CH489–CH498, including fantasy/cosplay/RPG, outdoor adventures, student media, Snapchat and Pinterest. No channel was authorized to post based solely on discovery. Prior private relationship history, pending replies, restrictions and source-attribution corrections remain in the restricted CRM only; verify there before external contact. No public social posts were created by this change.
 
 
 ## Live / auditable results
