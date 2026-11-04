@@ -1,0 +1,73 @@
+# One-shot, explicitly authorised P0 synthetic proof. Triggered only when THIS file changes on review branch.
+# Do not merge into production branch. No real contacts, charges or browser credentials.
+name: P0 OSVC synthetic intake proof
+on:
+  push:
+    branches:
+      - site/trust-first-event-command-20261104
+    paths:
+      - .github/workflows/p0-osvc-intake-one-shot.yml
+permissions:
+  contents: read
+jobs:
+  public-browser-bridge:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: timeout 240s npx playwright install chromium
+      - name: Open live public site, use staged HTML at same origin, submit two isolated synthetic requests
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs=require('fs');
+          const {chromium}=require('playwright');
+          const target='https://aliaksei-chareshneu.github.io/alchareshneu/corporate/request/';
+          const ENDPOINT='https://cmrknyhnnehyjpreehcf.supabase.co/functions/v1/imperion-b2b-intake';
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            try{
+              const page=await browser.newPage();
+              const initial=await page.goto(target+'?lang=en',{waitUntil:'domcontentloaded',timeout:35000});
+              if(!initial||initial.status()!==200||await page.locator('form#request').count()!==1)
+                throw Error('PRODUCTION_PUBLIC_FORM_UNAVAILABLE');
+              console.log('PRODUCTION_PUBLIC_FORM_200');
+              const html=fs.readFileSync('corporate/request/index.html','utf8');
+              await page.route('**/corporate/request/**',async route=>{
+                if(route.request().resourceType()==='document')
+                  await route.fulfill({status:200,contentType:'text/html',body:html});
+                else await route.continue();
+              });
+              for(const offer of ['DATA_PILOT','EVENT_HOST']){
+                const suffix=offer==='DATA_PILOT'?'data':'event';
+                const source='p0qa_'+process.env.GITHUB_RUN_ID+'_'+suffix;
+                const url=target+'?lang=en&service='+offer+'&src='+source;
+                await page.goto(url,{waitUntil:'domcontentloaded',timeout:35000});
+                if(await page.locator('#offer').inputValue()!==offer)throw Error('OFFER_NOT_SELECTED_'+offer);
+                await page.locator('#company').fill('IMPERION SYNTHETIC QA ONLY');
+                await page.locator('#contactName').fill('Synthetic Test');
+                await page.locator('#email').fill('imperion.p0.'+process.env.GITHUB_RUN_ID+'.'+suffix+'@example.invalid');
+                await page.locator('#budgetBand').selectOption('unknown');
+                await page.locator('#timeframe').fill('Synthetic December 2026');
+                await page.locator('#summary').fill('Synthetic QA only: verify that this public-origin form writes a source UUID, then reaches the existing private CRM. No actual customer or order.');
+                await page.locator('#privacyAck').check();
+                const postPromise=page.waitForResponse(r=>r.url()===ENDPOINT&&r.request().method()==='POST',{timeout:30000});
+                await page.locator('#submit').click();
+                const post=await postPromise;
+                const reply=await post.json();
+                if(post.status()!==200||reply.status!=='RECEIVED_UNCONFIRMED'||!reply.reference||
+                   !/^[a-f0-9-]{36}$/i.test(reply.reference)||reply.duplicate)
+                   throw Error('NO_DB_RECEIPT_'+offer+'_HTTP_'+post.status()+'_JSON_'+JSON.stringify(reply));
+                await page.locator('#receiptDetails').waitFor({state:'visible',timeout:5000});
+                const receipt=await page.locator('#receiptDetails').innerText();
+                if(!receipt.includes(reply.reference))throw Error('ONSCREEN_RECEIPT_NO_UUID_'+offer);
+                console.log('SYNTHETIC_ONLY '+JSON.stringify({offer,source,sourceUuid:reply.reference,apiStatus:post.status(),onScreen:true,paid:false,booked:false}));
+              }
+            }finally{await browser.close();}
+          })().catch(e=>{console.error('P0_QA_BLOCKED '+e.message);process.exit(1);});
+          NODE
