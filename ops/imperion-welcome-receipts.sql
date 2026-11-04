@@ -1,4 +1,4 @@
--- STAGING ONLY. Do not run in production before authorization and review.
+-- Welcome engine restricted operational receipts. Owner GO 2026-11-04.
 -- Non-CRM operational idempotency/acceptance receipts, no names, handles or phone numbers.
 create table if not exists public.imperion_welcome_receipts (
   dedupe_key text primary key check (dedupe_key ~ '^[0-9a-f]{64}$'),
@@ -21,5 +21,5 @@ create index if not exists imperion_welcome_receipts_retention_idx
 select cron.schedule(
   'imperion_welcome_receipts_retention_90d',
   '0 4 * * *',
-  $delete from public.imperion_welcome_receipts where retention_until < now();$
+  'delete from public.imperion_welcome_receipts where retention_until < now();'
 );
