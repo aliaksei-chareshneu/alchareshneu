@@ -128,7 +128,7 @@ test('event hosting page names the buyer problem and shows only attributable pro
   await expect(title).toHaveCount(1);
   await expect(title).not.toContainText('14,900');
   await expect(page.locator('#event-solutions [data-locale="'+language+'"]')).toBeVisible();
-  await expect(page.locator('#why-trust [data-locale="'+language+'"] a[href*="brnoconvention."]')).toBeVisible();
+  await expect(page.locator('#why-trust [data-locale="'+language+'"] a[href="../druzina/"]')).toBeVisible();
   const host=new URL(await page.locator('#corporate-live-quote a:visible').first().getAttribute('href'),page.url());
   expect(host.pathname).toContain('/corporate/request/');
   expect(host.searchParams.get('service')).toBe('EVENT_HOST');
