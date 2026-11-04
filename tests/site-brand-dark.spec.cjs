@@ -89,7 +89,9 @@ test('all public HTML pages opt into one dark brand system',async()=>{
   }
   return acc;
  }
- const pages=walk('.');
+ // Only committed pages belong to the public site; ignore temporary HTML from concurrent fixtures.
+ const trackedFiles=new Set(require('node:child_process').execFileSync('git',['ls-files','-z'],{encoding:'utf8'}).split('\0'));
+ const pages=walk('.').filter(file=>trackedFiles.has(file));
  expect(pages.length).toBeGreaterThanOrEqual(33);
  expect(fs.existsSync('brand-theme.css')).toBe(true);
  for(const file of pages){
