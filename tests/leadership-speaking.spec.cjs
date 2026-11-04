@@ -80,18 +80,14 @@ test('corporate catalogue leads to the dedicated leadership offer in Czech', asy
 
 test.describe('leadership without JavaScript', () => {
   test.use({ javaScriptEnabled: false });
-  test('shows email fallback and prevents accidental form data in the URL', async ({ page }) => {
+  test('shows direct email and keeps the unavailable brief builder hidden', async ({ page }) => {
     const leaked = [];
     page.on('request', request => { if (/company=|problem=/.test(request.url())) leaked.push(request.url()); });
     await page.goto('/corporate/leadership/');
     await expect(page.locator('noscript')).toBeVisible();
     await expect(page.locator('a[href="mailto:chereshnev.biochem@gmail.com"]')).toBeVisible();
-    await fillBrief(page);
-    const blocked = page.waitForEvent('console', {
-      predicate: message => message.text().includes("form-action 'none'"), timeout: 5000
-    });
-    await page.locator('button[type="submit"]').click({ noWaitAfter: true });
-    await blocked;
+    await expect(page.locator('#leadership-brief')).toBeHidden();
+    await expect(page.locator('meta[http-equiv="Content-Security-Policy"]')).toHaveAttribute('content', /form-action 'none'/);
     expect(leaked).toEqual([]);
     expect(new URL(page.url()).searchParams.has('company')).toBe(false);
   });
