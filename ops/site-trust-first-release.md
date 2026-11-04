@@ -1,3 +1,15 @@
+## CURRENT READBACK 04 NOV 2026 (overrides earlier staged assumptions)
+
+- OWNER GO: website change/test authorised; publication ONLY after CI + synthetic form -> private source -> existing Leads UUID/ACK independent proof.
+- Existing public Supabase Edge imperion-b2b-intake ACTIVE v3 and DB CHECK already permit EVENT_HOST, EVENT_PROGRAM and MEDIA_SPONSOR. Repository source was updated byte-for-byte to ACTIVE v3. Do not deploy stale v1 source or reset support for MEDIA_SPONSOR.
+- Existing privileged intake bridge ACTIVE v4 excludes only MEDIA_SPONSOR while existing owner-bound Apps Script version/trigger runtime cannot be verified with current connector access.
+- Run 41815012009 verified production public form HTTP200, staged HTML on public-origin Chromium and two real synthetic POSTs to Supabase API with proper on-screen UUIDs.
+- Synthetic private source UUIDs: DATA_PILOT 09c4c318-ae3f-4820-8b7b-5fd3ba1b7000 and EVENT_HOST 8875af50-bb92-4fea-91c3-2ac17e73819a. Owner email and source contain no real customer data; no invoice, contract, payment, booking or marketing.
+- Independent SQL showed crm_synced_at NULL and existing Community Hub Leads sheet contained 0 matching IDs on first readback. Therefore production CRM chain UNVERIFIED / public site HOLD until successful ACK/readback.
+- Earlier CI failed one synthetic duplicate test because after form.reset its helper did not reselect required service. Fixed test fixture on review branch; verify newest CI before claiming PASSED.
+- Exact QA-only source+CRM records must be cleaned up after verification. Do not touch real leads. No duplicate CRM, importer or outreach mechanism.
+
+---
 # Event Command website — release gate (staged 2026-11-04)
 
 **State: CODE STAGED IN REVIEW BRANCH, NOT LIVE.** No marketing outreach, customer message, payment, schema change or Edge Function deployment has been authorized or performed.
