@@ -67,7 +67,7 @@ export async function digestKey(pepper, decision) {
   return Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,'0')).join('');
 }
 export async function digestSuppressionKey(pepper, decision) {
-  return digestKey(pepper,{platform:'telegram',action:'SUPPRESSED_USER',subject:decision.subject,
+  return digestKey(pepper,{platform:'telegram',action:'SUPPRESSED_USER',subject:'all-communities',
     chatId:'global',actorId:decision.actorId});
 }
 /** Atomic reservation and first-party opt-out are required in LIVE mode. */
