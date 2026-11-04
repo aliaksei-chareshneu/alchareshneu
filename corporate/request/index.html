@@ -116,6 +116,23 @@ if(privateGroupEnquiry){
   uk:{headline:'Історичне фехтування для вашої групи',intro:'Запит на двогодинну програму для 5–8 дорослих у Брно без зобов’язань. Можна вказати неофіційну назву групи. Дату й остаточну ціну погоджують після перевірки місця, інструкторів, страхування та умов. Оплата тут не здійснюється.',formTitle:'Запит для приватної групи',companyLabel:'Назва вашої групи *',emailLabel:'Контактний email *',summaryLabel:'Що цікавить вашу групу? *'}
  };
  for(const key of Object.keys(groupText))Object.assign(dict[key],groupText[key]);
+ // private-hema-single-card: show exactly the 120-minute group product and its indicative group price.
+ const privateCardCopy={
+  cs:['Soukromá skupina HEMA (120 min)','Orientačně za celou skupinu 5–8 dospělých; termín a podmínky individuálně'],
+  en:['Private HEMA group (120 min)','Indicative total for a group of 5–8 adults; date and terms agreed separately'],
+  ru:['Закрытая группа HEMA (120 мин)','Ориентир за группу из 5–8 взрослых; дату и условия согласуем отдельно'],
+  uk:['Приватна група HEMA (120 хв)','Орієнтир за групу 5–8 дорослих; дата й умови окремо']
+ };
+ for(const key of Object.keys(privateCardCopy)){
+  dict[key].card3=privateCardCopy[key][0];dict[key].note3=privateCardCopy[key][1];
+ }
+ const otherCards=document.querySelectorAll('.cards .card');
+ if(otherCards.length===3){
+  otherCards[0].hidden=true;otherCards[1].hidden=true;
+  const priceNode=otherCards[2].querySelector('b');
+  if(priceNode)priceNode.textContent='od / from 9 900 Kč';
+ }
+
  $('company').placeholder='Např. Parta přátel / Friends group';$('company').setAttribute('autocomplete','off');
  document.title='Soukromý šerm — nezávazná poptávka / Private fencing enquiry';
 }
