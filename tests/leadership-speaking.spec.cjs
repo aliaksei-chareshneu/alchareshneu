@@ -87,7 +87,11 @@ test.describe('leadership without JavaScript', () => {
     await expect(page.locator('noscript')).toBeVisible();
     await expect(page.locator('a[href="mailto:chereshnev.biochem@gmail.com"]')).toBeVisible();
     await fillBrief(page);
-    await page.locator('button[type="submit"]').click();
+    const blocked = page.waitForEvent('console', {
+      predicate: message => message.text().includes("form-action 'none'"), timeout: 5000
+    });
+    await page.locator('button[type="submit"]').click({ noWaitAfter: true });
+    await blocked;
     expect(leaked).toEqual([]);
     expect(new URL(page.url()).searchParams.has('company')).toBe(false);
   });
