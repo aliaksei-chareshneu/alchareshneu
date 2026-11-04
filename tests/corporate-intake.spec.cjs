@@ -168,6 +168,7 @@ test('event enquiry reuses original private API shape and protects consent',asyn
 });
 
 async function fillP0Synthetic(page){
+ await page.locator('#offer').selectOption('DATA_PILOT');
  await page.locator('#company').fill('Synthetic QA organisation');
  await page.locator('#contactName').fill('Synthetic Test Contact');
  await page.locator('#email').fill('nobody@example.invalid');
