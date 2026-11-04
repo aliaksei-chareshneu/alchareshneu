@@ -17,6 +17,7 @@ function dbHeaders(extra:Record<string,string>={}) {
 function storeAdapter() {
   if(!sbUrl||!sbKey)throw Error('db_not_configured');
   const url=sbUrl+'/rest/v1/imperion_welcome_receipts';
+  const suppressionUrl=sbUrl+'/rest/v1/imperion_welcome_suppressions';
   return {
     async reserve(value:{dedupe_key:string;platform:string;subject:string;action:string}) {
       const body={...value,state:'RESERVED',retention_until:new Date(Date.now()+90*86400e3).toISOString()};
@@ -28,6 +29,24 @@ function storeAdapter() {
     async complete(key:string,state:string,receipt:Record<string,unknown>) {
       const res=await fetch(url+'?dedupe_key=eq.'+encodeURIComponent(key),{method:'PATCH',headers:dbHeaders({'Prefer':'return=minimal'}),body:JSON.stringify({state,receipt,updated_at:new Date().toISOString()})});
       if(!res.ok)throw Error('receipt_update_error');
+    },
+    async isSuppressed(key:string) {
+      const res=await fetch(suppressionUrl+'?suppress_key=eq.'+encodeURIComponent(key)+'&select=suppress_key&limit=1',{headers:dbHeaders()});
+      if(!res.ok)throw Error('suppression_lookup_error');
+      const data=await res.json();
+      return Array.isArray(data) && data.length>0;
+    },
+    async suppress(value:{suppress_key:string;platform:string;subject:string}) {
+      const res=await fetch(suppressionUrl+'?on_conflict=suppress_key',{method:'POST',headers:dbHeaders({'Prefer':'resolution=ignore-duplicates,return=representation'}),body:JSON.stringify(value)});
+      if(!res.ok)throw Error('suppression_store_error');
+      const data=await res.json();
+      return Array.isArray(data)&&data.length===1?'saved':'duplicate';
+    },
+    async unsuppress(key:string) {
+      const res=await fetch(suppressionUrl+'?suppress_key=eq.'+encodeURIComponent(key),{method:'DELETE',headers:dbHeaders({'Prefer':'return=representation'})});
+      if(!res.ok)throw Error('unsuppress_error');
+      const data=await res.json();
+      return Array.isArray(data)&&data.length===1?'removed':'already';
     }
   };
 }
