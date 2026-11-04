@@ -16,5 +16,10 @@ revoke all on table public.imperion_welcome_receipts from anon, authenticated;
 grant select,insert,update,delete on public.imperion_welcome_receipts to service_role;
 create index if not exists imperion_welcome_receipts_retention_idx
   on public.imperion_welcome_receipts(retention_until);
--- Optional scheduled maintenance, separate owner-approved change:
--- delete from public.imperion_welcome_receipts where retention_until < now();
+-- An existing pg_cron installation deletes expired pseudonymous receipts daily.
+-- The job only affects this table and never other customer records.
+select cron.schedule(
+  'imperion_welcome_receipts_retention_90d',
+  '0 4 * * *',
+  $delete from public.imperion_welcome_receipts where retention_until < now();$
+);
