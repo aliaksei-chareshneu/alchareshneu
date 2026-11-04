@@ -2,10 +2,10 @@ const {test,expect}=require('@playwright/test');
 
 const languages=['cs','en','ru','uk'];
 const labels={
- cs:{headline:'Vyzkoušej historický šerm v Brně.',cta:'Požádat o první trénink'},
- en:{headline:'Try historical fencing in Brno.',cta:'Ask for a first training'},
- ru:{headline:'Попробуй историческое фехтование в Брно.',cta:'Запросить первую тренировку'},
- uk:{headline:'Спробуй історичне фехтування в Брно.',cta:'Запитати про перше тренування'}
+ cs:{headline:'Hledáš dobrodružství a nové přátele v Brně?',value:'Dobrodružství, pohyb, přátelé, historie a kostýmy',cta:'Požádat o první trénink'},
+ en:{headline:'Looking for adventures and friends in Brno?',value:'Adventure, movement, friends, history and costumes',cta:'Ask for a first training'},
+ ru:{headline:'Ищешь приключения и друзей в Брно?',value:'Приключения, движение, друзья, история и костюмы',cta:'Запросить первую тренировку'},
+ uk:{headline:'Шукаєш пригод і друзів у Брно?',value:'Пригоди, рух, друзі, історія та костюми',cta:'Запитати про перше тренування'}
 };
 
 for(const lang of languages){
@@ -14,6 +14,7 @@ for(const lang of languages){
   await page.goto('/druzina/?lang='+lang);
   await expect(page.locator('html')).toHaveAttribute('lang',lang);
   await expect(page.locator('#druzina h1')).toHaveText(labels[lang].headline);
+  await expect(page.locator('#druzina .dm-hero-deck')).toContainText(labels[lang].value);
   await expect(page.locator('#druzina .dm-v2-primary')).toContainText(labels[lang].cta);
   await expect(page.locator('#druzina .dm-v2-primary')).toHaveAttribute('href','prihlaska/?lang='+lang);
   await expect(page.locator('#druzina .dm-v2-secondary')).toHaveAttribute('href','prihlaska/?lang='+lang+'&type=returning');
