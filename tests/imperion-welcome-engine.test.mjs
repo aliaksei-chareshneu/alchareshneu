@@ -145,3 +145,16 @@ test('global stop applies to both communities, even with distinct brand configur
  assert.equal((await processTelegramUpdate(j,opts)).status,'BLOCKED_OPT_OUT');
  assert.equal(sends,1);
 });
+
+
+test('start deep links route to approved brand, never an unrelated one',()=>{
+ const starts={...conf.privateStarts,bw:{subject:'brnowalkers',language:'ua',text:'Привіт! Деталі: https://aliaksei-chareshneu.github.io/alchareshneu/walkers/'}};
+ const m=start(2026);m.message.text='/start bw';
+ const r=parseTelegramUpdate(m,conf.groups,starts);
+ assert.equal(r.action,'USER_INITIATED_REPLY');assert.equal(r.subject,'brnowalkers');assert.equal(r.language,'ua');
+ assert.equal(r.text,starts.bw.text);
+ m.message.text='/start unknown';
+ assert.equal(parseTelegramUpdate(m,conf.groups,starts).status,'UNKNOWN_START_CONTEXT');
+ m.message.text='/start unexpected message';
+ assert.equal(parseTelegramUpdate(m,conf.groups,starts).status,'NOT_AN_ELIGIBLE_EVENT');
+});
