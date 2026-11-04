@@ -156,6 +156,12 @@ function show(message,error){
  result.hidden=false;result.className=error?'err':'ok';result.textContent=message;
  result.focus({preventScroll:true});result.scrollIntoView({block:'nearest'});
 }
+const INTAKE_UNVERIFIED={
+ cs:'Server nevrátil platné číslo poptávky. Uložení není ověřené. Neodesílejte opakovaně; ozvěte se prosím e-mailem.',
+ en:'No valid enquiry reference was returned. Storage is unverified. Please do not resubmit repeatedly; contact me by email.',
+ ru:'Номер заявки не подтверждён. Сохранение не проверено. Не отправляйте повторно много раз; свяжитесь по email.',
+ uk:'Номер запиту не підтверджено. Збереження не перевірене. Не надсилайте повторно багато разів; напишіть на email.'
+};
 const RECEIPT_B2B={"cs":{"title":"Přehled přijaté poptávky","ref":"Číslo poptávky","company":"Firma","offer":"Služba","contact":"Kontaktní e-mail","when":"Požadovaný termín","next":"Poptávka je uložena. To není objednávka ani přijetí nabídky; rozsah, cenu a podmínky potvrdíme individuálně.","email":"Uložte si číslo a údaje níže; kopie e-mailem může být zpožděná nebo nedostupná.","copy":"Kopírovat potvrzení","copied":"Zkopírováno"},"en":{"title":"Your enquiry receipt","ref":"Enquiry reference","company":"Company","offer":"Service","contact":"Contact email","when":"Requested timeframe","next":"Your request is recorded. No order, price, booking or contract is accepted; terms will be agreed individually.","email":"Save the request reference and details; an email copy may be delayed or unavailable.","copy":"Copy receipt","copied":"Copied"},"ru":{"title":"Данные принятой заявки","ref":"Номер заявки","company":"Компания","offer":"Услуга","contact":"Контактный email","when":"Желаемый срок","next":"Заявка сохранена. Это не заказ и не согласованный договор, стоимость и условия будут подтверждены отдельно.","email":"Сохраните номер заявки и данные ниже: копия по почте может задержаться или быть недоступна.","copy":"Скопировать подтверждение","copied":"Скопировано"},"uk":{"title":"Дані отриманого запиту","ref":"Номер запиту","company":"Компанія","offer":"Послуга","contact":"Контактний email","when":"Бажаний термін","next":"Запит збережено. Це не замовлення й не контракт; ціну та умови узгодять окремо.","email":"Збережіть номер і дані запиту: копія на пошту може затриматися або бути недоступною.","copy":"Копіювати підтвердження","copied":"Скопійовано"}};
 function showB2bReceipt(b,server){
  const d=RECEIPT_B2B[lang],area=$('receiptDetails');area.replaceChildren();
@@ -169,6 +175,7 @@ function showB2bReceipt(b,server){
 }
 form.addEventListener('submit',async e=>{
  e.preventDefault();
+ $('receiptDetails').hidden=true;$('receiptDetails').replaceChildren();
  if(!form.reportValidity()||$('summary').value.trim().length<15){show(dict[lang].invalid,true);return;}
  btn.disabled=true;btn.textContent=dict[lang].sending;result.hidden=true;
  const baseSource=/^[a-zA-Z0-9_-]{2,65}$/.test(qp.get('src')||'')?qp.get('src'):'corporate_website';
@@ -186,6 +193,10 @@ const source=utmLabels.length?(baseSource+'__'+utmLabels.join('_')).slice(0,65):
   const response=await fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),cache:'no-store',signal:AbortSignal.timeout(12000)});
   const obj=await response.json().catch(()=>({}));
   if(!response.ok||obj.ok!==true||obj.status!=='RECEIVED_UNCONFIRMED')throw Error('server');
+  if(obj.duplicate===true||typeof obj.reference!=='string'||
+     !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(obj.reference)){
+   show(INTAKE_UNVERIFIED[lang],true);return;
+  }
   showB2bReceipt(body,obj);form.reset();show(dict[lang].received,false);
  }catch{show(dict[lang].fail,true);}
  finally{btn.disabled=false;btn.textContent=dict[lang].submit}

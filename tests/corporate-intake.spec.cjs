@@ -120,3 +120,44 @@ test('existing B2B lead source includes allowed organic channel tags, not person
  expect(request.source).toBe('start_company__instagram_bio_nov2026');
  expect(request.source).not.toContain('nobody@example.invalid');
 });
+
+async function fillP0GuardFixture(page){
+ await page.locator('#offer').selectOption('DATA_PILOT');
+ await page.locator('#company').fill('Synthetic QA organisation');
+ await page.locator('#contactName').fill('Synthetic Test Contact');
+ await page.locator('#email').fill('nobody@example.invalid');
+ await page.locator('#budgetBand').selectOption('unknown');
+ await page.locator('#timeframe').fill('November 2026');
+ await page.locator('#summary').fill('Synthetic QA only: ensure a returned valid UUID is required to confirm DB storage.');
+ await page.locator('#privacyAck').check();
+}
+for(const lang of LANGS){
+ test('guard rejects HTTP 200 without source UUID in '+lang,async({page})=>{
+  let calls=0;
+  await page.route(ENDPOINT,route=>{calls++;return route.fulfill({status:200,contentType:'application/json',
+   body:JSON.stringify({ok:true,status:'RECEIVED_UNCONFIRMED',confirmed:false})});});
+  await page.goto('/corporate/request/?lang='+lang+'&service=DATA_PILOT');
+  await fillP0GuardFixture(page);
+  await page.locator('#submit').click();
+  await expect(page.locator('#result')).toHaveClass(/err/);
+  await expect(page.locator('#receiptDetails')).toBeHidden();
+  await expect(page.locator('#company')).toHaveValue('Synthetic QA organisation');
+  expect(calls).toBe(1);
+ });
+}
+test('duplicate server ACK has no false success and clears previous receipt',async({page})=>{
+ let call=0;
+ await page.route(ENDPOINT,route=>route.fulfill({status:200,contentType:'application/json',
+   body:JSON.stringify(++call===1?
+    {ok:true,status:'RECEIVED_UNCONFIRMED',confirmed:false,reference:'00000000-0000-0000-0000-000000000022'}:
+    {ok:true,status:'RECEIVED_UNCONFIRMED',confirmed:false,duplicate:true})}));
+ await page.goto('/corporate/request/?lang=en&service=DATA_PILOT');
+ await fillP0GuardFixture(page);
+ await page.locator('#submit').click();
+ await expect(page.locator('#receiptDetails')).toBeVisible();
+ await fillP0GuardFixture(page);
+ await page.locator('#submit').click();
+ await expect(page.locator('#result')).toHaveClass(/err/);
+ await expect(page.locator('#receiptDetails')).toBeHidden();
+ expect(call).toBe(2);
+});
