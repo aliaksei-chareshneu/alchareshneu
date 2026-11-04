@@ -179,7 +179,7 @@ function impWriteEnquiries_(ss,items){
 function impWriteB2B_(ss,items){
   var sh=ss.getSheetByName('Leads');if(!sh)throw Error('Missing Leads');
   var h=impHeader_(sh);
-  ['Lead_ID','Submission_ID','Stage','Source','Service','Owner','Action_Status'].forEach(function(k){
+  ['Lead_ID','Submission_ID','Stage','Source','Service','Owner','Action_Status','Created_At','Next_Action_At','Notes','Email','Retention_Until'].forEach(function(k){
     if(h.map[k]===undefined)throw Error('Missing Leads header: '+k);
   });
   var existing=impExisting_(sh,h.map.Submission_ID+1),ids=[],added=0;
@@ -202,6 +202,9 @@ function impWriteB2B_(ss,items){
         '; Budget: '+band+' CZK; Team size: '+String(r.team_size||'not supplied')+
         '; Preferred timeframe: '+String(r.preferred_timeframe||'not supplied')+
         '; Tracking source: '+String(r.source||'corporate_website')+
+        '; UTM source: '+String(r.utm_source||'')+'; UTM medium: '+String(r.utm_medium||'')+
+        '; UTM campaign: '+String(r.utm_campaign||'')+
+        '; Next action: owner to review problem, authority, budget and scope within 24h'+
         '; Privacy notice accepted for enquiry only. No marketing permission.';
       impAppend_(sh,h,{
         Lead_ID:'B2B-'+id,Created_At:created,
@@ -679,7 +682,7 @@ function impDigestNewRows_(ss,rsvps,enquiries,b2b){
       }else{
         if(!/^OSVC-B2B-[0-9a-f-]{36}$/i.test(v(row,'Submission_ID')))return;
         var budget=/;\s*Budget:\s*([A-Za-z0-9+_-]{1,24})\s*CZK(?:;|$)/.exec(v(row,'Notes'));
-        samples.push({kind:'B2B',row:n,service:v(row,'Service').slice(0,45),
+        samples.push({kind:'B2B',row:n,reference:v(row,'Submission_ID').slice(9),service:v(row,'Service').slice(0,45),
           priority:v(row,'Priority').slice(0,6),budget:budget?budget[1]:''});
       }
     });
@@ -696,11 +699,13 @@ function impQueueOwnerDigest_(rsvps,enquiries,b2b,ss){
   catch(e){console.error('Optional owner digest details unavailable; counts retained');}
   var state={
     rsvps:pending.rsvps+rsvps,enquiries:pending.enquiries+enquiries,b2b:pending.b2b+b2b,
-    items:pending.items.concat(fresh).slice(-IMP_OWNER_DIGEST_SAMPLE_LIMIT)
+    items:pending.items.concat(fresh).slice(0,IMP_OWNER_DIGEST_SAMPLE_LIMIT)
   };
   var serialized=JSON.stringify(state);
   while(serialized.length>7800&&state.items.length){
-    state.items.shift();
+    var optional=state.items.findIndex(function(x){return x.kind!=='B2B';});
+    if(optional<0)throw Error('Owner digest too large');
+    state.items.splice(optional,1);
     serialized=JSON.stringify(state);
   }
   p.setProperty(IMP_PRIVATE_NOTIFY_PENDING,serialized);
@@ -791,6 +796,7 @@ function impFlushOwnerDigest_(cfg,ss,events){
     lines.push('','FIREMNÍ OSVČ POPTÁVKY — nové obchodní poptávky: '+pending.b2b);
     b2b.forEach(function(item){
       lines.push('• '+(item.service||'Firemní služba')+
+        (/^[0-9a-f-]{36}$/i.test(item.reference||'')?' | ID: '+item.reference:'')+
         (item.budget?' | rozpočet (deklarovaný): '+item.budget+' Kč':'')+
         (item.priority?' | priorita: '+item.priority:''));
       lines.push('  Otevřít lead: '+impOwnerDigestRowUrl_(cfg,ss,'Leads',item.row));
@@ -820,6 +826,35 @@ function impFlushOwnerDigest_(cfg,ss,events){
   }
 }
 
+/** Recover B2B owner handoffs from canonical rows, including a crash before source ACK.
+ * UUID is the dedup key; no customer PII is copied into Script Properties.
+ * A persistent handoff marker avoids losing a notification after CRM append.
+ */
+function impRecoverB2BOwnerDigest_(ss){
+ var sh=ss.getSheetByName('Leads'),h=impHeader_(sh),m=h.map;
+ var marker='OSVC_B2B_OWNER_QUEUED_NO_ORDER_NO_CASH';
+ if(m.Action_Status===undefined||m.Submission_ID===undefined)throw Error('Missing B2B handoff headers');
+ if(sh.getLastRow()<2)return;
+ var rows=sh.getRange(2,1,sh.getLastRow()-1,sh.getLastColumn()).getDisplayValues();
+ rows.forEach(function(row,i){
+  if(row[m.Action_Status]!=='OSVC_B2B_INBOUND_REVIEW_NO_ORDER_NO_CASH')return;
+  var key=String(row[m.Submission_ID]||'');
+  if(!/^OSVC-B2B-[0-9a-f-]{36}$/i.test(key))throw Error('Invalid B2B handoff ID');
+  var p=PropertiesService.getScriptProperties(),pending=impPendingDigest_();
+  var reference=key.slice(9);
+  if(!pending.items.some(function(x){return x.kind==='B2B'&&x.reference===reference;})){
+   // Do not drop a recoverable reference when the existing bounded digest is full.
+   if(pending.items.length>=IMP_OWNER_DIGEST_SAMPLE_LIMIT)return; // remaining rows recover next run
+   pending.b2b++;
+   pending.items.push({kind:'B2B',row:i+2,reference:reference,
+    service:m.Service===undefined?'':row[m.Service]});
+   p.setProperty(IMP_PRIVATE_NOTIFY_PENDING,JSON.stringify(pending));
+  }
+  sh.getRange(i+2,m.Action_Status+1).setValue(marker);
+  if(sh.getRange(i+2,m.Action_Status+1).getDisplayValue()!==marker)throw Error('B2B handoff readback failed');
+ });
+}
+
 /** Run manually once first, then enable owner-created time triggers. */
 function imperionSyncPrivateIntake(){
   var lock=LockService.getScriptLock();
@@ -830,6 +865,9 @@ function imperionSyncPrivateIntake(){
     var addedR=0,addedE=0,addedB=0,processed=0;
     // One safe public price lookup; never infer paid status from a blank/unknown fee.
     var events=impReceiptCatalog_();
+    impRecoverB2BOwnerDigest_(ss);
+    impFlushOwnerDigest_(cfg,ss,events);
+    impRecoverB2BOwnerDigest_(ss);
     for(var i=0;i<4;i++){
       var batch=impPrivateFetch_(cfg,null);
       if(batch.protocol!=='imperion-intake-bridge-v1'||
@@ -841,7 +879,8 @@ function imperionSyncPrivateIntake(){
       var c=impWriteB2B_(ss,batch.b2b);
       // Persist the owner-notification receipt BEFORE acknowledging the source;
       // a mail outage or later crash must not silently discard new leads.
-      impQueueOwnerDigest_(a.added,b.added,c.added,ss);
+      impQueueOwnerDigest_(a.added,b.added,0,ss);
+      impRecoverB2BOwnerDigest_(ss);
       // Acknowledge only AFTER CRM writes/readback and notification queuing succeed.
       impPrivateFetch_(cfg,{action:'ack',rsvps:a.ids,enquiries:b.ids,b2b:c.ids});
       addedR+=a.added;addedE+=b.added;addedB+=c.added;
