@@ -49,12 +49,14 @@ export function parseTelegramUpdate(update, groups = {}, privateStarts = {}) {
       !Number.isSafeInteger(m.from?.id) || !Number.isSafeInteger(m.chat?.id) || m.from.id !== m.chat.id) {
     return {status:'NOT_AN_ELIGIBLE_EVENT'};
   }
-  const command = (m.text || '').match(/^\/(start|stop|resume)(?:@\w+)?(?:\s|$)/i);
+  const command = (m.text || '').match(/^\/(start|stop|resume)(?:@\w+)?(?:\s+([A-Za-z0-9_-]{1,48}))?\s*$/i);
   if (!command) return {status:'NOT_AN_ELIGIBLE_EVENT'};
-  const config = privateStarts.default;
-  if (!validConfig(config)) return {status:'PRIVATE_START_NOT_CONFIGURED'};
   const action = command[1].toLowerCase() === 'stop' ? 'OPT_OUT_REQUEST'
     : command[1].toLowerCase() === 'resume' ? 'OPT_IN_REQUEST' : 'USER_INITIATED_REPLY';
+  const context = action === 'USER_INITIATED_REPLY' && command[2] ? command[2].toLowerCase() : 'default';
+  if (!Object.prototype.hasOwnProperty.call(privateStarts,context)) return {status:'UNKNOWN_START_CONTEXT'};
+  const config = privateStarts[context];
+  if (!validConfig(config)) return {status:'PRIVATE_START_NOT_CONFIGURED'};
   return {status:'READY',action,platform:'telegram',subject:config.subject,
     language:config.language,chatId:m.chat.id,actorId:m.from.id,text:config.text,updateId:update.update_id};
 }
