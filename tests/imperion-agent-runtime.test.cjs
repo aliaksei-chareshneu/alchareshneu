@@ -47,8 +47,8 @@ function harness({active='owner@example.test',effective='owner@example.test',pri
       getEditors:()=>[],getViewers:()=>[]})},
     SpreadsheetApp:{openById:()=>b,flush:()=>{flushes++}},
     LockService:{getScriptLock:()=>({tryLock:()=>true,releaseLock:()=>{}})},
-    ScriptApp:{getProjectTriggers:()=>triggers,newTrigger:(fn)=>({
-      timeBased:()=>({everyHours:(hours)=>({create:()=>{let v={getHandlerFunction:()=>fn,getUniqueId:()=> 'triggeruid12345'};triggers.push(v);return v;}})})
+    ScriptApp:{EventType:{CLOCK:'CLOCK'},getProjectTriggers:()=>triggers,newTrigger:(fn)=>({
+      timeBased:()=>({everyHours:(hours)=>({create:()=>{let v={getHandlerFunction:()=>fn,getUniqueId:()=> 'triggeruid12345',getEventType:()=> 'CLOCK'};triggers.push(v);return v;}})})
     })},
     imperionAgentTrustedSnapshot_:()=>sample(),
     UrlFetchApp:{fetch:(url)=>{
@@ -246,4 +246,46 @@ test('canonical email alias cannot evade stop-list through another action Lead_I
  const result=h.c.impA5Compute_(snap).sales;
  assert.equal(result.uncontacted_review_candidates,0);
  assert.equal(result.blocked_or_closed,1);
+});
+
+test('runtime health refuses to call manual executions a working scheduler',()=>{
+  const h=harness();
+  const original=h.c.imperionAgentRuntimeHealth();
+  assert.equal(original.ok,false);
+  assert.equal(original.status,'TRIGGER_MISSING');
+  assert.equal(original.scheduled_receipt_count,0);
+  assert.equal(h.c.imperionAgentInstallTrigger().status,'TRIGGER_INSTALLED');
+  h.c.imperionAgentRunAndRecord();
+  const manual=h.c.imperionAgentRuntimeHealth();
+  assert.equal(manual.trigger_type_verified,true);
+  assert.equal(manual.private_receipt_count,1);
+  assert.equal(manual.scheduled_receipt_count,0);
+  assert.equal(manual.ok,false);
+  assert.equal(manual.status,'SCHEDULED_EXECUTION_NOT_OBSERVED');
+  // An idempotent same-slot tick cannot upgrade a manual receipt into
+  // evidence of a scheduled run, even if a trigger currently exists.
+  assert.equal(h.c.imperionAgentReviewTick({triggerUid:'triggeruid12345'}).status,
+    'EXISTING_SLOT_RECEIPT_REUSED');
+  assert.equal(h.c.imperionAgentRuntimeHealth().ok,false);
+});
+test('only genuine trigger-origin, recent, schema-consistent receipt qualifies as internal tick',()=>{
+  const h=harness();
+  h.c.imperionAgentInstallTrigger();
+  assert.throws(()=>h.c.imperionAgentReviewTick({triggerUid:'FORGED_123456'}),/UNVERIFIED_TRIGGER/);
+  h.c.imperionAgentReviewTick({triggerUid:'triggeruid12345'});
+  const good=h.c.imperionAgentRuntimeHealth();
+  assert.equal(good.ok,true);
+  assert.equal(good.status,'SCHEDULED_RECEIPT_RECENT_INTERNAL_ONLY');
+  assert.equal(good.scheduled_receipt_count,1);
+  assert.equal(good.independent_provider_readback_verified,false);
+  assert.equal(good.customer_actions_enabled,false);
+  assert.equal(good.posts,0);assert.equal(good.charges,0);
+  const old=h.receipts.rows[1][7];
+  h.receipts.rows[1][7]=new Date(Date.now()-12*3600000).toISOString();
+  const stale=h.c.imperionAgentRuntimeHealth();
+  assert.equal(stale.ok,false);
+  assert.equal(stale.status,'SCHEDULED_EXECUTION_STALE');
+  h.receipts.rows[1][7]=old;
+  h.receipts.rows[1][2]='OWNER_PRIVATE_MANUAL_'+h.receipts.rows[1][0].split('-').pop();
+  assert.equal(h.c.imperionAgentRuntimeHealth().scheduled_receipt_count,0);
 });
