@@ -8,7 +8,7 @@ Created 2026-11-05 for proposed Epic Armoury Alliance collaboration.
 - The official Epic Armoury banner is placed at assets/epic-banner.png at its original aspect ratio 1500×500, linked to https://epicarmoury.com/. Use authorized artwork only. Do not crop or stretch.
 - Do NOT assert approved Alliance membership or 20% discount until Raul confirms.
 - No payments or automatic booking are processed here.
-- Until a fully independent registration endpoint is migrated and tested, the buttons send visitors to the existing Družina Moravy registration page. This cross-domain legacy dependency is openly retained; do not submit to Epic Armoury for final approval until its suitability is confirmed.
+- Until a fully independent registration endpoint is migrated and tested, GENERAL club enquiry buttons send visitors to the existing Družina Moravy registration page. The specific 14 Nov introductory HEMA workshop uses the pre-existing organiser-approved private WhatsApp enquiry channel with explicit personal confirmation; the event button does NOT book a place. This cross-domain dependency is openly retained; do not submit to Epic Armoury for final approval until its suitability is confirmed.
 
 ## Site contents
 - index.html — standalone responsive CS/EN/RU/UA public club site with no personal/corporate cross-navigation
