@@ -97,9 +97,14 @@ function runAudit(pages) {
     'A direct corporate inquiry path must remain available');
   let academyUrl='';
   try { academyUrl=decodeURIComponent(linkWithId(academy,'navBookBtn')); } catch { /* fail closed */ }
+  // Verified 05 Nov 2026: the owner's common enquiry Google Form explicitly
+  // includes individual teaching; do not misclassify it as an unrelated form.
+  // Preserve an Academy-specific WhatsApp fallback while rejecting unknown forms.
+  const verifiedAcademyForm='https://docs.google.com/forms/d/e/1FAIpQLSfa3qOWpQBfoA877ip9eOTWwFweOrNTib2mq8_C1D9xr55dtQ/viewform';
+  const academyWhatsapp=academyUrl.startsWith('https://wa.me/') && /Academy/i.test(academyUrl);
   verify('academy:relevant-contact',
-    academyUrl.startsWith('https://wa.me/') && /Academy/i.test(academyUrl),
-    'Academy first-lesson enquiry must reach its own service');
+    academyUrl===verifiedAcademyForm || academyWhatsapp,
+    'Academy enquiry must reach the verified shared education form or Academy-specific WhatsApp');
   const dmForm = fs.readFileSync(path.join(__dirname,'../druzina/prihlaska/index.html'),'utf8');
   verify('druzina:enquiry-only',
     /^prihlaska\/\?lang=(en|cs|ru|uk)$/.test(linkWithId(druzina,'navBookBtn')) &&

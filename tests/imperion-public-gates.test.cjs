@@ -25,3 +25,20 @@ test('precise unverified business location is a blocker', () => {
   const report = runAudit(docs);
   assert.ok(report.errors.some(item => item.id === 'schema:unverified-address'), JSON.stringify(report.errors));
 });
+
+
+test('verified Academy-capable form passes, arbitrary external form fails closed', () => {
+  const root = path.resolve(__dirname, '..');
+  const docs = Object.fromEntries(REQUIRED.map(file => [file, fs.readFileSync(path.join(root, file), 'utf8')]));
+  assert.ok(!runAudit(docs).errors.some(x => x.id === 'academy:relevant-contact'));
+  const known='https://docs.google.com/forms/d/e/1FAIpQLSfa3qOWpQBfoA877ip9eOTWwFweOrNTib2mq8_C1D9xr55dtQ/viewform';
+  docs['academy/index.html']=docs['academy/index.html'].replace('href="'+known+'"','href="https://docs.google.com/forms/d/e/unknown/viewform"');
+  assert.ok(runAudit(docs).errors.some(x => x.id === 'academy:relevant-contact'));
+});
+test('an Academy-specific WhatsApp enquiry is an allowed alternative', () => {
+  const root = path.resolve(__dirname, '..');
+  const docs = Object.fromEntries(REQUIRED.map(file => [file, fs.readFileSync(path.join(root, file), 'utf8')]));
+  const known='https://docs.google.com/forms/d/e/1FAIpQLSfa3qOWpQBfoA877ip9eOTWwFweOrNTib2mq8_C1D9xr55dtQ/viewform';
+  docs['academy/index.html']=docs['academy/index.html'].replace('href="'+known+'"','href="https://wa.me/420702914842?text=Academy%20enquiry"');
+  assert.ok(!runAudit(docs).errors.some(x => x.id === 'academy:relevant-contact'));
+});
