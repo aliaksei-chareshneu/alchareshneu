@@ -125,10 +125,17 @@ function spRunDue(){
     s.getRange(j.row,m.Status).setValue('CLAIMED');
     s.getRange(j.row,m.Attempted_At).setValue(new Date());SpreadsheetApp.flush();
     var result=spSend_(e,j);
-    s.getRange(j.row,m.Post_ID).setValue(result.id||'');
-    s.getRange(j.row,m.Post_URL).setValue(result.url||'');
-    s.getRange(j.row,m.Status).setValue(result.existing?'ALREADY_POSTED':'PUBLISHED');
-    s.getRange(j.row,m.Error).setValue('');
+    // Provider acceptance is NOT independent public-post verification.
+    // A historical stored ID also needs independent provider readback.
+    var id=result&&result.id!=null?String(result.id).trim():'';
+    var url=result&&typeof result.url==='string'&&/^https:\/\//i.test(result.url)?result.url:'';
+    var state=result&&result.existing?'HISTORICAL_RECEIPT_NEEDS_READBACK':
+      id?'PUBLISHED_PROVIDER_CONFIRMED':'DELIVERY_UNVERIFIED';
+    s.getRange(j.row,m.Post_ID).setValue(id);
+    s.getRange(j.row,m.Post_URL).setValue(url);
+    s.getRange(j.row,m.Status).setValue(state);
+    s.getRange(j.row,m.Error).setValue(state==='DELIVERY_UNVERIFIED'?
+      'Provider receipt ID missing; reconcile provider before any retry.':'');
    }catch(err){
     s.getRange(j.row,m.Status).setValue('REVIEW_REQUIRED');
     s.getRange(j.row,m.Error).setValue(String(err.message||err).slice(0,990));
