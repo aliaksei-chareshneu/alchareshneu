@@ -131,3 +131,14 @@ The drafts were generated/visually inspected in the chat execution container, NO
 5. Existing reviewed SQLite job + `shortfactory_social_stage.py` provides only private draft handoff, never bypasses channel permissions or monthly Metricool quota. A real platform post ID and URL are required before `PUBLISHED_VERIFIED`, and an actual paid order/bank receipt must be read back before `CONTRACTED`/`CASH`.
 
 **Verification:** `python -m unittest discover -s tests -p 'test_shortfactory_idea_worker_integration.py' -v`. The CI workflow now runs this suite and compiles the updated worker. GitHub CI passing establishes source/test validity, **not installation on zmrzlina or public video production**. Desktop Commander monthly command quota currently prevents live PC readback/activation; no retry or alternative account bypass is authorized.
+
+
+## 2026-11-05 — Canonical media staging to SocialPublishing
+
+The authoritative stage tool `shortfactory_social_stage.py` reads the EXISTING SQLite ShortFactory job and post ledgers in **read-only** mode before emitting any CSV. It refuses fake manifests, unapproved jobs, changed source path, altered caption, mismatched rights/target platform, missing original review timestamp, already recorded posts and wrong legal entity based on canonical `lane`. Its output is a private DRAFT in the existing `SocialPublishing` schema, never a Google Sheets write or API publication.
+
+Source platforms are explicitly mapped: YouTube Shorts -> `youtube`, TikTok -> manual `tiktok`; Instagram Reels and Facebook Reels retain unsupported route labels with a BLOCKED note. Each row uses `MEDIA:SHORTFACTORY:<id>` and `SF-<id>:<platform>`, never an Events booking. The receiving SocialPublisher supports these virtual media references only under the full owner/site/rights/video-ID gates, and still has no live Reels video adapter.
+
+Remote branch `cf77feb266676dc3a9e795295c0a370afedafef6` passed **10/10 Python tests** on isolated synthetic SQLite. The corresponding script and tests were copied into the existing zmrzlina ShortFactory folder after backups and matching SHA256; its installed 10/10 tests and py_compile passed. Real local `distribution_bridge.py manifest` -> canonical stage CSV used the current SQLite; result `manifest_items=0`, `rows=0`, `published=0`, `cloud_writes=0`. Nine draft videos were observed in READY_FOR_REVIEW, all rights_status=owned, with no owner-approved uploads. No approval, publication or money action occurred.
+
+This exporter is a *preflight*, not a deployment. Keep provider account identity, content and people rights, URL confirmation, and owner GO as release gates.
