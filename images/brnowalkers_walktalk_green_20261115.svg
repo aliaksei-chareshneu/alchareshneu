@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350" role="img" aria-labelledby="title desc"><title id="title">BrnoWalkers GREEN WALK & TALK November 2026</title><desc id="desc">Original vector illustration poster for a November 2026 BrnoWalkers 50 Czech crown paid walk. Not a photograph of a real event.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350" role="img" aria-labelledby="title desc"><title id="title">BrnoWalkers GREEN WALK &amp; TALK November 2026</title><desc id="desc">Original vector illustration poster for a November 2026 BrnoWalkers 50 Czech crown paid walk. Not a photograph of a real event.</desc>
 <defs><linearGradient id="bg" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#0c2922"/><stop offset="1" stop-color="#1e5743"/></linearGradient><linearGradient id="overlay" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#0c2922" stop-opacity=".05"/><stop offset=".6" stop-color="#0c2922" stop-opacity=".0"/><stop offset="1" stop-color="#061c18"/></linearGradient></defs>
 <rect width="1080" height="1350" fill="url(#bg)"/>
 <path d="M0 210H1080 M0 223H1080" fill="none" stroke="#ffffff" stroke-opacity=".14"/>
@@ -13,9 +13,9 @@
 
 <rect width="1080" height="1350" fill="url(#overlay)"/>
 <text x="84" y="95" fill="#b8f3c8" font-family="Arial, sans-serif" font-weight="800" font-size="39" letter-spacing="4">BRNOWALKERS</text>
-<text x="84" y="160" fill="#ecce87" font-family="Arial, sans-serif" font-weight="700" font-size="26" letter-spacing="5">NATURE & FRIENDS</text>
+<text x="84" y="160" fill="#ecce87" font-family="Arial, sans-serif" font-weight="700" font-size="26" letter-spacing="5">NATURE &amp; FRIENDS</text>
 <text x="84" y="326" fill="#ffffff" font-family="Arial, sans-serif" font-weight="900" font-size="113" letter-spacing="-2">GREEN WALK</text>
-<text x="84" y="440" fill="#ffffff" font-family="Arial, sans-serif" font-weight="900" font-size="145" letter-spacing="-3">& TALK</text>
+<text x="84" y="440" fill="#ffffff" font-family="Arial, sans-serif" font-weight="900" font-size="145" letter-spacing="-3">&amp; TALK</text>
 <rect x="84" y="495" width="550" height="80" rx="36" fill="#b8f3c8"/>
 <text x="112" y="550" fill="#061c18" font-family="Arial, sans-serif" font-size="43" font-weight="900" letter-spacing="1">SUN 15 NOV</text>
 <text x="84" y="674" fill="#ffffff" font-family="Arial, sans-serif" font-size="72" font-weight="800">14:00 – 15:15</text>
