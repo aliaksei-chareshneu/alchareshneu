@@ -121,6 +121,9 @@ jobs:
       - name: Verify Apps Script universal registration and retention isolation
         run: node tests/universal-rsvp.test.cjs
 
+      - name: Test staged AI workflow diagnostic math, privacy and CTA
+        run: node --test tests/ai-workflow-diagnostic.test.cjs
+
       - name: Verify legal identity and direct public customer paths
         run: node ops/imperion-public-gates.cjs --json
 
