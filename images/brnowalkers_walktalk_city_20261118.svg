@@ -14,7 +14,7 @@
 
 <rect width="1080" height="1350" fill="url(#overlay)"/>
 <text x="84" y="95" fill="#b9d9ff" font-family="Arial, sans-serif" font-weight="800" font-size="39" letter-spacing="4">BRNOWALKERS</text>
-<text x="84" y="160" fill="#ffcf8b" font-family="Arial, sans-serif" font-weight="700" font-size="26" letter-spacing="5">CITY STORIES & PEOPLE</text>
+<text x="84" y="160" fill="#ffcf8b" font-family="Arial, sans-serif" font-weight="700" font-size="26" letter-spacing="5">CITY STORIES &amp; PEOPLE</text>
 <text x="84" y="326" fill="#ffffff" font-family="Arial, sans-serif" font-weight="900" font-size="113" letter-spacing="-2">BRNO AFTER</text>
 <text x="84" y="440" fill="#ffffff" font-family="Arial, sans-serif" font-weight="900" font-size="145" letter-spacing="-3">DARK</text>
 <rect x="84" y="495" width="550" height="80" rx="36" fill="#b9d9ff"/>
