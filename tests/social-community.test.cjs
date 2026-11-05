@@ -97,7 +97,7 @@ test('approved community job is sent once and retains provider receipt in SAME q
  let sent=0;
  s.spSend_=()=>{sent++;return{id:'44',url:'https://t.me/example/44'};};
  s.spRunDue();
- assert.equal(j.Status,'PUBLISHED');assert.equal(j.Post_ID,'44');assert.equal(sent,1);
+ assert.equal(j.Status,'PUBLISHED_PROVIDER_CONFIRMED');assert.equal(j.Post_ID,'44');assert.equal(sent,1);
  s.spRunDue();assert.equal(sent,1);
 });
 test('Instagram never sends Družina or BrnoWalkers to legacy personal account',()=>{
@@ -117,4 +117,37 @@ test('Instagram never sends Družina or BrnoWalkers to legacy personal account',
  assert.equal(out.id,'post-1');assert.equal(paths.length,3);
  assert.equal(paths[0][1],'club-token');
  assert.match(paths[0][0],/^123\/media$/);
+});
+
+test('missing publish receipt is not called published and never auto-retried',()=>{
+ const c=load(),j=job(c);
+ const fields={Status:1,Attempted_At:2,Post_ID:3,Post_URL:4,Error:5};
+ const reverse=Object.fromEntries(Object.entries(fields).map(([k,v])=>[v,k]));
+ c.spJobs_=()=>({getRange(row,col){assert.equal(row,2);return{setValue(v){j[reverse[col]]=v;}}}});
+ c.spMap_=()=>fields;c.spItems_=()=>[j];
+ c.LockService={getDocumentLock:()=>({tryLock:()=>true,releaseLock(){}})};
+ c.SpreadsheetApp={flush(){}};
+ let sends=0;
+ c.spSend_=()=>{sends++;return {url:'https://example.org/uncertain'};};
+ c.spRunDue();
+ assert.equal(j.Status,'DELIVERY_UNVERIFIED');
+ assert.equal(j.Post_ID,'');
+ assert.match(j.Error,/reconcile provider/i);
+ assert.equal(sends,1);
+ c.spRunDue();
+ assert.equal(sends,1);
+});
+test('pre-existing event receipt is not falsely called independently verified live',()=>{
+ const c=load(),j=job(c);
+ const fields={Status:1,Attempted_At:2,Post_ID:3,Post_URL:4,Error:5};
+ const reverse=Object.fromEntries(Object.entries(fields).map(([k,v])=>[v,k]));
+ c.spJobs_=()=>({getRange(row,col){assert.equal(row,2);return{setValue(v){j[reverse[col]]=v;}}}});
+ c.spMap_=()=>fields;c.spItems_=()=>[j];
+ c.LockService={getDocumentLock:()=>({tryLock:()=>true,releaseLock(){}})};
+ c.SpreadsheetApp={flush(){}};
+ c.spSend_=()=>({existing:true,id:'old-44',url:'https://t.me/example/44'});
+ c.spRunDue();
+ assert.equal(j.Status,'HISTORICAL_RECEIPT_NEEDS_READBACK');
+ assert.equal(j.Post_ID,'old-44');
+ assert.equal(j.Post_URL,'https://t.me/example/44');
 });
