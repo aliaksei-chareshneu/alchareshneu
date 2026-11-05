@@ -151,3 +151,65 @@ test('pre-existing event receipt is not falsely called independently verified li
  assert.equal(j.Post_ID,'old-44');
  assert.equal(j.Post_URL,'https://t.me/example/44');
 });
+
+test('ShortFactory video source is not an Events booking and requires website, media and ownership',()=>{
+ const s=load();
+ const j={row:2,Job_ID:'SF-original_01:youtube_shorts',
+  Event_ID:'MEDIA:SHORTFACTORY:original_01',Channel:'youtube',
+  Status:'DRAFT',Scheduled_At:new Date(0),
+  Caption:'Original scientific short: historical armour and safety.\n\nLearn more: https://aliaksei-chareshneu.github.io/alchareshneu/corporate/',
+  Duplicate_Checked:'YES',Entity:'OSVC',Grant_Funded:'NO',Grant_Text:'',
+  Rights_OK:'YES',Video_Drive_ID:'verifiedDriveId_123456',Visibility:'private',
+  Made_For_Kids:'NO',Media_URL:''};
+ const source=s.spSource_(j);
+ assert.equal(source.Category,'ShortFactory Media');
+ assert.equal(source.row,0);assert.equal(source.Price_CZK,'');
+ assert.equal(source.Event_ID,j.Event_ID);
+ assert.equal(s.spValidate_(source,j),true);
+ assert.throws(()=>s.spValidate_(source,{...j,Job_ID:'SF-other:youtube_shorts'}),/identity mismatch/);
+ assert.throws(()=>s.spValidate_(source,{...j,Video_Drive_ID:''}),/Video_Drive_ID|Google Drive/);
+ assert.throws(()=>s.spValidate_(source,{...j,Rights_OK:''}),/rights/);
+ assert.throws(()=>s.spValidate_(source,{...j,Duplicate_Checked:''}),/Duplicate_Checked/);
+ assert.throws(()=>s.spValidate_(source,{...j,Made_For_Kids:''}),/Made_For_Kids/);
+ assert.throws(()=>s.spValidate_(source,{...j,Caption:'A video without any site CTA'}),/website CTA/);
+ assert.throws(()=>s.spValidate_(source,{...j,Caption:j.Caption+'\nFee 500 Kč'}),/dated\/priced event claims/);
+ assert.throws(()=>s.spValidate_(source,{...j,Channel:'instagram_reels'}),/Invalid channel/);
+ assert.throws(()=>s.spValidate_(source,{...j,Channel:'facebook_reels'}),/Invalid channel/);
+ assert.throws(()=>s.spSource_({...j,Event_ID:'MEDIA:SHORTFACTORY:../bad'}),/Invalid ShortFactory media ID/);
+});
+test('ShortFactory video cannot silently cross nonprofit and OSVC boundaries',()=>{
+ const s=load();
+ const j={Job_ID:'SF-demo_01:youtube_shorts',Event_ID:'MEDIA:SHORTFACTORY:demo_01',
+  Channel:'youtube',Caption:'Our original Družina Moravy video. https://aliaksei-chareshneu.github.io/alchareshneu/druzina/',
+  Entity:'Družina Moravy z.s.',Status:'DRAFT',
+  Duplicate_Checked:'YES',Grant_Funded:'NO',Rights_OK:'YES',
+  Video_Drive_ID:'verifiedDriveId_123456',Visibility:'private',Made_For_Kids:'NO'};
+ assert.equal(s.spValidate_(s.spSource_(j),j),true);
+ assert.throws(()=>s.spValidate_(s.spSource_(j),{...j,Caption:'No club site. https://aliaksei-chareshneu.github.io/alchareshneu/corporate/'}),/official Družina site/);
+ const wrong={...j,Entity:'OSVC'};
+ assert.throws(()=>s.spValidate_(s.spSource_(wrong),wrong),/nonprofit booking CTA/);
+ assert.throws(()=>s.spSource_({...j,Entity:'Other ngo'}),/legal entity unverified/);
+});
+test('ShortFactory-approved dry-run fake provider reaches receipt state, never true LIVE',()=>{
+ const s=load();
+ const j={row:2,Job_ID:'SF-video_02:youtube_shorts',Event_ID:'MEDIA:SHORTFACTORY:video_02',
+  Channel:'youtube',Status:'APPROVED',Scheduled_At:new Date(0),
+  Caption:'Original short about historical facts. Website: https://aliaksei-chareshneu.github.io/alchareshneu/corporate/',
+  Duplicate_Checked:'YES',Entity:'OSVC',Grant_Funded:'NO',Rights_OK:'YES',
+  Video_Drive_ID:'verifiedDriveId_123456',Visibility:'private',Made_For_Kids:'NO'};
+ const fields={Status:1,Attempted_At:2,Post_ID:3,Post_URL:4,Error:5};
+ const reverse=Object.fromEntries(Object.entries(fields).map(([k,v])=>[v,k]));
+ s.spJobs_=()=>({getRange(row,col){assert.equal(row,2);return{setValue(v){j[reverse[col]]=v;}}}});
+ s.spMap_=()=>fields;s.spItems_=()=>[j];
+ s.LockService={getDocumentLock:()=>({tryLock:()=>true,releaseLock(){}})};
+ s.SpreadsheetApp={flush(){}};
+ let simulatedCalls=0;
+ s.spSend_=()=>{simulatedCalls++;return{id:'synthetic-video-id',
+  url:'https://www.youtube.com/watch?v=synthetic-video-id'};};
+ s.spRunDue();
+ assert.equal(simulatedCalls,1);
+ assert.equal(j.Status,'PUBLISHED_PROVIDER_CONFIRMED');
+ assert.equal(j.Post_ID,'synthetic-video-id');
+ assert.notEqual(j.Status,'LIVE');
+ s.spRunDue();assert.equal(simulatedCalls,1);
+});
