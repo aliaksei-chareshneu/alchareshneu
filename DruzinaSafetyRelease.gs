@@ -69,7 +69,8 @@ function drusCapacityGateMap_(){
   const map={};
   if(!ss_().getSheetByName(DRUS_CAPACITY_SHEET))return map;
   rows_(DRUS_CAPACITY_SHEET).forEach(r=>{
-    const id=String(r.Session_ID||''); if(id)map[id]=r;
+    const id=String(r.Session_ID||'');
+    if(id)map[id]=Object.prototype.hasOwnProperty.call(map,id)?null:r;
   });
   return map;
 }
@@ -82,8 +83,13 @@ function drusRequireSession_(session,map){
     throw new Error('The selected training is not approved for paid booking at this date and venue.');
 }
 function drusRequireMemberConsent_(member){
-  const cfg=configMap_(),record=consentMap_()[String(member&&member.Member_ID)||''];
-  if(!consentStatus_(record,cfg).ready)
+  const cfg=configMap_(),id=String(member&&member.Member_ID)||'';
+  const records=rows_(SHEETS.CONSENTS).filter(r=>String(r.Member_ID)===id);
+  const record=records.length===1?records[0]:null;
+  const validPast=v=>!!v&&Number.isFinite(new Date(v).getTime())&&new Date(v).getTime()<=Date.now();
+  if(!record||!consentStatus_(record,cfg).ready||
+      !validPast(record.Guardian_Classified_At)||
+      (record.Guardian_Required==='YES'&&!validPast(record.Guardian_Verified_At)))
     throw new Error('Participant safety/rules/guardian evidence is not verified. Please contact the organizer.');
 }
 function drusNeverProofAsPayment_(){

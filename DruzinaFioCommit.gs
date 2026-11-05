@@ -36,7 +36,10 @@ function drufVerifiedFirstVisit_(member,bookingId) {
       String(x.Member_ID)===String(member.Member_ID);
   });
   if(!p||String(p.Verification_Status)!=='VERIFIED'||
-      Number(p.Received_Amount_CZK)!==240)
+      Number(p.Received_Amount_CZK)!==240||
+      Number(p.Expected_Amount_CZK)!==240||!p.Verified_At||
+      !/FIO_SETTLED_ID=\d{6,18}(?:;|$)/.test(String(p.Reconciliation_Note||''))||
+      /REFUND|REVERS|CHARGEBACK/i.test(String(p.Reconciliation_Note||'')))
     throw Error('First visit 240 Kč not bank verified');
   var s=sessionById_(b.Session_ID);
   if(!s||!s.End_DateTime)throw Error('Verified session end is missing');
@@ -53,6 +56,12 @@ function drufVerifyCartPricing_(quote,items,member) {
     if(new Date(s.Start_DateTime)<new Date('2026-11-01T00:00:00+01:00'))
       throw Error('Historic session is not eligible for new bank checkout');
     var name=String(it.productCode||''),kind=String(it.kind||''),type,tier='JUNIOR',input;
+    var product=productMap_()[name];
+    if(!product||String(product.Active).trim().toUpperCase()!=='TRUE')
+      throw Error('Product is inactive or disputed');
+    var fullPrice=Number(it.lineTotal)+(kind==='PACKAGE_UPGRADE'?Number(it.trialCredit):0);
+    if(money_(product.Price_CZK)!==fullPrice)
+      throw Error('Product price changed; do not reprice existing rights');
     if(kind==='SESSION'){
       if(name==='DRU-FIRSTVISIT-202611') {
         type='FIRST_VISIT'; input={firstVisitEligible:isTrialEligible_(member)};
@@ -122,6 +131,9 @@ function drufGuardBankCommit_(tx,quote,items,member) {
     return String(r.Source_Request_ID)===String(quote.Quote_ID);
   }))return {ok:false,code:'QUOTE_ALREADY_HAS_PAYMENT'};
   try {
+    // The date-wide safety gate is not an individual participant consent.
+    // Missing p11 source or an unsigned/unknown guardian must fail closed.
+    drusRequireMemberConsent_(member);
     // Recheck same rules at bank settlement time; T-48 is not frozen by quote.
     revalidateQuote_(quote,member);
     drufVerifyCartPricing_(quote,items,member);

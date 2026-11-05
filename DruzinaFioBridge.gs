@@ -11,6 +11,62 @@
  */
 var DRUF_VERSION='DRUF-2026-10-25-v1';
 
+/* Owner-only callers may use this pure statement readback before settlement.
+ * It reports exceptions instead of dropping partial/over/refund/wrong-VS rows.
+ * CANDIDATE means review only: this function never confirms payment or writes.
+ * No counterparty names, accounts, messages or secrets enter its output. */
+function drufPlanStatementReview(json,expected,quotes,usedIds){
+  var parsed=drufParseFioJSON(json,expected);
+  if(!parsed.ok)return {ok:false,code:parsed.code,settlements:0};
+  var root=json.accountStatement,raw=(root.transactionList||{}).transaction||[];
+  if(!Array.isArray(raw))raw=[raw];
+  var groups={},used=usedIds||[],out=[];
+  raw.forEach(function(t){
+    var id=String(drufV(t&&t.column22)||'').trim();
+    var v={transactionId:id,amountHalers:drufMoneyHalers(drufV(t&&t.column1)),
+      variableSymbol:drufVS(drufV(t&&t.column5)),
+      currency:String(drufV(t&&t.column14)||'').trim(),
+      operation:String(drufV(t&&t.column8)||'').trim().toLowerCase()};
+    if(!/^\d{6,18}$/.test(id)){
+      out.push({classification:'MANUAL_REVIEW',reason:'INVALID_BANK_RECORD'});return;
+    }
+    (groups[id]||(groups[id]=[])).push(v);
+  });
+  Object.keys(groups).forEach(function(id){
+    var entries=groups[id],t=entries[0],r={transactionId:id,classification:'MANUAL_REVIEW'};
+    if(entries.some(function(x){return JSON.stringify(x)!==JSON.stringify(t);}))
+      r.reason='CONFLICTING_BANK_TRANSACTION';
+    else if(used.includes(id)){r.classification='ALREADY_RECORDED';r.reason='REPLAY';}
+    else if(t.amountHalers===null||t.currency!=='CZK')r.reason='INVALID_AMOUNT_OR_CURRENCY';
+    else if(t.amountHalers<=0||/opravn|storno|reversal/.test(t.operation))r.reason='DEBIT_OR_REFUND';
+    else if(!t.variableSymbol)r.reason='INVALID_VS';
+    else{
+      var matches=(quotes||[]).filter(function(q){return drufVS(q.Payment_Reference)===t.variableSymbol;});
+      if(matches.length!==1)r.reason=matches.length?'AMBIGUOUS_VS':'UNMATCHED_VS';
+      else{
+        var q=matches[0],due=drufMoneyHalers(q.Expected_Amount_CZK);
+        r.quoteId=String(q.Quote_ID||'');
+        var expiry=new Date(q.Expires_At).getTime();
+        if(String(q.Status)!=='OPEN'||!Number.isFinite(expiry)||expiry<=Date.now())r.reason='ORDER_NOT_OPEN_OR_EXPIRED';
+        else if(due===null||due<=0)r.reason='INVALID_ORDER_AMOUNT';
+        else if(t.amountHalers<due)r.reason='PARTIAL_PAYMENT';
+        else if(t.amountHalers>due)r.reason='OVERPAYMENT';
+        else{r.classification='CANDIDATE';r.reason='EXACT_MATCH_REQUIRES_RELEASE_AND_CONSENT';}
+      }
+    }
+    out.push(r);
+  });
+  // Two distinct exact credits for one order are ambiguous, even in one batch.
+  out.forEach(function(r){
+    if(r.classification==='CANDIDATE'&&out.filter(function(x){return x.quoteId===r.quoteId;}).length>1){
+      r.classification='MANUAL_REVIEW';r.reason='MULTIPLE_CREDITS_FOR_ORDER';
+    }
+  });
+  return {ok:true,previewOnly:true,settlements:0,rows:out,
+    candidateCount:out.filter(function(r){return r.classification==='CANDIDATE';}).length,
+    reviewCount:out.filter(function(r){return r.classification==='MANUAL_REVIEW';}).length};
+}
+
 function drufVS(x){
   var s=String(x==null?'':x).trim();
   return /^\d{1,10}$/.test(s) ? String(Number(s)) : '';
@@ -62,8 +118,14 @@ function drufParseFioJSON(json,expected){
         currency=String(drufV(t.column14)||'').trim(),
         vs=drufVS(drufV(t.column5)),
         kind=String(drufV(t.column8)||'').trim().toLowerCase();
-    if(!/^\d{6,18}$/.test(id)||seen[id]||amountHal===null)continue;
-    seen[id]=true;
+    if(!/^\d{6,18}$/.test(id))continue;
+    var fingerprint=JSON.stringify([amountHal,currency,vs,kind]);
+    if(Object.prototype.hasOwnProperty.call(seen,id)){
+      if(seen[id]!==fingerprint)return {ok:false,code:'CONFLICTING_BANK_TRANSACTION'};
+      continue;
+    }
+    seen[id]=fingerprint;
+    if(amountHal===null)continue;
     // Exclude corrections, outgoing transfers and non-CZK entries.
     if(amountHal<=0||currency!=='CZK'||!vs||/opravn|storno|reversal/.test(kind))continue;
     result.push({
@@ -92,7 +154,8 @@ function drufBankMatch(transfer,quote,expectedAccountKey,alreadyUsedIds){
   if((alreadyUsedIds||[]).includes(String(transfer.transactionId)))
     return {ok:false,code:'ALREADY_USED'};
   if(String(quote.Status)!=='OPEN')return {ok:false,code:'QUOTE_NOT_OPEN'};
-  if(!quote.Expires_At||new Date(quote.Expires_At).getTime()<=Date.now())
+  if(!quote.Expires_At||!Number.isFinite(new Date(quote.Expires_At).getTime())||
+      new Date(quote.Expires_At).getTime()<=Date.now())
     return {ok:false,code:'QUOTE_EXPIRED'};
   return {ok:true,transactionId:String(transfer.transactionId),
     reference:reference,amountCZK:Number(quote.Expected_Amount_CZK),
@@ -181,11 +244,15 @@ function drufReadOnlyPreview(){
   var now=new Date(), from=new Date(now.getTime()-2*86400000);
   var dt=function(d){return Utilities.formatDate(d,'Europe/Prague','yyyy-MM-dd');};
   var url='https://fioapi.fio.cz/v1/rest/periods/'+encodeURIComponent(token)+'/'+dt(from)+'/'+dt(now)+'/transactions.json';
-  var response=UrlFetchApp.fetch(url,{method:'get',muteHttpExceptions:true,
-      followRedirects:false,headers:{Accept:'application/json'}});
+  var response;
+  try{response=UrlFetchApp.fetch(url,{method:'get',muteHttpExceptions:true,
+      followRedirects:false,headers:{Accept:'application/json'}});}
+  catch(_){return {ok:false,code:'FIO_API_TEMPORARILY_UNAVAILABLE',version:DRUF_VERSION};}
   if(response.getResponseCode()!==200)
     return {ok:false,code:'FIO_API_TEMPORARILY_UNAVAILABLE',version:DRUF_VERSION};
-  var raw=JSON.parse(response.getContentText('UTF-8'));
+  var raw;
+  try{raw=JSON.parse(response.getContentText('UTF-8'));}
+  catch(_){return {ok:false,code:'BAD_FIO_FORMAT',version:DRUF_VERSION};}
   var parsed=drufParseFioJSON(raw,{accountId:account,bankId:bank});
   // Never log URLs, raw bank response, personal payer data or token.
   if(!parsed.ok)return {ok:false,code:parsed.code,version:DRUF_VERSION};
@@ -194,19 +261,15 @@ function drufReadOnlyPreview(){
     var note=String(p.Reconciliation_Note||''),match=note.match(/FIO_SETTLED_ID=(\d{6,18})/);
     if(match)used[match[1]]=true;
   });
-  var quotes=rows_(SHEETS.QUOTES),candidates=[];
-  parsed.transactions.forEach(function(t){
-    if(used[t.transactionId])return;
-    quotes.forEach(function(q){
-      var m=drufBankMatch(t,q,parsed.accountKey,Object.keys(used));
-      if(m.ok)candidates.push({quoteId:m.quoteId,bankId:m.transactionId,
-        amountCZK:m.amountCZK,reference:m.reference});
-    });
-  });
+  var review=drufPlanStatementReview(raw,{accountId:account,bankId:bank},
+    rows_(SHEETS.QUOTES),Object.keys(used));
+  if(!review.ok)return {ok:false,code:review.code,version:DRUF_VERSION};
+  var candidates=review.rows.filter(function(r){return r.classification==='CANDIDATE';});
   // Private owner-only preview, NOT receipt confirmation.
   return {ok:true,previewOnly:true,version:DRUF_VERSION,
     incomingCount:parsed.count,candidateCount:candidates.length,
-    candidates:candidates.slice(0,40)};
+    candidates:candidates.slice(0,40),manualReviewCount:review.reviewCount,
+    reviewRows:review.rows.slice(0,100),settlements:0};
 }
 function drufUniqueVSForQuote_(){
   // Call *inside* createQuote's existing LockService critical section.
@@ -246,6 +309,7 @@ function drufBankInstructions(quote,merchant){
       !Number.isInteger(amountHal)||amountHal>100000000)
     return {ok:false,code:'INVALID_BANK_INSTRUCTIONS'};
   if(String(quote.Status)!=='OPEN'||!quote.Expires_At||
+      !Number.isFinite(new Date(quote.Expires_At).getTime())||
       new Date(quote.Expires_At).getTime()<=Date.now())
     return {ok:false,code:'QUOTE_EXPIRED_OR_NOT_OPEN'};
   var amount=(amountHal/100).toFixed(2);
@@ -260,6 +324,7 @@ function drufBankInstructions(quote,merchant){
  * public checkout UI after upgrading its payment reference format.
  */
 function drufCreateQuoteWithVS_(payload){
+  return withLock_(function(){
   var p=PropertiesService.getScriptProperties();
   var cfg=configMap_(),flags={
     DRU_FIO_READONLY_CONFIRMED:p.getProperty('DRU_FIO_READONLY_CONFIRMED'),
@@ -281,12 +346,55 @@ function drufCreateQuoteWithVS_(payload){
   if(!release.ok)throw Error('Paid bookings are not yet enabled: '+release.code);
   if(!drufCzIbanValid(p.getProperty('DRU_FIO_IBAN')))
     throw Error('Verified Fio IBAN is not configured');
+  var member=authorizeBookingMember_(payload);
+  drusRequireMemberConsent_(member);
+  var request=String(payload&&payload.requestId||'');
+  if(!/^[A-Za-z0-9_-]{8,80}$/.test(request))throw Error('A stable checkout requestId is required');
+  var requestKey='BKO-'+bookingHash_(String(member.Member_ID)+'|'+request);
+  var prior=findOne_(SHEETS.REQUESTS,function(r){return String(r.Request_ID)===requestKey;});
+  if(prior&&String(prior.Status)!=='COMPLETED')
+    throw Error('Checkout request requires owner recovery; do not submit again');
+  var cartKey=bookingHash_(JSON.stringify(items)+'|'+String(payload.termsVersion||''));
+  var stored=null;
+  if(prior){
+    try{stored=JSON.parse(String(prior.Notes||''));}catch(_){throw Error('Checkout request requires owner recovery');}
+    if(!stored||stored.cartKey!==cartKey)throw Error('Checkout requestId was already used for a different cart');
+  }
+  if(!prior)appendObj_(SHEETS.REQUESTS,{Request_ID:requestKey,Member_ID:member.Member_ID,
+    Status:'PROCESSING',Notes:'Bank quote creation reserved under script lock'});
   // createQuote() is the existing p10 authenticated, locked, price-resolving
   // function. This adapter does not bypass its identity/price/capacity gates.
-  var result=createQuote(payload);
+  var existing=prior?quoteById_(String(stored.quoteId||'')):null;
+  if(prior&&(!existing||String(existing.Member_ID)!==String(member.Member_ID)))
+    throw Error('Checkout request quote is unavailable; owner recovery required');
+  var result=existing?{quoteId:existing.Quote_ID,expiresAt:existing.Expires_At,
+    amount:existing.Expected_Amount_CZK,items:JSON.parse(String(existing.Cart_JSON||'[]'))}:createQuote(payload);
   return withLock_(function(){
     var q=quoteById_(result.quoteId);
     if(!q||String(q.Status)!=='OPEN')throw Error('Quote unavailable');
+    // A replay cannot return instructions for a deactivated product, an
+    // expired hold or a changed cutoff. Never ask for money for a stale cart.
+    revalidateQuote_(q,member);
+    var authoritativeItems=JSON.parse(String(q.Cart_JSON||'[]'));
+    drufVerifyCartPricing_(q,authoritativeItems,member);
+    // Instructions must never advertise a validity window that outlives the
+    // price/booking cutoff. A hold does not freeze a tariff or upgrade credit.
+    var expires=new Date(q.Expires_At).getTime();
+    authoritativeItems.forEach(function(it){
+      var ids=(it.kind==='PACKAGE'||it.kind==='PACKAGE_UPGRADE')?it.sessionIds:[it.sessionId];
+      ids.forEach(function(id){var s=sessionById_(id),hours=it.cutoff==='EMERGENCY'?0.5:it.cutoff==='LATE'?3:48;
+        expires=Math.min(expires,new Date(s.Start_DateTime).getTime()-hours*3600000);});
+      if(it.kind==='PACKAGE_UPGRADE')expires=Math.min(expires,
+        new Date(drufVerifiedFirstVisit_(member,it.trialUpgradeBookingId).attendedAt).getTime()+48*3600000);
+    });
+    if(!Number.isFinite(expires)||expires<=Date.now())throw Error('Payment instructions have expired');
+    var expiryISO=new Date(expires).toISOString();
+    if(expiryISO!==String(q.Expires_At)){
+      patchRow_(SHEETS.QUOTES,q._row,{Expires_At:expiryISO});q.Expires_At=expiryISO;
+      findAll_(SHEETS.HOLDS,function(h){return String(h.Request_ID)===String(q.Quote_ID)&&String(h.Status)==='ACTIVE';})
+        .forEach(function(h){patchRow_(SHEETS.HOLDS,h._row,{Expires_At:expiryISO});});
+    }
+    result.expiresAt=expiryISO;
     if(!drufVS(q.Payment_Reference)){
       var numeric=drufUniqueVSForQuote_();
       patchRow_(SHEETS.QUOTES,q._row,{Payment_Reference:numeric});
@@ -301,6 +409,14 @@ function drufCreateQuoteWithVS_(payload){
     result.paymentUrl=''; // legacy generic Revolut link is not the verified payee.
     result.bankTransfer=payment;
     result.confirmedBooking=false;
+    result.orderId=String(q.Quote_ID); // existing quote is the order; no second order store
+    var reservation=findOne_(SHEETS.REQUESTS,function(r){return String(r.Request_ID)===requestKey;});
+    patchRow_(SHEETS.REQUESTS,reservation._row,{Status:'COMPLETED',
+      Notes:JSON.stringify({quoteId:String(q.Quote_ID),cartKey:cartKey,
+        locale:['cs','en','ru','uk'].includes(String(payload.language||''))?String(payload.language):'',
+        termsVersion:String(payload.termsVersion||''),termsAcceptedAt:stored&&stored.termsAcceptedAt||
+          (payload.termsAccepted===true?nowIso_():'')})});
     return result;
+  });
   });
 }

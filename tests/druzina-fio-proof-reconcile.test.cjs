@@ -27,13 +27,16 @@ ctx.drusPaidRelease_=()=>({ok:true});
   Reviewer_and_proof_of_100_TOTAL_not_ready:'reviewed 100 total humans',
   Max_Attendance_Checked:20,Staff_And_Marshals_Count:3,
   Other_Humans_Count_Parents_Spectators:2};
- const data={payments:[payment],quotes:[quote],bookings:[b],
+ const data={members:[{Member_ID:'M-1'}],payments:[payment],quotes:[quote],bookings:[b],
   Druzina_Training_Capacity_Gate:[gate]};
  const flags={DRU_FIO_READONLY_CONFIRMED:'YES',DRU_FIO_SETTLEMENT_SELLER_CONFIRMED:'YES',
    DRU_PAID_BOOKING_APPROVED:'YES',DRU_LEGAL_SELLER_CONFIRMED:'YES',
    DRU_FIO_AUTOMATION_ENABLED:'YES',DRU_FIO_ACCOUNT_ID:'123456789',
    DRU_FIO_BANK_ID:'2010',ADMIN_TOKEN:'admin-private-only'};
- ctx.SHEETS={PAYMENTS:'payments',QUOTES:'quotes',BOOKINGS:'bookings'};
+ ctx.SHEETS={PAYMENTS:'payments',QUOTES:'quotes',BOOKINGS:'bookings',MEMBERS:'members'};
+ ctx.drusRequireMemberConsent_=()=>{};
+ const session={Session_ID:b.Session_ID,Status:'OPEN'};
+ ctx.sessionById_=id=>id===session.Session_ID?session:null;
  ctx.PropertiesService={getScriptProperties:()=>({getProperty:key=>flags[key]||''})};
  ctx.rows_=key=>data[key]||[];ctx.findOne_=(key,pred)=>(data[key]||[]).find(pred)||null;
  ctx.findAll_=(key,pred)=>(data[key]||[]).filter(pred);
@@ -51,7 +54,7 @@ ctx.drusPaidRelease_=()=>({ok:true});
  const movement={transactionId:txId,variableSymbol:reference,amountCZK:240,
   amountHalers:24000,accountKey:'123456789/2010',
   tokenAccountVerified:true,currency:'CZK',direction:'CREDIT',isReversal:false};
- return {ctx,payment,quote,b,gate,movement,flags,data,getCalls:()=>calls};
+ return {ctx,payment,quote,b,gate,movement,flags,data,session,getCalls:()=>calls};
 }
 test('Fio proof submitted before T-48 and bank clearing later verifies same booking without 25% debt',()=>{
  const {ctx,data,quote,movement,getCalls}=setup();
@@ -125,4 +128,19 @@ test('Same bank movement cannot be spent on a second payment even when new VS ap
   Source_Request_ID:'Q-002',Reconciliation_Note:'FIO_SETTLED_ID=1000000009'});
  assert.equal(ctx.drupReconcileExistingProof_(movement).code,'DUPLICATE_BANK_TRANSACTION');
  assert.equal(getCalls(),0);
+});
+
+test('later bank clearing cannot reopen a cancelled session or bypass guardian consent',()=>{
+ for(const type of ['cancelled','consent']){
+  const h=setup();
+  if(type==='cancelled')h.session.Status='CANCELLED';
+  else h.ctx.drusRequireMemberConsent_=()=>{throw Error('Missing consent')};
+  assert.equal(h.ctx.drupReconcileExistingProof_(h.movement).code,'MEMBER_CONSENT_OR_SESSION_NOT_VERIFIED');
+  assert.equal(h.getCalls(),0);assert.equal(h.payment.Verification_Status,'PROOF_SUBMITTED');
+ }
+});
+test('duplicate date safety evidence is ambiguous and requires manual resolution',()=>{
+ const h=setup();h.data.Druzina_Training_Capacity_Gate.push({...h.gate,Slot_State:'CANCELLED'});
+ assert.equal(h.ctx.drupReconcileExistingProof_(h.movement).code,'SESSION_SAFETY_GATE_NOT_VERIFIED');
+ assert.equal(h.getCalls(),0);
 });

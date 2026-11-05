@@ -1,8 +1,7 @@
 const {test,expect}=require('@playwright/test');
 
 const languages=['cs','en','ru','uk'];
-const ORIGIN='https://aliaksei-chareshneu.github.io';
-function corsHeaders(){return {'Access-Control-Allow-Origin':ORIGIN,
+function corsHeaders(){return {'Access-Control-Allow-Origin':'http://127.0.0.1:8000',
  'Access-Control-Allow-Methods':'POST,OPTIONS',
  'Access-Control-Allow-Headers':'content-type'};}
 async function replyPreflight(route){

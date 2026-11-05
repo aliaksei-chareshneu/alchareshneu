@@ -13,6 +13,36 @@ function druaSafeInt(x) {
 function druaText(value,max) {
   return String(value==null?'':value).replace(/[\u0000-\u001f\u007f]/g,' ').trim().slice(0,max||120);
 }
+/* Staged API for the existing OTP portal. Identity flags are constructed on
+ * the server after real authorization, never accepted from payload.memberId.
+ * This does not send mail, create membership, or mutate any CRM record. */
+function getDruzinaMemberAccount(payload){
+  if(!bookingVerifiedRequired_())throw Error('Verified email OTP is required for private account access');
+  var member=authorizeBookingMember_(payload),id=String(member.Member_ID);
+  var own=function(sheet){return findAll_(sheet,function(r){return String(r.Member_ID)===id;});};
+  var bookings=own(SHEETS.BOOKINGS),ids=bookings.map(function(b){return String(b.Session_ID);});
+  var gates=[];
+  try{
+    drusRequireMemberConsent_(member);
+    var map=drusCapacityGateMap_();
+    Object.keys(map).forEach(function(k){
+      if(ids.includes(k)&&map[k]&&drusCapacityFromRow_(sessionById_(k),map[k])>0)gates.push(map[k]);
+    });
+  }catch(_){/* Account history remains visible; travel links require current consent. */}
+  return druaPrivateView({serverOtpVerified:true,sessionOwnerVerified:true,memberId:id},{
+    member:member,payments:own(SHEETS.PAYMENTS),plans:own(SHEETS.PLANS),
+    bookings:bookings,ledger:own(SHEETS.LEDGER),capacityGates:gates,
+    sessions:rows_(SHEETS.SESSIONS).filter(function(s){return ids.includes(String(s.Session_ID));})
+  });
+}
+function druaBankVerified_(r){
+  return String(r.Verification_Status)==='VERIFIED'&&!!r.Verified_At&&
+    Number.isFinite(new Date(r.Verified_At).getTime())&&
+    /FIO_SETTLED_ID=\d{6,18}(?:;|$)/.test(String(r.Reconciliation_Note||''))&&
+    !/REFUND|REVERS|CHARGEBACK/i.test(String(r.Reconciliation_Note||''))&&
+    druaSafeInt(r.Expected_Amount_CZK)>0&&
+    druaSafeInt(r.Received_Amount_CZK)===druaSafeInt(r.Expected_Amount_CZK);
+}
 function druaPrivateView(auth,source) {
   if (!auth||auth.serverOtpVerified!==true||auth.sessionOwnerVerified!==true||
       !auth.memberId||typeof auth.memberId!=='string')
@@ -31,14 +61,13 @@ function druaPrivateView(auth,source) {
   var debt=debtLines.reduce(function(s,r){return s+druaSafeInt(r.Amount_CZK);},0);
   var payments=own(source.payments).map(function(r){
     var status=String(r.Verification_Status||'');
-    var verified=status==='VERIFIED' && !!r.Verified_At &&
-      druaSafeInt(r.Received_Amount_CZK)===druaSafeInt(r.Expected_Amount_CZK)
-      && druaSafeInt(r.Expected_Amount_CZK)>0;
+    var verified=druaBankVerified_(r);
     return {
       paymentId:druaText(r.Payment_ID,120),
       productCode:druaText(r.Product_Code,80),
       expectedCZK:druaSafeInt(r.Expected_Amount_CZK),
       confirmedReceivedCZK:verified?druaSafeInt(r.Received_Amount_CZK):0,
+      paymentState:verified?'PAID_BANK_VERIFIED':'PENDING_PAYMENT',
       status:verified?'PAID_VERIFIED':(/EXCEPTION|FAILED|REVERSED/.test(status)?'EXCEPTION':'PENDING_VERIFICATION')
     };
   }).slice(0,30);
@@ -48,7 +77,9 @@ function druaPrivateView(auth,source) {
     var noShow=druaSafeInt(r.Sessions_NoShow);
     return {planId:druaText(r.Plan_ID,120),productCode:druaText(r.Product_Code,80),
       status:druaText(r.Status,40),starts:druaText(r.Start_Date,40),ends:druaText(r.End_Date,40),
-      scheduled:total,used:used,noShow:noShow,remaining:Math.max(0,total-used-noShow)};
+      // Canonical adjustPlanFinalization_ counts PRESENT and NO_SHOW in
+      // Sessions_Used. Sessions_NoShow is a subset, not another debit.
+      scheduled:total,used:used,noShow:noShow,remaining:Math.max(0,total-used)};
   }).slice(0,20);
   var sessions={};
   (Array.isArray(source.sessions)?source.sessions:[]).forEach(function(r){
@@ -56,9 +87,7 @@ function druaPrivateView(auth,source) {
   });
   var validPaymentById={};
   own(source.payments).forEach(function(p){
-    if(String(p.Verification_Status)==='VERIFIED'&&!!p.Verified_At&&
-      druaSafeInt(p.Expected_Amount_CZK)>0&&
-      druaSafeInt(p.Received_Amount_CZK)===druaSafeInt(p.Expected_Amount_CZK))
+    if(druaBankVerified_(p))
       validPaymentById[String(p.Payment_ID)]=true;
   });
   var gateBySession={};
@@ -68,9 +97,12 @@ function druaPrivateView(auth,source) {
   var bookings=own(source.bookings).map(function(r){
     var s=sessions[String(r.Session_ID)]||{};
     var time=String(s.Start_DateTime||s.Starts_At||'');
+    var cancelled=String(s.Status)==='CANCELLED'||/CANCELLED/i.test(String(s.Notes||''));
     return {bookingId:druaText(r.Booking_ID,120),sessionId:druaText(r.Session_ID,120),
       starts:time&&/^\d{4}-\d{2}-\d{2}/.test(time)?druaText(time,40):'UNCONFIRMED',
       status:druaText(r.Status,60),attendance:druaText(r.Attendance_Status,40),
+      bookingState:String(r.Status)==='VERIFIED'?(cancelled?'CANCELLED':'BOOKED'):
+        String(r.Status)==='PROVISIONAL_CONFIRMED'?'PENDING_PAYMENT':druaText(r.Status,60),
       appliedPriceCZK:druaSafeInt(r.Applied_Price_CZK),
       googleCalendarUrl:String(r.Status)==='VERIFIED'&&validPaymentById[String(r.Payment_ID)]?
         druaGoogleCalendarLink_(s,gateBySession[String(r.Session_ID)]):null};
@@ -105,7 +137,8 @@ function druaPrivateView(auth,source) {
     bookings:bookings,
     verifiedSkillCheckpoints:Object.keys(skillMap).sort().map(function(k){return skillMap[k];}),
     skillAwardsGrantedAutomatically:false,
-    paymentProofIsNotSettlement:true
+    paymentProofIsNotSettlement:true,
+    statutoryMembershipGrantedAutomatically:false
   };
   return {ok:true,viewVersion:DRUA_VIEW_VERSION,account:profile};
 }

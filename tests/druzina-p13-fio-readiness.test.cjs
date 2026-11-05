@@ -5,7 +5,7 @@ const fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
 const source=f=>fs.readFileSync(path.join(__dirname,'..',f),'utf8');
 const props={
  DRU_FIO_READONLY_TOKEN:'Q'.repeat(64),
- DRU_FIO_ACCOUNT_ID:'1234567890',
+ DRU_FIO_ACCOUNT_ID:'192000145399',
  DRU_FIO_BANK_ID:'0800',
  DRU_FIO_IBAN:'CZ6508000000192000145399',
  DRU_FIO_AUTOMATION_ENABLED:'YES',
@@ -43,6 +43,8 @@ test('canonical Fio account/IBAN/type keys verify offline, legacy key aliases re
  for(const [key,value] of [
   ['DRU_FIO_READONLY_TOKEN',''],
   ['DRU_FIO_ACCOUNT_ID',''],
+  ['DRU_FIO_ACCOUNT_ID','1234567890'],
+  ['DRU_FIO_ACCOUNT_ID','2000145399'], // dropping the Czech account prefix is unsafe
   ['DRU_FIO_BANK_ID','2010'],
   ['DRU_FIO_IBAN','CZ6508000000192000145398'],
   ['DRU_FIO_AUTOMATION_ENABLED','NO'],
