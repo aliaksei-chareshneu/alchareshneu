@@ -130,3 +130,42 @@ test('bad provider output cannot be interpreted as sent or paid',async()=>{
   assert.equal(x.status,'BLOCKED');
   assert.equal(x.external_actions,0);
 });
+
+test('local Ollama is allowlisted and disabled for unsupported creative task types',async()=>{
+  const env={OLLAMA_LOCAL_ENABLED:'true',OLLAMA_LOCAL_MODEL:'imperion-qwen35:4b'};
+  const p=M.configuredProviders(env);
+  assert.equal(p.length,1);
+  assert.equal(p[0].provider,'ollama_local');
+  assert.equal(p[0].endpoint,'http://127.0.0.1:11434/api/generate');
+  assert.deepEqual(M.configuredProviders({...env,OLLAMA_LOCAL_MODEL:'remote/unsafe'}),[]);
+  let calls=0;
+  const x=await M.draftPublicTask(TASK,{env,reserveQuota:async()=>true,
+    fetchImpl:async()=>{calls++;throw Error('unexpected_call');}});
+  assert.equal(x.reason,'NO_VERIFIED_FREE_PROVIDER');
+  assert.equal(calls,0);
+});
+test('public translation routes only to local Ollama with CPU and approval gate',async()=>{
+  const calls=[],env={OLLAMA_LOCAL_ENABLED:'true',OLLAMA_LOCAL_MODEL:'imperion-qwen35:4b'};
+  const task={...TASK,job_id:'PUB-TRANSLATE-20261105',purpose:'PUBLIC_TRANSLATION_DRAFT'};
+  const result=await M.draftPublicTask(task,{env,reserveQuota:async()=>true,
+    fetchImpl:async(url,options)=>{
+      calls.push({url,method:options.method,headers:options.headers,
+        body:options.body?JSON.parse(options.body):null});
+      return options.method==='GET'
+        ? res(200,'{"events":[{"title":"Public workshop"}]}')
+        : res(200,{response:'Veřejný workshop.'});
+    }});
+  assert.equal(result.status,'DRAFT_FOR_OWNER_REVIEW');
+  assert.equal(result.provider,'ollama_local');
+  assert.equal(result.draft,'Veřejný workshop.');
+  assert.equal(result.billing_readback,'LOCAL_COMPUTE_UNMETERED');
+  assert.equal(result.owner_approval_required,true);
+  assert.equal(result.posts_published,0);
+  assert.equal(result.messages_sent,0);
+  assert.equal(calls.length,2);
+  assert.equal(calls[1].url,'http://127.0.0.1:11434/api/generate');
+  assert.equal(calls[1].headers.Authorization,undefined);
+  assert.equal(calls[1].body.options.num_gpu,0);
+  assert.equal(calls[1].body.stream,false);
+  assert.equal(calls[1].body.think,false);
+});
