@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350" role="img" aria-labelledby="title desc"><title id="title">BrnoWalkers GREEN WALK & TALK November 2026</title><desc id="desc">Original vector illustration poster for a November 2026 BrnoWalkers 50 Czech crown paid walk. Not a photograph of a real event.</desc>
+<defs><linearGradient id="bg" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#0c2922"/><stop offset="1" stop-color="#1e5743"/></linearGradient><linearGradient id="overlay" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#0c2922" stop-opacity=".05"/><stop offset=".6" stop-color="#0c2922" stop-opacity=".0"/><stop offset="1" stop-color="#061c18"/></linearGradient></defs>
+<rect width="1080" height="1350" fill="url(#bg)"/>
+<path d="M0 210H1080 M0 223H1080" fill="none" stroke="#ffffff" stroke-opacity=".14"/>
+
+<circle cx="857" cy="475" r="150" fill="#f4dca7" opacity=".92"/>
+<path d="M0 760 C230 610 384 690 564 560 C760 420 908 620 1080 542 L1080 1180 H0 Z" fill="#518a73"/>
+<path d="M0 875 C166 734 417 771 568 701 C777 611 868 751 1080 700 L1080 1172 H0 Z" fill="#2f6654"/>
+<path d="M0 1000 C223 827 372 915 609 812 C820 723 938 888 1080 785 L1080 1150 H0 Z" fill="#154738"/>
+<path d="M0 1180 C338 970 474 1142 1080 904 L1080 1280 H0 Z" fill="#0c332a"/>
+<path d="M397 1210 C417 1018 532 1008 651 910" fill="none" stroke="#e7c89c" stroke-opacity=".62" stroke-width="35" stroke-linecap="round"/>
+<path d="M34 1034 L83 910 L132 1034 H105 V1114 H61 V1034 Z M150 1017 L199 882 L248 1017 H220 V1110 H175 V1017 Z M875 978 L931 813 L987 978 H953 V1080 H909 V978 Z" fill="#082d24"/>
+
+<rect width="1080" height="1350" fill="url(#overlay)"/>
+<text x="84" y="95" fill="#b8f3c8" font-family="Arial, sans-serif" font-weight="800" font-size="39" letter-spacing="4">BRNOWALKERS</text>
+<text x="84" y="160" fill="#ecce87" font-family="Arial, sans-serif" font-weight="700" font-size="26" letter-spacing="5">NATURE & FRIENDS</text>
+<text x="84" y="326" fill="#ffffff" font-family="Arial, sans-serif" font-weight="900" font-size="113" letter-spacing="-2">GREEN WALK</text>
+<text x="84" y="440" fill="#ffffff" font-family="Arial, sans-serif" font-weight="900" font-size="145" letter-spacing="-3">& TALK</text>
+<rect x="84" y="495" width="550" height="80" rx="36" fill="#b8f3c8"/>
+<text x="112" y="550" fill="#061c18" font-family="Arial, sans-serif" font-size="43" font-weight="900" letter-spacing="1">SUN 15 NOV</text>
+<text x="84" y="674" fill="#ffffff" font-family="Arial, sans-serif" font-size="72" font-weight="800">14:00 – 15:15</text>
+<text x="84" y="738" fill="#f3f4ee" font-family="Arial, sans-serif" font-size="34" font-weight="750" letter-spacing="1">WILSONŮV LES · BRNO</text>
+<rect x="70" y="1070" width="942" height="206" rx="38" fill="#061c18" stroke="#b8f3c8" stroke-width="3"/>
+<text x="107" y="1127" fill="#b8f3c8" font-family="Arial, sans-serif" font-size="31" font-weight="800" letter-spacing="3">SHORT FOREST WALK · NEW PEOPLE</text>
+<text x="107" y="1198" fill="#ffffff" font-family="Arial, sans-serif" font-size="50" font-weight="900">75 MIN   ·   50 Kč   ·   18+</text>
+<text x="107" y="1243" fill="#e1e8df" font-family="Arial, sans-serif" font-size="25">Apply on our website · Place confirmed individually</text>
+<text x="84" y="1319" fill="#dfebdd" font-family="Arial, sans-serif" font-size="20" opacity=".8">Illustrative artwork · No advance payments · Registration ≠ booking</text>
+</svg>
