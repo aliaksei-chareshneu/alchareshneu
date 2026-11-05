@@ -29,7 +29,63 @@ function spCommunitySource_(job){
  };
 }
 /* Works alongside spEvent_; there is still only ONE source queue and dispatcher. */
+/* Video-only ShortFactory references are NOT Events or paid booking records.
+ * One canonical SocialPublishing queue, with explicit human rights/route gates.
+ * The local publisher is disconnected from Apps Script until an owner reviews
+ * and imports a CSV; this resolver never imports or calls social APIs.
+ */
+function spShortFactoryKey_(eventId){
+ var id=String(eventId||''),prefix='MEDIA:SHORTFACTORY:';
+ if(id.indexOf(prefix)!==0)return '';
+ var key=id.slice(prefix.length);
+ if(!/^[a-zA-Z0-9_-]{1,60}$/.test(key))throw Error('Invalid ShortFactory media ID');
+ return key;
+}
+function spShortFactorySource_(job){
+ var id=spShortFactoryKey_(job.Event_ID);
+ if(!id)throw Error('Not a ShortFactory media source');
+ var cap=String(job.Caption||'').trim();
+ var entity=String(job.Entity||'');
+ if(entity!=='OSVC'&&entity!=='Družina Moravy z.s.')
+  throw Error('ShortFactory media legal entity unverified');
+ return {
+  row:0,Status:'Active',Category:'ShortFactory Media',
+  Community:entity==='Družina Moravy z.s.'?'Družina Moravy':'OSVC',
+  Event_ID:'MEDIA:SHORTFACTORY:'+id,
+  Title:(cap.split('\n').filter(function(x){return x.trim();})[0]||'Original short video').slice(0,100),
+  Description:'Owner-reviewed local media reference only; not an event, registration or payment.',
+  Start_DateTime:'',Location_Name:'',Location_Address:'',
+  Telegram_Post_ID:'',Facebook_Post_ID:'',Price_CZK:''
+ };
+}
+function spShortFactoryPreflight_(event,job){
+ var id=spShortFactoryKey_(job.Event_ID);
+ if(!id||event.Event_ID!=='MEDIA:SHORTFACTORY:'+id||
+    event.Category!=='ShortFactory Media')throw Error('ShortFactory source mismatch');
+ var sourcePlatform=job.Channel==='youtube'?'youtube_shorts':
+  job.Channel==='tiktok'?'tiktok':'';
+ if(!sourcePlatform)throw Error('ShortFactory video adapter not supported for this channel');
+ if(String(job.Job_ID)!=='SF-'+id+':'+sourcePlatform)
+  throw Error('ShortFactory source/job/channel identity mismatch');
+ if(['OSVC','Družina Moravy z.s.'].indexOf(String(job.Entity))<0)
+  throw Error('ShortFactory legal entity invalid');
+ if(!/^[a-zA-Z0-9_-]{10,200}$/.test(String(job.Video_Drive_ID||'')))
+  throw Error('Owner must attach a real Google Drive video ID for media review');
+ var text=String(job.Caption||'');
+ var site='https://aliaksei-chareshneu.github.io/alchareshneu/';
+ if(text.trim().length<20||text.length>6000||text.indexOf(site)<0)
+  throw Error('ShortFactory caption requires reviewed factual copy and website CTA');
+ if(job.Entity==='Družina Moravy z.s.'&&text.indexOf(site+'druzina/')<0)
+  throw Error('Družina video must link to official Družina site');
+ if(job.Entity==='OSVC'&&text.indexOf(site+'druzina/')>=0)
+  throw Error('Do not route OSVC media to a nonprofit booking CTA');
+ // A generic video draft must not claim a specific paid event or its terms.
+ if(/\b\d{1,2}[.\/]\d{1,2}[.\/]20\d{2}\b|\b\d{2,6}\s*(?:Kč|CZK|EUR|€)(?=$|[\s.,;])/i.test(text))
+  throw Error('ShortFactory media contains dated/priced event claims: use verified Events instead');
+ return true;
+}
 function spSource_(job){
+ if(spShortFactoryKey_(job.Event_ID))return spShortFactorySource_(job);
  return spCommunityKey_(job.Event_ID)?spCommunitySource_(job):spEvent_(job.Event_ID);
 }
 function spCommunityPreflight_(event,job){
