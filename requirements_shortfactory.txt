@@ -1,0 +1,8 @@
+# Free local processing, no cloud video API usage
+kokoro-onnx>=0.5,<0.7
+numpy>=1.24,<3
+soundfile>=0.12,<0.14
+Pillow>=10,<13
+google-api-python-client>=2.140,<3
+google-auth>=2.30,<3
+google-auth-oauthlib>=1.2,<2

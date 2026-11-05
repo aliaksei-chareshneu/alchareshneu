@@ -1,0 +1,9 @@
+{
+  "channel_id": "",
+  "enable_private_upload": false,
+  "enable_local_ollama_ideas": false,
+  "daily_local_time": "08:43",
+  "publish_public": false,
+  "entity": "DRUZINA_ZS",
+  "notes": "All scheduled uploads are PRIVATE only. Never store OAuth JSON or tokens inside repo or Drive."
+}
