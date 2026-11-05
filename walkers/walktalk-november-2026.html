@@ -78,6 +78,14 @@ document.querySelectorAll('[data-set-lang]').forEach(button=>button.addEventList
  document.querySelectorAll('[data-set-lang]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.setLang===value)));
 }));
 const params=new URLSearchParams(location.search),incoming=params.get('lang');
+const source=(params.get('src')||params.get('utm_source')||'').trim();
+if(/^[A-Za-z0-9_-]{1,64}$/.test(source)){
+ document.querySelectorAll('a[href*="../register/?event="]').forEach(link=>{
+  const url=new URL(link.getAttribute('href'),location.href);
+  url.searchParams.set('src',source);
+  link.href=url.toString();
+ });
+}
 if(['en','cs','ru','uk'].includes(incoming)){document.body.dataset.lang=incoming;document.documentElement.lang=incoming;document.querySelectorAll('[data-set-lang]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.setLang===incoming)))}
 </script>
 </body></html>
