@@ -78,14 +78,16 @@ test('four-language registration keeps required consent inputs and dark legible 
 test('all public HTML pages opt into one dark brand system',async()=>{
  const fs=require('node:fs');
  const pathModule=require('node:path');
- const ignored=new Set(['node_modules','.git','.github','test-results','playwright-report','coverage','.vscode']);
+ const ignored=new Set(['node_modules','.git','.github','test-results','playwright-report','coverage','.vscode','tests']);
+ // Apps Script templates are embedded in private applications, not public pages.
+ const templates=new Set(['RegistrationPortal.html','DruzinaPortalClient.html','DruzinaOperatorClient.html']);
  function walk(dir){
   const acc=[];
   for(const item of fs.readdirSync(dir,{withFileTypes:true})){
    if(ignored.has(item.name))continue;
    const relative=dir==='.'?item.name:pathModule.posix.join(dir,item.name);
    if(item.isDirectory())acc.push(...walk(relative));
-   else if(relative.endsWith('.html')&&relative!=='RegistrationPortal.html')acc.push(relative);
+   else if(relative.endsWith('.html')&&!templates.has(relative))acc.push(relative);
   }
   return acc;
  }
