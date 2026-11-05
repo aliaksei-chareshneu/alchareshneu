@@ -76,3 +76,35 @@ test('does not bypass global disabled Facebook Page setting',()=>{
  const s=load();
  assert.throws(()=>s.spSend_(event(),job({Channel:'facebook_page'})),/disabled|FACEBOOK_ENABLED/);
 });
+
+test('YouTube upload cannot cross OAuth legal entity or proceed without owner channel proof',()=>{
+ const s=load();
+ const personal='UC'+'P'.repeat(22),club='UC'+'C'.repeat(22);
+ const props={SOCIAL_YOUTUBE_ENABLED:'true',SOCIAL_YOUTUBE_CHANNEL_ID_DRUZINA:club,
+   SOCIAL_YOUTUBE_CHANNEL_ID_BRNOWALKERS:personal};
+ s.PropertiesService={getScriptProperties:()=>({getProperty:k=>props[k]||''})};
+ s.ScriptApp={getOAuthToken:()=> 'synthetic-oauth-token'};
+ let providerId=personal,code=200,fetches=0,driveReads=0;
+ s.UrlFetchApp={fetch:(url,opts)=>{
+   fetches++;assert.equal(url,'https://www.googleapis.com/youtube/v3/channels?part=id&mine=true');
+   assert.equal(opts.method,'get');assert.equal(opts.headers.Authorization,'Bearer synthetic-oauth-token');
+   return {getResponseCode:()=>code,getContentText:()=>JSON.stringify({items:[{id:providerId}]})};
+ }};
+ s.DriveApp={getFileById:()=>{driveReads++;throw Error('TEST_NO_FILE_OR_UPLOAD');}};
+ const e=event({Community:'Družina Moravy'});
+ const j=job({Channel:'youtube',Video_Drive_ID:'syntheticDriveId_111',Rights_OK:'YES',
+   Made_For_Kids:'NO',Visibility:'private'});
+ assert.throws(()=>s.spYoutube_(e,j),/YouTube OAuth channel identity mismatch/);
+ assert.equal(driveReads,0);
+ providerId=club;
+ assert.throws(()=>s.spYoutube_(e,j),/TEST_NO_FILE_OR_UPLOAD/);
+ assert.equal(driveReads,1);
+ delete props.SOCIAL_YOUTUBE_CHANNEL_ID_DRUZINA;
+ assert.throws(()=>s.spYoutube_(e,j),/Expected brand-specific YouTube channel ID/);
+ assert.equal(driveReads,1);
+ props.SOCIAL_YOUTUBE_CHANNEL_ID_DRUZINA=club;
+ code=403;
+ assert.throws(()=>s.spYoutube_(e,j),/OAuth readback unavailable/);
+ assert.equal(driveReads,1);
+ assert.equal(fetches,3);
+});
