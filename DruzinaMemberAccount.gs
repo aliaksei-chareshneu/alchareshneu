@@ -97,10 +97,11 @@ function druaPrivateView(auth,source) {
   var bookings=own(source.bookings).map(function(r){
     var s=sessions[String(r.Session_ID)]||{};
     var time=String(s.Start_DateTime||s.Starts_At||'');
+    var cancelled=String(s.Status)==='CANCELLED'||/CANCELLED/i.test(String(s.Notes||''));
     return {bookingId:druaText(r.Booking_ID,120),sessionId:druaText(r.Session_ID,120),
       starts:time&&/^\d{4}-\d{2}-\d{2}/.test(time)?druaText(time,40):'UNCONFIRMED',
       status:druaText(r.Status,60),attendance:druaText(r.Attendance_Status,40),
-      bookingState:String(r.Status)==='VERIFIED'?'BOOKED':
+      bookingState:String(r.Status)==='VERIFIED'?(cancelled?'CANCELLED':'BOOKED'):
         String(r.Status)==='PROVISIONAL_CONFIRMED'?'PENDING_PAYMENT':druaText(r.Status,60),
       appliedPriceCZK:druaSafeInt(r.Applied_Price_CZK),
       googleCalendarUrl:String(r.Status)==='VERIFIED'&&validPaymentById[String(r.Payment_ID)]?

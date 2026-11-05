@@ -108,6 +108,9 @@ jobs:
       - name: Verify statement exceptions and isolated recovered p13 integration
         run: node --test tests/druzina-bank-review.test.cjs tests/druzina-staging-integration.test.cjs
 
+      - name: Verify wired portal API, operator counts and disabled notification delivery
+        run: node --test tests/druzina-portal-api.test.cjs tests/druzina-bank-worker.test.cjs
+
       - name: Verify delayed Fio settlement of already-submitted proof without duplicate booking
         run: node --test tests/druzina-fio-proof-reconcile.test.cjs
 

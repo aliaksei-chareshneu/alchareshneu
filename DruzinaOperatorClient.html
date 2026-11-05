@@ -1,0 +1,12 @@
+<script>
+/* Extends the existing private Hub overview; no second operator application. */
+var DM14_BASE_OVERVIEW=overview,dm14Ops=null;
+window.overview=function(){return DM14_BASE_OVERVIEW()+'<section class="panel" id="bookingOps"><h2>Booking / Rezervace / Брони / Бронювання</h2><label for="opsLocale">CS / EN / RU / UA</label><select id="opsLocale" onchange="dm14RenderOps()"><option value="cs">CS</option><option value="en">EN</option><option value="ru" selected>RU</option><option value="uk">UA</option></select><div class="actions"><button onclick="dm14LoadOps()">↻</button></div><div id="bookingOpsData" aria-live="polite"></div></section>';};
+var DM14_OPS_WORDS={
+cs:['Registrace','Potvrzené rezervace','Bankou ověřené platby','Nezaplacené objednávky','Aktivní balíčky','Výjimky','Volná místa','Potvrzená účast','Schválená kapacita','Méně než dva účastníci: rozhodne organizátor.'],
+en:['Registrations','Confirmed bookings','Bank-verified payments','Unpaid orders','Active packages','Exceptions','Available places','Verified attendance','Approved capacity','Fewer than two participants: organiser decision required.'],
+ru:['Регистрации','Подтверждённые брони','Банковски проверенные оплаты','Неоплаченные заказы','Активные пакеты','Исключения','Свободные места','Проверенные посещения','Разрешённая вместимость','Меньше двух участников: требуется решение организатора.'],
+uk:['Реєстрації','Підтверджені бронювання','Перевірені банком оплати','Неоплачені замовлення','Активні пакети','Винятки','Вільні місця','Перевірені відвідування','Дозволена місткість','Менше двох учасників: потрібне рішення організатора.']};
+async function dm14LoadOps(){try{dm14Ops=await call('getDruzinaBookingOperations',hubKey);dm14RenderOps();}catch(e){showError(e);}}
+function dm14RenderOps(){if(!dm14Ops)return;var t=DM14_OPS_WORDS[document.getElementById('opsLocale').value],c=dm14Ops.counts;document.getElementById('bookingOpsData').innerHTML='<div class="stats">'+[[0,c.registeredMembers],[1,c.booked],[2,c.bankVerifiedPayments],[3,c.pendingOrders],[4,c.activePackages],[5,c.exceptions],[7,c.attended]].map(function(x){return stat(t[x[0]],x[1]);}).join('')+'</div><div class="list">'+dm14Ops.sessions.map(function(s){return '<article class="item"><b>'+esc(s.starts)+'</b><p>'+esc(t[8])+': '+esc(s.approvedCapacity)+'; '+esc(t[6])+': '+esc(s.available)+'</p>'+(s.organizerDecisionRequired?'<p class="pill warn">'+esc(t[9])+'</p>':'')+'</article>';}).join('')+'</div>';}
+</script>

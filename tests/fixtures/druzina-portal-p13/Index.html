@@ -1,0 +1,119 @@
+<!doctype html>
+<html>
+<head>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    :root{--bg:#0f1412;--card:#18201d;--line:#2b3933;--text:#f3f6f4;--muted:#a9b6b0;--accent:#d7b466;--bad:#e07a73;--ok:#7ecf9b}
+    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font:16px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}
+    .wrap{max-width:920px;margin:auto;padding:20px}.top{display:flex;justify-content:space-between;gap:12px;align-items:center}.brand{font-size:25px;font-weight:800}.tag{color:var(--muted);font-size:13px}.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin:14px 0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}label{display:block;color:var(--muted);font-size:13px;margin-bottom:5px}input,select,textarea,button{width:100%;border-radius:10px;border:1px solid var(--line);background:#101714;color:var(--text);padding:11px;font:inherit}button{cursor:pointer;background:#25342d}button.primary{background:var(--accent);color:#1a1710;border:0;font-weight:800}button:disabled{opacity:.45;cursor:not-allowed}.session,.product{border:1px solid var(--line);padding:12px;border-radius:10px;margin:8px 0}.selected{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}.pill{display:inline-block;padding:3px 8px;border-radius:999px;font-size:12px;background:#28362f;color:var(--muted)}.late{color:#ffd37a}.emergency{color:#ff9b76}.closed{color:#ff7777}.ok{color:var(--ok)}.bad{color:var(--bad)}.hidden{display:none}.summary{font-size:18px}.amount{font-size:30px;font-weight:900}.row{display:flex;gap:10px;align-items:center}.row>*{flex:1}.small{font-size:13px;color:var(--muted)}a{color:var(--accent)}
+    .checkin-item{border:1px solid var(--line);border-radius:10px;padding:14px;margin:10px 0}.checkin-item.review{border-color:var(--bad)}.checkin-flags{display:flex;flex-wrap:wrap;gap:7px;margin:9px 0}.checkin-actions{display:flex;gap:8px}.checkin-actions button{min-height:44px}
+    .portal-nav{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 16px}.portal-nav a{padding:8px 11px;border:1px solid var(--line);border-radius:9px;text-decoration:none}.portal-nav a:hover{border-color:var(--accent)}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><div><div class="brand">Družina Moravy</div><div class="tag">Training enquiries • paid bookings require confirmation</div></div><select id="lang" style="width:auto"><option value="en">EN</option><option value="cs">CZ</option><option value="ru">RU</option><option value="uk">UA</option></select></div>
+  <nav class="portal-nav" aria-label="Družina Moravy"><a href="https://example.test/portal?mode=book">Training</a><a href="https://example.test/portal?mode=trainer">Trainer check-in</a><a href="https://example.test/portal?mode=hub">Operations</a></nav>
+  <div id="app" class="card">Loading…</div>
+</div>
+<script>
+const MODE='<?= mode ?>', TOKEN='<?= token ?>'; let BOOKING_TOKEN='', BOOT=null, MEMBER=null, PRODUCTS=[], SELECTED_PRODUCT=null, SELECTED_SESSIONS=[], EXTRA_URGENT='', TRAINER_TOKEN='', TRAINER_SESSION='';
+const T={en:{identity:'Your details',name:'Name',email:'Email',phone:'Phone',continue:'Continue',outstanding:'Outstanding balance',payDebt:'Pay outstanding balance first',choose:'Choose product',sessions:'Choose training dates',checkout:'Checkout',proof:'Payment proof (JPG/PNG/PDF)',paid:'I have paid exactly',submit:'Submit payment proof',manage:'Manage bookings',move:'Move',no:'No eligible sessions'},cs:{identity:'Vaše údaje',name:'Jméno',email:'E-mail',phone:'Telefon',continue:'Pokračovat',outstanding:'Dlužná částka',payDebt:'Nejdříve uhraďte dlužnou částku',choose:'Vyberte tarif',sessions:'Vyberte termíny',checkout:'Platba',proof:'Potvrzení platby (JPG/PNG/PDF)',paid:'Zaplatil/a jsem přesnou částku',submit:'Odeslat potvrzení platby',manage:'Správa rezervací',move:'Přesunout',no:'Žádné dostupné termíny'},ru:{identity:'Ваши данные',name:'Имя',email:'Email',phone:'Телефон',continue:'Продолжить',outstanding:'Задолженность',payDebt:'Сначала погасите задолженность',choose:'Выберите тариф',sessions:'Выберите даты',checkout:'Оплата',proof:'Подтверждение оплаты (JPG/PNG/PDF)',paid:'Я оплатил точную сумму',submit:'Отправить подтверждение',manage:'Мои записи',move:'Перенести',no:'Нет доступных дат'}};
+Object.assign(T.en,{hold:'Account on hold',holdHelp:'Booking is temporarily unavailable. Contact the organizer to resolve the account hold.',manageHelp:'Use your private management link or request it at your registered email address.',emailManage:'Email my management link',emailRequired:'Enter your registered email address.'});
+Object.assign(T.cs,{hold:'Účet je pozastaven',holdHelp:'Rezervace jsou dočasně nedostupné. Pro vyřešení pozastavení účtu kontaktujte organizátora.',manageHelp:'Použijte svůj soukromý odkaz nebo požádejte o jeho zaslání na registrovaný e-mail.',emailManage:'Zaslat odkaz pro správu e-mailem',emailRequired:'Zadejte svůj registrovaný e-mail.'});
+Object.assign(T.ru,{hold:'Аккаунт заблокирован',holdHelp:'Новые записи временно недоступны. Свяжитесь с организатором для снятия блокировки.',manageHelp:'Используйте вашу личную ссылку или запросите её на зарегистрированный email.',emailManage:'Отправить ссылку на мой email',emailRequired:'Введите ваш зарегистрированный email.'});
+function tr(k){return (T[document.getElementById('lang').value]||T.en)[k]||k} document.getElementById('lang').onchange=()=>MODE==='trainer'?(TRAINER_TOKEN?loadTrainerRoster():renderTrainerLogin()):MODE==='manage'&&TOKEN?renderManage():(BOOT&&BOOT.bookingEnabled===false?renderEnquiryOnly():renderIdentity());
+function esc(value){return String(value==null?'':value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function safePaymentUrl(value){try{const url=new URL(String(value||''));return ['https:','http:'].includes(url.protocol)?url.href:'';}catch(e){return '';}}
+function isPackage(){return SELECTED_PRODUCT&&['PACKAGE','PACKAGE_UPGRADE'].includes(SELECTED_PRODUCT.type);}
+function call(fn,...args){return new Promise((res,rej)=>google.script.run.withSuccessHandler(res).withFailureHandler(e=>rej(new Error(e.message||e)))[fn](...args));}
+function fmt(d){return new Intl.DateTimeFormat(document.getElementById('lang').value==='ru'?'ru-RU':document.getElementById('lang').value==='cs'?'cs-CZ':'en-GB',{weekday:'short',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit',timeZone:'Europe/Prague'}).format(new Date(d));}
+async function init(){if(MODE==='trainer'){renderTrainerLogin();return} BOOT=await call('getBootstrap'); if(MODE==='manage'&&TOKEN){renderManage();return} if(!BOOT.bookingEnabled){renderEnquiryOnly();return} renderIdentity();}
+function renderTrainerLogin(){
+  document.getElementById('app').innerHTML='<h2>Trainer check-in</h2><p class="small">Enter the private trainer key. It stays in this page only.</p><label for="trainerKey">Trainer key</label><input id="trainerKey" type="password" autocomplete="off"><br><br><button class="primary" onclick="startTrainer()">Open roster</button>';
+}
+async function startTrainer(){
+  try{const key=val('trainerKey').trim(); const state=await call('getTrainerSessions',key); TRAINER_TOKEN=key; renderTrainerSessions(state);}catch(e){err(e)}
+}
+function renderTrainerSessions(state){
+  const choices=(state.upcoming||[]).map(s=>`<option value="${esc(s.id)}">${esc(fmt(s.start))} — ${esc(s.theme)}</option>`).join('');
+  document.getElementById('app').innerHTML=`<h2>Trainer check-in</h2>${choices?`<label for="trainerSession">Training</label><select id="trainerSession">${choices}</select><br><br><button class="primary" onclick="loadTrainerRoster()">Open roster</button>`:'<p>No upcoming sessions.</p>'}`;
+  if(TRAINER_SESSION&&document.getElementById('trainerSession')) document.getElementById('trainerSession').value=TRAINER_SESSION;
+}
+function consentFlag(label,status){
+  const good=['VERIFIED','NOT_REQUIRED'].includes(status);
+  return `<span class="pill ${good?'ok':'bad'}">${good?'✓':'!'} ${esc(label)}: ${esc(status)}</span>`;
+}
+async function loadTrainerRoster(){
+  try{
+    TRAINER_SESSION=val('trainerSession')||TRAINER_SESSION;
+    if(!TRAINER_SESSION) throw new Error('Choose a training');
+    const data=await call('getRoster',TRAINER_TOKEN,TRAINER_SESSION);
+    const cards=(data.roster||[]).map(person=>{
+      const c=person.consent||{}, review=!c.ready;
+      return `<div class="checkin-item ${review?'review':''}"><b>${esc(person.name)}</b> <span class="pill">${esc(person.attendance||'UNRESOLVED')}</span><div class="small">${esc(person.equipment||'')}</div><div class="checkin-flags">${consentFlag('Safety form',c.safetyForm||'MISSING')}${consentFlag('Rules',c.rules||'MISSING')}${consentFlag('Guardian',c.guardian||'UNKNOWN')}</div>${review?'<p class="bad small">Review documents before training.</p>':''}<div class="checkin-actions"><button class="primary" data-booking-id="${esc(person.bookingId)}" data-ready="${c.ready?'true':'false'}" onclick="trainerAttendance(this,'PRESENT')">✓ Present</button><button data-booking-id="${esc(person.bookingId)}" onclick="trainerAttendance(this,'NO_SHOW')">Absent</button></div><button data-member-id="${esc(person.memberId)}" onclick="showEvidenceReview(this.dataset.memberId)">Review document evidence</button><div id="review_${esc(person.memberId)}"></div></div>`;
+    }).join('');
+    document.getElementById('app').innerHTML=`<h2>${esc(fmt(data.session.start))} — ${esc(data.session.theme)}</h2><p class="small">Safety documents are verified once per member; attendance is marked for this training.</p><button onclick="trainerBack()">Other training</button>${cards||'<p>No booked participants.</p>'}`;
+  }catch(e){err(e)}
+}
+async function trainerBack(){try{renderTrainerSessions(await call('getTrainerSessions',TRAINER_TOKEN));}catch(e){err(e)}}
+async function trainerAttendance(button,status){
+  try{
+    if(status==='NO_SHOW'&&!confirm('Confirm this participant did not attend?')) return;
+    if(status==='PRESENT'&&button.dataset.ready!=='true'&&!confirm('Safety or rules evidence needs review. Record actual presence and flag it for follow-up?')) return;
+    const result=await call('setAttendance',{adminToken:TRAINER_TOKEN,bookingId:button.dataset.bookingId,status});
+    await loadTrainerRoster();
+    if(result.consentReviewRequired) alert('Presence recorded. Safety/rules evidence still needs review.');
+    if(result.prezenckySyncError) alert('Presence recorded, but the separate attendance ledger needs owner review.');
+  }catch(e){err(e)}
+}
+function showEvidenceReview(memberId){
+  document.querySelectorAll('[id^="review_"]').forEach(box=>box.innerHTML='');
+  const box=document.getElementById('review_'+memberId); if(!box) return;
+  box.innerHTML=`<div class="card"><p class="small">Record only evidence you have reviewed. Give its registration ID or private document reference.</p><label>Evidence type</label><select id="reviewKind"><option value="SAFETY_FORM">Safety form</option><option value="RULES">Rules acceptance</option><option value="AGE_CLASSIFICATION">Adult / minor status</option><option value="GUARDIAN">Written guardian consent</option></select><label>Evidence reference</label><input id="reviewSource" autocomplete="off"><label>Guardian required (for adult / minor status)</label><select id="reviewGuardian"><option value="">Choose</option><option value="yes">Yes — minor</option><option value="no">No — adult</option></select><label>Valid until (optional)</label><input id="reviewUntil" type="date"><button class="primary" data-member-id="${esc(memberId)}" onclick="saveEvidenceReview(this.dataset.memberId)">Save reviewed evidence</button></div>`;
+}
+async function saveEvidenceReview(memberId){
+  try{
+    const kind=val('reviewKind'), source=val('reviewSource').trim(), guardian=val('reviewGuardian');
+    if(kind==='AGE_CLASSIFICATION'&&!guardian) throw new Error('Choose adult or minor');
+    await call('recordDruzinaConsentReview',{adminToken:TRAINER_TOKEN,memberId,kind,source,validUntil:val('reviewUntil'),guardianRequired:guardian==='yes'?true:guardian==='no'?false:null});
+    await loadTrainerRoster();
+  }catch(e){err(e)}
+}
+function renderEnquiryOnly(){
+  const copy={
+    en:['Training enquiries open','Paid reservations are paused until the organizer confirms the session, location, safety documents and payment beneficiary. An enquiry is not a booking.','Request a training date'],
+    cs:['Přijímáme nezávazné žádosti','Placené rezervace jsou pozastavené do potvrzení termínu, místa, bezpečnosti a příjemce platby. Žádost není rezervace.','Požádat o termín'],
+    ru:['Принимаем заявки без оплаты','Платные бронирования приостановлены до подтверждения даты, места, безопасности и получателя платежа. Заявка не означает бронирование.','Оставить заявку'],
+    uk:['Приймаємо заявки без оплати','Платні бронювання призупинено до підтвердження дати, місця, безпеки та отримувача оплати. Заявка не є бронюванням.','Надіслати заявку']
+  };
+  const lang=document.getElementById('lang').value, t=copy[lang]||copy.en;
+  const target='https://aliaksei-chareshneu.github.io/alchareshneu/druzina/prihlaska/';
+  document.getElementById('app').innerHTML='<h2>'+esc(t[0])+'</h2><p>'+esc(t[1])+'</p>'+
+   '<p><a class="primary" style="display:inline-block;text-decoration:none;padding:14px 20px;border-radius:10px" href="'+target+'?lang='+encodeURIComponent(lang)+'">'+esc(t[2])+'</a></p>'+
+   '<p class="small">Družina Moravy · No payment collected here. Existing prepaid rights are unaffected.</p>';
+}
+function renderIdentity(){document.getElementById('app').innerHTML=`<h2>${tr('identity')}</h2><div class="grid"><div><label>${tr('name')}</label><input id="name"></div><div><label>${tr('email')}</label><input id="email" type="email"></div><div><label>${tr('phone')}</label><input id="phone"></div></div><br><button class="primary" onclick="identify()">${tr('continue')}</button><br><br><button onclick="emailManagementLink()">${tr('emailManage')}</button>`;}
+async function emailManagementLink(){try{const email=val('email')||(MEMBER&&MEMBER.email)||''; if(!email.trim())throw new Error(tr('emailRequired')); const r=await call('requestManagementLink',{email}); alert(r.message);}catch(e){err(e)}}
+async function identify(){try{const member={name:val('name').trim(),email:val('email').trim(),phone:val('phone').trim()}; await call('requestBookingCode',{email:member.email}); MEMBER=member; renderBookingCode();}catch(e){err(e)}}
+function renderBookingCode(){document.getElementById('app').innerHTML='<h2>Verify your email</h2><p>Check your inbox for a 10-character code. It expires after 10 minutes.</p><label for="otp">Email code</label><input id="otp" maxlength="10" autocomplete="one-time-code"><br><br><button class="primary" onclick="verifyBookingCodeUI()">Verify and continue</button><p class="small">If the message did not arrive, return to the first step and request it again in two minutes.</p><button onclick="renderIdentity()">Back</button>';}
+async function verifyBookingCodeUI(){try{const r=await call('verifyBookingCode',{email:MEMBER.email,code:val('otp'),name:MEMBER.name,phone:MEMBER.phone}); BOOKING_TOKEN=r.bookingToken;const products=await call('getEligibleProducts',{bookingToken:BOOKING_TOKEN});MEMBER={...MEMBER,...products.member};if(products.blocked)return renderDebt();PRODUCTS=products.products;renderProducts();}catch(e){err(e)}}
+function renderDebt(){document.getElementById('app').innerHTML=`<h2 class="bad">${tr('hold')}</h2><p>${tr('holdHelp')}</p><p class="small">${tr('manageHelp')}</p><button onclick="emailManagementLink()">${tr('emailManage')}</button>`;}
+async function payDebt(){try{if(!TOKEN)throw new Error('Private management link required');const p=await fileData('proof');await call('payOutstanding',{manageToken:TOKEN,declaredAmount:MEMBER.outstanding,proof:p,method:'transfer'});await renderManage();}catch(e){err(e)}}
+function renderProducts(){document.getElementById('app').innerHTML=`<h2>${tr('choose')}</h2>${PRODUCTS.map((p,i)=>`<div class="product" onclick="selectProduct(${i})"><b>${esc(p.name)}</b><div class="amount">${esc(p.price)} Kč</div><span class="pill">${esc(p.type)}${p.sessions?' • '+esc(p.sessions)+' sessions':''}</span></div>`).join('')}`;}
+function selectProduct(index){SELECTED_PRODUCT=PRODUCTS[index]; SELECTED_SESSIONS=[]; EXTRA_URGENT=''; renderSessions();}
+function eligibleSessions(){return BOOT.sessions.filter(s=>s.available>0 && ((SELECTED_PRODUCT.type==='PACKAGE'||SELECTED_PRODUCT.type==='PACKAGE_UPGRADE'||SELECTED_PRODUCT.type==='TRIAL')?s.window==='STANDARD':s.window!=='CLOSED'));}
+function renderSessions(){const need=SELECTED_PRODUCT.sessions||1; const sessions=eligibleSessions(); const urgent=isPackage()?(BOOT.sessions||[]).filter(s=>s.available>0&&['LATE','EMERGENCY'].includes(s.window)):[]; const urgentHtml=urgent.length?`<div class="card"><label>Optional: add one imminent training separately</label><select id="urgentAdd" onchange="EXTRA_URGENT=this.value"><option value="">No extra training</option>${urgent.map(s=>`<option value="${esc(s.id)}">${esc(fmt(s.start))} — ${esc(s.window)}</option>`).join('')}</select><p class="small">This visit is charged separately at the exact Late/Emergency price and never consumes a package session.</p></div>`:''; document.getElementById('app').innerHTML=`<h2>${tr('sessions')}</h2><p class="small">${esc(SELECTED_PRODUCT.name)} • select ${esc(need)}</p>${sessions.length?sessions.map(s=>`<div id="s_${esc(s.id)}" class="session" data-session-id="${esc(s.id)}" onclick="toggleSession(this.dataset.sessionId)"><b>${esc(fmt(s.start))}</b><div>${esc(s.theme)}</div><span class="pill ${esc(String(s.window).toLowerCase())}">${esc(s.window)}</span> <span class="pill">${esc(s.available)} free</span></div>`).join(''):`<p>${tr('no')}</p>`}${urgentHtml}<br><button id="next" class="primary" disabled onclick="review()">${tr('checkout')}</button>`;}
+function toggleSession(id){const need=SELECTED_PRODUCT.sessions||1; if(!isPackage())SELECTED_SESSIONS=[]; const i=SELECTED_SESSIONS.indexOf(id); if(i>=0)SELECTED_SESSIONS.splice(i,1); else if(SELECTED_SESSIONS.length<need)SELECTED_SESSIONS.push(id); document.querySelectorAll('.session').forEach(x=>x.classList.remove('selected')); SELECTED_SESSIONS.forEach(x=>document.getElementById('s_'+x)?.classList.add('selected')); document.getElementById('next').disabled=SELECTED_SESSIONS.length!==need;}
+async function review(){try{let items=[]; if(SELECTED_PRODUCT.type==='PACKAGE'||SELECTED_PRODUCT.type==='PACKAGE_UPGRADE'){items=[{productCode:SELECTED_PRODUCT.code,sessionIds:SELECTED_SESSIONS,trialUpgradeBookingId:SELECTED_PRODUCT.trialUpgradeBookingId||''}]; if(EXTRA_URGENT){const offer=await call('getSessionOffer',{member:MEMBER,bookingToken:BOOKING_TOKEN,sessionId:EXTRA_URGENT}); items.push({productCode:offer.productCode,sessionId:EXTRA_URGENT});}} else if(SELECTED_PRODUCT.type==='TRIAL'){items=[{productCode:SELECTED_PRODUCT.code,sessionId:SELECTED_SESSIONS[0]}];} else {const sid=SELECTED_SESSIONS[0]; const offer=await call('getSessionOffer',{member:MEMBER,bookingToken:BOOKING_TOKEN,sessionId:sid}); items=[{productCode:offer.productCode,sessionId:sid}];} const q=await call('createQuote',{member:MEMBER,bookingToken:BOOKING_TOKEN,items}); window.Q=q; renderQuote(q);}catch(e){err(e)}}
+function renderQuote(q){const lines=(q.items||[]).map(x=>`<div class="small">${esc(x.name)}: <b>${esc(x.lineTotal)} Kč</b></div>`).join(''); const paymentUrl=safePaymentUrl(q.paymentUrl); document.getElementById('app').innerHTML=`<h2>${tr('checkout')}</h2>${lines}<hr style="border-color:var(--line)"><div class="summary">Total</div><div class="amount">${esc(q.amount)} Kč</div><p>Reference: <b>${esc(q.paymentReference)}</b></p>${paymentUrl?`<p><a href="${esc(paymentUrl)}" target="_blank" rel="noopener noreferrer">Open payment link</a></p>`:''}<p class="small">Hold expires ${esc(fmt(q.expiresAt))}. The server rechecks the booking cutoff when you submit proof.</p><label>${tr('proof')}</label><input id="proof" type="file" accept="image/jpeg,image/png,application/pdf"><p><label><input id="paid" type="checkbox" style="width:auto"> ${tr('paid')}</label></p><button class="primary" onclick="submitPayment()">${tr('submit')}</button>`;}
+async function submitPayment(){try{if(!document.getElementById('paid').checked)throw new Error('Confirm that you paid the exact amount'); const proof=await fileData('proof'); const r=await call('submitQuotePayment',{quoteId:window.Q.quoteId,bookingToken:BOOKING_TOKEN,declaredAmount:window.Q.amount,proof,method:'transfer',manageToken:TOKEN}); document.getElementById('app').innerHTML=`<h2 class="ok">✓ ${esc(r.message)}</h2><p>Payment ID: ${esc(r.paymentId)}</p>${r.manageToken?`<p><a href="https://example.test/portal?mode=manage&amp;token=${esc(encodeURIComponent(r.manageToken))}">${tr('manage')}</a></p>`:`<p>${tr('manageHelp')}</p><button onclick="emailManagementLink()">${tr('emailManage')}</button>`}`;}catch(e){err(e)}}
+async function renderManage(){try{const s=await call('getManageState',TOKEN); MEMBER=s.member; BOOT.sessions=s.sessions; const blocked=Number(s.member.outstanding)>0||String(s.member.status).toUpperCase()==='HOLD'; document.getElementById('app').innerHTML=`<h2>${tr('manage')}</h2>${Number(s.member.outstanding)>0?`<p class="bad">${tr('outstanding')}: ${esc(s.member.outstanding)} Kč</p><p class="small">${tr('payDebt')}</p><label>${tr('proof')}</label><input id="proof" type="file" accept="image/jpeg,image/png,application/pdf"><br><br><button class="primary" onclick="payDebt()">${tr('submit')}</button>`:blocked?`<p class="bad">${tr('holdHelp')}</p>`:''}${s.bookings.map(b=>`<div class="session"><b>${esc(fmt(b.start))}</b><div>${esc(b.theme)}</div>${b.canMove&&!blocked?`<button data-booking-id="${esc(b.bookingId)}" onclick="moveUI(this.dataset.bookingId)">${tr('move')}</button>`:'<span class="pill">locked</span>'}</div>`).join('')||'<p>No upcoming bookings.</p>'}`;}catch(e){err(e)}}
+async function moveUI(bid){const s=(BOOT.sessions||[]).filter(x=>x.window==='STANDARD'&&x.available>0); const html=s.map(x=>`<option value="${esc(x.id)}">${esc(fmt(x.start))} — ${esc(x.theme)}</option>`).join(''); document.getElementById('app').innerHTML+=`<div class="card"><select id="moveTo">${html}</select><button class="primary" data-booking-id="${esc(bid)}" onclick="doMove(this.dataset.bookingId)">Confirm move</button></div>`;}
+async function doMove(bid){try{await call('rescheduleBooking',{token:TOKEN,bookingId:bid,newSessionId:val('moveTo')}); renderManage();}catch(e){err(e)}}
+function val(id){return document.getElementById(id)?.value||''} function err(e){alert(e.message||e)}
+function fileData(id){return new Promise((res,rej)=>{const f=document.getElementById(id)?.files?.[0]; if(!f)return rej(new Error('Payment proof is required')); if(f.size>5*1024*1024)return rej(new Error('File too large')); const rd=new FileReader(); rd.onload=()=>res({name:f.name,type:f.type,dataUrl:rd.result}); rd.onerror=()=>rej(new Error('Could not read file')); rd.readAsDataURL(f);});}
+init().catch(err);
+</script>
+</body></html>

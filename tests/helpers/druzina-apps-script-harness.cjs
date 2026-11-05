@@ -18,7 +18,7 @@ const HEADERS = {
   Druzina_Ledger: 'Ledger_ID Member_ID Member_Name Created_At Entry_Type Source_Type Source_ID Description Amount_CZK Due_At Status Blocks_Booking Payment_ID Resolved_At Notes',
   Druzina_Payment_Items: 'Payment_Item_ID Payment_ID Product_Code Description Qty Unit_Amount_CZK Line_Total_CZK Related_Session_ID Related_Plan_ID Status Notes',
   Druzina_Holds: 'Hold_ID Session_ID Member_ID Request_ID Product_Code Created_At Expires_At Status Qty Notes',
-  Druzina_Notifications: 'Notification_ID Member_ID Status Notes',
+  Druzina_Notifications: 'Notification_ID Member_ID Type Channel Scheduled_At Status Related_ID Sent_At Message_Key Notes',
   Druzina_Audit_Log: 'Audit_ID Timestamp Actor Entity_Type Entity_ID Action Old_Value New_Value Policy_Version Notes',
   Druzina_Quotes: 'Quote_ID Member_ID Created_At Expires_At Status Cart_JSON Expected_Amount_CZK Payment_Reference Policy_Version Notes',
   Products: 'Product_ID Offer Price_CZK Payment_URL Active',
@@ -30,6 +30,8 @@ class Sheet {
   getLastRow() { return this.data.length; }
   getLastColumn() { return Math.max(0, ...this.data.map(r => r.length)); }
   getMaxColumns() { return this.maxColumns; }
+  getMaxRows() { return Math.max(1000,this.data.length); }
+  insertRowsAfter() { return this; }
   insertColumnsAfter(column, howMany = 1) { this.maxColumns += howMany; this.data.forEach(row => row.splice(column, 0, ...Array(howMany).fill(''))); return this; }
   appendRow(row) { this.data.push([...row]); return this; }
   setFrozenRows() { return this; }
@@ -41,6 +43,7 @@ class Sheet {
       setValues(values) { values.forEach((r, i) => r.forEach((value, j) => { self.data[row - 1 + i] ||= []; self.data[row - 1 + i][col - 1 + j] = value; })); return range; },
       setValue(value) { return range.setValues([[value]]); },
       getValue() { return range.getValues()[0][0]; },
+      setFontWeight() { return range; },setNumberFormat() { return range; },
       clearContent() { return range.setValues(Array.from({ length: height }, () => Array(width).fill(''))); },
     };
     return range;
@@ -59,6 +62,7 @@ function formatDate(date, timezone, format) {
     return `${offsetMinutes < 0 ? '-' : '+'}${String(Math.floor(Math.abs(offsetMinutes) / 60)).padStart(2, '0')}${String(Math.abs(offsetMinutes) % 60).padStart(2, '0')}`;
   }
   if (format === "yyyy-MM-dd'T'HH:mm:ss") return `${p.year}-${p.month}-${p.day}T${p.hour}:${p.minute}:${p.second}`;
+  if (format === "yyyy-MM-dd'T'HH:mm:ssXXX") {const offset=formatDate(date,timezone,'Z');return `${p.year}-${p.month}-${p.day}T${p.hour}:${p.minute}:${p.second}${offset.slice(0,3)}:${offset.slice(3)}`;}
   throw new Error(`Unimplemented date format: ${format}`);
 }
 
@@ -90,6 +94,7 @@ function harness(options = {}) {
     getProperty: key => properties[key] ?? null,
     setProperty(key, value) { properties[key] = String(value); return propertyStore; },
     deleteProperty(key) { delete properties[key]; return propertyStore; },
+    setProperties(values) { Object.assign(properties,values); return propertyStore; },
     getProperties: () => ({ ...properties }),
   };
   const calendar = {
@@ -109,10 +114,11 @@ function harness(options = {}) {
       base64Decode: value => [...Buffer.from(value, 'base64')],
       newBlob: (bytes, mime, name) => ({ bytes, mime, name }),
       computeDigest: (_algorithm, value) => [...crypto.createHash('sha256').update(value).digest()],
+      computeHmacSha256Signature: (value,key) => [...crypto.createHmac('sha256',key).update(value).digest()],
       DigestAlgorithm: { SHA_256: 'SHA_256' }, Charset: { UTF_8: 'UTF_8' },
     },
     CacheService: { getScriptCache(){ return scriptCache; } },
-    LockService: { getScriptLock() { return { waitLock() { calls.lockAcquisitions++; calls.lockDepth++; }, releaseLock() { calls.lockDepth = Math.max(0, calls.lockDepth - 1); }, hasLock: () => calls.lockDepth > 0 }; } },
+    LockService: { getScriptLock() { return { tryLock(){calls.lockAcquisitions++;calls.lockDepth++;return true;},waitLock() { calls.lockAcquisitions++; calls.lockDepth++; }, releaseLock() { calls.lockDepth = Math.max(0, calls.lockDepth - 1); }, hasLock: () => calls.lockDepth > 0 }; } },
     DriveApp: { getFolderById(id) { calls.folderIds.push(id); return { createFile(blob) { const fileId = `test-receipt-${files.length + 1}`; const file = { blob, trashed: false, getId: () => fileId, getUrl: () => `https://drive.google.com/file/d/${fileId}/view`, getName: () => blob.name, setTrashed(value) { this.trashed = value; return this; } }; files.push(file); return file; } }; }, getFileById(id) { const file = files.find(f => f.getId() === id); if (!file) throw new Error('File not found'); return file; } },
     MailApp: { sendEmail(message) { emails.push(message); } },
     CalendarApp: { getCalendarById(id) { calls.calendarIds.push(id); return calendar; } },
@@ -120,15 +126,19 @@ function harness(options = {}) {
     Session: { getActiveUser: () => ({ getEmail: () => options.activeEmail || '' }), getEffectiveUser: () => ({ getEmail: () => 'owner@example.test' }) },
     ScriptApp: {
       getProjectTriggers: () => [...triggers], deleteTrigger(t) { triggers.splice(triggers.indexOf(t), 1); },
-      newTrigger(handler) { const builder = { timeBased() { return builder; }, everyHours() { return builder; }, everyDays() { return builder; }, atHour() { return builder; }, create() { const trigger = { getHandlerFunction: () => handler }; triggers.push(trigger); return trigger; } }; return builder; },
+      newTrigger(handler) { const builder = { timeBased() { return builder; }, everyMinutes() { return builder; },everyHours() { return builder; }, everyDays() { return builder; }, atHour() { return builder; }, create() { const trigger = { getHandlerFunction: () => handler }; triggers.push(trigger); return trigger; } }; return builder; },
       getService: () => ({ getUrl: () => 'https://script.google.com/macros/s/test-deployment/exec' }),
     },
   });
-  const projectRoot = path.resolve(__dirname,'../fixtures/druzina-portal-p13');
-  for (const filename of fs.readdirSync(projectRoot).filter(x => x.endsWith('.js')).sort())
-    vm.runInContext(fs.readFileSync(path.join(projectRoot, filename), 'utf8'), context, { filename });
-  for(const filename of ['DruzinaBillingPolicy.gs','DruzinaFioReadiness.gs','DruzinaSafetyRelease.gs',
-    'DruzinaSeniorEvidence.gs','DruzinaFioBridge.gs','DruzinaFioCommit.gs','DruzinaFioProofReconcile.gs','DruzinaMemberAccount.gs']){
+  const projectRoot = options.sourceDir||path.resolve(__dirname,'../fixtures/druzina-portal-p13');
+  for (const filename of fs.readdirSync(projectRoot).filter(x => x.endsWith('.js')).sort()){
+    let source=fs.readFileSync(path.join(projectRoot, filename), 'utf8');
+    if(options.futureReleaseSimulation===true&&filename==='DruzinaFioReadiness.js')
+      source=source.replace('const DRUS_PAID_BANK_ADAPTER_LIVE = false;','const DRUS_PAID_BANK_ADAPTER_LIVE = true;');
+    vm.runInContext(source,context,{filename});
+  }
+  for(const filename of (options.sourceDir?[]:['DruzinaBillingPolicy.gs','DruzinaFioReadiness.gs','DruzinaSafetyRelease.gs',
+    'DruzinaSeniorEvidence.gs','DruzinaFioBridge.gs','DruzinaFioCommit.gs','DruzinaFioProofReconcile.gs','DruzinaMemberAccount.gs','DruzinaPortalApi.gs','DruzinaNotifications.gs','DruzinaBankReceipt.gs','DruzinaBankWorker.gs'])){
     let source=fs.readFileSync(path.resolve(__dirname,'../..',filename),'utf8');
     if(options.futureReleaseSimulation===true && filename==='DruzinaFioReadiness.gs')
       source=source.replace('const DRUS_PAID_BANK_ADAPTER_LIVE = false;','const DRUS_PAID_BANK_ADAPTER_LIVE = true;');

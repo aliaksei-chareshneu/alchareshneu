@@ -8,6 +8,8 @@
   },
   "devDependencies": {
     "@playwright/test": "1.51.1",
-    "jsdom": "^26.0.0"
+    "jsdom": "^26.0.0",
+    "jsqr": "1.4.0",
+    "qrcode-generator": "2.0.4"
   }
 }

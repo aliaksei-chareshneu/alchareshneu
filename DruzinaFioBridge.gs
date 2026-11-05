@@ -354,7 +354,7 @@ function drufCreateQuoteWithVS_(payload){
   var prior=findOne_(SHEETS.REQUESTS,function(r){return String(r.Request_ID)===requestKey;});
   if(prior&&String(prior.Status)!=='COMPLETED')
     throw Error('Checkout request requires owner recovery; do not submit again');
-  var cartKey=bookingHash_(JSON.stringify(items));
+  var cartKey=bookingHash_(JSON.stringify(items)+'|'+String(payload.termsVersion||''));
   var stored=null;
   if(prior){
     try{stored=JSON.parse(String(prior.Notes||''));}catch(_){throw Error('Checkout request requires owner recovery');}
@@ -375,7 +375,26 @@ function drufCreateQuoteWithVS_(payload){
     // A replay cannot return instructions for a deactivated product, an
     // expired hold or a changed cutoff. Never ask for money for a stale cart.
     revalidateQuote_(q,member);
-    drufVerifyCartPricing_(q,JSON.parse(String(q.Cart_JSON||'[]')),member);
+    var authoritativeItems=JSON.parse(String(q.Cart_JSON||'[]'));
+    drufVerifyCartPricing_(q,authoritativeItems,member);
+    // Instructions must never advertise a validity window that outlives the
+    // price/booking cutoff. A hold does not freeze a tariff or upgrade credit.
+    var expires=new Date(q.Expires_At).getTime();
+    authoritativeItems.forEach(function(it){
+      var ids=(it.kind==='PACKAGE'||it.kind==='PACKAGE_UPGRADE')?it.sessionIds:[it.sessionId];
+      ids.forEach(function(id){var s=sessionById_(id),hours=it.cutoff==='EMERGENCY'?0.5:it.cutoff==='LATE'?3:48;
+        expires=Math.min(expires,new Date(s.Start_DateTime).getTime()-hours*3600000);});
+      if(it.kind==='PACKAGE_UPGRADE')expires=Math.min(expires,
+        new Date(drufVerifiedFirstVisit_(member,it.trialUpgradeBookingId).attendedAt).getTime()+48*3600000);
+    });
+    if(!Number.isFinite(expires)||expires<=Date.now())throw Error('Payment instructions have expired');
+    var expiryISO=new Date(expires).toISOString();
+    if(expiryISO!==String(q.Expires_At)){
+      patchRow_(SHEETS.QUOTES,q._row,{Expires_At:expiryISO});q.Expires_At=expiryISO;
+      findAll_(SHEETS.HOLDS,function(h){return String(h.Request_ID)===String(q.Quote_ID)&&String(h.Status)==='ACTIVE';})
+        .forEach(function(h){patchRow_(SHEETS.HOLDS,h._row,{Expires_At:expiryISO});});
+    }
+    result.expiresAt=expiryISO;
     if(!drufVS(q.Payment_Reference)){
       var numeric=drufUniqueVSForQuote_();
       patchRow_(SHEETS.QUOTES,q._row,{Payment_Reference:numeric});
@@ -393,7 +412,10 @@ function drufCreateQuoteWithVS_(payload){
     result.orderId=String(q.Quote_ID); // existing quote is the order; no second order store
     var reservation=findOne_(SHEETS.REQUESTS,function(r){return String(r.Request_ID)===requestKey;});
     patchRow_(SHEETS.REQUESTS,reservation._row,{Status:'COMPLETED',
-      Notes:JSON.stringify({quoteId:String(q.Quote_ID),cartKey:cartKey})});
+      Notes:JSON.stringify({quoteId:String(q.Quote_ID),cartKey:cartKey,
+        locale:['cs','en','ru','uk'].includes(String(payload.language||''))?String(payload.language):'',
+        termsVersion:String(payload.termsVersion||''),termsAcceptedAt:stored&&stored.termsAcceptedAt||
+          (payload.termsAccepted===true?nowIso_():'')})});
     return result;
   });
   });

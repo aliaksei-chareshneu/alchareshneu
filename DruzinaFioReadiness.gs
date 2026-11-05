@@ -25,10 +25,14 @@ function drusBankConfigReady_(props){
   const account=read('DRU_FIO_ACCOUNT_ID');
   const bank=read('DRU_FIO_BANK_ID');
   const iban=read('DRU_FIO_IBAN').replace(/\s+/g,'').toUpperCase();
+  const signedImport=read('DRU_BOOKING_SIGNED_IMPORT_CONFIRMED')==='YES'&&
+    ['OSVC','DRUZINA'].includes(read('DRU_BOOKING_BANK_PROFILE'))&&
+    !!read('DRU_BOOKING_SELLER_ID')&&bank==='2010'&&
+    /^[a-fA-F0-9]{64}$/.test(read('DRU_BOOKING_IMPORT_SIGNING_KEY'));
   return read('DRU_FIO_AUTOMATION_ENABLED')==='YES'&&
     read('DRU_FIO_READONLY_CONFIRMED')==='YES'&&
     read('DRU_FIO_SETTLEMENT_SELLER_CONFIRMED')==='YES'&&
-    /^[a-zA-Z0-9]{64}$/.test(token)&&
+    (/^[a-zA-Z0-9]{64}$/.test(token)||signedImport)&&
     /^\d{1,16}$/.test(account)&&/^\d{4}$/.test(bank)&&
     drusCzIbanValid_(iban)&&iban.slice(4,8)===bank&&
     // Czech BBAN: 6 prefix digits + 10 account digits. Preserve the prefix;
