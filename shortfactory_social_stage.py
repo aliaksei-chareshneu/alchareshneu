@@ -21,6 +21,15 @@ HEADERS = [
 PLATFORMS = {"youtube_shorts", "instagram_reels", "facebook_reels", "tiktok"}
 RIGHTS = {"owned", "licensed", "public_domain", "transformative_review"}
 ENTITIES = {"OSVC", "DRUZINA_ZS"}
+ENTITY_LABEL = {"OSVC": "OSVC", "DRUZINA_ZS": "Družina Moravy z.s."}
+# Exact existing SocialPublisher.gs channels. Missing Reels adapters stay
+# deliberately unrecognised and cannot pass approval or auto-dispatch.
+CHANNEL_MAP = {
+    "youtube_shorts": ("youtube", "OWNER_REVIEW_REQUIRED; NO_DRIVE_VIDEO_ID"),
+    "tiktok": ("tiktok", "MANUAL_UPLOAD_ONLY; NO_DRIVE_VIDEO_ID"),
+    "instagram_reels": ("instagram_reels", "BLOCKED_NO_APPROVED_INSTAGRAM_REELS_ADAPTER"),
+    "facebook_reels": ("facebook_reels", "BLOCKED_NO_APPROVED_FACEBOOK_REELS_ADAPTER"),
+}
 JOB = re.compile(r"^[a-zA-Z0-9_-]{1,60}$")
 
 def sheet_safe(value):
@@ -35,11 +44,13 @@ def verify_existing_job(con, item, media):
     try:
         row = con.execute(
             "SELECT status,rights_status,output_path,transform_path,reviewed_at,"
-            "hook,commentary,target_platforms FROM short_jobs WHERE job_id=?", (jid,)
+            "hook,commentary,target_platforms,lane FROM short_jobs WHERE job_id=?", (jid,)
         ).fetchone()
     except sqlite3.Error:
         raise ValueError("Existing ShortFactory database schema not ready") from None
-    if row is None or row["status"] not in {"APPROVED_FOR_PUBLISH_QUEUE", "PUBLISHED_PARTIAL"}:
+    if row is None or row["status"] not in {
+        "APPROVED_FOR_PUBLISH_QUEUE", "PUBLISHED_PARTIAL", "RECEIPT_RECORDED_PARTIAL"
+    }:
         raise ValueError("Canonical job is not approved for a publish queue")
     if not row["reviewed_at"] or row["rights_status"] != item["rights_status"]:
         raise ValueError("Canonical job review or rights mismatch")
@@ -65,6 +76,7 @@ def verify_existing_job(con, item, media):
         raise ValueError("Canonical post receipt ledger unavailable") from None
     if posted:
         raise ValueError("Publication receipt already exists for this job/platform")
+    return str(row["lane"] or "").strip()
 
 def stage(manifest, entity, db_path):
     if entity not in ENTITIES:
@@ -106,17 +118,29 @@ def stage(manifest, entity, db_path):
         path = Path(media)
         if not path.is_file() or path.stat().st_size == 0:
             raise ValueError("Reviewed media missing")
-        verify_existing_job(con, item, path)
+        canonical_lane = verify_existing_job(con, item, path)
+        claimed_lane = str(item.get("lane") or "").strip()
+        if claimed_lane and claimed_lane.casefold() != canonical_lane.casefold():
+            raise ValueError("ShortFactory manifest lane mismatches canonical job")
+        normalized_lane = canonical_lane.casefold().replace(" ", "_")
+        if (normalized_lane in {"druzina", "družina", "druzina_zs", "druzina_moravy", "družina_moravy"}
+                and entity != "DRUZINA_ZS") or (
+            normalized_lane in {"osvc", "personal", "brnowalkers"} and entity != "OSVC"
+        ):
+            raise ValueError("Canonical ShortFactory lane and legal entity conflict")
         caption = item.get("caption", "")
         if not isinstance(caption, str) or len(caption) > 8000:
             raise ValueError("Invalid caption")
+        channel, note = CHANNEL_MAP[platform]
         row = {h: "" for h in HEADERS}
         row.update({
             "Job_ID": key,
-            "Channel": platform,  # route alias, not an authenticated account ID
+            "Event_ID": "MEDIA:SHORTFACTORY:" + jid,
+            "Channel": channel,
             "Status": "DRAFT",
             "Caption": sheet_safe(caption),
-            "Entity": entity,
+            "Entity": ENTITY_LABEL[entity],
+            "Error": note + "; NO_OWNER_APPROVAL; SOURCE_LOCAL_ONLY; CHECK_WEBSITE_CTA",
             "Visibility": "private",
         })
         # Deliberately NO approval/rights/duplicate check/media URL/live send.
