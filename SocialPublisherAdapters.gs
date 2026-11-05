@@ -80,6 +80,33 @@ function spInstagram_(event,job){
  * only (<=20 MiB). The user must explicitly authorize youtube.upload scope.
  * Larger files go to existing local ShortFactory worker, not Apps Script memory.
  */
+/* OAuth upload follows the ACTIVE account. Verify that account against the
+ * expected brand-specific YouTube channel before any video blob is loaded.
+ * channels.list?mine=true needs owner OAuth authorization; no API keys, no
+ * assumption that the Apps Script owner uploads to the intended NGO channel.
+ */
+function spYoutubeOwnerChannel_(event,token,props){
+ var key=event.Community==='Družina Moravy'?'DRUZINA':
+  event.Community==='Brnowalkers'?'BRNOWALKERS':
+  event.Community==='OSVC'?'OSVC':'';
+ if(!key)throw Error('YouTube publishing has no approved legal entity route');
+ var expected=String(props.getProperty('SOCIAL_YOUTUBE_CHANNEL_ID_'+key)||'');
+ if(!/^UC[a-zA-Z0-9_-]{22}$/.test(expected))
+  throw Error('Expected brand-specific YouTube channel ID not configured');
+ var r=UrlFetchApp.fetch('https://www.googleapis.com/youtube/v3/channels?part=id&mine=true',{
+   method:'get',muteHttpExceptions:true,followRedirects:false,
+   headers:{Authorization:'Bearer '+token}
+ });
+ if(r.getResponseCode()!==200)
+  throw Error('YouTube owner channel OAuth readback unavailable');
+ var response;
+ try{response=JSON.parse(r.getContentText());}
+ catch(_){throw Error('YouTube owner channel API response invalid');}
+ var found=response&&Array.isArray(response.items)?response.items:[];
+ if(found.length!==1||!found[0]||String(found[0].id)!==expected)
+  throw Error('YouTube OAuth channel identity mismatch: do not upload');
+ return expected;
+}
 function spYoutube_(event,job){
  var props=PropertiesService.getScriptProperties();
  if(props.getProperty('SOCIAL_YOUTUBE_ENABLED')!=='true')
@@ -87,6 +114,8 @@ function spYoutube_(event,job){
  if(String(job.Visibility)==='public' &&
     props.getProperty('SOCIAL_YOUTUBE_PUBLIC_ENABLED')!=='true')
    throw Error('Public automatic YouTube posts not approved in Script Properties');
+ var youtubeToken=ScriptApp.getOAuthToken();
+ spYoutubeOwnerChannel_(event,youtubeToken,props);
  var file=DriveApp.getFileById(String(job.Video_Drive_ID));
  if(!/^video\//.test(file.getMimeType()))throw Error('Drive file is not a video');
  if(file.getSize()>20*1024*1024)throw Error('Video >20MiB: use existing ShortFactory uploader');
@@ -107,7 +136,7 @@ function spYoutube_(event,job){
    +'?uploadType=multipart&part=snippet,status',{
    method:'post',payload:bytes,muteHttpExceptions:true,
    contentType:'multipart/related; boundary='+boundary,
-   headers:{Authorization:'Bearer '+ScriptApp.getOAuthToken()}
+   headers:{Authorization:'Bearer '+youtubeToken}
  });
  var v;try{v=JSON.parse(r.getContentText());}
  catch(e){throw Error('YouTube returned unreadable HTTP '+r.getResponseCode());}
