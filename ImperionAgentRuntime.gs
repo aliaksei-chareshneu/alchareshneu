@@ -240,7 +240,7 @@ function impA5ReceiptSlot_(book,at) {
   }
   return {sheet:sh,last:last,slot:slot,key:key,receipt_id:receiptId};
 }
-function impA5Receipt_(book,report) {
+function impA5Receipt_(book,report,executionMode) {
   var found=impA5ReceiptSlot_(book,report.checked_at);
   if(found.created===false)return found;
   var sh=found.sheet,last=found.last,slot=found.slot,key=found.key,receiptId=found.receipt_id;
@@ -253,7 +253,8 @@ function impA5Receipt_(book,report) {
     '; VIDEO refs '+report.video.media_references+
     '; PROOF '+report.proof.state+'; no outbound/payment/bookings';
   var row=last+1;
-  sh.getRange(row,1,1,18).setValues([[receiptId,IMP_A5_JOB,'OWNER_PRIVATE_'+slot,
+  var origin=(executionMode==='TRIGGER'?'TRIGGER':'MANUAL');
+  sh.getRange(row,1,1,18).setValues([[receiptId,IMP_A5_JOB,'OWNER_PRIVATE_'+origin+'_'+slot,
     'PRIVATE_OWNER_FIVE_AGENT_REVIEW','SEPARATE_ENTITIES',
     'INTERNAL_REVIEW_OBSERVED_NO_CUSTOMER_EFFECT',at,new Date().toISOString(),
     IMP_A5_VERSION,key,'GOOGLE_APPS_SCRIPT_OWNER_BOUND',String(book.getId()),
@@ -265,7 +266,9 @@ function impA5Receipt_(book,report) {
     throw Error('RECEIPT_WRITE_READBACK_FAILED');
   return {created:true,receipt_id:receiptId,row:row};
 }
-function impA5Run_(book) {
+function impA5Run_(book,executionMode) {
+  if(executionMode!==undefined&&executionMode!=='TRIGGER'&&executionMode!=='MANUAL')
+    throw Error('INVALID_EXECUTION_MODE');
   if(typeof imperionAgentTrustedSnapshot_!=='function')throw Error('PRIVATE_SNAPSHOT_NOT_INSTALLED');
   var lock=LockService.getScriptLock();if(!lock.tryLock(5000))return {status:'LOCK_BUSY'};
   try{
@@ -281,7 +284,7 @@ function impA5Run_(book) {
     report.proof=impA5Proof_();
     // Additive writes ONLY to existing owner-private queue and receipt ledger.
     var jobCreated=impA5Job_(book,report.checked_at);
-    var receipt=impA5Receipt_(book,report);
+    var receipt=impA5Receipt_(book,report,executionMode);
     return {status:'OWNER_PRIVATE_RUN_RECORDED',version:report.version,
       checked_at:report.checked_at,job_created:jobCreated,receipt:receipt,
       resource_usage:{paid_api_calls:0,llm_calls:0,public_http_requests_max:4,elapsed_ms:Date.now()-started},
@@ -299,8 +302,8 @@ function imperionAgentRunPreview() {
     ' PUBLIC_GITHUB_RUN_ID='+(report.proof.workflow_id||'NONE'));
   return report;
 }
-function imperionAgentRunAndRecord() { return impA5Run_(impA5Owner_(null)); }
-function imperionAgentReviewTick(e) { return impA5Run_(impA5Owner_(e)); }
+function imperionAgentRunAndRecord() { return impA5Run_(impA5Owner_(null),'MANUAL'); }
+function imperionAgentReviewTick(e) { return impA5Run_(impA5Owner_(e),'TRIGGER'); }
 function imperionAgentInstallTrigger() {
   impA5Owner_(null);
   var existing=ScriptApp.getProjectTriggers().filter(function(t){
@@ -318,20 +321,49 @@ function imperionAgentInstallTrigger() {
     sends_enabled:false,payments_enabled:false};
 }
 function imperionAgentRuntimeHealth() {
+  // Reporting a healthy scheduler requires an observed CLOCK trigger and an
+  // explicitly trigger-origin receipt. Old manual receipts do not prove cadence.
   var book=impA5Owner_(null);
   var t=ScriptApp.getProjectTriggers().filter(function(z){
     return z.getHandlerFunction()===IMP_A5_HANDLER;
   });
+  var clock=t.length===1 && typeof t[0].getEventType==='function' &&
+    typeof ScriptApp.EventType!=='undefined' &&
+    t[0].getEventType()===ScriptApp.EventType.CLOCK;
   var sh=book.getSheetByName('IMPERION_Execution_Receipts');
-  var count=0,lastAt=null,lastReceiptId=null;
-  if(sh&&sh.getLastRow()>1){
+  var count=0,scheduledCount=0,lastAt=null,lastReceiptId=null,lastScheduledAt=null;
+  var newestTime=-Infinity,scheduledTime=-Infinity;
+  if(sh&&sh.getLastRow()>1) {
     var n=sh.getLastRow();
-    var data=sh.getRange(2,1,n-1,10).getDisplayValues();
-    data.forEach(function(r){if(/^REC-IMP-A5-\d+$/.test(r[0])){
-      count++;lastReceiptId=r[0];lastAt=r[7];}});
+    var data=sh.getRange(2,1,n-1,18).getDisplayValues();
+    data.forEach(function(r){
+      var m=/^REC-IMP-A5-(\\d+)$/.exec(r[0]);
+      if(!m||r[1]!==IMP_A5_JOB||r[3]!=='PRIVATE_OWNER_FIVE_AGENT_REVIEW'||
+         r[5]!=='INTERNAL_REVIEW_OBSERVED_NO_CUSTOMER_EFFECT')return;
+      count++;
+      var finished=Date.parse(String(r[7]||''));
+      if(!isFinite(finished))return;
+      if(finished>newestTime){newestTime=finished;lastAt=r[7];lastReceiptId=r[0];}
+      if(r[2]==='OWNER_PRIVATE_TRIGGER_'+m[1]) {
+        scheduledCount++;
+        if(finished>scheduledTime){scheduledTime=finished;lastScheduledAt=r[7];}
+      }
+    });
   }
-  return {ok:true,version:IMP_A5_VERSION,owner_private:true,
-    trigger_count:t.length,trigger_cadence_hours:t.length===1?6:null,
-    private_receipt_count:count,last_receipt_id:lastReceiptId,
-    last_finished_at:lastAt,customer_actions_enabled:false};
+  var age=Date.now()-scheduledTime;
+  var recent=scheduledCount>0&&age>=-5*60000&&age<=8*3600000;
+  var status=t.length===0?'TRIGGER_MISSING':
+    t.length>1?'DUPLICATE_TRIGGERS':
+    !clock?'TRIGGER_TYPE_UNVERIFIED':
+    scheduledCount===0?'SCHEDULED_EXECUTION_NOT_OBSERVED':
+    !recent?'SCHEDULED_EXECUTION_STALE':
+    'SCHEDULED_RECEIPT_RECENT_INTERNAL_ONLY';
+  return {ok:clock&&recent,status:status,version:IMP_A5_VERSION,owner_private:true,
+    trigger_count:t.length,trigger_type_verified:clock,
+    target_cadence_hours:6,
+    private_receipt_count:count,scheduled_receipt_count:scheduledCount,
+    last_receipt_id:lastReceiptId,last_finished_at:lastAt,
+    last_scheduled_finished_at:lastScheduledAt,
+    independent_provider_readback_verified:false,
+    customer_actions_enabled:false,customer_messages:0,posts:0,charges:0,bookings:0};
 }
