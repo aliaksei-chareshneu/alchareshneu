@@ -51,6 +51,7 @@ function spValidate_(e,j){
  if(['YES','NO'].indexOf(String(j.Grant_Funded).toUpperCase())<0)throw Error('Set Grant_Funded YES/NO');
  if(String(j.Grant_Funded).toUpperCase()==='YES'&&!String(j.Grant_Text||'').trim())throw Error('Missing grant attribution');
  if(e.Category==='Community Info')spCommunityPreflight_(e,j);
+ if(e.Category==='ShortFactory Media')spShortFactoryPreflight_(e,j);
  if(!String(j.Caption||'').trim())throw Error('Empty caption');
  if(String(j.Duplicate_Checked).toUpperCase()!=='YES')throw Error('Check live destinations for an existing identical post first; set Duplicate_Checked YES');
  if(j.Channel==='instagram'&& !/^https:\/\/\S+$/i.test(String(j.Media_URL||'')))
