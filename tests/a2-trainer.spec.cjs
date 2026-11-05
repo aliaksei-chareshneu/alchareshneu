@@ -19,7 +19,7 @@ test.describe("Czech A2 trainer",()=>{
     await page.locator('[data-lang="en"]').click();
     await expect(page.getByRole("heading",{level:1})).toContainText("Czech");
   });
-  test("answers, evaluates, and links to confirmed-payment process",async({page})=>{
+  test("answers, evaluates, and links to written-terms enquiry",async({page})=>{
     await page.setViewportSize({width:375,height:812});
     await page.goto("/academy/a2/");
     await page.locator("#start").click();
@@ -35,8 +35,9 @@ test.describe("Czech A2 trainer",()=>{
     await expect(page.locator("#score")).toContainText("/ 15");
     await expect(page.locator("#breakdown .topic-row")).toHaveCount(3);
     await expect(page.locator("#bookLink")).toHaveAttribute("href",/^https:\/\/wa\.me\/420702914842\?text=/);
-    await expect(page.locator("#results")).toContainText("300 Kč");
-    await expect(page.locator("#results")).toContainText("neplaťte před potvrzením");
+    await expect(page.locator("#results")).toContainText("690 Kč");
+    await expect(page.locator("#results")).toContainText("1 000 Kč");
+    await expect(page.locator("#results")).toContainText(/neplaťte před potvrzením/i);
     const docwidth=await page.evaluate(()=>document.documentElement.scrollWidth);
     expect(docwidth).toBeLessThanOrEqual(375);
     await page.locator("#restart").click();
