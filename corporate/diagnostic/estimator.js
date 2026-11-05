@@ -52,7 +52,13 @@
     });
     document.querySelectorAll('[data-set-lang]').forEach(btn=>btn.setAttribute('aria-pressed',String(btn.dataset.setLang===lang)));
     const link=$('requestLink');const u=new URL(link.getAttribute('href'),location.href);u.searchParams.set('lang',lang);
-    u.searchParams.set('service','DATA_PILOT');u.searchParams.set('src','ai_workflow_diagnostic');link.href=u.href;
+    u.searchParams.set('service','DATA_PILOT');u.searchParams.set('src','ai_workflow_diagnostic');
+    // Preserve only bounded non-sensitive attribution keys from this page, not arbitrary URL data.
+    for(const key of ['utm_source','utm_medium','utm_campaign']){
+      const value=qp.get(key)||'';
+      if(/^[a-zA-Z0-9][a-zA-Z0-9._-]{0,63}$/.test(value))u.searchParams.set(key,value);
+    }
+    link.href=u.href;
     render();
   }
   document.querySelectorAll('[data-set-lang]').forEach(btn=>btn.addEventListener('click',()=>setLang(btn.dataset.setLang)));

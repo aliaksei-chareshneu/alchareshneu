@@ -69,3 +69,26 @@ test('diagnostic: locale controls persist and no data is sent by interacting',as
   await expect(page.locator('#requestLink')).toHaveAttribute('href',/lang=uk/);
   expect(posts).toEqual([]);
 });
+
+
+test('diagnostic attribution is preserved into existing intake without leaking unrelated query parameters',async({page})=>{
+  await page.goto('/corporate/diagnostic/?lang=en&utm_source=facebook&utm_medium=organic&utm_campaign=ai_workflow_launch&email=private@example.com');
+  const link=page.locator('#requestLink');
+  await expect(link).toHaveAttribute('href',/utm_source=facebook/);
+  await expect(link).toHaveAttribute('href',/utm_medium=organic/);
+  await expect(link).toHaveAttribute('href',/utm_campaign=ai_workflow_launch/);
+  await expect(link).not.toHaveAttribute('href',/private%40example.com/);
+  await page.locator('button[data-set-lang="cs"]').click();
+  await expect(link).toHaveAttribute('href',/lang=cs/);
+  await expect(link).toHaveAttribute('href',/utm_source=facebook/);
+  await link.click();
+  await expect(page).toHaveURL(/\/corporate\/request\/\?/);
+  await expect(page.locator('#offer')).toHaveValue('DATA_PILOT');
+});
+test('diagnostic rejects unsafe campaign tokens in outbound CTA',async({page})=>{
+  await page.goto('/corporate/diagnostic/?utm_source=%3Cscript%3E&utm_medium=organic&utm_campaign='+('a'.repeat(80)));
+  const href=await page.locator('#requestLink').getAttribute('href');
+  expect(href).not.toContain('utm_source');
+  expect(href).not.toContain('utm_campaign');
+  expect(href).toContain('utm_medium=organic');
+});
