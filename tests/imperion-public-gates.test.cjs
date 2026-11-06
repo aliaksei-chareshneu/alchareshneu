@@ -57,4 +57,6 @@ test('an Academy-specific WhatsApp enquiry is allowed; unrelated WhatsApp is blo
   assert.ok(!runAudit(docs).errors.some(x => x.id === 'academy:relevant-contact'));
   docs['academy/index.html'] = replaceAcademyNavHref(docs['academy/index.html'], 'https://wa.me/420702914842?text=General%20enquiry');
   assert.ok(runAudit(docs).errors.some(x => x.id === 'academy:relevant-contact'));
+  docs['academy/index.html'] = replaceAcademyNavHref(docs['academy/index.html'], 'https://wa.me/420999999999?text=Academy%20enquiry');
+  assert.ok(runAudit(docs).errors.some(x => x.id === 'academy:relevant-contact'), 'A plausible Academy message must not allow a different recipient');
 });
