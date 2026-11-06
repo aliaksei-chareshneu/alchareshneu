@@ -94,7 +94,7 @@ async function publicSource(task, fetcher) {
       {method: 'GET', redirect: 'error', credentials: 'omit', cache: 'no-store'}, 12000);
     if (!res || !res.ok || res.redirected) return null;
     const media = String(res.headers?.get?.('content-type') || '').toLowerCase();
-    if (!/json|html|xml|text/.test(media)) return null;
+    if (!/^(?:application\/(?:json|xml|rss\+xml|xhtml\+xml)|text\/(?:plain|html|xml))(?:\s*(?:;|$))/.test(media)) return null;
     const body = await res.text();
     if (typeof body !== 'string' || body.length < 8 || body.length > 65000) return null;
     const safe = body.slice(0, 9500);
@@ -103,6 +103,25 @@ async function publicSource(task, fetcher) {
     return null;
   }
 }
+/**
+ * Narrow provenance sanity check for generated drafts. No new numeric literals
+ * or public URLs may be introduced by a model. This is NOT proof of factual
+ * correctness (e.g. ages spelled in words); human review is always mandatory.
+ */
+function unsupportedPublicClaim(draft, sourceText) {
+  const output = String(draft).normalize('NFKC');
+  const source = String(sourceText).normalize('NFKC');
+  const urls = value => (value.match(/https?:\/\/[^\s<>"'\x60]+/gi) || [])
+    .map(link => link.replace(/[.,;:!?)}\]]+$/g, ''));
+  const sourceUrls = new Set(urls(source));
+  if (urls(output).some(url => !sourceUrls.has(url))) return 'UNSUPPORTED_PUBLIC_URL';
+  const sourceNumbers = new Set(source.match(/\d+(?:[.,]\d+)*/g) || []);
+  if ((output.match(/\d+(?:[.,]\d+)*/g) || []).some(num => !sourceNumbers.has(num))) {
+    return 'UNSUPPORTED_NUMERIC_FACT';
+  }
+  return null;
+}
+
 /**
  * reserveQuota({provider, model, job_id, daily_ceiling}) MUST be atomic,
  * durable and deny duplicates; do not use an in-memory counter in production.
@@ -161,6 +180,11 @@ async function draftPublicTask(task, options = {}) {
         errors.push(p.provider + ':INVALID_RESPONSE');
         continue;
       }
+      const provenanceFailure = unsupportedPublicClaim(content, source.text);
+      if (provenanceFailure) {
+        errors.push(p.provider + ':' + provenanceFailure);
+        continue;
+      }
       return {
         status: 'DRAFT_FOR_OWNER_REVIEW', job_id: task.job_id,
         source_url: task.source_url, source_sha256: source.sha256,
@@ -177,5 +201,5 @@ async function draftPublicTask(task, options = {}) {
 }
 module.exports = {
   SOURCES, ENTITIES, PURPOSES, checkTask, configuredProviders,
-  publicSource, draftPublicTask
+  publicSource, unsupportedPublicClaim, draftPublicTask
 };
