@@ -169,3 +169,41 @@ test('public translation routes only to local Ollama with CPU and approval gate'
   assert.equal(calls[1].body.stream,false);
   assert.equal(calls[1].body.think,false);
 });
+
+test('rejects image/svg+xml even though its MIME contains xml', async () => {
+  let calls=0;
+  const x=await M.draftPublicTask(TASK,{env:GROQ_ENV,reserveQuota:async()=>true,
+    fetchImpl:async()=>{calls++;return res(200,'<svg><text>Bad source</text></svg>','image/svg+xml');}});
+  assert.equal(x.reason,'PUBLIC_SOURCE_READBACK_FAILED');
+  assert.equal(calls,1);
+});
+test('rejects invented numerals instead of presenting them as approved draft',async()=>{
+  const x=await M.draftPublicTask(TASK,{env:GROQ_ENV,reserveQuota:async()=>true,
+    fetchImpl:async(_url,opts)=>opts.method==='GET'
+      ? res(200,'{"events":[{"title":"Open day"}]}')
+      : res(200,{choices:[{message:{content:'Určeno pro účastníky od 18 let.'}}]})});
+  assert.equal(x.status,'BLOCKED');
+  assert.deepEqual(x.failures,['groq:UNSUPPORTED_NUMERIC_FACT']);
+  assert.equal(x.posts_published,0);
+  assert.equal(x.messages_sent,0);
+});
+test('rejects fabricated signup URL instead of returning a public draft',async()=>{
+  const x=await M.draftPublicTask(TASK,{env:GROQ_ENV,reserveQuota:async()=>true,
+    fetchImpl:async(_url,opts)=>opts.method==='GET'
+      ? res(200,'{"events":[{"title":"Open day"}]}')
+      : res(200,{choices:[{message:{content:'Signup at https://unverified.example/join'}}]})});
+  assert.equal(x.status,'BLOCKED');
+  assert.deepEqual(x.failures,['groq:UNSUPPORTED_PUBLIC_URL']);
+});
+test('preserves numeric facts and links explicitly present in the approved source',async()=>{
+  const link='https://aliaksei-chareshneu.github.io/alchareshneu/druzina/';
+  const input=JSON.stringify({events:[{title:'Workshop',price_czk:240,url:link}]});
+  const x=await M.draftPublicTask(TASK,{env:GROQ_ENV,reserveQuota:async()=>true,
+    fetchImpl:async(_url,opts)=>opts.method==='GET'
+      ? res(200,input)
+      : res(200,{choices:[{message:{content:'Workshop: 240 Kč. '+link}}]})});
+  assert.equal(x.status,'DRAFT_FOR_OWNER_REVIEW');
+  assert.equal(x.owner_approval_required,true);
+  assert.equal(x.posts_published,0);
+});
+
