@@ -101,7 +101,9 @@ function runAudit(pages) {
   // includes individual teaching; do not misclassify it as an unrelated form.
   // Preserve an Academy-specific WhatsApp fallback while rejecting unknown forms.
   const verifiedAcademyForm='https://docs.google.com/forms/d/e/1FAIpQLSfa3qOWpQBfoA877ip9eOTWwFweOrNTib2mq8_C1D9xr55dtQ/viewform';
-  const academyWhatsapp=academyUrl.startsWith('https://wa.me/') && /Academy/i.test(academyUrl);
+  // Require the verified owner's destination; a third-party wa.me/ link with
+  // an Academy-looking message must never pass the public contact gate.
+  const academyWhatsapp=/^https:\/\/wa\.me\/420702914842\?text=Academy(?:\s|$)/i.test(academyUrl);
   verify('academy:relevant-contact',
     academyUrl===verifiedAcademyForm || academyWhatsapp,
     'Academy enquiry must reach the verified shared education form or Academy-specific WhatsApp');
