@@ -27,18 +27,34 @@ test('precise unverified business location is a blocker', () => {
 });
 
 
-test('verified Academy-capable form passes, arbitrary external form fails closed', () => {
+function replaceAcademyNavHref(html, destination) {
+  const anchor = html.match(/<a\\b(?=[^>]*\\bid=["']navBookBtn["'])[^>]*>/i);
+  assert.ok(anchor, 'Academy navBookBtn must exist');
+  const next = anchor[0].replace(/\\bhref=(["'])[^"']*\\1/i, 'href="' + destination + '"');
+  assert.notEqual(next, anchor[0], 'Academy navBookBtn href must change');
+  return html.replace(anchor[0], next);
+}
+
+test('verified Academy routes pass but an unknown form fails closed', () => {
   const root = path.resolve(__dirname, '..');
   const docs = Object.fromEntries(REQUIRED.map(file => [file, fs.readFileSync(path.join(root, file), 'utf8')]));
+  const actual = linkWithId(docs['academy/index.html'], 'navBookBtn');
+  assert.ok(actual.startsWith('https://wa.me/420702914842?'), 'Current Academy nav link changed; review the test');
+  const known = 'https://docs.google.com/forms/d/e/1FAIpQLSfa3qOWpQBfoA877ip9eOTWwFweOrNTib2mq8_C1D9xr55dtQ/viewform';
+  docs['academy/index.html'] = replaceAcademyNavHref(docs['academy/index.html'], known);
   assert.ok(!runAudit(docs).errors.some(x => x.id === 'academy:relevant-contact'));
-  const known='https://docs.google.com/forms/d/e/1FAIpQLSfa3qOWpQBfoA877ip9eOTWwFweOrNTib2mq8_C1D9xr55dtQ/viewform';
-  docs['academy/index.html']=docs['academy/index.html'].replace('href="'+known+'"','href="https://docs.google.com/forms/d/e/unknown/viewform"');
+  const unknown = 'https://docs.google.com/forms/d/e/unknown/viewform';
+  docs['academy/index.html'] = replaceAcademyNavHref(docs['academy/index.html'], unknown);
+  assert.equal(linkWithId(docs['academy/index.html'], 'navBookBtn'), unknown);
   assert.ok(runAudit(docs).errors.some(x => x.id === 'academy:relevant-contact'));
 });
-test('an Academy-specific WhatsApp enquiry is an allowed alternative', () => {
+test('an Academy-specific WhatsApp enquiry is allowed; unrelated WhatsApp is blocked', () => {
   const root = path.resolve(__dirname, '..');
   const docs = Object.fromEntries(REQUIRED.map(file => [file, fs.readFileSync(path.join(root, file), 'utf8')]));
-  const known='https://docs.google.com/forms/d/e/1FAIpQLSfa3qOWpQBfoA877ip9eOTWwFweOrNTib2mq8_C1D9xr55dtQ/viewform';
-  docs['academy/index.html']=docs['academy/index.html'].replace('href="'+known+'"','href="https://wa.me/420702914842?text=Academy%20enquiry"');
+  const known = 'https://docs.google.com/forms/d/e/1FAIpQLSfa3qOWpQBfoA877ip9eOTWwFweOrNTib2mq8_C1D9xr55dtQ/viewform';
+  docs['academy/index.html'] = replaceAcademyNavHref(docs['academy/index.html'], known);
+  docs['academy/index.html'] = replaceAcademyNavHref(docs['academy/index.html'], 'https://wa.me/420702914842?text=Academy%20enquiry');
   assert.ok(!runAudit(docs).errors.some(x => x.id === 'academy:relevant-contact'));
+  docs['academy/index.html'] = replaceAcademyNavHref(docs['academy/index.html'], 'https://wa.me/420702914842?text=General%20enquiry');
+  assert.ok(runAudit(docs).errors.some(x => x.id === 'academy:relevant-contact'));
 });
