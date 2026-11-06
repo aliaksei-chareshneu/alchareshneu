@@ -1,0 +1,77 @@
+name: Auto video pipeline
+on:
+  pull_request:
+    paths:
+      - 'tools/auto-video-pipeline/**'
+      - '.github/workflows/auto-video-pipeline.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install FFmpeg and FFprobe for Python tests
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg
+          ffmpeg -hide_banner -filters 2>&1 | grep -E ' subtitles ' >/dev/null
+      - name: Python unit tests
+        run: python3 -m unittest discover -s tools/auto-video-pipeline/tests -v
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Remotion dependencies
+        working-directory: tools/auto-video-pipeline
+        run: npm install --no-audit --no-fund
+      - name: Typecheck Remotion source
+        working-directory: tools/auto-video-pipeline
+        run: npx tsc --noEmit
+      - name: Inspect Remotion compositions
+        working-directory: tools/auto-video-pipeline
+        run: npx remotion compositions src/index.ts
+      - name: Synthetic source through Python EDL to Remotion MP4
+        working-directory: tools/auto-video-pipeline
+        env:
+          SOURCE_PATH: ${{ runner.temp }}/remotion-source.mp4
+          PLAN_PATH: ${{ runner.temp }}/remotion-plan.json
+          RENDER_PATH: ${{ runner.temp }}/remotion-render.mp4
+        run: |
+          node -e 'const fs=require("fs"); fs.writeFileSync("src/edit.json",JSON.stringify({fps:30,width:360,height:640,frames:90,clips:[],captions:[{start:0,end:90,text:"Synthetic source"}],broll:[]}));'
+          npx remotion render src/index.ts AutoEdited "$SOURCE_PATH" --log=error --concurrency=2
+          python3 - <<'PY'
+          import json, os
+          plan = {"source":os.environ["SOURCE_PATH"], "source_info":{"width":360,"height":640}, "keeps":[{"start":0,"end":3}], "captions":[{"start":0.3,"end":2.7,"text":"Remotion cloud output"}], "broll":[]}
+          with open(os.environ["PLAN_PATH"],"w",encoding="utf-8") as f: json.dump(plan,f)
+          PY
+          python3 pipeline.py prepare-remotion "$PLAN_PATH"
+          npx remotion render src/index.ts AutoEdited "$RENDER_PATH" --log=error --concurrency=2
+          test -s "$RENDER_PATH"
+          file "$RENDER_PATH"
+      - name: Preserve synthetic Remotion render for inspection
+        uses: actions/upload-artifact@v4
+        with:
+          name: auto-video-remotion-smoketest
+          path: ${{ runner.temp }}/remotion-render.mp4
+          retention-days: 7
+          if-no-files-found: error
+      - name: Ensure FFmpeg and FFprobe for Video Factory
+        run: |
+          ffmpeg -version | head -n 1
+          ffprobe -version | head -n 1
+          ffmpeg -hide_banner -filters 2>&1 | grep -E ' subtitles ' >/dev/null
+      - name: Video Factory synthetic cloud render
+        working-directory: tools/auto-video-pipeline
+        run: python3 cloud_demo.py --output "${{ runner.temp }}/video-factory-cloud"
+      - name: Preserve synthetic Video Factory review MP4 and evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: video-factory-synthetic-review
+          path: ${{ runner.temp }}/video-factory-cloud/
+          retention-days: 7
+          if-no-files-found: error
