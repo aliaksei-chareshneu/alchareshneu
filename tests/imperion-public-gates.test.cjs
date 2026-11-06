@@ -28,9 +28,9 @@ test('precise unverified business location is a blocker', () => {
 
 
 function replaceAcademyNavHref(html, destination) {
-  const anchor = html.match(/<a\\b(?=[^>]*\\bid=["']navBookBtn["'])[^>]*>/i);
+  const anchor = html.match(/<a\b(?=[^>]*\bid=["']navBookBtn["'])[^>]*>/i);
   assert.ok(anchor, 'Academy navBookBtn must exist');
-  const next = anchor[0].replace(/\\bhref=(["'])[^"']*\\1/i, 'href="' + destination + '"');
+  const next = anchor[0].replace(/\bhref=(["'])[^"']*\1/i, 'href="' + destination + '"');
   assert.notEqual(next, anchor[0], 'Academy navBookBtn href must change');
   return html.replace(anchor[0], next);
 }
