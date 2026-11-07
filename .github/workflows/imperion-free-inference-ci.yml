@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - "automation/free_inference.py"
+      - "supabase/functions/imperion-free-inference/**"
       - "automation/test_free_inference.py"
       - "automation/telegram_business_policy.js"
       - "automation/test_telegram_business_policy.js"
@@ -34,3 +35,9 @@ jobs:
         run: |
           node --check automation/telegram_business_policy.js
           node --test automation/test_telegram_business_policy.js
+
+      - name: Validate Supabase cloud inference gateway (offline only)
+        run: |
+          node --check supabase/functions/imperion-free-inference/index.mjs
+          node --check supabase/functions/imperion-free-inference/free-core.mjs
+          node --test supabase/functions/imperion-free-inference/free-core.test.mjs
