@@ -1,5 +1,6 @@
 """Deterministic safety tests for IMPERION local Python coder; no Ollama access."""
 import importlib.util
+import hashlib
 import json
 from pathlib import Path
 import sys
@@ -81,8 +82,22 @@ class LocalDevTests(unittest.TestCase):
         self.assertEqual(proof["status"],"LOCAL_MODEL_CODE_TEST_PASS")
         self.assertEqual(proof["baseline_exit"],1)
         self.assertEqual(proof["attempts"][0]["test_exit"],0)
+        self.assertEqual(proof["after_sha256"], hashlib.sha256((self.root/"sample.py").read_bytes()).hexdigest())
         self.assertFalse(proof["model_can_commit"])
         self.assertFalse(proof["model_can_deploy"])
+
+    def test_bad_model_restores_exact_original_windows_crlf_bytes(self):
+        source = self.root/"sample.py"
+        original = b"def price_total(items):\r\n    return sum(item['price'] for item in items)\r\n"
+        source.write_bytes(original)
+        invalid_fix = "def price_total(items):\n    return 0\n"
+        with mock.patch.object(mod, "model_candidate",
+                               return_value=(invalid_fix, {"prompt_tokens":1,"completion_tokens":1})):
+            self.assertFalse(mod.run(self.task()))
+        self.assertEqual(source.read_bytes(), original)
+        proof = json.loads((self.root/"imperion-dev-proof.json").read_text())
+        self.assertEqual(proof["status"],"BLOCKED_MODEL_OR_TEST_FAILED_RESTORED")
+        self.assertEqual(proof["before_sha256"],hashlib.sha256(original).hexdigest())
 
     def test_already_passing_is_no_edit_and_no_model_call(self):
         source=self.root/"sample.py"
