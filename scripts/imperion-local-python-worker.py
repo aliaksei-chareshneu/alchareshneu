@@ -124,7 +124,8 @@ def run(task_path):
     task, workspace = trusted_task(task_path)
     source_path = workspace / task["source_file"]
     tests_path = workspace / task["test_file"]
-    before = source_path.read_text(encoding="utf-8-sig")
+    before_bytes = source_path.read_bytes()
+    before = before_bytes.decode("utf-8-sig")
     tests = tests_path.read_text(encoding="utf-8-sig")
     tree = ast.parse(before)
     functions = [item for item in tree.body if isinstance(item, ast.FunctionDef)
@@ -137,7 +138,7 @@ def run(task_path):
         "model_can_commit": False, "model_can_deploy": False,
         "workspace": str(workspace),
         "source_file": task["source_file"],
-        "before_sha256": hashlib.sha256(before.encode()).hexdigest(),
+        "before_sha256": hashlib.sha256(before_bytes).hexdigest(),
         "timestamp_utc": datetime.now(timezone.utc).isoformat(), "attempts": []
     }
     baseline, tail = run_tests(workspace, task["test_file"])
@@ -149,12 +150,12 @@ def run(task_path):
         for i in range(1, 3):
             try:
                 candidate, metrics = model_candidate(task, before, tests, feedback)
-                source_path.write_text(candidate, encoding="utf-8")
+                source_path.write_bytes(candidate.encode("utf-8"))
                 result, output = run_tests(workspace, task["test_file"])
                 proof["attempts"].append({"n": i, "test_exit": result, **metrics})
                 if result == 0:
                     proof["status"] = "LOCAL_MODEL_CODE_TEST_PASS"
-                    proof["after_sha256"] = hashlib.sha256(candidate.encode()).hexdigest()
+                    proof["after_sha256"] = hashlib.sha256(source_path.read_bytes()).hexdigest()
                     proof["code"] = candidate
                     break
                 feedback = "Test failed: " + output[-500:]
@@ -163,7 +164,7 @@ def run(task_path):
                 proof["attempts"].append({"n": i, "rejection": feedback})
             finally:
                 if proof["status"] != "LOCAL_MODEL_CODE_TEST_PASS":
-                    source_path.write_text(before, encoding="utf-8")
+                    source_path.write_bytes(before_bytes)
         if proof["status"] != "LOCAL_MODEL_CODE_TEST_PASS":
             proof["status"] = "BLOCKED_MODEL_OR_TEST_FAILED_RESTORED"
     proof_path = workspace / "imperion-dev-proof.json"
