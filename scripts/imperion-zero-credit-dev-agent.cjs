@@ -30,6 +30,9 @@ function taskPrompt(html,feedback='') {
     'Algorithm hint: suffix=utmLabels.join("_"); budget=65-2-suffix.length;',
     'shorten baseSource to Math.max(2,budget) before appending __ + suffix.',
     'Never concatenate 65 baseSource characters before trying to add UTM.',
+    'CRITICAL EDGE: UTM label itself can be 64 chars long; even then final',
+    'source length must be <=65. ALWAYS slice the complete result to 65.',
+    'No UTM labels means source === baseSource, no extra double underscores.',
     'Use only Math, string and array methods; never call network or tools.',
     'Return JSON ONLY, exactly {"source_statement":"const source=...;"}',
     'The proposal will be tested using synthetic inputs in a no-network container.',
@@ -75,8 +78,10 @@ async function run(opts={}) {
   };
 }
 async function main() {
+  const errorHint=String(process.env.DEV_AGENT_FEEDBACK||'')
+    .replace(/[^a-zA-Z0-9 _-]/g,'').slice(0,110);
   const result=await run({feedback:process.argv.includes('--repair')
-    ?'The earlier candidate failed: preserve UTM for a 65-character referral. The first source must end with __instagram_bio_nov2026; use the explicit suffix budget.'
+    ?'Actual isolated test failure: '+errorHint+'. For every case cap final result to 65 characters. Preserve the source prefix and the UTM suffix where possible.'
     :''});
   const dest=path.join(process.env.RUNNER_TEMP || process.cwd(),'imperion-zero-credit-qwen-proof.json');
   fs.writeFileSync(dest,JSON.stringify(result,null,2)+'\n');
