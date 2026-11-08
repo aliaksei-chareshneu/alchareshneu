@@ -20,6 +20,8 @@ jobs:
           python-version: '3.11'
       - name: Pure-stdlib sandbox and denial tests (no machine access)
         run: python -B ops/pc-agent/restricted_executor.py --selftest
+      - name: Localhost-only relay security tests (no network exposure)
+        run: python -B ops/pc-agent/loopback_readonly.py --selftest
       - name: Read-only capability report
         run: python -B ops/pc-agent/restricted_executor.py --status
       - name: Confirm no hosted model or external effect
