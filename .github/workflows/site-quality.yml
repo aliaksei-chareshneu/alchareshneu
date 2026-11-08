@@ -100,6 +100,9 @@ jobs:
 
       - name: Check four-language information channels and gated chats
         run: node --test tests/imperion-community-routing.test.cjs
+      - name: Verify local Python Qwen worker rejects private files and unsafe AST
+        run: python3 tests/imperion-local-python-worker.test.py scripts/imperion-local-python-worker.py
+
       - name: Verify zero-credit Qwen cloud agent is public-only and cannot take actions
         run: node --test tests/imperion-zero-credit-cloud-review.test.cjs tests/imperion-zero-credit-cloud-workflow.test.cjs tests/imperion-zero-credit-dev-agent.test.cjs tests/imperion-zero-credit-dev-apply.test.cjs
 
