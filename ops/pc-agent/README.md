@@ -40,6 +40,34 @@ same key with changed payload is rejected. No arbitrary path parameter is accept
 This proves ChatGPT connector -> local command -> readback. Actual origin from
 an Android device has not been independently tested. Do not claim it has.
 
+## Verified cloud queue to local Windows health (one-shot)
+
+Additional zero-cost route: start `python -B .\loopback_readonly.py --once` from
+a trusted, authorized local session. It temporarily binds **127.0.0.1 only** on a
+random port and accepts at most two GETs: `/a5-status` and `/a5-watchdog`.
+Use the **existing** Supabase `browser_jobs` targeted to the known paired
+`zmrzlina` Browser Bridge agent, with action `open`, URL
+`http://127.0.0.1:<ephemeral-port>/a5-status` or `/a5-watchdog`.
+Then read `browser_jobs` result from Supabase and use `snapshot` to confirm
+page text. No shell, credentials, private browser data or user file paths are
+exposed to the model. This is an **on-demand read-only demo**, not a permanent
+listener and not a secure channel for consequential writes.
+
+Source verification 08Nov2026: jobs
+`00716cb1-2b83-4355-a20d-388985e68dc0` (machine_status),
+`93254e26-88ab-4fd3-a008-11c1f1f11b27` (read_watchdog), and
+`5043af53-a391-43d6-92bc-a61d9ce3c9a6` (DOM readback)
+each DONE, one attempt, without errors. The DOM reported watchdog OK.
+The temporary listener automatically STOPPED after two successful responses,
+and independent tests confirmed the loopback port CLOSED and zero remaining
+temporary directories. No new cloud queue, external network listener, schedule
+or production endpoint. The localhost-only server intentionally requires no
+password; do not use it for sensitive data and do not extend it to writes.
+
+Run local regression tests: `python -B .\loopback_readonly.py --selftest`.
+Seven checks passed on the real Windows host: route, read-only diagnostics,
+Host restriction, POST rejection, query injection denial, non-CORS and CSP.
+
 ## Known limits / do not silently promote
 
 - The installed Codex CLI exists; do NOT run it with danger-full-access or paid API fallback.
