@@ -55,7 +55,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p _pages
-          for dir in academy autopilot brno-stories calendar corporate dame-na-vas-2755 druzina druzina-moravy events ideas images media platform-evidence praha-hema register start walkers; do
+          for dir in academy autopilot brno-stories calendar corporate dame-na-vas-2755 druzina druzina-moravy events ideas images media platform-evidence praha-hema register start walkers shop; do
             if [ -d "$dir" ]; then
               cp -a "$dir" "_pages/$dir"
             fi
@@ -73,6 +73,10 @@ jobs:
           touch _pages/.nojekyll
           test -s _pages/index.html
           test -s _pages/sitemap.xml
+          test -s _pages/shop/index.html
+          test -s _pages/shop/thanks/index.html
+          test -s _pages/shop/csv-rescue/index.html
+          test -s _pages/shop/ai-workflow-roi/index.html
           test -s _pages/dame-na-vas-2755/index.html
           test -s _pages/brno-stories/index.html
           test -s _pages/brno-stories/tanec-draku-2026/index.html
