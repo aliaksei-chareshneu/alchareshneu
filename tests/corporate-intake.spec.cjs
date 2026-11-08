@@ -84,17 +84,17 @@ test('network failure does not present a successful order or charge',async({page
 });
 
 test('business landing pages link to direct quote form',async({page})=>{
- await page.goto('/');
+ await page.goto('/',{waitUntil:'domcontentloaded'});
  await expect(page.locator('#heroCta')).toHaveAttribute('href',/corporate\/request\//);
- await page.goto('/corporate/');
+ await page.goto('/corporate/',{waitUntil:'domcontentloaded'});
  await expect(page.locator('a[href*="request/?lang=en"]')).not.toHaveCount(0);
- await page.goto('/start/?lang=cs');
+ await page.goto('/start/?lang=cs',{waitUntil:'domcontentloaded'});
  await expect(page.locator('a[href*="request/"][href*="start_company"]')).not.toHaveCount(0);
- await page.goto('/academy/courses/');
+ await page.goto('/academy/courses/',{waitUntil:'domcontentloaded'});
  await expect(page.locator('a[href*="request/"][href*="academy_ai01"]')).not.toHaveCount(0);
- await page.goto('/corporate/technical-answers/');
+ await page.goto('/corporate/technical-answers/',{waitUntil:'domcontentloaded'});
  await expect(page.locator('a[href*="request/"][href*="technical_answers"]')).toHaveCount(1);
- await page.goto('/corporate/travel-audit/');
+ await page.goto('/corporate/travel-audit/',{waitUntil:'domcontentloaded'});
  await expect(page.locator('a[href*="request/"][href*="travel_audit"]')).toHaveCount(1);
 });
 
