@@ -52,3 +52,31 @@ Expected independent proof: `<workspace>\imperion-dev-proof.json` plus a separat
 - General frontend/backend/Python coding, remote GitHub PR creation on Windows, scheduled local monitoring and a fully autonomous phone-triggered task loop are **not proven**. The separate issue-195 cloud workflow has documented real public-code generated commit and the draft child [PR #235](https://github.com/aliaksei-chareshneu/alchareshneu/pull/235), but Actions PR creation was denied by repository settings. Do not enable that permission or merge/deploy without a separate GO.
 
 Primary tracking remains existing [issue #195](https://github.com/aliaksei-chareshneu/alchareshneu/issues/195) and [draft PR #231](https://github.com/aliaksei-chareshneu/alchareshneu/pull/231), plus IMPERION Project80 / 03 EXECUTION / append-only CHANGELOG.
+
+
+## STAGE 5: Verified GitHub issue-comment -> Windows scheduled task (8 Nov 2026, Europe/Prague)
+
+The existing [issue #195](https://github.com/aliaksei-chareshneu/alchareshneu/issues/195) now doubles as a **public, owner-only command surface for two harmless diagnostics**, without introducing a new CRM/queue/provider. This is an additive on-demand component of the EXISTING IMPERION DEV Agent, not a general-purpose GitHub Copilot implementation. No real source PR is created from this command channel.
+
+On GitHub (desktop browser or authenticated mobile client), submit **exactly one** of these as a new issue comment:
+
+- `/imperion-dev ping` — local Ollama model presence check; no inference; writes a verified job result.
+- `/imperion-dev smoke` — constructs a fresh **synthetic** broken one-function Python fixture in Windows `%TEMP%`, invokes the existing restricted Qwen worker through loopback Ollama, runs trusted unittest and independent hash/test readback. No private data, no GitHub writes, no deployment.
+
+**Security and throughput:** GitHub REST public issue comments, unauthenticated HTTPS read only; only `user.login=aliaksei-chareshneu`, `user.type=User`, `author_association=OWNER`, and an exact allowlisted command may trigger actions. The poller does not process free-form issue text, scripts or attached content. It bootstraps from the latest historical comment ID (no replay), persists the cursor before running, executes at most two commands per tick, logs immutable local JSONL events, and never auto-retries failed inference. The no-overlap lock fails closed until reviewed. No GitHub token, third-party notification, paid API, CRM or model-initiated source deployment. GitHub issue comments are PUBLIC; never put customer details or passwords there.
+
+**Real end-to-end acceptance:**
+
+- Owner-authenticated command [#6727984202](https://github.com/aliaksei-chareshneu/alchareshneu/issues/195#issuecomment-6727984202) reached the computer but was **BLOCKED** after two Qwen candidate safety rejections (no unsafe change; failure logged). This validated the fail-closed path.
+- The repaired prompt and byte-accurate Windows SHA-256 readback succeeded with [#6728039527](https://github.com/aliaksei-chareshneu/alchareshneu/issues/195#issuecomment-6728039527): `smoke_verified=true`, `model_test_status=LOCAL_MODEL_CODE_TEST_PASS`, **3/3 independent unittest PASS**, first Qwen candidate accepted, source digest `ad3380b0f506cb49a8b464b15227bd3ee03b8ed41b96791d820637bf6d486f3b`, no external paid API.
+- A REAL Windows Task Scheduler installation `IMPERION-DevAgent-OwnerCommands` was created with a 10-minute repetition, **Limited** runlevel, user interactive logon (no password/elevation), maximum 6-minute process runtime and no overlapping instances. Manually started schedule result 0. **Automatic unattended 23:34:03 local run** independently processed owner [`/imperion-dev ping` #6728069497](https://github.com/aliaksei-chareshneu/alchareshneu/issues/195#issuecomment-6728069497) and independently returned `PASS`, `loopback_model_available=true`; Windows Task Scheduler `LastTaskResult=0`, next run 23:44:03 local.
+
+**Persistent on-device evidence** (NOT pushed to GitHub): local `ChatGPT-Workspace\\80-Digital-Platform-Automation\\local-tools\\dev-agent\\state\\last_job.json` contains latest owner-triggered job; `status.json` is latest poll heartbeat; `events.jsonl` is append-only technical event log; `cursor.json` deduplicates GitHub comments. A user on Android can issue an exact command using the same authenticated GitHub account and later ask ChatGPT to inspect these files via the existing authorized remote device. **An actual Android app-origin event has not been independently verified**; the validated control path is GitHub-authenticated owner comment -> GitHub REST -> Windows Task Scheduler -> Ollama -> test/readback.
+
+**Source and installation:**
+`scripts/imperion-owner-comment-poller.py`,
+`tests/imperion-owner-comment-poller.test.py`,
+`ops/install-imperion-dev-owner-commands.ps1`.
+The installer has preview mode by default and supports `-Apply` for a new task; existing matching tasks are retained without duplication, and name collisions with different actions fail closed. Local source names differ from GitHub checked-in filename but the scripts resolve both verified paths. To stop: disable or unregister this *single named Windows scheduled task* after owner GO. The process requires Windows user login, an awake PC and internet; PC being offline suspends the local trigger. No GitHub merge or production deployment happened.
+
+**Current honest scope:** this is a VERIFIED owner-command diagnostic/synthetic coding loop with recurring on-device polling. It is NOT general unrestricted AI programming, unrestricted system operation, autonomous GitHub PR creation or fully cloud-hosted 24/7 operation. Existing cloud Qwen workflow and child draft PR #235 remain separate; browser regression of unrelated site changes is still an independent CI blocker.
