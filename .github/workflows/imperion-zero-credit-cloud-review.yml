@@ -78,15 +78,16 @@ jobs:
             if [ "$attempt" = 1 ]; then
               node scripts/imperion-zero-credit-dev-agent.cjs
             else
-              node scripts/imperion-zero-credit-dev-agent.cjs --repair
+              DEV_AGENT_FEEDBACK="$(cat "$RUNNER_TEMP/imperion-dev-sandbox/feedback.txt" 2>/dev/null || echo 'unknown test failure')" node scripts/imperion-zero-credit-dev-agent.cjs --repair
             fi
             cp "$RUNNER_TEMP/imperion-zero-credit-qwen-proof.json" "$RUNNER_TEMP/imperion-dev-sandbox/proposal.json"
+            rm -f "$RUNNER_TEMP/imperion-dev-sandbox/feedback.txt"
             if docker run --rm --user "$(id -u):$(id -g)" --network none --read-only --cap-drop ALL \
               --security-opt no-new-privileges --pids-limit 64 --memory 256m \
               -v "$RUNNER_TEMP/imperion-dev-sandbox:/sandbox:rw" \
               -v "$GITHUB_WORKSPACE/scripts/imperion-zero-credit-dev-validate.cjs:/validator.cjs:ro" \
               node:22-alpine \
-              node /validator.cjs /sandbox/proposal.json /sandbox/validated.json; then
+              node /validator.cjs /sandbox/proposal.json /sandbox/validated.json /sandbox/feedback.txt; then
               cp "$RUNNER_TEMP/imperion-dev-sandbox/validated.json" "$RUNNER_TEMP/imperion-zero-credit-qwen-validated.json"
               echo "Qwen proposal passed isolated synthetic tests at attempt $attempt"
               break
