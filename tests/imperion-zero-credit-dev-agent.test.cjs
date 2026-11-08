@@ -33,6 +33,17 @@ test('mocked Ollama proposal reports model, cost and separate sandbox gate',asyn
  assert.equal(result.prompt_tokens,194);
  assert.equal(V.validate(result).cases_passed,7);
 });
+test('bounded repair for real Qwen code passes all seven cases and remains explicit',()=>{
+ const candidate="const source=utmLabels.length?(baseSource.slice(0,Math.max(2,65-2-utmLabels.join('_').length)))+'__'+utmLabels.join('_'):baseSource;";
+ const proof={model:A.MODEL,status:'MODEL_CODE_PROPOSED_PENDING_SANDBOX',code:candidate};
+ const validated=V.validate(proof);
+ assert.equal(validated.status,'SYNTHETIC_CODE_TEST_PASS');
+ assert.equal(validated.cases_passed,7);
+ assert.equal(validated.test_repair,'DETERMINISTIC_MAX65_OUTPUT_BOUND');
+ assert.equal(validated.model_code_original,candidate);
+ assert.match(validated.review_code,/source\.slice\(0,65\)/);
+ assert.equal(validated.deployment_approved,false);
+});
 test('legacy code fails synthetic acceptance instead of being marked complete',()=>{
  const evidence={model:A.MODEL,status:'MODEL_CODE_PROPOSED_PENDING_SANDBOX',code:A.OLD};
  assert.throws(()=>V.validate(evidence),/preserve UTM/);
