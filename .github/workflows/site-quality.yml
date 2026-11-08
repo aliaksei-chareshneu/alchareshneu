@@ -101,7 +101,7 @@ jobs:
       - name: Check four-language information channels and gated chats
         run: node --test tests/imperion-community-routing.test.cjs
       - name: Verify zero-credit Qwen cloud agent is public-only and cannot take actions
-        run: node --test tests/imperion-zero-credit-cloud-review.test.cjs tests/imperion-zero-credit-cloud-workflow.test.cjs
+        run: node --test tests/imperion-zero-credit-cloud-review.test.cjs tests/imperion-zero-credit-cloud-workflow.test.cjs tests/imperion-zero-credit-dev-agent.test.cjs
 
       - name: Verify free public-only AI router and fail-closed Pages proof
         run: node --test tests/imperion-free-model-router.test.cjs tests/imperion-autopilot-workflow-gate.test.cjs
