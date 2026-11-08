@@ -9,7 +9,7 @@ const {createHash}=require('node:crypto');
 const ENTITIES=new Set(['OSVC','BRNOWALKERS','DRUZINA_MORAVY_ZS']);
 const LANGS=new Set(['cs','en','ru','uk']);
 const LIVE=new Set(['PUBLISHED_VERIFIED','POSTED_VERIFIED','PUBLISHED_WEB_VERIFIED']);
-const UNSETTLED=/(PENDING|SCHEDULED|ERROR|SUBMITTING|UNVERIFIED|BLOCKED)/;
+const UNSETTLED=/(PENDING|SCHEDULED|ERROR|SUBMITTING|UNVERIFIED|BLOCKED|PUBLISHED_PROVIDER_CONFIRMED)/;
 const OWN_SITE='aliaksei-chareshneu.github.io';
 const clean=v=>v==null?'':String(v).trim();
 const upper=v=>clean(v).toUpperCase();
@@ -37,7 +37,8 @@ function review(snapshot, parseLocalDate){
     const id=clean(event.Event_ID||event.event_id);
     if(!/^[A-Za-z0-9][A-Za-z0-9_:-]{2,119}$/.test(id)||eventIds.has(id))continue;
     eventIds.add(id);
-    if(upper(event.Status||event.status)!=='CONFIRMED')continue;
+    const status=upper(event.Status||event.status);
+    if(!['CONFIRMED','ACTIVE'].includes(status))continue;
     const start=parseLocalDate(event.Start_DateTime||event.Starts_At||event.start_at);
     if(!start)continue;
     const t=Date.parse(start);
@@ -60,6 +61,7 @@ function review(snapshot, parseLocalDate){
       current_public_http:false, // actual browser/provider readback is separate
     };
     const blockers=Object.keys(checks).filter(k=>!checks[k]);
+    if(status==='ACTIVE')blockers.push('ACTIVE_NOT_INDEPENDENTLY_CONFIRMED');
     if(unresolved.length)blockers.push('UNSETTLED_PROVIDER_POST_RECONCILIATION');
     if(published.length)blockers.push('EXISTING_POST_DEDUP_AND_RECENCY_CHECK');
     candidates.push({
