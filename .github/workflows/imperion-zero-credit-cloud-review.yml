@@ -81,7 +81,7 @@ jobs:
               node scripts/imperion-zero-credit-dev-agent.cjs --repair
             fi
             cp "$RUNNER_TEMP/imperion-zero-credit-qwen-proof.json" "$RUNNER_TEMP/imperion-dev-sandbox/proposal.json"
-            if docker run --rm --network none --read-only --cap-drop ALL \
+            if docker run --rm --user "$(id -u):$(id -g)" --network none --read-only --cap-drop ALL \
               --security-opt no-new-privileges --pids-limit 64 --memory 256m \
               -v "$RUNNER_TEMP/imperion-dev-sandbox:/sandbox:rw" \
               -v "$GITHUB_WORKSPACE/scripts/imperion-zero-credit-dev-validate.cjs:/validator.cjs:ro" \
