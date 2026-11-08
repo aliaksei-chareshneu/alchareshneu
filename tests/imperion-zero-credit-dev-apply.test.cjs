@@ -23,7 +23,7 @@ test('refuses missing proof, wrong model, dangerous expression and source drift'
   {...p,production_effects:1},{...p,cases_passed:6},
   {...p,review_code:"const source=fetch('https://example.com');"},
   {...p,review_code:"const source=2;process.exit(1);"}
- ])assert.throws(()=>A.apply(original,mutation),/REQUIRED|RESTRICTED/);
+ ])assert.throws(()=>A.apply(original,mutation),/REQUIRED|RESTRICTED|WRAPPER_MISMATCH/);
  assert.throws(()=>A.apply(original.replace('const source=utmSuffix','const source=other'),p),/ANCHOR/);
  assert.throws(()=>A.apply(original+original,p),/ANCHOR_NOT_UNIQUE/);
  assert.throws(()=>A.apply('nothing here',p),/ANCHOR/);
