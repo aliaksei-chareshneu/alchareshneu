@@ -30,6 +30,16 @@ async function request(url,options={}){
     body:JSON.stringify({product_key:'csv_rescue',accepted_terms:true,immediate_delivery_requested:true,policy_version:'digital-v1-20261108'})});
   assert.equal(forbidden.status,403,'Origin guard must block cross-site checkout');
   console.log('PASS: checkout origin guard');
+  // A deliberately invalid consent must fail at validation (422). If the secret
+  // cannot be read from private Vault, the server instead responds 503 before validation.
+  // No consent/charge/order is created by this readback probe.
+  const vaultReady=await request(ROOT+'/checkout-intent',{method:'POST',
+    headers:{'content-type':'application/json','Origin':'https://aliaksei-chareshneu.github.io'},
+    body:JSON.stringify({product_key:'csv_rescue',accepted_terms:false,
+      immediate_delivery_requested:false,policy_version:'digital-v1-20261108'})});
+  assert.equal(vaultReady.status,422,'Stripe signing secret must be available via private Supabase Vault');
+  assert.equal(vaultReady.body.error,'consent_or_product_missing');
+  console.log('PASS: real webhook signing secret accessible to server; invalid consent blocked without charge');
   const bogusWebhook=await request(ROOT+'/stripe-webhook',{method:'POST',
     headers:{'content-type':'application/json','Stripe-Signature':'t=1234567890,v1='+('0'.repeat(64))},
     body:JSON.stringify({type:'checkout.session.completed',id:'evt_invalid'})});
