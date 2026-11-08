@@ -68,28 +68,46 @@ jobs:
         run: |
           set -euo pipefail
           node scripts/imperion-zero-credit-cloud-review.cjs
-      - name: Qwen proposes code; isolated Docker tests it with zero credentials
+      - name: Qwen proposes code, tests and repairs once in isolated Docker
         if: github.event_name == 'pull_request'
         shell: bash
         run: |
           set -euo pipefail
-          node scripts/imperion-zero-credit-dev-agent.cjs
           mkdir -p "$RUNNER_TEMP/imperion-dev-sandbox"
-          cp "$RUNNER_TEMP/imperion-zero-credit-qwen-proof.json" "$RUNNER_TEMP/imperion-dev-sandbox/proposal.json"
-          docker run --rm --network none --read-only --cap-drop ALL \
-            --security-opt no-new-privileges --pids-limit 64 --memory 256m \
-            -v "$RUNNER_TEMP/imperion-dev-sandbox:/sandbox:rw" \
-            -v "$GITHUB_WORKSPACE/scripts/imperion-zero-credit-dev-validate.cjs:/validator.cjs:ro" \
-            node:22-alpine \
-            node /validator.cjs /sandbox/proposal.json /sandbox/validated.json
-          cp "$RUNNER_TEMP/imperion-dev-sandbox/validated.json" "$RUNNER_TEMP/imperion-zero-credit-qwen-validated.json"
+          for attempt in 1 2; do
+            if [ "$attempt" = 1 ]; then
+              node scripts/imperion-zero-credit-dev-agent.cjs
+            else
+              node scripts/imperion-zero-credit-dev-agent.cjs --repair
+            fi
+            cp "$RUNNER_TEMP/imperion-zero-credit-qwen-proof.json" "$RUNNER_TEMP/imperion-dev-sandbox/proposal.json"
+            if docker run --rm --network none --read-only --cap-drop ALL \
+              --security-opt no-new-privileges --pids-limit 64 --memory 256m \
+              -v "$RUNNER_TEMP/imperion-dev-sandbox:/sandbox:rw" \
+              -v "$GITHUB_WORKSPACE/scripts/imperion-zero-credit-dev-validate.cjs:/validator.cjs:ro" \
+              node:22-alpine \
+              node /validator.cjs /sandbox/proposal.json /sandbox/validated.json; then
+              cp "$RUNNER_TEMP/imperion-dev-sandbox/validated.json" "$RUNNER_TEMP/imperion-zero-credit-qwen-validated.json"
+              echo "Qwen proposal passed isolated synthetic tests at attempt $attempt"
+              break
+            fi
+            if [ "$attempt" = 1 ]; then
+              cp "$RUNNER_TEMP/imperion-zero-credit-qwen-proof.json" "$RUNNER_TEMP/imperion-zero-credit-qwen-first-failed.json"
+              echo "First Qwen proposal failed tests, retrying with targeted feedback"
+            else
+              echo "Qwen repair still failed. REVIEW REQUIRED; no code committed by model." >&2
+              exit 1
+            fi
+          done
       - name: Retain only bounded public-source review proof (not customer data)
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: imperion-zero-credit-qwen-review-${{ github.run_id }}
           path: |
             ${{ runner.temp }}/imperion-zero-credit-qwen-proof.json
             ${{ runner.temp }}/imperion-zero-credit-qwen-validated.json
+            ${{ runner.temp }}/imperion-zero-credit-qwen-first-failed.json
           if-no-files-found: error
           retention-days: 3
       - name: Stop ephemeral model regardless of outcome
