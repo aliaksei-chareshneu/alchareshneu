@@ -97,7 +97,7 @@ jobs:
               node --test tests/imperion-zero-credit-dev-apply.test.cjs
               npm ci --ignore-scripts
               timeout 240s npx playwright install chromium
-              npx playwright test tests/corporate-intake.spec.cjs --reporter=list
+              npx playwright test tests/corporate-intake.spec.cjs --workers=1 --reporter=list
               echo "MODEL_GENERATED_SOURCE_B2B_PLAYWRIGHT_PASS" >> "$GITHUB_STEP_SUMMARY"
               break
             fi
