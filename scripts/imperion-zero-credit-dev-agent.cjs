@@ -10,7 +10,7 @@ const MODEL = 'qwen3:4b-instruct';
 const ENDPOINT = 'http://127.0.0.1:11434/api/generate';
 const SOURCE = 'corporate/request/index.html';
 const OLD = "const source=utmLabels.length?(baseSource+'__'+utmLabels.join('_')).slice(0,65):baseSource;";
-function taskPrompt(html) {
+function taskPrompt(html,feedback='') {
   if (typeof html !== 'string' || !html.includes('const baseSource=') ||
       !html.includes('const utmSuffix=utmLabels.join')) {
     throw Error('PUBLIC_SOURCE_UNVERIFIED');
@@ -25,9 +25,16 @@ function taskPrompt(html) {
     'Requirement: no labels -> preserve baseSource unchanged.',
     'With labels, keep at least 2 characters of baseSource and preserve the',
     'full UTM suffix when it fits; maximum total source length 65.',
+    'EXACT REQUIRED example: 65 s characters + instagram,bio,nov2026 means',
+    'source length 65 with suffix __instagram_bio_nov2026 preserved.',
+    'Algorithm hint: suffix=utmLabels.join("_"); budget=65-2-suffix.length;',
+    'shorten baseSource to Math.max(2,budget) before appending __ + suffix.',
+    'Never concatenate 65 baseSource characters before trying to add UTM.',
     'Use only Math, string and array methods; never call network or tools.',
     'Return JSON ONLY, exactly {"source_statement":"const source=...;"}',
-    'The proposal will be tested using synthetic inputs in a no-network container.'
+    'The proposal will be tested using synthetic inputs in a no-network container.',
+    ...(feedback?['LAST ISOLATED TEST FAILURE: '+feedback,
+      'Repair the last mistake. The UTM suffix must survive; use the algorithm hint.']:[])
   ].join('\n');
 }
 function parseCandidate(raw) {
@@ -47,7 +54,7 @@ function parseCandidate(raw) {
 async function run(opts={}) {
   const read=opts.readFile || (p=>fs.readFileSync(p,'utf8'));
   const fetcher=opts.fetchImpl || globalThis.fetch;
-  const prompt=taskPrompt(read(SOURCE));
+  const prompt=taskPrompt(read(SOURCE),opts.feedback||'');
   const body={model:MODEL,stream:false,think:false,format:'json',prompt,
     options:{num_gpu:0,num_ctx:2048,num_predict:300,temperature:0.1}};
   const r=await fetcher(ENDPOINT,{method:'POST',redirect:'error',
@@ -68,7 +75,9 @@ async function run(opts={}) {
   };
 }
 async function main() {
-  const result=await run();
+  const result=await run({feedback:process.argv.includes('--repair')
+    ?'The earlier candidate failed: preserve UTM for a 65-character referral. The first source must end with __instagram_bio_nov2026; use the explicit suffix budget.'
+    :''});
   const dest=path.join(process.env.RUNNER_TEMP || process.cwd(),'imperion-zero-credit-qwen-proof.json');
   fs.writeFileSync(dest,JSON.stringify(result,null,2)+'\n');
   console.log(JSON.stringify({status:result.status,model:result.model,
