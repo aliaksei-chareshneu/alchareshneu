@@ -158,7 +158,7 @@ jobs:
           }
           readback "shop/" "Scientific CSV Rescue Kit"
           readback "shop/csv-rescue/" "Offline scientific CSV validation"
-          readback "shop/ai-workflow-roi/" "AI Workflow ROI &amp; Readiness Toolkit"
+          readback "shop/ai-workflow-roi/" "AI Workflow ROI"
           readback "shop/guides/csv-data-quality/" "How to clean scientific CSV data"
           readback "shop/guides/automation-payback/" "AI automation ROI"
           readback "shop/legal/" "Čenětická 2413/1a"
