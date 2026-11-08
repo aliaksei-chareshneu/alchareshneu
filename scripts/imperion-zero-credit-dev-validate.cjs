@@ -45,8 +45,7 @@ function validate(proof){
   // A narrow, auditable policy repair for model-generated overlong source codes.
   // Never repair unknown failures (unsafe characters, lost channel, wrong values).
   if(e.message!=='length safety')throw e;
-  reviewCode='const source=(()=>{'+code+'\\nreturn source.slice(0,65);})()'
-    .replace('\\\\n','\\n');
+  reviewCode='const source=(()=>{'+code+'\nreturn source.slice(0,65);})()';
   lengths=runCases(reviewCode);
   repair='DETERMINISTIC_MAX65_OUTPUT_BOUND';
  }
