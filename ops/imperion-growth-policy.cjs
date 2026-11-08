@@ -15,12 +15,12 @@ const clean=v=>v==null?'':String(v).trim();
 const upper=v=>clean(v).toUpperCase();
 const bool=v=>v===true;
 const httpsUrl=v=>{try {const u=new URL(clean(v));return u.protocol==='https:'?u:null;}catch{return null;}};
-const positiveDate=v=>typeof v==='string'&&Number.isFinite(Date.parse(v))?Date.parse(v):null;
+const positiveDate=v=>typeof v==='string'&&/^\d{4}-\d\d-\d\dT\d\d:\d\d(?::\d\d(?:\.\d+)?)?(?:Z|[+-]\d\d:\d\d)$/.test(v)&&Number.isFinite(Date.parse(v))?Date.parse(v):null;
 function entityName(name){
   const n=upper(name);
-  if(/DRU.ZINA MORAVY|DRUZINA MORAVY/.test(n))return 'DRUZINA_MORAVY_ZS';
+  if(/DRU[\u017dZ]INA MORAVY/.test(n))return 'DRUZINA_MORAVY_ZS';
   if(n.includes('BRNOWALKERS'))return 'BRNOWALKERS';
-  if(n.includes('ALIAKSEI CHARESHNEU')||n.includes('OSVC'))return 'OSVC';
+  if(n.includes('ALIAKSEI CHARESHNEU')||/OSV[\u010cC]/.test(n))return 'OSVC';
   return 'UNKNOWN';
 }
 function review(snapshot, parseLocalDate){
