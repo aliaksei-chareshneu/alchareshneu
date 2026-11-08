@@ -1,0 +1,28 @@
+name: IMPERION Agent5 restricted PC executor QA
+on:
+  pull_request:
+    paths:
+      - 'ops/pc-agent/**'
+      - '.github/workflows/imperion-pc-agent5.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  safe-executor:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Pure-stdlib sandbox and denial tests (no machine access)
+        run: python -B ops/pc-agent/restricted_executor.py --selftest
+      - name: Read-only capability report
+        run: python -B ops/pc-agent/restricted_executor.py --status
+      - name: Confirm no hosted model or external effect
+        run: |
+          echo 'Tested synthetic Python allowlist only.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'No Windows PC, LLM runtime, browser, secrets, messages, deploy, or payment involved.' >> "$GITHUB_STEP_SUMMARY"
