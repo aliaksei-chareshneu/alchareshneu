@@ -68,6 +68,30 @@ Run local regression tests: `python -B .\loopback_readonly.py --selftest`.
 Seven checks passed on the real Windows host: route, read-only diagnostics,
 Host restriction, POST rejection, query injection denial, non-CORS and CSP.
 
+## Staged direct Browser Bridge adapter (NOT activated)
+
+To avoid an extra resident HTTP server in future, `browser_bridge_adapter.py`
+exposes two fixed, read-only actions: `pc_machine_status` and `pc_watchdog`.
+It accepts **no payload fields** and cannot invoke shell, write synthetic notes,
+read arbitrary paths, open website sessions or grant itself permission.
+`python -B .\browser_bridge_adapter.py --selftest` passed 8/8 on Windows.
+
+`stage_browser_integration.py` reads the EXISTING local
+`~/BrowserBridge/agent/browser_agent.py`, writes **only**
+`browser_agent_staged.py` inside this Agent5 folder, then tests staged
+`execute()` against a fake page without launching Chromium. On Windows it
+passed 7/7: two diagnostic actions, payload-injection denial, original
+`status` action retained, unknown action blocked, source SHA256 unchanged.
+The running Browser Bridge process was **not** restarted and the new actions
+have **not** been installed in production. Do not enqueue those two actions
+until an owner-approved browser-agent update and source readback. The existing
+on-demand loopback `open` route is the only LIVE cloud-to-PC diagnostic
+route verified so far.
+
+Activation would require review of the prepared diff and an explicit,
+controlled restart after securing the user's browser session. It MUST
+not add a second polling queue or elevate agent filesystem privileges.
+
 ## Known limits / do not silently promote
 
 - The installed Codex CLI exists; do NOT run it with danger-full-access or paid API fallback.
