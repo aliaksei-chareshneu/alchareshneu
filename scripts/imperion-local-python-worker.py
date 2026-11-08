@@ -13,6 +13,7 @@ from pathlib import Path
 import re
 import subprocess
 import sys
+import tempfile
 from urllib.request import Request, urlopen
 
 MODEL = "imperion-qwen35:4b"
@@ -38,7 +39,7 @@ def trusted_task(path):
         raise ValueError("FUNCTION_NAME_REJECTED")
     if not isinstance(task["requirement"], str) or not 10 <= len(task["requirement"]) <= 600:
         raise ValueError("REQUIREMENT_BOUNDS")
-    temp = Path(os.environ["TEMP"]).resolve()
+    temp = Path(os.environ.get("TEMP") or tempfile.gettempdir()).resolve()
     workspace = Path(task["workspace"]).resolve()
     if not workspace.is_relative_to(temp) or not workspace.name.startswith("imperion-dev-agent-"):
         raise ValueError("ONLY_TEMP_PUBLIC_WORKSPACE_ALLOWED")
