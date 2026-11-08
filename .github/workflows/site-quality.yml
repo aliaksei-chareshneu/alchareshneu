@@ -103,6 +103,17 @@ jobs:
       - name: Verify local Python Qwen worker rejects private files and unsafe AST
         run: python3 tests/imperion-local-python-worker.test.py scripts/imperion-local-python-worker.py
 
+      - name: Verify owner-only GitHub dev commands, dedup and last-job evidence
+        run: python3 tests/imperion-owner-comment-poller.test.py
+
+      - name: Parse reversible Windows dev agent scheduler without running it
+        shell: pwsh
+        run: |
+          $tokens = $null
+          $parseErrors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path 'ops/install-imperion-dev-owner-commands.ps1').Path, [ref]$tokens, [ref]$parseErrors) | Out-Null
+          if ($parseErrors.Count -gt 0) { $parseErrors | ForEach-Object { Write-Error $_ }; exit 1 }
+
       - name: Verify zero-credit Qwen cloud agent is public-only and cannot take actions
         run: node --test tests/imperion-zero-credit-cloud-review.test.cjs tests/imperion-zero-credit-cloud-workflow.test.cjs tests/imperion-zero-credit-dev-agent.test.cjs tests/imperion-zero-credit-dev-apply.test.cjs
 
