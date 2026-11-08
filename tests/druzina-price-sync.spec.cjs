@@ -27,11 +27,11 @@ test('Druzina Nov 7 group tariff stays synchronized across public entrypoints',(
  expect(dashboard).toContain('НЕ ПЛАТИТЬ без личного письменного подтверждения условий');
  const homepage=read('druzina/index.html');
  expect(homepage).toContain('Актуальные групповые цены');
- expect(homepage).toContain('current group pricing');
+ expect(homepage).toContain('Current group prices');
 });
 test('Druzina live pricing pages remain enquiry-only, preserving prepaid rights',()=>{
  const prices=read('druzina/permanentky/index.html');
- expect(prices).toContain('Previously agreed rights are preserved');
+ expect(prices).toContain('We preserve individually confirmed or prepaid entitlements');
  expect(prices).toContain('14 November 2026 Orel Husovice beginner workshop remains free');
  expect(prices).not.toMatch(/buy\\.stripe\\.com|revolut\\.me|<form[^>]*action=/);
  expect(prices).toContain('../prihlaska/?lang=en');
