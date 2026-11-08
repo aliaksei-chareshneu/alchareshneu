@@ -45,6 +45,10 @@ if(require.main===module){
   const result=validate(p);
   fs.writeFileSync(process.argv[3],JSON.stringify(result,null,2)+'\n');
   console.log(JSON.stringify({status:result.status,cases_passed:result.cases_passed}));
- }catch(e){console.error('MODEL_CODE_TEST_FAILED '+String(e.message).slice(0,180));process.exitCode=1}
+ }catch(e){
+  const reason=String(e.message).slice(0,140);
+  if(process.argv[4])fs.writeFileSync(process.argv[4],reason+'\n');
+  console.error('MODEL_CODE_TEST_FAILED '+reason);process.exitCode=1
+ }
 }
 module.exports={validate};
