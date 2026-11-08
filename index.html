@@ -474,9 +474,11 @@
       <div class="footer-contacts">
         <a class="btn solid" href="start/">Find the right service</a>
         <a class="btn solid" href="https://wa.me/420702914842?text=Hello%2C%20I%27d%20like%20to%20register%20for%20an%20event%20or%20training.%20Please%20confirm%20the%20date%2C%20venue%2C%20applicable%20safety%20information%2C%20price%20and%20booking%20conditions." target="_blank" rel="noopener">Ask about an event</a>
+        <a class="btn" href="https://buymeacoffee.com/chereshnevu" target="_blank" rel="noopener noreferrer">☕ Voluntary personal support</a>
         <a class="btn" href="mailto:chereshnev.biochem@gmail.com">Email</a>
         <a class="btn" href="tel:+420702914842">+420 702 914 842</a>
       </div>
+      <p style="font-size:12.5px;color:var(--ink-dim);text-align:center;margin-top:10px;">Voluntary personal support; not an event fee or a donation to Družina Moravy z. s.</p>
       <p style="font-size:12.5px;color:var(--ink-dim);text-align:center;margin-top:10px;">Payment details are sent only after the service, price and terms are confirmed in writing.</p>
       <div style="margin-top:16px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
         <a href="https://maps.app.goo.gl/fEbnJHxiVoAx1v498" target="_blank" rel="noopener" style="font-size:13px;color:var(--r5);font-weight:600;">⭐ Google Reviews</a>
@@ -3188,6 +3190,8 @@ function render(lang){
     cs:'Aktuální termíny, ceny a pořadatel se potvrzují pro každou akci zvlášť.',
     uk:'Актуальні дати, вартість та організатор підтверджуються окремо для кожного заходу.'
   };
+  const supporterLabel = {ru:'☕ Личная поддержка', en:'☕ Support my work', cs:'☕ Podpořit mou tvorbu', uk:'☕ Підтримати мою працю'};
+  const supporterNote = {ru:'Добровольная личная поддержка: не оплата услуг и не взнос Družina Moravy z. s.', en:'Optional personal support: not a service payment or a Družina Moravy z. s. contribution.', cs:'Dobrovolná osobní podpora: nikoli platba za službu ani příspěvek spolku Družina Moravy z. s.', uk:'Добровільна особиста підтримка: не оплата послуг і не внесок Družina Moravy z. s.'};
   const footerHtml = `
   <footer>
     <div class="wrap">
@@ -3195,9 +3199,11 @@ function render(lang){
       <div class="footer-contacts">
         <a class="btn solid" href="start/?lang=${lang}">${orderServiceLabel[lang]}</a>
         <a class="btn solid" href="${REGISTER_FORM}" target="_blank" rel="noopener">${registerLabelFooter[lang]}</a>
+        <a class="btn" href="https://buymeacoffee.com/chereshnevu" target="_blank" rel="noopener noreferrer">${supporterLabel[lang]}</a>
         <a class="btn" href="mailto:chereshnev.biochem@gmail.com">Email</a>
         <a class="btn" href="tel:+420702914842">+420 702 914 842</a>
       </div>
+      <p style="font-size:12.5px;color:var(--ink-dim);text-align:center;margin-top:10px;">${supporterNote[lang]}</p>
       <p style="font-size:12.5px;color:var(--ink-dim);text-align:center;margin-top:10px;">${paymentCommentNote[lang]}</p>
       <div style="margin-top:16px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
         <a href="${GOOGLE_REVIEWS_LINK}" target="_blank" rel="noopener" style="font-size:13px;color:var(--r5);font-weight:600;">⭐ Google Reviews</a>
