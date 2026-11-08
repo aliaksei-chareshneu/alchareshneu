@@ -40,6 +40,22 @@ async function request(url,options={}){
   assert.equal(vaultReady.status,422,'Stripe signing secret must be available via private Supabase Vault');
   assert.equal(vaultReady.body.error,'consent_or_product_missing');
   console.log('PASS: real webhook signing secret accessible to server; invalid consent blocked without charge');
+  // A valid pre-checkout request records consent and returns a Stripe Payment Link,
+  // but DOES NOT submit payment details or create a Stripe charge.
+  for (const key of ['csv_rescue','ai_roi']) {
+    const intent=await request(ROOT+'/checkout-intent',{method:'POST',
+      headers:{'content-type':'application/json','Origin':'https://aliaksei-chareshneu.github.io'},
+      body:JSON.stringify({product_key:key,accepted_terms:true,
+        immediate_delivery_requested:true,policy_version:'digital-v1-20261108'})});
+    assert.equal(intent.status,200,key+' must return an active checkout URL');
+    assert.equal(intent.body.product_key,key);
+    const checkout=new URL(intent.body.checkout_url);
+    assert.equal(checkout.protocol,'https:');
+    assert.equal(checkout.hostname,'buy.stripe.com');
+    assert.match(checkout.searchParams.get('client_reference_id')||'',/^[0-9a-f]{8}-[0-9a-f-]{27,36}$/);
+    console.log('PASS: real live '+key+' checkout intent, consent + Stripe URL verified; NO payment attempted');
+  }
+
   const bogusWebhook=await request(ROOT+'/stripe-webhook',{method:'POST',
     headers:{'content-type':'application/json','Stripe-Signature':'t=1234567890,v1='+('0'.repeat(64))},
     body:JSON.stringify({type:'checkout.session.completed',id:'evt_invalid'})});
