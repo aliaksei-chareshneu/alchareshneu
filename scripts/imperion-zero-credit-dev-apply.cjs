@@ -17,9 +17,23 @@ function apply(html,record){
    throw Error('VERIFIED_MODEL_PROOF_REQUIRED');
  const statement=record.review_code;
  if(typeof statement!=='string'||statement.length>900||
-    !/^const source\s*=/.test(statement)||
-    /(?:\b(?:require|process|fetch|globalThis|eval|Function|import|constructor|prototype)\b|[\x60<>\\])/i.test(statement))
-    throw Error('MODEL_PATCH_RESTRICTED');
+    !/^const source\s*=/.test(statement))
+   throw Error('MODEL_PATCH_RESTRICTED');
+ // Only the previously sandbox-tested deterministic wrapper is allowed to
+ // contain a trusted arrow (=>). The untrusted model-authored body may not.
+ let inspect=statement;
+ if(record.test_repair==='DETERMINISTIC_MAX65_OUTPUT_BOUND'){
+   const prefix='const source=(()=>{';
+   const suffix='\nreturn source.slice(0,65);})()';
+   if(typeof record.model_code_original!=='string'||
+      statement!==prefix+record.model_code_original+suffix)
+     throw Error('DETERMINISTIC_BOUND_WRAPPER_MISMATCH');
+   inspect=record.model_code_original;
+ }else if(statement!==record.model_code_original){
+   throw Error('UNREPAIRED_MODEL_CODE_MISMATCH');
+ }
+ if(/(?:\b(?:require|process|fetch|globalThis|eval|Function|import|constructor|prototype)\b|[\x60<>\\])/i.test(inspect))
+   throw Error('MODEL_PATCH_RESTRICTED');
  const from='const source=utmSuffix';
  const start=html.indexOf(from);
  if(start<0||html.indexOf(from,start+1)!==-1)throw Error('B2B_SOURCE_ANCHOR_NOT_UNIQUE');
