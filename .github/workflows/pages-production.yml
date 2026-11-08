@@ -131,3 +131,38 @@ jobs:
           set -euo pipefail
           node scripts/imperion-live-readback.cjs | tee "$RUNNER_TEMP/imperion-pages-provider-readback.json"
           echo 'Public GitHub Pages HTTP matches four exact build asset SHA-256 hashes.' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Verify real storefront product pages over public HTTPS (no payment)
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://aliaksei-chareshneu.github.io/alchareshneu"
+          readback() {
+            local path="$1" expected="$2" tmp
+            tmp="$(mktemp)"
+            local ok=0
+            for attempt in 1 2 3 4 5 6 7 8; do
+              if curl -fsSL --max-time 25 --retry 1 "$base/$path" -o "$tmp" && grep -Fq "$expected" "$tmp"; then
+                ok=1
+                break
+              fi
+              sleep 4
+            done
+            if [ "$ok" != "1" ]; then
+              echo "Storefront HTTPS readback failed for /$path, expected $expected"
+              rm -f "$tmp"
+              exit 1
+            fi
+            echo "VERIFIED HTTPS: /$path"
+            rm -f "$tmp"
+          }
+          readback "shop/" "Scientific CSV Rescue Kit"
+          readback "shop/csv-rescue/" "Offline scientific CSV validation"
+          readback "shop/ai-workflow-roi/" "AI Workflow ROI &amp; Readiness Toolkit"
+          readback "shop/guides/csv-data-quality/" "How to clean scientific CSV data"
+          readback "shop/guides/automation-payback/" "AI automation ROI"
+          readback "shop/legal/" "Čenětická 2413/1a"
+          readback "shop/thanks/" "the signed-payment receipt"
+          readback "shop/shop.js" "checkout_active"
+          echo "All 8 storefront assets independently verified over public HTTPS; no payment sent." >> "$GITHUB_STEP_SUMMARY"
+
