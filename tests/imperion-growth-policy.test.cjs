@@ -27,6 +27,11 @@ test('existing confirmed event discovered without pretending seats, copyright or
   assert.ok(a.blockers.includes('UNSETTLED_PROVIDER_POST_RECONCILIATION'));
   assert.equal(r.public_posts_created,0);
 });
+test('actual Hub ACTIVE event is discovered but requires independent confirmation',()=>{
+  const r=G.review(snapshot('ACTIVE'),iso);assert.equal(r.total,1);
+  assert.ok(r.candidates[0].blockers.includes('ACTIVE_NOT_INDEPENDENTLY_CONFIRMED'));
+  assert.equal(r.candidates[0].auto_post,false);
+});
 test('cancelled and draft events cannot become campaigns',()=>{
   for(const status of ['CANCELLED','DRAFT','TENTATIVE'])assert.equal(G.review(snapshot(status),iso).total,0);
 });
