@@ -30,14 +30,16 @@ for (const language of ['en', 'cs', 'ru', 'uk']) {
     expect(await page.locator('#main .site-mosaic img').evaluateAll(images => images.every(image => image.complete && image.naturalWidth > 0))).toBe(true);
   });
 
-  test(`Druzina primary action stays compact and reachable on a phone: ${language}`, async ({page}) => {
+  test(`Druzina signup nav CTA stays reachable when dated notices precede the hero: ${language}`, async ({page}) => {
     await isolateExternalWidgets(page);
     await page.setViewportSize({width:390, height:844});
     await page.goto('/druzina/?lang=' + language);
-    const box = await page.locator('#druzina .dm-v2-primary').boundingBox();
-    expect(box.height).toBeGreaterThanOrEqual(54);
+    await expect(page.locator('#navBookBtn')).toBeVisible();
+    const box = await page.locator('#navBookBtn').boundingBox();
+    expect(box.height).toBeGreaterThanOrEqual(44);
     expect(box.height).toBeLessThanOrEqual(84);
     expect(box.y + box.height).toBeLessThanOrEqual(844);
+    await expect(page.locator('#navBookBtn')).toHaveAttribute('href', 'prihlaska/?lang=' + language);
     await expect(page.locator('#druzina .dm-v2-primary')).toHaveAttribute('href', 'prihlaska/?lang=' + language);
   });
 
