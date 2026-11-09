@@ -81,11 +81,11 @@ test('approved public source → quota reservation → one draft; no side effect
   const fetchImpl=async (url,options)=>{
     calls.push({url,method:options.method,body:options.body});
     if(options.method==='GET')return res(200, '{"events":[{"title":"Open day"}]}');
-    return res(200, {choices:[{message:{content:'Návrh na veřejnou pozvánku.'}}]});
+    return res(200, {choices:[{message:{content:'This is a complete public-facing review draft based on the supplied first-party website. It does not confirm any unverified customer engagement, payment, booking or publication.'}}]});
   };
   const result=await M.draftPublicTask(TASK, {env:GROQ_ENV, fetchImpl,
     reserveQuota:async x=>{reservations.push(x);return true;}});
-  assert.equal(result.status,'DRAFT_FOR_OWNER_REVIEW');
+  assert.equal(result.status,'DRAFT_FOR_OWNER_REVIEW',JSON.stringify(result));
   assert.equal(result.owner_approval_required,true);
   assert.equal(result.messages_sent,0);
   assert.equal(result.payments_created,0);
@@ -144,6 +144,32 @@ test('local Ollama is allowlisted and disabled for unsupported creative task typ
   assert.equal(x.reason,'NO_VERIFIED_FREE_PROVIDER');
   assert.equal(calls,0);
 });
+test('Groq rate limit falls back to verified loopback Qwen for public translation',async()=>{
+  const env={...GROQ_ENV,OLLAMA_LOCAL_ENABLED:'true',OLLAMA_LOCAL_MODEL:'imperion-qwen35:4b'};
+  const task={...TASK,job_id:'PUB-TRANSLATE-FALLBACK-20261109',purpose:'PUBLIC_TRANSLATION_DRAFT'};
+  const calls=[],reservations=[];
+  const x=await M.draftPublicTask(task,{env,reserveQuota:async q=>{
+    reservations.push(q);return true;
+  },fetchImpl:async(url,opts)=>{
+    if(opts.method==='GET')return res(200,'{"events":[{"title":"Public workshop"}]}');
+    calls.push({url,headers:opts.headers,body:JSON.parse(opts.body)});
+    if(calls.length===1)return res(429,{error:'rate limit'});
+    return res(200,{response:'Veřejný workshop'});
+  }});
+  assert.equal(x.status,'DRAFT_FOR_OWNER_REVIEW');
+  assert.equal(x.provider,'ollama_local');
+  assert.equal(x.billing_readback,'LOCAL_COMPUTE_UNMETERED');
+  assert.equal(x.owner_approval_required,true);
+  assert.equal(x.messages_sent,0);
+  assert.equal(x.posts_published,0);
+  assert.deepEqual(reservations.map(q=>q.provider),['groq','ollama_local']);
+  assert.equal(calls.length,2);
+  assert.equal(calls[0].url,'https://api.groq.com/openai/v1/chat/completions');
+  assert.equal(calls[1].url,'http://127.0.0.1:11434/api/generate');
+  assert.equal(calls[1].headers.Authorization,undefined);
+  assert.equal(calls[1].body.options.num_gpu,0);
+});
+
 test('public translation routes only to local Ollama with CPU and approval gate',async()=>{
   const calls=[],env={OLLAMA_LOCAL_ENABLED:'true',OLLAMA_LOCAL_MODEL:'imperion-qwen35:4b'};
   const task={...TASK,job_id:'PUB-TRANSLATE-20261105',purpose:'PUBLIC_TRANSLATION_DRAFT'};
@@ -201,9 +227,31 @@ test('preserves numeric facts and links explicitly present in the approved sourc
   const x=await M.draftPublicTask(TASK,{env:GROQ_ENV,reserveQuota:async()=>true,
     fetchImpl:async(_url,opts)=>opts.method==='GET'
       ? res(200,input)
-      : res(200,{choices:[{message:{content:'Workshop: 240 Kč. '+link}}]})});
+      : res(200,{choices:[{message:{content:'Workshop: 240 Kč. '+link+' This is an approved-source review draft. No publication, booking, payment, or customer engagement is claimed.'}}]})});
   assert.equal(x.status,'DRAFT_FOR_OWNER_REVIEW');
   assert.equal(x.owner_approval_required,true);
   assert.equal(x.posts_published,0);
+});
+
+test('Groq GPT-OSS uses low reasoning budget and refuses clipped content', async () => {
+  let request;
+  const x = await M.draftPublicTask(TASK, {
+    env: GROQ_ENV,
+    reserveQuota: async () => true,
+    fetchImpl: async (_url, opts) => {
+      if (opts.method === 'GET')
+        return res(200, '{"events":[{"title":"Open day"}]}');
+      request = JSON.parse(opts.body);
+      return res(200, {choices:[{finish_reason:'length',
+        message:{content:'**Draft Public Fact'}}]});
+    }
+  });
+  assert.equal(request.model, 'openai/gpt-oss-120b');
+  assert.equal(request.reasoning_effort, 'low');
+  assert.equal(request.include_reasoning, false);
+  assert.equal(request.max_completion_tokens, 2400);
+  assert.equal(Object.hasOwn(request, 'max_tokens'), false);
+  assert.equal(x.status, 'BLOCKED');
+  assert.deepEqual(x.failures, ['groq:INCOMPLETE_DRAFT']);
 });
 

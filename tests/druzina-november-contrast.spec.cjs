@@ -11,7 +11,7 @@ for(const lang of languages)for(const width of [360,1440]){
   await expect(page.locator('link[href*="brand-theme.css"]')).toHaveAttribute('href','../../brand-theme.css?v=20261026b');
   const article=page.locator('article.locale:visible');
   await expect(article).toHaveCount(1);
-  await expect(article.locator('.price-amount')).toHaveCount(5);
+  await expect(article.locator('.price-amount')).toHaveCount(3);
   await expect(article.locator('.state-tag[data-state="pilot"]')).toHaveCount(1);
   await expect(article).not.toContainText(forbidden[lang]);
   const checks=await article.evaluate(el=>{
@@ -61,7 +61,8 @@ test('Three qualification lines are never confused with opt-in Senior Corps',()=
  expect(news).toContain('независимые направления оценки навыков');
  expect(news).toContain('Добровольная полезная помощь клубу');
  expect(news).toContain('Senior Flex');
- expect(news).toContain('7 ноября регулярная тренировка ОТМЕНЕНА');
+ expect(news).toContain('Регулярные тренировки по субботам ПРИОСТАНОВЛЕНЫ до объявления');
+ expect(home).toContain('Единственный регулярный тренировочный день — понедельник');
  expect(news).toContain('НЕ ПЛАТИТЬ без личного письменного подтверждения условий.');
  expect(news).toContain('онлайн-оплата не подключена.');
  expect(news).toContain('Заявки на плановые тренировки ОТКРЫТЫ; платное участие подтверждается отдельно');

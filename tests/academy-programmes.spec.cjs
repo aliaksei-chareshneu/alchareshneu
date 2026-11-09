@@ -54,3 +54,61 @@ test('Academy legacy paths link to the new page without replacing the existing c
     expect(href).toContain('utm_campaign=life_milestones_20261105');
   }
 });
+
+
+test('Academy enquiry is stored only after explicit consent and server receipt (mocked)', async ({page}) => {
+  await page.addInitScript(() => {
+    window.__academyMockRequests=[];
+    const original=window.fetch.bind(window);
+    window.fetch=(url,options)=>{
+      if(String(url).includes('/functions/v1/imperion-academy-intake')){
+        window.__academyMockRequests.push(JSON.parse(options.body));
+        return Promise.resolve(new Response(JSON.stringify({
+          ok:true,status:'RECEIVED_UNCONFIRMED',reference:'qa-mock-uuid',
+          confirmed:false,bookingConfirmed:false,paymentCollected:false
+        }),{status:200,headers:{'Content-Type':'application/json'}}));
+      }
+      return original(url,options);
+    };
+  });
+  await page.goto('/academy/programmes/?lang=cs&programme=A2&utm_source=a2_quiz&utm_medium=site&utm_campaign=life_milestones_20261105');
+  await expect(page.locator('#programme')).toHaveValue('A2');
+  await page.locator('#first-name').fill('Test QA');
+  await page.locator('#contact-email').fill('qa-intake@example.invalid');
+  await page.locator('#goal').fill('A2 exam practice');
+  await page.locator('#deadline').fill('February 2027');
+  await expect(page.locator('#adult-confirm')).not.toBeChecked();
+  await expect(page.locator('#privacy-confirm')).not.toBeChecked();
+  await page.locator('#send-enquiry').click();
+  expect(await page.evaluate(()=>window.__academyMockRequests)).toHaveLength(0);
+  await page.locator('#adult-confirm').check();
+  await page.locator('#privacy-confirm').check();
+  await page.locator('#send-enquiry').click();
+  await expect(page.locator('#intake-status')).toContainText('Poptávka přijata');
+  await expect(page.locator('#send-enquiry')).toBeDisabled();
+  const requests=await page.evaluate(()=>window.__academyMockRequests);
+  expect(requests).toHaveLength(1);
+  expect(requests[0]).toMatchObject({
+    firstName:'Test QA',email:'qa-intake@example.invalid',programme:'A2',
+    locale:'cs',utmSource:'a2_quiz',utmMedium:'site',
+    utmCampaign:'life_milestones_20261105',adultOrGuardianConfirmed:true,
+    privacyAcknowledged:true
+  });
+});
+
+test('Academy enquiry on backend error clearly asks for WhatsApp/email fallback', async ({page}) => {
+  await page.route('**/functions/v1/imperion-academy-intake', async route=>{
+    await route.fulfill({status:503,headers:{'Access-Control-Allow-Origin':'*','Content-Type':'application/json'},
+      body:JSON.stringify({error:'temporarily_unavailable'})});
+  });
+  await page.goto('/academy/programmes/?lang=en');
+  await page.locator('#first-name').fill('Test QA');
+  await page.locator('#contact-email').fill('qa-intake@example.invalid');
+  await page.locator('#adult-confirm').check();
+  await page.locator('#privacy-confirm').check();
+  await page.locator('#send-enquiry').click();
+  await expect(page.locator('#intake-status')).toContainText('did not confirm delivery');
+  await expect(page.locator('#send-enquiry')).toBeEnabled();
+  await expect(page.locator('#whatsapp-compose')).toBeVisible();
+  await expect(page.locator('#email-compose')).toBeVisible();
+});

@@ -50,15 +50,6 @@ function checkTask(t) {
 }
 function configuredProviders(env = {}) {
   const providers = [];
-  // Owner-device Ollama is a bounded draft-only option for public translations.
-  // It never substitutes for cloud hosting when the machine is offline.
-  if (env.OLLAMA_LOCAL_ENABLED === 'true' &&
-      env.OLLAMA_LOCAL_MODEL === 'imperion-qwen35:4b') {
-    providers.push({provider:'ollama_local',
-      endpoint:'http://127.0.0.1:11434/api/generate',
-      model:env.OLLAMA_LOCAL_MODEL, key:null,
-      daily_reservation_ceiling:200});
-  }
   if (env.GROQ_API_KEY && env.GROQ_VERIFIED_FREE_PLAN === 'true') {
     providers.push({
       provider: 'groq',
@@ -67,6 +58,15 @@ function configuredProviders(env = {}) {
       key: env.GROQ_API_KEY,
       daily_reservation_ceiling: 600 // below listed 1000 RPD, NOT account-specific guarantee
     });
+  }
+  // Approved local translations can serve as reserve if cloud Groq fails.
+  // This is loopback-only and never turns owner PC into public infrastructure.
+  if (env.OLLAMA_LOCAL_ENABLED === 'true' &&
+      env.OLLAMA_LOCAL_MODEL === 'imperion-qwen35:4b') {
+    providers.push({provider:'ollama_local',
+      endpoint:'http://127.0.0.1:11434/api/generate',
+      model:env.OLLAMA_LOCAL_MODEL, key:null,
+      daily_reservation_ceiling:200});
   }
   const m = env.OPENROUTER_FREE_MODEL;
   if (env.OPENROUTER_API_KEY && env.OPENROUTER_VERIFIED_FREE_PLAN === 'true' &&
@@ -161,7 +161,10 @@ async function draftPublicTask(task, options = {}) {
         ? {model:p.model, prompt:SYSTEM_MESSAGE + '\n' + taskContext,
           stream:false, think:false,
           options:{num_gpu:0, num_ctx:4096, num_predict:320, temperature:0.2}}
-        : {model:p.model, temperature:0.2, max_tokens:850,
+        : {model:p.model, temperature:0.2,
+          ...(p.provider === 'groq'
+            ? {max_completion_tokens:2400, reasoning_effort:'low', include_reasoning:false}
+            : {max_tokens:850}),
           messages:[{role:'system',content:SYSTEM_MESSAGE},
             {role:'user',content:taskContext}]};
       const headers = {'Content-Type':'application/json'};
@@ -183,6 +186,12 @@ async function draftPublicTask(task, options = {}) {
       const provenanceFailure = unsupportedPublicClaim(content, source.text);
       if (provenanceFailure) {
         errors.push(p.provider + ':' + provenanceFailure);
+        continue;
+      }
+      // Groq consumes reasoning tokens; length-truncated output is not a usable draft.
+      if (p.provider === 'groq' &&
+          (body?.choices?.[0]?.finish_reason === 'length' || content.trim().length < 100)) {
+        errors.push('groq:INCOMPLETE_DRAFT');
         continue;
       }
       return {
