@@ -31,7 +31,7 @@ const safePostUrl=(raw,platform)=>{
   if(clean(platform).toLowerCase()==='facebook'&&
        (path==='/permalink.php'||path==='/story.php')){
     const story=old.get('story_fbid'),id=old.get('id');
-    if(story&&id&&/^[A-Za-z0-9_]{1,100}$/.test(story)&&/^\\d{3,25}$/.test(id)){
+    if(story&&id&&/^[A-Za-z0-9_]{1,100}$/.test(story)&&/^[0-9]{3,25}$/.test(id)){
       u.searchParams.set('story_fbid',story);u.searchParams.set('id',id);
     }else{return null;}
   }
