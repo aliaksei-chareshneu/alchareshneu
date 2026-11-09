@@ -747,13 +747,20 @@ html[lang="en"] #registration-notice [data-notice-lang="en"],html[lang="cs"] #re
     }
 
     const cta = document.getElementById('mobileCta');
-    const hero = document.getElementById('druzina');
+    // Show the fixed mobile signup until the hero's OWN signup button is on screen.
+    // A long safety notice can place the top of the hero in view while its CTA is below.
+    const heroSignup = document.querySelector('#druzina .dm-hero-register');
     const io2 = new IntersectionObserver(([entry]) => {
       const show = !entry.isIntersecting;
       cta.style.transform = show ? 'translateY(0)' : 'translateY(120%)';
       cta.setAttribute('aria-hidden', show ? 'false' : 'true');
     }, {threshold: 0});
-    io2.observe(hero);
+    if (heroSignup) {
+      io2.observe(heroSignup);
+    } else {
+      cta.style.transform = 'translateY(0)';
+      cta.setAttribute('aria-hidden', 'false');
+    }
   });
 
   // Same nav-height sync as the root page (see initNavHeightSync() in
