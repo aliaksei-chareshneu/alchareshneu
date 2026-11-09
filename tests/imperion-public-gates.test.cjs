@@ -51,7 +51,7 @@ test('homepage is consumer-first and every intent keeps its guarded destination'
   const docs = loadPages();
   const home = docs['index.html'];
   assert.equal(linkWithId(home,'heroCta'), 'https://docs.google.com/forms/d/e/1FAIpQLSfa3qOWpQBfoA877ip9eOTWwFweOrNTib2mq8_C1D9xr55dtQ/viewform');
-  assert.equal(linkWithId(home,'intentDruzinaCta'), 'druzina/prihlaska/?lang=en');
+  assert.equal(linkWithId(home,'intentDruzinaCta'), 'register/?lang=en');
   assert.equal(linkWithId(home,'intentWalkersCta'), 'register/en/');
   assert.equal(linkWithId(home,'intentBusinessCta'), 'corporate/');
   assert.equal(linkWithId(home,'heroCorporateCta'), 'start/?lang=en');

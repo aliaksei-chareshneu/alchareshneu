@@ -117,7 +117,7 @@
         if(page==='druzina'&&primary.matches('[data-dm-signup="FIRST"]')){
           // Conversion v2 uses a REAL safeguarded enquiry form, not the retired #tariff/start flow.
           // Keep its own four-language text from the page's quick.* translations.
-          primary.href='prihlaska/?lang='+encodeURIComponent(lang());
+          primary.href='../register/?lang='+encodeURIComponent(lang());
         }else{
           primary.textContent=page==='academy'?t.book:page==='druzina'?t.trial:t.events;
           primary.href=page==='walkers'?'../calendar/':registration;
@@ -128,7 +128,7 @@
       if(secondary&&page==='academy'){secondary.textContent=t.prices;secondary.href='#service-selector';}
       if(secondary&&page==='druzina'){
         if(secondary.matches('[data-dm-signup="RETURNING"]')){
-          secondary.href='prihlaska/?lang='+encodeURIComponent(lang())+'&type=returning';
+          secondary.href='../register/?lang='+encodeURIComponent(lang())+'&type=returning';
         }else if(secondary.classList.contains('plausible-event-name=Explore-Druzina-Tree')){
           secondary.href='cesty/?lang='+encodeURIComponent(lang());secondary.removeAttribute('target');
         }else if(secondary.classList.contains('plausible-event-name=Enquire-Druzina-Castle')){
@@ -152,7 +152,7 @@
     // Keep keyboard focus out of the hidden mobile toolbar.
     const mobile=document.querySelector('#mobileCta');if(mobile)mobile.inert=mobile.getAttribute('aria-hidden')==='true';
     document.querySelectorAll('.mobile-cta-btn').forEach(a=>{if(page==='main'){const labels={en:'Choose a service',cs:'Vybrat službu',ru:'Выбрать решение',uk:'Обрати послугу'};a.textContent=labels[lang()]||labels.en;a.href=base+'start/?lang='+encodeURIComponent(lang());a.removeAttribute('target');return;}if(page==='druzina'&&a.matches('[data-dm-signup="FIRST"]')){
-        a.href='prihlaska/?lang='+encodeURIComponent(lang());
+        a.href='../register/?lang='+encodeURIComponent(lang());
         return; // Preserve localized nav.bookBtn CTA, not old "meet club" wording.
       }
       a.textContent=page==='druzina'?t.trial:page==='academy'?t.book:t.events;

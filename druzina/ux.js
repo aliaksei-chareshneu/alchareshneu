@@ -199,14 +199,14 @@
     const heroContact=document.querySelector('#druzina .dm-hero-register');
     const clubStart='./start/?lang='+encodeURIComponent(code());
     const isFastRequest=!!heroContact?.matches('[data-dm-signup="FIRST"]');
-    const firstVisitUrl=isFastRequest?'prihlaska/?lang='+encodeURIComponent(code()):clubStart;
+    const firstVisitUrl=isFastRequest?'../register/?lang='+encodeURIComponent(code()):clubStart;
     if(heroContact) heroContact.href=firstVisitUrl;
     const navClubStart=document.querySelector('#navBookBtn');
     if(navClubStart) navClubStart.href=firstVisitUrl;
     const mobileClubStart=document.querySelector('.mobile-cta-btn');
     if(mobileClubStart) mobileClubStart.href=firstVisitUrl;
     const returnVisitor=document.querySelector('#druzina [data-dm-signup="RETURNING"]');
-    if(returnVisitor)returnVisitor.href='prihlaska/?lang='+encodeURIComponent(code())+'&type=returning';
+    if(returnVisitor)returnVisitor.href='../register/?lang='+encodeURIComponent(code());
     const introContact=document.querySelector('.dm-contact-button');
     if(introContact){const ru=code()==='ru';introContact.href=ru?'https://t.me/Chareshneu':'https://wa.me/420702914842?text='+encodeURIComponent('Hello, I would like to ask about a possible beginner Družina Moravy session. This is an enquiry, not a booking.');introContact.setAttribute('aria-label',get('contact'));}
     document.querySelectorAll('[data-dm-k]').forEach(el => {

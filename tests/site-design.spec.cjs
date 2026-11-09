@@ -19,7 +19,7 @@ for (const language of ['en', 'cs', 'ru', 'uk']) {
     await expect(page.locator('#site-navigation')).toBeHidden();
     await expect(page.locator('#goal-paths .intent-card')).toHaveCount(3);
     await expect(page.locator('#heroCta')).toHaveAttribute('href', /https:\/\/docs\.google\.com\/forms\/d\/e\//);
-    await expect(page.locator('#intentDruzinaCta')).toHaveAttribute('href', 'druzina/prihlaska/?lang=' + language);
+    await expect(page.locator('#intentDruzinaCta')).toHaveAttribute('href', 'register/?lang=' + language);
     await expect(page.locator('#intentWalkersCta')).toHaveAttribute('href', language === 'cs' ? 'register/' : 'register/' + language + '/');
     await expect(page.locator('#heroCorporateCta')).toHaveAttribute('href', 'start/?lang=' + language);
     const first = await page.locator('#heroCta').boundingBox();
@@ -42,7 +42,7 @@ for (const language of ['en', 'cs', 'ru', 'uk']) {
     expect(box.height).toBeGreaterThanOrEqual(54);
     expect(box.height).toBeLessThanOrEqual(84);
     expect(box.y + box.height).toBeLessThanOrEqual(844);
-    await expect(page.locator('#druzina .dm-v2-primary')).toHaveAttribute('href', 'prihlaska/?lang=' + language);
+    await expect(page.locator('#druzina .dm-v2-primary')).toHaveAttribute('href', '../register/?lang=' + language);
   });
 
   test(`Academy booking is reachable in the first phone viewport: ${language}`, async ({page}) => {

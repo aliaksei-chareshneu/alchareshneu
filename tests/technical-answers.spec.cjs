@@ -87,7 +87,7 @@ test('consumer-first home keeps a separate company portfolio with guarded enquir
   for(const lang of ['cs','en','ru','uk']){
     await page.goto('/?lang='+lang);
     await expect(page.locator('#heroCta')).toHaveAttribute('href','https://docs.google.com/forms/d/e/1FAIpQLSfa3qOWpQBfoA877ip9eOTWwFweOrNTib2mq8_C1D9xr55dtQ/viewform');
-    await expect(page.locator('#intentDruzinaCta')).toHaveAttribute('href','druzina/prihlaska/?lang='+lang);
+    await expect(page.locator('#intentDruzinaCta')).toHaveAttribute('href','register/?lang='+lang);
     await expect(page.locator('#intentWalkersCta')).toHaveAttribute('href',lang==='cs'?'register/':'register/'+lang+'/');
     await expect(page.locator('#heroCorporateCta')).toHaveAttribute('href','start/?lang='+lang);
     await expect(page.locator('#intentBusinessCta')).toHaveAttribute('href','corporate/');
