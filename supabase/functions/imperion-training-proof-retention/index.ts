@@ -21,20 +21,30 @@ Deno.serve(async(req:Request)=>{
  // Keep the entire expiry day plus one-day buffer to avoid early removal.
  // Storage object names start with their event+90-day UTC expiry date.
  const cutoff=new Date(Date.now()-86400000).toISOString().slice(0,10)+'/';
- const deleted:string[]=[];let processed=0,failed=0;
- for(let pass=0;pass<10;pass++){
-  const rows=await api.schema('storage').from('objects').select('name')
-   .eq('bucket_id',BUCKET).gte('name','2000-01-01/')
-   .lt('name',cutoff).order('name',{ascending:true}).limit(100);
-  if(rows.error){console.error('payment_proof_expiry_listing_failed');return json({error:'cleanup_unavailable'},503);}
-  const paths=(rows.data||[]).map(x=>x.name).filter(name=>
-   /^[0-9]{4}-[0-9]{2}-[0-9]{2}\/[0-9a-f-]{36}\.pdf$/.test(name));
-  if(!rows.data?.length)break;
-  if(!paths.length){console.error('unexpected_object_name');return json({error:'manual_storage_review_required'},503);}
-  const removed=await api.storage.from(BUCKET).remove(paths);
-  if(removed.error){failed+=paths.length;console.error('payment_proof_cleanup_remove_failed');break;}
-  processed+=paths.length;
-  if(paths.length<100)break;
+ let processed=0,failed=0;
+ // List only date-named Storage folders; no direct SQL deletion of storage.objects.
+ const root=await api.storage.from(BUCKET).list('',{
+  limit:100,offset:0,sortBy:{column:'name',order:'asc'}
+ });
+ if(root.error)return json({error:'cleanup_unavailable'},503);
+ const oldFolders=(root.data||[]).filter(x=>x.id===null&&
+  /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(x.name)&&x.name+'/'<cutoff).slice(0,20);
+ for(const folder of oldFolders){
+   for(let pass=0;pass<10;pass++){
+     const listing=await api.storage.from(BUCKET).list(folder.name,{
+       limit:100,offset:0,sortBy:{column:'name',order:'asc'}
+     });
+     if(listing.error){failed++;break;}
+     const objects=(listing.data||[]).filter(x=>x.id!==null);
+     if(!objects.length)break;
+     const paths=objects.filter(x=>/^[0-9a-f-]{36}[.]pdf$/.test(x.name))
+       .map(x=>folder.name+'/'+x.name);
+     if(!paths.length||paths.length!==objects.length){failed++;break;}
+     const removed=await api.storage.from(BUCKET).remove(paths);
+     if(removed.error){failed+=paths.length;break;}
+     processed+=paths.length;
+     if(objects.length<100)break;
+   }
  }
  return json({ok:failed===0,removedCount:processed,failedCount:failed,cutoffDay:cutoff.slice(0,10)},failed?503:200);
 });
