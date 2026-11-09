@@ -103,8 +103,8 @@ jobs:
       - name: Verify zero-credit Qwen cloud agent is public-only and cannot take actions
         run: node --test tests/imperion-zero-credit-cloud-review.test.cjs tests/imperion-zero-credit-cloud-workflow.test.cjs
 
-      - name: Verify free public-only AI router and fail-closed Pages proof
-        run: node --test tests/imperion-free-model-router.test.cjs tests/imperion-autopilot-workflow-gate.test.cjs
+      - name: Verify free public-only AI router, durable local quota and fail-closed Pages proof
+        run: node --test tests/imperion-free-model-router.test.cjs tests/imperion-free-local-quota.test.cjs tests/imperion-autopilot-workflow-gate.test.cjs
 
       - name: Verify private five-agent safety and proof logic
         run: |
