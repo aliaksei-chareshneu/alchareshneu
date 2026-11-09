@@ -67,9 +67,9 @@
   function catalogPrice(event,lang){
     const q=event?.trainingPayment;
     if(!q)return null;
-    const t=q.tiers?.find(x=>x.tier===tier())||q.tiers?.[0];
+    const values=(q.tiers||[]).map(p=>p.totalCzk).join(' / ');
     const prefix=lang==='cs'?'Orientačně':lang==='ru'?'Предварительно':lang==='uk'?'Орієнтовно':'Indicative';
-    return t?prefix+': '+t.totalCzk+' Kč (incl. applicable 25% surcharge)':null;
+    return values?prefix+': '+values+' Kč (standard / Senior / Starter 4; incl. applicable 25% fee)':null;
   }
   function requestOptions(event,body){
     if(!event?.trainingPayment)return {headers:{'Content-Type':'application/json'},body:JSON.stringify(body)};
