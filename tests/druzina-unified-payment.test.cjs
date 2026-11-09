@@ -21,7 +21,7 @@ function loadQuote(){
 }
 const trainingQuote=loadQuote();
 const e={
-  event_id:'PUB-HEMA-20261116',community:'Družina Moravy',category:'HEMA Training',
+  event_id:'PUB-HEMA-20261116',community:'Družina Moravy',category:'HEMA Training',price_czk:240,
   begins_at:'2026-11-16T17:00:00Z',is_open:true,source_active:true,price_verified:true,
   end_time_verified:true,registration_mode:'FORM',training_price_scheme:'GROUP_SHARED',
   training_confirmed_count:3,training_payment_open:true,
@@ -59,7 +59,8 @@ test('never quote unavailable/unapproved sessions, workshops or legacy commitmen
    {...e,price_verified:false}
  ];
  for(const item of cases)assert.equal(trainingQuote(item,start-72*3600000).status,'AWAITING_VERIFIED_GROUP');
- assert.equal(trainingQuote({...e,category:'FREE Workshop',event_id:'PUB-OREL-20261114'},start-72*3600000),null);
+ assert.equal(trainingQuote({...e,category:'HEMA Training',price_czk:0,event_id:'PUB-OREL-20261114'},start-72*3600000),null);
+ assert.equal(trainingQuote({...e,category:'HEMA Training',price_czk:240,event_id:'PUB-OREL-20261114'},start-72*3600000),null);
  assert.equal(trainingQuote({...e,training_price_scheme:'LEGACY',event_id:'PUB-HEMA-20261109'},start-72*3600000),null);
 });
 test('server requires private one-time code, PDF signature, quote snapshot, prevents duplicate receipt',()=>{
