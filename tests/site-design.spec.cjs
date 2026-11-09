@@ -40,10 +40,15 @@ for (const language of ['en', 'cs', 'ru', 'uk']) {
     await expect(sticky).toHaveAttribute('aria-hidden', 'false');
     const cta = sticky.locator('.mobile-cta-btn');
     await expect(cta).toBeVisible();
+    // .mobile-cta uses a 300ms entrance transition: wait for its settled geometry,
+    // not merely the earlier aria-hidden switch (which precedes the animation).
+    await expect.poll(async () => {
+      const moving = await cta.boundingBox();
+      return moving ? moving.y + moving.height : Number.POSITIVE_INFINITY;
+    }).toBeLessThanOrEqual(844);
     const box = await cta.boundingBox();
     expect(box.height).toBeGreaterThanOrEqual(44);
     expect(box.height).toBeLessThanOrEqual(84);
-    expect(box.y + box.height).toBeLessThanOrEqual(844);
     await expect(cta).toHaveAttribute('href', 'prihlaska/?lang=' + language);
     await expect(page.locator('#druzina .dm-v2-primary')).toHaveAttribute('href', 'prihlaska/?lang=' + language);
   });
