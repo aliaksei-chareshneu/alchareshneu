@@ -123,7 +123,10 @@ async function draftPublicTask(task, options = {}) {
       const res = await callJSON(fetcher, p.endpoint, {
         method: 'POST', redirect: 'error', credentials: 'omit',
         headers: {'Content-Type': 'application/json', Authorization: 'Bearer ' + p.key},
-        body: JSON.stringify({model: p.model, temperature: 0.2, max_tokens: 850,
+        body: JSON.stringify({model: p.model, temperature: 0.2,
+          ...(p.provider === 'groq'
+            ? {max_completion_tokens: 2400, reasoning_effort: 'low', include_reasoning: false}
+            : {max_tokens: 850}),
           messages: [
             {role: 'system', content: SYSTEM_MESSAGE},
             {role: 'user', content: JSON.stringify({
@@ -141,6 +144,13 @@ async function draftPublicTask(task, options = {}) {
       const content = body?.choices?.[0]?.message?.content;
       if (typeof content !== 'string' || !content.trim() || content.length > 7000) {
         errors.push(p.provider + ':INVALID_RESPONSE');
+        continue;
+      }
+      // GPT-OSS uses reasoning tokens in the completion budget. Never accept
+      // its clipped reasoning or a partial heading as a completed public draft.
+      if (p.provider === 'groq' &&
+          (body?.choices?.[0]?.finish_reason === 'length' || content.trim().length < 100)) {
+        errors.push(p.provider + ':INCOMPLETE_DRAFT');
         continue;
       }
       return {
