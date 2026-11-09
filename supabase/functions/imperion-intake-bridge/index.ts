@@ -33,7 +33,8 @@ Deno.serve(async (req:Request):Promise<Response>=>{
     if(req.method==="GET"){
       const [rsvp,enquiry,b2b]=await Promise.all([
         api.from("imperion_rsvp_submissions")
-          .select("id,event_id,first_name,last_name,email,phone,age_group,guardian_name,guardian_phone,rsvp_status,safety_acknowledged,safety_version,photo_choice,marketing_requested,data_controller,language,source,status,created_at,retention_until,discovery_source,utm_source,utm_medium,utm_campaign")
+          .select("id,event_id,first_name,last_name,email,phone,age_group,guardian_name,guardian_phone,rsvp_status,safety_acknowledged,safety_version,photo_choice,marketing_requested,data_controller,language,source,status,created_at,retention_until,discovery_source,utm_source,utm_medium,utm_campaign,quoted_base_czk,quoted_late_fee_czk,quoted_total_czk,quoted_confirmed_count,quoted_late_48h,payment_evidence_status,payment_evidence_received_at,bank_verified_at")
+          .neq("status","PENDING_UPLOAD") // Never forward an incomplete PDF/registration to CRM.
           .is("crm_synced_at",null).order("created_at",{ascending:true}).limit(40),
         api.from("imperion_rsvp_enquiries")
           .select("id,first_name,last_name,contact,contact_kind,visit_type,preferred_day,preferred_date,adult_confirmed,safety_acknowledged,safety_version,language,data_controller,source,status,created_at,retention_until")
