@@ -105,13 +105,16 @@ function runAudit(pages) {
   verify('academy:relevant-contact',
     academyUrl===verifiedAcademyForm || academyWhatsapp,
     'Academy enquiry must reach the verified shared education form or Academy-specific WhatsApp');
-  const dmForm = fs.readFileSync(path.join(__dirname,'../druzina/prihlaska/index.html'),'utf8');
+  const dmForm = fs.readFileSync(path.join(__dirname,'../register/index.html'),'utf8');
+  const dmLegacy = fs.readFileSync(path.join(__dirname,'../druzina/prihlaska/index.html'),'utf8');
   verify('druzina:enquiry-only',
-    /^prihlaska\/\?lang=(en|cs|ru|uk)$/.test(linkWithId(druzina,'navBookBtn')) &&
-    dmForm.includes("intent:'DRUZINA_ENQUIRY'") &&
+    /^\.\.\/register\/\?lang=(en|cs|ru|uk)$/.test(linkWithId(druzina,'navBookBtn')) &&
     dmForm.includes('id="safety" type="checkbox" required') &&
-    dmForm.includes('id="adult" type="checkbox" required') &&
-    dmForm.includes('out.confirmed!==false') &&
+    dmForm.includes('id="paymentResumeToken"') &&
+    dmForm.includes('id="paymentProof"') &&
+    dmForm.includes('confirmed:false') &&
+    dmLegacy.includes('window.location.replace(target.href)') &&
+    !dmLegacy.includes('<form ') &&
     druzina.includes('New HEMA training applications are open; paid attendance is confirmed individually.') &&
     druzina.includes('Přihlášky na plánované tréninky HEMA jsou otevřené; placenou účast potvrzujeme jednotlivě.') &&
     druzina.includes('Заявки на тренировки HEMA открыты; платное участие подтверждается индивидуально.') &&
