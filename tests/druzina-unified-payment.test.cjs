@@ -17,7 +17,7 @@ function loadQuote(){
  const body=edge.slice(start,end)
   .replace('function trainingQuote(e:TrainingEvent,now=Date.now())','function trainingQuote(e,now=Date.now())')
   .replaceAll('(n as number)','n').replaceAll('(surcharge as number)','surcharge');
- return new Function(body+'\nreturn trainingQuote;')();
+ return new Function('const LATE_WINDOW_MS=48*60*60*1000;\n'+body+'\nreturn trainingQuote;')();
 }
 const trainingQuote=loadQuote();
 const e={
