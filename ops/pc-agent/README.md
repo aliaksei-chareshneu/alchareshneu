@@ -1,9 +1,9 @@
 # IMPERION PC Automation Agent #5 — safe Windows runtime
 
 Owner: existing IMPERION project. Canonical Job_ID: JOB-IMP-PC-AUTOMATION-20261108-05.
-Status: LIVE read-only diagnostics through existing Browser Bridge, plus working
-restricted **on-demand** executor and locally tested CPU Ollama plan.
-This is not an unrestricted AI or an autonomous business-outcome agent.
+Status: LIVE unattended restricted PC workspace tasks AND read-only diagnostics
+through existing Browser Bridge, plus locally tested optional CPU Ollama pilot.
+This is not unrestricted Windows control or an autonomous business-outcome agent.
 
 ## Existing infrastructure reused
 
@@ -113,6 +113,67 @@ The `loopback_readonly.py` one-shot diagnostic relay remains a separate
 QA fallback and is **not** running. No Windows reboot or privileged
 desktop/file autonomy was authorized or attempted.
 
+## LIVE multi-step workspace automation (09 Nov 2026, v2)
+
+The owner repeated the original Agent #5 objective and explicitly instructed
+completion. The existing `Browser Bridge Agent` on zmrzlina was updated and
+restarted **in place**, preserving the original task scheduler and queue.
+No separate listener, cron, model service, API subscription or fee was created.
+
+Action `pc_task` is now LIVE through existing Supabase `browser_jobs`:
+- `{"task_id":"A5-EXAMPLE-20261109-001","instruction":"Проверь CSV agent5_qa.csv и сделай отчёт"}`
+- `{"task_id":"A5-EXAMPLE-20261109-002","steps":[{"op":"inventory"},{"op":"text_stats","file":"agent5_qa.txt"},{"op":"program_versions"},{"op":"write_report"}]}`
+
+The natural-language input is intentionally **bounded rule-based routing**;
+it is NOT a general autonomous LLM reasoning loop. An AI chat client can
+create the structured multi-step plan, but the local executor validates
+**every** step and cannot be tricked into accepting shell commands or paths.
+It supports only `inventory`, `text_stats`, `csv_stats`,
+`clean_blanks`, `system_status`, `program_versions`, `write_report`.
+Up to six steps. Only UTF-8 text/CSV/Markdown/JSON sources directly within
+`pc_task_data/inbox/` (not personal, browser or Project80 directories);
+new immutable outputs in `pc_task_data/outbox/`; JSON readback receipts in
+`pc_task_data/receipts/`. Input max 128 KiB; per-output max 16 KiB.
+Results contain bounded metadata and SHA-256, not full input text.
+Exact replay returns the prior receipt; changed request with the same
+`task_id` is blocked. Files outside this workspace cannot be accessed.
+No arbitrary applications, shell commands, account actions, external sends,
+server endpoints, privileged system settings, deletion or overwriting.
+
+Existing `browser_agent.py` was modified only to route `pc_task` into
+the locally allowlisted adapter. Pre-v2 backups, hashes and replacement
+rollback copies are retained. Source SHA-256 after upgrade:
+`d5ec3d0f5185f3b59a5668333d5d53433779c8b2bcb0863d3d2fcc6b31a5428e`.
+Adapter SHA-256:
+`3ae67239eeace3b43bcddadfe76c653f0b02158382fa53b0ad82de3d5b9452eb`.
+One Browser Bridge worker PID 3392; existing Windows task Running.
+No modification to Project80.
+
+Actual independent cloud->PC->cloud tests, all queue DONE, attempts=1,
+error=NULL and source files unchanged:
+- `07192cd1-1cad-427d-acec-e2ca89fa0e04`: natural Russian CSV,
+  2-row analysis and report DONE.
+- `b97f9863-544d-4c7e-8585-92883e85ee99`: natural Russian clean blanks,
+  3-line output plus report DONE.
+- `9d5b0203-97ba-4c5c-b4f1-f0672777fdd4`: 4-step inventory, text
+  metrics, fixed program version probes and report DONE.
+- `2075570f-4e4d-4592-8c10-bdb016875bcf`: malicious shell request
+  returned application BLOCKED (queue itself done).
+- `8b29de5b-d5d5-4684-8acb-9ce3607ca69d`: existing status preserved.
+- `c61bc7cf-f643-420c-91d4-e29b76d60ba1`: identical request replay true.
+- `0b6cd445-2eb7-48c5-b073-d882fcda2e8b`: conflicting request ID
+  blocked IDEMPOTENCY_CONFLICT.
+All four produced files had independent Windows SHA256 readback matching
+Supabase job receipts. Synthetic source hashes remained unchanged.
+Module unit checks: 15/15; adapter safety checks: 13/13;
+staged integration fake-browser checks: 8/8 PASS, all local on Windows.
+
+This is a usable remote **restricted PC task operator** without requiring
+Desktop Commander for each job. It is not universal UI/Windows control.
+Android-origin and actual reboot/relogin recovery remain UNVERIFIED.
+Owner-specific permission remains required for modifying real documents or
+code outside the explicitly designated scratch workspace.
+
 ## Known limits / do not silently promote
 
 - The installed Codex CLI exists; do NOT run it with danger-full-access or paid API fallback.
@@ -123,14 +184,20 @@ desktop/file autonomy was authorized or attempted.
 - Owner-specific GO required before live file modifications, privileged PC automation,
   persistent agent listener changes, logon/reboot test, new remote permissions, posting,
   purchases or production Supabase SQL/Edge changes.
-- All model output is untrusted. Structured planning remains bounded to fixed synthetic actions.
-  Existing Browser Bridge now polls and executes two read-only PC diagnostics unattended.
-  General-purpose autonomous planning, consequential job execution, business outcome,
-  real Android-origin session, locked-screen UI and after-reboot recovery are NOT verified.
+- All model output is untrusted. Existing Browser Bridge now polls unattended for bounded
+  multi-step workspace tasks (files, reports, program probes) plus read-only diagnostics.
+  Free-form general Windows control, owner-authorized real document changes, autonomous
+  open-ended model planning, revenue outcome, Android-origin session, locked-screen UI
+  and after-reboot recovery are NOT verified.
 - Supabase public.browser_jobs has a UNIQUE partial index on non-NULL idempotency_key,
   reverified 08Nov2026; do not add a duplicate migration.
 
 ## Evidence
+
+- Live Windows task engine --selftest 15/15, adapter candidate 13/13,
+  staged real Browser Bridge integration 8/8 PASS.
+- Seven cloud queue actions confirmed, with structured outputs, replay and conflict
+  denial. Four generated artifacts independently checked by Windows SHA256.
 
 - Local restricted_executor.py --selftest: 12/12 PASS.
 - Local Ollama imperion-qwen3-cpu:0.6b -> limited executor: 4/4 PASS, repeated.
