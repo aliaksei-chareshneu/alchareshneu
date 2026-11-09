@@ -98,7 +98,8 @@ async function publicSource(task, fetcher) {
     const body = await res.text();
     if (typeof body !== 'string' || body.length < 8 || body.length > 65000) return null;
     const safe = body.slice(0, 9500);
-    return {text: safe, sha256: digest(body), bytes: Buffer.byteLength(body, 'utf8')};
+    return {text: safe, local_text: compactSourceForLocal(body),
+      sha256: digest(body), bytes: Buffer.byteLength(body, 'utf8')};
   } catch {
     return null;
   }
@@ -123,7 +124,25 @@ function unsupportedPublicClaim(draft, sourceText) {
 }
 
 /**
- * reserveQuota({provider, model, job_id, daily_ceiling}) MUST be atomic,
+ * Prepare a small, non-executable extract for CPU-bound local translation.
+ * This reduces slow CPU prompting; provenance checks still use source.text.
+ * Source content is untrusted even after tags are removed.
+ */
+function compactSourceForLocal(text) {
+  const raw = String(text || '');
+  // Prefer actual page content over the CSS, metadata and header navigation.
+  const main = raw.match(/<main\b[^>]*>([\s\S]*?)<\/main>/i);
+  const clean = (main ? main[1] : raw)
+    .replace(/<(?:script|style|noscript|svg|template)\b[^>]*>[\s\S]*?<\/(?:script|style|noscript|svg|template)\s*>/gi, ' ')
+    .replace(/<!--[\s\S]*?-->/g, ' ')
+    .replace(/<[^>]{0,1000}>/g, ' ')
+    .replace(/&(?:nbsp|amp|lt|gt|quot|apos);/gi, x => ({'&nbsp;':' ', '&amp;':'&', '&lt;':'<', '&gt;':'>', '&quot;':'"', '&apos;':"'"})[x.toLowerCase()] || ' ')
+    .replace(/\s+/g, ' ').trim();
+  return clean.slice(0, 1400);
+}
+
+/**
+ * reserveQuota({provider, model, job_id, daily_ceiling}) MUST be atomic;
  * durable and deny duplicates; do not use an in-memory counter in production.
  * This adapter deliberately does not manage credentials or Supabase tables.
  */
@@ -155,12 +174,12 @@ async function draftPublicTask(task, options = {}) {
       const taskContext = JSON.stringify({
         task: task.purpose, language: task.language, entity: task.owner_entity,
         first_party_source: task.source_url, source_sha256: source.sha256,
-        source_text_as_untrusted_data: source.text
+        source_text_as_untrusted_data: isLocal ? source.local_text : source.text
       });
       const payload = isLocal
         ? {model:p.model, prompt:SYSTEM_MESSAGE + '\n' + taskContext,
           stream:false, think:false,
-          options:{num_gpu:0, num_ctx:4096, num_predict:320, temperature:0.2}}
+          options:{num_gpu:0, num_ctx:2048, num_predict:160, temperature:0.2}}
         : {model:p.model, temperature:0.2,
           ...(p.provider === 'groq'
             ? {max_completion_tokens:2400, reasoning_effort:'low', include_reasoning:false}
@@ -183,7 +202,7 @@ async function draftPublicTask(task, options = {}) {
         errors.push(p.provider + ':INVALID_RESPONSE');
         continue;
       }
-      const provenanceFailure = unsupportedPublicClaim(content, source.text);
+      const provenanceFailure = unsupportedPublicClaim(content, source.text + '\n' + source.local_text);
       if (provenanceFailure) {
         errors.push(p.provider + ':' + provenanceFailure);
         continue;
@@ -210,5 +229,5 @@ async function draftPublicTask(task, options = {}) {
 }
 module.exports = {
   SOURCES, ENTITIES, PURPOSES, checkTask, configuredProviders,
-  publicSource, unsupportedPublicClaim, draftPublicTask
+  publicSource, unsupportedPublicClaim, compactSourceForLocal, draftPublicTask
 };

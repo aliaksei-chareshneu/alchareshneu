@@ -233,6 +233,33 @@ test('preserves numeric facts and links explicitly present in the approved sourc
   assert.equal(x.posts_published,0);
 });
 
+test('CPU-local preview strips HTML executable content and bounds context',async()=>{
+  const source='<html><head><style>secret_style_text</style><script>dangerous_script_payload</script></head><body><h1>Public workshop</h1><p>'+('Background information. '.repeat(500))+'</p></body></html>';
+  const preview=M.compactSourceForLocal(source);
+  assert.ok(preview.length<=1400);
+  assert.ok(preview.includes('Public workshop'));
+  assert.equal(preview.includes('dangerous_script_payload'),false);
+  assert.equal(preview.includes('secret_style_text'),false);
+  let payload;
+  const task={...TASK,job_id:'PUB-LOCAL-COMPACT-20261109',purpose:'PUBLIC_TRANSLATION_DRAFT'};
+  const result=await M.draftPublicTask(task,{
+    env:{OLLAMA_LOCAL_ENABLED:'true',OLLAMA_LOCAL_MODEL:'imperion-qwen35:4b'},
+    reserveQuota:async()=>true,
+    fetchImpl:async(_url,opts)=>{
+      if(opts.method==='GET')return res(200,source,'text/html');
+      payload=JSON.parse(opts.body);
+      return res(200,{response:'Veřejný workshop'});
+    }
+  });
+  assert.equal(result.status,'DRAFT_FOR_OWNER_REVIEW');
+  assert.ok(payload.prompt.length<2250);
+  assert.equal(payload.prompt.includes('dangerous_script_payload'),false);
+  assert.equal(payload.options.num_ctx,2048);
+  assert.equal(payload.options.num_predict,160);
+  assert.equal(payload.options.num_gpu,0);
+  assert.equal(result.messages_sent,0);
+});
+
 test('Groq GPT-OSS uses low reasoning budget and refuses clipped content', async () => {
   let request;
   const x = await M.draftPublicTask(TASK, {
