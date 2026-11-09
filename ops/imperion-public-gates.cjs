@@ -112,8 +112,8 @@ function runAudit(pages) {
   const bookingEdge=pages['supabase/functions/imperion-academy-book/index.ts']||'';
   const safeOwnerBooking=academyUrl==='book/' &&
     /id="booking"/.test(bookingPage) && /id="slots"/.test(bookingPage) &&
-    /type="file"[^>]*accept="application\\/pdf,\\.pdf"/.test(bookingPage) &&
-    /new FormData\\(booking\\)/.test(bookingJS) &&
+    bookingPage.includes('accept="application/pdf,.pdf"') &&
+    bookingJS.includes('new FormData(booking)') &&
     /imperion-academy-book/.test(bookingJS) &&
     /PENDING_BANK_CHECK/.test(bookingEdge) &&
     /payment_verified:false,booking_confirmed:false/.test(bookingEdge) &&
