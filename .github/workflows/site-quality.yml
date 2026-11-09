@@ -106,6 +106,9 @@ jobs:
       - name: Verify owner-only GitHub dev commands, dedup and last-job evidence
         run: python3 tests/imperion-owner-comment-poller.test.py
 
+      - name: Validate safe public repository Qwen coding workflow without network or git writes
+        run: python3 tests/imperion-public-repo-worker.test.py
+
       - name: Parse reversible Windows dev agent scheduler without running it
         shell: pwsh
         run: |
