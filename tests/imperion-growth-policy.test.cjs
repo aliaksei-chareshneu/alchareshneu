@@ -106,3 +106,26 @@ test('public comment source URL strips PII query and rejects fake hosts and unve
  assert.equal(G.handoff(bad,cl),null);
  assert.equal(G.handoff({...base,provider_readback:false},cl),null);
 });
+
+test('FB group posting requires moderator rules and 72h per-group dedup',()=>{
+ const grant={...approved,channels:['facebook_group']};
+ const req={...request,channel:'facebook_group'};
+ assert.equal(G.standingGo(grant,req,evidence,at).code,'GROUP_RULES_OR_72H_DEDUP_UNKNOWN');
+ const checked={...evidence,group_rules_verified:true,same_group_posts_last_72h:0};
+ assert.equal(G.standingGo(grant,req,checked,at).decision,'POLICY_ELIGIBLE_ONLY');
+ assert.equal(G.standingGo(grant,req,{...checked,same_group_posts_last_72h:1},at).code,
+   'GROUP_RULES_OR_72H_DEDUP_UNKNOWN');
+ assert.equal(G.standingGo(approved,{...request,channel:'unknown'},evidence,at).code,'UNSUPPORTED_CHANNEL');
+});
+test('provider permalink identity keys remain functional without unrelated tracking/PII',()=>{
+ const fb={platform:'facebook',account_id:'page-1',comment_id:'fb-c1',provider_readback:true,
+   text:'Is registration open?',post_url:'https://www.facebook.com/permalink.php?story_fbid=123456789&id=56789012&utm_source=tracking&email=some%40secret.test'};
+ const a=G.handoff(fb,G.classifyComment(fb));
+ assert.ok(a);
+ assert.equal(a.source_post_url,'https://www.facebook.com/permalink.php?story_fbid=123456789&id=56789012');
+ assert.equal(JSON.stringify(a).includes('secret.test'),false);
+ const wrong={...fb,post_url:'https://www.facebook.com/permalink.php?story_fbid=123456789&id=ABC'};
+ assert.equal(G.classifyComment(wrong).route,'HOLD_PROVIDER_READBACK');
+ const yt={...fb,platform:'youtube',post_url:'https://www.youtube.com/watch?v=abcDEfgH_12&email=secret'};
+ assert.equal(G.handoff(yt,G.classifyComment(yt)).source_post_url,'https://www.youtube.com/watch?v=abcDEfgH_12');
+});
