@@ -95,7 +95,7 @@ test('one common multilingual form, current tiers and quote-fed total',()=>{
   for(const id of ['trainingPayment','trainingTier','paymentResumeToken','paymentProof','eventId','rsvpForm'])
    assert.ok(html.includes('id="'+id+'"'),path+' '+id);
   assert.match(html,/training-payment\.js/);
-  assert.match(html,/quotedTier:tier\(\)/);
+  assert.match(browser,/quotedTier:tier\(\)/);
   assert.match(html,/paymentProofField/);
   const re=/<script\b([^>]*)>([\s\S]*?)<\/script>/ig;let m,parsed=0;
   while((m=re.exec(html))!==null){
