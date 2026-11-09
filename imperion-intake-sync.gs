@@ -109,7 +109,8 @@ function impAppendOrelSource_(ss,r){
 function impEnsureRsvpPaymentCols_(sh){
  var h=impHeader_(sh);
  var required=['Quoted_Base_CZK','Late_Fee_CZK','Quoted_Total_CZK','Quoted_Group_Size',
-  'Late_48h','Payment_Evidence_Status','Payment_Proof_Received_At'];
+  'Late_48h','Training_Requested_Tier','Training_Authorized_Tier','Quoted_Tier',
+  'Payment_Evidence_Status','Payment_Proof_Received_At'];
  var missing=required.filter(function(k){return h.map[k]===undefined;});
  if(missing.length){
   var last=sh.getLastColumn();
@@ -130,6 +131,9 @@ function impUpdateExistingRsvpProof_(sh,h,r){
   Quoted_Total_CZK:r.quoted_total_czk||'',
   Quoted_Group_Size:r.quoted_confirmed_count||'',
   Late_48h:r.quoted_late_48h===true?'YES':'NO',
+  Training_Requested_Tier:r.training_requested_tier||'STANDARD',
+  Training_Authorized_Tier:r.training_authorized_tier||'',
+  Quoted_Tier:r.quoted_tier||'',
   Payment_Evidence_Status:'PROOF_RECEIVED',
   Payment_Proof_Received_At:impDate_(r.payment_evidence_received_at),
  };
@@ -194,6 +198,9 @@ function impWriteRsvps_(ss,items,events){
         Quoted_Total_CZK:r.quoted_total_czk||'',
         Quoted_Group_Size:r.quoted_confirmed_count||'',
         Late_48h:r.quoted_late_48h===true?'YES':'NO',
+        Training_Requested_Tier:r.training_requested_tier||'STANDARD',
+        Training_Authorized_Tier:r.training_authorized_tier||'',
+        Quoted_Tier:r.quoted_tier||'',
         Payment_Evidence_Status:r.payment_evidence_status||'NOT_REQUIRED',
         Payment_Proof_Received_At:impDate_(r.payment_evidence_received_at),
         Receipt_Status:'PENDING',Receipt_Attempts:0,Receipt_Locale:r.language||'cs'
