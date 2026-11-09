@@ -11,9 +11,11 @@ test('Druzina 9 Nov owner-approved individual rates match across public entrypoi
    expect(html,file+' missing '+price).toContain(price);
   }
   expect(html,file+' still has withdrawn 7 Nov group price').not.toMatch(/1\s*000\s*Kč\s*\+\s*160|CZK\s*1,000\s*\+\s*CZK\s*160/i);
-  expect(html,file+' still has withdrawn group split samples').not.toMatch(/3 (?:people|lidé|человека|особи).*440 Kč/i);
+  expect(html,file+' still has withdrawn group split samples').not.toMatch(/(?:440|328)\s*Kč\s*(?:\/\s*(?:os|чел|особа)|each)/i);
  }
  const news=read('druzina/novinky/index.html');
+ expect(news).not.toContain('440 Kč');
+ expect(news).not.toContain('328 Kč');
  for(const lang of ['cs','en','ru','uk'])expect(news).toContain('id="'+lang+'-pricing"');
  expect(news.match(/class="price-amount"/g)).toHaveLength(12);
  expect(news).not.toContain('<strong>200 Kč</strong>');
