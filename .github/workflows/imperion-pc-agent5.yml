@@ -26,6 +26,8 @@ jobs:
         run: python -B ops/pc-agent/browser_bridge_adapter.py --selftest
       - name: Isolated multi-step workspace tasks, natural instructions and replay tests
         run: python -B ops/pc-agent/pc_task_engine.py --selftest
+      - name: Chat-to-PC v3 import/plan/execute/fetch, locking and tamper-denial QA
+        run: python -B ops/pc-agent/pc_operator_v3.py --selftest
       - name: Read-only capability report
         run: python -B ops/pc-agent/restricted_executor.py --status
       - name: Confirm no hosted model or external effect
