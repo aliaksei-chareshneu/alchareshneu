@@ -38,7 +38,7 @@ for (const language of ['en', 'cs', 'ru', 'uk']) {
     expect(box.height).toBeGreaterThanOrEqual(54);
     expect(box.height).toBeLessThanOrEqual(84);
     expect(box.y + box.height).toBeLessThanOrEqual(844);
-    await expect(page.locator('#druzina .dm-v2-primary')).toHaveAttribute('href', '../register/?lang=' + language);
+    await expect(page.locator('#druzina .dm-v2-primary')).toHaveAttribute('href', 'prihlaska/?lang=' + language);
   });
 
   test(`Academy booking is reachable in the first phone viewport: ${language}`, async ({page}) => {
