@@ -103,10 +103,26 @@ function impAppendOrelSource_(ss,r){
   'NOT_REQUESTED','',r.event_id||'','Automatic source data, no seat approval'];
  sh.getRange(n+1,1,1,14).setValues([row]);
 }
+/** Add payment audit metadata to the SAME Registrations tab; no duplicate CRM.
+ * Never copy bank PDF files, original filenames, storage paths or hashes to Sheets.
+ */
+function impEnsureRsvpPaymentCols_(sh){
+ var h=impHeader_(sh);
+ ['Quoted_Base_CZK','Late_Fee_CZK','Quoted_Total_CZK','Quoted_Group_Size',
+  'Late_48h','Payment_Evidence_Status','Payment_Proof_Received_At'].forEach(function(k){
+  if(h.map[k]===undefined){
+   var column=sh.getLastColumn()+1;
+   sh.getRange(1,column).setValue(k);
+  }
+ });
+ return impHeader_(sh);
+}
 function impWriteRsvps_(ss,items,events){
   var sh=ss.getSheetByName('Registrations');if(!sh)throw Error('Missing Registrations');
   var h=(items||[]).some(function(r){return r&&Object.prototype.hasOwnProperty.call(r,'discovery_source');})?
    impEnsureRsvpAttribution_(sh):impHeader_(sh);
+  if((items||[]).some(function(r){return r&&r.payment_evidence_status==='PROOF_RECEIVED';}))
+   h=impEnsureRsvpPaymentCols_(sh);
   if(h.map.Submission_ID===undefined)throw Error('Missing Submission_ID');
   var existing=impExisting_(sh,h.map.Submission_ID+1),ids=[],added=0;
   items.forEach(function(r){
@@ -140,6 +156,13 @@ function impWriteRsvps_(ss,items,events){
         Data_Controller:r.data_controller||'',Registration_Locale:r.language||'',
         Discovery_Source:r.discovery_source||'',UTM_Source:r.utm_source||'',
         UTM_Medium:r.utm_medium||'',UTM_Campaign:r.utm_campaign||'',
+        Quoted_Base_CZK:r.quoted_base_czk||'',
+        Late_Fee_CZK:r.quoted_late_fee_czk===0?0:(r.quoted_late_fee_czk||''),
+        Quoted_Total_CZK:r.quoted_total_czk||'',
+        Quoted_Group_Size:r.quoted_confirmed_count||'',
+        Late_48h:r.quoted_late_48h===true?'YES':'NO',
+        Payment_Evidence_Status:r.payment_evidence_status||'NOT_REQUIRED',
+        Payment_Proof_Received_At:impDate_(r.payment_evidence_received_at),
         Receipt_Status:'PENDING',Receipt_Attempts:0,Receipt_Locale:r.language||'cs'
       });
       existing[id]=true;added++;
@@ -416,7 +439,11 @@ function impReceiptMessage_(kind,row,m,events){
    }
   }
   if(e&&e.venue)parts.push(w[5]+': '+String(e.venue).slice(0,200));
-  if(e&&e.price_verified===true&&Number.isInteger(e.price_czk))parts.push(w[6]+': '+e.price_czk+' Kč');
+  var paidQuote=Number(v('Quoted_Total_CZK'));
+  if(v('Payment_Evidence_Status')==='PROOF_RECEIVED'&&paidQuote>0)
+    parts.push(w[6]+': '+paidQuote+' Kč (PDF received for review; bank not verified)');
+  else if(e&&e.price_verified===true&&Number.isInteger(e.price_czk)&&
+       !e.trainingPayment)parts.push(w[6]+': '+e.price_czk+' Kč');
   var rulesUrl=e&&String(e.rules_url||'')||'';
   if(!/^https:\/\/aliaksei-chareshneu\.github\.io\/alchareshneu\//.test(rulesUrl))
    rulesUrl='https://aliaksei-chareshneu.github.io/alchareshneu/register/safety/';
