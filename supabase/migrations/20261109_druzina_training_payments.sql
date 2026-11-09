@@ -24,7 +24,6 @@ ALTER TABLE public.imperion_rsvp_events
       AND category='HEMA Training'
       AND community='Družina Moravy'
       AND price_verified=true AND end_time_verified=true
-      AND source_active=true AND is_open=true AND registration_mode='FORM'
     ));
 ALTER TABLE public.imperion_rsvp_submissions
   ADD COLUMN IF NOT EXISTS quoted_base_czk integer,
@@ -46,7 +45,7 @@ ALTER TABLE public.imperion_rsvp_submissions
        AND quoted_total_czk=quoted_base_czk+quoted_late_fee_czk
        AND quoted_confirmed_count BETWEEN 3 AND 200)),
   ADD CONSTRAINT imperion_payment_path_check
-   CHECK (payment_pdf_path IS NULL OR payment_pdf_path ~ '^\\d{4}-\\d{2}-\\d{2}/[0-9a-f-]{36}\\.pdf$');
+   CHECK (payment_pdf_path IS NULL OR payment_pdf_path ~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}/[0-9a-f-]{36}[.]pdf$');
 CREATE INDEX IF NOT EXISTS imperion_rsvp_payment_review_idx
  ON public.imperion_rsvp_submissions (payment_evidence_status,created_at)
  WHERE payment_evidence_status <> 'NOT_REQUIRED';
