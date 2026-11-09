@@ -26,15 +26,23 @@ Deno.serve(async (req:Request):Promise<Response>=>{
   const key=auth.slice(7);
   if(!/^[0-9a-f]{64}$/i.test(key))return reply({error:"unauthorized"},401);
   const api=createClient(S_URL,S_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
+  // Legacy bound Google Script still works but MUST NOT ACK evidence updates.
+  // V2 opt-in is enabled only after the live importer's in-place update is deployed.
+  const proofProtocolV2=req.headers.get("x-imperion-intake-protocol")==="payment-v2";
   const verified=await api.rpc("verify_imperion_intake_bridge_token",{p_token:key});
   if(verified.error||verified.data!==true)return reply({error:"forbidden"},403);
 
   try{
     if(req.method==="GET"){
       const [rsvp,enquiry,b2b]=await Promise.all([
-        api.from("imperion_rsvp_submissions")
-          .select("id,event_id,first_name,last_name,email,phone,age_group,guardian_name,guardian_phone,rsvp_status,safety_acknowledged,safety_version,photo_choice,marketing_requested,data_controller,language,source,status,created_at,retention_until,discovery_source,utm_source,utm_medium,utm_campaign")
-          .is("crm_synced_at",null).order("created_at",{ascending:true}).limit(40),
+        (proofProtocolV2
+          ? api.from("imperion_rsvp_submissions")
+             .select("id,event_id,first_name,last_name,email,phone,age_group,guardian_name,guardian_phone,rsvp_status,safety_acknowledged,safety_version,photo_choice,marketing_requested,data_controller,language,source,status,created_at,retention_until,discovery_source,utm_source,utm_medium,utm_campaign,training_requested_tier,training_authorized_at,quoted_tier,quoted_base_czk,quoted_late_fee_czk,quoted_total_czk,quoted_confirmed_count,quoted_late_48h,payment_evidence_status,payment_evidence_received_at,bank_verified_at")
+             .or("crm_synced_at.is.null,and(payment_evidence_status.eq.PROOF_RECEIVED,payment_crm_synced_at.is.null)")
+          : api.from("imperion_rsvp_submissions")
+             .select("id,event_id,first_name,last_name,email,phone,age_group,guardian_name,guardian_phone,rsvp_status,safety_acknowledged,safety_version,photo_choice,marketing_requested,data_controller,language,source,status,created_at,retention_until,discovery_source,utm_source,utm_medium,utm_campaign")
+             .is("crm_synced_at",null))
+          .order("created_at",{ascending:true}).limit(40),
         api.from("imperion_rsvp_enquiries")
           .select("id,first_name,last_name,contact,contact_kind,visit_type,preferred_day,preferred_date,adult_confirmed,safety_acknowledged,safety_version,language,data_controller,source,status,created_at,retention_until")
           .is("crm_synced_at",null).order("created_at",{ascending:true}).limit(40),
@@ -62,8 +70,12 @@ Deno.serve(async (req:Request):Promise<Response>=>{
     const now=new Date().toISOString();
     let ra=0,ea=0,ba=0;
     if(rsvps.length){
-      const out=await api.from("imperion_rsvp_submissions").update({crm_synced_at:now})
-        .in("id",rsvps).is("crm_synced_at",null).select("id");
+      let q=api.from("imperion_rsvp_submissions").update({
+        crm_synced_at:now,...(proofProtocolV2?{payment_crm_synced_at:now}:{})
+      }).in("id",rsvps);
+      q=proofProtocolV2?q.or("crm_synced_at.is.null,and(payment_evidence_status.eq.PROOF_RECEIVED,payment_crm_synced_at.is.null)"):
+        q.is("crm_synced_at",null);
+      const out=await q.select("id");
       if(out.error)throw Error("rsvp ack");
       ra=out.data?.length||0;
     }
