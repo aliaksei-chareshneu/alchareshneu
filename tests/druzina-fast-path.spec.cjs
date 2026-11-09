@@ -15,7 +15,11 @@ function mockEvent(payment=null){
   end_time_verified:true,registration_mode:'FORM',public_listing:true,
   data_controller:'Družina Moravy, z. s.',contact_activity:true,
   rules_url:'https://aliaksei-chareshneu.github.io/alchareshneu/druzina/safety/',
-  trainingPayment:payment||{status:'AWAITING_VERIFIED_GROUP',proofRequired:false}
+  trainingPayment:payment||{status:'AWAITING_SESSION_GO',tariffVersion:'DRU-20261109',
+   rates:{STANDARD:{baseCzk:240,surchargeCzk:0,totalCzk:240,available:true,eligibilityReviewRequired:false},
+   SENIOR:{baseCzk:120,surchargeCzk:0,totalCzk:120,available:true,eligibilityReviewRequired:true},
+   STARTER4:{baseCzk:800,surchargeCzk:0,totalCzk:800,available:true,eligibilityReviewRequired:true}},
+   proofRequired:false}
  };
 }
 function mockFree(){
@@ -100,18 +104,21 @@ for(const lang of languages){
  });
 }
 test('Only a locked quote and one-time code enable PDF evidence; never auto-mark paid',async({page})=>{
- const q={status:'PAYMENT_OPEN',confirmedCount:3,baseCzk:440,surchargeCzk:110,
-   totalCzk:550,late48h:true,proofRequired:true,
+ const q={status:'PAYMENT_OPEN',tier:'STANDARD',tariffVersion:'DRU-20261109',
+   rates:{STANDARD:{baseCzk:240,surchargeCzk:60,totalCzk:300,available:true,eligibilityReviewRequired:false},
+    SENIOR:{baseCzk:120,surchargeCzk:30,totalCzk:150,available:true,eligibilityReviewRequired:true},
+    STARTER4:{baseCzk:800,surchargeCzk:0,totalCzk:null,available:false,eligibilityReviewRequired:true}},
+   baseCzk:240,surchargeCzk:60,totalCzk:300,late48h:true,proofRequired:true,
    recipient:'Verified association (test only)',account:'test-account-0000',
    quoteLockedAt:'2026-11-09T08:00:00Z'};
  let body=null,ctype='';
  await mockApi(page,mockEvent(q),async request=>{
   body=request.postData()||'';ctype=request.headers()['content-type']||'';
   return {ok:true,status:'RECEIVED',confirmed:false,paymentEvidenceStatus:'PROOF_RECEIVED',
-    bankVerified:false,quotedTotalCzk:550};
+    bankVerified:false,quotedTotalCzk:300};
  });
  await page.goto('/register/?lang=en&event='+ID);
- await expect(page.locator('#trainingPaymentAmount')).toContainText('550');
+ await expect(page.locator('#trainingPaymentAmount')).toContainText('300');
  await expect(page.locator('#paymentResumeField')).toBeVisible();
  await expect(page.locator('#paymentProofField')).toBeHidden();
  await page.locator('#paymentResumeToken').fill('A'.repeat(43));
@@ -128,6 +135,7 @@ test('Only a locked quote and one-time code enable PDF evidence; never auto-mark
  expect(ctype).toMatch(/^multipart\/form-data; boundary=/i);
  expect(body).toContain('paymentResumeToken');
  expect(body).toContain('quotedTotalCzk');
+ expect(body).toContain('quotedTier');
  expect(body).toContain('transfer.pdf');
  await expect(page.locator('#result')).toContainText('PDF');
 });
