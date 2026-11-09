@@ -65,7 +65,10 @@ test('the resume code enforces server-side tier approval and no duplicate intake
   "body.quotedTotalCzk!==verifiedQuote.totalCzk","body.quotedTier!==savedTier",
   ".eq('payment_evidence_status','NOT_REQUIRED').is('payment_pdf_path',null)",
   "payment_resume_token_hash:null","payment_crm_synced_at:null",
-  "paymentEvidenceStatus:'PROOF_RECEIVED',bankVerified:false"]){
+  "paymentEvidenceStatus:'PROOF_RECEIVED',bankVerified:false",
+  "verifiedQuote=trainingQuote(event,savedTier,registrationMs,true)",
+  ".select('id,created_at,training_requested_tier",
+  "Date.now()>=Date.parse(event.begins_at)"]){
   assert.ok(edge.includes(needle),needle);
  }
  assert.ok(edge.includes("new TextDecoder().decode(bytes.slice(0,5))!=='%PDF-'"));
