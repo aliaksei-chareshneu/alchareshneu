@@ -117,6 +117,37 @@ function impEnsureRsvpPaymentCols_(sh){
  });
  return impHeader_(sh);
 }
+/** Update only payment evidence on an already imported RSVP; never add duplicate.
+ * Do not overwrite earlier consents, identities or manually verified bank status.
+ */
+function impUpdateExistingRsvpProof_(sh,h,r){
+ if(r.payment_evidence_status!=='PROOF_RECEIVED')return;
+ var keys={
+  Quoted_Base_CZK:r.quoted_base_czk||'',
+  Late_Fee_CZK:r.quoted_late_fee_czk===0?0:(r.quoted_late_fee_czk||''),
+  Quoted_Total_CZK:r.quoted_total_czk||'',
+  Quoted_Group_Size:r.quoted_confirmed_count||'',
+  Late_48h:r.quoted_late_48h===true?'YES':'NO',
+  Payment_Evidence_Status:'PROOF_RECEIVED',
+  Payment_Proof_Received_At:impDate_(r.payment_evidence_received_at),
+ };
+ var col=h.map.Submission_ID+1,last=sh.getLastRow(),id=String(r.id||'');
+ if(last<2)return;
+ var entries=sh.getRange(2,col,last-1,1).getDisplayValues();
+ for(var i=0;i<entries.length;i++){
+  if(String(entries[i][0]||'').trim()!==id)continue;
+  var row=i+2;
+  Object.keys(keys).forEach(function(key){
+   if(h.map[key]===undefined)throw Error('Missing payment CRM column: '+key);
+   sh.getRange(row,h.map[key]+1).setValue(impText_(keys[key]));
+   if(keys[key] instanceof Date)sh.getRange(row,h.map[key]+1).setNumberFormat('dd.mm.yyyy hh:mm');
+  });
+  if(sh.getRange(row,h.map.Payment_Evidence_Status+1).getDisplayValue()!=='PROOF_RECEIVED')
+   throw Error('Payment proof CRM readback failed');
+  return;
+ }
+ throw Error('Existing RSVP row missing for proof sync');
+}
 function impWriteRsvps_(ss,items,events){
   var sh=ss.getSheetByName('Registrations');if(!sh)throw Error('Missing Registrations');
   var h=(items||[]).some(function(r){return r&&Object.prototype.hasOwnProperty.call(r,'discovery_source');})?
@@ -167,6 +198,8 @@ function impWriteRsvps_(ss,items,events){
       });
       existing[id]=true;added++;
       try{impAppendOrelSource_(ss,r);}catch(e){console.error('Orel source mirror unavailable');}
+    }else if(r.payment_evidence_status==='PROOF_RECEIVED'){
+      impUpdateExistingRsvpProof_(sh,h,r);
     }
     ids.push(id);
   });
