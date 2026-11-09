@@ -28,6 +28,10 @@ test('Druzina pricing remains enquiry-only, preserving previous rights and works
  expect(html).toContain('We preserve individually confirmed or prepaid entitlements');
  expect(html).toContain('14 November 2026 Orel Husovice beginner workshop remains free');
  expect(html).toContain('560 Kč');
- expect(html).toContain('../prihlaska/?lang=en');
+ expect(html).toContain('../../register/?lang=en');
+ expect(html).toContain('240 → 300 Kč');
+ expect(html).toContain('120 → 150 Kč');
+ expect(html).toContain('Starter 4');
+ expect(html).toContain('48-hour cutoff');
  expect(html).not.toMatch(/buy\.stripe\.com|revolut\.me|<form[^>]*action=/);
 });
