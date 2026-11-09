@@ -18,6 +18,11 @@ create table if not exists public.imperion_academy_slots (
   constraint academy_slot_source_len check (char_length(source_reference)<=300)
 );
 -- Do not expose an owner's Google Calendar event IDs or private free/busy.
+-- In addition to exclusive claims, prevent overlapping appointment windows.
+alter table public.imperion_academy_slots
+  add constraint academy_published_slot_no_overlap exclude using gist
+  (tstzrange(starts_at,ends_at,'[)') with &&)
+  where (is_open and owner_approved_at is not null);
 alter table public.imperion_academy_slots enable row level security;
 revoke all on public.imperion_academy_slots from anon, authenticated;
 grant select, insert, update, delete on public.imperion_academy_slots to service_role;
@@ -67,11 +72,11 @@ begin
   if not coalesce(p_privacy,false) or not coalesce(p_adult_or_guardian,false)
      or char_length(trim(coalesce(p_name,''))) not between 2 and 110
      or char_length(trim(coalesce(p_email,''))) not between 6 and 180
-     or p_email !~ '^[^[:space:]@]+@[^[:space:]@]+\\.[^[:space:]@]+$'
+     or p_email !~ '^[^[:space:]@]+@[^[:space:]@]+[.][^[:space:]@]+$'
      or p_subject not in ('CZECH','ENGLISH','GERMAN','MATHS','PHYSICS','CHEMISTRY','BIOLOGY','PROGRAMMING','OTHER')
      or p_locale not in ('en','cs','ru','uk')
      or char_length(coalesce(p_goal,''))>500
-     or p_receipt_path !~ '^proofs/[0-9a-f-]{36}\\.pdf$'
+     or p_receipt_path !~ '^proofs/[0-9a-f-]{36}[.]pdf$'
      or p_idempotency !~ '^[0-9a-f]{64}$'
   then raise exception 'invalid_booking_fields' using errcode='22023'; end if;
 
