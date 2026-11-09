@@ -144,6 +144,22 @@ class PollerTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,"COMMAND_NOT_ALLOWLISTED"):
             mod.execute("build other", 170)
 
+    def test_exact_owner_cloud_profile_build_allowlisted(self):
+        self.assertEqual(mod.owner_command(comment(201, "/imperion-dev build cloud-profile")),
+                         "build cloud-profile")
+        for c in [
+            comment(202,"/imperion-dev build cloud-profile; rm -rf ~"),
+            comment(203,"/imperion-dev build cloud-profile",login="not-owner"),
+            comment(204,"/imperion-dev build cloud-profile",assoc="CONTRIBUTOR"),
+            comment(205,"/imperion-dev build cloud-profile extra")
+        ]:
+            self.assertIsNone(mod.owner_command(c))
+        with mock.patch.object(mod,"run_cloud_profile_job",
+               return_value={"review_pr":"https://github.com/aliaksei-chareshneu/alchareshneu/pull/246"}) as worker:
+            result=mod.execute("build cloud-profile",201)
+            self.assertIn("review_pr",result)
+            worker.assert_called_once_with()
+
     def test_invalid_github_schema_fails_closed(self):
         with mock.patch.object(mod,"_api_get",return_value=([{"id":"broken"}],"")):
             with self.assertRaisesRegex(ValueError,"INVALID_COMMENT_IDS"):

@@ -22,7 +22,7 @@ OWNER = "aliaksei-chareshneu"
 REPO = OWNER + "/alchareshneu"
 ISSUE = 195
 URL = "https://api.github.com/repos/" + REPO + "/issues/195/comments?per_page=100&page=1"
-COMMAND = re.compile(r"\A/imperion-dev (ping|smoke|build roi-brand)\Z")
+COMMAND = re.compile(r"\A/imperion-dev (ping|smoke|build roi-brand|build cloud-profile)\Z")
 WORKER = Path(__file__).with_name("safe_local_python_worker.py")
 if not WORKER.is_file():
     WORKER = Path(__file__).with_name("imperion-local-python-worker.py")
@@ -233,6 +233,36 @@ def run_public_source_job():
             "proof_path": proof["proof_path"], "external_paid_api_czk": 0}
 
 
+def run_cloud_profile_job():
+    """One reviewed public coding task: model -> checked files -> GitHub Draft PR."""
+    path = Path(__file__).with_name("safe_cloud_profile_job.py")
+    if not path.is_file():
+        raise ValueError("TRUSTED_CLOUD_PROFILE_JOB_MISSING")
+    proc = subprocess.run([sys.executable, str(path)], cwd=str(path.parent),
+         capture_output=True, text=True, timeout=335,
+         env={**os.environ, "PYTHONNOUSERSITE": "1"})
+    lines = proc.stdout.strip().splitlines()
+    if proc.returncode != 0 or not lines:
+        raise ValueError("CLOUD_PROFILE_JOB_BLOCKED_NO_AUTO_RETRY")
+    result = json.loads(lines[-1])
+    if (result.get("status") != "DRAFT_PR_CREATED_VERIFIED" or
+        result.get("branch") != "agent/imperion-dev-cloud-profile-20261109" or
+        not re.fullmatch(r"[0-9a-f]{40}", str(result.get("source_commit", ""))) or
+        not re.fullmatch(r"https://github\.com/aliaksei-chareshneu/alchareshneu/pull/[0-9]+",
+                          str(result.get("pr_url", ""))) or
+        set(result.get("files", [])) != {
+            ".github/agents/imperion-dev.agent.md",
+            "tests/imperion-dev-cloud-profile.spec.cjs",
+            "docs/imperion-dev-android.md"
+        } or result.get("production_unchanged") is not True):
+        raise ValueError("CLOUD_PROFILE_PR_READBACK_REJECTED")
+    return {"real_public_code_task": True, "review_pr": result["pr_url"],
+            "review_branch": result["branch"], "review_commit": result["source_commit"],
+            "files": result["files"], "model": result["model"],
+            "external_paid_api_czk": 0, "cloud_execution": False,
+            "draft_pr_created_verifiably": True}
+
+
 def execute(command, comment_id):
     if command == "ping":
         return check_local_model()
@@ -240,6 +270,8 @@ def execute(command, comment_id):
         return run_smoke(comment_id)
     if command == "build roi-brand":
         return run_public_source_job()
+    if command == "build cloud-profile":
+        return run_cloud_profile_job()
     raise ValueError("COMMAND_NOT_ALLOWLISTED")
 
 def poll(comments=None, state_dir=None, executor=None):

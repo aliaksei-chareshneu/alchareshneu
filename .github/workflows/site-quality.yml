@@ -109,6 +109,9 @@ jobs:
       - name: Validate safe public repository Qwen coding workflow without network or git writes
         run: python3 tests/imperion-public-repo-worker.test.py
 
+      - name: Verify owner-only zero-secret GitHub Draft PR gate
+        run: python3 tests/imperion-github-draft-pr-gate.test.py
+
       - name: Parse reversible Windows dev agent scheduler without running it
         shell: pwsh
         run: |
