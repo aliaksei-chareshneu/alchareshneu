@@ -107,12 +107,13 @@ function runAudit(pages) {
     'Academy enquiry must reach the verified shared education form or Academy-specific WhatsApp');
   const dmForm = fs.readFileSync(path.join(__dirname,'../register/index.html'),'utf8');
   const dmLegacy = fs.readFileSync(path.join(__dirname,'../druzina/prihlaska/index.html'),'utf8');
+  const dmApi = fs.readFileSync(path.join(__dirname,'../supabase/functions/imperion-register/index.ts'),'utf8');
   verify('druzina:enquiry-only',
     /^\.\.\/register\/\?lang=(en|cs|ru|uk)$/.test(linkWithId(druzina,'navBookBtn')) &&
     dmForm.includes('id="safety" type="checkbox" required') &&
     dmForm.includes('id="paymentResumeToken"') &&
     dmForm.includes('id="paymentProof"') &&
-    dmForm.includes('confirmed:false') &&
+    dmApi.includes("return reply({ok:true,status:'RECEIVED',confirmed:false") &&
     dmLegacy.includes('window.location.replace(target.href)') &&
     !dmLegacy.includes('<form ') &&
     druzina.includes('New HEMA training applications are open; paid attendance is confirmed individually.') &&
