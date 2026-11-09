@@ -81,7 +81,7 @@ test('approved public source → quota reservation → one draft; no side effect
   const fetchImpl=async (url,options)=>{
     calls.push({url,method:options.method,body:options.body});
     if(options.method==='GET')return res(200, '{"events":[{"title":"Open day"}]}');
-    return res(200, {choices:[{message:{content:'Návrh na veřejnou pozvánku.'}}]});
+    return res(200, {choices:[{message:{content:'This is a complete public-facing review draft based on the supplied first-party website. It does not confirm any unverified customer engagement, payment, booking or publication.'}}]});
   };
   const result=await M.draftPublicTask(TASK, {env:GROQ_ENV, fetchImpl,
     reserveQuota:async x=>{reservations.push(x);return true;}});
@@ -129,4 +129,26 @@ test('bad provider output cannot be interpreted as sent or paid',async()=>{
       res(200,'{"events":[{"title":"Open day"}]}'):res(200,{choices:[]})});
   assert.equal(x.status,'BLOCKED');
   assert.equal(x.external_actions,0);
+});
+
+test('Groq GPT-OSS uses low reasoning budget and refuses clipped content', async () => {
+  let request;
+  const x = await M.draftPublicTask(TASK, {
+    env: GROQ_ENV,
+    reserveQuota: async () => true,
+    fetchImpl: async (_url, opts) => {
+      if (opts.method === 'GET')
+        return res(200, '{"events":[{"title":"Open day"}]}');
+      request = JSON.parse(opts.body);
+      return res(200, {choices:[{finish_reason:'length',
+        message:{content:'**Draft Public Fact'}}]});
+    }
+  });
+  assert.equal(request.model, 'openai/gpt-oss-120b');
+  assert.equal(request.reasoning_effort, 'low');
+  assert.equal(request.include_reasoning, false);
+  assert.equal(request.max_completion_tokens, 2400);
+  assert.equal(Object.hasOwn(request, 'max_tokens'), false);
+  assert.equal(x.status, 'BLOCKED');
+  assert.deepEqual(x.failures, ['groq:INCOMPLETE_DRAFT']);
 });
