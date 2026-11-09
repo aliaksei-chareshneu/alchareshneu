@@ -83,12 +83,14 @@ test('technical answers: language switching and corporate referral are usable',a
   await expect(page.locator('h1')).toContainText('Stop hunting');
 });
 
-test('homepage prioritizes B2B pilot and preserves separate community choice',async({page})=>{
+test('consumer-first home keeps a separate company portfolio with guarded enquiry',async({page})=>{
   for(const lang of ['cs','en','ru','uk']){
     await page.goto('/?lang='+lang);
-    await expect(page.locator('#heroCta')).toHaveAttribute('href','corporate/request/?lang='+lang+'&service=DATA_PILOT&src=home_hero');
+    await expect(page.locator('#heroCta')).toHaveAttribute('href', /docs\\.google\\.com\\/forms\\/d\\/e\\//);
+    await expect(page.locator('#intentDruzinaCta')).toHaveAttribute('href','druzina/prihlaska/?lang='+lang);
+    await expect(page.locator('#intentWalkersCta')).toHaveAttribute('href',lang==='cs'?'register/':'register/'+lang+'/');
     await expect(page.locator('#heroCorporateCta')).toHaveAttribute('href','start/?lang='+lang);
-    await expect(page.locator('#heroCta')).toContainText(lang==='en'?'14,900':'14 900');
+    await expect(page.locator('#intentBusinessCta')).toHaveAttribute('href','corporate/');
   }
 });
 
