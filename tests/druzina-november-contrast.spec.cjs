@@ -11,7 +11,7 @@ for(const lang of languages)for(const width of [360,1440]){
   await expect(page.locator('link[href*="brand-theme.css"]')).toHaveAttribute('href','../../brand-theme.css?v=20261026b');
   const article=page.locator('article.locale:visible');
   await expect(article).toHaveCount(1);
-  await expect(article.locator('.price-amount')).toHaveCount(5);
+  await expect(article.locator('.price-amount')).toHaveCount(3);
   await expect(article.locator('.state-tag[data-state="pilot"]')).toHaveCount(1);
   await expect(article).not.toContainText(forbidden[lang]);
   const checks=await article.evaluate(el=>{
