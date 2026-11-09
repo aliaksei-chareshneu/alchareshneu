@@ -11,9 +11,9 @@ for (const lang of ['en', 'cs', 'ru', 'uk']) {
       await expect(page.locator('.locale:visible')).toHaveCount(1);
       await expect(page.locator('.locale:visible h1')).toHaveCount(1);
       await expect(page.locator('.locale:visible .card')).toHaveCount(5);
-      await expect(page.locator('.locale:visible .primary')).toHaveCount(5);
+      await expect(page.locator('.locale:visible .card .primary')).toHaveCount(5);
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);
-      for (const link of await page.locator('.locale:visible .primary').all()) {
+      for (const link of await page.locator('.locale:visible .card .primary').all()) {
         const href = await link.getAttribute('href');
         expect(href).toMatch(/^(?:mailto:|https:\/\/(?:wa\.me|t\.me)\/|\.\.\/corporate\/request\/\?|\.\.\/shop\/|\.\.\/register\/\?)/);
         expect(href).not.toMatch(/^https:\/\/(?:revolut\.me|checkout\.)/i);
