@@ -1,9 +1,9 @@
 # IMPERION PC Automation Agent #5 — safe Windows runtime
 
 Owner: existing IMPERION project. Canonical Job_ID: JOB-IMP-PC-AUTOMATION-20261108-05.
-Status: LIVE restricted PC operator v3 via existing Browser Bridge: import,
-plan, execute, fetch + diagnostics and multi-step workspace tasks, 0 new cost.
-This is not unrestricted Windows control or an autonomous business-outcome agent.
+Status: LIVE restricted PC operator v4 via existing Browser Bridge: import,
+plan, execute, fetch, fixed app status, memory readiness and diagnostics.
+No new paid service. Not unrestricted Windows or autonomous business operations.
 
 ## Existing infrastructure reused
 
@@ -247,6 +247,82 @@ controlled separate validation. Real personal/project files and GUI app tasks
 require owner-approved explicit scoped paths/action policy. Open-ended local
 LLM planning is not verified, and Qwen 0.6b is not running resident due to
 limited free RAM. Do not mark universal Windows agent complete.
+
+## LIVE v4: fixed Windows app inspection and desktop entry points (09 Nov 2026)
+
+Existing Windows zmrzlina Browser Bridge expanded with a **read-only** fixed
+application-status mode. No new local agent, loopback listener, scheduled task,
+Ollama model, Supabase table or paid service. New module:
+`pc_desktop_v4.py` (pure Windows Win32 Toolhelp32 process list and
+GlobalMemoryStatusEx metrics). Same existing `pc_operator` queue action:
+- `{"mode":"app_status","app":"chrome"}` returns running/instances for an
+  allowlisted app, without PIDs, usernames, command lines, window titles or
+  arguments. Allowed app IDs: notepad, calculator, vscode, chrome, edge,
+  python, ollama. Unknown app IDs denied.
+- `{"mode":"machine_readiness"}` returns coarse RAM availability and whether
+  there is >=1024 MiB available for any future GUI pilot. It **never**
+  launches, terminates, clicks or controls any app. Launch requests are
+  denied regardless of an untrusted owner's flag.
+
+Local on actual Windows: `pc_desktop_v4.py --selftest` PASS 18/18 (path,
+command, app whitelist and memory-range deny checks). Staged existing
+Browser Bridge test `stage_pc_desktop_v4.py` PASS 11/11, source unmodified.
+Controlled install changed only
+`ChatGPT-Workspace/_shared/pc-agent/browser_bridge_adapter.py`, postinstall
+SHA256 `c1c8c51c65b6a2812611476c02e35d178847e6d875947d5e6607a5c31c199c50`.
+Existing `BrowserBridge/agent/browser_agent.py` unchanged SHA256
+`22b8f9b1dc5506e8631089a83e3b29deebce6d13c0b7eb4edd56dd1e9cbf10f3`.
+Pre-v4 adapter saved at `backups/browser_bridge_adapter.pre-v4.20261109.py`,
+hash `88f1aa01cb006dd12486dccd26108d11f4885dc70b74c88564974a4b8e4b59a4`,
+plus exact atomic replacement rollback copy. Existing Scheduled Task restarted
+after closing only its dedicated Bridge Chromium window (old worker PID58020).
+Readback: `Running`, one new Bridge worker PID57712. Other Chrome windows
+and user sessions were not closed.
+
+Actual targeted Supabase `browser_jobs` E2E (single paired agent;
+no Desktop Commander per task), 7 queue jobs each DONE / attempts=1 /
+worker error NULL:
+- readiness 2f23fec9-9e42-4e75-aa6e-895bb23908e4: new mode DONE,
+  available RAM 990MB, GUI pilot memory ready false;
+- chrome app 2ca8ba7d-c248-47ab-8760-e9be509f979c: DONE, 99 running
+  Chrome processes at measurement time (this is process count not tabs);
+- notepad app 2b2d8639-b451-42ad-a865-dc06d2a19d30: DONE, 0;
+- unknown app f00d44ff-1d8d-4998-af18-db685b93c80b:
+  queue DONE but APPLICATION BLOCKED APP_NOT_ALLOWLISTED;
+- cloud app launch c6b99f46-5667-4f0b-84de-e394f8113f7d:
+  queue DONE but APPLICATION BLOCKED MODE_NOT_ALLOWED;
+- old status 87b48f50-14be-462b-bd0e-57260a37284b:
+  DONE/online=true;
+- old v3 capabilities ecffe840-0e74-451c-9e47-7045f8e69a76:
+  DONE, previous modes preserved.
+
+Previous v3 non-sensitive file workflow also independently retested
+through v4 adapter:
+- plan a3baeb74-eddd-4c8f-973a-121266f5663b DONE/READY;
+- execute c2388af9-2504-40b7-9715-c47d59fa16da DONE/2 steps,
+  report SHA256 c8201a2a442cfbb1f943a7ed366826aac55c532c5175161c44be1d265d6f6562;
+- fetch 7796d931-9a2b-450b-8e51-293e3326d780 DONE/actual report text
+  and SHA match. Synthetic CSV test only.
+
+Two reversible Windows Desktop shortcuts created, each target independently
+verified (Desktop actual path is under `OneDrive - MUNI/Plocha`, so .lnk files
+may sync, but source data remains in local protected workspace):
+- `IMPERION Agent5 - Drop non-sensitive files.lnk` ->
+  `pc_task_data/inbox`.
+- `IMPERION Agent5 - Verified results.lnk` ->
+  `pc_task_data/outbox`.
+No personal or client records copied or read. Do not submit sensitive data
+through remote Supabase queue or this workspace. Desktop files are linked, not
+duplicated; user can remove shortcuts without deleting workspace data.
+
+User Android acceptance step: open same ChatGPT conversation on Android
+and issue "Агент №5, проверь Chrome на zmrzlina и покажи статус памяти".
+Only once that message is sent from the physical device and the resulting
+queue IDs/readback confirmed may Android-origin be marked VERIFIED.
+Current chat/connector test is device-agnostic; user platform unverified.
+System uptime and actual reboot/login survival require separate safe test.
+Free RAM is volatile; it had fallen to 200-400 MiB before the update and
+rose to ~990 MiB around the cloud measurement. No GUI automation was enabled.
 
 ## Known limits / do not silently promote
 
