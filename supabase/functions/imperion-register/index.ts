@@ -337,7 +337,9 @@ Deno.serve(async (req:Request):Promise<Response>=>{
   // A direct POST must not bypass the calendar registration cutoff even when
   // the sheet feed still says is_open=true. Recheck after database read.
   if (!registrationStillOpen(v.eventId)) return reply({error:'event_not_available'},400,origin);
-  const chosenTier=safeEnum(body.trainingTier||'STANDARD',['STANDARD','SENIOR','STARTER4']) as TrainingTier;
+  const tierRaw=String(body.trainingTier||'STANDARD');
+  if(!['STANDARD','SENIOR','STARTER4'].includes(tierRaw))return reply({error:'invalid_training_tier'},400,origin);
+  const chosenTier=tierRaw as TrainingTier;
   const quote=trainingQuote(event,Date.now(),chosenTier);
   const isTraining=quote!==null;
   const resumeToken=String(body.paymentResumeToken||'').trim();
