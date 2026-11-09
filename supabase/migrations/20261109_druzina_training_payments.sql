@@ -53,4 +53,4 @@ INSERT INTO storage.buckets (id,name,public,file_size_limit,allowed_mime_types)
 -- Existing 9 November individually offered 240 Kč is legacy; free workshop not affected.
 UPDATE public.imperion_rsvp_events SET training_price_scheme='GROUP_SHARED'
  WHERE community='Družina Moravy' AND category='HEMA Training'
- AND begins_at >= '2026-11-10T00:00:00Z';
+ AND begins_at >= '2026-11-10T00:00:00Z' AND price_czk > 0 AND event_id <> 'PUB-OREL-20261114';
