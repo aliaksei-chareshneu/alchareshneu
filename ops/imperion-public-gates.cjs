@@ -9,6 +9,10 @@ const REQUIRED = Object.freeze([
   'corporate/index.html',
   'corporate/request/index.html',
   'academy/index.html',
+  'academy/book/index.html',
+  'academy/book/booking.js',
+  'academy/book/privacy/index.html',
+  'supabase/functions/imperion-academy-book/index.ts',
   'druzina/index.html',
   'walkers/index.html',
 ]);
@@ -97,14 +101,26 @@ function runAudit(pages) {
     'A direct corporate inquiry path must remain available');
   let academyUrl='';
   try { academyUrl=decodeURIComponent(linkWithId(academy,'navBookBtn')); } catch { /* fail closed */ }
-  // Verified 05 Nov 2026: the owner's common enquiry Google Form explicitly
-  // includes individual teaching; do not misclassify it as an unrelated form.
-  // Preserve an Academy-specific WhatsApp fallback while rejecting unknown forms.
+  // Old verified enquiry paths remain accepted for pre-existing enquiries.
+  // New owner-controlled booking route passes only when local page, private
+  // proof rules and non-confirmation contract are present in this same build.
   const verifiedAcademyForm='https://docs.google.com/forms/d/e/1FAIpQLSfa3qOWpQBfoA877ip9eOTWwFweOrNTib2mq8_C1D9xr55dtQ/viewform';
   const academyWhatsapp=academyUrl.startsWith('https://wa.me/') && /Academy/i.test(academyUrl);
+  const bookingPage=pages['academy/book/index.html']||'';
+  const bookingJS=pages['academy/book/booking.js']||'';
+  const bookingPrivacy=pages['academy/book/privacy/index.html']||'';
+  const bookingEdge=pages['supabase/functions/imperion-academy-book/index.ts']||'';
+  const safeOwnerBooking=academyUrl==='book/' &&
+    /id="booking"/.test(bookingPage) && /id="slots"/.test(bookingPage) &&
+    /type="file"[^>]*accept="application\\/pdf,\\.pdf"/.test(bookingPage) &&
+    /new FormData\\(booking\\)/.test(bookingJS) &&
+    /imperion-academy-book/.test(bookingJS) &&
+    /PENDING_BANK_CHECK/.test(bookingEdge) &&
+    /payment_verified:false,booking_confirmed:false/.test(bookingEdge) &&
+    /private Storage bucket/.test(bookingPrivacy);
   verify('academy:relevant-contact',
-    academyUrl===verifiedAcademyForm || academyWhatsapp,
-    'Academy enquiry must reach the verified shared education form or Academy-specific WhatsApp');
+    academyUrl===verifiedAcademyForm || academyWhatsapp || safeOwnerBooking,
+    'Academy enquiry must reach the verified form, Academy-specific WhatsApp or guarded own-site booking');
   const dmForm = fs.readFileSync(path.join(__dirname,'../druzina/prihlaska/index.html'),'utf8');
   verify('druzina:enquiry-only',
     /^prihlaska\/\?lang=(en|cs|ru|uk)$/.test(linkWithId(druzina,'navBookBtn')) &&
