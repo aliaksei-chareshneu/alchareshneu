@@ -20,7 +20,7 @@ function impPrivateConfig_(){
 }
 function impPrivateFetch_(config,payload){
   var opt={method:payload?'post':'get',
-    headers:{Authorization:'Bearer '+config.key},
+    headers:{Authorization:'Bearer '+config.key,'x-imperion-intake-protocol':'payment-v2'},
     contentType:'application/json',muteHttpExceptions:true,timeoutSeconds:25};
   if(payload)opt.payload=JSON.stringify(payload);
   var resp=UrlFetchApp.fetch(IMP_INTAKE_URL,opt),data={};
