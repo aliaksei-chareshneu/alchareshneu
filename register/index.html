@@ -106,7 +106,16 @@ a{color:var(--mint)}button,input,select{font:inherit}button{cursor:pointer}.skip
         <div id="eventInfo" class="info" aria-live="polite" hidden></div><div id="rsvpDetails" hidden>
         <section id="trainingPayment" class="info" aria-live="polite" hidden>
           <h3 id="trainingPaymentHeading"></h3>
-          <p id="trainingPaymentAmount"></p><p id="trainingPaymentInstructions"></p>
+          <div class="field">
+            <label for="trainingTier" id="trainingTierLabel">Training tariff / Tarif tréninku</label>
+            <select id="trainingTier" name="trainingTier">
+              <option value="STANDARD">First / standard</option>
+              <option value="SENIOR">Verified Senior</option>
+              <option value="STARTER4">Starter 4 (advance only)</option>
+            </select>
+          </div>
+          <p id="trainingPaymentAmount"></p><p id="trainingPaymentAdvisory"></p>
+          <p id="trainingPaymentInstructions"></p>
           <div id="paymentResumeField" class="field" hidden>
             <label for="paymentResumeToken" id="paymentResumeLabel"></label>
             <input id="paymentResumeToken" type="text" maxlength="43" minlength="43" pattern="[A-Za-z0-9_-]{43}" autocomplete="off" spellcheck="false">
@@ -464,12 +473,20 @@ $('rsvpForm').addEventListener('submit',async event=>{event.preventDefault();con
     const request=window.ImperionTrainingPayment?.requestOptions(currentEvent,body)
       ||{headers:{'Content-Type':'application/json'},body:JSON.stringify(body)};
     const response=await fetch(ENDPOINT,{method:'POST',...request,cache:'no-store',signal:AbortSignal.timeout(30000)});
-    if(response.status===409)throw Error('price_changed');
+    if(response.status===409){
+      let problem='price_changed';try{const status=await response.json();
+        if(['eligibility_review_required','requested_tier_changed'].includes(status.error))
+          problem='eligibility_review_required';
+      }catch(_ignored){}
+      throw Error(problem);
+    }
     if(!response.ok)throw Error('submission_failed');const payload=await response.json();if(!payload.ok)throw Error('submission_rejected');
     result.className='state success';showReceipt(events.find(e=>e.event_id===body.eventId),body,payload);
     form.reset();updateGuardian();form.querySelectorAll('[type=checkbox]').forEach(el=>el.checked=false);renderEvents();form.hidden=true;
    }catch(error){result.className='state error';result.textContent=error?.message==='price_changed'
-    ?window.ImperionTrainingPayment.changedMessage(lang):t('failure');result.hidden=false;
+    ?window.ImperionTrainingPayment.changedMessage(lang)
+    :error?.message==='eligibility_review_required'
+    ?window.ImperionTrainingPayment.eligibilityMessage(lang):t('failure');result.hidden=false;
     if(error?.message==='price_changed')loadEvents();
   }
   finally{submitting=false;form.removeAttribute('aria-busy');btn.disabled=eventMode(events.find(e=>e.event_id===$('eventId').value))!=='FORM';btn.textContent=t('send');result.focus({preventScroll:true});result.scrollIntoView({block:'nearest'});}
