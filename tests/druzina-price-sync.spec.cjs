@@ -34,5 +34,5 @@ test('Druzina live pricing pages remain enquiry-only, preserving prepaid rights'
  expect(prices).toContain('We preserve individually confirmed or prepaid entitlements');
  expect(prices).toContain('14 November 2026 Orel Husovice beginner workshop remains free');
  expect(prices).not.toMatch(/buy\\.stripe\\.com|revolut\\.me|<form[^>]*action=/);
- expect(prices).toContain('../prihlaska/?lang=en');
+ expect(prices).toContain('../../register/?lang=en');
 });
