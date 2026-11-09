@@ -184,9 +184,8 @@ const utmLabels=['utm_source','utm_medium','utm_campaign'].map(function(key){
   return /^[a-zA-Z0-9][a-zA-Z0-9._-]{0,63}$/.test(value)?value.replace(/[.-]/g,'_'):null;
 }).filter(Boolean);
 const utmSuffix=utmLabels.join('_');
-const source=utmSuffix
-  ? (baseSource.slice(0,Math.max(2,65-2-utmSuffix.length))+'__'+utmSuffix).slice(0,65)
-  : baseSource;
+const source=(()=>{const source=utmLabels.length?(baseSource.slice(0,Math.max(2,65-2-utmLabels.join('_').length))+'__'+utmLabels.join('_')):baseSource;
+return source.slice(0,65);})();
  const body={company:$('company').value.trim(),contactName:$('contactName').value.trim(),
   email:$('email').value.trim(),phone:$('phone').value.trim(),offer:$('offer').value,
   budgetBand:$('budgetBand').value,timeframe:$('timeframe').value.trim(),
