@@ -128,7 +128,7 @@
       if(secondary&&page==='academy'){secondary.textContent=t.prices;secondary.href='#service-selector';}
       if(secondary&&page==='druzina'){
         if(secondary.matches('[data-dm-signup="RETURNING"]')){
-          secondary.href='../register/?lang='+encodeURIComponent(lang())+'&type=returning';
+          secondary.href='../register/?lang='+encodeURIComponent(lang());
         }else if(secondary.classList.contains('plausible-event-name=Explore-Druzina-Tree')){
           secondary.href='cesty/?lang='+encodeURIComponent(lang());secondary.removeAttribute('target');
         }else if(secondary.classList.contains('plausible-event-name=Enquire-Druzina-Castle')){
