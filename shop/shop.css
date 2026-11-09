@@ -27,3 +27,21 @@ article.prose{max-width:760px;margin:0 auto}article.prose h2{margin-top:32px}
 .kicker{font-size:.83rem;color:#496c83;font-weight:800}
 small,.muted{color:#617485}.fineprint{font-size:.84rem;color:#586e7c}
 @media(max-width:720px){.cards,.columns{grid-template-columns:1fr}.hero{padding:39px 0 32px}.card,.panel{padding:20px}.nav-links{gap:10px}}
+
+
+/* IMPERION-SHOP-DARK-QA-20261109: match common night-blue brand with readable commerce surfaces. */
+body[data-imperion-scope="shop"]{background:#0b1729;color:#f5f7fc}
+body[data-imperion-scope="shop"] .card,
+body[data-imperion-scope="shop"] .panel{background:#182b44;border-color:#364a60;color:#f5f7fc}
+body[data-imperion-scope="shop"] :is(.card,.panel) :is(h1,h2,h3){color:#f5f7fc}
+body[data-imperion-scope="shop"] :is(.card,.panel) :is(p,li,small,.lead,.muted,.fineprint,.kicker){color:#c6d1e0}
+body[data-imperion-scope="shop"] .price{color:#e6bf80}
+body[data-imperion-scope="shop"] .tag{background:#213952;color:#f5d6a1;border-color:#7791aa}
+body[data-imperion-scope="shop"] .notice{background:#283449;color:#f5d6a1;border-left-color:#e6bf80}
+body[data-imperion-scope="shop"] .success{background:#123e38;color:#d7fae9;border-left-color:#72ddab}
+body[data-imperion-scope="shop"] :is(.fineprint,.muted,small,footer,.kicker){color:#c6d1e0}
+body[data-imperion-scope="shop"] :is(.table td,.table th){border-bottom-color:#364a60}
+body[data-imperion-scope="shop"] .card a:not(.btn),
+body[data-imperion-scope="shop"] .panel a:not(.btn),
+body[data-imperion-scope="shop"] article.prose a{color:#f5d6a1}
+body[data-imperion-scope="shop"] .btn{min-height:44px}
