@@ -9,12 +9,20 @@ const {createHash}=require('node:crypto');
 const ENTITIES=new Set(['OSVC','BRNOWALKERS','DRUZINA_MORAVY_ZS']);
 const LANGS=new Set(['cs','en','ru','uk']);
 const LIVE=new Set(['PUBLISHED_VERIFIED','POSTED_VERIFIED','PUBLISHED_WEB_VERIFIED']);
-const UNSETTLED=/(PENDING|SCHEDULED|ERROR|SUBMITTING|UNVERIFIED|BLOCKED|PUBLISHED_PROVIDER_CONFIRMED)/;
+const TERMINAL_NO_POST=new Set(['CANCELLED','REJECTED','SKIPPED_NO_POST','NOT_SENT_CLOSED']);
 const OWN_SITE='aliaksei-chareshneu.github.io';
 const clean=v=>v==null?'':String(v).trim();
 const upper=v=>clean(v).toUpperCase();
 const bool=v=>v===true;
 const httpsUrl=v=>{try {const u=new URL(clean(v));return u.protocol==='https:'?u:null;}catch{return null;}};
+const safePostUrl=(raw,platform)=>{
+  const u=httpsUrl(raw);
+  const hosts={facebook:['facebook.com','fb.com'],instagram:['instagram.com'],youtube:['youtube.com','youtu.be'],tiktok:['tiktok.com']};
+  const allowed=hosts[clean(platform).toLowerCase()];
+  if(!u||!allowed||!allowed.some(h=>u.hostname===h||u.hostname.endsWith('.'+h)))return null;
+  if(u.username||u.password)return null;
+  u.search='';u.hash='';return u.toString();
+};
 const positiveDate=v=>typeof v==='string'&&/^\d{4}-\d\d-\d\dT\d\d:\d\d(?::\d\d(?:\.\d+)?)?(?:Z|[+-]\d\d:\d\d)$/.test(v)&&Number.isFinite(Date.parse(v))?Date.parse(v):null;
 function entityName(name){
   const n=upper(name);
@@ -45,7 +53,9 @@ function review(snapshot, parseLocalDate){
     if(t<now||t>now+30*86400000)continue;
     const related=posts.filter(p=>clean(p.Event_ID||p.event_id)===id);
     const published=related.filter(p=>LIVE.has(upper(p.Status||p.status)));
-    const unresolved=related.filter(p=>UNSETTLED.test(upper(p.Status||p.status)));
+    // Unknown, draft, blocked, and provider-pending statuses are ALL unresolved.
+    // An old status must never silently become a new publishing permission.
+    const unresolved=related.filter(p=>{const s=upper(p.Status||p.status);return !LIVE.has(s)&&!TERMINAL_NO_POST.has(s);});
     const price=clean(event.Price_CZK);
     const priceValid=/^\d+(?:\.\d{1,2})?$/.test(price);
     const link=httpsUrl(event.Tally_Form_URL||event.Registration_URL);
@@ -54,9 +64,11 @@ function review(snapshot, parseLocalDate){
       title:clean(event.Title).length>=6,
       venue:clean(event.Location_Name||event.Location_Address).length>=5,
       price:priceValid,
-      registration:!!link&&link.hostname===OWN_SITE,
+      registration:!!link&&link.hostname===OWN_SITE&&
+        link.pathname.replace(/\/+$/,'/')==='/alchareshneu/register/'&&
+        link.searchParams.get('event')===id,
       entity:ENTITIES.has(entity),
-      source_rights:related.some(p=>upper(p.Rights_OK)==='YES'),
+      source_rights:false, // a past post's Rights_OK does NOT clear rights for NEW media
       safety_capacity:false, // never infer capacity/insurance from a calendar event
       current_public_http:false, // actual browser/provider readback is separate
     };
@@ -68,6 +80,7 @@ function review(snapshot, parseLocalDate){
       event_id:id,starts_at:start,legal_entity:entity,
       title:clean(event.Title).slice(0,160),price_czk:priceValid?Number(price):null,
       observed_posts:published.length,unsettled_posts:unresolved.length,
+      existing_social_jobs:related.length,
       source:'EXISTING_COMMUNITY_HUB/Events+SocialPublishing',
       state:'CREATIVE_REVIEW_ONLY',blockers,
       action:'VERIFY_SOURCES_CAPACITY_RIGHTS_AND_OWNER_SCOPE',
@@ -105,12 +118,22 @@ function standingGo(grant,request,evidence={},nowIso=''){
      !bool(evidence.rights_verified)||!bool(evidence.publisher_connected)||
      !bool(evidence.recent_posts_reconciled)||!bool(evidence.cta_form_verified)||
      !bool(evidence.legal_entity_verified)||!bool(evidence.grant_terms_verified))return deny('SOURCE_PROVIDER_OR_SAFETY_GATE');
+  // Require quantitative independent reconciliation, not a manually asserted Boolean.
+  if(!Number.isSafeInteger(evidence.unresolved_provider_jobs)||evidence.unresolved_provider_jobs!==0)
+    return deny('UNRESOLVED_EXISTING_POSTS');
+  if(request.content_type==='EVENT_INFO'){
+    const keys=['safe_capacity','confirmed_persons','promised_places','pending_requests'];
+    if(!keys.every(k=>Number.isSafeInteger(evidence[k])&&evidence[k]>=0)||evidence.safe_capacity===0)
+      return deny('CAPACITY_NUMBERS_MISSING');
+    if(evidence.confirmed_persons+evidence.promised_places>=evidence.safe_capacity||evidence.pending_requests>0)
+      return deny('CAPACITY_NOT_OPEN_FOR_NEW_INVITATIONS');
+  }
   return {decision:'POLICY_ELIGIBLE_ONLY',code:'INDEPENDENT_PUBLISH_ADAPTER_REQUIRED',may_publish:false,
     approval_ref:grant.approval_ref,scope_entity:grant.entity,scope_account:request.account_id};
 }
 function classifyComment(comment){
   if(!comment||!clean(comment.comment_id)||!clean(comment.platform)||
-     !httpsUrl(comment.post_url)||comment.provider_readback!==true)
+     !safePostUrl(comment.post_url,comment.platform)||comment.provider_readback!==true)
     return {route:'HOLD_PROVIDER_READBACK',automatic_reply:false};
   const t=clean(comment.text).toLowerCase();
   if(t.length<1||t.length>3000)return {route:'HUMAN_REVIEW',automatic_reply:false};
@@ -124,9 +147,11 @@ function classifyComment(comment){
 function handoff(comment,classification){
   if(!classification||classification.route!=='AGENT4_PRIVATE_TRIAGE'||
      !comment||!clean(comment.comment_id)||!clean(comment.account_id))return null;
+  const verifiedUrl=safePostUrl(comment.post_url,comment.platform);
+  if(!verifiedUrl||comment.provider_readback!==true)return null;
   const source=`${clean(comment.platform)}|${clean(comment.account_id)}|${clean(comment.comment_id)}`;
   return {destination:'EXISTING_CRM_INTAKE_AGENT4',handoff_key:'SOCIAL-'+createHash('sha256').update(source).digest('hex').slice(0,24),
-    source_type:'PUBLIC_COMMENT',source_post_url:httpsUrl(comment.post_url)?.toString()||null,
+    source_type:'PUBLIC_COMMENT',source_post_url:verifiedUrl,
     intent:classification.intent,requires_client_opt_in:true,
     raw_text_exported:false,crm_write_performed:false,reply_sent:false,booking_confirmed:false,payment_verified:false};
 }
