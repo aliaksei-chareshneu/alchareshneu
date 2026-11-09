@@ -84,17 +84,17 @@ test('network failure does not present a successful order or charge',async({page
 });
 
 test('business landing pages link to direct quote form',async({page})=>{
- await page.goto('/');
+ await page.goto('/',{waitUntil:'domcontentloaded'});
  await expect(page.locator('#heroCta')).toHaveAttribute('href',/corporate\/request\//);
- await page.goto('/corporate/');
+ await page.goto('/corporate/',{waitUntil:'domcontentloaded'});
  await expect(page.locator('a[href*="request/?lang=en"]')).not.toHaveCount(0);
- await page.goto('/start/?lang=cs');
+ await page.goto('/start/?lang=cs',{waitUntil:'domcontentloaded'});
  await expect(page.locator('a[href*="request/"][href*="start_company"]')).not.toHaveCount(0);
- await page.goto('/academy/courses/');
+ await page.goto('/academy/courses/',{waitUntil:'domcontentloaded'});
  await expect(page.locator('a[href*="request/"][href*="academy_ai01"]')).not.toHaveCount(0);
- await page.goto('/corporate/technical-answers/');
+ await page.goto('/corporate/technical-answers/',{waitUntil:'domcontentloaded'});
  await expect(page.locator('a[href*="request/"][href*="technical_answers"]')).toHaveCount(1);
- await page.goto('/corporate/travel-audit/');
+ await page.goto('/corporate/travel-audit/',{waitUntil:'domcontentloaded'});
  await expect(page.locator('a[href*="request/"][href*="travel_audit"]')).toHaveCount(1);
 });
 
@@ -160,4 +160,25 @@ test('duplicate server ACK has no false success and clears previous receipt',asy
  await expect(page.locator('#result')).toHaveClass(/err/);
  await expect(page.locator('#receiptDetails')).toBeHidden();
  expect(call).toBe(2);
+});
+
+// IMPERION #195: a valid long referral source must not silently erase all UTM attribution.
+test('long src retains UTM channel in the existing B2B intake payload',async({page})=>{
+ let captured=null;
+ await page.route(ENDPOINT,route=>{
+  captured=route.request().postDataJSON();
+  return route.fulfill({status:200,contentType:'application/json',
+   body:JSON.stringify({ok:true,status:'RECEIVED_UNCONFIRMED',confirmed:false,
+    reference:'00000000-0000-0000-0000-000000000055'})});
+ });
+ await page.goto('/corporate/request/?lang=en&service=DATA_PILOT&src='+('s'.repeat(65))+
+  '&utm_source=instagram&utm_medium=bio&utm_campaign=nov2026');
+ await fillP0GuardFixture(page);
+ await page.locator('#submit').click();
+ await expect(page.locator('#receiptDetails')).toBeVisible();
+ expect(captured).not.toBeNull();
+ expect(captured.source).toHaveLength(65);
+ expect(captured.source).toContain('__instagram_bio_nov2026');
+ expect(captured.source).toMatch(/^s{2,}__instagram_bio_nov2026$/);
+ expect(captured.source).not.toContain('@');
 });

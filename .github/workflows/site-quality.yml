@@ -103,8 +103,28 @@ jobs:
 
       - name: Check four-language information channels and gated chats
         run: node --test tests/imperion-community-routing.test.cjs
+      - name: Verify local Python Qwen worker rejects private files and unsafe AST
+        run: python3 tests/imperion-local-python-worker.test.py scripts/imperion-local-python-worker.py
+
+      - name: Verify owner-only GitHub dev commands, dedup and last-job evidence
+        run: python3 tests/imperion-owner-comment-poller.test.py
+
+      - name: Validate safe public repository Qwen coding workflow without network or git writes
+        run: python3 tests/imperion-public-repo-worker.test.py
+
+      - name: Verify owner-only zero-secret GitHub Draft PR gate
+        run: python3 tests/imperion-github-draft-pr-gate.test.py
+
+      - name: Parse reversible Windows dev agent scheduler without running it
+        shell: pwsh
+        run: |
+          $tokens = $null
+          $parseErrors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path 'ops/install-imperion-dev-owner-commands.ps1').Path, [ref]$tokens, [ref]$parseErrors) | Out-Null
+          if ($parseErrors.Count -gt 0) { $parseErrors | ForEach-Object { Write-Error $_ }; exit 1 }
+
       - name: Verify zero-credit Qwen cloud agent is public-only and cannot take actions
-        run: node --test tests/imperion-zero-credit-cloud-review.test.cjs tests/imperion-zero-credit-cloud-workflow.test.cjs
+        run: node --test tests/imperion-zero-credit-cloud-review.test.cjs tests/imperion-zero-credit-cloud-workflow.test.cjs tests/imperion-zero-credit-dev-agent.test.cjs tests/imperion-zero-credit-dev-apply.test.cjs
 
       - name: Verify free public-only AI router and fail-closed Pages proof
         run: node --test tests/imperion-free-model-router.test.cjs tests/imperion-autopilot-workflow-gate.test.cjs
@@ -178,3 +198,22 @@ jobs:
             playwright-report/
             test-results/
           retention-days: 7
+
+  b2b-focused-qa:
+    # Existing issue #195: independently verify the entire B2B enquiry form
+    # even while unrelated historical browser-regression cases fail on main.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: timeout 240s npx playwright install chromium
+      - run: npx playwright test tests/corporate-intake.spec.cjs --workers=1 --reporter=list

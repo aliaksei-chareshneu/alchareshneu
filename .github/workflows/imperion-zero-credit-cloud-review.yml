@@ -3,6 +3,16 @@ on:
   schedule:
     - cron: '36 4 * * *'
   workflow_dispatch:
+  pull_request:
+    paths:
+      - 'scripts/imperion-zero-credit-dev-agent.cjs'
+      - 'scripts/imperion-zero-credit-dev-validate.cjs'
+      - 'tests/imperion-zero-credit-dev-agent.test.cjs'
+      - 'scripts/imperion-zero-credit-dev-apply.cjs'
+      - 'tests/imperion-zero-credit-dev-apply.test.cjs'
+      - 'corporate/request/index.html'
+      - 'tests/corporate-intake.spec.cjs'
+      - '.github/workflows/imperion-zero-credit-cloud-review.yml'
   push:
     branches: [main]
     paths:
@@ -28,7 +38,9 @@ jobs:
         with:
           node-version: '22'
       - name: Offline safety tests - public-only inputs, model draft output, no sends
-        run: node --test tests/imperion-zero-credit-cloud-review.test.cjs
+        run: |
+          node --test tests/imperion-zero-credit-cloud-review.test.cjs
+          node --test tests/imperion-zero-credit-dev-agent.test.cjs tests/imperion-zero-credit-dev-apply.test.cjs
       - name: Restore public Apache-2.0 open-model cache (no tokens or credits)
         uses: actions/cache@v4
         with:
@@ -53,15 +65,59 @@ jobs:
             exit 1
           }
       - name: Read own published event feed, run CPU Qwen, save review-only proof
+        if: github.event_name != 'pull_request'
         shell: bash
         run: |
           set -euo pipefail
           node scripts/imperion-zero-credit-cloud-review.cjs
+      - name: Qwen proposes code, tests and repairs once in isolated Docker
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/imperion-dev-sandbox"
+          for attempt in 1 2; do
+            if [ "$attempt" = 1 ]; then
+              node scripts/imperion-zero-credit-dev-agent.cjs
+            else
+              DEV_AGENT_FEEDBACK="$(cat "$RUNNER_TEMP/imperion-dev-sandbox/feedback.txt" 2>/dev/null || echo 'unknown test failure')" node scripts/imperion-zero-credit-dev-agent.cjs --repair
+            fi
+            cp "$RUNNER_TEMP/imperion-zero-credit-qwen-proof.json" "$RUNNER_TEMP/imperion-dev-sandbox/proposal.json"
+            rm -f "$RUNNER_TEMP/imperion-dev-sandbox/feedback.txt"
+            if docker run --rm --user "$(id -u):$(id -g)" --network none --read-only --cap-drop ALL \
+              --security-opt no-new-privileges --pids-limit 64 --memory 256m \
+              -v "$RUNNER_TEMP/imperion-dev-sandbox:/sandbox:rw" \
+              -v "$GITHUB_WORKSPACE/scripts/imperion-zero-credit-dev-validate.cjs:/validator.cjs:ro" \
+              node:22-alpine \
+              node /validator.cjs /sandbox/proposal.json /sandbox/validated.json /sandbox/feedback.txt; then
+              cp "$RUNNER_TEMP/imperion-dev-sandbox/validated.json" "$RUNNER_TEMP/imperion-zero-credit-qwen-validated.json"
+              echo "Qwen proposal passed isolated synthetic tests at attempt $attempt"
+              node scripts/imperion-zero-credit-dev-apply.cjs \
+                "$RUNNER_TEMP/imperion-zero-credit-qwen-validated.json" corporate/request/index.html
+              node --test tests/imperion-zero-credit-dev-apply.test.cjs
+              npm ci --ignore-scripts
+              timeout 240s npx playwright install chromium
+              npx playwright test tests/corporate-intake.spec.cjs --workers=1 --reporter=list
+              echo "MODEL_GENERATED_SOURCE_B2B_PLAYWRIGHT_PASS" >> "$GITHUB_STEP_SUMMARY"
+              break
+            fi
+            if [ "$attempt" = 1 ]; then
+              cp "$RUNNER_TEMP/imperion-zero-credit-qwen-proof.json" "$RUNNER_TEMP/imperion-zero-credit-qwen-first-failed.json"
+              echo "First Qwen proposal failed tests, retrying with targeted feedback"
+            else
+              echo "Qwen repair still failed. REVIEW REQUIRED; no code committed by model." >&2
+              exit 1
+            fi
+          done
       - name: Retain only bounded public-source review proof (not customer data)
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: imperion-zero-credit-qwen-review-${{ github.run_id }}
-          path: ${{ runner.temp }}/imperion-zero-credit-qwen-proof.json
+          path: |
+            ${{ runner.temp }}/imperion-zero-credit-qwen-proof.json
+            ${{ runner.temp }}/imperion-zero-credit-qwen-validated.json
+            ${{ runner.temp }}/imperion-zero-credit-qwen-first-failed.json
           if-no-files-found: error
           retention-days: 3
       - name: Stop ephemeral model regardless of outcome
@@ -78,3 +134,49 @@ jobs:
             chmod -R u+rwX .ollama-models/models
           fi
           echo 'Only public Qwen weights/manifests will be cached; generated Ollama private identity key is excluded.' >> "$GITHUB_STEP_SUMMARY"
+  # This is the same existing GitHub agent workflow: only the trusted issue
+  # #195 PR may publish a code-review CHILD PR. No public deployment or merge.
+  # The LLM and browser tests are isolated in the previous read-only job.
+  qwen-review-pr:
+    needs: public-safe-cpu-inference
+    if: github.event_name == 'pull_request' && github.event.pull_request.number == 231 && github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'agent/imperion-dev-20261108-b2b-source-qa'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: imperion-zero-credit-qwen-review-${{ github.run_id }}
+          path: ${{ runner.temp }}/qwen-model-acceptance
+      - name: Create only a scoped review branch and draft PR
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_BASE: ${{ github.event.pull_request.head.ref }}
+        run: |
+          set -euo pipefail
+          review_branch='agent/qwen195-validated-review'
+          if git ls-remote --exit-code --heads origin "$review_branch" >/dev/null 2>&1; then
+            echo "MODEL_REVIEW_BRANCH_ALREADY_EXISTS: no duplicate PR or mutation" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          test "$SOURCE_BASE" = "agent/imperion-dev-20261108-b2b-source-qa"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$review_branch"
+          node scripts/imperion-zero-credit-dev-apply.cjs \
+            "$RUNNER_TEMP/qwen-model-acceptance/imperion-zero-credit-qwen-validated.json" \
+            corporate/request/index.html
+          git diff --check
+          test "$(git diff --name-only | tr -d '\n')" = "corporate/request/index.html"
+          git add -- corporate/request/index.html
+          git commit -m 'fix(b2b): Qwen-generated bounded UTM attribution candidate (review only)'
+          git push --set-upstream origin "$review_branch"
+          gh pr create --draft --base "$SOURCE_BASE" --head "$review_branch" \
+            --title "DRAFT: Qwen-generated B2B attribution fix tested in isolated CI" \
+            --body "From the existing issue #195/PR #231. Generated using Qwen3:4b-instruct on an ephemeral public GitHub Actions CPU runner. The model code was tested in a no-network sandbox, followed by the existing 15-case synthetic B2B Playwright suite. A deterministic 65-character boundary guard is recorded in the CI artifact when required. Only one public HTML file changed. Human review required. NO merge, Pages or Edge deployment, customer data, email, order, payment, new CRM or API charges."
