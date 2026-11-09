@@ -107,6 +107,11 @@ a{color:var(--mint)}button,input,select{font:inherit}button{cursor:pointer}.skip
         <section id="trainingPayment" class="info" aria-live="polite" hidden>
           <h3 id="trainingPaymentHeading"></h3>
           <p id="trainingPaymentAmount"></p><p id="trainingPaymentInstructions"></p>
+          <div id="paymentResumeField" class="field" hidden>
+            <label for="paymentResumeToken" id="paymentResumeLabel"></label>
+            <input id="paymentResumeToken" type="text" maxlength="43" minlength="43" pattern="[A-Za-z0-9_-]{43}" autocomplete="off" spellcheck="false">
+            <p id="paymentResumeHelp" class="catalog-summary"></p>
+          </div>
           <div id="paymentProofField" class="field" hidden>
             <label for="paymentProof" id="paymentProofLabel"></label>
             <input id="paymentProof" name="paymentProof" type="file" accept=".pdf,application/pdf">
@@ -415,6 +420,17 @@ function showReceipt(eventData,body,payload){
  if(payload.paymentEvidenceStatus==='PROOF_RECEIVED'){
    const evidence=document.createElement('p');evidence.className='event-state';
    evidence.textContent=window.ImperionTrainingPayment.receiptMessage(lang);el.appendChild(evidence);
+ }
+ if(payload.resumeToken){
+   const label=document.createElement('p');label.className='event-state';
+   label.textContent=window.ImperionTrainingPayment.resumeMessage(lang);el.appendChild(label);
+   const code=document.createElement('input');code.type='text';code.readOnly=true;code.value=payload.resumeToken;
+   code.setAttribute('aria-label','Registration code / Kód přihlášky');code.style.width='100%';
+   code.addEventListener('focus',()=>code.select());el.appendChild(code);
+   const copyToken=document.createElement('button');copyToken.type='button';copyToken.className='retry';
+   copyToken.textContent=({cs:'Kopírovat kód',en:'Copy code',ru:'Скопировать код',uk:'Скопіювати код'})[lang]||'Copy code';
+   copyToken.addEventListener('click',()=>navigator.clipboard?.writeText(code.value));
+   el.appendChild(copyToken);
  }
  const mail=document.createElement('p');mail.textContent=dict.delivery;el.appendChild(mail);
  const safe=String(eventData?.rules_url||''),ruleUrl=/^https:\/\/aliaksei-chareshneu\.github\.io\/alchareshneu\//.test(safe)?safe:policyBase+'safety/';
