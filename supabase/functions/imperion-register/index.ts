@@ -122,9 +122,9 @@ const PROOF_BUCKET='imperion-training-payment-proofs';
 const MAX_PDF_BYTES=2*1024*1024;
 const MAX_MULTIPART_BYTES=MAX_PDF_BYTES+15000;
 const LATE_WINDOW_MS=48*60*60*1000;
-type TrainingEvent={event_id:string;community:string;category:string;begins_at:string;ends_at:string;price_verified:boolean;end_time_verified:boolean;source_active:boolean;is_open:boolean;registration_mode:string;training_price_scheme:string;training_confirmed_count:number|null;training_quote_locked_at:string|null;training_operational_go_at:string|null;training_payment_open:boolean;training_payment_recipient:string|null;training_payment_account:string|null};
+type TrainingEvent={event_id:string;community:string;category:string;price_czk:number;begins_at:string;ends_at:string;price_verified:boolean;end_time_verified:boolean;source_active:boolean;is_open:boolean;registration_mode:string;training_price_scheme:string;training_confirmed_count:number|null;training_quote_locked_at:string|null;training_operational_go_at:string|null;training_payment_open:boolean;training_payment_recipient:string|null;training_payment_account:string|null};
 function trainingQuote(e:TrainingEvent,now=Date.now()){
-  if(e.community!=='Družina Moravy'||e.category!=='HEMA Training'||e.training_price_scheme!=='GROUP_SHARED')return null;
+  if(e.community!=='Družina Moravy'||e.category!=='HEMA Training'||e.training_price_scheme!=='GROUP_SHARED'||Number(e.price_czk)===0||e.event_id==='PUB-OREL-20261114')return null;
   const n=e.training_confirmed_count;
   const eligible=Number.isInteger(n)&&n!==null&&n>=3&&n<=200;
   const ready=!!(eligible&&e.training_quote_locked_at&&e.training_operational_go_at
