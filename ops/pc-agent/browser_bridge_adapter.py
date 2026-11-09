@@ -24,9 +24,15 @@ def dispatch(action, payload=None):
     if action == "pc_operator":
         if not isinstance(payload, dict):
             return {"status": "BLOCKED", "reason": "PAYLOAD_NOT_OBJECT"}
-        from pc_operator_v3 import operate
+        # Fixed Windows read-only program inspection v4; never start/kill apps.
+        if payload.get("mode") in ("app_status", "machine_readiness"):
+            from pc_desktop_v4 import operate as inspect_windows
+            result = inspect_windows(payload)
+        else:
+            from pc_operator_v3 import operate
+            result = operate(payload)
         return {"agent": "IMPERION_AGENT5_RESTRICTED",
-                "requested": "pc_operator", "result": operate(payload)}
+                "requested": "pc_operator", "result": result}
     if action == TASK_ACTION:
         if not isinstance(payload, dict):
             return {"status": "BLOCKED", "reason": "PAYLOAD_NOT_OBJECT"}
