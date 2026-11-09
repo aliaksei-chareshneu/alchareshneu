@@ -151,6 +151,14 @@ async function readSmallMultipart(req:Request,contentType:string){
   for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.byteLength;}
   return new Request('https://upload.invalid/',{method:'POST',headers:{'content-type':contentType},body:bytes}).formData();
 }
+function generateResumeToken(){
+ const bytes=crypto.getRandomValues(new Uint8Array(32));
+ return btoa(String.fromCharCode(...bytes)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/g,'');
+}
+async function tokenHash(value:string){
+ const bytes=new Uint8Array(await crypto.subtle.digest('SHA-256',controller.encode(value)));
+ return Array.from(bytes).map(x=>x.toString(16).padStart(2,'0')).join('');
+}
 async function pdfInfo(file:File){
   if(file.size<100||file.size>MAX_PDF_BYTES||!file.name.toLowerCase().endsWith('.pdf')
     ||(file.type&&file.type!=='application/pdf'))throw new Error('invalid_pdf');
@@ -313,61 +321,85 @@ Deno.serve(async (req:Request):Promise<Response>=>{
   // the sheet feed still says is_open=true. Recheck after database read.
   if (!registrationStillOpen(v.eventId)) return reply({error:'event_not_available'},400,origin);
   const quote=trainingQuote(event);
-  const evidenceRequired=quote?.status==='PAYMENT_OPEN'&&v.rsvp==='YES';
+  const isGroup=quote!==null;
+  const resumeToken=String(body.paymentResumeToken||'').trim();
+  if(resumeToken&&!/^[A-Za-z0-9_-]{43}$/.test(resumeToken))
+    return reply({error:'invalid_payment_code'},400,origin);
+  const evidenceRequired=quote?.status==='PAYMENT_OPEN'&&v.rsvp==='YES'&&!!resumeToken;
+  if(proof&&!evidenceRequired)return reply({error:'payment_code_or_quote_not_ready'},400,origin);
+  if(evidenceRequired&&!proof)return reply({error:'payment_pdf_required'},400,origin);
+  if(resumeToken&&!evidenceRequired)return reply({error:'payment_not_open'},400,origin);
   let proofHash:string|null=null;let proofBytes:Uint8Array|null=null;
-  if(evidenceRequired){
-    if(!proof)return reply({error:'payment_pdf_required'},400,origin);
+  if(evidenceRequired&&proof){
     try{
       const parsed=await pdfInfo(proof);proofHash=parsed.hash;proofBytes=parsed.bytes;
-      if(body.quotedTotalCzk!==quote.totalCzk||
-        body.quoteLockedAt!==quote.quoteLockedAt||
-        body.quotedConfirmedCount!==quote.confirmedCount)
-        return reply({error:'quote_changed',trainingPayment:quote},409,origin);
     }catch{return reply({error:'invalid_payment_pdf'},400,origin);}
-  }else if(proof)return reply({error:'payment_not_open'},400,origin);
+    if(body.quotedTotalCzk!==quote!.totalCzk||
+       body.quoteLockedAt!==quote!.quoteLockedAt||
+       body.quotedConfirmedCount!==quote!.confirmedCount)
+      return reply({error:'quote_changed',trainingPayment:quote},409,origin);
+  }
+  // A valid resume code can only complete the existing RSVP, never create
+  // a second row or modify consent/identity fields.
+  let receiptId:string|null=null;
   const expiry=new Date(new Date(event.ends_at).getTime()+90*86400000);
-  const pdfPath=evidenceRequired?expiry.toISOString().slice(0,10)+'/'+crypto.randomUUID()+'.pdf':null;
-  const {data:inserted,error:writeError}=await api.from('imperion_rsvp_submissions').insert({
-    event_id:v.eventId,first_name:v.first,last_name:v.last,email:v.email,phone:v.phone,
-    age_group:v.age,guardian_name:v.guardianName,guardian_phone:v.guardianPhone,
-    rsvp_status:v.rsvp,safety_acknowledged:true,safety_version:'2026-10-25-v1',
-    photo_choice:v.photo,marketing_requested:v.future,data_controller:event.data_controller,
-    language:v.locale,retention_until:expiry.toISOString(),
-    discovery_source:v.discovery,utm_source:v.utmSource,
-    utm_medium:v.utmMedium,utm_campaign:v.utmCampaign,
-    ...(evidenceRequired?{status:'PENDING_UPLOAD',quoted_base_czk:quote!.baseCzk,
-      quoted_late_fee_czk:quote!.surchargeCzk,quoted_total_czk:quote!.totalCzk,
-      quoted_confirmed_count:quote!.confirmedCount,quoted_late_48h:quote!.late48h}:{}),
-  }).select('id').single();
-  // A duplicate is deliberately indistinguishable to avoid an identity oracle
-  // and must never mutate existing contact information or consents.
-  if (writeError && writeError.code!=='23505') return reply({error:'temporarily_unavailable'},503,origin);
-  if(!writeError&&evidenceRequired&&inserted?.id&&pdfPath&&proofBytes&&proofHash){
+  if(evidenceRequired&&proofBytes&&proofHash){
+    const hashed=await tokenHash(resumeToken);
+    const matched=await api.from('imperion_rsvp_submissions').select('id')
+      .eq('event_id',v.eventId).eq('email',v.email).eq('first_name',v.first)
+      .eq('last_name',v.last).eq('payment_resume_token_hash',hashed)
+      .eq('rsvp_status','YES').eq('payment_evidence_status','NOT_REQUIRED')
+      .is('payment_pdf_path',null).maybeSingle();
+    if(matched.error)return reply({error:'temporarily_unavailable'},503,origin);
+    if(!matched.data?.id)return reply({error:'invalid_payment_code'},400,origin);
+    const pdfPath=expiry.toISOString().slice(0,10)+'/'+crypto.randomUUID()+'.pdf';
     const upload=await api.storage.from(PROOF_BUCKET).upload(pdfPath,proofBytes,{
       contentType:'application/pdf',upsert:false,cacheControl:'0'
     });
-    if(upload.error){
-      await api.from('imperion_rsvp_submissions').delete().eq('id',inserted.id).eq('status','PENDING_UPLOAD');
-      return reply({error:'proof_storage_unavailable'},503,origin);
-    }
-    const saved=await api.from('imperion_rsvp_submissions').update({
-      payment_pdf_path:pdfPath,payment_pdf_sha256:proofHash,
-      payment_evidence_status:'PROOF_RECEIVED',payment_evidence_received_at:new Date().toISOString(),
-      status:'RECEIVED_UNCONFIRMED',
-    }).eq('id',inserted.id).eq('status','PENDING_UPLOAD').select('id').single();
-    if(saved.error||!saved.data){
+    if(upload.error)return reply({error:'proof_storage_unavailable'},503,origin);
+    const save=await api.from('imperion_rsvp_submissions').update({
+      quoted_base_czk:quote!.baseCzk,quoted_late_fee_czk:quote!.surchargeCzk,
+      quoted_total_czk:quote!.totalCzk,quoted_confirmed_count:quote!.confirmedCount,
+      quoted_late_48h:quote!.late48h,payment_pdf_path:pdfPath,
+      payment_pdf_sha256:proofHash,payment_evidence_status:'PROOF_RECEIVED',
+      payment_evidence_received_at:new Date().toISOString(),
+      payment_resume_token_hash:null,payment_crm_synced_at:null,
+    }).eq('id',matched.data.id).eq('payment_resume_token_hash',hashed)
+      .eq('payment_evidence_status','NOT_REQUIRED').is('payment_pdf_path',null)
+      .select('id').maybeSingle();
+    if(save.error||!save.data){
       await api.storage.from(PROOF_BUCKET).remove([pdfPath]);
-      await api.from('imperion_rsvp_submissions').delete().eq('id',inserted.id).eq('status','PENDING_UPLOAD');
       return reply({error:'proof_storage_unavailable'},503,origin);
     }
+    receiptId=save.data.id;
   }
-  if (!writeError && v.future) {
-    const {error:inviteError}=await api.from('imperion_rsvp_invite_requests').insert({
-      data_controller:event.data_controller,email:v.email,first_name:v.first,
-      confirmation_status:'PENDING_CONFIRMATION',
-    });
-    // RSVP remains valid; an opt-in request is NEVER an active mailing list entry.
-    if (inviteError && inviteError.code!=='23505') console.error('Invitation request storage unavailable');
+  // New RSVP: issue a high-entropy, non-guessable continuation code
+  // ONLY to a newly received YES request for current GROUP_SHARED pricing.
+  const issuedToken=isGroup&&v.rsvp==='YES'&&!resumeToken?generateResumeToken():null;
+  let writeError:null|{code?:string}=null;
+  if(!resumeToken){
+    const created=await api.from('imperion_rsvp_submissions').insert({
+      event_id:v.eventId,first_name:v.first,last_name:v.last,email:v.email,phone:v.phone,
+      age_group:v.age,guardian_name:v.guardianName,guardian_phone:v.guardianPhone,
+      rsvp_status:v.rsvp,safety_acknowledged:true,safety_version:'2026-10-25-v1',
+      photo_choice:v.photo,marketing_requested:v.future,data_controller:event.data_controller,
+      language:v.locale,retention_until:expiry.toISOString(),
+      discovery_source:v.discovery,utm_source:v.utmSource,
+      utm_medium:v.utmMedium,utm_campaign:v.utmCampaign,
+      ...(issuedToken?{payment_resume_token_hash:await tokenHash(issuedToken),
+        payment_resume_token_issued_at:new Date().toISOString()}:{}),
+    }).select('id').single();
+    writeError=created.error;
+    if(writeError&&writeError.code!=='23505')
+      return reply({error:'temporarily_unavailable'},503,origin);
+    receiptId=writeError?null:created.data?.id||null;
+    if(!writeError&&v.future){
+      const {error:inviteError}=await api.from('imperion_rsvp_invite_requests').insert({
+        data_controller:event.data_controller,email:v.email,first_name:v.first,
+        confirmation_status:'PENDING_CONFIRMATION',
+      });
+      if(inviteError&&inviteError.code!=='23505')console.error('Invitation request storage unavailable');
+    }
   }
   // Event-specific logistics only, never marketing; intentionally excluded from
   // the anonymous GET catalog. Minors do not receive a public group invite.
@@ -379,8 +411,9 @@ Deno.serve(async (req:Request):Promise<Response>=>{
     (channels.platform === 'telegram' && TG_PUBLIC_LINK.test(rawEventGroup))
   ) ? rawEventGroup : null;
   return reply({ok:true,status:'RECEIVED',confirmed:false,
-    ...(evidenceRequired&&!writeError?{paymentEvidenceStatus:'PROOF_RECEIVED',bankVerified:false,
+    ...(evidenceRequired&&receiptId?{paymentEvidenceStatus:'PROOF_RECEIVED',bankVerified:false,
       quotedTotalCzk:quote?.totalCzk}:{}),
+    ...(issuedToken&&receiptId?{reference:receiptId,resumeToken:issuedToken}:{}),
     ...(channels ? {communityChannels:channels} : {}),
     ...(invite ? {updatesGroupUrl:invite} : {}),
     message:'Your RSVP request was received; the organizer must confirm participation separately.'},200,origin);
