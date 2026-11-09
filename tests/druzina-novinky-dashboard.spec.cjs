@@ -19,7 +19,7 @@ for(const lang of languages){
       await expect(article.locator('h1')).toHaveCount(1);
       await expect(article.locator('.fact')).toHaveCount(4);
       await expect(article.locator('.data-table')).toHaveCount(3);
-      await expect(article.locator('.data-table thead th')).toHaveCount(8);
+      await expect(article.locator('.data-table thead th')).toHaveCount(7);
       await expect(article.locator('.fold')).toHaveCount(8);
       await expect(article.locator('.fold[open]')).toHaveCount(0);
       await expect(article.locator('.progress-step')).toHaveCount(3);
@@ -46,7 +46,7 @@ for(const lang of languages){
       expect(quality.repeats).toEqual([]);
       expect(quality.targets).toEqual([]);
       expect(quality.overflow).toBeLessThanOrEqual(1);
-      expect(quality.tables).toEqual([{rows:8,heads:3},{rows:5,heads:3},{rows:4,heads:2}]);
+      expect(quality.tables).toEqual([{rows:8,heads:3},{rows:3,heads:2},{rows:4,heads:2}]);
 
       const first=article.locator('.fold').first();
       await first.locator('summary').click();
