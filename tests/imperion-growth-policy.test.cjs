@@ -119,7 +119,7 @@ test('FB group posting requires moderator rules and 72h per-group dedup',()=>{
 });
 test('provider permalink identity keys remain functional without unrelated tracking/PII',()=>{
  const fb={platform:'facebook',account_id:'page-1',comment_id:'fb-c1',provider_readback:true,
-   text:'Is registration open?',post_url:'https://www.facebook.com/permalink.php?story_fbid=123456789&id=56789012&utm_source=tracking&email=some%40secret.test'};
+   text:'Can I book a slot?',post_url:'https://www.facebook.com/permalink.php?story_fbid=123456789&id=56789012&utm_source=tracking&email=some%40secret.test'};
  const a=G.handoff(fb,G.classifyComment(fb));
  assert.ok(a);
  assert.equal(a.source_post_url,'https://www.facebook.com/permalink.php?story_fbid=123456789&id=56789012');
