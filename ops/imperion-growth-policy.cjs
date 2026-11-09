@@ -157,7 +157,7 @@ function classifyComment(comment){
   const t=clean(comment.text).toLowerCase();
   if(t.length<1||t.length>3000)return {route:'HUMAN_REVIEW',automatic_reply:false};
   const personal=/\b[\w.+-]+@[\w.-]+\.[a-z]{2,}\b|\+?\d[\d\s()-]{7,}\d/i.test(t);
-  const capacity=/(мест|свобод|запис|брон|оплат|счет|сч[её]т|available|slot|book|reserve|register|payment|invoice|m[ií]st|kapacit|přihl[aá]š|rezerv|platb|anmeld|реєстр|реєстрац)/i.test(t);
+  const capacity=/(мест|свобод|запис|брон|оплат|счет|сч[её]т|available|slot|book|reserve|register|registrat|registrac|sign[ -]?up|payment|invoice|m[ií]st|kapacit|přihl[aá]š|rezerv|platb|anmeld|реєстр|реєстрац)/i.test(t);
   const info=/(нович|начинающ|beginner|first time|new to|zač[aá]tečn|poprv[eé]|початк|колик|kolik|price|cost|стоим|цен|цена)/i.test(t);
   const route=personal||capacity?'AGENT4_PRIVATE_TRIAGE':info?'FAQ_DRAFT_FOR_APPROVAL':'HUMAN_REVIEW';
   return {route,automatic_reply:false,contains_personal_data:personal,
