@@ -336,6 +336,8 @@ Deno.serve(async (req:Request):Promise<Response>=>{
   // the sheet feed still says is_open=true. Recheck after database read.
   if (!registrationStillOpen(v.eventId)) return reply({error:'event_not_available'},400,origin);
   const training=trainingQuote(event);
+  if(training&&Date.now()>=Date.parse(event.begins_at))
+    return reply({error:'event_not_available'},409,origin);
   let trainingTier:TrainingTier='STANDARD';
   if(training){
     try{trainingTier=safeEnum(body.trainingTier||'STANDARD',['STANDARD','SENIOR','STARTER4']) as TrainingTier;}
@@ -356,7 +358,7 @@ Deno.serve(async (req:Request):Promise<Response>=>{
       return reply({error:'payment_not_open'},409,origin);
     const hashed=await tokenHash(resumeToken);
     const lookup=await api.from('imperion_rsvp_submissions')
-      .select('id,training_requested_tier,training_authorized_tier,training_authorized_at')
+      .select('id,created_at,training_requested_tier,training_authorized_tier,training_authorized_at')
       .eq('event_id',v.eventId).eq('email',v.email).eq('first_name',v.first)
       .eq('last_name',v.last).eq('payment_resume_token_hash',hashed)
       .eq('rsvp_status','YES').eq('payment_evidence_status','NOT_REQUIRED')
@@ -368,7 +370,11 @@ Deno.serve(async (req:Request):Promise<Response>=>{
     const approved=!!lookup.data.training_authorized_at &&
       (savedTier==='STANDARD'||lookup.data.training_authorized_tier===savedTier);
     if(!approved)return reply({error:'personal_confirmation_pending'},409,origin);
-    verifiedQuote=trainingQuote(event,savedTier,Date.now(),true);
+    // Late fee belongs to the original registration timestamp, not to a later PDF upload.
+    const registrationMs=Date.parse(lookup.data.created_at||'');
+    if(!Number.isFinite(registrationMs)||registrationMs>Date.now())
+      return reply({error:'invalid_registration_timestamp'},409,origin);
+    verifiedQuote=trainingQuote(event,savedTier,registrationMs,true);
     if(!verifiedQuote||!verifiedQuote.sessionPaymentOpen||!verifiedQuote.account)
       return reply({error:'payment_not_open'},409,origin);
     if(action==='quote'){
