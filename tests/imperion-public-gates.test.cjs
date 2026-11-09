@@ -30,9 +30,16 @@ test('precise unverified business location is a blocker', () => {
 test('verified Academy-capable form passes, arbitrary external form fails closed', () => {
   const root = path.resolve(__dirname, '..');
   const docs = Object.fromEntries(REQUIRED.map(file => [file, fs.readFileSync(path.join(root, file), 'utf8')]));
+  const original = docs['academy/index.html'];
   assert.ok(!runAudit(docs).errors.some(x => x.id === 'academy:relevant-contact'));
-  const known='https://docs.google.com/forms/d/e/1FAIpQLSfa3qOWpQBfoA877ip9eOTWwFweOrNTib2mq8_C1D9xr55dtQ/viewform';
-  docs['academy/index.html']=docs['academy/index.html'].replace('href="'+known+'"','href="https://docs.google.com/forms/d/e/unknown/viewform"');
+  // Audit validates navBookBtn, not the first matching link elsewhere in Academy.
+  const nav = original.match(/<a\b[^>]*\bid=["']navBookBtn["'][^>]*>/i)?.[0];
+  assert.ok(nav, 'Academy navBookBtn anchor must exist');
+  const replaceNav = url => original.replace(nav, nav.replace(/\bhref=["'][^"']+["']/i, 'href="' + url + '"'));
+  const known = 'https://docs.google.com/forms/d/e/1FAIpQLSfa3qOWpQBfoA877ip9eOTWwFweOrNTib2mq8_C1D9xr55dtQ/viewform';
+  docs['academy/index.html'] = replaceNav(known);
+  assert.ok(!runAudit(docs).errors.some(x => x.id === 'academy:relevant-contact'));
+  docs['academy/index.html'] = replaceNav('https://docs.google.com/forms/d/e/unknown/viewform');
   assert.ok(runAudit(docs).errors.some(x => x.id === 'academy:relevant-contact'));
 });
 test('an Academy-specific WhatsApp enquiry is an allowed alternative', () => {
