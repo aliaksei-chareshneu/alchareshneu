@@ -24,9 +24,11 @@ jobs:
         run: python -B ops/pc-agent/loopback_readonly.py --selftest
       - name: Staged Browser Bridge adapter safety checks (no live restart)
         run: python -B ops/pc-agent/browser_bridge_adapter.py --selftest
+      - name: Isolated multi-step workspace tasks, natural instructions and replay tests
+        run: python -B ops/pc-agent/pc_task_engine.py --selftest
       - name: Read-only capability report
         run: python -B ops/pc-agent/restricted_executor.py --status
       - name: Confirm no hosted model or external effect
         run: |
-          echo 'Tested synthetic Python allowlist only.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Tested bounded synthetic multi-step workspace jobs, natural instructions, deny rules and read-only probes.' >> "$GITHUB_STEP_SUMMARY"
           echo 'No Windows PC, LLM runtime, browser, secrets, messages, deploy, or payment involved.' >> "$GITHUB_STEP_SUMMARY"
