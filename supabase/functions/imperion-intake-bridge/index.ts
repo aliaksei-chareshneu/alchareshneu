@@ -35,7 +35,8 @@ Deno.serve(async (req:Request):Promise<Response>=>{
         api.from("imperion_rsvp_submissions")
           .select("id,event_id,first_name,last_name,email,phone,age_group,guardian_name,guardian_phone,rsvp_status,safety_acknowledged,safety_version,photo_choice,marketing_requested,data_controller,language,source,status,created_at,retention_until,discovery_source,utm_source,utm_medium,utm_campaign,quoted_base_czk,quoted_late_fee_czk,quoted_total_czk,quoted_confirmed_count,quoted_late_48h,payment_evidence_status,payment_evidence_received_at,bank_verified_at")
           .neq("status","PENDING_UPLOAD") // Never forward an incomplete PDF/registration to CRM.
-          .is("crm_synced_at",null).order("created_at",{ascending:true}).limit(40),
+          .or("crm_synced_at.is.null,and(payment_evidence_status.eq.PROOF_RECEIVED,payment_crm_synced_at.is.null)")
+          .order("created_at",{ascending:true}).limit(40),
         api.from("imperion_rsvp_enquiries")
           .select("id,first_name,last_name,contact,contact_kind,visit_type,preferred_day,preferred_date,adult_confirmed,safety_acknowledged,safety_version,language,data_controller,source,status,created_at,retention_until")
           .is("crm_synced_at",null).order("created_at",{ascending:true}).limit(40),
@@ -63,8 +64,11 @@ Deno.serve(async (req:Request):Promise<Response>=>{
     const now=new Date().toISOString();
     let ra=0,ea=0,ba=0;
     if(rsvps.length){
-      const out=await api.from("imperion_rsvp_submissions").update({crm_synced_at:now})
-        .in("id",rsvps).is("crm_synced_at",null).select("id");
+      const out=await api.from("imperion_rsvp_submissions").update({
+        crm_synced_at:now,payment_crm_synced_at:now
+      }).in("id",rsvps)
+        .or("crm_synced_at.is.null,and(payment_evidence_status.eq.PROOF_RECEIVED,payment_crm_synced_at.is.null)")
+        .select("id");
       if(out.error)throw Error("rsvp ack");
       ra=out.data?.length||0;
     }
