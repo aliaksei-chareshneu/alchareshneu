@@ -127,3 +127,9 @@ test('owner instructions identify stage boundaries, no assumed cloud publication
  for(const phrase of ['AFTER owner-approved activation','main','BLOCKED','Android','Draft PR','existing trusted test'])
    assert.ok(m.includes(phrase),phrase);
 });
+
+test('agent cannot modify its own independent test or any test fixture as a task',()=>{
+ assert.equal(W.safeSourceFile('tests/imperion-public-example.test.cjs'),false);
+ assert.throws(()=>W.parseCommand(cmd.replace('file: scripts/imperion-public-example.cjs',
+   'file: tests/imperion-public-example.test.cjs')),/TASK_PATH_REJECTED/);
+});

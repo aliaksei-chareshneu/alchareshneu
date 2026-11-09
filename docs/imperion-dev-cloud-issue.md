@@ -21,7 +21,7 @@ From the logged-in GitHub Mobile app or mobile browser, open the existing issue 
     test: tests/imperion-public-example.test.cjs
     goal: Correct total() to multiply each item price by its quantity
 
-Replace the file and test with real **already tracked** public paths from this repo. A suitable trusted test must exist before submitting. Only one file is edited per command. Accepted paths: non-sensitive .js, .cjs, .md under scripts/, tests/, docs/, ops/; sensitive paths, .github, credentials, billing, auth, registration, deployment, personal data and private code are rejected. This is NOT yet a universal multi-file programmer.
+Replace the file and test with real **already tracked** public paths from this repo. A suitable trusted test must exist before submitting. Only one file is edited per command. Accepted source paths: non-sensitive .js, .cjs, .md under scripts/, docs/, ops/; pre-existing independent tests remain read-only under tests/; sensitive paths, .github, credentials, billing, auth, registration, deployment, personal data and private code are rejected. This is NOT yet a universal multi-file programmer.
 
 GitHub issue comments are public. Never include account details, tokens, customer records, health data, legal matters, passwords or unpublished financial information. Only your GitHub account (repository owner), with correct GitHub author association, can trigger execution. No direct shell execution or model-selected paths.
 

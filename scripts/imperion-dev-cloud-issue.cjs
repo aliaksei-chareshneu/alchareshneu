@@ -15,7 +15,7 @@ const BLOCKED_CODE = /\b(?:eval|Function|child_process|execSync|spawnSync|proces
 function sha(text) { return crypto.createHash('sha256').update(text).digest('hex'); }
 function safeSourceFile(file, fixture=false) {
   if (fixture && file === FIXTURE_FILE) return true;
-  return /^(?:scripts|tests|docs|ops)\/[a-zA-Z0-9][a-zA-Z0-9_./-]{1,105}\.(?:js|cjs|md)$/.test(file) &&
+  return /^(?:scripts|docs|ops)\/[a-zA-Z0-9][a-zA-Z0-9_./-]{1,105}\.(?:js|cjs|md)$/.test(file) &&
     !file.includes('..') && !BLOCKED_PATH.test(file) &&
     !/(?:^|\/)\./.test(file) &&
     file !== 'scripts/imperion-dev-cloud-issue.cjs' &&
@@ -31,7 +31,8 @@ function parseCommand(body) {
   const m = COMMAND.exec(body.trim());
   if (!m) throw Error('COMMAND_FORMAT_REJECTED');
   const task = {file:m[1], test:m[2], goal:m[3]};
-  if (!safeSourceFile(task.file) || !safeTestFile(task.test)) throw Error('TASK_PATH_REJECTED');
+  if (!safeSourceFile(task.file) || !safeTestFile(task.test) || task.file === task.test)
+    throw Error('TASK_PATH_REJECTED');
   if (/[\x00-\x1f]|(?:sk-[a-z0-9_-]{12,}|gh[pousr]_[a-z0-9_]{12,}|@|BEGIN PRIVATE KEY)/i.test(task.goal))
     throw Error('PUBLIC_TASK_CONTENT_REJECTED');
   return task;
