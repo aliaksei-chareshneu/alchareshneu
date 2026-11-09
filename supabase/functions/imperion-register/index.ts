@@ -123,22 +123,39 @@ const MAX_PDF_BYTES=2*1024*1024;
 const MAX_MULTIPART_BYTES=MAX_PDF_BYTES+15000;
 const LATE_WINDOW_MS=48*60*60*1000;
 type TrainingEvent={event_id:string;community:string;category:string;price_czk:number;begins_at:string;ends_at:string;price_verified:boolean;end_time_verified:boolean;source_active:boolean;is_open:boolean;registration_mode:string;training_price_scheme:string;training_confirmed_count:number|null;training_quote_locked_at:string|null;training_operational_go_at:string|null;training_payment_open:boolean;training_payment_recipient:string|null;training_payment_account:string|null};
-function trainingQuote(e:TrainingEvent,now=Date.now()){
-  if(e.community!=='Družina Moravy'||e.category!=='HEMA Training'||e.training_price_scheme!=='GROUP_SHARED'||Number(e.price_czk)===0||e.event_id==='PUB-OREL-20261114')return null;
-  const n=e.training_confirmed_count;
-  const eligible=Number.isInteger(n)&&n!==null&&n>=3&&n<=200;
-  const ready=!!(eligible&&e.training_quote_locked_at&&e.training_operational_go_at
+type TrainingTier='STANDARD'|'SENIOR'|'STARTER4';
+const TRAINING_TARIFF_VERSION='DRU-20261109';
+const TRAINING_BASE_PRICES:Record<TrainingTier,number>={STANDARD:240,SENIOR:120,STARTER4:800};
+function trainingQuote(e:TrainingEvent,now=Date.now(),tier:TrainingTier='STANDARD'){
+  if(e.community!=='Družina Moravy'||e.category!=='HEMA Training'
+    ||e.training_price_scheme!=='INDIVIDUAL'||Number(e.price_czk)===0
+    ||e.event_id==='PUB-OREL-20261114')return null;
+  const late=Date.parse(e.begins_at)-now<LATE_WINDOW_MS;
+  const allowed=Date.parse(e.begins_at)>now;
+  const ready=!!(allowed&&e.training_quote_locked_at&&e.training_operational_go_at
     &&e.training_payment_open&&e.is_open&&e.registration_mode==='FORM'
     &&e.source_active&&e.price_verified&&e.end_time_verified
     &&String(e.training_payment_recipient||'').trim().length>=3
     &&String(e.training_payment_account||'').trim().length>=8);
-  const base=ready?Math.ceil((1000+160*((n as number)-1))/(n as number)):null;
-  const late=Date.parse(e.begins_at)-now<LATE_WINDOW_MS;
-  const surcharge=base===null?null:late?Math.ceil(base*0.25):0;
-  return {status:ready?'PAYMENT_OPEN':'AWAITING_VERIFIED_GROUP',confirmedCount:eligible?n:null,
-    baseCzk:base,surchargeCzk:surcharge,totalCzk:base===null?null:base+(surcharge as number),
-    late48h:late,proofRequired:ready,quoteLockedAt:ready?e.training_quote_locked_at:null,
-    recipient:ready?e.training_payment_recipient:null,account:ready?e.training_payment_account:null};
+  const priceFor=(kind:TrainingTier)=>{
+    const base=TRAINING_BASE_PRICES[kind];
+    // Four-session passes are not a late single-session checkout.
+    const available=!(kind==='STARTER4'&&late);
+    const fee=late&&kind!=='STARTER4'?Math.ceil(base*0.25):0;
+    return {baseCzk:base,surchargeCzk:fee,totalCzk:available?base+fee:null,
+      available,eligibilityReviewRequired:kind!=='STANDARD'};
+  };
+  const rates={STANDARD:priceFor('STANDARD'),SENIOR:priceFor('SENIOR'),
+    STARTER4:priceFor('STARTER4')};
+  const selected=rates[tier],canPay=ready&&selected.available;
+  return {status:canPay?'PAYMENT_OPEN':ready?'TIER_UNAVAILABLE':'AWAITING_SESSION_GO',
+    tier,tariffVersion:TRAINING_TARIFF_VERSION,rates,
+    baseCzk:selected.baseCzk,surchargeCzk:selected.surchargeCzk,
+    totalCzk:canPay?selected.totalCzk:null,
+    late48h:late,proofRequired:canPay,
+    quoteLockedAt:ready?e.training_quote_locked_at:null,
+    recipient:ready?e.training_payment_recipient:null,
+    account:ready?e.training_payment_account:null};
 }
 async function readSmallMultipart(req:Request,contentType:string){
   if(!req.body)throw new Error('empty');
@@ -320,8 +337,9 @@ Deno.serve(async (req:Request):Promise<Response>=>{
   // A direct POST must not bypass the calendar registration cutoff even when
   // the sheet feed still says is_open=true. Recheck after database read.
   if (!registrationStillOpen(v.eventId)) return reply({error:'event_not_available'},400,origin);
-  const quote=trainingQuote(event);
-  const isGroup=quote!==null;
+  const chosenTier=safeEnum(body.trainingTier||'STANDARD',['STANDARD','SENIOR','STARTER4']) as TrainingTier;
+  const quote=trainingQuote(event,Date.now(),chosenTier);
+  const isTraining=quote!==null;
   const resumeToken=String(body.paymentResumeToken||'').trim();
   if(resumeToken&&!/^[A-Za-z0-9_-]{43}$/.test(resumeToken))
     return reply({error:'invalid_payment_code'},400,origin);
@@ -336,7 +354,7 @@ Deno.serve(async (req:Request):Promise<Response>=>{
     }catch{return reply({error:'invalid_payment_pdf'},400,origin);}
     if(body.quotedTotalCzk!==quote!.totalCzk||
        body.quoteLockedAt!==quote!.quoteLockedAt||
-       body.quotedConfirmedCount!==quote!.confirmedCount)
+       body.quotedTier!==chosenTier||body.tariffVersion!==TRAINING_TARIFF_VERSION)
       return reply({error:'quote_changed',trainingPayment:quote},409,origin);
   }
   // A valid resume code can only complete the existing RSVP, never create
@@ -345,13 +363,17 @@ Deno.serve(async (req:Request):Promise<Response>=>{
   const expiry=new Date(new Date(event.ends_at).getTime()+90*86400000);
   if(evidenceRequired&&proofBytes&&proofHash){
     const hashed=await tokenHash(resumeToken);
-    const matched=await api.from('imperion_rsvp_submissions').select('id')
+    const matched=await api.from('imperion_rsvp_submissions').select('id,training_requested_tier,training_authorized_tier')
       .eq('event_id',v.eventId).eq('email',v.email).eq('first_name',v.first)
       .eq('last_name',v.last).eq('payment_resume_token_hash',hashed)
       .eq('rsvp_status','YES').eq('payment_evidence_status','NOT_REQUIRED')
       .is('payment_pdf_path',null).maybeSingle();
     if(matched.error)return reply({error:'temporarily_unavailable'},503,origin);
     if(!matched.data?.id)return reply({error:'invalid_payment_code'},400,origin);
+    if(matched.data.training_requested_tier!==chosenTier)
+      return reply({error:'requested_tier_changed'},409,origin);
+    if(chosenTier!=='STANDARD'&&matched.data.training_authorized_tier!==chosenTier)
+      return reply({error:'eligibility_review_required'},409,origin);
     const pdfPath=expiry.toISOString().slice(0,10)+'/'+crypto.randomUUID()+'.pdf';
     const upload=await api.storage.from(PROOF_BUCKET).upload(pdfPath,proofBytes,{
       contentType:'application/pdf',upsert:false,cacheControl:'0'
@@ -359,8 +381,8 @@ Deno.serve(async (req:Request):Promise<Response>=>{
     if(upload.error)return reply({error:'proof_storage_unavailable'},503,origin);
     const save=await api.from('imperion_rsvp_submissions').update({
       quoted_base_czk:quote!.baseCzk,quoted_late_fee_czk:quote!.surchargeCzk,
-      quoted_total_czk:quote!.totalCzk,quoted_confirmed_count:quote!.confirmedCount,
-      quoted_late_48h:quote!.late48h,payment_pdf_path:pdfPath,
+      quoted_total_czk:quote!.totalCzk,quoted_confirmed_count:null,
+      quoted_late_48h:quote!.late48h,quoted_tier:chosenTier,payment_pdf_path:pdfPath,
       payment_pdf_sha256:proofHash,payment_evidence_status:'PROOF_RECEIVED',
       payment_evidence_received_at:new Date().toISOString(),
       payment_resume_token_hash:null,payment_crm_synced_at:null,
@@ -374,8 +396,8 @@ Deno.serve(async (req:Request):Promise<Response>=>{
     receiptId=save.data.id;
   }
   // New RSVP: issue a high-entropy, non-guessable continuation code
-  // ONLY to a newly received YES request for current GROUP_SHARED pricing.
-  const issuedToken=isGroup&&v.rsvp==='YES'&&!resumeToken?generateResumeToken():null;
+  // ONLY to a newly received YES request for current INDIVIDUAL pricing.
+  const issuedToken=isTraining&&v.rsvp==='YES'&&!resumeToken?generateResumeToken():null;
   let writeError:null|{code?:string}=null;
   if(!resumeToken){
     const created=await api.from('imperion_rsvp_submissions').insert({
@@ -384,6 +406,7 @@ Deno.serve(async (req:Request):Promise<Response>=>{
       rsvp_status:v.rsvp,safety_acknowledged:true,safety_version:'2026-10-25-v1',
       photo_choice:v.photo,marketing_requested:v.future,data_controller:event.data_controller,
       language:v.locale,retention_until:expiry.toISOString(),
+      training_requested_tier:isTraining?chosenTier:'STANDARD',
       discovery_source:v.discovery,utm_source:v.utmSource,
       utm_medium:v.utmMedium,utm_campaign:v.utmCampaign,
       ...(issuedToken?{payment_resume_token_hash:await tokenHash(issuedToken),
