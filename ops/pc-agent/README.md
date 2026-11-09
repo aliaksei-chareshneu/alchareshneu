@@ -1,8 +1,9 @@
 # IMPERION PC Automation Agent #5 — safe Windows runtime
 
 Owner: existing IMPERION project. Canonical Job_ID: JOB-IMP-PC-AUTOMATION-20261108-05.
-Status: working restricted **on-demand** executor + locally tested CPU Ollama plan.
-This is not an always-on unrestricted AI, and is NOT an autonomous business-outcome agent.
+Status: LIVE read-only diagnostics through existing Browser Bridge, plus working
+restricted **on-demand** executor and locally tested CPU Ollama plan.
+This is not an unrestricted AI or an autonomous business-outcome agent.
 
 ## Existing infrastructure reused
 
@@ -68,29 +69,49 @@ Run local regression tests: `python -B .\loopback_readonly.py --selftest`.
 Seven checks passed on the real Windows host: route, read-only diagnostics,
 Host restriction, POST rejection, query injection denial, non-CORS and CSP.
 
-## Staged direct Browser Bridge adapter (NOT activated)
+## LIVE read-only Browser Bridge adapter (activated 09 Nov 2026)
 
-To avoid an extra resident HTTP server in future, `browser_bridge_adapter.py`
-exposes two fixed, read-only actions: `pc_machine_status` and `pc_watchdog`.
-It accepts **no payload fields** and cannot invoke shell, write synthetic notes,
-read arbitrary paths, open website sessions or grant itself permission.
-`python -B .\browser_bridge_adapter.py --selftest` passed 8/8 on Windows.
+Owner GO was given for a controlled Windows Browser Bridge update and restart.
+The existing agent source `~/BrowserBridge/agent/browser_agent.py` was backed
+up **before** modification at
+`C:\Users\chere\ChatGPT-Workspace\_shared\pc-agent\backups\browser_agent.pre-agent5.20261109.py`.
+The old source SHA-256 is
+`d913773d5f906dd2c907091334c0a08f8a772857a7141ae17d76a655ccc8114f`;
+the deployed source SHA-256 is
+`fef3ab79a46f1e27bcb8bc4a6fdee1ccc8362da9b8e2555a310eab759d287efc`.
+An additional atomic-replacement rollback copy exists beside the original
+`browser_agent.py`, named `browser_agent.pre-agent5.20261109.bak`.
+Neither backup includes user browser session files or tokens.
 
-`stage_browser_integration.py` reads the EXISTING local
-`~/BrowserBridge/agent/browser_agent.py`, writes **only**
-`browser_agent_staged.py` inside this Agent5 folder, then tests staged
-`execute()` against a fake page without launching Chromium. On Windows it
-passed 7/7: two diagnostic actions, payload-injection denial, original
-`status` action retained, unknown action blocked, source SHA256 unchanged.
-The running Browser Bridge process was **not** restarted and the new actions
-have **not** been installed in production. Do not enqueue those two actions
-until an owner-approved browser-agent update and source readback. The existing
-on-demand loopback `open` route is the only LIVE cloud-to-PC diagnostic
-route verified so far.
+The old Chromium window was closed gracefully, the detached old worker PID
+4116 was stopped, and the **existing** Scheduled Task `Browser Bridge Agent`
+was restarted. At 09:52 Europe/Prague it reported `Running` with exactly
+one **new** worker PID 26604. The existing browser-agent heartbeat returned.
 
-Activation would require review of the prepared diff and an explicit,
-controlled restart after securing the user's browser session. It MUST
-not add a second polling queue or elevate agent filesystem privileges.
+The installed read-only adapter accepts two new fixed actions:
+`pc_machine_status` and `pc_watchdog`. The adapter rejects any nonempty
+payload; no model-facing shell, write, arbitrary file path, credentials or
+public network endpoint was added. Existing `status` continues working.
+On 09 Nov the real Supabase browser_jobs queue processed the following
+targeted jobs, each once with no worker error:
+- `a210fcf7-1014-46ef-9482-bb9b9ccafaa1`: legacy `status`, online=true;
+- `f1f775db-90a3-49a6-b039-8a0a19cf7cdf`: `pc_machine_status`, DONE/Windows;
+- `121da646-4666-4f49-be02-83df2919f848`: `pc_watchdog`, DONE/OK;
+- `e7e3fa77-b1b5-4095-ab2c-3382432b0ac4`: forbidden `path` payload,
+  rejected with `PAYLOAD_NOT_ALLOWED`.
+
+Independent postrestart Windows readback confirmed one worker, scheduled
+task Running, browser profile directory present and both hashes matching.
+This establishes *live unattended read-only diagnostic consumption* through
+the existing Browser Bridge queue. No second worker, scheduled task, cloud
+service or separate CRM was introduced. Browser account login persistence
+and actual Android-origin operation were **not** independently checked.
+
+`stage_browser_integration.py` is for preparing a patch to an unmodified
+source only; do not rerun it blindly against the already-patched source.
+The `loopback_readonly.py` one-shot diagnostic relay remains a separate
+QA fallback and is **not** running. No Windows reboot or privileged
+desktop/file autonomy was authorized or attempted.
 
 ## Known limits / do not silently promote
 
@@ -102,9 +123,10 @@ not add a second polling queue or elevate agent filesystem privileges.
 - Owner-specific GO required before live file modifications, privileged PC automation,
   persistent agent listener changes, logon/reboot test, new remote permissions, posting,
   purchases or production Supabase SQL/Edge changes.
-- All model output is untrusted. Structured planning is bounded to fixed synthetic actions.
-  No verified general-purpose agent planner, unattended job intake, business outcome,
-  real Android-origin session, locked-screen UI or after-reboot recovery test yet.
+- All model output is untrusted. Structured planning remains bounded to fixed synthetic actions.
+  Existing Browser Bridge now polls and executes two read-only PC diagnostics unattended.
+  General-purpose autonomous planning, consequential job execution, business outcome,
+  real Android-origin session, locked-screen UI and after-reboot recovery are NOT verified.
 - Supabase public.browser_jobs has a UNIQUE partial index on non-NULL idempotency_key,
   reverified 08Nov2026; do not add a duplicate migration.
 
