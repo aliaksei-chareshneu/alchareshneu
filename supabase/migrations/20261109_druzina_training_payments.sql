@@ -35,8 +35,35 @@ ALTER TABLE public.imperion_rsvp_submissions
   ADD COLUMN IF NOT EXISTS payment_pdf_sha256 text,
   ADD COLUMN IF NOT EXISTS payment_evidence_status text NOT NULL DEFAULT 'NOT_REQUIRED',
   ADD COLUMN IF NOT EXISTS payment_evidence_received_at timestamptz,
-  ADD COLUMN IF NOT EXISTS bank_verified_at timestamptz;
+  ADD COLUMN IF NOT EXISTS bank_verified_at timestamptz,
+  ADD COLUMN IF NOT EXISTS payment_resume_token_hash text,
+  ADD COLUMN IF NOT EXISTS payment_resume_token_issued_at timestamptz,
+  ADD COLUMN IF NOT EXISTS payment_crm_synced_at timestamptz;
 ALTER TABLE public.imperion_rsvp_submissions
+  ADD CONSTRAINT imperion_resume_token_hash_check
+   CHECK (payment_resume_token_hash IS NULL OR payment_resume_token_hash ~ '^[0-9a-f]{64}
+   CHECK (payment_evidence_status IN ('NOT_REQUIRED','PROOF_RECEIVED','BANK_VERIFIED','REJECTED')),
+  ADD CONSTRAINT imperion_payment_quote_check
+   CHECK (quoted_total_czk IS NULL OR
+      (quoted_base_czk > 0 AND quoted_late_fee_czk >= 0
+       AND quoted_total_czk=quoted_base_czk+quoted_late_fee_czk
+       AND quoted_confirmed_count BETWEEN 3 AND 200)),
+  ADD CONSTRAINT imperion_payment_path_check
+   CHECK (payment_pdf_path IS NULL OR payment_pdf_path ~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}/[0-9a-f-]{36}[.]pdf$');
+CREATE INDEX IF NOT EXISTS imperion_rsvp_payment_review_idx
+ ON public.imperion_rsvp_submissions (payment_evidence_status,created_at)
+ WHERE payment_evidence_status <> 'NOT_REQUIRED';
+-- Strictly private; browser has no Supabase Storage credentials or policies.
+INSERT INTO storage.buckets (id,name,public,file_size_limit,allowed_mime_types)
+VALUES ('imperion-training-payment-proofs','imperion-training-payment-proofs',false,2097152,ARRAY['application/pdf'])
+ON CONFLICT (id) DO NOTHING;
+-- New sessions use the published group formula; pre-existing 9 Nov commitments remain LEGACY.
+-- No session is automatically enabled to collect payments.
+UPDATE public.imperion_rsvp_events
+   SET training_price_scheme='GROUP_SHARED'
+ WHERE community='Družina Moravy' AND category='HEMA Training'
+   AND begins_at >= '2026-11-10T00:00:00Z';
+),
   ADD CONSTRAINT imperion_payment_evidence_status_check
    CHECK (payment_evidence_status IN ('NOT_REQUIRED','PROOF_RECEIVED','BANK_VERIFIED','REJECTED')),
   ADD CONSTRAINT imperion_payment_quote_check
