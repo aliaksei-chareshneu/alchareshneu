@@ -30,16 +30,21 @@ for (const language of ['en', 'cs', 'ru', 'uk']) {
     expect(await page.locator('#main .site-mosaic img').evaluateAll(images => images.every(image => image.complete && image.naturalWidth > 0))).toBe(true);
   });
 
-  test(`Druzina signup nav CTA stays reachable when dated notices precede the hero: ${language}`, async ({page}) => {
+  test(`Druzina sticky mobile signup stays reachable when dated notices precede the hero: ${language}`, async ({page}) => {
     await isolateExternalWidgets(page);
     await page.setViewportSize({width:390, height:844});
     await page.goto('/druzina/?lang=' + language);
-    await expect(page.locator('#navBookBtn')).toBeVisible();
-    const box = await page.locator('#navBookBtn').boundingBox();
+    // The compact header intentionally hides its desktop booking button below 760px.
+    // When dated safety notices precede the hero, the existing sticky mobile CTA must be visible.
+    const sticky = page.locator('#mobileCta');
+    await expect(sticky).toHaveAttribute('aria-hidden', 'false');
+    const cta = sticky.locator('.mobile-cta-btn');
+    await expect(cta).toBeVisible();
+    const box = await cta.boundingBox();
     expect(box.height).toBeGreaterThanOrEqual(44);
     expect(box.height).toBeLessThanOrEqual(84);
     expect(box.y + box.height).toBeLessThanOrEqual(844);
-    await expect(page.locator('#navBookBtn')).toHaveAttribute('href', 'prihlaska/?lang=' + language);
+    await expect(cta).toHaveAttribute('href', 'prihlaska/?lang=' + language);
     await expect(page.locator('#druzina .dm-v2-primary')).toHaveAttribute('href', 'prihlaska/?lang=' + language);
   });
 
