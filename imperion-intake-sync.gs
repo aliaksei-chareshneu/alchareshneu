@@ -108,8 +108,8 @@ function impAppendOrelSource_(ss,r){
  */
 function impEnsureRsvpPaymentCols_(sh){
  var h=impHeader_(sh);
- var required=['Quoted_Base_CZK','Late_Fee_CZK','Quoted_Total_CZK','Quoted_Group_Size',
-  'Late_48h','Payment_Evidence_Status','Payment_Proof_Received_At'];
+ var required=['Requested_Tier','Quoted_Tier','Personal_Approval_At','Quoted_Base_CZK','Late_Fee_CZK',
+  'Quoted_Total_CZK','Quoted_Group_Size','Late_48h','Payment_Evidence_Status','Payment_Proof_Received_At'];
  var missing=required.filter(function(k){return h.map[k]===undefined;});
  if(missing.length){
   var last=sh.getLastColumn();
@@ -125,6 +125,9 @@ function impEnsureRsvpPaymentCols_(sh){
 function impUpdateExistingRsvpProof_(sh,h,r){
  if(r.payment_evidence_status!=='PROOF_RECEIVED')return;
  var keys={
+  Requested_Tier:r.training_requested_tier||'',
+  Quoted_Tier:r.quoted_tier||'',
+  Personal_Approval_At:impDate_(r.training_authorized_at),
   Quoted_Base_CZK:r.quoted_base_czk||'',
   Late_Fee_CZK:r.quoted_late_fee_czk===0?0:(r.quoted_late_fee_czk||''),
   Quoted_Total_CZK:r.quoted_total_czk||'',
@@ -154,7 +157,8 @@ function impWriteRsvps_(ss,items,events){
   var sh=ss.getSheetByName('Registrations');if(!sh)throw Error('Missing Registrations');
   var h=(items||[]).some(function(r){return r&&Object.prototype.hasOwnProperty.call(r,'discovery_source');})?
    impEnsureRsvpAttribution_(sh):impHeader_(sh);
-  if((items||[]).some(function(r){return r&&r.payment_evidence_status==='PROOF_RECEIVED';}))
+  if((items||[]).some(function(r){return r && (r.payment_evidence_status==='PROOF_RECEIVED' ||
+    /^PUB-HEMA-/.test(String(r.event_id||'')));}))
    h=impEnsureRsvpPaymentCols_(sh);
   if(h.map.Submission_ID===undefined)throw Error('Missing Submission_ID');
   var existing=impExisting_(sh,h.map.Submission_ID+1),ids=[],added=0;
@@ -189,6 +193,9 @@ function impWriteRsvps_(ss,items,events){
         Data_Controller:r.data_controller||'',Registration_Locale:r.language||'',
         Discovery_Source:r.discovery_source||'',UTM_Source:r.utm_source||'',
         UTM_Medium:r.utm_medium||'',UTM_Campaign:r.utm_campaign||'',
+        Requested_Tier:r.training_requested_tier||'',
+        Quoted_Tier:r.quoted_tier||'',
+        Personal_Approval_At:impDate_(r.training_authorized_at),
         Quoted_Base_CZK:r.quoted_base_czk||'',
         Late_Fee_CZK:r.quoted_late_fee_czk===0?0:(r.quoted_late_fee_czk||''),
         Quoted_Total_CZK:r.quoted_total_czk||'',
