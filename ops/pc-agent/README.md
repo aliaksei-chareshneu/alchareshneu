@@ -1,8 +1,8 @@
 # IMPERION PC Automation Agent #5 — safe Windows runtime
 
 Owner: existing IMPERION project. Canonical Job_ID: JOB-IMP-PC-AUTOMATION-20261108-05.
-Status: LIVE unattended restricted PC workspace tasks AND read-only diagnostics
-through existing Browser Bridge, plus locally tested optional CPU Ollama pilot.
+Status: LIVE restricted PC operator v3 via existing Browser Bridge: import,
+plan, execute, fetch + diagnostics and multi-step workspace tasks, 0 new cost.
 This is not unrestricted Windows control or an autonomous business-outcome agent.
 
 ## Existing infrastructure reused
@@ -173,6 +173,80 @@ Desktop Commander for each job. It is not universal UI/Windows control.
 Android-origin and actual reboot/relogin recovery remain UNVERIFIED.
 Owner-specific permission remains required for modifying real documents or
 code outside the explicitly designated scratch workspace.
+
+## LIVE v3: chat-to-PC input / plan / execution / results (09 Nov 2026)
+
+The original PC Agent #5 remains a **restricted Windows operator**, not a
+second coding agent. After the owner's `доработай` request, the existing
+Browser Bridge agent on Windows zmrzlina was upgraded **in place** (same
+Supabase queue, Windows Scheduled Task and Playwright profile). It now
+routes action `pc_operator` to `pc_operator_v3.py` without any extra service,
+daemon, browser credential, paid API or resident AI model. Local source SHA256
+`22b8f9b1dc5506e8631089a83e3b29deebce6d13c0b7eb4edd56dd1e9cbf10f3`;
+adapter SHA256
+`88f1aa01cb006dd12486dccd26108d11f4885dc70b74c88564974a4b8e4b59a4`.
+Two verified copies of the previous source and adapter are under
+`_shared/pc-agent/backups/*pre-v3.20261109.py`, plus atomic replacement backups.
+The existing Bridge worker restarted as one process PID 58020 and Windows
+Scheduled Task state `Running`.
+
+The queue action `pc_operator` takes ONLY the following sub-modes:
+- `capabilities`: fixed capabilities/scope report (no filesystem effect);
+- `import`: upload at most 8 KiB of **non-sensitive UTF-8 text/CSV** from the
+  user-approved queue request into a NEW flat named file in
+  `pc_task_data/inbox/` (example payload
+  `{"mode":"import","import_id":"A5-V3-MYIMPORT-0001","filename":"data.csv","content":"k,v\\na,1\\n","data_class":"non_sensitive"}`);
+- `plan`: inspect an existing inbox file and validate every step and input
+  hash without performing changes (`{"mode":"plan","task_id":"A5-V3-MYTASK-0001","instruction":"Проверь CSV data.csv и сделай отчёт"}`);
+- `execute`: run the same validated bounded task, writing a NEW output into
+  `pc_task_data/outbox/` and SHA256-verifiable receipt in `receipts/`
+  (same payload as `plan`, but `mode:"execute"`);
+- `fetch`: return and verify a *small* report or cleaned output text directly
+  through Supabase (max 8 KiB) using
+  `{"mode":"fetch","task_id":"A5-V3-MYTASK-0001","kind":"report"}`.
+  Content SHA256 must match the local task receipt.
+
+This makes a **complete** non-sensitive input -> local preview -> multi-step
+execution -> remote text-result workflow accessible via ChatGPT/connector
+without Desktop Commander per job. Only existing `pc_task_engine.py`
+allowlisted operations execute (CSV and text processing, inventories,
+health/program version probes, reports); no free-form shell, arbitrary
+commands, unknown Windows folders, account actions, payments, social posts
+or unsanctioned real-file access. User-provided inline text and output are
+stored in Supabase queue results: DO NOT send private/medical/client records,
+passwords or other confidential information by this route.
+
+`pc_operator_v3.py --selftest`: 23/23 PASS on the Windows device, including
+SQLite serialized import idempotency, parallel collision, SHA256 readback,
+output tamper detection and negative path/shell/secret-field tests.
+`stage_pc_operator_v3.py`: 11/11 PASS staged actual Browser Bridge route,
+with no production source modification during the test.
+The LIVE Supabase cloud->PC->cloud E2E on 09 Nov:
+- capabilities job 40360041-4639-4503-96b6-2f61e9d136b8 DONE;
+- synthetic CSV import 1432b0ed-4a88-4a35-b99e-a9ee4514a1f2 DONE;
+- plan 872e3aaf-e63e-479c-b284-1a2bba684f33 READY, input sha confirmed;
+- execute 13d17519-b979-4daa-aa85-b0c035609ffb DONE two steps;
+- remote report fetch 554e2349-525c-4555-99d3-3433a9e879a4 DONE, actual
+  text returned, independent SHA256 readback matches receipt;
+- exact replay 4385247a-b776-4f8f-a220-8ad7a015bb04 DONE replay=true;
+- changed task payload 724a73dc-58fc-4082-816f-e39a5cf217e1
+  BLOCKED/IDEMPOTENCY_CONFLICT;
+- unsafe import path 0eb7e584-4c1f-4146-8c58-4812df2123ed
+  BLOCKED/FILE_NAME_NOT_ALLOWED;
+- unsafe plan file 25bb4283-fc1b-4d93-9c09-26c8c3742b42
+  BLOCKED/FILE_NAME_NOT_ALLOWED.
+
+All these are existing browser_jobs targeted to the paired zmrzlina agent,
+no remote Desktop Commander call to run individual jobs. After processing,
+an independent PC readback confirmed only one running worker PID 58020,
+task Running, saved receipt and output hashes exactly matching Supabase.
+
+Outstanding requirements: Android-device-origin test is not independently
+verifiable from this Windows/cloud session; lock/logon/reboot recovery needs
+controlled separate validation. Real personal/project files and GUI app tasks
+require owner-approved explicit scoped paths/action policy. Open-ended local
+LLM planning is not verified, and Qwen 0.6b is not running resident due to
+limited free RAM. Do not mark universal Windows agent complete.
 
 ## Known limits / do not silently promote
 
