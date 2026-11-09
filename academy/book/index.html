@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b1729">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://cmrknyhnnehyjpreehcf.supabase.co; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; upgrade-insecure-requests">
+<title>Choose a lesson time | Eternal Learning Academy</title>
+<meta name="description" content="Choose Czech, English, maths, sciences or programming tutoring, select an available appointment and submit a PDF payment confirmation for review.">
+<link rel="canonical" href="https://aliaksei-chareshneu.github.io/alchareshneu/academy/book/">
+<link rel="icon" href="../../favicon.ico">
+<link rel="stylesheet" href="../../brand-theme.css?v=20261025">
+<link rel="stylesheet" href="../../site-design.css?v=20261027">
+<style>
+:root{color-scheme:dark;--bg:#0c1826;--panel:#14283b;--text:#edf5fb;--muted:#b1c6d8;--mint:#b4e4d2;--gold:#f0c983;--line:#385269;--bad:#f1b0a6}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 10% 0,#1f4656,transparent 48%),var(--bg);color:var(--text);font:16px/1.55 system-ui,-apple-system,Segoe UI,sans-serif}a{color:var(--mint)}h1,h2,h3,p{margin:0 0 15px}h1{font-family:Georgia,serif;font-size:clamp(2.1rem,6vw,3.7rem);line-height:1.1;max-width:13ch}h2{font-size:1.35rem}.shell{width:min(1100px,calc(100% - 32px));margin:0 auto}header{border-bottom:1px solid var(--line);padding:17px 0}header .shell{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}header a.brand{font-weight:800;text-decoration:none;color:#fff}header nav{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.lang{display:flex;gap:4px}.lang button{padding:7px 11px;background:transparent;border:1px solid var(--line);border-radius:8px;color:var(--text);font-weight:700}.lang button[aria-pressed=true]{background:var(--mint);color:#092b25}main{padding:42px 0 65px}.hero{margin-bottom:28px;display:grid;grid-template-columns:1.2fr .8fr;gap:25px}.eyebrow{color:var(--gold);font-size:.8rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase}.intro{max-width:60ch;color:var(--muted);font-size:1.1rem}.callout,.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px}.callout{align-self:center}.callout strong{font-size:1.25rem;color:var(--gold)}.callout p{font-size:.9rem;color:var(--muted);margin:8px 0 0}.layout{display:grid;grid-template-columns:1.13fr .87fr;gap:22px;align-items:start}fieldset{margin:0;padding:0;border:0}label,legend{display:block;font-weight:720;margin:17px 0 7px}input,select,textarea{font:inherit;width:100%;min-height:45px;padding:10px 12px;color:var(--text);background:#0b1e2d;border:1px solid #7290a5;border-radius:9px}textarea{min-height:85px;resize:vertical}.hint{display:block;color:var(--muted);font-size:.84rem;margin:4px 0 10px}.slots{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:8px;margin-top:15px}.slot{border:1px solid #70919d;border-radius:10px;min-height:52px;background:#183947;color:#f7f9fb;cursor:pointer;font:inherit;font-weight:720}.slot[aria-pressed=true]{background:var(--mint);border-color:var(--mint);color:#07271f}.slot:disabled{opacity:.5;cursor:not-allowed}button,.submit{cursor:pointer}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--gold);outline-offset:3px}.empty{border:1px dashed #678292;border-radius:10px;padding:17px;color:var(--muted)}.summary{background:#0b2030;border:1px solid #547579;padding:19px;border-radius:14px;margin:0 0 20px}.money{font-size:2rem;font-weight:850;color:var(--mint)}.details{font-size:.88rem;color:var(--muted)}.rule{color:var(--gold);font-weight:720}.check{display:flex;gap:10px;align-items:flex-start;padding:10px 0}.check input{width:20px;height:20px;min-height:20px;margin:3px 0;accent-color:var(--mint);flex-shrink:0}.check label{margin:0;font-weight:500}.submit{display:block;width:100%;padding:13px 16px;border:0;border-radius:10px;background:var(--mint);color:#06251e;font:inherit;font-weight:850;min-height:53px}.submit:disabled{opacity:.43;cursor:not-allowed}.status{padding:12px 14px;border:1px solid var(--line);border-radius:10px;margin:12px 0;white-space:pre-wrap}.status.error{border-color:var(--bad);color:var(--bad)}.status.ok{border-color:var(--mint);color:var(--mint)}.hidden{display:none!important}.hp{position:absolute;left:-99999px}footer{border-top:1px solid var(--line);padding:24px 0;color:var(--muted);font-size:.87rem}
+@media(max-width:760px){.hero,.layout{grid-template-columns:1fr}.hero{gap:15px}main{padding-top:25px}.panel,.callout{padding:18px}}
+</style>
+<script src="booking.js" defer></script>
+</head>
+<body data-imperion-scope="academy-booking">
+<header><div class="shell"><a class="brand" href="../">Eternal Learning Academy · PhD</a><nav><a href="../" data-t="back">Academy home</a><a href="../programmes/" data-t="packs">Programmes</a><div class="lang" role="group" aria-label="Language"><button type="button" data-lang="en" aria-pressed="true">EN</button><button type="button" data-lang="cs" aria-pressed="false">CZ</button><button type="button" data-lang="ru" aria-pressed="false">RU</button><button type="button" data-lang="uk" aria-pressed="false">UA</button></div></nav></div></header>
+<main class="shell">
+<section class="hero"><div><p class="eyebrow">ACADEMY · BOOKING</p><h1 data-t="title">Choose a lesson time.</h1><p class="intro" data-t="subtitle">One-on-one Czech, languages, mathematics, science and programming. Pick a published time slot. No calendar account required.</p></div>
+<aside class="callout"><strong data-t="alertTitle">Payment proof is not a confirmed payment.</strong><p data-t="alert">A PDF upload creates a pending request, not a paid or confirmed booking. A person checks the bank transfer and confirms the lesson separately. Old agreements are not changed.</p></aside></section>
+<div class="layout">
+<section class="panel" aria-labelledby="chooseTitle">
+<h2 id="chooseTitle" data-t="choose">1. Choose your lesson and time</h2>
+<div><label for="subject" data-t="subjectLabel">Subject</label><select id="subject" name="subject" required>
+<option value="CZECH">Czech</option><option value="ENGLISH">English</option><option value="GERMAN">German</option><option value="MATHS">Mathematics</option><option value="PHYSICS">Physics</option><option value="CHEMISTRY">Chemistry</option><option value="BIOLOGY">Biology / Biochemistry</option><option value="PROGRAMMING">Programming / Python</option><option value="OTHER">Other subject</option></select></div>
+<div><label for="service" data-t="durationLabel">Session</label><select id="service"><option value="LESSON" data-t="lessonOption">Individual lesson · 60 min · 1,000 Kč</option><option value="CONSULT" data-t="consultOption">Service choice consultation · 15 min · 250 Kč</option></select></div>
+<div><label for="day" data-t="dateLabel">Available date (Prague time)</label><input type="date" id="day" aria-describedby="dateHelp"><small id="dateHelp" class="hint" data-t="dateHelp">Only dates and times explicitly released by the tutor can be selected.</small></div>
+<div><strong data-t="timesLabel">Available times</strong><div id="slots" class="slots" role="group" aria-label="Available times"><div class="empty" data-t="loading">Loading available slots…</div></div></div>
+<div class="status hidden" id="loadError" role="status"></div>
+<p class="hint" style="margin-top:24px"><span data-t="notAvailable">No suitable slot? Request a custom schedule or a 5/10/20-lesson programme.</span> <a href="../programmes/" data-t="askPlan">Request a programme</a></p>
+</section>
+<section class="panel" aria-labelledby="detailsTitle">
+<h2 id="detailsTitle" data-t="yourDetails">2. Your details and PDF receipt</h2>
+<div class="summary" aria-live="polite"><div id="selectedTime" class="details" data-t="noSlot">No time selected</div><div id="price" class="money">—</div><div class="details" id="priceBreakdown"></div><p class="rule" id="urgent"></p></div>
+<form id="booking" novalidate>
+<input type="hidden" name="slot" id="slot" required>
+<input type="hidden" name="subject" id="selectedSubject">
+<input type="hidden" name="locale" id="locale" value="en">
+<input type="hidden" name="requestId" id="requestId">
+<div class="hp" aria-hidden="true"><label>Website <input name="website" tabindex="-1" autocomplete="off"></label></div>
+<label for="name" data-t="nameLabel">Paying adult / guardian name</label><input id="name" name="name" required maxlength="110" autocomplete="name">
+<label for="email" data-t="emailLabel">Email for the booking response</label><input id="email" name="email" required type="email" maxlength="180" autocomplete="email">
+<label for="goal" data-t="goalLabel">Learning goal (optional)</label><textarea id="goal" name="goal" maxlength="500" placeholder="e.g. Czech A2 for residence, entrance exams…"></textarea>
+<label for="receipt" data-t="receiptLabel">Bank transfer confirmation · PDF only · up to 4 MB</label><input type="file" id="receipt" name="receipt" accept="application/pdf,.pdf" required aria-describedby="receiptHelp"><small id="receiptHelp" class="hint" data-t="receiptHelp">Pay only using payment details you have already verified with the organiser. Do not upload ID documents or confidential unrelated files.</small>
+<div class="check"><input id="privacy" type="checkbox" name="privacy" value="yes" required><label for="privacy" data-t="privacy">I have read the privacy notice about processing necessary to handle this request.</label></div>
+<div class="check"><input id="guardian" type="checkbox" name="adultOrGuardian" value="yes" required><label for="guardian" data-t="guardian">I am 18+ or the student's legal guardian, authorised to arrange payment and lessons.</label></div>
+<p class="hint"><a href="privacy/" target="_blank" rel="noopener noreferrer" data-t="privacyLink">Privacy and retention information</a></p>
+<p class="hint" data-t="conditions">Provisional +25% if payment is received less than 48h before start. Final fee depends on verified bank value date. Cancellations and packages follow individually agreed written conditions.</p>
+<button class="submit" id="send" type="submit" disabled data-t="submit">Submit booking request + PDF</button><div id="result" role="status" aria-live="polite" class="status hidden"></div>
+</form>
+</section>
+</div>
+</main>
+<footer><div class="shell"><span data-t="operator">Independent OSVČ tuition. Enquiry ≠ payment ≠ confirmed lesson.</span> · <a href="../" data-t="back">Academy home</a></div></footer>
+</body>
+</html>

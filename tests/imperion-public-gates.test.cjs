@@ -31,14 +31,20 @@ test('verified Academy-capable form passes, arbitrary external form fails closed
   const root = path.resolve(__dirname, '..');
   const docs = Object.fromEntries(REQUIRED.map(file => [file, fs.readFileSync(path.join(root, file), 'utf8')]));
   assert.ok(!runAudit(docs).errors.some(x => x.id === 'academy:relevant-contact'));
-  const known='https://docs.google.com/forms/d/e/1FAIpQLSfa3qOWpQBfoA877ip9eOTWwFweOrNTib2mq8_C1D9xr55dtQ/viewform';
-  docs['academy/index.html']=docs['academy/index.html'].replace('href="'+known+'"','href="https://docs.google.com/forms/d/e/unknown/viewform"');
+  docs['academy/index.html']=docs['academy/index.html'].replace('id="navBookBtn"','id="navBookBtn"').replace('href="book/"','href="https://docs.google.com/forms/d/e/unknown/viewform"');
   assert.ok(runAudit(docs).errors.some(x => x.id === 'academy:relevant-contact'));
 });
 test('an Academy-specific WhatsApp enquiry is an allowed alternative', () => {
   const root = path.resolve(__dirname, '..');
   const docs = Object.fromEntries(REQUIRED.map(file => [file, fs.readFileSync(path.join(root, file), 'utf8')]));
-  const known='https://docs.google.com/forms/d/e/1FAIpQLSfa3qOWpQBfoA877ip9eOTWwFweOrNTib2mq8_C1D9xr55dtQ/viewform';
-  docs['academy/index.html']=docs['academy/index.html'].replace('href="'+known+'"','href="https://wa.me/420702914842?text=Academy%20enquiry"');
+  docs['academy/index.html']=docs['academy/index.html'].replace('href="book/"','href="https://wa.me/420702914842?text=Academy%20enquiry"');
   assert.ok(!runAudit(docs).errors.some(x => x.id === 'academy:relevant-contact'));
+});
+
+test('own Academy booking must fail closed if its proof endpoint is removed', () => {
+  const root=path.resolve(__dirname,'..');
+  const docs=Object.fromEntries(REQUIRED.map(file=>[file,fs.readFileSync(path.join(root,file),'utf8')]));
+  assert.ok(!runAudit(docs).errors.some(e=>e.id==='academy:relevant-contact'));
+  docs['supabase/functions/imperion-academy-book/index.ts']=docs['supabase/functions/imperion-academy-book/index.ts'].replace('payment_verified:false,booking_confirmed:false','payment_verified:true,booking_confirmed:true');
+  assert.ok(runAudit(docs).errors.some(e=>e.id==='academy:relevant-contact'),'forged PAID/BOOKED must not pass');
 });

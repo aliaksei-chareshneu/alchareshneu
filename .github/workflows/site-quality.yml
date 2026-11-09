@@ -88,6 +88,8 @@ jobs:
         run: |
           node tests/imperion-rsvp-source.test.cjs
           node --test tests/imperion-registration-window.test.cjs
+      - name: Validate Academy slot booking draft, payment safety and privacy
+        run: node --test tests/academy-slot-booking.test.cjs
 
       - name: Verify compliant Welcome Engine and safe Telegram webhook attach
         run: node --test tests/imperion-welcome-engine.test.mjs tests/imperion-welcome-telegram-attach.test.mjs
