@@ -21,7 +21,21 @@ const safePostUrl=(raw,platform)=>{
   const allowed=hosts[clean(platform).toLowerCase()];
   if(!u||!allowed||!allowed.some(h=>u.hostname===h||u.hostname.endsWith('.'+h)))return null;
   if(u.username||u.password)return null;
-  u.search='';u.hash='';return u.toString();
+  // Rebuild ONLY provider-documented identity keys. No arbitrary query/PII leaks.
+  const old=new URLSearchParams(u.search);
+  u.search='';u.hash='';
+  const path=u.pathname.toLowerCase();
+  if(clean(platform).toLowerCase()==='youtube'&&path==='/watch'&&/^[a-zA-Z0-9_-]{11}$/.test(old.get('v')||'')){
+    u.searchParams.set('v',old.get('v'));
+  }
+  if(clean(platform).toLowerCase()==='facebook'&&
+       (path==='/permalink.php'||path==='/story.php')){
+    const story=old.get('story_fbid'),id=old.get('id');
+    if(story&&id&&/^[A-Za-z0-9_]{1,100}$/.test(story)&&/^\\d{3,25}$/.test(id)){
+      u.searchParams.set('story_fbid',story);u.searchParams.set('id',id);
+    }else{return null;}
+  }
+  return u.toString();
 };
 const positiveDate=v=>typeof v==='string'&&/^\d{4}-\d\d-\d\dT\d\d:\d\d(?::\d\d(?:\.\d+)?)?(?:Z|[+-]\d\d:\d\d)$/.test(v)&&Number.isFinite(Date.parse(v))?Date.parse(v):null;
 function entityName(name){
@@ -103,6 +117,11 @@ function standingGo(grant,request,evidence={},nowIso=''){
   if(now===null||start===null||end===null||end<=start||end-start>31*86400000||now<start||now>end)
     return deny('TIME_WINDOW_INVALID');
   if(!ENTITIES.has(request.entity)||grant.entity!==request.entity)return deny('LEGAL_ENTITY_MISMATCH');
+  const channels=new Set(['facebook_page','facebook_group','instagram','youtube','tiktok','telegram_channel','whatsapp_channel','linkedin','bluesky']);
+  if(!channels.has(request.channel))return deny('UNSUPPORTED_CHANNEL');
+  if(request.channel==='facebook_group'&&
+      (evidence.group_rules_verified!==true||evidence.same_group_posts_last_72h!==0))
+    return deny('GROUP_RULES_OR_72H_DEDUP_UNKNOWN');
   if(!Array.isArray(grant.accounts)||!grant.accounts.includes(request.account_id)||
      !Array.isArray(grant.channels)||!grant.channels.includes(request.channel))return deny('CHANNEL_ACCOUNT_NOT_APPROVED');
   if(!Array.isArray(grant.content_types)||!grant.content_types.includes(request.content_type)||
