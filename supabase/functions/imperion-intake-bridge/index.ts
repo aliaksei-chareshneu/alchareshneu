@@ -37,7 +37,7 @@ Deno.serve(async (req:Request):Promise<Response>=>{
       const [rsvp,enquiry,b2b]=await Promise.all([
         (proofProtocolV2
           ? api.from("imperion_rsvp_submissions")
-             .select("id,event_id,first_name,last_name,email,phone,age_group,guardian_name,guardian_phone,rsvp_status,safety_acknowledged,safety_version,photo_choice,marketing_requested,data_controller,language,source,status,created_at,retention_until,discovery_source,utm_source,utm_medium,utm_campaign,quoted_base_czk,quoted_late_fee_czk,quoted_total_czk,quoted_confirmed_count,quoted_late_48h,payment_evidence_status,payment_evidence_received_at,bank_verified_at")
+             .select("id,event_id,first_name,last_name,email,phone,age_group,guardian_name,guardian_phone,rsvp_status,safety_acknowledged,safety_version,photo_choice,marketing_requested,data_controller,language,source,status,created_at,retention_until,discovery_source,utm_source,utm_medium,utm_campaign,quoted_base_czk,quoted_late_fee_czk,quoted_total_czk,quoted_confirmed_count,quoted_late_48h,training_requested_tier,training_authorized_tier,quoted_tier,payment_evidence_status,payment_evidence_received_at,bank_verified_at")
              .or("crm_synced_at.is.null,and(payment_evidence_status.eq.PROOF_RECEIVED,payment_crm_synced_at.is.null)")
           : api.from("imperion_rsvp_submissions")
              .select("id,event_id,first_name,last_name,email,phone,age_group,guardian_name,guardian_phone,rsvp_status,safety_acknowledged,safety_version,photo_choice,marketing_requested,data_controller,language,source,status,created_at,retention_until,discovery_source,utm_source,utm_medium,utm_campaign")
