@@ -60,7 +60,7 @@ jobs:
               cp -a "$dir" "_pages/$dir"
             fi
           done
-          for file in index.html 404.html robots.txt sitemap.xml styles.css brand-theme.css site-design.css site-design.js experience.css experience.js quest-theme.css quest-audio.js site.webmanifest apple-touch-icon.png favicon.ico favicon-16.png favicon-32.png favicon-48.png icon-192.png icon-512.png revolut-payment-qr.png; do
+          for file in index.html 404.html robots.txt sitemap.xml styles.css brand-theme.css site-design.css intent-home.css site-design.js experience.css experience.js quest-theme.css quest-audio.js site.webmanifest apple-touch-icon.png favicon.ico favicon-16.png favicon-32.png favicon-48.png icon-192.png icon-512.png revolut-payment-qr.png; do
             if [ -f "$file" ]; then
               cp "$file" "_pages/$file"
             fi
@@ -72,6 +72,9 @@ jobs:
           fi
           touch _pages/.nojekyll
           test -s _pages/index.html
+          test -s _pages/intent-home.css
+          grep -Fq 'id="goal-paths"' _pages/index.html
+          grep -Fq 'id="intentDruzinaCta" href="register/?lang=en"' _pages/index.html
           test -s _pages/sitemap.xml
           test -s _pages/shop/index.html
           test -s _pages/shop/thanks/index.html
@@ -166,3 +169,31 @@ jobs:
           readback "shop/shop.js" "checkout_active"
           echo "All 8 storefront assets independently verified over public HTTPS; no payment sent." >> "$GITHUB_STEP_SUMMARY"
 
+
+
+      - name: Independently verify customer-first homepage and stylesheet over public HTTPS
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://aliaksei-chareshneu.github.io/alchareshneu"
+          page="$(mktemp)"
+          style="$(mktemp)"
+          trap 'rm -f "$page" "$style"' EXIT
+          ok=0
+          for attempt in 1 2 3 4 5 6 7 8; do
+            if curl -fsSL --max-time 25 "$base/" -o "$page" \
+              && curl -fsSL --max-time 25 "$base/intent-home.css?v=20261109" -o "$style" \
+              && grep -Fq 'id="goal-paths"' "$page" \
+              && grep -Fq 'id="intentDruzinaCta" href="register/?lang=en"' "$page" \
+              && grep -Fq 'class="intent-card intent-academy"' "$page" \
+              && grep -Fq '#main.intent-home .intent-grid' "$style"; then
+              ok=1
+              break
+            fi
+            sleep 4
+          done
+          if [ "$ok" != 1 ]; then
+            echo 'Public homepage or intent CSS failed exact HTTPS readback' >&2
+            exit 1
+          fi
+          echo 'VERIFIED LIVE: consumer homepage, 3 intent cards and responsive CSS are readable over public HTTPS.' >> "$GITHUB_STEP_SUMMARY"

@@ -66,7 +66,7 @@ test('Three qualification lines are never confused with opt-in Senior Corps',()=
  expect(news).toContain('НЕ ПЛАТИТЬ без личного письменного подтверждения условий.');
  expect(news).toContain('онлайн-оплата не подключена.');
  expect(news).toContain('Заявки на плановые тренировки ОТКРЫТЫ; платное участие подтверждается отдельно');
- expect(home).toContain('Семь боевых рангов B, семь командных квалификаций C и семь ремесленных K.');
+ expect(home).toContain('пилот проверки квалификаций B/C/K');
  expect(home).toContain('Помощь клубу добровольна.');
  expect(ranks).toContain('Проверка квалификаций · прогресс и достижения');
  expect(ranks).toContain('Утверждённые правила v1.1 действуют.');

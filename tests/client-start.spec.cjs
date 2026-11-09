@@ -15,7 +15,7 @@ for (const lang of ['en', 'cs', 'ru', 'uk']) {
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);
       for (const link of await page.locator('.locale:visible .card .primary').all()) {
         const href = await link.getAttribute('href');
-        expect(href).toMatch(/^(?:mailto:|https:\/\/(?:wa\.me|t\.me)\/|\.\.\/(?:shop\/|register\/\?|corporate\/request\/\?))/);
+        expect(href).toMatch(/^(?:mailto:|https:\/\/(?:wa\.me|t\.me)\/|\.\.\/corporate\/request\/\?|\.\.\/shop\/|\.\.\/register\/\?)/);
         expect(href).not.toMatch(/^https:\/\/(?:revolut\.me|checkout\.)/i);
       }
       expect(errors).toEqual([]);
