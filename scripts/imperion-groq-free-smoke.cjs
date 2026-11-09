@@ -63,7 +63,7 @@ async function previousRunsGate(env, fetcher = fetch) {
     return Number.isFinite(date) && date >= cutoff &&
       (date < selfStarted || (date === selfStarted && x.id < selfId));
   });
-  if (previous.length) return 'ONE_GROQ_ATTEMPT_PER_24H_ALREADY_RESERVED';
+  if (previous.length >= 2) return 'TWO_GROQ_ATTEMPTS_PER_24H_ALREADY_RESERVED';
   return null;
 }
 
@@ -99,12 +99,12 @@ async function main() {
       result.provider !== 'groq' || result.model !== MODEL ||
       result.messages_sent !== 0 || result.posts_published !== 0 ||
       result.external_actions !== 0 || result.payments_created !== 0 ||
-      result.owner_approval_required !== true || !usedReservation)
+      result.owner_approval_required !== true || result.draft.trim().length < 120 || !usedReservation)
     throw new Error('BLOCKED_PROVIDER_OR_RESULT_' + (result.reason || result.status));
   const receipt = {
     ...result,
     workflow_run: 'https://github.com/' + REPO + '/actions/runs/' + env.GITHUB_RUN_ID,
-    quota_policy: 'one attempt per rolling 24h; GitHub serialized workflow run history',
+    quota_policy: 'max two manual attempts per rolling 24h; GitHub serialized workflow run history',
     billing_proof: 'NOT_VERIFIED_BY_PROVIDER',
     checked_at_utc: new Date().toISOString(),
     execution_mode: 'MANUAL_PUBLIC_DRAFT_ONLY'
@@ -119,7 +119,7 @@ async function main() {
     fs.appendFileSync(env.GITHUB_STEP_SUMMARY,
       '### Groq 120B public-only review proof\n' +
       '- Status: DRAFT_FOR_OWNER_REVIEW (not published)\n' +
-      '- Quota: one manual attempt in rolling 24h; GitHub run readback\n' +
+      '- Quota: maximum two manual attempts in rolling 24h; GitHub run readback\n' +
       '- Billing: NOT independently verified\n' +
       '- No messages, posts, contracts or payments performed\n');
 }
