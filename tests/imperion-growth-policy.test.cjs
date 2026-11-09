@@ -129,3 +129,12 @@ test('provider permalink identity keys remain functional without unrelated track
  const yt={...fb,platform:'youtube',post_url:'https://www.youtube.com/watch?v=abcDEfgH_12&email=secret'};
  assert.equal(G.handoff(yt,G.classifyComment(yt)).source_post_url,'https://www.youtube.com/watch?v=abcDEfgH_12');
 });
+
+test('English and Czech registration enquiries are handed off, not silently treated as FAQ',()=>{
+ const base={platform:'facebook',account_id:'owned-page-001',post_url:'https://www.facebook.com/posts/123',
+  provider_readback:true,comment_id:'qa-registr',text:'How does registration work?'};
+ assert.equal(G.classifyComment(base).route,'AGENT4_PRIVATE_TRIAGE');
+ assert.equal(G.classifyComment({...base,text:'Kde je registrace?'}).route,'AGENT4_PRIVATE_TRIAGE');
+ assert.equal(G.classifyComment({...base,text:'Where do I sign up?'}).route,'AGENT4_PRIVATE_TRIAGE');
+ assert.equal(G.handoff(base,G.classifyComment(base)).requires_client_opt_in,true);
+});
