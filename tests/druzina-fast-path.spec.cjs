@@ -94,7 +94,7 @@ for(const lang of languages){
   await page.locator('#submit').click();
   await expect(page.locator('#result')).toBeVisible();
   await expect(page.locator('#rsvpForm')).toBeHidden();
-  await expect(page.locator('#result')).toContainText('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
+  await expect(page.locator('#result input[readonly]')).toHaveValue('A'.repeat(43));
   expect(submitted).toHaveLength(1);
   const body=JSON.parse(submitted[0].postData());
   expect(body).toMatchObject({eventId:ID,firstName:'Test',lastName:'Visitor',
