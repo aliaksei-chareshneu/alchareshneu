@@ -22,7 +22,7 @@ OWNER = "aliaksei-chareshneu"
 REPO = OWNER + "/alchareshneu"
 ISSUE = 195
 URL = "https://api.github.com/repos/" + REPO + "/issues/195/comments?per_page=100&page=1"
-COMMAND = re.compile(r"\A/imperion-dev (ping|smoke)\Z")
+COMMAND = re.compile(r"\A/imperion-dev (ping|smoke|build roi-brand)\Z")
 WORKER = Path(__file__).with_name("safe_local_python_worker.py")
 if not WORKER.is_file():
     WORKER = Path(__file__).with_name("imperion-local-python-worker.py")
@@ -167,11 +167,79 @@ def run_smoke(comment_id):
             "model": proof.get("model"), "attempts": len(proof.get("attempts", [])),
             "proof_path": str(proof_path), "source_sha256": proof["after_sha256"]}
 
+def existing_public_review():
+    """Idempotent source-provider readback; never infer a PR from a branch."""
+    url = "https://api.github.com/repos/" + REPO + "/pulls/243"
+    request = Request(url, headers={"User-Agent": USER_AGENT,
+                                    "Accept": "application/vnd.github+json"})
+    with urlopen(request, timeout=12) as response:
+        if response.status != 200:
+            raise ValueError("REVIEW_PR_HTTP_FAILED")
+        data = json.loads(response.read(30000))
+    head = data.get("head") or {}
+    base = data.get("base") or {}
+    if (data.get("number") != 243 or data.get("state") != "open" or
+        data.get("draft") is not True or data.get("merged_at") is not None or
+        head.get("ref") != "agent/imperion-dev-roi-brand-20261109" or
+        base.get("ref") != "main" or
+        (head.get("repo") or {}).get("full_name") != REPO or
+        not re.fullmatch(r"[0-9a-f]{40}", str(head.get("sha","")))):
+        raise ValueError("REVIEW_PR_META_MISMATCH")
+    files_url = url + "/files?per_page=10"
+    with urlopen(Request(files_url, headers={"User-Agent": USER_AGENT,
+                        "Accept": "application/vnd.github+json"}), timeout=12) as response:
+        files = json.loads(response.read(25000))
+    if (not isinstance(files, list) or len(files) != 1 or
+        files[0].get("filename") != "shop/ai-workflow-roi/index.html" or
+        files[0].get("status") != "modified"):
+        raise ValueError("REVIEW_PR_FILES_CHANGED")
+    return {"source_review_verified": True, "repo_job_status": "EXISTING_DRAFT_PR_VERIFIED",
+            "review_pr": data.get("html_url"),
+            "review_branch": head.get("ref"), "review_commit": head.get("sha"),
+            "git_source": "shop/ai-workflow-roi/index.html", "external_paid_api_czk": 0}
+
+
+def run_public_source_job():
+    """Run only the reviewed public-source controller; never execute comment text."""
+    try:
+        return existing_public_review()
+    except ValueError:
+        pass
+    path = Path(__file__).with_name("safe_public_repo_worker.py")
+    if not path.is_file():
+        path = Path(__file__).with_name("imperion-public-repo-worker.py")
+    if not path.is_file() or path.name not in (
+        "safe_public_repo_worker.py", "imperion-public-repo-worker.py"
+    ):
+        raise ValueError("REVIEWED_PUBLIC_REPO_WORKER_MISSING")
+    process = subprocess.run(
+        [sys.executable, str(path), "--job", "roi-brand", "--push-review-branch"],
+        cwd=str(path.parent), text=True, capture_output=True, timeout=300,
+        env={**os.environ, "PYTHONNOUSERSITE": "1"}
+    )
+    lines = process.stdout.strip().splitlines()
+    if process.returncode != 0 or not lines:
+        raise ValueError("PUBLIC_REPO_CODE_BUILD_BLOCKED_NO_AUTO_RETRY")
+    proof = json.loads(lines[-1])
+    if (proof.get("status") != "REMOTE_BRANCH_PUSHED_PR_REVIEW_REQUIRED" or
+        not re.fullmatch(r"[0-9a-f]{40}", str(proof.get("commit_sha", ""))) or
+        proof.get("source_file") != "shop/ai-workflow-roi/index.html" or
+        proof.get("branch") != "agent/imperion-dev-roi-brand-20261109" or
+        proof.get("production_changed") is not False):
+        raise ValueError("PUBLIC_REPO_BRANCH_EVIDENCE_REJECTED")
+    return {"source_build_verified": True, "repo_job_status": proof["status"],
+            "model": proof["model"], "review_branch": proof["branch"],
+            "review_commit": proof["commit_sha"], "git_source": proof["source_file"],
+            "proof_path": proof["proof_path"], "external_paid_api_czk": 0}
+
+
 def execute(command, comment_id):
     if command == "ping":
         return check_local_model()
     if command == "smoke":
         return run_smoke(comment_id)
+    if command == "build roi-brand":
+        return run_public_source_job()
     raise ValueError("COMMAND_NOT_ALLOWLISTED")
 
 def poll(comments=None, state_dir=None, executor=None):
