@@ -108,13 +108,15 @@ function impAppendOrelSource_(ss,r){
  */
 function impEnsureRsvpPaymentCols_(sh){
  var h=impHeader_(sh);
- ['Quoted_Base_CZK','Late_Fee_CZK','Quoted_Total_CZK','Quoted_Group_Size',
-  'Late_48h','Payment_Evidence_Status','Payment_Proof_Received_At'].forEach(function(k){
-  if(h.map[k]===undefined){
-   var column=sh.getLastColumn()+1;
-   sh.getRange(1,column).setValue(k);
-  }
- });
+ var required=['Quoted_Base_CZK','Late_Fee_CZK','Quoted_Total_CZK','Quoted_Group_Size',
+  'Late_48h','Payment_Evidence_Status','Payment_Proof_Received_At'];
+ var missing=required.filter(function(k){return h.map[k]===undefined;});
+ if(missing.length){
+  var last=sh.getLastColumn();
+  var space=sh.getMaxColumns()-last;
+  if(space<missing.length)sh.insertColumnsAfter(sh.getMaxColumns(),missing.length-space);
+  missing.forEach(function(key,i){sh.getRange(1,last+i+1).setValue(key);});
+ }
  return impHeader_(sh);
 }
 /** Update only payment evidence on an already imported RSVP; never add duplicate.
