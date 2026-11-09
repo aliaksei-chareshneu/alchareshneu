@@ -130,6 +130,20 @@ class PollerTests(unittest.TestCase):
         self.assertEqual(result["model"],"imperion-qwen35:4b")
         self.assertEqual(url.call_count,1)
 
+    def test_owner_build_code_command_exact_scope(self):
+        cmd = comment(170, "/imperion-dev build roi-brand")
+        self.assertEqual(mod.owner_command(cmd), "build roi-brand")
+        self.assertIsNone(mod.owner_command(comment(171, "/imperion-dev build other")))
+        self.assertIsNone(mod.owner_command(comment(172, "/imperion-dev build roi-brand && dangerous")))
+        self.assertIsNone(mod.owner_command(comment(173, "/imperion-dev build roi-brand", login="stranger")))
+        expected={"review_branch":"agent/imperion-dev-roi-brand-20261109",
+                  "review_commit":"e9021ef8d68021dfb00f31048daf266d7d9b3b80"}
+        with mock.patch.object(mod,"run_public_source_job",return_value=expected) as run:
+            self.assertEqual(mod.execute("build roi-brand", 170),expected)
+            run.assert_called_once_with()
+        with self.assertRaisesRegex(ValueError,"COMMAND_NOT_ALLOWLISTED"):
+            mod.execute("build other", 170)
+
     def test_invalid_github_schema_fails_closed(self):
         with mock.patch.object(mod,"_api_get",return_value=([{"id":"broken"}],"")):
             with self.assertRaisesRegex(ValueError,"INVALID_COMMENT_IDS"):
