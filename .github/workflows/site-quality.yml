@@ -107,7 +107,7 @@ jobs:
         run: node --test tests/imperion-zero-credit-cloud-review.test.cjs tests/imperion-zero-credit-cloud-workflow.test.cjs
 
       - name: Verify free public-only AI router, durable local quota and fail-closed Pages proof
-        run: node --test tests/imperion-free-model-router.test.cjs tests/imperion-free-local-quota.test.cjs tests/imperion-public-model-worker.test.cjs tests/imperion-autopilot-workflow-gate.test.cjs
+        run: node --test tests/imperion-free-model-router.test.cjs tests/imperion-free-local-quota.test.cjs tests/imperion-public-model-worker.test.cjs tests/imperion-public-result-journal.test.cjs tests/imperion-autopilot-workflow-gate.test.cjs
 
       - name: Verify existing BrowserBridge public-only Qwen adapter (no shell, no sends)
         run: python3 -m unittest discover -s ops/bridge-public-ai -p 'test_public_ai_draft.py' -v
