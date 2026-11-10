@@ -65,7 +65,7 @@ if(require.main===module)(async()=>{let count=0;for(const path of ['index.html',
    assert.equal(retired.length,0,'paused HEMA page must not link to retired payment/booking forms');
   } else {
    const text=d.body.textContent.replace(/[ ,]/g,'');
-   for(const price of ['120','240','910','455','2870','1435','8235','4120'])
+   for(const price of ['120','240','800','560'])
     assert.ok(text.includes(price+'Kč'),path+' missing active price '+price+' Kč');
   }
  }
