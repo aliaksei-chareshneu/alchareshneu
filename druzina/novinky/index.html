@@ -204,8 +204,7 @@ function select(code,writeUrl){
 }
 buttons.forEach(function(btn){btn.addEventListener("click",function(){select(btn.dataset.lang,true);});});
 var requested=new URLSearchParams(location.search).get("lang");
-var browser=(navigator.language||"cs").slice(0,2).toLowerCase();
-select(supported.indexOf(requested)>=0?requested:(supported.indexOf(browser)>=0?browser:"cs"),false);
+select(supported.indexOf(requested)>=0?requested:"cs",false);
 })();
 </script>
 </body></html>

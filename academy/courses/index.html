@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="cs">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -25,7 +25,7 @@
 <link rel="stylesheet" href="../../site-design.css?v=20261027">
 </head>
 <body data-imperion-scope="dark">
-<header class="top"><div class="top-inner"><a class="brand" href="../../">Aliaksei Chareshneu, PhD</a><a class="back" href="../"><span data-locale="en" >Academy &amp; prices</span><span data-locale="cs" hidden>Akademie a ceník</span><span data-locale="ru" hidden>Академия и цены</span></a><nav class="lang" aria-label="Language"><button type="button" data-lang="en" aria-pressed="true">EN</button><button type="button" data-lang="cs" aria-pressed="false">CZ</button><button type="button" data-lang="ru" aria-pressed="false">RU</button></nav></div></header>
+<header class="top"><div class="top-inner"><a class="brand" href="../../">Aliaksei Chareshneu, PhD</a><a class="back" href="../"><span data-locale="en" >Academy &amp; prices</span><span data-locale="cs" hidden>Akademie a ceník</span><span data-locale="ru" hidden>Академия и цены</span></a><nav class="lang" aria-label="Language"><button type="button" data-lang="en" aria-pressed="false">EN</button><button type="button" data-lang="cs" aria-pressed="true">CZ</button><button type="button" data-lang="ru" aria-pressed="false">RU</button></nav></div></header>
 <main>
 <section class="hero">
 <p class="eyebrow"><span data-locale="en" >Practical learning · Brno &amp; online</span><span data-locale="cs" hidden>Praktická výuka · Brno a online</span><span data-locale="ru" hidden>Практическое обучение · Брно и онлайн</span></p>
@@ -95,10 +95,10 @@
 <script>
 (function(){
 const langs=['en','cs','ru'];
-function langSet(x){let l=langs.includes(x)?x:'en';document.documentElement.lang=l;document.querySelectorAll('[data-locale]').forEach(e=>e.hidden=e.dataset.locale!==l);document.querySelectorAll('[data-lang]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.lang===l)));}
+function langSet(x){let l=langs.includes(x)?x:'cs';document.documentElement.lang=l;document.querySelectorAll('[data-locale]').forEach(e=>e.hidden=e.dataset.locale!==l);document.querySelectorAll('[data-lang]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.lang===l)));}
 document.querySelectorAll('[data-lang]').forEach(b=>b.addEventListener('click',()=>langSet(b.dataset.lang)));
 document.querySelectorAll('[data-filter]').forEach(b=>b.addEventListener('click',()=>{let g=b.dataset.filter;document.querySelectorAll('[data-filter]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));document.querySelectorAll('.course').forEach(x=>x.hidden=g!=='all'&&x.dataset.group!==g);}));
-let supplied=new URLSearchParams(location.search).get('lang');let preferred=supplied||((navigator.language||'en').slice(0,2).toLowerCase());langSet(preferred);
+let supplied=new URLSearchParams(location.search).get('lang');let preferred=supplied||'cs';langSet(preferred);
 })();
 </script>
 </body></html>
