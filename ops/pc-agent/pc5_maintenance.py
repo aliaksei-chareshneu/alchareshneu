@@ -28,6 +28,8 @@ SCRIPT_NAME = "pc5_audit.ps1"
 MAX_RESULT_BYTES = 4096
 MAX_AUDIT_BYTES = 1024 * 1024
 MAX_ACTIONS = 8
+MIN_AUDIT_FREE_MB = 1536  # fail closed before expensive collection
+AUDIT_SUBPROCESS_TIMEOUT_S = 60
 
 
 def block(reason: str) -> dict:
@@ -173,10 +175,13 @@ def audit_pc(ident: str, *, root: Path, runner: Callable, script: Path) -> dict:
             raise ValueError("TRUSTED_AUDIT_SCRIPT_MISSING")
         if not script.resolve().is_relative_to(Path(__file__).resolve().parent):
             raise ValueError("AUDIT_SCRIPT_OUTSIDE_INSTALL_DIR")
-        result = runner([
-            "powershell.exe", "-NoProfile", "-NonInteractive", "-File",
-            str(script), "-AuditId", ident
-        ], capture_output=True, text=True, timeout=120, check=False)
+        try:
+            result = runner([
+                "powershell.exe", "-NoProfile", "-NonInteractive", "-File",
+                str(script), "-AuditId", ident
+            ], capture_output=True, text=True, timeout=AUDIT_SUBPROCESS_TIMEOUT_S, check=False)
+        except subprocess.TimeoutExpired:
+            raise ValueError("AUDIT_TIMEOUT_NO_AUTO_RETRY") from None
         if result.returncode != 0 or len(result.stdout) > MAX_RESULT_BYTES:
             raise ValueError("LOCAL_AUDIT_EXECUTION_FAILED")
         line = result.stdout.strip()
@@ -218,13 +223,25 @@ def remediate_preview(actions: list[str]) -> dict:
 
 def operate(payload: object, *, platform: str | None = None,
             runner: Callable = subprocess.run, root: Path | None = None,
-            script: Path | None = None) -> dict:
+            script: Path | None = None, memory_reader: Callable | None = None) -> dict:
     try:
         mode, ident = strict_payload(payload)
         if mode == "remediate_pc":
             return remediate_preview(payload["action_ids"])
         if (sys.platform if platform is None else platform) != "win32":
             return block("WINDOWS_REQUIRED")
+        if memory_reader is None:
+            from pc_desktop_v4 import win_memory
+            memory_reader = win_memory
+        try:
+            free_mb, total_mb = memory_reader()
+            if (not isinstance(free_mb, int) or not isinstance(total_mb, int)
+                or total_mb <= 0 or free_mb < 0 or free_mb > total_mb):
+                return block("AUDIT_MEMORY_PREFLIGHT_UNAVAILABLE")
+        except (OSError, TypeError, ValueError, RuntimeError, AttributeError):
+            return block("AUDIT_MEMORY_PREFLIGHT_UNAVAILABLE")
+        if free_mb < MIN_AUDIT_FREE_MB:
+            return block("AUDIT_LOW_MEMORY_NO_EXECUTION")
         path = private_root() if root is None else root
         source = Path(__file__).resolve().with_name(SCRIPT_NAME) if script is None else script
         return audit_pc(ident, root=path, runner=runner, script=source)
@@ -243,7 +260,9 @@ def operate(payload: object, *, platform: str | None = None,
             "REPLAY_EVIDENCE_MISMATCH", "AUDIT_ALREADY_RUNNING_OR_STALE_LOCK",
             "TRUSTED_AUDIT_SCRIPT_MISSING", "AUDIT_SCRIPT_OUTSIDE_INSTALL_DIR",
             "LOCAL_AUDIT_EXECUTION_FAILED", "LOCAL_AUDIT_NOT_SAVED", "AUDIT_NAME_MISMATCH",
-            "AUDIT_HASH_MISMATCH", "AUDIT_ID_MISMATCH", "AUDIT_SNAPSHOT_WITHOUT_RECEIPT"
+            "AUDIT_HASH_MISMATCH", "AUDIT_ID_MISMATCH", "AUDIT_SNAPSHOT_WITHOUT_RECEIPT",
+            "AUDIT_MEMORY_PREFLIGHT_UNAVAILABLE", "AUDIT_LOW_MEMORY_NO_EXECUTION",
+            "AUDIT_TIMEOUT_NO_AUTO_RETRY"
         }:
             reason = "AUDIT_RUNTIME_BLOCKED"
         return block(reason)
