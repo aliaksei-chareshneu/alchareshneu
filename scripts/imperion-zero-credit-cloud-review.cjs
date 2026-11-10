@@ -79,9 +79,7 @@ function proof(status,meta={}){
     owner_approval_required:true,model_output_published:false,
     ...meta};
 }
-async function run(options={}){
-  const fetcher=options.fetchImpl||globalThis.fetch;
-  const now=options.now===undefined?Date.now():options.now;
+async function readApprovedFeed(fetcher,now){
   if(typeof fetcher!=='function')throw Error('MISSING_FETCH');
   const src=await fetcher(PUBLIC_FEED,{
     method:'GET',redirect:'error',credentials:'omit',cache:'no-store',
@@ -94,6 +92,19 @@ async function run(options={}){
   if(typeof str!=='string'||Buffer.byteLength(str,'utf8')>MAX_INPUT_BYTES)throw Error('PUBLIC_FEED_TOO_LARGE');
   let data;try{data=JSON.parse(str);}catch{throw Error('PUBLIC_FEED_INVALID_JSON');}
   const ev=chooseEvent(data,now),sourceSha=sha256(str);
+  return {ev,sourceSha};
+}
+async function preflight(options={}){
+  const fetcher=options.fetchImpl||globalThis.fetch;
+  const now=options.now===undefined?Date.now():options.now;
+  const {ev,sourceSha}=await readApprovedFeed(fetcher,now);
+  return {has_future:!!ev,source_sha256:sourceSha,
+    source_event_id:ev?.event_id||null,model_invocations:0};
+}
+async function run(options={}){
+  const fetcher=options.fetchImpl||globalThis.fetch;
+  const now=options.now===undefined?Date.now():options.now;
+  const {ev,sourceSha}=await readApprovedFeed(fetcher,now);
   if(!ev)return proof('NO_FUTURE_APPROVED_PUBLIC_EVENT',{source_sha256:sourceSha,model_invocations:0});
   const body={
     model:MODEL,stream:false,think:false,format:'json',
@@ -126,9 +137,28 @@ async function main(){
     source_sha256:result.source_sha256||null,artifact:dest,
     work_credits_used:0,external_actions:0})+'\n');
 }
-if(require.main===module)main().catch(e=>{
-  console.error(/^[A-Z0-9_]+$/.test(e.message)?e.message:'CLOUD_DRAFT_FAILED');
-  process.exitCode=1;
-});
+async function preflightMain(){
+  const selection=await preflight();
+  // No eligible future event means no heavy model runner is needed today.
+  if(process.env.GITHUB_OUTPUT)fs.appendFileSync(process.env.GITHUB_OUTPUT,
+    'has_future='+(selection.has_future?'true':'false')+'\n','utf8');
+  if(!selection.has_future){
+    const dest=path.join(process.env.RUNNER_TEMP||process.cwd(),'imperion-zero-credit-qwen-proof.json');
+    const result=proof('NO_FUTURE_APPROVED_PUBLIC_EVENT',{
+      source_sha256:selection.source_sha256,model_invocations:0});
+    fs.writeFileSync(dest,JSON.stringify(result,null,2)+'\n','utf8');
+  }
+  process.stdout.write(JSON.stringify({preflight:'PUBLIC_CATALOG_VERIFIED',
+    has_future:selection.has_future,source_event_id:selection.source_event_id,
+    source_sha256:selection.source_sha256,model_invocations:0})+'\n');
+}
+if(require.main===module){
+  const cmd=process.argv.length===2?main:
+    process.argv.length===3&&process.argv[2]==='--preflight'?preflightMain:null;
+  (cmd?cmd():Promise.reject(new Error('INVALID_CLI_ARGS'))).catch(e=>{
+    console.error(/^[A-Z0-9_]+$/.test(e.message)?e.message:'CLOUD_DRAFT_FAILED');
+    process.exitCode=1;
+  });
+}
 module.exports={PUBLIC_FEED,LOCAL_MODEL_ENDPOINT,MODEL,validFeed,chooseEvent,
-  publicTask,parseDraft,proof,run};
+  publicTask,parseDraft,proof,readApprovedFeed,preflight,run};
