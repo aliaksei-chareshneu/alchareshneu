@@ -35,6 +35,12 @@ jobs:
           test -f register/uk/index.html
           test -f supabase/functions/imperion-register/index.ts
 
+      - name: Verify price audit source and script syntax before unrelated CI gates
+        run: |
+          node --check academy/a2/quiz.js
+          node --check tests/qualified-pricing-source.test.cjs
+          node --test tests/qualified-pricing-source.test.cjs
+
       - name: Reject stale production placeholders
         shell: bash
         run: |
@@ -43,9 +49,6 @@ jobs:
             echo "Stale production placeholder/content found"
             exit 1
           fi
-
-      - name: Verify qualification-matched price evidence and public price consistency
-        run: node --test tests/qualified-pricing-source.test.cjs
 
       - name: Verify Druzina booking state (priced or paused)
         shell: bash
