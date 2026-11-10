@@ -21,3 +21,10 @@ test('manual EN preference persists across primary pages',async({page})=>{
  await page.goto('/druzina/?lang=cs');
  await expect(page.locator('html')).toHaveAttribute('lang','cs');
 });
+
+for(const path of ['','druzina/','academy/','walkers/','calendar/']){
+ test('CZ is the first visible language choice: '+(path||'home'),async({page})=>{
+  await page.goto('/'+path);
+  await expect(page.locator('#langSwitch button[data-lang]').first()).toHaveAttribute('data-lang','cs');
+ });
+}
