@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="cs">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -1479,11 +1479,7 @@ function detectLang() {
     const saved = localStorage.getItem('dm_lang');
     if (saved && T[saved]) return saved;
   } catch (e) {}
-  const nav = (navigator.language || 'en').toLowerCase();
-  if (nav.startsWith('ru')) return 'ru';
-  if (nav.startsWith('uk')) return 'uk';
-  if (nav.startsWith('cs') || nav.startsWith('sk')) return 'cs';
-  return 'en';
+  return 'cs';
 }
 
 function bindLangButtons() {
