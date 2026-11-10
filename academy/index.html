@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="cs">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -76,9 +76,9 @@ html:lang(en) #service-choice-consultation .choice-copy[lang=en],html:lang(cs) #
     <div class="brand"><a href="../" style="color:var(--ink);text-decoration:none;">Aliaksei Chareshneu, PhD</a><small data-i18n="nav.brand">Eternal Learning Academy</small></div>
     <div class="nav-actions">
       <div class="langs" id="langSwitch" role="group" aria-label="Language">
+        <button data-lang="cs">CZ</button>
         <button data-lang="ru">RU</button>
         <button data-lang="uk">UA</button>
-        <button data-lang="cs">CZ</button>
         <button data-lang="en">EN</button>
       </div>
       <a id="navBookBtn" class="btn solid plausible-event-name=Academy-Enquiry" data-i18n="nav.bookBtn" href="https://wa.me/420702914842?text=Academy%20enquiry%20%E2%80%94%20please%20confirm%20service%2C%20available%20dates%2C%20written%20scope%20and%20price.%20Source%3Dacademy_nav_20261105" target="_blank" rel="noopener">Register / Book</a>
@@ -550,11 +550,7 @@ function detectLang() {
     const saved = localStorage.getItem('dm_lang');
     if (saved && T[saved]) return saved;
   } catch (e) {}
-  const nav = (navigator.language || 'en').toLowerCase();
-  if (nav.startsWith('ru')) return 'ru';
-  if (nav.startsWith('uk')) return 'uk';
-  if (nav.startsWith('cs') || nav.startsWith('sk')) return 'cs';
-  return 'en';
+  return 'cs';
 }
 
 function bindLangButtons() {

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en"><head>
+<html lang="cs"><head>
 <meta name="theme-color" content="#0b1729">
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="index,follow">
@@ -142,7 +142,7 @@ const tr={
  ]
 };
 const ids=['kicker','headline','lead','status','wa','tg','privacy','proof','subhead','h3a','t3a','h3b','t3b','h3c','t3c','how','steps','wa2','footer'];
-const params=new URLSearchParams(location.search);const given=params.get('lang');const native=(navigator.language||'en').split('-')[0].toLowerCase();const lang=tr[given]?given:(tr[native]?native:'en');const s=tr[lang];ids.forEach((id,i)=>{const e=document.getElementById(id);if(e)e.textContent=s[i]});document.documentElement.lang=lang;
+const params=new URLSearchParams(location.search);const given=params.get('lang');const lang=tr[given]?given:'cs';const s=tr[lang];ids.forEach((id,i)=>{const e=document.getElementById(id);if(e)e.textContent=s[i]});document.documentElement.lang=lang;
 document.querySelectorAll('[data-lang]').forEach(b=>{b.setAttribute('aria-pressed',String(b.dataset.lang===lang));b.addEventListener('click',()=>{params.set('lang',b.dataset.lang);location.search=params.toString()})});
 const src=(params.get('src')||'organic').replace(/[^a-zA-Z0-9_-]/g,'').slice(0,40)||'organic';
 const msg='PRAHA 13 DEC | language='+lang.toUpperCase()+' | source='+src+' | interested in tentative Sun 13 Dec 2026, 12:00–15:00, Riegrovy sady, 600 CZK; please send confirmed booking details, venue/weather contingency and payment terms before deposit. Number of people: ';

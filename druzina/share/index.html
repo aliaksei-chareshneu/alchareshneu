@@ -54,7 +54,7 @@ function render(lang){const t=T[lang]||T.cs;document.documentElement.lang=lang;f
 buttons.forEach(b=>b.addEventListener('click',()=>{render(b.dataset.lang);const url=new URL(location.href);url.searchParams.set('lang',b.dataset.lang);history.replaceState(null,'',url)}));
 copy.addEventListener('click',async()=>{const t=T[document.documentElement.lang]||T.cs;try{if(!navigator.clipboard||!navigator.clipboard.writeText)throw Error('manual');await navigator.clipboard.writeText(box.value);status.textContent=t.copied}catch(e){box.focus();box.select();status.textContent=t.copyFallback}});
 document.getElementById('print').addEventListener('click',()=>window.print());
-const lang=new URLSearchParams(location.search).get('lang');const browser=(navigator.language||'cs').slice(0,2).toLowerCase();render(T[lang]?lang:T[browser]?browser:'cs');
+const lang=new URLSearchParams(location.search).get('lang');render(T[lang]?lang:'cs');
 })();
 </script>
 </body></html>

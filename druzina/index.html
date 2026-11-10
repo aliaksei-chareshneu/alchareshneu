@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="cs">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -108,9 +108,9 @@ html[lang="cs"] #dm-team-experience [data-dm-offer-lang="cs"],html[lang="en"] #d
     <div class="nav-actions">
       <button type="button" class="quest-sound-control" data-quest-audio-toggle aria-label="Play original fantasy ambience" aria-pressed="false" title="Play music">♪</button>
       <div class="langs" id="langSwitch" role="group" aria-label="Language">
+        <button data-lang="cs">CZ</button>
         <button data-lang="ru">RU</button>
         <button data-lang="uk">UA</button>
-        <button data-lang="cs">CZ</button>
         <button data-lang="en">EN</button>
       </div>
       <a id="navBookBtn" class="btn solid dm-v2-primary plausible-event-name=Register-Druzina" data-dm-signup="FIRST" data-i18n="nav.bookBtn" href="../register/?lang=en">Meet the club</a>
@@ -1174,11 +1174,7 @@ function detectLang() {
     const saved = localStorage.getItem('dm_lang');
     if (saved && T[saved]) return saved;
   } catch (e) {}
-  const nav = (navigator.language || 'en').toLowerCase();
-  if (nav.startsWith('ru')) return 'ru';
-  if (nav.startsWith('uk')) return 'uk';
-  if (nav.startsWith('cs') || nav.startsWith('sk')) return 'cs';
-  return 'en';
+  return 'cs';
 }
 
 function bindLangButtons() {
