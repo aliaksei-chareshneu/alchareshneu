@@ -8,7 +8,7 @@ new listener, service or process. No arbitrary shell payload is accepted.
 from pc5_maintenance import operate
 
 
-PC5_MODES = frozenset({"audit_pc", "remediate_pc"})
+PC5_MODES = frozenset({"audit_pc"})  # remediate_pc explicitly not installed
 
 
 def maybe_dispatch(action, payload):
