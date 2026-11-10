@@ -1,4 +1,5 @@
 const {test,expect}=require('@playwright/test');
+test.use({locale:'en-US'});
 const pages=['','druzina/','academy/','walkers/','calendar/','corporate/','druzina/ranks.html','academy/programmes/','events/november-2026.html'];
 for(const path of pages){
  test('Czech default on fresh visit: '+(path||'home'),async({page})=>{
