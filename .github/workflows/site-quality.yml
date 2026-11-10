@@ -44,6 +44,9 @@ jobs:
             exit 1
           fi
 
+      - name: Verify qualification-matched price evidence and public price consistency
+        run: node --test tests/qualified-pricing-source.test.cjs
+
       - name: Verify Druzina booking state (priced or paused)
         shell: bash
         run: |
