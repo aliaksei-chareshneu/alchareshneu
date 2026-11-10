@@ -134,3 +134,20 @@ test('preflight blocks malformed, redirected or private-like source before expen
  }
  assert.equal(calls,5);
 });
+
+test('PR preview and expired-event preflight emit safe proof without invoking a model',()=>{
+ const future={has_future:true,source_sha256:'a'.repeat(64),source_event_id:'PUB-OREL-20261114'};
+ assert.equal(A.preflightProof(future,false),null,'eligible scheduled run leaves inference to existing Qwen step');
+ const preview=A.preflightProof(future,true);
+ assert.equal(preview.status,'PUBLIC_PREFLIGHT_ONLY_NO_MODEL');
+ assert.equal(preview.model_invocations,0);
+ assert.equal(preview.source_event_id,future.source_event_id);
+ assert.equal(preview.owner_approval_required,true);
+ assert.equal(preview.external_api_keys_used,false);
+ assert.equal(preview.external_messages_sent,0);
+ assert.equal(preview.third_party_posts_published,0);
+ const empty=A.preflightProof({...future,has_future:false,source_event_id:null},false);
+ assert.equal(empty.status,'NO_FUTURE_APPROVED_PUBLIC_EVENT');
+ assert.equal(empty.model_invocations,0);
+ assert.equal(empty.source_event_id,undefined);
+});
