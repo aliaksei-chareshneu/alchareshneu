@@ -119,7 +119,7 @@ all.forEach(function(el){el.hidden=el.dataset.locale!==lang;});
 buttons.forEach(function(btn){btn.setAttribute('aria-pressed',String(btn.dataset.switch===lang));});try{localStorage.setItem('dm_lang',lang);}catch(e){}}
 buttons.forEach(function(btn){btn.addEventListener('click',function(){show(btn.dataset.switch);});});
 var saved='';try{saved=localStorage.getItem('dm_lang')||'';}catch(e){}
-show(new URLSearchParams(location.search).get('lang') || saved || (navigator.language||'cs').slice(0,2).toLowerCase());
+show(new URLSearchParams(location.search).get('lang') || saved || 'cs');
 })();
 </script>
 </body>
