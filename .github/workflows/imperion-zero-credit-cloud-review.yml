@@ -29,12 +29,18 @@ jobs:
           node-version: '22'
       - name: Offline safety tests - public-only inputs, model draft output, no sends
         run: node --test tests/imperion-zero-credit-cloud-review.test.cjs
+      - name: Validate public source and skip model when no future event exists
+        id: public-preflight
+        shell: bash
+        run: node scripts/imperion-zero-credit-cloud-review.cjs --preflight
       - name: Restore public Apache-2.0 open-model cache (no tokens or credits)
+        if: steps.public-preflight.outputs.has_future == 'true'
         uses: actions/cache@v4
         with:
           path: .ollama-models/models
           key: imperion-apache2-qwen3-4b-instruct-20261103-v2
       - name: Run temporary local-only CPU Ollama on GitHub-hosted runner
+        if: steps.public-preflight.outputs.has_future == 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -53,6 +59,7 @@ jobs:
             exit 1
           }
       - name: Read own published event feed, run CPU Qwen, save review-only proof
+        if: steps.public-preflight.outputs.has_future == 'true'
         shell: bash
         run: |
           set -euo pipefail
