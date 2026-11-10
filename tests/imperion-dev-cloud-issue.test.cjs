@@ -171,3 +171,11 @@ test('issue-authorized fixture is independently tested against the authentic eve
    fs.rmSync(base,{recursive:true,force:true});
  }
 });
+
+test('cloud sandbox accepts only the same complete synthetic fixture pair as issue preflight',()=>{
+ const y=fs.readFileSync(path.join(__dirname,'../.github/workflows/imperion-dev-cloud-issue.yml'),'utf8');
+ assert.ok(y.includes('const fixture=mode==="FIXTURE"||w.isFixtureTask({file,test});'));
+ assert.ok(y.includes('w.safeTestFile(test,fixture) && w.safeSourceFile(file,fixture)'));
+ assert.ok(y.includes('if [ "$target" = \'ops/imperion-dev-cloud-fixture/normalize.cjs\' ]'));
+ assert.ok(y.includes("startsWith(github.event.pull_request.head.ref, 'agent/imperion-dev-cloud-')"));
+});
