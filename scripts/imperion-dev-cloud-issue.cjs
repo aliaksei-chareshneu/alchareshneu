@@ -26,12 +26,18 @@ function safeTestFile(file, fixture=false) {
   return /^tests\/[a-zA-Z0-9][a-zA-Z0-9_/-]{1,102}\.test\.cjs$/.test(file) &&
     !file.includes('..') && !BLOCKED_PATH.test(file);
 }
+function isFixtureTask(task) {
+  return task && task.file === FIXTURE_FILE && task.test === FIXTURE_TEST;
+}
 function parseCommand(body) {
   if (typeof body !== 'string' || Buffer.byteLength(body) > 650) throw Error('COMMAND_SIZE_REJECTED');
   const m = COMMAND.exec(body.trim());
   if (!m) throw Error('COMMAND_FORMAT_REJECTED');
   const task = {file:m[1], test:m[2], goal:m[3]};
-  if (!safeSourceFile(task.file) || !safeTestFile(task.test) || task.file === task.test)
+  const fixture=isFixtureTask(task);
+  if (((task.file === FIXTURE_FILE || task.test === FIXTURE_TEST) && !fixture) ||
+      !safeSourceFile(task.file,fixture) || !safeTestFile(task.test,fixture) ||
+      task.file === task.test)
     throw Error('TASK_PATH_REJECTED');
   if (/[\x00-\x1f]|(?:sk-[a-z0-9_-]{12,}|gh[pousr]_[a-z0-9_]{12,}|@|BEGIN PRIVATE KEY)/i.test(task.goal))
     throw Error('PUBLIC_TASK_CONTENT_REJECTED');
@@ -97,8 +103,9 @@ function applyCandidate(source, patch) {
   return changed;
 }
 async function propose(task, root, fetchImpl=globalThis.fetch) {
-  const source=safeFileRead(root,task.file,task.mode==='FIXTURE');
-  safeFileRead(root,task.test,task.mode==='FIXTURE',true);
+  const fixture=task.mode==='FIXTURE' || isFixtureTask(task);
+  const source=safeFileRead(root,task.file,fixture);
+  safeFileRead(root,task.test,fixture,true);
   const r=await fetchImpl(ENDPOINT,{
     method:'POST', redirect:'error', credentials:'omit',
     headers:{'content-type':'application/json'},
@@ -131,8 +138,9 @@ function verifiedApply(proof, root) {
         task.file!==trusted.file || task.test!==trusted.test || task.goal!==trusted.goal)
       throw Error('PROPOSAL_TASK_EVENT_MISMATCH');
   }
-  const source=safeFileRead(root,task.file,task.mode==='FIXTURE');
-  safeFileRead(root,task.test,task.mode==='FIXTURE',true);
+  const fixture=task.mode==='FIXTURE' || isFixtureTask(task);
+  const source=safeFileRead(root,task.file,fixture);
+  safeFileRead(root,task.test,fixture,true);
   if (sha(source) !== proof.source_sha256) throw Error('BASELINE_SHA_CHANGED');
   const patch=parseCandidate(JSON.stringify(proof.patch));
   const changed=applyCandidate(source,patch);
@@ -146,8 +154,8 @@ async function main() {
   const mode=process.argv[2], root=process.cwd();
   if (mode==='--check-event') {
     const task=taskFromEvent(JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH,'utf8')));
-    safeFileRead(root,task.file,false);
-    safeFileRead(root,task.test,false,true);
+    safeFileRead(root,task.file,isFixtureTask(task));
+    safeFileRead(root,task.test,isFixtureTask(task),true);
     console.log(JSON.stringify({status:'TRUSTED_PUBLIC_TASK_ACCEPTED',issue:task.issue,
       comment:task.comment,file:task.file,test:task.test}));
   } else if (mode==='--fixture' || mode==='--event') {
@@ -171,5 +179,5 @@ if (require.main===module) main().catch(e=>{
   process.exitCode=2;
 });
 module.exports={MODEL,REPO,FIXTURE_FILE,FIXTURE_TEST,COMMAND,
-  safeSourceFile,safeTestFile,parseCommand,taskFromEvent,safeFileRead,prompt,
+  safeSourceFile,safeTestFile,isFixtureTask,parseCommand,taskFromEvent,safeFileRead,prompt,
   parseCandidate,applyCandidate,propose,verifiedApply,sha};
