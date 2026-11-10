@@ -133,3 +133,41 @@ test('agent cannot modify its own independent test or any test fixture as a task
  assert.throws(()=>W.parseCommand(cmd.replace('file: scripts/imperion-public-example.cjs',
    'file: tests/imperion-public-example.test.cjs')),/TASK_PATH_REJECTED/);
 });
+
+const acceptanceCmd='/imperion-dev cloud\nfile: ops/imperion-dev-cloud-fixture/normalize.cjs\ntest: ops/imperion-dev-cloud-fixture/check.cjs\ngoal: Correct total(items): each price must be multiplied by quantity, using an empty-array-safe sum.';
+test('allow only complete exact synthetic fixture pair for owner issue acceptance',()=>{
+ const t=W.parseCommand(acceptanceCmd);
+ assert.equal(W.isFixtureTask(t),true);
+ const e={...event,comment:{...event.comment,body:acceptanceCmd}};
+ assert.equal(W.taskFromEvent(e).file,W.FIXTURE_FILE);
+ assert.equal(W.taskFromEvent(e).test,W.FIXTURE_TEST);
+ assert.throws(()=>W.parseCommand(acceptanceCmd.replace(W.FIXTURE_TEST,
+   'tests/imperion-public-example.test.cjs')),/TASK_PATH_REJECTED/);
+ assert.throws(()=>W.parseCommand(acceptanceCmd.replace(W.FIXTURE_FILE,
+   'scripts/imperion-public-example.cjs')),/TASK_PATH_REJECTED/);
+});
+test('issue-authorized fixture is independently tested against the authentic event',()=>{
+ const base=workspace();
+ const evt={...event,comment:{...event.comment,body:acceptanceCmd}};
+ const eventPath=path.join(base,'github-event.json');
+ const initial=fs.readFileSync(path.join(base,W.FIXTURE_FILE),'utf8');
+ fs.writeFileSync(eventPath,JSON.stringify(evt));
+ const previous=process.env.GITHUB_EVENT_PATH;
+ process.env.GITHUB_EVENT_PATH=eventPath;
+ try{
+   const task=W.taskFromEvent(evt);
+   const proof={schema:'imperion-dev-cloud-task-v1',status:'MODEL_PROPOSAL_ONLY',
+     task,source_sha256:W.sha(initial),patch,model:W.MODEL};
+   const receipt=W.verifiedApply(proof,base);
+   assert.equal(receipt.status,'PATCH_STAGED_PENDING_SANDBOX_TESTS');
+   const run=require('node:child_process').spawnSync(process.execPath,
+     [path.join(base,W.FIXTURE_TEST)],{encoding:'utf8',timeout:8000});
+   assert.equal(run.status,0,run.stderr);
+   assert.match(run.stdout,/3_OF_3_PASS/);
+   assert.notEqual(receipt.before,receipt.after);
+ }finally{
+   if(previous===undefined)delete process.env.GITHUB_EVENT_PATH;
+   else process.env.GITHUB_EVENT_PATH=previous;
+   fs.rmSync(base,{recursive:true,force:true});
+ }
+});
