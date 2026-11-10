@@ -191,7 +191,9 @@ async function draftPublicTask(task, options = {}) {
       const res = await callJSON(fetcher, p.endpoint, {
         method:'POST', redirect:'error', credentials:'omit',
         headers, body:JSON.stringify(payload)
-      }, isLocal ? 90000 : 30000);
+      }, isLocal && Number.isSafeInteger(options.localTimeoutMs) &&
+         options.localTimeoutMs >= 1000 && options.localTimeoutMs <= 60000
+         ? options.localTimeoutMs : isLocal ? 90000 : 30000);
       if (!res || !res.ok || res.redirected) {
         errors.push(p.provider + ':' + (res?.status === 429 ? 'RATE_LIMIT' : 'PROVIDER_HTTP'));
         continue;
