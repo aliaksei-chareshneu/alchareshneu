@@ -1,48 +1,62 @@
-# Druzina Moravy Discord pilot - Project 80
+# Druzina Moravy Discord pilot - Project 80 / PC reconnect package
 
-Case_ID: JOB-IMP-COMMUNITY-PRESENCE-20261110
-Entity: Druzina Moravy z.s., never personal OSVC or BrnoWalkers
-Budget: 0 CZK incremental; no new paid cloud service or scheduled worker.
-Stage: STAGED CODE / NOT LIVE; Discord account, server and bot authentication NOT VERIFIED.
+**Case_ID:** JOB-IMP-COMMUNITY-PRESENCE-20261110
+**Legal entity:** Druzina Moravy z.s. (not personal OSVC, BrnoWalkers or grant-funded partners).
+**Status:** CODE_READY, real Discord account/server/bot not verified or connected. ZERO public posts/invites/fees.
+**Budget:** 0 CZK incremental. No new CRM, agent, paid service, PC scheduled task or public campaign.
 
-## What is automated
+## Current delivered assets
 
-A one-shot, dependency-free Node.js 20+ script:
-- inventories channels and roles in an already-authorized Discord guild;
-- checks names and category/parent conflicts before any write;
-- creates only 3 categories, 8 text channels and 4 interest roles when absent;
-- makes welcome/rules/announcements channels read-only for ordinary members;
-- refuses invalid guild IDs, missing bot credentials and missing case-specific owner GO;
-- never creates invites, sends public announcements or DMs, imports member lists, assigns staff privileges, creates payments or runs background polling.
+- `scripts/imperion-discord-bootstrap.cjs` - official Discord **bot** API, safe one-shot creator for 3 categories, 8 text channels, 4 zero-permission interest roles; reads existing objects first and aborts on conflicts.
+- `tests/imperion-discord-bootstrap.test.cjs` - 12 no-network tests, including wrong server identity, duplicate names, privilege escalation, read-only channels, rate-limit/permission rejection and idempotent second run.
+- `ops/discord-druzina-ready.ps1` - Windows assistant that checks Node 20+, local tests, basic Internet; prompts for guild ID, exact name and a **hidden bot token**, then does auth READ-ONLY `--inspect`. No secrets saved.
+- `START-DISCORD-SETUP.cmd` - double-click on Windows and choose (1) offline preparation, (2) authenticated inspection, or (3) configuration. The setup still requires explicit typed owner approval before any write; Windows PowerShell process-only ExecutionPolicy Bypass does not change permanent system policy.
+- `ops/discord-druzina-content.md` - prepared welcome, rules, first-training and event template; **no messages published**.
+- `.github/workflows/discord-bootstrap-qa.yml` - CI tests on Linux and Windows for reviewable pull requests, **no Discord secrets**.
 
-The manifest is English-first; Czech/Russian/Ukrainian replies can be offered voluntarily. Discord interest roles are not legal association membership, course entitlement, verified skill or payment status. Website is the source for actual event terms: https://aliaksei-chareshneu.github.io/alchareshneu/druzina/ .
+## Owner-only work required, once (no tokens sent in chat)
 
-## Safe setup and first run
+1. On https://discord.com/app check whether **Druzina Moravy** server already exists under the appropriate owner account. Reuse it. Otherwise create it as a club/community. The owner controls the server and must confirm the legal controller.
+2. In https://discord.com/developers/applications check whether a controlled bot application is already installed. Reuse if appropriate; otherwise create a bot application, install it to **that** server by official OAuth2 with **View Channels, Manage Channels, Manage Roles** only. Do not grant Administrator, member-reading, message-reading or DM scopes. The bot's highest role must be above only the new interest roles it creates.
+3. In Discord User Settings, enable Developer Mode, right-click the correct server and copy its **Server ID**. Check its exact displayed server name. Keep the bot token inside the local Windows hidden prompt, or an approved private secret store: never paste into chat/Drive/GitHub or a public site.
+4. Run the prepared Windows package (download ZIP and extract to a local folder) by double-clicking `START-DISCORD-SETUP.cmd`, choose option **2 = INSPECT**. This checks ownership/name and reports exact missing channels/roles *without writing*.
+5. Only after owner agrees to the missing changes, choose **3 = APPLY**, verify details and type `APPROVE DISCORD STRUCTURE`. The script checks again, creates only missing approved objects, independently rereads the live server and reports a verified structure or a blocker. It does not send invitations, posts or messages.
+6. Owner completes Community server settings, onboarding, age restrictions, moderators, rules screening and safety checks. Discord in Czech Republic is 15+. A club member younger than the Discord minimum can use other lawful organiser channels instead.
+7. Public invite links, notices and any promotional outreach are **separate actions requiring separate approval** and readback; do not infer permission from a created server or an internal bot role. Official website is https://aliaksei-chareshneu.github.io/alchareshneu/druzina/ . Old promised free 14 Nov workshop is unchanged; do not infer empty capacity or auto-invite.
 
-1. Owner only: check whether there already is an owned Druzina Moravy Discord server. Reuse it if found. Otherwise create one in the native Discord interface: https://discord.com/app . Never automate a personal Discord account.
-2. Owner only: at https://discord.com/developers/applications create or select a bot application controlled by the organization and use official OAuth2 bot install to add it to that server. Restrict to View Channels, Manage Channels, Manage Roles; never grant Administrator, ban/kick, payments or DMs. Confirm role hierarchy.
-3. Store DISCORD_BOT_TOKEN in a secure private secret store or local environment on an authorized executor; never paste a token into ChatGPT, GitHub, public browser pages, logs or a Sheet. Verify DISCORD_GUILD_ID belongs to the intended organization.
-4. Read-only preview: node scripts/imperion-discord-bootstrap.cjs --plan
-5. Tests: node --test tests/imperion-discord-bootstrap.test.cjs
-6. Only after verifying exact server owner and approving this configuration operation, on a controlled host set IMPERION_DISCORD_WRITE_GO=JOB-IMP-COMMUNITY-PRESENCE-20261110:APPROVED, DISCORD_GUILD_ID and DISCORD_BOT_TOKEN, then run node scripts/imperion-discord-bootstrap.cjs --apply.
-7. Inspect the Discord server itself, confirm role/channel permissions, and save real guild/channel IDs and observed action receipts in existing IMPERION_Execution_Receipts. No LIVE status without independent readback.
-8. Owner manually enables Community/safety screening/onboarding, reviews moderator permissions and age settings, and validates every invite destination before inviting anybody. In Czechia Discord minimum age is 15. Do not require Discord from younger club participants.
-9. Remove bot setup permissions after configuration if no ongoing management is necessary.
+## Paths for CLI (Windows and Unix)
 
-## Explicitly excluded from this release
+Preview: `node scripts/imperion-discord-bootstrap.cjs --plan` (offline; no token required).
 
-- No server creation through a user token, self-bot or hidden browser automation.
-- No public invites, partner outreach, autoposting, announcements, site changes, event registration or direct messages.
-- No migration of BrnoWalkers/Telegram/WhatsApp users into Discord.
-- No sync of private PII, minors, consent or member ranks to Discord.
-- No new scheduler/agent/CRM. Future approved distribution uses existing Agent 3 and existing Channel Registry.
+Tests: `node --test tests/imperion-discord-bootstrap.test.cjs` (mocked Discord API; does not call Discord).
 
-## Evidence and official references
+Read-only API inspection: use the Windows wizard option 2 to pass `DISCORD_GUILD_ID`, `DISCORD_EXPECTED_GUILD_NAME` and `DISCORD_BOT_TOKEN` as ephemeral environment for `node scripts/imperion-discord-bootstrap.cjs --inspect`.
 
-- Discord server creation: https://support.discord.com/hc/en-us/articles/33023827550359-Discord-Server-Setup-Guide
-- Self-bots forbidden: https://support.discord.com/hc/en-us/articles/115002192352-Automated-User-Accounts-Self-Bots
-- Discord bot OAuth2: https://discord.com/developers/docs/topics/oauth2
-- Discord channels API: https://discord.com/developers/docs/resources/guild
-- Discord country minimum ages: https://support.discord.com/hc/en-us/articles/360040724612-Why-is-Discord-asking-for-my-birthday
+Writing: use the Windows wizard option 3; `--apply` needs case-specific `IMPERION_DISCORD_WRITE_GO=JOB-IMP-COMMUNITY-PRESENCE-20261110:APPROVED` provided only after exact owner confirmation, and a server-name match. The script never stores the bot token.
 
-Acceptance: CODE + TESTED is not SERVER LIVE. Record auth/date/server ID, 3 categories/8 channels/4 roles, permission readback, owner-managed onboarding, verified invite and website CTA before marking DONE.
+If GitHub branch PR#262 is still draft/unmerged, use the ZIP or check out the exact feature branch. **Do not run old `main` source and assume it includes this script**.
+
+## Required readback before claiming LIVE
+
+- Real Discord server ID and correct owner; bot member with least privilege.
+- `APPLIED_READBACK_VERIFIED` after creation of only the intended 3 categories, 8 channels and 4 interests (or all existing).
+- Ordinary member cannot post to #welcome, #rules-and-safety, #announcements; no staff/private leak.
+- Owner reviewed Discord Community and onboarding configuration; newcomer test on desktop and mobile; legal age alternatives.
+- Actual first public welcome, invite URL, source-tracked website link and enrolments only **after** separately approved publication and independent provider readback.
+- Record results in existing Community Hub: `IMPERION_Agent_Jobs`, `IMPERION_Execution_Receipts`, `SocialPublishing` when applicable, and existing channel catalog. No new spreadsheets or monitoring loops.
+
+## Current hard blockers
+
+- `zmrzlina` offline on latest readback; Windows package cannot be copied or executed remotely now.
+- Discord login, existing server dedup, bot installation and secure permissions have not been verified.
+- No mechanism to auto-create a server via an ordinary user account, and self-bot use is forbidden.
+
+## Sources
+
+- Discord self-bot policy: https://support.discord.com/hc/en-us/articles/115002192352-Automated-User-Accounts-Self-Bots
+- Server creation: https://support.discord.com/hc/en-us/articles/33023827550359-Discord-Server-Setup-Guide
+- Roles and permissions: https://support.discord.com/hc/en-us/articles/214836687-Discord-Roles-and-Permissions
+- Age policy: https://support.discord.com/hc/en-us/articles/360040724612-Why-is-Discord-asking-for-my-birthday
+- Discord REST API: https://docs.discord.com/developers/resources/guild
+
+**Operator next trigger:** after authorized owner setup and `zmrzlina` online, run option 2, get trusted readback, then option 3 only with actual owner approval. Do not represent a staged PR or Windows test as an actual LIVE Discord server.
