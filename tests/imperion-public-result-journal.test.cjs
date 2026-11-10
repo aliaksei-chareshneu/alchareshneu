@@ -39,11 +39,20 @@ test('truncated or modified receipt blocks instead of returning a draft',async()
  await fs.writeFile(file,'not-json');
  await assert.rejects(j.read(task()),/JOURNAL_FILE_UNSAFE|JOURNAL_CORRUPT/);
 }));
-test('symlinked receipt is refused',async()=>withDir(async dir=>{
+test('symlinked receipt is refused when symlinks are available',async t=>withDir(async dir=>{
  const j=createResultJournal({directory:path.join(dir,'receipts')});
  await j.commit(task(),result());
  const file=path.join(dir,'receipts',crypto.createHash('sha256').update(task().job_id).digest('hex')+'.json');
- await fs.rm(file);await fs.symlink(path.join(dir,'outside.json'),file);
+ await fs.rm(file);
+ try {await fs.symlink(path.join(dir,'outside.json'),file);}
+ catch(e){
+  // Windows without Developer Mode or the Symlink privilege rejects test setup.
+  // Retain the actual symlink security assertion on Linux CI and permitted hosts.
+  if(process.platform==='win32' && ['EPERM','EACCES'].includes(e.code)){
+   t.skip('Windows account cannot create symlinks');return;
+  }
+  throw e;
+ }
  await assert.rejects(j.read(task()),/JOURNAL_FILE_UNSAFE/);
 }));
 test('unapproved result, claimed actions and invalid ids are rejected',async()=>withDir(async dir=>{
