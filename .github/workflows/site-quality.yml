@@ -89,6 +89,9 @@ jobs:
           node tests/imperion-rsvp-source.test.cjs
           node --test tests/imperion-registration-window.test.cjs
 
+      - name: Verify individual Druzina prices, private quote, 48h surcharge and PDF receipts
+        run: node --test tests/druzina-unified-payment.test.cjs
+
       - name: Verify compliant Welcome Engine and safe Telegram webhook attach
         run: node --test tests/imperion-welcome-engine.test.mjs tests/imperion-welcome-telegram-attach.test.mjs
 
@@ -103,8 +106,11 @@ jobs:
       - name: Verify zero-credit Qwen cloud agent is public-only and cannot take actions
         run: node --test tests/imperion-zero-credit-cloud-review.test.cjs tests/imperion-zero-credit-cloud-workflow.test.cjs
 
-      - name: Verify free public-only AI router and fail-closed Pages proof
-        run: node --test tests/imperion-free-model-router.test.cjs tests/imperion-autopilot-workflow-gate.test.cjs
+      - name: Verify free public-only AI router, durable local quota and fail-closed Pages proof
+        run: node --test tests/imperion-free-model-router.test.cjs tests/imperion-free-local-quota.test.cjs tests/imperion-public-model-worker.test.cjs tests/imperion-public-result-journal.test.cjs tests/imperion-autopilot-workflow-gate.test.cjs
+
+      - name: Verify existing BrowserBridge public-only Qwen adapter (no shell, no sends)
+        run: python3 -m unittest discover -s ops/bridge-public-ai -p 'test_public_ai_draft.py' -v
 
       - name: Verify private five-agent safety and proof logic
         run: |

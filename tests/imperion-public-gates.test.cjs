@@ -42,3 +42,40 @@ test('an Academy-specific WhatsApp enquiry is an allowed alternative', () => {
   docs['academy/index.html']=docs['academy/index.html'].replace('href="'+known+'"','href="https://wa.me/420702914842?text=Academy%20enquiry"');
   assert.ok(!runAudit(docs).errors.some(x => x.id === 'academy:relevant-contact'));
 });
+
+const loadPages = () => {
+  const root = path.resolve(__dirname, '..');
+  return Object.fromEntries(REQUIRED.map(file => [file, fs.readFileSync(path.join(root, file), 'utf8')]));
+};
+test('homepage is consumer-first and every intent keeps its guarded destination', () => {
+  const docs = loadPages();
+  const home = docs['index.html'];
+  assert.equal(linkWithId(home,'heroCta'), 'https://docs.google.com/forms/d/e/1FAIpQLSfa3qOWpQBfoA877ip9eOTWwFweOrNTib2mq8_C1D9xr55dtQ/viewform');
+  assert.equal(linkWithId(home,'intentDruzinaCta'), 'register/?lang=en');
+  assert.equal(linkWithId(home,'intentWalkersCta'), 'register/en/');
+  assert.equal(linkWithId(home,'intentBusinessCta'), 'corporate/');
+  assert.equal(linkWithId(home,'heroCorporateCta'), 'start/?lang=en');
+  assert.equal(runAudit(docs).status, 'PASS');
+});
+test('public home blocks redirect to arbitrary third-party sales or booking pages', () => {
+  for (const [id,invalid,check] of [
+    ['heroCta','https://example.com/fake-booking','root:academy-route'],
+    ['intentDruzinaCta','https://example.com/checkout','root:druzina-route'],
+    ['intentWalkersCta','https://example.com/checkout','root:walkers-route'],
+    ['intentBusinessCta','https://example.com/agency','root:corporate-route'],
+    ['heroCorporateCta','https://example.com/catalog','root:audience-route']
+  ]) {
+    const docs = loadPages();
+    const original = linkWithId(docs['index.html'],id);
+    docs['index.html'] = docs['index.html'].replace('href="'+original+'"'+(id==='intentBusinessCta'?' data-intent="business"':''),
+      'href="'+invalid+'"'+(id==='intentBusinessCta'?' data-intent="business"':''));
+    // Ensure the mutation actually targets the audited anchor, not another link.
+    assert.equal(linkWithId(docs['index.html'],id),invalid,id);
+    assert.ok(runAudit(docs).errors.some(e=>e.id===check), id+' missing '+check);
+  }
+});
+test('home review proof link cannot silently claim a hard-coded rating', () => {
+  const docs=loadPages();
+  docs['index.html']=docs['index.html'].replace('data-intent="reviews">Read customer reviews on Google','data-intent="reviews">50+ Google reviews · 5.0');
+  assert.ok(runAudit(docs).errors.some(e=>e.id==='root:review-link'));
+});
