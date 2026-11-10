@@ -6,6 +6,7 @@
 const path=require('node:path');
 const {draftPublicTask}=require('../ops/imperion-free-model-router.cjs');
 const {createLocalQuota}=require('../ops/imperion-free-local-quota.cjs');
+const {createResultJournal}=require('../ops/imperion-public-result-journal.cjs');
 const SOURCES=new Set([
  'https://aliaksei-chareshneu.github.io/alchareshneu/corporate/',
  'https://aliaksei-chareshneu.github.io/alchareshneu/druzina/',
@@ -30,6 +31,13 @@ async function run(input,{localAppData=process.env.LOCALAPPDATA,fetchImpl,quotaR
  if(why)return blocked(why,input?.job_id);
  if(typeof localAppData!=='string'||!path.isAbsolute(localAppData))return blocked('LOCAL_STATE_DIR_UNAVAILABLE',input.job_id);
  const quotaDir=path.join(localAppData,'IMPERION','public-ai-quota-v1');
+ // Read a complete, previously accepted public draft before touching the source
+ // or reserving any new inference. Corrupt or colliding receipts fail CLOSED.
+ const journal=createResultJournal({directory:path.join(localAppData,'IMPERION','public-ai-results-v1')});
+ try {
+   const previous=await journal.read(input);
+   if(previous)return previous;
+ } catch {return blocked('LOCAL_RECEIPT_INTEGRITY_OR_JOB_COLLISION',input.job_id);}
  const task={...input,data_classification:'PUBLIC_APPROVED',public_source_approved:true,external_ai_approved:true};
  const options={
    env:{OLLAMA_LOCAL_ENABLED:'true',OLLAMA_LOCAL_MODEL:'imperion-qwen35:4b'},
@@ -38,7 +46,7 @@ async function run(input,{localAppData=process.env.LOCALAPPDATA,fetchImpl,quotaR
    ...(fetchImpl?{fetchImpl}:{})
  };
  const result=await draftPublicTask(task,options);
- return {
+ const output={
    job_id:input.job_id,owner_entity:'OSVC',source_url:input.source_url,
    source_sha256:result.source_sha256||null,
    status:result.status,reason:result.reason||null,
@@ -49,6 +57,13 @@ async function run(input,{localAppData=process.env.LOCALAPPDATA,fetchImpl,quotaR
    messages_sent:0,posts_published:0,payments_created:0,
    external_actions:0,execution_mode:'LOCAL_QWEN_PUBLIC_DRAFT_ONLY'
  };
+ if(output.status==='DRAFT_FOR_OWNER_REVIEW') {
+   // A draft is ACK-able only after its local completion receipt is fsynced.
+   // Quota remains consumed on I/O failure, so retry never invokes the model.
+   try {await journal.commit(input,output);}
+   catch {return blocked('LOCAL_RECEIPT_COMMIT_FAILED',input.job_id);}
+ }
+ return output;
 }
 async function cli(){
  let input;
