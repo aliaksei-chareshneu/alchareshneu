@@ -137,15 +137,23 @@ async function main(){
     source_sha256:result.source_sha256||null,artifact:dest,
     work_credits_used:0,external_actions:0})+'\n');
 }
+function preflightProof(selection,previewOnly=false){
+  if(selection.has_future&&!previewOnly)return null;
+  return proof(selection.has_future?'PUBLIC_PREFLIGHT_ONLY_NO_MODEL':
+    'NO_FUTURE_APPROVED_PUBLIC_EVENT',{
+    source_sha256:selection.source_sha256,
+    ...(selection.has_future?{source_event_id:selection.source_event_id}:{}),
+    model_invocations:0});
+}
 async function preflightMain(){
   const selection=await preflight();
-  // No eligible future event means no heavy model runner is needed today.
+  // Never start model inference on a PR preview, even with a valid event.
+  const previewOnly=process.env.GITHUB_EVENT_NAME==='pull_request';
   if(process.env.GITHUB_OUTPUT)fs.appendFileSync(process.env.GITHUB_OUTPUT,
-    'has_future='+(selection.has_future?'true':'false')+'\n','utf8');
-  if(!selection.has_future){
+    'has_future='+(selection.has_future&&!previewOnly?'true':'false')+'\n','utf8');
+  const result=preflightProof(selection,previewOnly);
+  if(result){
     const dest=path.join(process.env.RUNNER_TEMP||process.cwd(),'imperion-zero-credit-qwen-proof.json');
-    const result=proof('NO_FUTURE_APPROVED_PUBLIC_EVENT',{
-      source_sha256:selection.source_sha256,model_invocations:0});
     fs.writeFileSync(dest,JSON.stringify(result,null,2)+'\n','utf8');
   }
   process.stdout.write(JSON.stringify({preflight:'PUBLIC_CATALOG_VERIFIED',
@@ -161,4 +169,4 @@ if(require.main===module){
   });
 }
 module.exports={PUBLIC_FEED,LOCAL_MODEL_ENDPOINT,MODEL,validFeed,chooseEvent,
-  publicTask,parseDraft,proof,readApprovedFeed,preflight,run};
+  publicTask,parseDraft,proof,readApprovedFeed,preflight,preflightProof,run};
