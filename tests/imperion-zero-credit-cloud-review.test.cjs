@@ -100,3 +100,37 @@ test('network failure, wrong provider model, malformed results must NOT claim su
    response(200,{done:true,model:'paid/gpt-foo',response:'{}'});
  await assert.rejects(A.run({fetchImpl,now:Date.parse('2026-11-03')}),/CPU_MODEL_ID_OR_EXECUTION_UNVERIFIED/);
 });
+
+test('preflight checks current approved feed before starting any model',async()=>{
+ const calls=[];
+ const future=await A.preflight({
+  now:Date.parse('2026-11-10T09:00:00Z'),
+  fetchImpl:async(url,opts)=>{calls.push({url,method:opts.method});return response(200,catalog);}
+ });
+ assert.equal(future.has_future,true);
+ assert.equal(future.source_event_id,'PUB-OREL-20261114');
+ assert.equal(future.model_invocations,0);
+ assert.match(future.source_sha256,/^[0-9a-f]{64}$/);
+ assert.deepEqual(calls,[{url:A.PUBLIC_FEED,method:'GET'}]);
+ const past=await A.preflight({
+  now:Date.parse('2026-11-20T09:00:00Z'),
+  fetchImpl:async(url,opts)=>{calls.push({url,method:opts.method});return response(200,catalog);}
+ });
+ assert.equal(past.has_future,false);
+ assert.equal(past.source_event_id,null);
+ assert.equal(past.model_invocations,0);
+ assert.equal(calls.length,2,'only source GETs; no model launch or API');
+});
+test('preflight blocks malformed, redirected or private-like source before expensive CPU',async()=>{
+ let calls=0;
+ for(const bad of [
+  response(200,{...catalog,booking_confirmed:true}),
+  response(200,{...catalog,events:[{...event,status:'PAID'}]}),
+  response(200,catalog,'text/html'),
+  {...response(200,catalog),redirected:true},
+  response(403,{error:'forbidden'})
+ ]){
+  await assert.rejects(A.preflight({fetchImpl:async()=>{calls++;return bad;}}));
+ }
+ assert.equal(calls,5);
+});
