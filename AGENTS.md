@@ -184,6 +184,16 @@ https://aliaksei-chareshneu.github.io/alchareshneu/druzina/
 
 Do not imply commercial OSVČ ownership of Družina's nonprofit income.
 
+## 10A. WRITTEN-FIRST SALES / NO DEFAULT FREE INTRODUCTORY CALLS (OWNER DECISION 2026-11-10)
+
+For the owner's personal OSVČ, Academy and service-choice funnels:
+- Ask prospects to describe the issue, desired result, relevant materials and availability in writing first. Written service enquiries and price/scope confirmations do not themselves create a paid booking.
+- No free introductory/discovery calls by default. Do not manufacture another call after scope, rate and a lesson slot are agreed. Move to written confirmation, advance payment where applicable, and paid delivery.
+- Optional live service-choice consultation: **exactly 10 minutes for 200 Kč**, paid in advance after the time is confirmed in writing. It is not a trial lesson, in-depth expert advice or project delivery. A request does not prove booking or payment. Never claim automatic checkout without a verified processor.
+- For substantial, qualified B2B projects, a call may be arranged on individually agreed terms **after** receiving a written brief identifying buyer, problem, estimated budget, scope and decision-maker. A call is not automatically free; do not impose the small-consumer call fee on an independently scoped large commercial negotiation.
+- Preserve previously agreed prices, obligations and nonprofit/community participation rights. Do not transfer Družina Moravy z.s. prospects to the owner's OSVČ billing without a separate lawful agreement.
+- Keep EN/CZ/RU/UK website copy and CTAs consistent. Measure actual paid work and personal net profit per all owner hours, not call volume.
+
 ## 11. PUBLICATION AND COMMUNICATION
 
 Never publish into Facebook groups through bypasses or identities without permission.
