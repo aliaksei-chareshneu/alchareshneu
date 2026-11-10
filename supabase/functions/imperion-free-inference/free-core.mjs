@@ -6,6 +6,8 @@ const TASKS=Object.freeze({
   synthetic_qa:"Review the supplied synthetic test case and list falsifiable issues. Never treat model output as independently verified evidence."
 });
 const MAX_PROMPT=4000, MAX_RESPONSE=8000;
+// GPT-OSS spends completion tokens on reasoning. 550 tokens often produce clipped text.
+const GROQ_COMPLETION_BUDGET=2400;
 export function validateInput(input){
   if(!input||typeof input!=="object"||Array.isArray(input))throw new Error("INVALID_INPUT");
   if(input.classification!=="PUBLIC"&&input.classification!=="SYNTHETIC")throw new Error("CLASSIFICATION_RESTRICTED");
@@ -37,7 +39,13 @@ export async function generateFreeDraft(raw,env,transport=fetch){
   const attempts=[];
   for(const p of providers.slice(0,2)){
     const payload={model:p.model,messages:[{role:"system",content:system},
-      {role:"user",content:input.prompt}],temperature:0.2,[p.maxField]:550,stream:false};
+      {role:"user",content:input.prompt}],temperature:0.2,
+      [p.maxField]:p.name==="groq_free"?GROQ_COMPLETION_BUDGET:550,stream:false};
+    if(p.name==="groq_free"){
+      // Keep reasoning budget bounded and require a fully finished visible answer.
+      payload.reasoning_effort="low";
+      payload.include_reasoning=false;
+    }
     let res;
     try{
       res=await transport(p.url,{method:"POST",headers:{"authorization":"Bearer "+p.key,
@@ -53,7 +61,14 @@ export async function generateFreeDraft(raw,env,transport=fetch){
     }
     let result;
     try{result=await res.json()}catch(_){attempts.push({provider:p.name,reason:"BAD_JSON"});continue;}
-    const text=result?.choices?.[0]?.message?.content;
+    const choice=result?.choices?.[0];
+    const text=choice?.message?.content;
+    // A length-capped or otherwise unfinished answer is never a usable draft.
+    // No partial completion is presented as finished, regardless of provider.
+    if(choice?.finish_reason!=="stop"){
+      attempts.push({provider:p.name,reason:"INCOMPLETE_OUTPUT"});
+      continue;
+    }
     if(typeof text!=="string"||!text.trim()||text.length>MAX_RESPONSE){
       attempts.push({provider:p.name,reason:"INVALID_RESPONSE"});continue;
     }
