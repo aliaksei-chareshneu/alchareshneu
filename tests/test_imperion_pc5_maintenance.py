@@ -71,7 +71,8 @@ class MaintenanceTests(unittest.TestCase):
         self.payload = {'mode':'audit_pc', 'audit_id':ID}
 
     def call(self, payload=None, **overrides):
-        kwargs={'platform':'win32','runner':self.runner,'root':self.root,'script':self.script}
+        kwargs={'platform':'win32','runner':self.runner,'root':self.root,'script':self.script,
+                'memory_reader':lambda:(4096,16384)}
         kwargs.update(overrides)
         return pc5.operate(self.payload if payload is None else payload, **kwargs)
 
@@ -84,6 +85,7 @@ class MaintenanceTests(unittest.TestCase):
         self.assertEqual(argv[-2:],['-AuditId', ID])
         self.assertEqual(argv[4],str(self.script))
         self.assertFalse(opts['check'])
+        self.assertEqual(opts['timeout'],60)
         self.assertEqual(v['summary']['chrome_process_count'],7)
         self.assertEqual(v['summary']['ram_available_mb'],3072)
 
@@ -215,6 +217,7 @@ class MaintenanceTests(unittest.TestCase):
         self.assertIsNone(hook.maybe_dispatch('status',{'mode':'audit_pc'}))
         self.assertIsNone(hook.maybe_dispatch('pc_operator',{'mode':'app_status','app':'chrome'}))
         self.assertIsNone(hook.maybe_dispatch('pc_operator',{'mode':'shell'}))
+        self.assertIsNone(hook.maybe_dispatch('pc_operator',{'mode':'remediate_pc','dry_run':True,'action_ids':['startup.comet']}))
         self.assertIsNone(hook.maybe_dispatch('pc_operator',None))
         with mock.patch.object(hook,'operate',return_value={'status':'DONE'}) as fn:
             v=hook.maybe_dispatch('pc_operator',{'mode':'audit_pc','audit_id':ID})
@@ -234,6 +237,27 @@ class MaintenanceTests(unittest.TestCase):
         (self.root/('audit-pc-'+ID+'.json')).write_text('{}')
         self.assertEqual(self.call()['reason'],'AUDIT_SNAPSHOT_WITHOUT_RECEIPT')
         self.assertEqual(self.runner.calls,[])
+
+    def test_24_ram_pressure_blocks_before_collector_without_files(self):
+        self.assertEqual(self.call(memory_reader=lambda:(500,16384))['reason'],
+                         'AUDIT_LOW_MEMORY_NO_EXECUTION')
+        self.assertEqual(self.runner.calls,[])
+        self.assertFalse(self.root.exists())
+
+    def test_25_ram_preflight_unavailable_fails_closed(self):
+        self.assertEqual(self.call(memory_reader=lambda:(_ for _ in ()).throw(OSError('sensitive path')))['reason'],
+                         'AUDIT_MEMORY_PREFLIGHT_UNAVAILABLE')
+        self.assertEqual(self.call(memory_reader=lambda:(20000,16384))['reason'],
+                         'AUDIT_MEMORY_PREFLIGHT_UNAVAILABLE')
+        self.assertEqual(self.runner.calls,[])
+
+    def test_26_audit_timeout_denied_with_no_private_error(self):
+        def timed_out(argv, **kwargs):
+            raise subprocess.TimeoutExpired(argv,kwargs['timeout'])
+        self.runner=timed_out
+        result=self.call()
+        self.assertEqual(result['reason'],'AUDIT_TIMEOUT_NO_AUTO_RETRY')
+        self.assertFalse((self.root/(ID+'.receipt.json')).exists())
 
     def test_23_no_external_connection_or_scheduled_task_created(self):
         with mock.patch.object(subprocess,'Popen',side_effect=AssertionError('external process')):
