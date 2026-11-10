@@ -85,7 +85,7 @@ test('approved public source → quota reservation → one draft; no side effect
   };
   const result=await M.draftPublicTask(TASK, {env:GROQ_ENV, fetchImpl,
     reserveQuota:async x=>{reservations.push(x);return true;}});
-  assert.equal(result.status,'DRAFT_FOR_OWNER_REVIEW');
+  assert.equal(result.status,'DRAFT_FOR_OWNER_REVIEW',JSON.stringify(result));
   assert.equal(result.owner_approval_required,true);
   assert.equal(result.messages_sent,0);
   assert.equal(result.payments_created,0);
@@ -131,6 +131,135 @@ test('bad provider output cannot be interpreted as sent or paid',async()=>{
   assert.equal(x.external_actions,0);
 });
 
+test('local Ollama is allowlisted and disabled for unsupported creative task types',async()=>{
+  const env={OLLAMA_LOCAL_ENABLED:'true',OLLAMA_LOCAL_MODEL:'imperion-qwen35:4b'};
+  const p=M.configuredProviders(env);
+  assert.equal(p.length,1);
+  assert.equal(p[0].provider,'ollama_local');
+  assert.equal(p[0].endpoint,'http://127.0.0.1:11434/api/generate');
+  assert.deepEqual(M.configuredProviders({...env,OLLAMA_LOCAL_MODEL:'remote/unsafe'}),[]);
+  let calls=0;
+  const x=await M.draftPublicTask(TASK,{env,reserveQuota:async()=>true,
+    fetchImpl:async()=>{calls++;throw Error('unexpected_call');}});
+  assert.equal(x.reason,'NO_VERIFIED_FREE_PROVIDER');
+  assert.equal(calls,0);
+});
+test('Groq rate limit falls back to verified loopback Qwen for public translation',async()=>{
+  const env={...GROQ_ENV,OLLAMA_LOCAL_ENABLED:'true',OLLAMA_LOCAL_MODEL:'imperion-qwen35:4b'};
+  const task={...TASK,job_id:'PUB-TRANSLATE-FALLBACK-20261109',purpose:'PUBLIC_TRANSLATION_DRAFT'};
+  const calls=[],reservations=[];
+  const x=await M.draftPublicTask(task,{env,reserveQuota:async q=>{
+    reservations.push(q);return true;
+  },fetchImpl:async(url,opts)=>{
+    if(opts.method==='GET')return res(200,'{"events":[{"title":"Public workshop"}]}');
+    calls.push({url,headers:opts.headers,body:JSON.parse(opts.body)});
+    if(calls.length===1)return res(429,{error:'rate limit'});
+    return res(200,{response:'Veřejný workshop'});
+  }});
+  assert.equal(x.status,'DRAFT_FOR_OWNER_REVIEW');
+  assert.equal(x.provider,'ollama_local');
+  assert.equal(x.billing_readback,'LOCAL_COMPUTE_UNMETERED');
+  assert.equal(x.owner_approval_required,true);
+  assert.equal(x.messages_sent,0);
+  assert.equal(x.posts_published,0);
+  assert.deepEqual(reservations.map(q=>q.provider),['groq','ollama_local']);
+  assert.equal(calls.length,2);
+  assert.equal(calls[0].url,'https://api.groq.com/openai/v1/chat/completions');
+  assert.equal(calls[1].url,'http://127.0.0.1:11434/api/generate');
+  assert.equal(calls[1].headers.Authorization,undefined);
+  assert.equal(calls[1].body.options.num_gpu,0);
+});
+
+test('public translation routes only to local Ollama with CPU and approval gate',async()=>{
+  const calls=[],env={OLLAMA_LOCAL_ENABLED:'true',OLLAMA_LOCAL_MODEL:'imperion-qwen35:4b'};
+  const task={...TASK,job_id:'PUB-TRANSLATE-20261105',purpose:'PUBLIC_TRANSLATION_DRAFT'};
+  const result=await M.draftPublicTask(task,{env,reserveQuota:async()=>true,
+    fetchImpl:async(url,options)=>{
+      calls.push({url,method:options.method,headers:options.headers,
+        body:options.body?JSON.parse(options.body):null});
+      return options.method==='GET'
+        ? res(200,'{"events":[{"title":"Public workshop"}]}')
+        : res(200,{response:'Veřejný workshop.'});
+    }});
+  assert.equal(result.status,'DRAFT_FOR_OWNER_REVIEW');
+  assert.equal(result.provider,'ollama_local');
+  assert.equal(result.draft,'Veřejný workshop.');
+  assert.equal(result.billing_readback,'LOCAL_COMPUTE_UNMETERED');
+  assert.equal(result.owner_approval_required,true);
+  assert.equal(result.posts_published,0);
+  assert.equal(result.messages_sent,0);
+  assert.equal(calls.length,2);
+  assert.equal(calls[1].url,'http://127.0.0.1:11434/api/generate');
+  assert.equal(calls[1].headers.Authorization,undefined);
+  assert.equal(calls[1].body.options.num_gpu,0);
+  assert.equal(calls[1].body.stream,false);
+  assert.equal(calls[1].body.think,false);
+});
+
+test('rejects image/svg+xml even though its MIME contains xml', async () => {
+  let calls=0;
+  const x=await M.draftPublicTask(TASK,{env:GROQ_ENV,reserveQuota:async()=>true,
+    fetchImpl:async()=>{calls++;return res(200,'<svg><text>Bad source</text></svg>','image/svg+xml');}});
+  assert.equal(x.reason,'PUBLIC_SOURCE_READBACK_FAILED');
+  assert.equal(calls,1);
+});
+test('rejects invented numerals instead of presenting them as approved draft',async()=>{
+  const x=await M.draftPublicTask(TASK,{env:GROQ_ENV,reserveQuota:async()=>true,
+    fetchImpl:async(_url,opts)=>opts.method==='GET'
+      ? res(200,'{"events":[{"title":"Open day"}]}')
+      : res(200,{choices:[{message:{content:'Určeno pro účastníky od 18 let.'}}]})});
+  assert.equal(x.status,'BLOCKED');
+  assert.deepEqual(x.failures,['groq:UNSUPPORTED_NUMERIC_FACT']);
+  assert.equal(x.posts_published,0);
+  assert.equal(x.messages_sent,0);
+});
+test('rejects fabricated signup URL instead of returning a public draft',async()=>{
+  const x=await M.draftPublicTask(TASK,{env:GROQ_ENV,reserveQuota:async()=>true,
+    fetchImpl:async(_url,opts)=>opts.method==='GET'
+      ? res(200,'{"events":[{"title":"Open day"}]}')
+      : res(200,{choices:[{message:{content:'Signup at https://unverified.example/join'}}]})});
+  assert.equal(x.status,'BLOCKED');
+  assert.deepEqual(x.failures,['groq:UNSUPPORTED_PUBLIC_URL']);
+});
+test('preserves numeric facts and links explicitly present in the approved source',async()=>{
+  const link='https://aliaksei-chareshneu.github.io/alchareshneu/druzina/';
+  const input=JSON.stringify({events:[{title:'Workshop',price_czk:240,url:link}]});
+  const x=await M.draftPublicTask(TASK,{env:GROQ_ENV,reserveQuota:async()=>true,
+    fetchImpl:async(_url,opts)=>opts.method==='GET'
+      ? res(200,input)
+      : res(200,{choices:[{message:{content:'Workshop: 240 Kč. '+link+' This is an approved-source review draft. No publication, booking, payment, or customer engagement is claimed.'}}]})});
+  assert.equal(x.status,'DRAFT_FOR_OWNER_REVIEW');
+  assert.equal(x.owner_approval_required,true);
+  assert.equal(x.posts_published,0);
+});
+
+test('CPU-local preview strips HTML executable content and bounds context',async()=>{
+  const source='<html><head><style>secret_style_text</style><script>dangerous_script_payload</script></head><body><h1>Public workshop</h1><p>'+('Background information. '.repeat(500))+'</p></body></html>';
+  const preview=M.compactSourceForLocal(source);
+  assert.ok(preview.length<=1400);
+  assert.ok(preview.includes('Public workshop'));
+  assert.equal(preview.includes('dangerous_script_payload'),false);
+  assert.equal(preview.includes('secret_style_text'),false);
+  let payload;
+  const task={...TASK,job_id:'PUB-LOCAL-COMPACT-20261109',purpose:'PUBLIC_TRANSLATION_DRAFT'};
+  const result=await M.draftPublicTask(task,{
+    env:{OLLAMA_LOCAL_ENABLED:'true',OLLAMA_LOCAL_MODEL:'imperion-qwen35:4b'},
+    reserveQuota:async()=>true,
+    fetchImpl:async(_url,opts)=>{
+      if(opts.method==='GET')return res(200,source,'text/html');
+      payload=JSON.parse(opts.body);
+      return res(200,{response:'Veřejný workshop'});
+    }
+  });
+  assert.equal(result.status,'DRAFT_FOR_OWNER_REVIEW');
+  assert.ok(payload.prompt.length<2250);
+  assert.equal(payload.prompt.includes('dangerous_script_payload'),false);
+  assert.equal(payload.options.num_ctx,2048);
+  assert.equal(payload.options.num_predict,160);
+  assert.equal(payload.options.num_gpu,0);
+  assert.equal(result.messages_sent,0);
+});
+
 test('Groq GPT-OSS uses low reasoning budget and refuses clipped content', async () => {
   let request;
   const x = await M.draftPublicTask(TASK, {
@@ -152,3 +281,4 @@ test('Groq GPT-OSS uses low reasoning budget and refuses clipped content', async
   assert.equal(x.status, 'BLOCKED');
   assert.deepEqual(x.failures, ['groq:INCOMPLETE_DRAFT']);
 });
+

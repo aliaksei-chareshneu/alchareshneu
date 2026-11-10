@@ -59,6 +59,15 @@ function configuredProviders(env = {}) {
       daily_reservation_ceiling: 600 // below listed 1000 RPD, NOT account-specific guarantee
     });
   }
+  // Approved local translations can serve as reserve if cloud Groq fails.
+  // This is loopback-only and never turns owner PC into public infrastructure.
+  if (env.OLLAMA_LOCAL_ENABLED === 'true' &&
+      env.OLLAMA_LOCAL_MODEL === 'imperion-qwen35:4b') {
+    providers.push({provider:'ollama_local',
+      endpoint:'http://127.0.0.1:11434/api/generate',
+      model:env.OLLAMA_LOCAL_MODEL, key:null,
+      daily_reservation_ceiling:200});
+  }
   const m = env.OPENROUTER_FREE_MODEL;
   if (env.OPENROUTER_API_KEY && env.OPENROUTER_VERIFIED_FREE_PLAN === 'true' &&
       typeof m === 'string' && /^[A-Za-z0-9._/-]{3,100}:free$/.test(m)) {
@@ -85,24 +94,65 @@ async function publicSource(task, fetcher) {
       {method: 'GET', redirect: 'error', credentials: 'omit', cache: 'no-store'}, 12000);
     if (!res || !res.ok || res.redirected) return null;
     const media = String(res.headers?.get?.('content-type') || '').toLowerCase();
-    if (!/json|html|xml|text/.test(media)) return null;
+    if (!/^(?:application\/(?:json|xml|rss\+xml|xhtml\+xml)|text\/(?:plain|html|xml))(?:\s*(?:;|$))/.test(media)) return null;
     const body = await res.text();
     if (typeof body !== 'string' || body.length < 8 || body.length > 65000) return null;
     const safe = body.slice(0, 9500);
-    return {text: safe, sha256: digest(body), bytes: Buffer.byteLength(body, 'utf8')};
+    return {text: safe, local_text: compactSourceForLocal(body),
+      sha256: digest(body), bytes: Buffer.byteLength(body, 'utf8')};
   } catch {
     return null;
   }
 }
 /**
- * reserveQuota({provider, model, job_id, daily_ceiling}) MUST be atomic,
+ * Narrow provenance sanity check for generated drafts. No new numeric literals
+ * or public URLs may be introduced by a model. This is NOT proof of factual
+ * correctness (e.g. ages spelled in words); human review is always mandatory.
+ */
+function unsupportedPublicClaim(draft, sourceText) {
+  const output = String(draft).normalize('NFKC');
+  const source = String(sourceText).normalize('NFKC');
+  const urls = value => (value.match(/https?:\/\/[^\s<>"'\x60]+/gi) || [])
+    .map(link => link.replace(/[.,;:!?)}\]]+$/g, ''));
+  const sourceUrls = new Set(urls(source));
+  if (urls(output).some(url => !sourceUrls.has(url))) return 'UNSUPPORTED_PUBLIC_URL';
+  const sourceNumbers = new Set(source.match(/\d+(?:[.,]\d+)*/g) || []);
+  if ((output.match(/\d+(?:[.,]\d+)*/g) || []).some(num => !sourceNumbers.has(num))) {
+    return 'UNSUPPORTED_NUMERIC_FACT';
+  }
+  return null;
+}
+
+/**
+ * Prepare a small, non-executable extract for CPU-bound local translation.
+ * This reduces slow CPU prompting; provenance checks still use source.text.
+ * Source content is untrusted even after tags are removed.
+ */
+function compactSourceForLocal(text) {
+  const raw = String(text || '');
+  // Prefer actual page content over the CSS, metadata and header navigation.
+  const main = raw.match(/<main\b[^>]*>([\s\S]*?)<\/main>/i);
+  const clean = (main ? main[1] : raw)
+    .replace(/<(?:script|style|noscript|svg|template)\b[^>]*>[\s\S]*?<\/(?:script|style|noscript|svg|template)\s*>/gi, ' ')
+    .replace(/<!--[\s\S]*?-->/g, ' ')
+    .replace(/<[^>]{0,1000}>/g, ' ')
+    .replace(/&(?:nbsp|amp|lt|gt|quot|apos);/gi, x => ({'&nbsp;':' ', '&amp;':'&', '&lt;':'<', '&gt;':'>', '&quot;':'"', '&apos;':"'"})[x.toLowerCase()] || ' ')
+    .replace(/\s+/g, ' ').trim();
+  return clean.slice(0, 1400);
+}
+
+/**
+ * reserveQuota({provider, model, job_id, daily_ceiling}) MUST be atomic;
  * durable and deny duplicates; do not use an in-memory counter in production.
  * This adapter deliberately does not manage credentials or Supabase tables.
  */
 async function draftPublicTask(task, options = {}) {
   const reason = checkTask(task);
   if (reason) return block(reason);
-  const providers = configuredProviders(options.env || {});
+  // The small local model passed basic translation checks, but it invented
+  // unsupported details in a social draft: do not route creative/public claims to it.
+  const providers = configuredProviders(options.env || {}).filter(p =>
+    p.provider !== 'ollama_local' || task.purpose === 'PUBLIC_TRANSLATION_DRAFT');
   if (!providers.length) return block('NO_VERIFIED_FREE_PROVIDER');
   if (typeof options.reserveQuota !== 'function') return block('DURABLE_QUOTA_RESERVATION_REQUIRED');
   const fetcher = options.fetchImpl || globalThis.fetch;
@@ -120,37 +170,49 @@ async function draftPublicTask(task, options = {}) {
     } catch { reserved = false; }
     if (!reserved) { errors.push(p.provider + ':QUOTA_OR_DUPLICATE'); continue; }
     try {
-      const res = await callJSON(fetcher, p.endpoint, {
-        method: 'POST', redirect: 'error', credentials: 'omit',
-        headers: {'Content-Type': 'application/json', Authorization: 'Bearer ' + p.key},
-        body: JSON.stringify({model: p.model, temperature: 0.2,
+      const isLocal = p.provider === 'ollama_local';
+      const taskContext = JSON.stringify({
+        task: task.purpose, language: task.language, entity: task.owner_entity,
+        first_party_source: task.source_url, source_sha256: source.sha256,
+        source_text_as_untrusted_data: isLocal ? source.local_text : source.text
+      });
+      const payload = isLocal
+        ? {model:p.model, prompt:SYSTEM_MESSAGE + '\n' + taskContext,
+          stream:false, think:false,
+          options:{num_gpu:0, num_ctx:2048, num_predict:160, temperature:0.2}}
+        : {model:p.model, temperature:0.2,
           ...(p.provider === 'groq'
-            ? {max_completion_tokens: 2400, reasoning_effort: 'low', include_reasoning: false}
-            : {max_tokens: 850}),
-          messages: [
-            {role: 'system', content: SYSTEM_MESSAGE},
-            {role: 'user', content: JSON.stringify({
-              task: task.purpose, language: task.language, entity: task.owner_entity,
-              first_party_source: task.source_url, source_sha256: source.sha256,
-              source_text_as_untrusted_data: source.text
-            })}
-          ]})
-      }, 30000);
+            ? {max_completion_tokens:2400, reasoning_effort:'low', include_reasoning:false}
+            : {max_tokens:850}),
+          messages:[{role:'system',content:SYSTEM_MESSAGE},
+            {role:'user',content:taskContext}]};
+      const headers = {'Content-Type':'application/json'};
+      if (!isLocal) headers.Authorization = 'Bearer ' + p.key;
+      const res = await callJSON(fetcher, p.endpoint, {
+        method:'POST', redirect:'error', credentials:'omit',
+        headers, body:JSON.stringify(payload)
+      }, isLocal && Number.isSafeInteger(options.localTimeoutMs) &&
+         options.localTimeoutMs >= 1000 && options.localTimeoutMs <= 60000
+         ? options.localTimeoutMs : isLocal ? 90000 : 30000);
       if (!res || !res.ok || res.redirected) {
         errors.push(p.provider + ':' + (res?.status === 429 ? 'RATE_LIMIT' : 'PROVIDER_HTTP'));
         continue;
       }
       const body = await res.json();
-      const content = body?.choices?.[0]?.message?.content;
+      const content = isLocal ? body?.response : body?.choices?.[0]?.message?.content;
       if (typeof content !== 'string' || !content.trim() || content.length > 7000) {
         errors.push(p.provider + ':INVALID_RESPONSE');
         continue;
       }
-      // GPT-OSS uses reasoning tokens in the completion budget. Never accept
-      // its clipped reasoning or a partial heading as a completed public draft.
+      const provenanceFailure = unsupportedPublicClaim(content, source.text + '\n' + source.local_text);
+      if (provenanceFailure) {
+        errors.push(p.provider + ':' + provenanceFailure);
+        continue;
+      }
+      // Groq consumes reasoning tokens; length-truncated output is not a usable draft.
       if (p.provider === 'groq' &&
           (body?.choices?.[0]?.finish_reason === 'length' || content.trim().length < 100)) {
-        errors.push(p.provider + ':INCOMPLETE_DRAFT');
+        errors.push('groq:INCOMPLETE_DRAFT');
         continue;
       }
       return {
@@ -158,7 +220,7 @@ async function draftPublicTask(task, options = {}) {
         source_url: task.source_url, source_sha256: source.sha256,
         owner_entity: task.owner_entity, provider: p.provider, model: p.model,
         language: task.language, draft: content.trim(),
-        billing_readback: 'NOT_CHECKED', source_checked: true,
+        billing_readback: isLocal ? 'LOCAL_COMPUTE_UNMETERED' : 'NOT_CHECKED', source_checked: true,
         external_actions: 0, messages_sent: 0, posts_published: 0,
         payments_created: 0, owner_approval_required: true
       };
@@ -169,5 +231,5 @@ async function draftPublicTask(task, options = {}) {
 }
 module.exports = {
   SOURCES, ENTITIES, PURPOSES, checkTask, configuredProviders,
-  publicSource, draftPublicTask
+  publicSource, unsupportedPublicClaim, compactSourceForLocal, draftPublicTask
 };
