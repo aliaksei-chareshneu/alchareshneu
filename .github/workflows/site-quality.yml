@@ -70,12 +70,12 @@ jobs:
             # Active pricing page: never silently drop a publicly stated tariff.
             grep -q '120 Kč' "$page"
             grep -q '240 Kč' "$page"
-            grep -q '910 Kč' "$page"
-            grep -q '455 Kč' "$page"
-            grep -Eq '2[, ]870 Kč' "$page"
-            grep -Eq '1[, ]435 Kč' "$page"
-            grep -Eq '8[, ]235 Kč' "$page"
-            grep -Eq '4[, ]120 Kč' "$page"
+            grep -q '800 Kč' "$page"
+            grep -q '560 Kč' "$page"
+            if grep -Eq '(1[ ,]?000[[:space:]]*Kč[[:space:]]*\+[[:space:]]*160|910 Kč|455 Kč)' "$page"; then
+              echo 'Current Druzina page still advertises a withdrawn historical tariff' >&2
+              exit 1
+            fi
           fi
 
       - name: Verify private-to-public Druzina leaderboard isolation
