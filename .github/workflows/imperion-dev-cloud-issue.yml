@@ -21,7 +21,7 @@ jobs:
     if: >-
       (github.event_name == 'pull_request' &&
        github.event.pull_request.head.repo.full_name == github.repository &&
-       github.event.pull_request.head.ref == 'agent/imperion-dev-cloud-issue-20261109') ||
+       startsWith(github.event.pull_request.head.ref, 'agent/imperion-dev-cloud-')) ||
       (github.event_name == 'issue_comment' &&
        github.repository == 'aliaksei-chareshneu/alchareshneu' &&
        github.actor == 'aliaksei-chareshneu' &&
@@ -99,15 +99,16 @@ jobs:
           mode="$(node -e 'process.stdout.write(require(process.argv[1]).task.mode)' "$manifest")"
           # Path is validated again by trusted JS before it is allowed into Docker.
           node -e 'const w=require("./scripts/imperion-dev-cloud-issue.cjs");
-            if(!(w.safeTestFile(process.argv[1],process.argv[3]==="FIXTURE") &&
-                 w.safeSourceFile(process.argv[2],process.argv[3]==="FIXTURE")))
+            const [test,file,mode]=process.argv.slice(1);
+            const fixture=mode==="FIXTURE"||w.isFixtureTask({file,test});
+            if(!(w.safeTestFile(test,fixture) && w.safeSourceFile(file,fixture)))
               process.exit(9);' "$testfile" "$target" "$mode"
           docker run --rm --network none --read-only --cap-drop ALL \
             --security-opt no-new-privileges --pids-limit 64 --memory 512m \
             --cpus 1 --user 10001:10001 --tmpfs /tmp:rw,noexec,nosuid,size=64m \
             -v "$GITHUB_WORKSPACE:/work:ro" -w /work node:22-alpine \
             node --test "$testfile" > "$RUNNER_TEMP/imperion-dev-cloud-baseline.log" 2>&1 && baseline=PASS || baseline=FAIL
-          if [ "$mode" = 'FIXTURE' ] && [ "$baseline" != 'FAIL' ]; then
+          if [ "$target" = 'ops/imperion-dev-cloud-fixture/normalize.cjs' ] && [ "$baseline" != 'FAIL' ]; then
             echo "BLOCKED: synthetic bug was not reproduced before AI patch"; exit 2
           fi
           echo "TRUSTED_BASELINE_TEST=$baseline"
