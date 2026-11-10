@@ -1,0 +1,38 @@
+name: Discord community bootstrap QA
+on:
+  pull_request:
+    paths:
+      - 'scripts/imperion-discord-bootstrap.cjs'
+      - 'tests/imperion-discord-bootstrap.test.cjs'
+      - 'ops/discord-druzina-ready.ps1'
+      - 'ops/discord-druzina-pilot.md'
+      - '.github/workflows/discord-bootstrap-qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  node-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check syntax
+        run: node --check scripts/imperion-discord-bootstrap.cjs
+      - name: Mock-only safety and idempotency tests
+        run: node --test tests/imperion-discord-bootstrap.test.cjs
+      - name: Offline preview
+        run: node scripts/imperion-discord-bootstrap.cjs --plan
+  windows-smoke:
+    runs-on: windows-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Windows readiness preflight (NO Discord auth or writes)
+        shell: powershell
+        run: .\ops\discord-druzina-ready.ps1 -Mode Preflight
