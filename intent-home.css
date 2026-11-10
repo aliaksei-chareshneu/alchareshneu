@@ -137,3 +137,9 @@ body[data-imperion-scope="shared"] #main.intent-home h1 {
 @media (prefers-reduced-motion: reduce) {
   #main.intent-home * { transition: none !important; animation: none !important; }
 }
+
+/* 2026-11-10 — explicit written-first choice / paid short-call option. */
+#main.intent-home .intent-consult {margin:12px 0 4px;color:#d7e5f1;font-size:14px;line-height:1.45}
+#main.intent-home .intent-consult a {display:inline-block;color:#f5d59f;font-weight:750;text-decoration:underline;text-underline-offset:3px}
+#main.intent-home .intent-consult a:focus-visible {outline:3px solid #fff;outline-offset:3px}
+@media(max-width:480px){#main.intent-home .intent-consult{font-size:12px;margin:8px 0 4px}}
