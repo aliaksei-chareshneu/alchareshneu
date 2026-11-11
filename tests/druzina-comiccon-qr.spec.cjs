@@ -12,7 +12,7 @@ async function verifyEnquiries(page,source='CCBJ14'){
   expect(href,sel).toMatch(/^https:\/\/wa\.me\/420702914842\?text=/);
   const body=readWhatsApp(href);
   expect(body,sel+' should retain the real QR source').toContain('[DM:'+source+']');
-  expect(body,sel+' should ask rather than auto-book').toMatch(/trenink|trénink|training|занят|трениров|тренуван|поді|акц|activity/i);
+  expect(body,sel+' should ask rather than auto-book').toMatch(/trenink|trénink|training|занят|трениров|тренуван|поді|akce|акц|activity/i);
   await expect(page.locator(sel)).toHaveAttribute('target','_blank');
   await expect(page.locator(sel)).toHaveAttribute('rel',/noopener/);
  }
