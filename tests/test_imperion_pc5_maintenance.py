@@ -33,6 +33,11 @@ def fixture(ident=ID):
             'disks': [{'drive': 'C:', 'free_gb': 150.0}],
             'defender': {'status': 'AVAILABLE', 'realtime': True, 'detections_count': 0}
         },
+        'process_groups': [
+            {'name': 'Comet', 'working_set_mb': 1250.5},
+            {'name': 'Discord', 'working_set_mb': 312.2},
+            {'name': 'ms-teams', 'working_set_mb': 180.0}
+        ],
         'privileged_secrets': {
             'path': r'C:\Users\Test User\Documents\secret.docx',
             'token': 'sk-THIS_IS_SYNTHETIC_AND_MUST_NOT_LEAK',
@@ -217,7 +222,12 @@ class MaintenanceTests(unittest.TestCase):
         self.assertIsNone(hook.maybe_dispatch('status',{'mode':'audit_pc'}))
         self.assertIsNone(hook.maybe_dispatch('pc_operator',{'mode':'app_status','app':'chrome'}))
         self.assertIsNone(hook.maybe_dispatch('pc_operator',{'mode':'shell'}))
-        self.assertIsNone(hook.maybe_dispatch('pc_operator',{'mode':'remediate_pc','dry_run':True,'action_ids':['startup.comet']}))
+        with mock.patch.object(hook, 'operate', return_value={'status':'DRY_RUN_ONLY','changes_applied':0}) as preview:
+            planned = hook.maybe_dispatch('pc_operator',
+                {'mode':'remediate_pc','dry_run':True,'action_ids':['startup.comet']})
+        self.assertEqual(planned['result']['status'], 'DRY_RUN_ONLY')
+        self.assertEqual(planned['result']['changes_applied'], 0)
+        preview.assert_called_once()
         self.assertIsNone(hook.maybe_dispatch('pc_operator',None))
         with mock.patch.object(hook,'operate',return_value={'status':'DONE'}) as fn:
             v=hook.maybe_dispatch('pc_operator',{'mode':'audit_pc','audit_id':ID})
@@ -268,6 +278,51 @@ class MaintenanceTests(unittest.TestCase):
         self.assertEqual(low['sha256'],original['sha256'])
         self.assertTrue(low['replay'])
         self.assertEqual(len(self.runner.calls),1)
+
+    def test_29_verified_baseline_preview_never_modifies_windows(self):
+        capture = self.call()
+        payload = {'mode':'remediate_pc', 'dry_run':True,
+                   'action_ids':['startup.comet','startup.discord'],
+                   'audit_id':ID}
+        planned = self.call(payload, memory_reader=lambda:(0,16384))
+        self.assertEqual(planned['status'], 'DRY_RUN_ONLY')
+        self.assertEqual(planned['baseline_sha256'], capture['sha256'])
+        self.assertTrue(planned['baseline_verified'])
+        self.assertEqual(planned['actions'][0]['observed_process_working_set_mb'],1250.5)
+        self.assertEqual(planned['actions'][1]['observed_process_working_set_mb'],312.2)
+        self.assertIsNone(planned['actions'][0]['expected_released_ram_mb'])
+        self.assertEqual(planned['changes_applied'],0)
+        self.assertEqual(len(self.runner.calls),1)
+        self.assertNotIn('secret.docx',json.dumps(planned))
+        self.assertNotIn('sk-THIS',json.dumps(planned))
+
+    def test_30_baseline_missing_fails_closed(self):
+        planned = self.call({'mode':'remediate_pc','dry_run':True,
+                             'action_ids':['startup.comet'],'audit_id':ID})
+        self.assertEqual(planned['reason'],'BASELINE_RECEIPT_MISSING')
+        self.assertEqual(self.runner.calls,[])
+
+    def test_31_forged_baseline_and_invalid_fields_denied(self):
+        self.call()
+        ((self.root / (ID+'.receipt.json'))).write_text(
+            json.dumps({'sha256':'0'*64,'file':'audit-pc-'+ID+'.json'}))
+        value = self.call({'mode':'remediate_pc','dry_run':True,
+                           'action_ids':['startup.comet'],'audit_id':ID})
+        self.assertEqual(value['reason'],'BASELINE_HASH_MISMATCH')
+        illegal = {'mode':'remediate_pc','dry_run':True,
+                   'action_ids':['startup.comet'],'audit_id':'../bad'}
+        self.assertEqual(self.call(illegal)['reason'],'INVALID_AUDIT_ID')
+        self.assertEqual(len(self.runner.calls),1)
+
+    def test_32_source_collector_records_private_evidence_no_msi_side_effect(self):
+        text = (HERE/'pc5_audit.ps1').read_text(encoding='utf-8')
+        self.assertIn('top_process_details=',text)
+        self.assertIn('installed_applications=',text)
+        self.assertIn('quick_scan_command_available=',text)
+        self.assertIn('chrome_visible_windows=',text)
+        self.assertNotIn('Win32_Product', text)
+        self.assertNotIn('Invoke-MpScan',text)
+        self.assertNotIn('Start-Process -FilePath',text)
 
     def test_26_audit_timeout_denied_with_no_private_error(self):
         def timed_out(argv, **kwargs):
