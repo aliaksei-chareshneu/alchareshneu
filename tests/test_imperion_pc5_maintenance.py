@@ -527,7 +527,8 @@ class MaintenanceTests(unittest.TestCase):
         self.assertEqual(output['status'],'BLOCKED')
         self.assertIn('Comet',reg.values)
         self.assertEqual(reg.restores,['Comet'])
-        self.assertNotIn('private',json.dumps(output).lower())
+        self.assertNotIn('SYNTHETIC-SECRET',json.dumps(output))
+        self.assertNotIn('untrusted local registry error',json.dumps(output))
 
     def test_45_baseline_and_changed_target_prevent_postgo_apply(self):
         self.call()
