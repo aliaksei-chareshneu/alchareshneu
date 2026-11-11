@@ -1,7 +1,7 @@
 # IMPERION DEV Agent — cloud issue coding (Stage 7, review-only)
 
 **Entity:** personal OSVČ. **Repository:** aliaksei-chareshneu/alchareshneu.
-**Owner GO (10 Nov 2026):** isolated development on GitHub branches and zmrzlina; **not** merging, deploying, changing permissions, purchases or publishing. PR #250 and #258 were merged on 10 Nov. Preserve review-only and zero-paid-API safeguards.
+**Owner authorization history:** On 9 Nov 2026, GO covered isolated development only. On 10 Nov 2026, the owner separately authorized and completed merges of reviewed PRs #250 and #258; on 11 Nov the owner confirmed enabling GitHub Actions to create pull requests. Agent-generated changes remain review-only: no automatic merging, deployment, purchases or paid inference API.
 **Cost model:** GitHub-hosted CPU with local Ollama qwen3:4b-instruct, no paid inference API or account secrets. GitHub runner quotas and electricity have nonzero resource cost; never enable billed overage.
 **Case:** IMP-DEV-CLOUD-ISSUE-20261109.
 
