@@ -71,3 +71,15 @@ Invalid actor, wrong issue number, closed issue, wrong command format, missing t
 GitHub official references:
 - https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#issue_comment
 - https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/enabling-features-for-your-repository/managing-github-actions-settings-for-a-repository
+
+## Stage 8 — bounded two-file acceptance (review-only)
+
+This second fixture uses two separate **public, synthetic** arithmetic helpers with an independently maintained, already passing trusted test. It does not change any production price or event record. After the Stage 8 reviewed code has been merged into main, the signed-in repository owner can submit one unique comment to existing Issue #245:
+
+    /imperion-dev cloud
+    file: ops/imperion-dev-cloud-fixture/multi-price.cjs
+    file2: ops/imperion-dev-cloud-fixture/multi-shipping.cjs
+    test: tests/imperion-dev-cloud-multi-fixture.test.cjs
+    goal: Add a concise explanatory comment to each helper function without changing outputs or exports.
+
+Acceptance is complete only when a new GitHub Actions issue_comment workflow independently verifies **two model proposals**, tests both changes in a no-network container, the publisher commits exactly those two source files, and GitHub reports a bot-created OPEN/DRAFT review PR. A model proposal or a green baseline alone is insufficient. Reject duplicate comments and do not merge these purely synthetic patches into the main branch.
