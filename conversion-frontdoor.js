@@ -15,8 +15,8 @@
   var paths = {club:'druzina/',walkers:'walkers/',academy:'academy/'};
   var query = new URLSearchParams(location.search);
   var requested = query.get('lang');
-  var guessed = (navigator.language || 'cs').slice(0,2).toLowerCase();
-  var lang = LANGS.indexOf(requested) >= 0 ? requested : (LANGS.indexOf(guessed) >= 0 ? guessed : 'cs');
+  var saved=null;try {saved=localStorage.getItem('dm_lang');} catch (_) {}
+  var lang = LANGS.indexOf(requested)>=0 ? requested : (LANGS.indexOf(saved)>=0 ? saved : 'cs');
   var data=[], status='loading', filter='all', selectedId='', chosenDay='', month=new Date(), pending=false;
   var tzFormatter = new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Prague',year:'numeric',month:'2-digit',day:'2-digit'});
   function tr(k){return COPY[lang][k]||COPY.en[k]||k;}
@@ -210,7 +210,15 @@
   function monthShift(delta){month=new Date(month.getFullYear(),month.getMonth()+delta,1);chosenDay='';selectedId='';render();}
   el('fdPrev').addEventListener('click',function(){monthShift(-1);});
   el('fdNext').addEventListener('click',function(){monthShift(1);});
-  parent.querySelectorAll('[data-fd-language]').forEach(function(b){b.addEventListener('click',function(){lang=b.dataset.fdLanguage;try{history.replaceState(null,'',location.pathname+'?lang='+lang+location.hash);}catch(_){}applyLanguage();});});
+  parent.querySelectorAll('[data-fd-language]').forEach(function(b){b.addEventListener('click',function(){
+    lang=b.dataset.fdLanguage;
+    try{localStorage.setItem('dm_lang',lang);}catch(_){}
+    try{var url=new URL(location.href);url.searchParams.set('lang',lang);history.replaceState(null,'',url.pathname+url.search+url.hash);}catch(_){}
+    // Keep existing site language/marketing state in sync for visits to deep information pages.
+    var legacy=document.querySelector('#langSwitch button[data-lang="'+lang+'"]');if(legacy)legacy.click();
+    el('fdFooterInfo').href='start/?lang='+lang;
+    applyLanguage();
+  });});
   parent.querySelectorAll('[data-fd-filter]').forEach(function(b){b.addEventListener('click',function(){filter=b.dataset.fdFilter;chosenDay='';selectedId='';sendSignal('activity_filter','calendar');render();});});
   el('fdHeroCta').addEventListener('click',function(){sendSignal('calendar_open','hero');});
   el('fdBook').addEventListener('click',function(){sendSignal('event_cta_'+(this.dataset.status||'browse'),'calendar_detail');});
