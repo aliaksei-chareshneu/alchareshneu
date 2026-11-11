@@ -15,7 +15,8 @@ const BLOCKED_CODE = /\b(?:eval|Function|child_process|execSync|spawnSync|proces
 function sha(text) { return crypto.createHash('sha256').update(text).digest('hex'); }
 function safeSourceFile(file, fixture=false) {
   if (fixture && file === FIXTURE_FILE) return true;
-  return /^(?:scripts|docs|ops)\/[a-zA-Z0-9][a-zA-Z0-9_./-]{1,105}\.(?:js|cjs|md)$/.test(file) &&
+  return /^(?:scripts|docs|ops)\/[a-zA-Z0-9][a-zA-Z0-9_./-]{1,105}\.(?:js|cjs|md|py)$/.test(file) &&
+    (!file.endsWith('.py') || /^(?:scripts|ops)\//.test(file)) &&
     !file.includes('..') && !BLOCKED_PATH.test(file) &&
     !/(?:^|\/)\./.test(file) &&
     file !== 'scripts/imperion-dev-cloud-issue.cjs' &&
@@ -23,7 +24,8 @@ function safeSourceFile(file, fixture=false) {
 }
 function safeTestFile(file, fixture=false) {
   if (fixture && file === FIXTURE_TEST) return true;
-  return /^tests\/[a-zA-Z0-9][a-zA-Z0-9_/-]{1,102}\.test\.cjs$/.test(file) &&
+  return (/^tests\/[a-zA-Z0-9][a-zA-Z0-9_/-]{1,102}\.test\.cjs$/.test(file) ||
+    /^tests\/test_[a-zA-Z0-9_]{1,96}\.py$/.test(file)) &&
     !file.includes('..') && !BLOCKED_PATH.test(file);
 }
 function isFixtureTask(task) {
@@ -37,8 +39,9 @@ function parseCommand(body) {
   const fixture=isFixtureTask(task);
   if (((task.file === FIXTURE_FILE || task.test === FIXTURE_TEST) && !fixture) ||
       !safeSourceFile(task.file,fixture) || !safeTestFile(task.test,fixture) ||
-      task.file === task.test)
-    throw Error('TASK_PATH_REJECTED');
+      task.file === task.test ||
+      (task.file.endsWith('.py') !== task.test.endsWith('.py')))
+    throw Error('TASK_PATH_OR_LANGUAGE_REJECTED');
   if (/[\x00-\x1f]|(?:sk-[a-z0-9_-]{12,}|gh[pousr]_[a-z0-9_]{12,}|@|BEGIN PRIVATE KEY)/i.test(task.goal))
     throw Error('PUBLIC_TASK_CONTENT_REJECTED');
   return task;
@@ -150,6 +153,9 @@ function verifiedApply(proof, root) {
   safeFileRead(root,task.test,fixture,true);
   if (sha(source) !== proof.source_sha256) throw Error('BASELINE_SHA_CHANGED');
   const patch=parseCandidate(JSON.stringify(proof.patch));
+  if (task.file.endsWith('.py') &&
+      /\b(?:__import__|open|eval|exec|compile|subprocess|socket|pickle|getattr|setattr|globals|locals)\b|\bos\./i.test(patch.new))
+    throw Error('PYTHON_PATCH_CAPABILITY_REJECTED');
   const changed=applyCandidate(source,patch);
   const dest=path.resolve(root,task.file);
   fs.writeFileSync(dest,changed,'utf8');
