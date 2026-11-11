@@ -105,11 +105,25 @@ jobs:
             const fixture=mode==="FIXTURE"||w.isFixtureTask({file,test});
             if(!(w.safeTestFile(test,fixture) && w.safeSourceFile(file,fixture)))
               process.exit(9);' "$testfile" "$target" "$mode"
+          # Only existing trusted tests; language and paths are revalidated above.
+          case "$testfile" in
+            tests/test_*.py)
+              case "$target" in *.py) ;; *) echo "BLOCKED: Python test/source mismatch"; exit 9 ;; esac
+              test_image='python:3.12-alpine'
+              test_argv=(python3 -B -m unittest discover -s tests -p "${testfile##*/}")
+              ;;
+            *.test.cjs|ops/imperion-dev-cloud-fixture/check.cjs)
+              case "$target" in *.py) echo "BLOCKED: JS test/Python mismatch"; exit 9 ;; esac
+              test_image='node:22-alpine'
+              test_argv=(node --test "$testfile")
+              ;;
+            *) echo "BLOCKED: unsupported trusted test format"; exit 9 ;;
+          esac
           docker run --rm --network none --read-only --cap-drop ALL \
             --security-opt no-new-privileges --pids-limit 64 --memory 512m \
             --cpus 1 --user 10001:10001 --tmpfs /tmp:rw,noexec,nosuid,size=64m \
-            -v "$GITHUB_WORKSPACE:/work:ro" -w /work node:22-alpine \
-            node --test "$testfile" > "$RUNNER_TEMP/imperion-dev-cloud-baseline.log" 2>&1 && baseline=PASS || baseline=FAIL
+            -v "$GITHUB_WORKSPACE:/work:ro" -w /work "$test_image" \
+            "${test_argv[@]}" > "$RUNNER_TEMP/imperion-dev-cloud-baseline.log" 2>&1 && baseline=PASS || baseline=FAIL
           if [ "$target" = 'ops/imperion-dev-cloud-fixture/normalize.cjs' ] && [ "$baseline" != 'FAIL' ]; then
             echo "BLOCKED: synthetic bug was not reproduced before AI patch"; exit 2
           fi
@@ -121,13 +135,14 @@ jobs:
             node "$GITHUB_WORKSPACE/scripts/imperion-dev-cloud-issue.cjs" --apply "$manifest"
             case "$target" in
               *.cjs|*.js) node --check "$target" ;;
+              *.py) python3 -c 'import ast,sys,pathlib; ast.parse(pathlib.Path(sys.argv[1]).read_text(encoding="utf8"))' "$target" ;;
             esac
           )
           docker run --rm --network none --read-only --cap-drop ALL \
             --security-opt no-new-privileges --pids-limit 64 --memory 512m \
             --cpus 1 --user 10001:10001 --tmpfs /tmp:rw,noexec,nosuid,size=64m \
-            -v "$RUNNER_TEMP/imperion-dev-cloud-sandbox:/work:ro" -w /work node:22-alpine \
-            node --test "$testfile"
+            -v "$RUNNER_TEMP/imperion-dev-cloud-sandbox:/work:ro" -w /work "$test_image" \
+            "${test_argv[@]}"
           printf '{"status":"ISOLATED_TRUSTED_TEST_PASS","baseline":"%s","mode":"%s","cloud":"GITHUB_ACTIONS_CPU","paid_api_czk":0,"auto_merge":false}\n' \
             "$baseline" "$mode" > "$RUNNER_TEMP/imperion-dev-cloud-test-result.json"
           echo "MODEL_PATCH_ISOLATED_TEST_PASS" >> "$GITHUB_STEP_SUMMARY"
