@@ -47,6 +47,51 @@ test('owner-created public issues are accepted without collisions, other owners 
  assert.throws(()=>W.taskFromEvent({...alternate,
    issue:{...alternate.issue,user:{login:'untrusted-author'}}}),/UNTRUSTED_TRIGGER_REJECTED/);
 });
+test('Python tasks are limited to public sources and pre-existing isolated unittest files',()=>{
+ const py='/imperion-dev cloud\nfile: scripts/example.py\ntest: tests/test_example.py\ngoal: Correct a pure Python function without new imports';
+ assert.equal(W.parseCommand(py).file,'scripts/example.py');
+ assert.equal(W.safeSourceFile('ops/public_math.py'),true);
+ assert.equal(W.safeSourceFile('docs/nested.py'),false);
+ assert.equal(W.safeSourceFile('scripts/auth_keys.py'),false);
+ assert.equal(W.safeTestFile('tests/test_example.py'),true);
+ assert.equal(W.safeTestFile('tests/secret_example.py'),false);
+ assert.throws(()=>W.parseCommand(py.replace('tests/test_example.py',
+   'tests/example.test.cjs')),/TASK_PATH_REJECTED/);
+ assert.throws(()=>W.parseCommand(py.replace('scripts/example.py',
+   'scripts/example.cjs')),/TASK_PATH_REJECTED/);
+ const y=fs.readFileSync(path.join(__dirname,'../.github/workflows/imperion-dev-cloud-issue.yml'),'utf8');
+ assert.match(y,/python:3\.12-alpine/);
+ assert.match(y,/python3 -B -m unittest discover/);
+ assert.match(y,/python3 -c 'import ast,sys,pathlib/);
+ assert.match(y,/--network none --read-only --cap-drop ALL/);
+});
+
+test('Python code proposals cannot add file reading or unrestricted execution',()=>{
+ const base=fs.mkdtempSync(path.join(os.tmpdir(),'imperion-cloud-python-'));
+ fs.mkdirSync(path.join(base,'scripts'),{recursive:true});
+ fs.mkdirSync(path.join(base,'tests'),{recursive:true});
+ const src='def total(rows):\n    return sum(row["price"] for row in rows)\n';
+ fs.writeFileSync(path.join(base,'scripts/example.py'),src);
+ fs.writeFileSync(path.join(base,'tests/test_example.py'),'import unittest\n');
+ const body='/imperion-dev cloud\nfile: scripts/example.py\ntest: tests/test_example.py\ngoal: Correct total() to include all quantities safely';
+ const trusted={...event,comment:{...event.comment,body}};
+ const eventPath=path.join(base,'event.json');fs.writeFileSync(eventPath,JSON.stringify(trusted));
+ const prev=process.env.GITHUB_EVENT_PATH;process.env.GITHUB_EVENT_PATH=eventPath;
+ try{
+   const task=W.taskFromEvent(trusted);
+   const proof={schema:'imperion-dev-cloud-task-v1',status:'MODEL_PROPOSAL_ONLY',
+     task,source_sha256:W.sha(src),
+     patch:{old:'return sum(row["price"] for row in rows)',
+       new:'return open("private.key").read()'},model:W.MODEL};
+   assert.throws(()=>W.verifiedApply(proof,base),/PYTHON_PATCH_CAPABILITY_REJECTED/);
+   assert.equal(fs.readFileSync(path.join(base,'scripts/example.py'),'utf8'),src);
+ }finally{
+   if(prev===undefined) delete process.env.GITHUB_EVENT_PATH;
+   else process.env.GITHUB_EVENT_PATH=prev;
+   fs.rmSync(base,{recursive:true,force:true});
+ }
+});
+
 test('public-only strict command and path gate',()=>{
  assert.deepEqual(W.parseCommand(cmd).file,'scripts/imperion-public-example.cjs');
  for (const bad of [
