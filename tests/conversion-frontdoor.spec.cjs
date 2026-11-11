@@ -39,6 +39,7 @@ for(const width of [390,1440]){
     await expect(page.locator('#fdHeroCta')).toBeVisible();
     await expect(page.locator('#fdHeroCta')).toHaveAttribute('href','#impr-calendar');
     await expect(page.locator('body > .nav')).toBeHidden();
+    await page.locator('.fd-hero').screenshot({path:'test-results/conversion-frontdoor-'+width+'-hero.png'});
     await expect(page.locator('#fdDetails #fdEventTitle')).toContainText('Try historical fencing');
     await expect(page.locator('#fdBook')).toHaveAttribute('href',/event=PUB-OREL-20261114/);
     await expect(page.locator('#fdBook')).toContainText('Request a place');
@@ -50,6 +51,7 @@ for(const width of [390,1440]){
     await expect(page.locator('#fdBook')).toHaveAttribute('href',/event=PUB-HEMA-20261116/);
     await expect(page.locator('#fdFacts')).toContainText('240 Kč');
     await expect(page.locator('#fdFacts')).toContainText('Družina Moravy, z. s.');
+    await page.locator('#impr-calendar').screenshot({path:'test-results/conversion-frontdoor-'+width+'-calendar.png'});
     await page.locator('[data-fd-filter="academy"]').click();
     await expect(page.locator('#fdEventTitle')).toContainText('Move toward your goal');
     await expect(page.locator('#fdBook')).toHaveAttribute('href','academy/');
