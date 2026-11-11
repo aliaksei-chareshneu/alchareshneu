@@ -61,7 +61,8 @@ test('Python tasks are limited to public sources and pre-existing isolated unitt
    'scripts/example.cjs')),/TASK_PATH_REJECTED/);
  const y=fs.readFileSync(path.join(__dirname,'../.github/workflows/imperion-dev-cloud-issue.yml'),'utf8');
  assert.match(y,/python:3\.12-alpine/);
- assert.match(y,/python3 -B -m unittest discover/);
+ assert.match(y,/test_argv=\(python3 -B -c/);
+ assert.match(y,/NO_TRUSTED_TESTS/);
  assert.match(y,/python3 -c 'import ast,sys,pathlib/);
  assert.match(y,/--network none --read-only --cap-drop ALL/);
 });
