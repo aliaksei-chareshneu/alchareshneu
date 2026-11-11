@@ -257,6 +257,53 @@ def rollback_approved(plan_id: str, *, audit_root: Path,
             "restored_exact_original_value":True, "changes_applied":1}
 
 
+def _read_local_go(root: Path, plan_id: str) -> dict:
+    """Approval created ONLY by the trusted operator after specific owner GO."""
+    if not isinstance(plan_id, str) or len(plan_id) != 64 or any(
+        ch not in "0123456789abcdef" for ch in plan_id):
+        raise ValueError("INVALID_PLAN_ID")
+    approval = root / "approvals" / (plan_id + ".approval.json")
+    # Never accept arbitrary paths or remote-provided approval content.
+    if not approval.is_file() or approval.is_symlink():
+        raise ValueError("TRUSTED_OPERATOR_GO_MISSING")
+    if approval.stat().st_size > 2048:
+        raise ValueError("TRUSTED_OPERATOR_GO_MISSING")
+    return json.loads(approval.read_text(encoding="utf-8"))
+
+
+def main() -> int:
+    """Read-only by default; no new scheduled task or network endpoint."""
+    import argparse
+    cli = argparse.ArgumentParser()
+    cli.add_argument("command", choices=("preview", "apply", "rollback"))
+    cli.add_argument("--audit-id", default="")
+    cli.add_argument("--action-id", choices=sorted(SUPPORTED), default=None)
+    cli.add_argument("--plan-id", default="")
+    args = cli.parse_args()
+    root = Path(os.environ.get("LOCALAPPDATA", "")) / "IMPERION" / "Agent5" / "audits"
+    if sys.platform != "win32":
+        print(json.dumps(block("WINDOWS_REQUIRED")))
+        return 2
+    if args.command == "preview":
+        output = safe_result(prepare,args.audit_id,args.action_id,audit_root=root)
+    elif args.command == "apply":
+        permission = safe_result(_read_local_go,root,args.plan_id)
+        if permission.get("status") == "BLOCKED":
+            output = permission
+        else:
+            output = safe_result(apply_approved,args.audit_id,args.action_id,
+                                 audit_root=root,approval=permission)
+    else:
+        permission = safe_result(_read_local_go,root,args.plan_id)
+        if permission.get("status") == "BLOCKED":
+            output = permission
+        else:
+            output = safe_result(rollback_approved,args.plan_id,
+                                 audit_root=root,approval=permission)
+    print(json.dumps(output,sort_keys=True))
+    return 0 if output.get("status") not in ("BLOCKED",) else 2
+
+
 def safe_result(operation, *args, **kwargs) -> dict:
     try:
         return operation(*args, **kwargs)
@@ -271,3 +318,7 @@ def safe_result(operation, *args, **kwargs) -> dict:
                    "INVALID_PLAN_ID","RECEIPT_NOT_FOUND_OR_REDIRECTED",
                    "TARGET_CHANGED_SINCE_APPLY","ROLLBACK_READBACK_FAILED"}
         return block(str(exc) if str(exc) in reasons else "REMEDIATION_BLOCKED_PRIVATE_ERROR")
+
+
+if __name__ == "__main__":
+    sys.exit(main())
