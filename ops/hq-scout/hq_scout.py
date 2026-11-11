@@ -40,11 +40,15 @@ def canon(url: str) -> str:
 
 
 def allowed(url: str) -> bool:
-    u = urlparse(url)
-    host = (u.hostname or "").lower()
+    try:
+        u = urlparse(url)
+        host = (u.hostname or "").lower()
+        valid_port = u.port in (None, 443)
+    except (ValueError, AttributeError):
+        return False
     return (
         u.scheme.lower() == "https" and bool(host) and
-        not u.username and not u.password and u.port in (None, 443) and
+        not u.username and not u.password and valid_port and
         any(host == suffix or host.endswith("." + suffix) for suffix in ALLOWED_HOSTS)
     )
 
@@ -244,7 +248,7 @@ def review_with_local_qwen(text: str, model: str = "imperion-qwen35:4b") -> dict
             raise ValueError("expected object")
         return {"status": "MODEL_HINT_UNVERIFIED",
                 "property_name": str(parsed.get("property_name", ""))[:160],
-                "explicitly_free_use": bool(parsed.get("explicitly_free_use", False)),
+                "explicitly_free_use": parsed.get("explicitly_free_use") is True,
                 "explicit_years": parsed.get("explicit_years") if isinstance(parsed.get("explicit_years"), int) else None,
                 "uncertainties": [str(v)[:180] for v in parsed.get("uncertainties", [])[:5]]}
     except (OSError, URLError, HTTPError, TimeoutError, ValueError, KeyError, TypeError):
