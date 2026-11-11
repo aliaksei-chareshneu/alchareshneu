@@ -6,7 +6,6 @@ on:
       - 'scripts/imperion-dev-cloud-issue.cjs'
       - 'tests/imperion-dev-cloud-issue.test.cjs'
       - 'ops/imperion-dev-cloud-fixture/**'
-      - 'docs/imperion-dev-cloud-issue.md'
   issue_comment:
     types: [created]
 permissions:
@@ -96,6 +95,7 @@ jobs:
           manifest="$RUNNER_TEMP/imperion-dev-cloud-proposal.json"
           testfile="$(node -e 'process.stdout.write(require(process.argv[1]).task.test)' "$manifest")"
           target="$(node -e 'process.stdout.write(require(process.argv[1]).task.file)' "$manifest")"
+          target2="$(node -e 'process.stdout.write(require(process.argv[1]).task.file2 || "")' "$manifest")"
           mode="$(node -e 'process.stdout.write(require(process.argv[1]).task.mode)' "$manifest")"
           # Path is validated again by trusted JS before it is allowed into Docker.
           node -e 'const w=require("./scripts/imperion-dev-cloud-issue.cjs");
@@ -103,6 +103,10 @@ jobs:
             const fixture=mode==="FIXTURE"||w.isFixtureTask({file,test});
             if(!(w.safeTestFile(test,fixture) && w.safeSourceFile(file,fixture)))
               process.exit(9);' "$testfile" "$target" "$mode"
+          if [ -n "$target2" ]; then
+            node -e 'const w=require("./scripts/imperion-dev-cloud-issue.cjs");
+              if(!w.safeSourceFile(process.argv[1]) || process.argv[1]===process.argv[2])process.exit(9);' "$target2" "$target"
+          fi
           docker run --rm --network none --read-only --cap-drop ALL \
             --security-opt no-new-privileges --pids-limit 64 --memory 512m \
             --cpus 1 --user 10001:10001 --tmpfs /tmp:rw,noexec,nosuid,size=64m \
@@ -120,6 +124,11 @@ jobs:
             case "$target" in
               *.cjs|*.js) node --check "$target" ;;
             esac
+            if [ -n "$target2" ]; then
+              case "$target2" in
+                *.cjs|*.js) node --check "$target2" ;;
+              esac
+            fi
           )
           docker run --rm --network none --read-only --cap-drop ALL \
             --security-opt no-new-privileges --pids-limit 64 --memory 512m \
@@ -187,6 +196,7 @@ jobs:
                r.status!=="ISOLATED_TRUSTED_TEST_PASS" || r.mode!=="OWNER_ISSUE") process.exit(8)' \
             "$proof" "$receipt" "$OWNER_COMMENT_ID"
           file="$(node -e 'process.stdout.write(require(process.argv[1]).task.file)' "$proof")"
+          file2="$(node -e 'process.stdout.write(require(process.argv[1]).task.file2 || "")' "$proof")"
           branch="agent/imperion-dev-cloud-245-$OWNER_COMMENT_ID"
           if git ls-remote --exit-code --heads origin "$branch" >/dev/null 2>&1; then
             gh pr list --head "$branch" --base main --state open \
@@ -200,16 +210,22 @@ jobs:
           fi
           node scripts/imperion-dev-cloud-issue.cjs --apply "$proof"
           git diff --check
-          test "$(git diff --name-only | tr -d '\n')" = "$file"
+          files=("$file")
+          if [ -n "$file2" ]; then files+=("$file2"); fi
+          actual="$(git diff --name-only | LC_ALL=C sort)"
+          expected="$(printf '%s\n' "${files[@]}" | LC_ALL=C sort)"
+          test "$actual" = "$expected"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git switch -c "$branch"
-          git add -- "$file"
+          git add -- "${files[@]}"
+          git diff --cached --check
+          test "$(git diff --cached --name-only | LC_ALL=C sort)" = "$expected"
           git commit -m "fix(dev): bounded public Qwen task from owner comment $OWNER_COMMENT_ID"
           git push --set-upstream origin "$branch"
           if ! gh pr create --draft --base main --head "$branch" \
             --title "DRAFT: cloud Qwen public coding issue 245 comment $OWNER_COMMENT_ID" \
-            --body "Owner-approved public issue 245. Model: Qwen3:4b-instruct running in GitHub-hosted CPU. One bounded public file, source SHA validated, tests passed in a no-network read-only container. No model secrets, paid API, customer data, auto-merge, deploy or production changes. OWNER REVIEW REQUIRED."; then
+            --body "Owner-approved public issue 245. Model: Qwen3:4b-instruct running in GitHub-hosted CPU. One or two bounded public files, source SHA validated, tests passed in a no-network read-only container. No model secrets, paid API, customer data, auto-merge, deploy or production changes. OWNER REVIEW REQUIRED."; then
             echo "BLOCKED: GitHub repository policy does not permit Actions to create PRs; branch is for human review." >> "$GITHUB_STEP_SUMMARY"
             exit 2
           fi
