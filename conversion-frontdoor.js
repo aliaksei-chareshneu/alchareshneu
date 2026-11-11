@@ -4,6 +4,8 @@
 (function () {
   'use strict';
   if (!document.body || document.getElementById('imperion-frontdoor')) return;
+  // Read-only knowledge-base fallback: existing homepage remains fully accessible.
+  if(new URLSearchParams(location.search).get('view')==='details')return;
   var API = 'https://cmrknyhnnehyjpreehcf.supabase.co/functions/v1/imperion-register';
   var LANGS = ['cs', 'en', 'ru', 'uk'];
   var COPY = {
@@ -216,13 +218,13 @@
     try{var url=new URL(location.href);url.searchParams.set('lang',lang);history.replaceState(null,'',url.pathname+url.search+url.hash);}catch(_){}
     // Keep existing site language/marketing state in sync for visits to deep information pages.
     var legacy=document.querySelector('#langSwitch button[data-lang="'+lang+'"]');if(legacy)legacy.click();
-    el('fdFooterInfo').href='start/?lang='+lang;
+    el('fdFooterInfo').href='?lang='+lang+'&view=details';
     applyLanguage();
   });});
   parent.querySelectorAll('[data-fd-filter]').forEach(function(b){b.addEventListener('click',function(){filter=b.dataset.fdFilter;chosenDay='';selectedId='';sendSignal('activity_filter','calendar');render();});});
   el('fdHeroCta').addEventListener('click',function(){sendSignal('calendar_open','hero');});
   el('fdBook').addEventListener('click',function(){sendSignal('event_cta_'+(this.dataset.status||'browse'),'calendar_detail');});
-  el('fdFooterInfo').href='start/?lang='+lang;
+  el('fdFooterInfo').href='?lang='+lang+'&view=details';
   applyLanguage();
   document.documentElement.setAttribute('data-imperion-frontdoor','ready');
   try{
