@@ -8,12 +8,12 @@ permissions:
   contents: read
 
 jobs:
-  static-checks:
+  pc5-maintenance:
     runs-on: ubuntu-latest
+    timeout-minutes: 4
     steps:
       - uses: actions/checkout@v4
-
-      - name: Verify Agent5 Windows maintenance review-only code and PowerShell syntax
+      - name: Verify Agent5 fixed audit safety, idempotency and PowerShell syntax
         shell: pwsh
         run: |
           python3 -m unittest discover -s tests -p 'test_imperion_pc5_maintenance.py' -v
@@ -22,6 +22,11 @@ jobs:
           $errors = $null
           [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path 'ops/pc-agent/pc5_audit.ps1').Path, [ref]$tokens, [ref]$errors) | Out-Null
           if ($errors.Count -gt 0) { $errors | ForEach-Object { Write-Error $_ }; exit 1 }
+
+  static-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
       - name: Verify required public pages
         shell: bash
