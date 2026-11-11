@@ -194,3 +194,15 @@ html[data-imperion-frontdoor="ready"] body.fd-modal-open { overflow:hidden !impo
  #imperion-frontdoor .fd-detail-pane.fd-modal { max-height:calc(100vh - 36px); }
  @media(max-width:700px) { #imperion-frontdoor .fd-detail-pane.fd-modal { max-height:88vh; } }
 }
+
+/* Learning remains bookable even without a dated group event. */
+#imperion-frontdoor .fd-calendar-fallback:not([hidden]) {
+ display:flex; flex-direction:column; gap:13px; margin-top:18px;
+ padding:20px; background:#173842; border:1px solid #557b7a; border-radius:14px;
+}
+#imperion-frontdoor .fd-calendar-fallback p {margin:0; color:#e0ede6; line-height:1.5;}
+#imperion-frontdoor .fd-calendar-fallback a {
+ display:inline-flex; justify-content:center; align-items:center; text-align:center;
+ padding:11px 18px; min-height:47px; background:#f3cf8f; border-radius:9px;
+ color:#102a32; font-weight:850; align-self:flex-start;
+}
