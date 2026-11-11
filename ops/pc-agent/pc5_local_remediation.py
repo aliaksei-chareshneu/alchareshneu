@@ -262,6 +262,9 @@ def _read_local_go(root: Path, plan_id: str) -> dict:
     if not isinstance(plan_id, str) or len(plan_id) != 64 or any(
         ch not in "0123456789abcdef" for ch in plan_id):
         raise ValueError("INVALID_PLAN_ID")
+    for folder in (root, root / "approvals"):
+        if folder.is_symlink() or (hasattr(folder, "is_junction") and folder.is_junction()):
+            raise ValueError("GO_PATH_REDIRECT_DENIED")
     approval = root / "approvals" / (plan_id + ".approval.json")
     # Never accept arbitrary paths or remote-provided approval content.
     if not approval.is_file() or approval.is_symlink():
@@ -280,7 +283,11 @@ def main() -> int:
     cli.add_argument("--action-id", choices=sorted(SUPPORTED), default=None)
     cli.add_argument("--plan-id", default="")
     args = cli.parse_args()
-    root = Path(os.environ.get("LOCALAPPDATA", "")) / "IMPERION" / "Agent5" / "audits"
+    local_appdata = os.environ.get("LOCALAPPDATA")
+    if not local_appdata or not Path(local_appdata).is_absolute():
+        print(json.dumps(block("WINDOWS_PRIVATE_ROOT_UNAVAILABLE")))
+        return 2
+    root = Path(local_appdata) / "IMPERION" / "Agent5" / "audits"
     if sys.platform != "win32":
         print(json.dumps(block("WINDOWS_REQUIRED")))
         return 2
@@ -316,7 +323,8 @@ def safe_result(operation, *args, **kwargs) -> dict:
                    "RECEIPT_REQUIRES_MANUAL_RECONCILIATION",
                    "TARGET_CHANGED_SINCE_PREVIEW","AUTORUN_STILL_PRESENT",
                    "INVALID_PLAN_ID","RECEIPT_NOT_FOUND_OR_REDIRECTED",
-                   "TARGET_CHANGED_SINCE_APPLY","ROLLBACK_READBACK_FAILED"}
+                   "TARGET_CHANGED_SINCE_APPLY","ROLLBACK_READBACK_FAILED",
+                   "GO_PATH_REDIRECT_DENIED"}
         return block(str(exc) if str(exc) in reasons else "REMEDIATION_BLOCKED_PRIVATE_ERROR")
 
 
