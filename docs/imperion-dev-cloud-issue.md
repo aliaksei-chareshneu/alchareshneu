@@ -1,4 +1,4 @@
-# IMPERION DEV Agent — cloud issue coding (Stage 7, review-only)
+# IMPERION DEV Agent — cloud issue coding (Stage 8 extension, review-only)
 
 **Entity:** personal OSVČ. **Repository:** aliaksei-chareshneu/alchareshneu.
 **ACTIVE in main:** PR #250 and #258 were merged on 10 Nov 2026 with owner GO. On 11 Nov, cloud Actions run #42965529871 independently created owner-review Draft PR #268. This review branch extends intake to other owner-created public issues; **no new merge, deploy, payment or permission change** is authorized by this branch.
@@ -30,7 +30,7 @@ Historical synthetic acceptance (already performed; **do not repost as a duplica
 
 The complete fixture file/test pair is an explicitly validated exception to normal path restrictions. The owner comment #6787842684 on issue #245 subsequently proved GitHub issue → cloud Qwen → independent test → **GitHub Actions-authored Draft PR #268** on run #42965529871. This was not independently shown to originate on Android, so do not claim Android-native acceptance.
 
-For later non-synthetic work, replace the file and test with real **already tracked** public paths from this repo. A suitable trusted test must exist before submitting. Only one file is edited per command. Accepted source paths: non-sensitive .js, .cjs, .md under scripts/, docs/, ops/; pre-existing independent tests remain read-only under tests/; sensitive paths, .github, credentials, billing, auth, registration, deployment, personal data and private code are rejected. This is NOT yet a universal multi-file programmer.
+For later non-synthetic work, replace the file and test with real **already tracked** public paths from this repo. A suitable trusted test must exist before submitting. Only one file is edited per command. Accepted source paths: non-sensitive `.js`, `.cjs`, `.md` under scripts/, docs/, ops/. **Stage 8 STAGED, NOT LIVE:** pure `.py` under scripts/ or ops/ paired with pre-existing `tests/test_*.py` Python unittest; JS/Markdown still require `tests/*.test.cjs`. The Python sandbox uses `python:3.12-alpine` with no network, read-only mounts, and AST syntax validation; no model shell or new packages. A Python model-generated patch has NOT yet completed a real GitHub Actions issue-triggered test. Sensitive paths, .github, credentials, billing, auth, registration, deployment, personal data and private code remain rejected. This is NOT yet a universal multi-file programmer.
 
 GitHub issue comments are public. Never include account details, tokens, customer records, health data, legal matters, passwords or unpublished financial information. Only your GitHub account (repository owner), with correct GitHub author association, can trigger execution. No direct shell execution or model-selected paths.
 
@@ -44,7 +44,7 @@ GitHub issue comments are public. Never include account details, tokens, custome
 6. **Only after tests**, an independent workflow job with separate GitHub token permissions (subject to owner review) may push a unique review branch and attempt gh pr create --draft. Duplicate comment IDs never create duplicate PRs; a surviving branch without PR is reported BLOCKED.
 7. Read back from GitHub to prove an open Draft PR. Nothing merges, deploys, publishes, changes prices, or sends customer messages.
 
-**Current acceptance (11 Nov 2026):** the workflow is already on main and an Actions-authored Draft PR has been verified. Repository-wide PR permission was effective for run #42965529871; no new permissions are requested here. Global Site quality CI on the companion PR is not green due to RSVP source drift and an Academy contact-gate regression in unrelated existing code. Do not merge this change or claim full CI PASS without checking the latest run. Additional arbitrary multi-file work, self-authored trusted tests, private tasks and native Android provenance are **BLOCKED / NOT VERIFIED**.
+**Current acceptance (11 Nov 2026):** the workflow is already on main and an Actions-authored Draft PR has been verified. Repository-wide PR permission was effective for run #42965529871; no new permissions are requested here. Global Site quality CI on the companion PR is not green due to RSVP source drift and an Academy contact-gate regression in unrelated existing code. Do not merge this change or claim full CI PASS without checking the latest run. Additional arbitrary multi-file work, self-authored trusted tests, private tasks, cloud Python live acceptance and native Android provenance are **BLOCKED / NOT VERIFIED**.
 
 **The code does not autonomously author separate test files.** It requires an existing trusted test for the requested public file and verifies its outcome. General unrestricted agent coding, multi-file edits and private tasks remain outside this scoped stage.
 
