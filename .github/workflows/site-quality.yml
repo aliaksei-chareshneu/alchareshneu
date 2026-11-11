@@ -35,6 +35,12 @@ jobs:
           test -f register/uk/index.html
           test -f supabase/functions/imperion-register/index.ts
 
+      - name: Verify price audit source and script syntax before unrelated CI gates
+        run: |
+          node --check academy/a2/quiz.js
+          node --check tests/qualified-pricing-source.test.cjs
+          node --test tests/qualified-pricing-source.test.cjs
+
       - name: Reject stale production placeholders
         shell: bash
         run: |
@@ -70,12 +76,12 @@ jobs:
             # Active pricing page: never silently drop a publicly stated tariff.
             grep -q '120 Kč' "$page"
             grep -q '240 Kč' "$page"
-            grep -q '910 Kč' "$page"
-            grep -q '455 Kč' "$page"
-            grep -Eq '2[, ]870 Kč' "$page"
-            grep -Eq '1[, ]435 Kč' "$page"
-            grep -Eq '8[, ]235 Kč' "$page"
-            grep -Eq '4[, ]120 Kč' "$page"
+            grep -q '800 Kč' "$page"
+            grep -q '560 Kč' "$page"
+            if grep -Eq '(1[ ,]?000[[:space:]]*Kč[[:space:]]*\+[[:space:]]*160|910 Kč|455 Kč)' "$page"; then
+              echo 'Current Druzina page still advertises a withdrawn historical tariff' >&2
+              exit 1
+            fi
           fi
 
       - name: Verify private-to-public Druzina leaderboard isolation
@@ -172,6 +178,10 @@ jobs:
         run: timeout 240s npx playwright install chromium
       - run: npm run test:security
       - run: npm run test:dom
+      - name: Test conversion-first event calendar, accessibility and two layouts
+        run: npx playwright test tests/conversion-frontdoor.spec.cjs --workers=2
+      - name: Verify Czech default separately from existing unrelated full-suite failures
+        run: npx playwright test tests/czech-default-language.spec.cjs --workers=2
       - run: npm test
       - uses: actions/upload-artifact@v4
         if: always()

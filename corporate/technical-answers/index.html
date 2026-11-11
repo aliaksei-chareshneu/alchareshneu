@@ -224,8 +224,7 @@ copyButton.addEventListener('click',async function(){
 });
 var requested=new URLSearchParams(location.search).get('lang');
 var saved;try{saved=localStorage.getItem('dm_lang')}catch(e){}
-var browser=(navigator.language||'cs').toLowerCase().slice(0,2);
-setLang(t[requested]?requested:(t[saved]?saved:(t[browser]?browser:'cs')));
+setLang(t[requested]?requested:(t[saved]?saved:'cs'));
 })();
 </script>
 </body>

@@ -330,7 +330,7 @@ document.querySelectorAll("button[data-spec]").forEach(el=>el.addEventListener("
  subSpecialty=this.dataset.spec;renderAdvancement();
 }));
 const query=new URLSearchParams(window.location.search).get("lang");let saved="";try{saved=localStorage.getItem("dm_lang")||""}catch(_){}
-locale=T[query]?query:T[saved]?saved:T[(navigator.language||"cs").slice(0,2).toLowerCase()]?(navigator.language||"cs").slice(0,2).toLowerCase():"cs";
+locale=T[query]?query:T[saved]?saved:"cs";
 apply();
 })();
 </script>

@@ -147,7 +147,7 @@ function setLang(next){
  const link=document.createElement('a');link.href='#privacy';link.textContent='Privacy / GDPR';$('privacyLabel').append(link);
 }
 for(const b of document.querySelectorAll('[data-lang]'))b.addEventListener('click',()=>setLang(b.dataset.lang));
-if(dict[qp.get('lang')])lang=qp.get('lang');else if((navigator.language||'').startsWith('en'))lang='en';
+if(dict[qp.get('lang')])lang=qp.get('lang');
 setLang(lang);
 const requested=qp.get('service')||'';
 if(['AI_WORKSHOP','DATA_PILOT','SCIENTIFIC_CONSULTING','HEMA_CORPORATE'].includes(requested))$('offer').value=requested;

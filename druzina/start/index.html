@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="cs">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -52,8 +52,8 @@ h1{font:800 clamp(2.5rem,5.8vw,5.5rem)/1.04 Georgia,serif;letter-spacing:-.035em
 <header><div class="wrap top">
 <a class="brand" href="../">Družina Moravy <span>Brno · Historical fencing · LARP</span></a>
 <div class="langs" role="group" aria-label="Language / Jazyk / Язык">
-<button type="button" data-lang="cs" aria-pressed="false">CZ</button>
-<button type="button" data-lang="en" aria-pressed="true">EN</button>
+<button type="button" data-lang="cs" aria-pressed="true">CZ</button>
+<button type="button" data-lang="en" aria-pressed="false">EN</button>
 <button type="button" data-lang="ru" aria-pressed="false">RU</button>
 <button type="button" data-lang="uk" aria-pressed="false">UA</button>
 </div></div></header>
@@ -115,7 +115,7 @@ const u=new URL(window.location.href);u.searchParams.set('lang',c);history.repla
 document.title=t.title+' | Družina Moravy';
 }
 for(const btn of document.querySelectorAll('button[data-lang]'))btn.addEventListener('click',()=>render(btn.dataset.lang));
-const params=new URLSearchParams(window.location.search);const explicit=params.get('lang');const auto=(navigator.language||'en').slice(0,2).toLowerCase();render(dict[explicit]?explicit:dict[auto]?auto:'en');
+const params=new URLSearchParams(window.location.search);const explicit=params.get('lang');render(dict[explicit]?explicit:'cs');
 })();
 </script>
 </body></html>

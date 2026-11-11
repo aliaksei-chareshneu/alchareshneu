@@ -130,7 +130,7 @@ copy.addEventListener('click',async function(){
 document.querySelectorAll('[data-lang]').forEach(el=>el.addEventListener('click',()=>setLang(el.dataset.lang)));
 document.querySelectorAll('[data-format]').forEach(el=>el.addEventListener('click',()=>{document.getElementById('format').value=el.dataset.format;}));
 const requested=new URLSearchParams(location.search).get('lang');
-setLang(texts[requested]?requested:((navigator.language||'cs').toLowerCase().startsWith('en')?'en':'cs'));
+setLang(texts[requested]?requested:'cs');
 form.hidden=false;
 })();
 </script>

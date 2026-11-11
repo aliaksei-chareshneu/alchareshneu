@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Decorative silhouettes of historical fencers">
+<defs>
+ <linearGradient id="shade" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#061824" stop-opacity=".38"/><stop offset="1" stop-color="#071723" stop-opacity=".88"/></linearGradient>
+ <linearGradient id="metal" x1="0" x2="1"><stop stop-color="#a9d6d0" stop-opacity=".08"/><stop offset=".55" stop-color="#e2f3ea" stop-opacity=".65"/><stop offset="1" stop-color="#80a6ac" stop-opacity=".15"/></linearGradient>
+ <radialGradient id="mist"><stop stop-color="#8fc2ad" stop-opacity=".14"/><stop offset="1" stop-color="#8fc2ad" stop-opacity="0"/></radialGradient>
+ <filter id="fog"><feGaussianBlur stdDeviation="42"/></filter>
+</defs>
+<!-- Atmospheric distance and negative space deliberately retain legible center copy. -->
+<g fill="url(#mist)" filter="url(#fog)"><ellipse cx="360" cy="365" rx="360" ry="250"/><ellipse cx="1240" cy="300" rx="340" ry="255"/><ellipse cx="800" cy="510" rx="560" ry="150"/></g>
+<g opacity=".24" stroke="#a6c8bc" stroke-width="2" stroke-linecap="round">
+ <path d="M101 360 80 60M156 360 177 93M1319 340 1361 70M1438 381 1470 101M1497 405 1523 171"/>
+</g>
+<!-- Left figure: a grounded, unmasked historical swordsman in a cape, plain helmet and tunic. -->
+<g opacity=".82" fill="url(#shade)" stroke="#6b928d" stroke-opacity=".24" stroke-width="3">
+ <path d="M268 270 Q240 259 231 228 Q227 197 250 180 Q278 164 298 186 Q315 206 304 238 L291 252Z"/>
+ <path d="M231 191 Q243 161 278 161 Q309 166 316 193 Q271 181 231 197Z"/>
+ <path d="M243 259 Q205 263 183 307 Q148 363 116 471 L149 490 Q198 421 225 382 L238 535 329 556 Q346 443 339 359 L370 384 417 363 Q366 299 313 275Z"/>
+ <path d="M214 301 Q131 335 48 510 Q150 486 229 410Z"/>
+ <path d="M241 533 210 733 269 748 310 573Z"/>
+ <path d="M302 536 357 742 420 733 351 516Z"/>
+ <path d="M324 316 422 340 474 319 478 358 409 379 330 370Z"/>
+ <path d="M179 315 117 405 81 389 97 357 162 283Z"/>
+</g>
+<!-- Right fighter: plain open-faced historical helmet, shield, tunic, no mask. -->
+<g opacity=".82" fill="url(#shade)" stroke="#6b928d" stroke-opacity=".24" stroke-width="3">
+ <path d="M1329 249 Q1308 230 1307 204 Q1316 168 1352 167 Q1384 167 1396 204 Q1392 231 1365 252Z"/>
+ <path d="M1297 197 Q1316 155 1360 154 Q1402 157 1406 203 L1383 213 Q1353 186 1297 209Z"/>
+ <path d="M1310 257 Q1254 275 1225 332 L1234 436 1208 540 1397 555 Q1384 433 1450 332 1413 274 1370 260Z"/>
+ <path d="M1223 309 1154 362 1112 337 1089 369 1165 408 1267 368Z"/>
+ <path d="M1403 308 Q1498 296 1544 396 L1509 428 Q1448 373 1400 388Z"/>
+ <path d="M1240 537 1192 755 1259 762 1311 558Z"/>
+ <path d="M1347 540 1386 755 1453 744 1403 537Z"/>
+ <path d="M1464 350 Q1529 353 1568 414 Q1562 518 1475 571 Q1388 548 1370 438 Q1394 370 1464 350Z" stroke="#83a8a3" stroke-opacity=".31"/>
+ <path d="M1469 385 Q1519 389 1533 432 Q1510 508 1473 527 Q1420 512 1403 440 Q1423 403 1469 385Z" fill="#17333f" stroke="none"/>
+</g>
+<!-- Two distant steel blades, visible but well above the centered CTA/headline. -->
+<g stroke="url(#metal)" stroke-linecap="round">
+ <path d="M445 341 823 123" stroke-width="12"/>
+ <path d="M1138 357 785 122" stroke-width="12"/>
+ <path d="M431 327 456 353M1124 369 1146 343" stroke-width="8"/>
+</g>
+<g fill="#071b25" opacity=".5"><path d="M0 710 Q130 670 260 713 T525 724 T800 714 T1060 711 T1330 724 T1600 709 V900H0Z"/></g>
+</svg>

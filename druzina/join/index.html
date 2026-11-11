@@ -116,7 +116,7 @@ function render(c){
 }
 buttons.forEach(b=>b.addEventListener('click',()=>{render(b.dataset.lang);const u=new URL(location.href);u.searchParams.set('lang',b.dataset.lang);history.replaceState(null,'',u)}));
 let q=new URLSearchParams(location.search).get('lang'),s='';try{s=localStorage.getItem('dm_lang')||''}catch(e){}
-let n=(navigator.language||'cs').slice(0,2).toLowerCase();render(T[q]?q:T[s]?s:T[n]?n:'cs');
+render(T[q]?q:T[s]?s:'cs');
 })();
 </script>
 </body>

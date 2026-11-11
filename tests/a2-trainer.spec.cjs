@@ -36,7 +36,8 @@ test.describe("Czech A2 trainer",()=>{
     await expect(page.locator("#breakdown .topic-row")).toHaveCount(3);
     await expect(page.locator("#bookLink")).toHaveAttribute("href",/^https:\/\/wa\.me\/420702914842\?text=/);
     await expect(page.locator("#results")).toContainText("690 Kč");
-    await expect(page.locator("#results")).toContainText("1 000 Kč");
+    await expect(page.locator("#results")).toContainText("písemně");
+    await expect(page.locator("#results")).not.toContainText("1 000 Kč");
     await expect(page.locator("#results")).toContainText(/neplaťte před potvrzením/i);
     const docwidth=await page.evaluate(()=>document.documentElement.scrollWidth);
     expect(docwidth).toBeLessThanOrEqual(375);

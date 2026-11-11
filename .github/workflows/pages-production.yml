@@ -60,7 +60,7 @@ jobs:
               cp -a "$dir" "_pages/$dir"
             fi
           done
-          for file in index.html 404.html robots.txt sitemap.xml styles.css brand-theme.css site-design.css intent-home.css site-design.js experience.css experience.js quest-theme.css quest-audio.js site.webmanifest apple-touch-icon.png favicon.ico favicon-16.png favicon-32.png favicon-48.png icon-192.png icon-512.png revolut-payment-qr.png; do
+          for file in index.html 404.html robots.txt sitemap.xml styles.css brand-theme.css site-design.css intent-home.css conversion-frontdoor.css conversion-frontdoor.js site-design.js experience.css experience.js quest-theme.css quest-audio.js site.webmanifest apple-touch-icon.png favicon.ico favicon-16.png favicon-32.png favicon-48.png icon-192.png icon-512.png revolut-payment-qr.png; do
             if [ -f "$file" ]; then
               cp "$file" "_pages/$file"
             fi
@@ -73,6 +73,10 @@ jobs:
           touch _pages/.nojekyll
           test -s _pages/index.html
           test -s _pages/intent-home.css
+          test -s _pages/conversion-frontdoor.css
+          test -s _pages/conversion-frontdoor.js
+          test -s _pages/images/frontdoor-fighter-shadows.svg
+          grep -Fq 'conversion-frontdoor.js?v=20261111' _pages/index.html
           grep -Fq 'id="goal-paths"' _pages/index.html
           grep -Fq 'id="intentDruzinaCta" href="register/?lang=en"' _pages/index.html
           test -s _pages/sitemap.xml
@@ -197,3 +201,76 @@ jobs:
             exit 1
           fi
           echo 'VERIFIED LIVE: consumer homepage, 3 intent cards and responsive CSS are readable over public HTTPS.' >> "$GITHUB_STEP_SUMMARY"
+
+
+      - name: Verify live conversion-first homepage assets on GitHub Pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://aliaksei-chareshneu.github.io/alchareshneu"
+          page="$(mktemp)"; style="$(mktemp)"; logic="$(mktemp)"
+          trap 'rm -f "$page" "$style" "$logic"' EXIT
+          ok=0
+          for attempt in 1 2 3 4 5 6 7 8; do
+            if curl -fsSL --max-time 20 "$base/?v=$GITHUB_SHA" -o "$page" \
+              && curl -fsSL --max-time 20 "$base/conversion-frontdoor.css?v=$GITHUB_SHA" -o "$style" \
+              && curl -fsSL --max-time 20 "$base/conversion-frontdoor.js?v=$GITHUB_SHA" -o "$logic" \
+              && grep -Fq 'conversion-frontdoor.js?v=20261111' "$page" \
+              && grep -Fq 'imperion-frontdoor' "$style" \
+              && grep -Fq "imperion-register" "$logic"; then
+              ok=1; break
+            fi
+            sleep 4
+          done
+          if [ "$ok" != 1 ]; then
+            echo "Conversion front door unavailable over live HTTPS" >&2
+            exit 1
+          fi
+          echo "VERIFIED LIVE: conversion-first homepage CSS, JS and registration catalog reference" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Verify current Academy and Start tariffs over independent public HTTPS
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://aliaksei-chareshneu.github.io/alchareshneu"
+          academy="$(mktemp)"
+          courses="$(mktemp)"
+          a2="$(mktemp)"
+          a2script="$(mktemp)"
+          start="$(mktemp)"
+          home="$(mktemp)"
+          trap 'rm -f "$academy" "$courses" "$a2" "$a2script" "$start" "$home"' EXIT
+          checked=0
+          for attempt in 1 2 3 4 5 6 7 8; do
+            checked=0
+            url_suffix="?price_readback=${GITHUB_SHA}-$attempt"
+            if curl -fsSL --max-time 25 "$base/academy/$url_suffix" -o "$academy" &&
+               curl -fsSL --max-time 25 "$base/academy/courses/$url_suffix" -o "$courses" &&
+               curl -fsSL --max-time 25 "$base/academy/a2/$url_suffix" -o "$a2" &&
+               curl -fsSL --max-time 25 "$base/academy/a2/quiz.js$url_suffix" -o "$a2script" &&
+               curl -fsSL --max-time 25 "$base/start/$url_suffix" -o "$start" &&
+               curl -fsSL --max-time 25 "$base/$url_suffix" -o "$home"; then
+              if grep -Fq 'Standard individual tutoring online (60 min)' "$academy" &&
+                 grep -Fq 'Price quoted in writing before booking' "$academy" &&
+                 grep -Fq 'Written quote' "$courses" &&
+                 grep -Fq 'Specializovaná 60min lekce se oceňuje individuálně' "$a2" &&
+                 grep -Fq '"terms":' "$a2script" &&
+                 grep -Fq 'Standard individual online tutoring is 690 Kč / 60 min' "$start" &&
+                 grep -Fq 'Starter 4' "$home" &&
+                 grep -Fq 'qualifications' "$home" &&
+                 ! grep -Fq 'first tutoring lesson is listed at 300 Kč' "$start" &&
+                 ! grep -Fq '300%20CZK' "$start" &&
+                 ! grep -Fq '455 Kč' "$home" &&
+                 ! grep -Fq '1 000 Kč' "$a2script" &&
+                 ! grep -Fq 'Specialist individual online session (60 min, scope agreed beforehand)' "$academy"; then
+                checked=1
+                break
+              fi
+            fi
+            sleep 4
+          done
+          if [ "$checked" != 1 ]; then
+            echo "Public Academy/Start qualification price HTTP readback failed for SHA $GITHUB_SHA" >&2
+            exit 1
+          fi
+          echo 'VERIFIED LIVE: Academy, Courses, A2 page+script, Start and homepage exact changed price text and no retired 300/455/1000 specialist claims over public HTTPS.' >> "$GITHUB_STEP_SUMMARY"
