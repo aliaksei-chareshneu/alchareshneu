@@ -38,6 +38,15 @@ try {
     $chromeGroup = @($groups | Where-Object {$_.name -eq 'chrome'} | Select-Object -First 1)
     $chromeMB = if ($chromeGroup.Count) { [double]$chromeGroup[0].working_set_mb } else { 0 }
     $chromeCount = @($procs | Where-Object {$_.ProcessName -eq 'chrome'}).Count
+    $chromeVisibleWindows = @($procs | Where-Object {$_.ProcessName -eq 'chrome' -and $_.MainWindowHandle -ne 0}).Count
+    # Private evidence only: process IDs and accumulated CPU time are never
+    # sent to Supabase/GitHub and should not be confused with instantaneous CPU%.
+    $topProcessDetails = @($procs | Sort-Object WorkingSet64 -Descending | Select-Object -First 50 | ForEach-Object {
+        [pscustomobject]@{pid=$_.Id;process=$_.ProcessName;
+            cpu_total_seconds=if ($null -ne $_.CPU) {[math]::Round([double]$_.CPU,2)} else {$null};
+            working_set_mb=[math]::Round($_.WorkingSet64/1MB,1);
+            private_mb=[math]::Round($_.PrivateMemorySize64/1MB,1)}
+    })
     $pagefile = @(SafeGet { @(Get-CimInstance Win32_PageFileUsage | Select-Object AllocatedBaseSize,CurrentUsage,PeakUsage) } @())
     $disks = @(SafeGet { @(Get-CimInstance Win32_LogicalDisk -Filter 'DriveType=3' | ForEach-Object {
         [pscustomobject]@{drive=$_.DeviceID;size_gb=[math]::Round($_.Size/1GB,1);free_gb=[math]::Round($_.FreeSpace/1GB,1)}
@@ -46,6 +55,22 @@ try {
     $diskPerf = @(SafeGet { @(Get-CimInstance Win32_PerfFormattedData_PerfDisk_PhysicalDisk | Where-Object {$_.Name -eq '_Total'} | Select-Object PercentDiskTime,CurrentDiskQueueLength) } @())
     $services = @(SafeGet { @(Get-CimInstance Win32_Service | Select-Object Name,State,StartMode) } @())
     $start = @(SafeGet { @(Get-CimInstance Win32_StartupCommand | Select-Object Name,Location) } @())
+    # Inventory by read-only uninstall registry metadata (NEVER Win32_Product).
+    # No uninstall commands, file paths or executable arguments are recorded.
+    $installed = @()
+    $uninstallKeys = @(
+        'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*',
+        'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*',
+        'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*'
+    )
+    foreach ($regPattern in $uninstallKeys) {
+        try {
+            $installed += @(Get-ItemProperty -Path $regPattern -ErrorAction SilentlyContinue |
+                Where-Object { $_.DisplayName } |
+                Select-Object -First 160 DisplayName,Publisher,DisplayVersion)
+        } catch {}
+    }
+    $installed = @($installed | Sort-Object DisplayName -Unique | Select-Object -First 250)
     $run = @()
     $runKeys = @(
         'HKCU:\Software\Microsoft\Windows\CurrentVersion\Run',
@@ -74,11 +99,14 @@ try {
         # Do not copy private scheduled task commands, args, URLs or account names.
         [pscustomobject]@{name=$_.TaskName;task_path=$_.TaskPath;state=[string]$_.State}
     }) } @())
-    $defender = @{status='UNAVAILABLE';realtime=$null;detections_count=$null}
+    $defender = @{status='UNAVAILABLE';realtime=$null;detections_count=$null;
+        quick_scan_command_available=$false}
     try {
         $m = Get-MpComputerStatus -ErrorAction Stop
         $defender = @{status='AVAILABLE';enabled=$m.AntivirusEnabled;realtime=$m.RealTimeProtectionEnabled;tamper=$m.IsTamperProtected;
-            signature_updated=[string]$m.AntivirusSignatureLastUpdated;engine=$m.AMEngineVersion;detections_count=$null}
+            signature_updated=[string]$m.AntivirusSignatureLastUpdated;engine=$m.AMEngineVersion;detections_count=$null;
+            quick_scan_command_available=$null -ne (Get-Command Start-MpScan -ErrorAction SilentlyContinue)}
+        # Do not call Start-MpScan: this is command *availability* only.
         try { $detections = @(Get-MpThreatDetection -ErrorAction Stop | Select-Object -First 30 ThreatID,InitialDetectionTime,ActionSuccess)
               $defender.detections_count = $detections.Count
               $defender['recent_detections'] = $detections
@@ -119,9 +147,12 @@ try {
     $snap = [ordered]@{schema_version='IMP-PC5-AUDIT-1';case_id='IMP-PC5-MAINT-20261110';audit_id=$AuditId;
         captured_local=$now.ToString('o');read_only=$true;summary=$summary;
         os=@{uptime_hours=[math]::Round((New-TimeSpan -Start $os.LastBootUpTime -End $now).TotalHours,2);
-            pagefile=$pagefile;disk_perf=$diskPerf;physical_disks=$physical};
-        process_groups=$groups;process_signature_sample=$candidates;
-        services=$services;autostart=$start;registry_autostart=$run;
+            pagefile=$pagefile;disk_perf=$diskPerf;physical_disks=$physical;
+            chrome_visible_windows=$chromeVisibleWindows};
+        process_groups=$groups;top_process_details=$topProcessDetails;
+        process_signature_sample=$candidates;
+        services=$services;autostart=$start;installed_applications=$installed;
+        registry_autostart=$run;
         startup_folder_entries=$startFolders;scheduled_tasks=$tasks;
         defender=$defender;event_counts=$events}
     $json = ConvertTo-Json -InputObject $snap -Depth 11 -Compress
