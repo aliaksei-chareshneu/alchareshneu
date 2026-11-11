@@ -134,6 +134,33 @@ def _receipt(root: Path, plan_id: str) -> Path:
 def apply_approved(audit_id: str, action_id: str, *, audit_root: Path,
                    approval: object, registry: Any = None) -> dict:
     """Local only; after explicit user GO checked by the trusted operator."""
+    if action_id not in SUPPORTED or not isinstance(audit_id, str) or not AUDIT_ID.fullmatch(audit_id):
+        raise ValueError("ACTION_NOT_EXECUTABLE")
+    # Readback of a completed prior apply must not require the deleted Run value.
+    if isinstance(approval, dict) and isinstance(approval.get("plan_id"), str):
+        old_plan = approval["plan_id"]
+        if len(old_plan) == 64 and all(c in "0123456789abcdef" for c in old_plan):
+            existing = _receipt(audit_root / "remediations", old_plan)
+            if existing.exists():
+                _approval_ok(approval, old_plan)
+                if existing.is_symlink():
+                    raise ValueError("RECEIPT_REDIRECT_DENIED")
+                prior = json.loads(existing.read_text(encoding="utf-8"))
+                if (prior.get("plan_id") != old_plan or
+                    prior.get("action") != action_id or
+                    prior.get("status") != "APPLIED"):
+                    raise ValueError("RECEIPT_REQUIRES_MANUAL_RECONCILIATION")
+                if _sha({"name":prior.get("entry"), "kind":prior.get("kind"),
+                         "value":prior.get("original")}) != prior.get("target_sha256"):
+                    raise ValueError("RECEIPT_TAMPERED")
+                agent = HKCURunRegistry() if registry is None else registry
+                try:
+                    agent.get(SUPPORTED[action_id])
+                    raise ValueError("TARGET_CHANGED_SINCE_APPLY")
+                except FileNotFoundError:
+                    pass
+                return {"status":"ALREADY_APPLIED","plan_id":old_plan,
+                        "changes_applied":0}
     plan = prepare(audit_id, action_id, audit_root=audit_root,
                    registry=registry)
     _approval_ok(approval, plan["plan_id"])
@@ -141,14 +168,6 @@ def apply_approved(audit_id: str, action_id: str, *, audit_root: Path,
     _ensure_private(store)
     receipt = _receipt(store, plan["plan_id"])
     if receipt.exists():
-        if receipt.is_symlink():
-            raise ValueError("RECEIPT_REDIRECT_DENIED")
-        record = json.loads(receipt.read_text(encoding="utf-8"))
-        if record.get("plan_id") != plan["plan_id"]:
-            raise ValueError("RECEIPT_TAMPERED")
-        if record.get("status") == "APPLIED":
-            return {"status":"ALREADY_APPLIED", "plan_id":plan["plan_id"],
-                    "changes_applied":0}
         raise ValueError("RECEIPT_REQUIRES_MANUAL_RECONCILIATION")
     agent = HKCURunRegistry() if registry is None else registry
     name = SUPPORTED[action_id]
