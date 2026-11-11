@@ -53,8 +53,15 @@ def strict_payload(payload: object) -> tuple[str, str | None]:
             raise ValueError("INVALID_AUDIT_ID")
         return mode, ident
     if mode == "remediate_pc":
-        if set(payload) != {"mode", "dry_run", "action_ids"}:
+        allowed_fields = ({"mode", "dry_run", "action_ids"},
+                          {"mode", "dry_run", "action_ids", "audit_id"})
+        if set(payload) not in allowed_fields:
             raise ValueError("FIELDS_NOT_ALLOWED")
+        if "audit_id" in payload and (
+            not isinstance(payload["audit_id"], str)
+            or not AUDIT_ID.fullmatch(payload["audit_id"])
+        ):
+            raise ValueError("INVALID_AUDIT_ID")
         if payload["dry_run"] is not True:
             raise ValueError("OWNER_GO_AND_IMPLEMENTATION_REQUIRED")
         acts = payload["action_ids"]
@@ -62,7 +69,7 @@ def strict_payload(payload: object) -> tuple[str, str | None]:
             not isinstance(a, str) or a not in ACTION_IDS for a in acts
         ) or len(acts) != len(set(acts)):
             raise ValueError("ACTION_NOT_ALLOWLISTED_OR_DUPLICATED")
-        return mode, None
+        return mode, payload.get("audit_id")
     raise ValueError("MODE_NOT_ALLOWED")
 
 
@@ -207,15 +214,60 @@ def audit_pc(ident: str, *, root: Path, runner: Callable, script: Path) -> dict:
         lock.unlink(missing_ok=True)
 
 
-def remediate_preview(actions: list[str]) -> dict:
+PROCESS_BY_ACTION = {
+    "startup.comet": "comet",
+    "startup.discord": "discord",
+    "startup.teams": "ms-teams",
+    "startup.viber": "viber",
+    "startup.edge_autolaunch": "msedge",
+    "startup.winzip_preloader": "winzip preloader",
+}
+
+
+def _verified_preview_baseline(root: Path, ident: str) -> tuple[dict, str]:
+    """Read only prior immutable local evidence and validate its receipt."""
+    checked_directory(root)
+    receipt = root / (ident + ".receipt.json")
+    if not receipt.is_file() or receipt.is_symlink() or receipt.stat().st_size > MAX_RESULT_BYTES:
+        raise ValueError("BASELINE_RECEIPT_MISSING")
+    metadata = json.loads(receipt.read_text(encoding="utf-8"))
+    data = checked_file(root, "audit-pc-" + ident + ".json").read_bytes()
+    sha256 = hashlib.sha256(data).hexdigest()
+    if metadata.get("sha256") != sha256:
+        raise ValueError("BASELINE_HASH_MISMATCH")
+    doc = json.loads(data.decode("utf-8-sig"))
+    if doc.get("audit_id") != ident or doc.get("case_id") != "IMP-PC5-MAINT-20261110":
+        raise ValueError("BASELINE_ID_MISMATCH")
+    safe_summary(doc)
+    return doc, sha256
+
+
+def remediate_preview(actions: list[str], *, baseline: dict | None = None,
+                      baseline_sha256: str | None = None) -> dict:
+    groups: dict[str, float] = {}
+    if baseline is not None:
+        raw_groups = baseline.get("process_groups")
+        if not isinstance(raw_groups, list) or len(raw_groups) > 256:
+            raise ValueError("BASELINE_GROUPS_INVALID")
+        for item in raw_groups:
+            if not isinstance(item, dict):
+                continue
+            name, value = item.get("name"), item.get("working_set_mb")
+            if isinstance(name, str) and isinstance(value, (int, float)) and not isinstance(value, bool) and 0 <= value <= 1000000:
+                groups[name.casefold()] = round(float(value), 1)
     return {
         "status": "DRY_RUN_ONLY", "mode": "remediate_pc",
         "changes_applied": 0, "reboots": 0,
         "owner_go_required": True, "execution_handler_installed": False,
+        "baseline_verified": baseline is not None,
+        "baseline_sha256": baseline_sha256,
+        "working_set_is_not_reclaimable_ram_guarantee": True,
         "actions": [
             {"id": action, "target": ACTION_IDS[action][0], "risk": ACTION_IDS[action][1],
              "rollback": ACTION_IDS[action][2],
-             "state": "PROPOSED_NOT_EXECUTED", "requires_fresh_baseline": True}
+             "state": "PROPOSED_NOT_EXECUTED", "requires_fresh_baseline": baseline is None,
+             "observed_process_working_set_mb": groups.get(PROCESS_BY_ACTION[action]),
+             "expected_released_ram_mb": None, "needs_explicit_per_action_go": True}
             for action in actions
         ]
     }
@@ -227,7 +279,15 @@ def operate(payload: object, *, platform: str | None = None,
     try:
         mode, ident = strict_payload(payload)
         if mode == "remediate_pc":
-            return remediate_preview(payload["action_ids"])
+            if ident is None:
+                return remediate_preview(payload["action_ids"])
+            if (sys.platform if platform is None else platform) != "win32":
+                return block("WINDOWS_REQUIRED")
+            baseline, sha = _verified_preview_baseline(
+                private_root() if root is None else root, ident
+            )
+            return remediate_preview(payload["action_ids"],
+                                     baseline=baseline, baseline_sha256=sha)
         if (sys.platform if platform is None else platform) != "win32":
             return block("WINDOWS_REQUIRED")
         path = private_root() if root is None else root
@@ -267,7 +327,8 @@ def operate(payload: object, *, platform: str | None = None,
             "LOCAL_AUDIT_EXECUTION_FAILED", "LOCAL_AUDIT_NOT_SAVED", "AUDIT_NAME_MISMATCH",
             "AUDIT_HASH_MISMATCH", "AUDIT_ID_MISMATCH", "AUDIT_SNAPSHOT_WITHOUT_RECEIPT",
             "AUDIT_MEMORY_PREFLIGHT_UNAVAILABLE", "AUDIT_LOW_MEMORY_NO_EXECUTION",
-            "AUDIT_TIMEOUT_NO_AUTO_RETRY"
+            "AUDIT_TIMEOUT_NO_AUTO_RETRY", "BASELINE_RECEIPT_MISSING",
+            "BASELINE_HASH_MISMATCH", "BASELINE_ID_MISMATCH", "BASELINE_GROUPS_INVALID"
         }:
             reason = "AUDIT_RUNTIME_BLOCKED"
         return block(reason)
