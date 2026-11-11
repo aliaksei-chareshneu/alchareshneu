@@ -60,6 +60,8 @@ for(const width of [390,1440]){
     await page.locator('[data-fd-filter="academy"]').click();
     await expect(page.locator('#fdEventTitle')).toContainText('Move toward your goal');
     await expect(page.locator('#fdBook')).toHaveAttribute('href','academy/');
+    await expect(page.locator('#fdFallback')).toBeVisible();
+    await expect(page.locator('#fdFallbackLink')).toHaveAttribute('href','academy/');
     expect(await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth)).toBeLessThanOrEqual(1);
     const layout=await page.locator('.fd-calendar-layout').evaluate(x=>getComputedStyle(x).gridTemplateColumns.split(' ').filter(Boolean).length);
     expect(layout).toBe(1);
@@ -75,6 +77,7 @@ test('language and manual-contact actions are localized and nonbinding',async({p
   await expect(page.locator('#fdBook')).toContainText('Уточнить участие');
   await expect(page.locator('#fdBook')).toHaveAttribute('href',/event=PUB-WALK-20261129/);
   await expect(page.locator('#fdStatus')).toContainText('согласованию');
+  await page.locator('#fdClose').click();
   await page.locator('[data-fd-language="cs"]').click();
   await expect(page.locator('#fdHeroLabel')).toHaveText('Vybrat zážitek');
 });
