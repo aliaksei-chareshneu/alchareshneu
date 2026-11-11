@@ -95,6 +95,21 @@
     if(/družin|druzin|hema|šerm|serm|fenc|larp|historick|archery|lukostřel/.test(s))return 'club';
     return 'walkers';
   }
+  function publicTitle(e){
+    if(e.event_id==='PUB-OREL-20261114')return ({cs:'Šerm pro začátečníky · bezplatný workshop',en:'Try historical fencing · free workshop',ru:'Попробуй фехтование · бесплатный воркшоп',uk:'Спробуйте фехтування · безплатний воркшоп'})[lang];
+    if(e.category==='HEMA Training' && group(e)==='club')return ({cs:'Historický šerm · Družina Moravy',en:'Historical fencing · Družina Moravy',ru:'Историческое фехтование · Družina Moravy',uk:'Історичне фехтування · Družina Moravy'})[lang];
+    return e.title;
+  }
+  function publicDescription(e){
+    if(e.event_id==='PUB-OREL-20261114')return ({cs:'Úvodní workshop v Orlovně Husovice. Vstup zdarma, účast až po osobním potvrzení organizátorem.',en:'Introductory workshop at Orlovna Husovice. Free entry, attendance only after personal confirmation.',ru:'Вводный воркшоп в Orlovna Husovice. Бесплатно, участие только после личного подтверждения организатора.',uk:'Вступний воркшоп в Orlovna Husovice. Безплатно, участь лише після особистого підтвердження.'})[lang];
+    if(e.category==='HEMA Training' && group(e)==='club')return ({cs:'Pohyb, historický šerm a společný trénink. Bezpečné místo a účast vždy potvrdí organizátor.',en:'Movement, historical fencing and group training. The organiser must confirm the safe venue and your place.',ru:'Движение, историческое фехтование и тренировка в группе. Место и участие организатор подтверждает лично.',uk:'Рух, історичне фехтування та групове тренування. Безпечне місце й участь організатор підтверджує особисто.'})[lang];
+    return typeof e.public_note==='string'&&e.public_note.trim()?e.public_note.slice(0,330):tr('controller');
+  }
+  function publicVenue(e){
+    if(e.category==='HEMA Training' && group(e)==='club' && e.event_id!=='PUB-OREL-20261114')
+      return ({cs:'Brno · přesný sraz až po potvrzení',en:'Brno · exact location after confirmation',ru:'Брно · место сообщим после подтверждения',uk:'Брно · місце після підтвердження'})[lang];
+    return e.venue||tr('controller');
+  }
   function icon(e){
     var s=[e.category,e.title].join(' ').toLowerCase();
     if(/board|deskov|настол|hry/.test(s))return '🎲';
@@ -109,7 +124,10 @@
   function matches(e){return filter==='all'||group(e)===filter;}
   function isSuppressed(e){
     var date=String(e.begins_at||'').slice(0,10);
-    return (date==='2026-11-15'||date==='2026-11-17'||e.event_id==='BW-PAID-20261028'||e.event_id==='COM-HIKE-20261028');
+    // Owner decision: regular Saturday HEMA is suspended from 7 Nov until separately reinstated.
+    // Free Orel 14 Nov is a distinct approved workshop, not a regular Saturday session.
+    var clubSaturday=e.category==='HEMA Training'&&group(e)==='club'&&e.event_id!=='PUB-OREL-20261114'&&new Date(e.begins_at).getUTCDay()===6;
+    return clubSaturday||date==='2026-11-15'||date==='2026-11-17'||e.event_id==='BW-PAID-20261028'||e.event_id==='COM-HIKE-20261028';
   }
   function eventsForDay(key){
     return data.filter(function(e){return dayKey(e.begins_at)===key&&matches(e);}).sort(function(a,b){return Date.parse(a.begins_at)-Date.parse(b.begins_at);});
@@ -146,10 +164,10 @@
     el('fdPhoto').src=({club:'images/druzina_train.webp',walkers:'images/walkers_group.webp',academy:'images/portrait_face.webp'})[g]||'images/main_hero.webp';
     el('fdPhoto').alt=tr('photo');
     el('fdEventMeta').textContent=icon(event)+'  '+(g==='club'?tr('club'):g==='walkers'?tr('walkers'):tr('academy'));
-    el('fdEventTitle').textContent=event.title;
-    el('fdEventDesc').textContent=event.description||tr('controller');
+    el('fdEventTitle').textContent=publicTitle(event);
+    el('fdEventDesc').textContent=publicDescription(event);
     var facts=el('fdFacts');facts.replaceChildren();
-    [[tr('date'),timeOf(event)],[tr('place'),event.venue||tr('controller')],[tr('priceLabel'),event.price_verified===true?(Number(event.price_czk)===0?tr('free'):(Number.isFinite(Number(event.price_czk))?Number(event.price_czk)+' Kč':tr('price'))):tr('price')]].forEach(function(x){
+    [[tr('date'),timeOf(event)],[tr('place'),publicVenue(event)],[({cs:'Pořadatel',en:'Organiser',ru:'Организатор',uk:'Організатор'})[lang],event.data_controller||tr('controller')],[tr('priceLabel'),event.price_verified===true?(Number(event.price_czk)===0?tr('free'):(Number.isFinite(Number(event.price_czk))?Number(event.price_czk)+' Kč':tr('price'))):tr('price')]].forEach(function(x){
       var line=document.createElement('span'),b=document.createElement('strong');b.textContent=x[0]+': ';line.appendChild(b);line.appendChild(document.createTextNode(x[1]));facts.appendChild(line);
     });
     var st=el('fdStatus');st.hidden=false;st.className='fd-status '+(m==='open'?'open':'');st.textContent=tr(m);
