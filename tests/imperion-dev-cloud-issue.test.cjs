@@ -179,3 +179,66 @@ test('cloud sandbox accepts only the same complete synthetic fixture pair as iss
  assert.ok(y.includes('if [ "$target" = \'ops/imperion-dev-cloud-fixture/normalize.cjs\' ]'));
  assert.ok(y.includes("startsWith(github.event.pull_request.head.ref, 'agent/imperion-dev-cloud-')"));
 });
+
+test('strict owner-only two-file task syntax and sensitive path rejection',()=>{
+ const multi='/imperion-dev cloud\nfile: scripts/public-multi-a.cjs\nfile2: ops/public-multi-b.cjs\ntest: tests/public-multi.test.cjs\ngoal: Keep both exported totals consistent for independent tests';
+ assert.deepEqual(W.parseCommand(multi),{file:'scripts/public-multi-a.cjs',
+   test:'tests/public-multi.test.cjs',goal:'Keep both exported totals consistent for independent tests',
+   file2:'ops/public-multi-b.cjs'});
+ assert.throws(()=>W.parseCommand(multi.replace('ops/public-multi-b.cjs','scripts/public-multi-a.cjs')),/TASK_PATH_REJECTED/);
+ assert.throws(()=>W.parseCommand(multi.replace('ops/public-multi-b.cjs','tests/imperion-dev-cloud-issue.test.cjs')),/TASK_PATH_REJECTED/);
+ assert.throws(()=>W.parseCommand(multi.replace('ops/public-multi-b.cjs','ops/imperion-billing.cjs')),/TASK_PATH_REJECTED/);
+ assert.throws(()=>W.parseCommand(multi.replace('scripts/public-multi-a.cjs','ops/imperion-dev-cloud-fixture/normalize.cjs')),/TASK_PATH_REJECTED/);
+});
+test('multi-file model proposals are separate and both source hashes are checked atomically',async()=>{
+ const base=fs.mkdtempSync(path.join(os.tmpdir(),'imperion-dev-multi-'));
+ const evt={...event,comment:{...event.comment,body:
+   '/imperion-dev cloud\nfile: scripts/public-multi-a.cjs\nfile2: ops/public-multi-b.cjs\ntest: tests/public-multi.test.cjs\ngoal: Keep both exported totals consistent for independent tests'}};
+ const paths=['scripts/public-multi-a.cjs','ops/public-multi-b.cjs'];
+ for(const file of [...paths,'tests/public-multi.test.cjs'])
+   fs.mkdirSync(path.dirname(path.join(base,file)),{recursive:true});
+ fs.writeFileSync(path.join(base,paths[0]),'const a = 1; module.exports = a;\n');
+ fs.writeFileSync(path.join(base,paths[1]),'const b = 2; module.exports = b;\n');
+ fs.writeFileSync(path.join(base,'tests/public-multi.test.cjs'),'// Existing trusted test.\n');
+ const response=[{old:'const a = 1;',new:'const a = 2;'},{old:'const b = 2;',new:'const b = 3;'}];
+ let k=0;
+ const task=W.taskFromEvent(evt);
+ const original=paths.map(file=>fs.readFileSync(path.join(base,file),'utf8'));
+ const proposal=await W.propose(task,base,async(_u,opts)=>{
+   assert.equal(JSON.parse(opts.body).options.num_gpu,0);
+   return {ok:true,redirected:false,json:async()=>({done:true,model:W.MODEL,
+     response:JSON.stringify(response[k++])})};
+ });
+ assert.equal(k,2);
+ assert.equal(proposal.schema,'imperion-dev-cloud-task-v2');
+ assert.equal(proposal.sources.length,2);
+ assert.deepEqual(paths.map(file=>fs.readFileSync(path.join(base,file),'utf8')),original);
+ const old=process.env.GITHUB_EVENT_PATH;
+ const ep=path.join(base,'github-event.json');fs.writeFileSync(ep,JSON.stringify(evt));
+ process.env.GITHUB_EVENT_PATH=ep;
+ try{
+   const forged={...proposal,sources:[proposal.sources[0],
+     {...proposal.sources[1],source_sha256:'bad'}]};
+   assert.throws(()=>W.verifiedApply(forged,base),/BASELINE_SHA_CHANGED/);
+   assert.deepEqual(paths.map(file=>fs.readFileSync(path.join(base,file),'utf8')),original);
+   const result=W.verifiedApply(proposal,base);
+   assert.deepEqual(result.files,paths);
+   assert.equal(fs.readFileSync(path.join(base,paths[0]),'utf8').includes('const a = 2;'),true);
+   assert.equal(fs.readFileSync(path.join(base,paths[1]),'utf8').includes('const b = 3;'),true);
+   assert.throws(()=>W.verifiedApply(proposal,base),/BASELINE_SHA_CHANGED/);
+ }finally{
+   if(old===undefined)delete process.env.GITHUB_EVENT_PATH;
+   else process.env.GITHUB_EVENT_PATH=old;
+   fs.rmSync(base,{recursive:true,force:true});
+ }
+});
+
+test('workflow admits at most two exact public edits but never a deploy',()=>{
+ const y=fs.readFileSync(path.join(__dirname,'../.github/workflows/imperion-dev-cloud-issue.yml'),'utf8');
+ assert.match(y,/task\.file2/);
+ assert.match(y,/safeSourceFile\(process\.argv\[1\]\)/);
+ assert.match(y,/git diff --cached --name-only/);
+ assert.match(y,/files=\("\$file"\)/);
+ assert.match(y,/test "\$actual" = "\$expected"/);
+ assert.doesNotMatch(y,/gh pr merge|git push origin main|auto-merge: true/);
+});

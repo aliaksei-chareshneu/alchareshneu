@@ -30,7 +30,7 @@ For the first owner-authorized end-to-end cloud acceptance, use this exact publi
 
 The complete fixture file/test pair is an explicitly validated exception to normal path restrictions. This confirms real GitHub issue → cloud Qwen → independent test → Draft PR without modifying application code or prices. It does not establish native Android app provenance until a command is submitted from that device and observed.
 
-For later non-synthetic work, replace the file and test with real **already tracked** public paths from this repo. A suitable trusted test must exist before submitting. Only one file is edited per command. Accepted source paths: non-sensitive .js, .cjs, .md under scripts/, docs/, ops/; pre-existing independent tests remain read-only under tests/; sensitive paths, .github, credentials, billing, auth, registration, deployment, personal data and private code are rejected. This is NOT yet a universal multi-file programmer.
+For later non-synthetic work, replace the file and test with real **already tracked** public paths from this repo. A suitable trusted test must exist before submitting. One or two pre-existing source files can be edited per command. For a coordinated two-file change, insert an optional `file2: ops/approved-public-module.cjs` line **immediately after** the `file:` line, before `test:`. The model proposes a separate anchored replacement for each file, both original SHA-256 digests are validated before either edit is staged, and the exact two-file diff is verified before the bot can create a Draft PR. The same independently maintained pre-existing test must pass after **both** edits. This is bounded multi-file coding, not a general-purpose multi-repo agent or independently generated new tests. Accepted source paths: non-sensitive .js, .cjs, .md under scripts/, docs/, ops/; pre-existing independent tests remain read-only under tests/; sensitive paths, .github, credentials, billing, auth, registration, deployment, personal data and private code are rejected. This is NOT yet a universal multi-file programmer.
 
 GitHub issue comments are public. Never include account details, tokens, customer records, health data, legal matters, passwords or unpublished financial information. Only your GitHub account (repository owner), with correct GitHub author association, can trigger execution. No direct shell execution or model-selected paths.
 
@@ -71,3 +71,15 @@ Invalid actor, wrong issue number, closed issue, wrong command format, missing t
 GitHub official references:
 - https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#issue_comment
 - https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/enabling-features-for-your-repository/managing-github-actions-settings-for-a-repository
+
+## Stage 8 — bounded two-file acceptance (review-only)
+
+This second fixture uses two separate **public, synthetic** arithmetic helpers with an independently maintained, already passing trusted test. It does not change any production price or event record. After the Stage 8 reviewed code has been merged into main, the signed-in repository owner can submit one unique comment to existing Issue #245:
+
+    /imperion-dev cloud
+    file: ops/imperion-dev-cloud-fixture/multi-price.cjs
+    file2: ops/imperion-dev-cloud-fixture/multi-shipping.cjs
+    test: tests/imperion-dev-cloud-multi-fixture.test.cjs
+    goal: Add a concise explanatory comment to each helper function without changing outputs or exports.
+
+Acceptance is complete only when a new GitHub Actions issue_comment workflow independently verifies **two model proposals**, tests both changes in a no-network container, the publisher commits exactly those two source files, and GitHub reports a bot-created OPEN/DRAFT review PR. A model proposal or a green baseline alone is insufficient. Reject duplicate comments and do not merge these purely synthetic patches into the main branch.
