@@ -1,4 +1,4 @@
-"""Small review-only Agent5 route extension. Not installed by this PR.
+"""Review-only Agent5 mode router for the existing authenticated Bridge.
 
 In the existing browser_bridge_adapter.dispatch, invoke maybe_dispatch(action, payload)
 BEFORE the legacy pc_operator branch. The existing authenticated Browser Bridge
@@ -8,7 +8,7 @@ new listener, service or process. No arbitrary shell payload is accepted.
 from pc5_maintenance import operate
 
 
-PC5_MODES = frozenset({"audit_pc"})  # remediate_pc explicitly not installed
+PC5_MODES = frozenset({"audit_pc", "remediate_pc"})  # remediation hard-denies mutation; dry-run only
 
 
 def maybe_dispatch(action, payload):
