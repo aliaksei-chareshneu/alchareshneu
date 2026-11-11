@@ -271,3 +271,16 @@ test('bounded model retry corrects only format errors without changing protected
    assert.equal(failed,2);
  }finally{fs.rmSync(root,{recursive:true,force:true});}
 });
+
+test('safe JS function declarations and comments are not confused with dynamic Function',()=>{
+ const old='function netPrice(unitPrice, quantity) {';
+ const safe={old,new:'function netPrice(unitPrice, quantity) {\n  // Public fixture function for net prices.'};
+ assert.deepEqual(W.parseCandidate(JSON.stringify(safe)),safe);
+ for(const injected of [
+   'new Function("return 1")',
+   'Function("return 2")',
+   'const unsafe = Function("return 3")',
+   'process.env.API_KEY',
+   'require("child_process")'
+ ]) assert.throws(()=>W.parseCandidate(JSON.stringify({old,new:injected})),/MODEL_PATCH_REJECTED/);
+});
