@@ -11,7 +11,10 @@ const FIXTURE_FILE = 'ops/imperion-dev-cloud-fixture/normalize.cjs';
 const FIXTURE_TEST = 'ops/imperion-dev-cloud-fixture/check.cjs';
 const COMMAND = /^\/imperion-dev cloud\nfile: ([a-zA-Z0-9/_\-.]{1,110})\n(?:file2: ([a-zA-Z0-9/_\-.]{1,110})\n)?test: ([a-zA-Z0-9/_\-.]{1,110})\ngoal: ([^\r\n]{12,280})$/;
 const BLOCKED_PATH = /(secrets?|tokens?|credentials?|oauth|auth|billing|payment|stripe|supabase|mailer|deploy|workflow|permissions?|privacy|legal|grant|cash|register|receipt|intake|rsvp|\.env)/i;
-const BLOCKED_CODE = /\b(?:eval|Function|child_process|execSync|spawnSync|process|require|import|fetch|globalThis|XMLHttpRequest|WebSocket|constructor|prototype)\b|__proto__/i;
+const BLOCKED_CODE = /\b(?:eval|child_process|execSync|spawnSync|process|require|import|fetch|globalThis|XMLHttpRequest|WebSocket|constructor|prototype)\b|__proto__/i;
+// The dynamic Function constructor is case-sensitive. A case-insensitive ban
+// unintentionally rejects ordinary `function` declarations and comments.
+const BLOCKED_DYNAMIC_FUNCTION = /\bFunction\b/;
 function sha(text) { return crypto.createHash('sha256').update(text).digest('hex'); }
 function safeSourceFile(file, fixture=false) {
   if (fixture && file === FIXTURE_FILE) return true;
@@ -93,7 +96,8 @@ function parseCandidate(raw) {
       typeof obj.old !== 'string' || typeof obj.new !== 'string' ||
       obj.old.length < 8 || obj.old.length > 2500 ||
       obj.new.length < 3 || obj.new.length > 3500 ||
-      obj.old === obj.new || obj.new.includes('\0') || BLOCKED_CODE.test(obj.new))
+      obj.old === obj.new || obj.new.includes('\0') ||
+      BLOCKED_CODE.test(obj.new) || BLOCKED_DYNAMIC_FUNCTION.test(obj.new))
     throw Error('MODEL_PATCH_REJECTED');
   return {old:obj.old,new:obj.new};
 }
