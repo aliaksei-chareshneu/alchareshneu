@@ -20,7 +20,13 @@ if(require.main===module)(async()=>{let count=0;for(const path of ['index.html',
    assert.equal(d.querySelectorAll('form').length,0,'no forced form to join club');
    assert.ok(d.querySelector('[data-k="membership"]').textContent.length>45,'club participation separate from legal z.s. member status');
    assert.ok((d.querySelector('#action').href||'').startsWith(lang==='ru'?'https://t.me/druzinamoravy_news':'https://chat.whatsapp.com/'),'language-appropriate opt-in club updates');
-   assert.ok((d.querySelector('#question').href||'').startsWith(lang==='ru'?'https://t.me/Chareshneu':'https://wa.me/420702914842'),'separate human enquiry');
+   // The two direct personal enquiries must retain the QR provenance in every language.
+   for(const id of ['nextTraining','question']){
+    const url=new URL(d.getElementById(id).href);
+    assert.equal(url.hostname,'wa.me',id+' must open user-initiated WhatsApp');
+    assert.equal(url.pathname,'/420702914842',id+' correct organizer contact');
+    assert.ok((url.searchParams.get('text')||'').includes('[DM:START]'),id+' source preserved');
+   }
    const safeApplicationCopy={
     en:['Applications for planned HEMA sessions are open','Paid participation and equipment use are confirmed individually','Do not pay or travel without written confirmation'],
     cs:['Přihlášky na plánované tréninky HEMA jsou otevřené','Placenou účast potvrzujeme jednotlivě','Bez písemného potvrzení neplať ani necestuj'],
