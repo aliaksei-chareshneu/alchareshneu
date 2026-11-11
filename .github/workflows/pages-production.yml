@@ -60,7 +60,7 @@ jobs:
               cp -a "$dir" "_pages/$dir"
             fi
           done
-          for file in index.html 404.html robots.txt sitemap.xml styles.css brand-theme.css site-design.css intent-home.css site-design.js experience.css experience.js quest-theme.css quest-audio.js site.webmanifest apple-touch-icon.png favicon.ico favicon-16.png favicon-32.png favicon-48.png icon-192.png icon-512.png revolut-payment-qr.png; do
+          for file in index.html 404.html robots.txt sitemap.xml styles.css brand-theme.css site-design.css intent-home.css conversion-frontdoor.css conversion-frontdoor.js site-design.js experience.css experience.js quest-theme.css quest-audio.js site.webmanifest apple-touch-icon.png favicon.ico favicon-16.png favicon-32.png favicon-48.png icon-192.png icon-512.png revolut-payment-qr.png; do
             if [ -f "$file" ]; then
               cp "$file" "_pages/$file"
             fi
@@ -73,6 +73,9 @@ jobs:
           touch _pages/.nojekyll
           test -s _pages/index.html
           test -s _pages/intent-home.css
+          test -s _pages/conversion-frontdoor.css
+          test -s _pages/conversion-frontdoor.js
+          grep -Fq 'conversion-frontdoor.js?v=20261111' _pages/index.html
           grep -Fq 'id="goal-paths"' _pages/index.html
           grep -Fq 'id="intentDruzinaCta" href="register/?lang=en"' _pages/index.html
           test -s _pages/sitemap.xml
@@ -197,6 +200,32 @@ jobs:
             exit 1
           fi
           echo 'VERIFIED LIVE: consumer homepage, 3 intent cards and responsive CSS are readable over public HTTPS.' >> "$GITHUB_STEP_SUMMARY"
+
+
+      - name: Verify live conversion-first homepage assets on GitHub Pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://aliaksei-chareshneu.github.io/alchareshneu"
+          page="$(mktemp)"; style="$(mktemp)"; logic="$(mktemp)"
+          trap 'rm -f "$page" "$style" "$logic"' EXIT
+          ok=0
+          for attempt in 1 2 3 4 5 6 7 8; do
+            if curl -fsSL --max-time 20 "$base/?v=$GITHUB_SHA" -o "$page" \
+              && curl -fsSL --max-time 20 "$base/conversion-frontdoor.css?v=$GITHUB_SHA" -o "$style" \
+              && curl -fsSL --max-time 20 "$base/conversion-frontdoor.js?v=$GITHUB_SHA" -o "$logic" \
+              && grep -Fq 'conversion-frontdoor.js?v=20261111' "$page" \
+              && grep -Fq 'imperion-frontdoor' "$style" \
+              && grep -Fq "imperion-register" "$logic"; then
+              ok=1; break
+            fi
+            sleep 4
+          done
+          if [ "$ok" != 1 ]; then
+            echo "Conversion front door unavailable over live HTTPS" >&2
+            exit 1
+          fi
+          echo "VERIFIED LIVE: conversion-first homepage CSS, JS and registration catalog reference" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Verify current Academy and Start tariffs over independent public HTTPS
         shell: bash
