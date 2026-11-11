@@ -41,7 +41,7 @@ function parseCommand(body) {
       !safeSourceFile(task.file,fixture) || !safeTestFile(task.test,fixture) ||
       task.file === task.test ||
       (task.file.endsWith('.py') !== task.test.endsWith('.py')))
-    throw Error('TASK_PATH_OR_LANGUAGE_REJECTED');
+    throw Error('TASK_PATH_REJECTED');
   if (/[\x00-\x1f]|(?:sk-[a-z0-9_-]{12,}|gh[pousr]_[a-z0-9_]{12,}|@|BEGIN PRIVATE KEY)/i.test(task.goal))
     throw Error('PUBLIC_TASK_CONTENT_REJECTED');
   return task;
