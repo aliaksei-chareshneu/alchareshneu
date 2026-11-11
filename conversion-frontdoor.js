@@ -69,7 +69,7 @@
   function pc(k){return (PAYMENT_COPY[lang]||PAYMENT_COPY.cs)[k];}
   function isPaidActivity(e){return e&&Number.isFinite(Number(e.price_czk))&&Number(e.price_czk)>0;}
   function displayEventPrice(e){
-    if(e.price_verified!==true)return tr('price');
+    if(e.price_verified!==true||e.price_czk===null||e.price_czk===undefined||e.price_czk==='')return tr('price');
     var base=Number(e.price_czk);
     if(!Number.isFinite(base)||base<0)return tr('price');
     if(base===0)return tr('free');
@@ -84,6 +84,7 @@
     el('fdPaymentSummary').textContent=pc('toggle');
     el('fdPaymentContactIntro').textContent=pc('contact');
     el('fdPaymentPayee').textContent=pc('payee')+': '+(e.data_controller||tr('controller'));
+    el('fdPaymentEventRef').textContent='ID: '+e.event_id;
     el('fdPaymentTiming').textContent=pc('timing');
     el('fdPaymentCancellation').textContent=pc('cancellation');
     el('fdPaymentException').textContent=pc('exception');
@@ -174,7 +175,7 @@
               '<a id="fdPaymentEmail" href="mailto:chereshnev.biochem@gmail.com">Email</a>',
               '<a id="fdPaymentWhatsApp" href="https://wa.me/420702914842" target="_blank" rel="noopener noreferrer">WhatsApp</a>',
               '<a id="fdPaymentTelegram" href="https://t.me/Chareshneu" target="_blank" rel="noopener noreferrer">Telegram</a>',
-              '</nav><p id="fdPaymentPayee"></p><p id="fdPaymentTiming"></p><p id="fdPaymentCancellation"></p>',
+              '</nav><p id="fdPaymentEventRef"></p><p id="fdPaymentPayee"></p><p id="fdPaymentTiming"></p><p id="fdPaymentCancellation"></p>',
               '<p id="fdPaymentException"></p><p id="fdPaymentNotice"></p><p id="fdPaymentGuard"></p></div></details>',
               '<div class="fd-actions"><a class="fd-book" id="fdBook" href="register/"></a><a class="fd-info" id="fdMore" href="calendar/"></a></div></div>',
             '</aside>',
