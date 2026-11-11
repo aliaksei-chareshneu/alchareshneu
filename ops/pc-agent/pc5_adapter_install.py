@@ -52,7 +52,7 @@ def patch_text(source: str) -> tuple[str, bool]:
 
 def _blob_sha(data: bytes) -> str:
     """Git-compatible blob SHA, independent of an installed git executable."""
-    return hashlib.sha1(b"blob " + str(len(data)).encode() + b"\\0" + data).hexdigest()
+    return hashlib.sha1(b"blob " + str(len(data)).encode() + b"\0" + data).hexdigest()
 
 
 def _safe_file(file: Path) -> None:
@@ -107,7 +107,7 @@ def apply(adapter: Path, core: Path, backup_root: Path, *,
     if candidate.exists():
         raise ValueError("PENDING_FILE_COLLISION")
     try:
-        with candidate.open("x", encoding="utf-8", newline="\\n") as handle:
+        with candidate.open("x", encoding="utf-8", newline="\n") as handle:
             handle.write(review["patched_text"])
         compile(review["patched_text"], str(adapter.name), "exec")
         os.replace(candidate, adapter)
