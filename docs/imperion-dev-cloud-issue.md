@@ -1,7 +1,7 @@
 # IMPERION DEV Agent — cloud issue coding (Stage 7, review-only)
 
 **Entity:** personal OSVČ. **Repository:** aliaksei-chareshneu/alchareshneu.
-**Owner GO (9 Nov 2026):** isolated development on GitHub branches and zmrzlina; **not** merging, deploying, changing permissions, purchases or publishing.
+**ACTIVE in main:** PR #250 and #258 were merged on 10 Nov 2026 with owner GO. On 11 Nov, cloud Actions run #42965529871 independently created owner-review Draft PR #268. This review branch extends intake to other owner-created public issues; **no new merge, deploy, payment or permission change** is authorized by this branch.
 **Cost model:** GitHub-hosted CPU with local Ollama qwen3:4b-instruct, no paid inference API or account secrets. GitHub runner quotas and electricity have nonzero resource cost; never enable billed overage.
 **Case:** IMP-DEV-CLOUD-ISSUE-20261109.
 
@@ -9,26 +9,26 @@
 
 - This is an extension of existing IMPERION DEV work, not a separate public app, CRM, database, queue, or paid provider.
 - [Owner command channel #195](https://github.com/aliaksei-chareshneu/alchareshneu/issues/195) remains the **on-PC fallback**, polled by Windows Task Scheduler using local Qwen3.5 4B, only while zmrzlina is on.
-- [Cloud acceptance #245](https://github.com/aliaksei-chareshneu/alchareshneu/issues/245) is a **public owner-only issue** to request bounded coding from Android or desktop.
+- [Cloud acceptance #245](https://github.com/aliaksei-chareshneu/alchareshneu/issues/245) is the original, proven example. After this review branch is separately approved and merged, **any open public issue created by the repository owner** can receive the same exact owner-authored command from Android or desktop. PR discussions and issues created by other accounts are rejected.
 - Existing [Draft PR #231](https://github.com/aliaksei-chareshneu/alchareshneu/pull/231) and [Draft PR #247](https://github.com/aliaksei-chareshneu/alchareshneu/pull/247) remain separate; do not merge old site versions or silently restore superseded tariffs.
 
-## How to submit (AFTER owner-approved activation in main)
+## How to submit (ACTIVE in main for issue #245; other owner issues require this PR to be merged)
 
-From the logged-in GitHub Mobile app or mobile browser, open the existing issue #245 and create a new public comment:
+On GitHub Mobile or a signed-in Android browser, open an owner-created public issue in this repository. Use an existing tracked public file and its existing trusted test. The command format is:
 
     /imperion-dev cloud
-    file: scripts/imperion-public-example.cjs
-    test: tests/imperion-public-example.test.cjs
-    goal: Correct total() to multiply each item price by its quantity
+    file: docs/imperion-dev-cloud-issue.md
+    test: tests/imperion-dev-cloud-issue.test.cjs
+    goal: Correct one clearly identified outdated status sentence without changing safety requirements
 
-For the first owner-authorized end-to-end cloud acceptance, use this exact public, deliberately broken fixture; the patch is proposed for a Draft PR only:
+Historical synthetic acceptance (already performed; **do not repost as a duplicate task**):
 
     /imperion-dev cloud
     file: ops/imperion-dev-cloud-fixture/normalize.cjs
     test: ops/imperion-dev-cloud-fixture/check.cjs
     goal: Correct total(items): each price must be multiplied by quantity, using an empty-array-safe sum.
 
-The complete fixture file/test pair is an explicitly validated exception to normal path restrictions. This confirms real GitHub issue → cloud Qwen → independent test → Draft PR without modifying application code or prices. It does not establish native Android app provenance until a command is submitted from that device and observed.
+The complete fixture file/test pair is an explicitly validated exception to normal path restrictions. The owner comment #6787842684 on issue #245 subsequently proved GitHub issue → cloud Qwen → independent test → **GitHub Actions-authored Draft PR #268** on run #42965529871. This was not independently shown to originate on Android, so do not claim Android-native acceptance.
 
 For later non-synthetic work, replace the file and test with real **already tracked** public paths from this repo. A suitable trusted test must exist before submitting. Only one file is edited per command. Accepted source paths: non-sensitive .js, .cjs, .md under scripts/, docs/, ops/; pre-existing independent tests remain read-only under tests/; sensitive paths, .github, credentials, billing, auth, registration, deployment, personal data and private code are rejected. This is NOT yet a universal multi-file programmer.
 
@@ -44,19 +44,19 @@ GitHub issue comments are public. Never include account details, tokens, custome
 6. **Only after tests**, an independent workflow job with separate GitHub token permissions (subject to owner review) may push a unique review branch and attempt gh pr create --draft. Duplicate comment IDs never create duplicate PRs; a surviving branch without PR is reported BLOCKED.
 7. Read back from GitHub to prove an open Draft PR. Nothing merges, deploys, publishes, changes prices, or sends customer messages.
 
-**Known external blockers:** GitHub only triggers issue-comment workflows that exist in default branch. GitHub can also forbid PR creation from GitHub Actions by repository policy (403). Neither default-branch activation nor permission changes are authorized by the current GO. The preview PR can test the model and isolation; it cannot prove fully unattended Android-origin issue → PR until those separate gates are approved and independently tested.
+**Current acceptance (11 Nov 2026):** the workflow is already on main and an Actions-authored Draft PR has been verified. Repository-wide PR permission was effective for run #42965529871; no new permissions are requested here. Global Site quality CI on the companion PR is not green due to RSVP source drift and an Academy contact-gate regression in unrelated existing code. Do not merge this change or claim full CI PASS without checking the latest run. Additional arbitrary multi-file work, self-authored trusted tests, private tasks and native Android provenance are **BLOCKED / NOT VERIFIED**.
 
 **The code does not autonomously author separate test files.** It requires an existing trusted test for the requested public file and verifies its outcome. General unrestricted agent coding, multi-file edits and private tasks remain outside this scoped stage.
 
-## Preview acceptance before any main merge
+## Preview acceptance for this review branch before any merge
 
 An isolated Draft PR against the latest main triggers pull_request preview only for the dedicated review branch. It must show:
 - Unit tests for scripts/imperion-dev-cloud-issue.cjs pass locally and in GitHub.
 - The public fixture ops/imperion-dev-cloud-fixture/normalize.cjs fails its trusted test before patch.
 - A real Qwen inference on **GitHub Actions** creates a bounded code replacement.
 - Re-running the trusted test in a no-network Docker container on the staged patch passes.
-- The source branch, artifact, workflow/job conclusion and the exact commit SHA are verified.
-- PR remains Draft; main and production do not change.
+- The source branch, artifact, workflow/job conclusion and exact commit SHA are verified. When one job fails, preserve the exact failure and distinguish inherited CI failures.
+- PR remains Draft; main and production do not change. Generalization to other owner-created issues is not LIVE until a separately authorized merge.
 
 ## Fail-closed conditions
 
