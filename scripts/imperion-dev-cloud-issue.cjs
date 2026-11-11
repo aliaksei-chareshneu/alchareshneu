@@ -45,12 +45,19 @@ function parseCommand(body) {
 }
 function taskFromEvent(e) {
   if (!e || e.action !== 'created' || e.repository?.full_name !== REPO ||
-      e.issue?.number !== 245 || e.issue?.pull_request || e.sender?.login !== 'aliaksei-chareshneu' ||
+      !Number.isSafeInteger(e.issue?.number) || e.issue.number <= 0 ||
+      e.issue?.user?.login !== 'aliaksei-chareshneu' ||
+      e.issue?.pull_request || e.sender?.login !== 'aliaksei-chareshneu' ||
       e.comment?.user?.login !== 'aliaksei-chareshneu' ||
       e.comment?.author_association !== 'OWNER' ||
       !Number.isSafeInteger(e.comment?.id) || e.comment.id <= 0 ||
       e.issue?.state !== 'open') throw Error('UNTRUSTED_TRIGGER_REJECTED');
-  return {...parseCommand(e.comment.body), issue:245, comment:e.comment.id, mode:'OWNER_ISSUE'};
+  return {...parseCommand(e.comment.body), issue:e.issue.number, comment:e.comment.id, mode:'OWNER_ISSUE'};
+}
+function reviewBranch(issue, comment) {
+  if (!Number.isSafeInteger(issue) || !Number.isSafeInteger(comment) ||
+      issue <= 0 || comment <= 0) throw Error('REVIEW_BRANCH_IDS_REJECTED');
+  return `agent/imperion-dev-cloud-${issue}-${comment}`;
 }
 function safeFileRead(root, file, fixture=false, isTest=false) {
   if (!(isTest ? safeTestFile(file,fixture) : safeSourceFile(file,fixture))) throw Error('FILE_NOT_ALLOWED');
@@ -179,5 +186,5 @@ if (require.main===module) main().catch(e=>{
   process.exitCode=2;
 });
 module.exports={MODEL,REPO,FIXTURE_FILE,FIXTURE_TEST,COMMAND,
-  safeSourceFile,safeTestFile,isFixtureTask,parseCommand,taskFromEvent,safeFileRead,prompt,
+  safeSourceFile,safeTestFile,isFixtureTask,parseCommand,taskFromEvent,reviewBranch,safeFileRead,prompt,
   parseCandidate,applyCandidate,propose,verifiedApply,sha};
