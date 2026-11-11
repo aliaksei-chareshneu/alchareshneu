@@ -13,14 +13,14 @@ const fixture=[
   {...base,event_id:'PUB-WALK-20261115',title:'15 Nov owner HOLD',community:'Brnowalkers',category:'Hike',begins_at:'2026-11-15T13:00:00Z'},
   {...base,event_id:'PUB-HEMA-20261116',title:'Monday training',begins_at:'2026-11-16T17:00:00Z'},
   {...base,event_id:'PUB-WALK-20261117',title:'17 Nov owner HOLD',community:'Brnowalkers',category:'Hike',begins_at:'2026-11-17T08:00:00Z'},
-  {...base,event_id:'PUB-WALK-TALK-20261118',title:'Brno After Dark',community:'Brnowalkers',category:'City Walk',begins_at:'2026-11-18T17:30:00Z',price_czk:100},
+  {...base,event_id:'PUB-WALK-TALK-20261118',title:'Brno After Dark',community:'Brnowalkers',category:'City Walk',begins_at:'2026-11-18T17:30:00Z',price_czk:100,data_controller:'Aliaksei Chareshneu (OSVČ, IČO 23041625)'},
   {...base,event_id:'PUB-HEMA-20261121',title:'Saturday training suspended',begins_at:'2026-11-21T17:00:00Z'},
   {...base,event_id:'PUB-HEMA-20261123',title:'Monday 23 November',begins_at:'2026-11-23T17:00:00Z'},
   {...base,event_id:'PUB-HEMA-20261128',title:'Saturday training suspended',begins_at:'2026-11-28T17:00:00Z'},
   {...base,event_id:'PUB-WALK-20261129',title:'Conditional guided walk',community:'Brnowalkers',category:'Guided Walk',begins_at:'2026-11-29T13:00:00Z',price_czk:450,registration_mode:'CONTACT',is_open:false}
 ];
-async function prepare(page){
-  await page.clock.install({time:new Date('2026-11-11T12:00:00+01:00')});
+async function prepare(page,at='2026-11-11T12:00:00+01:00'){
+  await page.clock.install({time:new Date(at)});
   let posts=0;
   await page.route(ENDPOINT,route=>{
     if(route.request().method()!=='GET'){posts++;return route.fulfill({status:405,body:'{}'});}
@@ -53,6 +53,16 @@ for(const width of [390,1440]){
     await expect(page.locator('#fdClose')).toBeFocused();
     await expect(page.locator('#fdBook')).toHaveAttribute('href',/event=PUB-HEMA-20261116/);
     await expect(page.locator('#fdFacts')).toContainText('240 Kč');
+    await expect(page.locator('#fdPaymentTerms')).toBeVisible();
+    await expect(page.locator('#fdPaymentTerms')).not.toHaveAttribute('open','');
+    await expect(page.locator('#fdPaymentTiming')).toBeHidden();
+    await page.locator('#fdPaymentSummary').click();
+    await expect(page.locator('#fdPaymentTiming')).toContainText('+25%');
+    await expect(page.locator('#fdPaymentCancellation')).toContainText('48 hours');
+    await expect(page.locator('#fdPaymentEmail')).toHaveAttribute('href',/^mailto:chereshnev\.biochem@gmail\.com\?/);
+    await expect(page.locator('#fdPaymentWhatsApp')).toHaveAttribute('href',/wa\.me\/420702914842\?text=/);
+    await expect(page.locator('#fdPaymentTelegram')).toHaveAttribute('href','https://t.me/Chareshneu');
+    await expect(page.locator('#fdPaymentEventRef')).toContainText('PUB-HEMA-20261116');
     await expect(page.locator('#fdFacts')).toContainText('Družina Moravy, z. s.');
     await page.locator('#impr-calendar').screenshot({path:'test-results/conversion-frontdoor-'+width+'-calendar.png'});
     await page.locator('#fdClose').click();
@@ -113,3 +123,58 @@ for(const width of [390,1440]){
     expect(await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth)).toBeLessThanOrEqual(1);
   });
 }
+
+
+test('free Orel does not solicit payment or show cancellation conditions',async({page})=>{
+  const posts=await prepare(page);
+  await page.goto('/?lang=cs');
+  await page.locator('#fdDays button[aria-label^="2026-11-14"]').click();
+  await expect(page.locator('#fdDetails')).toBeVisible();
+  await expect(page.locator('#fdFacts')).toContainText('Zdarma');
+  await expect(page.locator('#fdPaymentTerms')).toBeHidden();
+  expect(posts()).toBe(0);
+});
+
+for(const locale of ['cs','en','ru','uk']){
+ test('paid BrnoWalkers terms and contact links are localized '+locale,async({page})=>{
+  const posts=await prepare(page);
+  await page.goto('/?lang='+locale);
+  await page.locator('#fdDays button[aria-label^="2026-11-18"]').click();
+  await expect(page.locator('#fdFacts')).toContainText('100 Kč');
+  await expect(page.locator('#fdPaymentTerms')).toBeVisible();
+  await expect(page.locator('#fdPaymentTiming')).toBeHidden();
+  await page.locator('#fdPaymentSummary').click();
+  await expect(page.locator('#fdPaymentTiming')).toContainText('48');
+  await expect(page.locator('#fdPaymentTiming')).toContainText('25');
+  await expect(page.locator('#fdPaymentCancellation')).toContainText('48');
+  await expect(page.locator('#fdPaymentException')).toBeVisible();
+  await expect(page.locator('#fdPaymentPayee')).toContainText('Aliaksei Chareshneu (OSVČ, IČO 23041625)'); // payee follows source-controller, not category
+  const email=await page.locator('#fdPaymentEmail').getAttribute('href');
+  const whatsapp=await page.locator('#fdPaymentWhatsApp').getAttribute('href');
+  expect(email).toMatch(/^mailto:chereshnev\.biochem@gmail\.com\?/);
+  expect(decodeURIComponent(email)).toContain('PUB-WALK-TALK-20261118');
+  expect(whatsapp).toMatch(/^https:\/\/wa\.me\/420702914842\?text=/);
+  expect(decodeURIComponent(whatsapp)).toContain('PUB-WALK-TALK-20261118');
+  await expect(page.locator('#fdPaymentTelegram')).toHaveAttribute('href','https://t.me/Chareshneu');
+  expect(posts()).toBe(0);
+ });
+}
+
+test('48h boundary rounds only a new request, not already booked participants',async({page})=>{
+  const posts=await prepare(page,'2026-11-16T17:30:00.000Z');
+  await page.goto('/?lang=ru');
+  // page.clock.install advances with elapsed real test time; freeze exactly at threshold.
+  await page.clock.setFixedTime(new Date('2026-11-16T17:30:00.000Z'));
+  await page.locator('#fdDays button[aria-label^="2026-11-18"]').click();
+  await expect(page.locator('#fdFacts')).toContainText('100 Kč');
+  await expect(page.locator('#fdFacts')).not.toContainText('125 Kč');
+  await page.clock.setFixedTime(new Date('2026-11-16T17:30:00.001Z'));
+  await page.locator('#fdClose').click();
+  await page.locator('#fdDays button[aria-label^="2026-11-18"]').click();
+  await expect(page.locator('#fdFacts')).toContainText('125 Kč');
+  await expect(page.locator('#fdFacts')).toContainText('100 Kč');
+  await expect(page.locator('#fdFacts')).toContainText('+25 %');
+  await page.locator('#fdPaymentSummary').click();
+  await expect(page.locator('#fdPaymentException')).toContainText('Ранее письменно согласованные условия');
+  expect(posts()).toBe(0);
+});

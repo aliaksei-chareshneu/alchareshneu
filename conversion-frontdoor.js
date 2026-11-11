@@ -14,6 +14,88 @@
     ru: {eyebrow:'БРНО · ВПЕЧАТЛЕНИЯ · ЛЮДИ · РАЗВИТИЕ',title:'Попробуй новое.',title2:'Найди своё.',lead:'Фехтование, походы, игры или подготовка к важной цели. Всё начинается с одного выбора.',button:'Выбрать событие',under:'ОДИН ГОРОД. МНОЖЕСТВО ВОЗМОЖНОСТЕЙ.',dir1:'⚔️ История и движение',dir2:'🥾 Приключения и люди',dir3:'🎓 Учёба и результат',calendarEyebrow:'ЧТО ДАЛЬШЕ',calendarTitle:'Выбери свою дату.',calendarIntro:'Нажми на день, чтобы открыть описание, цену и запись.',all:'Все события',club:'Фехтование и история',walkers:'Походы и игры',academy:'Языки и экзамены',loading:'Загружаем подтверждённые публичные мероприятия…',offline:'Не удалось проверить актуальные даты. Не используйте устаревшее расписание.',empty:'На этот месяц нет опубликованных доступных событий этой категории.',errorTitle:'Даты пока недоступны',emptyTitle:'Найди следующую возможность',noEventTitle:'Выбери день с событием',noEventDesc:'Нажми дату с иконкой, чтобы открыть подробности.',learnTitle:'Подготовься к своей цели',learnDesc:'Чешский и другие языки, вступительные экзамены, школьные предметы, биология, химия и IT. Время индивидуальных занятий согласуется отдельно; мы не придумываем свободные слоты.',learnCta:'Выбрать подготовку',open:'Открыта онлайн-заявка',contact:'Участие по согласованию',planned:'Запись пока не подтверждена',book:'Запросить место',ask:'Уточнить участие',follow:'Следить за новыми датами',price:'Цена уточняется',free:'Бесплатно',date:'Когда',place:'Где',priceLabel:'Цена',details:'Об активности',notice:'Отправленная заявка не означает подтверждения места или оплаты. Организатор подтвердит участие отдельно.',photo:'Иллюстративное фото похожей активности',calendarNote:'Время: Europe/Prague. Показаны только публичные события из существующего каталога; условные события не считаются бронью.',back:'Подробная информация',privacy:'Конфиденциальность и безопасность',controller:'Организатор и условия уточняются для каждого события.',liveCalendar:'Публичный календарь',today:'Сегодня',prev:'Предыдущий месяц',next:'Следующий месяц',close:'Закрыть описание события'},
     uk: {eyebrow:'БРНО · ВРАЖЕННЯ · ЛЮДИ · РОЗВИТОК',title:'Спробуйте нове.',title2:'Знайдіть своє.',lead:'Фехтування, походи, ігри чи підготовка до важливої мети. Усе починається з одного вибору.',button:'Обрати подію',under:'ОДНЕ МІСТО. БАГАТО МОЖЛИВОСТЕЙ.',dir1:'⚔️ Історія і рух',dir2:'🥾 Пригоди та знайомства',dir3:'🎓 Навчання і результат',calendarEyebrow:'ЩО ДАЛІ',calendarTitle:'Оберіть свою дату.',calendarIntro:'Натисніть на день, щоб відкрити опис, ціну та запис.',all:'Усі події',club:'Фехтування та історія',walkers:'Походи та ігри',academy:'Мови та іспити',loading:'Завантажуємо перевірені публічні події…',offline:'Не вдалося перевірити актуальні дати. Не покладайтеся на старий розклад.',empty:'На цей місяць немає опублікованих доступних подій у цій категорії.',errorTitle:'Дати поки недоступні',emptyTitle:'Знайдіть наступну можливість',noEventTitle:'Оберіть день із подією',noEventDesc:'Натисніть на день із символом, щоб відкрити подробиці.',learnTitle:'Підготуйтеся до своєї мети',learnDesc:'Чеська та інші мови, вступні іспити, шкільні предмети, біологія, хімія й IT. Час індивідуальних занять погоджується окремо; вигаданих вільних слотів немає.',learnCta:'Обрати підготовку',open:'Відкрита онлайн-заявка',contact:'Участь за погодженням',planned:'Запис ще не підтверджений',book:'Запитати про місце',ask:'Уточнити участь',follow:'Стежити за новими датами',price:'Ціну уточнюємо',free:'Безкоштовно',date:'Коли',place:'Де',priceLabel:'Ціна',details:'Про активність',notice:'Надіслана заявка не підтверджує місце або оплату. Організатор підтвердить участь окремо.',photo:'Ілюстративне фото схожої активності',calendarNote:'Час: Europe/Prague. Тут лише публічні події з чинного каталогу; умовні події не є бронюванням.',back:'Детальні відомості',privacy:'Конфіденційність та безпека',controller:'Організатор і умови уточнюються для кожної події.',liveCalendar:'Публічний календар',today:'Сьогодні',prev:'Попередній місяць',next:'Наступний місяць',close:'Закрити опис події'}
   };
+
+  // Only visible inside the selected paid-event dialog. Never a live checkout or proof of settlement.
+  var PAYMENT_COPY = {
+    cs:{
+      toggle:'Platba a storno podmínky (rozkliknout)',
+      contact:'Pro domluvení platby a konečné částky kontaktujte koordinátora ještě před převodem:',
+      payee:'Právní pořadatel / příjemce platby',
+      notice:'Nesdělujeme veřejně žádné univerzální číslo účtu. Převádějte peníze až po písemném potvrzení pořadatele, termínu, částky a platebních údajů.',
+      timing:'Nové přihlášky alespoň 48 hodin před začátkem: základní cena. Při nové přihlášce méně než 48 hodin před začátkem: příplatek +25 % (zaokrouhleno nahoru na celé Kč).',
+      cancellation:'Zrušení účastníkem nejméně 48 hodin před začátkem: vrácení 100 % přijaté ceny. Při pozdějším zrušení se běžně cena nevrací.',
+      exception:'Platí pro nově sjednané účasti. Dříve písemně potvrzené podmínky a zákonná práva zůstávají zachována. Zruší-li akci pořadatel, vrací přijatou platbu.',
+      guard:'Odeslaná přihláška ani PDF o převodu neznamená potvrzenou účast nebo připsání peněz.',
+      now:'Orientační cena pro novou přihlášku nyní',base:'základ',unverified:'Cena bude potvrzena individuálně',
+      subject:'Dotaz na platbu za akci',message:'Dobrý den, mám zájem o účast na akci',ask:'Prosím o potvrzení konečné ceny, příjemce platby a platebních údajů.'
+    },
+    en:{
+      toggle:'Payment and cancellation terms (tap to open)',
+      contact:'To arrange payment and confirm the final total, contact the coordinator before transferring money:',
+      payee:'Legal organiser / payment recipient',
+      notice:'There is no universal public bank account. Transfer funds only after written confirmation of the organiser, date, total and payment details.',
+      timing:'New requests at least 48 hours before the start: base price. New requests less than 48 hours before the start: +25% surcharge (rounded up to whole CZK).',
+      cancellation:'Participant cancellation at least 48 hours before the start: 100% refund of the received event fee. Later cancellations are normally non-refundable.',
+      exception:'Applies to newly agreed bookings. Earlier written terms and mandatory legal rights remain valid. If the organiser cancels, the payment received is refunded.',
+      guard:'Submitting an enquiry or uploading a bank-transfer PDF does not confirm attendance or receipt of funds.',
+      now:'Indicative price for a new request now',base:'base',unverified:'Price to be confirmed individually',
+      subject:'Event payment enquiry',message:'Hello, I would like to attend',ask:'Please confirm the final price, legal payee and payment details.'
+    },
+    ru:{
+      toggle:'Оплата и отмена — открыть условия',
+      contact:'Для согласования оплаты и окончательной суммы свяжитесь со мной до перевода:',
+      payee:'Юридический организатор / получатель платежа',
+      notice:'Единого публичного банковского счёта нет. Переводите деньги только после письменного подтверждения организатора, даты, суммы и реквизитов.',
+      timing:'Новая запись за 48 часов или раньше до начала — базовая цена. При новой записи менее чем за 48 часов — доплата +25% (округление вверх до целой Kč).',
+      cancellation:'Отмена участником за 48 часов или раньше — возврат 100% полученной оплаты. При более поздней отмене обычно возврата нет.',
+      exception:'Правило для новых договорённостей. Ранее письменно согласованные условия и обязательные права по закону сохраняются. При отмене организатором полученную оплату возвращаем.',
+      guard:'Заявка и PDF о переводе не означают подтверждённого места или поступления денег.',
+      now:'Предварительная цена новой записи сейчас',base:'база',unverified:'Цена подтверждается индивидуально',
+      subject:'Вопрос об оплате мероприятия',message:'Здравствуйте, хочу участвовать в мероприятии',ask:'Прошу подтвердить итоговую цену, юридического получателя и реквизиты.'
+    },
+    uk:{
+      toggle:'Оплата та скасування — відкрити умови',
+      contact:'Щоб погодити оплату й остаточну суму, зв’яжіться зі мною до переказу:',
+      payee:'Юридичний організатор / одержувач платежу',
+      notice:'Єдиного публічного банківського рахунку немає. Переказуйте кошти лише після письмового підтвердження організатора, дати, суми та реквізитів.',
+      timing:'Нова реєстрація за 48 годин або раніше до початку — базова ціна. При новій реєстрації менш ніж за 48 годин — доплата +25% (округлення вгору до цілої Kč).',
+      cancellation:'Скасування учасником за 48 годин або раніше — повернення 100% отриманої оплати. При пізнішому скасуванні зазвичай повернення немає.',
+      exception:'Правило для нових домовленостей. Попередні письмові умови та обов’язкові законні права зберігаються. Якщо організатор скасовує подію, отриману оплату повертаємо.',
+      guard:'Заявка або PDF про переказ не підтверджує місце чи надходження коштів.',
+      now:'Орієнтовна ціна нової заявки зараз',base:'база',unverified:'Ціна узгоджується індивідуально',
+      subject:'Запит про оплату заходу',message:'Вітаю, хочу взяти участь у заході',ask:'Прошу підтвердити кінцеву ціну, законного отримувача та платіжні реквізити.'
+    }
+  };
+  function pc(k){return (PAYMENT_COPY[lang]||PAYMENT_COPY.cs)[k];}
+  function isPaidActivity(e){return e&&Number.isFinite(Number(e.price_czk))&&Number(e.price_czk)>0;}
+  function displayEventPrice(e){
+    if(e.price_verified!==true||e.price_czk===null||e.price_czk===undefined||e.price_czk==='')return tr('price');
+    var base=Number(e.price_czk);
+    if(!Number.isFinite(base)||base<0)return tr('price');
+    if(base===0)return tr('free');
+    // Price is indicative for a NEW enquiry only; earlier contracted rates are preserved.
+    var late=Date.parse(e.begins_at)-Date.now()<48*60*60*1000;
+    return late ? pc('now')+': '+(base+Math.ceil(base*.25))+' Kč ('+pc('base')+' '+base+' Kč, +25 %)' : base+' Kč';
+  }
+  function updatePaymentDetails(e){
+    var box=el('fdPaymentTerms');box.open=false;
+    box.hidden=!isPaidActivity(e);
+    if(box.hidden)return;
+    el('fdPaymentSummary').textContent=pc('toggle');
+    el('fdPaymentContactIntro').textContent=pc('contact');
+    el('fdPaymentPayee').textContent=pc('payee')+': '+(e.data_controller||tr('controller'));
+    el('fdPaymentEventRef').textContent='ID: '+e.event_id;
+    el('fdPaymentTiming').textContent=pc('timing');
+    el('fdPaymentCancellation').textContent=pc('cancellation');
+    el('fdPaymentException').textContent=pc('exception');
+    el('fdPaymentNotice').textContent=pc('notice');
+    el('fdPaymentGuard').textContent=pc('guard');
+    // An event ID is mandatory and validated from the existing public catalogue.
+    var message=pc('message')+' "'+publicTitle(e)+'" (ID: '+e.event_id+'). '+pc('ask');
+    el('fdPaymentEmail').href='mailto:chereshnev.biochem@gmail.com?subject='+encodeURIComponent(pc('subject')+' '+e.event_id)+'&body='+encodeURIComponent(message);
+    el('fdPaymentWhatsApp').href='https://wa.me/420702914842?text='+encodeURIComponent(message);
+    el('fdPaymentTelegram').href='https://t.me/Chareshneu';
+  }
   var paths = {club:'druzina/',walkers:'walkers/',academy:'academy/'};
   var query = new URLSearchParams(location.search);
   var requested = query.get('lang');
@@ -88,6 +170,13 @@
               '<div class="fd-detail-content"><p class="fd-meta" id="fdEventMeta"></p><h3 id="fdEventTitle"></h3><p class="fd-description" id="fdEventDesc"></p>',
               '<div class="fd-event-variants" id="fdVariants" hidden></div><div class="fd-facts" id="fdFacts"></div>',
               '<div class="fd-status" id="fdStatus" hidden></div>',
+              '<details class="fd-payment-terms" id="fdPaymentTerms" hidden><summary id="fdPaymentSummary"></summary><div class="fd-payment-body">',
+              '<p id="fdPaymentContactIntro"></p><nav class="fd-payment-links" id="fdPaymentContacts" aria-label="Payment contact methods">',
+              '<a id="fdPaymentEmail" href="mailto:chereshnev.biochem@gmail.com">Email</a>',
+              '<a id="fdPaymentWhatsApp" href="https://wa.me/420702914842" target="_blank" rel="noopener noreferrer">WhatsApp</a>',
+              '<a id="fdPaymentTelegram" href="https://t.me/Chareshneu" target="_blank" rel="noopener noreferrer">Telegram</a>',
+              '</nav><p id="fdPaymentEventRef"></p><p id="fdPaymentPayee"></p><p id="fdPaymentTiming"></p><p id="fdPaymentCancellation"></p>',
+              '<p id="fdPaymentException"></p><p id="fdPaymentNotice"></p><p id="fdPaymentGuard"></p></div></details>',
               '<div class="fd-actions"><a class="fd-book" id="fdBook" href="register/"></a><a class="fd-info" id="fdMore" href="calendar/"></a></div></div>',
             '</aside>',
           '<p class="fd-cal-note" id="fdNotice" style="margin-top:19px"></p>',
@@ -180,6 +269,7 @@
     el('fdEventTitle').textContent=isError?tr('errorTitle'):(filter==='academy'?tr('learnTitle'):(status==='ready'?tr('emptyTitle'):tr('noEventTitle')));
     el('fdEventDesc').textContent=isError?tr('offline'):(filter==='academy'?tr('learnDesc'):(status==='loading'?tr('loading'):(data.length?tr('noEventDesc'):tr('empty'))));
     el('fdFacts').replaceChildren();el('fdStatus').hidden=true;
+    el('fdPaymentTerms').hidden=true;el('fdPaymentTerms').open=false;
     el('fdVariants').hidden=true;el('fdVariants').replaceChildren();
     el('fdBook').textContent=filter==='academy'?tr('learnCta'):tr('liveCalendar');
     el('fdBook').href=filter==='academy'?'academy/':'calendar/';
@@ -196,10 +286,11 @@
     el('fdEventTitle').textContent=publicTitle(event);
     el('fdEventDesc').textContent=publicDescription(event);
     var facts=el('fdFacts');facts.replaceChildren();
-    [[tr('date'),timeOf(event)],[tr('place'),publicVenue(event)],[({cs:'Pořadatel',en:'Organiser',ru:'Организатор',uk:'Організатор'})[lang],event.data_controller||tr('controller')],[tr('priceLabel'),event.price_verified===true?(Number(event.price_czk)===0?tr('free'):(Number.isFinite(Number(event.price_czk))?Number(event.price_czk)+' Kč':tr('price'))):tr('price')]].forEach(function(x){
+    [[tr('date'),timeOf(event)],[tr('place'),publicVenue(event)],[({cs:'Pořadatel',en:'Organiser',ru:'Организатор',uk:'Організатор'})[lang],event.data_controller||tr('controller')],[tr('priceLabel'),displayEventPrice(event)]].forEach(function(x){
       var line=document.createElement('span'),b=document.createElement('strong');b.textContent=x[0]+': ';line.appendChild(b);line.appendChild(document.createTextNode(x[1]));facts.appendChild(line);
     });
     var st=el('fdStatus');st.hidden=false;st.className='fd-status '+(m==='open'?'open':'');st.textContent=tr(m);
+    updatePaymentDetails(event);
     var book=el('fdBook');book.removeAttribute('aria-disabled');
     if(m==='open'){book.href=hrefForEvent(event);book.textContent=tr('book');}
     else if(m==='contact'){book.href=hrefForEvent(event);book.textContent=tr('ask');}
@@ -253,7 +344,7 @@
     if(!modalShown)return;
     if(event.key==='Escape'){event.preventDefault();closeEventModal(true);return;}
     if(event.key!=='Tab')return;
-    var nodes=Array.from(el('fdDetails').querySelectorAll('button:not([disabled]),a[href]')).filter(function(n){return !n.hidden && n.getClientRects().length;});
+    var nodes=Array.from(el('fdDetails').querySelectorAll('button:not([disabled]),a[href],summary')).filter(function(n){return !n.hidden && n.getClientRects().length;});
     if(!nodes.length){event.preventDefault();el('fdDetails').focus();return;}
     var first=nodes[0],last=nodes[nodes.length-1];
     if(event.shiftKey && (document.activeElement===first || !el('fdDetails').contains(document.activeElement))){event.preventDefault();last.focus();}
