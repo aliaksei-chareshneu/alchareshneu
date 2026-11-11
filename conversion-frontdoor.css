@@ -383,3 +383,7 @@ html[data-imperion-frontdoor="ready"] body.fd-modal-open { overflow:hidden !impo
  #imperion-frontdoor .fd-day-glyph { font-size:12px; }
  #imperion-frontdoor .fd-day-time { font-size:8px; }
 }
+
+#imperion-frontdoor .fd-academy-copy { display:flex; flex-direction:column; min-width:0; }
+#imperion-frontdoor .fd-academy-copy strong { font-size:clamp(15px,1.5vw,19px); line-height:1.22; }
+#imperion-frontdoor .fd-academy-copy small { font-size:11px; font-weight:600; line-height:1.25; color:#c4d6d4; margin-top:5px; }
