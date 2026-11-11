@@ -12,7 +12,7 @@
 - [Cloud acceptance #245](https://github.com/aliaksei-chareshneu/alchareshneu/issues/245) is a **public owner-only issue** to request bounded coding from Android or desktop.
 - Existing [Draft PR #231](https://github.com/aliaksei-chareshneu/alchareshneu/pull/231) and [Draft PR #247](https://github.com/aliaksei-chareshneu/alchareshneu/pull/247) remain separate; do not merge old site versions or silently restore superseded tariffs.
 
-## How to submit (AFTER owner-approved activation in main)
+## How to submit (active on main after owner approval)
 
 From the logged-in GitHub Mobile app or mobile browser, open the existing issue #245 and create a new public comment:
 
@@ -44,7 +44,13 @@ GitHub issue comments are public. Never include account details, tokens, custome
 6. **Only after tests**, an independent workflow job with separate GitHub token permissions (subject to owner review) may push a unique review branch and attempt gh pr create --draft. Duplicate comment IDs never create duplicate PRs; a surviving branch without PR is reported BLOCKED.
 7. Read back from GitHub to prove an open Draft PR. Nothing merges, deploys, publishes, changes prices, or sends customer messages.
 
-**Known external blockers:** GitHub only triggers issue-comment workflows that exist in default branch. GitHub can also forbid PR creation from GitHub Actions by repository policy (403). Neither default-branch activation nor permission changes are authorized by the current GO. The preview PR can test the model and isolation; it cannot prove fully unattended Android-origin issue → PR until those separate gates are approved and independently tested.
+**Verified activation:** The `AFTER owner-approved activation` precondition was fulfilled by owner-authorized PRs #250 and #258 on 10 Nov 2026. GitHub Actions' repository permission to create Draft pull requests was confirmed by its actual use on 11 Nov 2026: [issue comment #6787842684](https://github.com/aliaksei-chareshneu/alchareshneu/issues/245#issuecomment-6787842684) → [cloud workflow #42965529871](https://github.com/aliaksei-chareshneu/alchareshneu/actions/runs/42965529871) (3/3 jobs SUCCESS) → bot-created [Draft PR #268](https://github.com/aliaksei-chareshneu/alchareshneu/pull/268). This proves owner issue submission, Qwen inference, independent sandbox tests, and automated review PR creation.
+
+**Still NOT verified / BLOCKED for broader scope:** An issue comment *specifically originating from Android* has not been independently tested; unrestricted multi-file coding, automatically writing independent new tests, reading private repositories, changes to access controls, and deployment are not part of this stage. The developer must review all model-generated changes, pass relevant CI and specifically approve each merge. A GitHub Pages publication and successful PR checks are distinct from a Draft PR.
+
+**CI baseline warning (11 Nov 2026):** The unrelated site-wide browser regression suite fails on `main` as well, including older registration-catalog and home-page tests; do not silently waive the failures or mark this entire repository green. The DEV-specific cloud preflight and sandbox Qwen checks are independently passing.
+
+**Actual owner command link:** https://github.com/aliaksei-chareshneu/alchareshneu/issues/245 . Only the signed-in repository owner's public comment with the exact four-line syntax is accepted. Each unique comment ID makes an independent review branch; do not re-send existing accepted comments. Usage consumes GitHub-hosted runner minutes and cache quota, which are not unlimited or a guaranteed free allowance.
 
 **The code does not autonomously author separate test files.** It requires an existing trusted test for the requested public file and verifies its outcome. General unrestricted agent coding, multi-file edits and private tasks remain outside this scoped stage.
 
