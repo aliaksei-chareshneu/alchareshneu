@@ -34,7 +34,12 @@ for(const width of [320,390,1440]){
   await expect(page.locator('#fdHeroSub')).toContainText('BrnoWalkers');
   await expect(page.locator('#fdAcademyLabel')).toHaveText('Записаться на урок в Академии');
   await expect(page.locator('#fdHeroCta')).toHaveAttribute('href','#impr-calendar');
-  await expect(page.locator('#fdAcademyCta')).toHaveAttribute('href','academy/?lang=ru');
+  const academyHref=await page.locator('#fdAcademyCta').getAttribute('href');
+  const academyWhatsApp=new URL(academyHref);
+  expect(academyWhatsApp.origin+academyWhatsApp.pathname).toBe('https://wa.me/420702914842');
+  expect(academyWhatsApp.searchParams.get('text')).toContain('[ACADEMY:FRONTDOOR]');
+  await expect(page.locator('#fdAcademyCta')).toHaveAttribute('rel',/noopener/);
+  await expect(page.locator('#fdAcademyNote')).toContainText('согласуем лично');
   await expect(page.locator('#fdNavAcademy')).toHaveAttribute('href','academy/?lang=ru');
   await expect(page.locator('#fdNavClub')).toHaveAttribute('href','druzina/?lang=ru');
   await expect(page.locator('#fdNavWalkers')).toHaveAttribute('href','walkers/?lang=ru');
@@ -70,10 +75,14 @@ for(const [lang,calendar,academy] of [
   await expect(page.locator('#fdHeroLabel')).toHaveText(calendar);
   await expect(page.locator('#fdAcademyLabel')).toHaveText(academy);
   await expect(page.locator('#fdNavAcademy')).toHaveAttribute('href','academy/?lang='+lang);
-  await expect(page.locator('#fdAcademyCta')).toHaveAttribute('href','academy/?lang='+lang);
+  const academyLink=new URL(await page.locator('#fdAcademyCta').getAttribute('href'));
+  expect(academyLink.origin+academyLink.pathname).toBe('https://wa.me/420702914842');
+  expect(academyLink.searchParams.get('text')).toContain('[ACADEMY:FRONTDOOR]');
   await expect(page.locator('#fdNavEvents')).toHaveAttribute('href','#impr-calendar');
   await page.locator('[data-fd-language="en"]').click();
-  await expect(page.locator('#fdAcademyCta')).toHaveAttribute('href','academy/?lang=en');
+  const academyEnglish=new URL(await page.locator('#fdAcademyCta').getAttribute('href'));
+  expect(academyEnglish.searchParams.get('text')).toContain('Hello');
+  expect(academyEnglish.searchParams.get('text')).toContain('[ACADEMY:FRONTDOOR]');
   await expect(page.locator('#fdNavAbout')).toHaveAttribute('href','?lang=en&view=details');
  });
 }
