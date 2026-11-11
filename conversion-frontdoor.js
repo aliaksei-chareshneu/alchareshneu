@@ -9,10 +9,10 @@
   var API = 'https://cmrknyhnnehyjpreehcf.supabase.co/functions/v1/imperion-register';
   var LANGS = ['cs', 'en', 'ru', 'uk'];
   var COPY = {
-    cs: {eyebrow:'BRNO · ZÁŽITKY · LIDÉ · ROZVOJ', title:'Zažijte něco nového.',title2:'Najděte to své.',lead:'Šerm, výlety, hry nebo příprava na důležitý cíl. Jedno místo pro váš další krok.',button:'Vybrat zážitek',under:'JEDNO MÍSTO. MNOHO MOŽNOSTÍ.',dir1:'⚔️ Příběhy a pohyb',dir2:'🥾 Zážitky a setkání',dir3:'🎓 Učení a výsledky',calendarEyebrow:'CO BUDE DÁL',calendarTitle:'Vyberte si termín.',calendarIntro:'Klikněte na den v kalendáři a otevřete podrobnosti, cenu a přihlášku.',all:'Vše',club:'Šerm a historie',walkers:'Výlety a hry',academy:'Jazyky a příprava',loading:'Načítáme aktuální veřejné akce…',offline:'Aktuální seznam se nepodařilo ověřit. Nespoléhejte na staré termíny.',empty:'Na tento měsíc nejsou zveřejněny dostupné akce v této kategorii.',errorTitle:'Termíny zatím nelze ověřit',emptyTitle:'Najděte další příležitost',noEventTitle:'Vyberte den s akcí',noEventDesc:'Vyberte označený den a otevřete podrobnosti.',learnTitle:'Připravte se na svůj cíl',learnDesc:'Čeština, jazyky, přijímačky, maturita, přírodní vědy a IT. Individuální termíny řešíme podle vašeho cíle a dostupnosti — bez smyšlených položek v kalendáři.',learnCta:'Vybrat přípravu',open:'Online přihláška otevřena',contact:'Před účastí kontaktujte pořadatele',planned:'Zatím bez potvrzené přihlášky',book:'Požádat o místo',ask:'Ověřit účast',follow:'Sledovat další termíny',price:'Cena bude potvrzena',free:'Zdarma',date:'Kdy',place:'Kde',priceLabel:'Cena',details:'Více informací',notice:'Odeslání přihlášky neznamená potvrzené místo ani platbu. Pořadatel potvrdí účast zvlášť.',photo:'Ilustrační fotografie podobné aktivity',calendarNote:'Časy: Europe/Prague. Zobrazujeme pouze veřejné záznamy z existujícího katalogu; neověřené akce nejsou rezervacemi.',back:'Starší informace',privacy:'Soukromí a bezpečnost',controller:'Organizátora a podmínky ověříte u konkrétní akce.',liveCalendar:'Veřejný kalendář',today:'Dnes',prev:'Předchozí měsíc',next:'Další měsíc',close:'Zavřít podrobnosti akce'},
-    en: {eyebrow:'BRNO · EXPERIENCES · PEOPLE · GROWTH',title:'Try something new.',title2:'Find what moves you.',lead:'Fencing, hikes, games or preparing for a big goal. One place for your next step.',button:'Explore the calendar',under:'ONE PLACE. ENDLESS POSSIBILITIES.',dir1:'⚔️ Stories in motion',dir2:'🥾 Adventures together',dir3:'🎓 Learn and achieve',calendarEyebrow:'WHAT COMES NEXT',calendarTitle:'Find your next date.',calendarIntro:'Tap an event day to open its details, price and booking options.',all:'Everything',club:'Fencing & history',walkers:'Hikes & games',academy:'Languages & exams',loading:'Loading approved public events…',offline:'We could not verify the latest event list. Please do not rely on outdated dates.',empty:'There are no published available events in this category this month.',errorTitle:'Dates cannot be verified',emptyTitle:'Discover another opportunity',noEventTitle:'Choose an event day',noEventDesc:'Select a highlighted day to open event details.',learnTitle:'Move toward your goal',learnDesc:'Czech, languages, entrance exams, school subjects, biology, chemistry and IT. One-to-one lesson times are arranged individually; we do not invent calendar availability.',learnCta:'Explore learning options',open:'Online request available',contact:'Contact organiser before attending',planned:'Not open for confirmed registration',book:'Request a place',ask:'Check availability',follow:'Follow new dates',price:'Price to confirm',free:'Free',date:'When',place:'Where',priceLabel:'Price',details:'About this activity',notice:'Submitting an enquiry does not confirm a place or payment. The organiser confirms attendance separately.',photo:'Illustrative photo from a similar activity',calendarNote:'Times: Europe/Prague. Only public entries from the existing catalogue appear here; tentative events are not reservations.',back:'More information',privacy:'Privacy and safety',controller:'Organiser and full terms are confirmed per event.',liveCalendar:'Public calendar',today:'Today',prev:'Previous month',next:'Next month',close:'Close event details'},
-    ru: {eyebrow:'БРНО · ВПЕЧАТЛЕНИЯ · ЛЮДИ · РАЗВИТИЕ',title:'Попробуй новое.',title2:'Найди своё.',lead:'Фехтование, походы, игры или подготовка к важной цели. Всё начинается с одного выбора.',button:'Выбрать событие',under:'ОДИН ГОРОД. МНОЖЕСТВО ВОЗМОЖНОСТЕЙ.',dir1:'⚔️ История и движение',dir2:'🥾 Приключения и люди',dir3:'🎓 Учёба и результат',calendarEyebrow:'ЧТО ДАЛЬШЕ',calendarTitle:'Выбери свою дату.',calendarIntro:'Нажми на день, чтобы открыть описание, цену и запись.',all:'Все события',club:'Фехтование и история',walkers:'Походы и игры',academy:'Языки и экзамены',loading:'Загружаем подтверждённые публичные мероприятия…',offline:'Не удалось проверить актуальные даты. Не используйте устаревшее расписание.',empty:'На этот месяц нет опубликованных доступных событий этой категории.',errorTitle:'Даты пока недоступны',emptyTitle:'Найди следующую возможность',noEventTitle:'Выбери день с событием',noEventDesc:'Нажми дату с иконкой, чтобы открыть подробности.',learnTitle:'Подготовься к своей цели',learnDesc:'Чешский и другие языки, вступительные экзамены, школьные предметы, биология, химия и IT. Время индивидуальных занятий согласуется отдельно; мы не придумываем свободные слоты.',learnCta:'Выбрать подготовку',open:'Открыта онлайн-заявка',contact:'Участие по согласованию',planned:'Запись пока не подтверждена',book:'Запросить место',ask:'Уточнить участие',follow:'Следить за новыми датами',price:'Цена уточняется',free:'Бесплатно',date:'Когда',place:'Где',priceLabel:'Цена',details:'Об активности',notice:'Отправленная заявка не означает подтверждения места или оплаты. Организатор подтвердит участие отдельно.',photo:'Иллюстративное фото похожей активности',calendarNote:'Время: Europe/Prague. Показаны только публичные события из существующего каталога; условные события не считаются бронью.',back:'Подробная информация',privacy:'Конфиденциальность и безопасность',controller:'Организатор и условия уточняются для каждого события.',liveCalendar:'Публичный календарь',today:'Сегодня',prev:'Предыдущий месяц',next:'Следующий месяц',close:'Закрыть описание события'},
-    uk: {eyebrow:'БРНО · ВРАЖЕННЯ · ЛЮДИ · РОЗВИТОК',title:'Спробуйте нове.',title2:'Знайдіть своє.',lead:'Фехтування, походи, ігри чи підготовка до важливої мети. Усе починається з одного вибору.',button:'Обрати подію',under:'ОДНЕ МІСТО. БАГАТО МОЖЛИВОСТЕЙ.',dir1:'⚔️ Історія і рух',dir2:'🥾 Пригоди та знайомства',dir3:'🎓 Навчання і результат',calendarEyebrow:'ЩО ДАЛІ',calendarTitle:'Оберіть свою дату.',calendarIntro:'Натисніть на день, щоб відкрити опис, ціну та запис.',all:'Усі події',club:'Фехтування та історія',walkers:'Походи та ігри',academy:'Мови та іспити',loading:'Завантажуємо перевірені публічні події…',offline:'Не вдалося перевірити актуальні дати. Не покладайтеся на старий розклад.',empty:'На цей місяць немає опублікованих доступних подій у цій категорії.',errorTitle:'Дати поки недоступні',emptyTitle:'Знайдіть наступну можливість',noEventTitle:'Оберіть день із подією',noEventDesc:'Натисніть на день із символом, щоб відкрити подробиці.',learnTitle:'Підготуйтеся до своєї мети',learnDesc:'Чеська та інші мови, вступні іспити, шкільні предмети, біологія, хімія й IT. Час індивідуальних занять погоджується окремо; вигаданих вільних слотів немає.',learnCta:'Обрати підготовку',open:'Відкрита онлайн-заявка',contact:'Участь за погодженням',planned:'Запис ще не підтверджений',book:'Запитати про місце',ask:'Уточнити участь',follow:'Стежити за новими датами',price:'Ціну уточнюємо',free:'Безкоштовно',date:'Коли',place:'Де',priceLabel:'Ціна',details:'Про активність',notice:'Надіслана заявка не підтверджує місце або оплату. Організатор підтвердить участь окремо.',photo:'Ілюстративне фото схожої активності',calendarNote:'Час: Europe/Prague. Тут лише публічні події з чинного каталогу; умовні події не є бронюванням.',back:'Детальні відомості',privacy:'Конфіденційність та безпека',controller:'Організатор і умови уточнюються для кожної події.',liveCalendar:'Публічний календар',today:'Сьогодні',prev:'Попередній місяць',next:'Наступний місяць',close:'Закрити опис події'}
+    cs: {eyebrow:'ZÁŽITKY · LIDÉ · ROZVOJ', title:'Zažijte něco nového.',title2:'Najděte to své.',lead:'Šerm, výlety, hry nebo příprava na důležitý cíl. Jedno místo pro váš další krok.',button:'Vybrat zážitek',under:'JEDNO MÍSTO. MNOHO MOŽNOSTÍ.',dir1:'⚔️ Příběhy a pohyb',dir2:'🥾 Zážitky a setkání',dir3:'🎓 Učení a výsledky',calendarEyebrow:'CO BUDE DÁL',calendarTitle:'Vyberte si termín.',calendarIntro:'Klikněte na den v kalendáři a otevřete podrobnosti, cenu a přihlášku.',all:'Vše',club:'Šerm a historie',walkers:'Výlety a hry',academy:'Jazyky a příprava',loading:'Načítáme aktuální veřejné akce…',offline:'Aktuální seznam se nepodařilo ověřit. Nespoléhejte na staré termíny.',empty:'Na tento měsíc nejsou zveřejněny dostupné akce v této kategorii.',errorTitle:'Termíny zatím nelze ověřit',emptyTitle:'Najděte další příležitost',noEventTitle:'Vyberte den s akcí',noEventDesc:'Vyberte označený den a otevřete podrobnosti.',learnTitle:'Připravte se na svůj cíl',learnDesc:'Čeština, jazyky, přijímačky, maturita, přírodní vědy a IT. Individuální termíny řešíme podle vašeho cíle a dostupnosti — bez smyšlených položek v kalendáři.',learnCta:'Vybrat přípravu',open:'Online přihláška otevřena',contact:'Před účastí kontaktujte pořadatele',planned:'Zatím bez potvrzené přihlášky',book:'Požádat o místo',ask:'Ověřit účast',follow:'Sledovat další termíny',price:'Cena bude potvrzena',free:'Zdarma',date:'Kdy',place:'Kde',priceLabel:'Cena',details:'Více informací',notice:'Odeslání přihlášky neznamená potvrzené místo ani platbu. Pořadatel potvrdí účast zvlášť.',photo:'Ilustrační fotografie podobné aktivity',calendarNote:'Časy: Europe/Prague. Zobrazujeme pouze veřejné záznamy z existujícího katalogu; neověřené akce nejsou rezervacemi.',back:'Starší informace',privacy:'Soukromí a bezpečnost',controller:'Organizátora a podmínky ověříte u konkrétní akce.',liveCalendar:'Veřejný kalendář',today:'Dnes',prev:'Předchozí měsíc',next:'Další měsíc',close:'Zavřít podrobnosti akce'},
+    en: {eyebrow:'EXPERIENCES · PEOPLE · GROWTH',title:'Try something new.',title2:'Find what moves you.',lead:'Fencing, hikes, games or preparing for a big goal. One place for your next step.',button:'Explore the calendar',under:'ONE PLACE. ENDLESS POSSIBILITIES.',dir1:'⚔️ Stories in motion',dir2:'🥾 Adventures together',dir3:'🎓 Learn and achieve',calendarEyebrow:'WHAT COMES NEXT',calendarTitle:'Find your next date.',calendarIntro:'Tap an event day to open its details, price and booking options.',all:'Everything',club:'Fencing & history',walkers:'Hikes & games',academy:'Languages & exams',loading:'Loading approved public events…',offline:'We could not verify the latest event list. Please do not rely on outdated dates.',empty:'There are no published available events in this category this month.',errorTitle:'Dates cannot be verified',emptyTitle:'Discover another opportunity',noEventTitle:'Choose an event day',noEventDesc:'Select a highlighted day to open event details.',learnTitle:'Move toward your goal',learnDesc:'Czech, languages, entrance exams, school subjects, biology, chemistry and IT. One-to-one lesson times are arranged individually; we do not invent calendar availability.',learnCta:'Explore learning options',open:'Online request available',contact:'Contact organiser before attending',planned:'Not open for confirmed registration',book:'Request a place',ask:'Check availability',follow:'Follow new dates',price:'Price to confirm',free:'Free',date:'When',place:'Where',priceLabel:'Price',details:'About this activity',notice:'Submitting an enquiry does not confirm a place or payment. The organiser confirms attendance separately.',photo:'Illustrative photo from a similar activity',calendarNote:'Times: Europe/Prague. Only public entries from the existing catalogue appear here; tentative events are not reservations.',back:'More information',privacy:'Privacy and safety',controller:'Organiser and full terms are confirmed per event.',liveCalendar:'Public calendar',today:'Today',prev:'Previous month',next:'Next month',close:'Close event details'},
+    ru: {eyebrow:'СОБЫТИЯ · ЛЮДИ · РАЗВИТИЕ',title:'Попробуй новое.',title2:'Найди своё.',lead:'Фехтование, походы, игры или подготовка к важной цели. Всё начинается с одного выбора.',button:'Выбрать событие',under:'ОДНА ПЛОЩАДКА. МНОЖЕСТВО ВОЗМОЖНОСТЕЙ.',dir1:'⚔️ История и движение',dir2:'🥾 Приключения и люди',dir3:'🎓 Учёба и результат',calendarEyebrow:'ЧТО ДАЛЬШЕ',calendarTitle:'Выбери свою дату.',calendarIntro:'Нажми на день, чтобы открыть описание, цену и запись.',all:'Все события',club:'Фехтование и история',walkers:'Походы и игры',academy:'Языки и экзамены',loading:'Загружаем подтверждённые публичные мероприятия…',offline:'Не удалось проверить актуальные даты. Не используйте устаревшее расписание.',empty:'На этот месяц нет опубликованных доступных событий этой категории.',errorTitle:'Даты пока недоступны',emptyTitle:'Найди следующую возможность',noEventTitle:'Выбери день с событием',noEventDesc:'Нажми дату с иконкой, чтобы открыть подробности.',learnTitle:'Подготовься к своей цели',learnDesc:'Чешский и другие языки, вступительные экзамены, школьные предметы, биология, химия и IT. Время индивидуальных занятий согласуется отдельно; мы не придумываем свободные слоты.',learnCta:'Выбрать подготовку',open:'Открыта онлайн-заявка',contact:'Участие по согласованию',planned:'Запись пока не подтверждена',book:'Запросить место',ask:'Уточнить участие',follow:'Следить за новыми датами',price:'Цена уточняется',free:'Бесплатно',date:'Когда',place:'Где',priceLabel:'Цена',details:'Об активности',notice:'Отправленная заявка не означает подтверждения места или оплаты. Организатор подтвердит участие отдельно.',photo:'Иллюстративное фото похожей активности',calendarNote:'Время: Europe/Prague. Показаны только публичные события из существующего каталога; условные события не считаются бронью.',back:'Подробная информация',privacy:'Конфиденциальность и безопасность',controller:'Организатор и условия уточняются для каждого события.',liveCalendar:'Публичный календарь',today:'Сегодня',prev:'Предыдущий месяц',next:'Следующий месяц',close:'Закрыть описание события'},
+    uk: {eyebrow:'ПОДІЇ · ЛЮДИ · РОЗВИТОК',title:'Спробуйте нове.',title2:'Знайдіть своє.',lead:'Фехтування, походи, ігри чи підготовка до важливої мети. Усе починається з одного вибору.',button:'Обрати подію',under:'ОДИН САЙТ. БАГАТО МОЖЛИВОСТЕЙ.',dir1:'⚔️ Історія і рух',dir2:'🥾 Пригоди та знайомства',dir3:'🎓 Навчання і результат',calendarEyebrow:'ЩО ДАЛІ',calendarTitle:'Оберіть свою дату.',calendarIntro:'Натисніть на день, щоб відкрити опис, ціну та запис.',all:'Усі події',club:'Фехтування та історія',walkers:'Походи та ігри',academy:'Мови та іспити',loading:'Завантажуємо перевірені публічні події…',offline:'Не вдалося перевірити актуальні дати. Не покладайтеся на старий розклад.',empty:'На цей місяць немає опублікованих доступних подій у цій категорії.',errorTitle:'Дати поки недоступні',emptyTitle:'Знайдіть наступну можливість',noEventTitle:'Оберіть день із подією',noEventDesc:'Натисніть на день із символом, щоб відкрити подробиці.',learnTitle:'Підготуйтеся до своєї мети',learnDesc:'Чеська та інші мови, вступні іспити, шкільні предмети, біологія, хімія й IT. Час індивідуальних занять погоджується окремо; вигаданих вільних слотів немає.',learnCta:'Обрати підготовку',open:'Відкрита онлайн-заявка',contact:'Участь за погодженням',planned:'Запис ще не підтверджений',book:'Запитати про місце',ask:'Уточнити участь',follow:'Стежити за новими датами',price:'Ціну уточнюємо',free:'Безкоштовно',date:'Коли',place:'Де',priceLabel:'Ціна',details:'Про активність',notice:'Надіслана заявка не підтверджує місце або оплату. Організатор підтвердить участь окремо.',photo:'Ілюстративне фото схожої активності',calendarNote:'Час: Europe/Prague. Тут лише публічні події з чинного каталогу; умовні події не є бронюванням.',back:'Детальні відомості',privacy:'Конфіденційність та безпека',controller:'Організатор і умови уточнюються для кожної події.',liveCalendar:'Публічний календар',today:'Сьогодні',prev:'Попередній місяць',next:'Наступний місяць',close:'Закрити опис події'}
   };
 
   // Only visible inside the selected paid-event dialog. Never a live checkout or proof of settlement.
@@ -96,12 +96,20 @@
     el('fdPaymentWhatsApp').href='https://wa.me/420702914842?text='+encodeURIComponent(message);
     el('fdPaymentTelegram').href='https://t.me/Chareshneu';
   }
+  /* Small navigation and two focused customer paths (no extra tracking). */
+  var FRONT_COPY = {
+    cs:{home:'Úvod',events:'Akce',academyNav:'Akademie',clubNav:'Družina',walkersNav:'BrnoWalkers',about:'O mně',heroEvents:'Vybrat akci',heroTypes:'Družina · BrnoWalkers',heroAcademy:'Přihlásit se na lekci Akademie',academyNote:'Termín a cenu domluvíme osobně',academyMsg:'Dobrý den, chci se přihlásit na individuální lekci Akademie. Prosím o informace o dostupnosti, předmětu, ceně a podmínkách. Chápu, že dotaz ještě není potvrzená rezervace. [ACADEMY:FRONTDOOR]',city:'Město',cityAll:'Všechna místa',cityBrno:'Brno',cityPrague:'Praha',cityOther:'Ostatní / upřesníme',cityEmpty:'Pro zvolené místo a období zatím není zveřejněna potvrzená akce.',moreDates:'další',menu:'Navigace'},
+    en:{home:'Home',events:'Events',academyNav:'Academy',clubNav:'Družina',walkersNav:'BrnoWalkers',about:'About',heroEvents:'Choose an event',heroTypes:'Družina · BrnoWalkers',heroAcademy:'Book an Academy lesson',academyNote:'Confirm dates and price together',academyMsg:'Hello, I would like to arrange an Academy lesson. Please confirm the subject, availability, price and terms. This enquiry is not a confirmed booking. [ACADEMY:FRONTDOOR]',city:'City',cityAll:'All places',cityBrno:'Brno',cityPrague:'Prague',cityOther:'Other / to confirm',cityEmpty:'No verified published events for this place and month yet.',moreDates:'more',menu:'Navigation'},
+    ru:{home:'Главная',events:'События',academyNav:'Академия',clubNav:'Дружина',walkersNav:'BrnoWalkers',about:'Обо мне',heroEvents:'Выбрать событие',heroTypes:'Дружина · BrnoWalkers',heroAcademy:'Записаться на урок в Академии',academyNote:'Дату и цену согласуем лично',academyMsg:'Здравствуйте! Хочу записаться на урок в Академии. Прошу уточнить предмет, доступное время, цену и условия. Понимаю, что запрос пока не означает подтверждённую бронь. [ACADEMY:FRONTDOOR]',city:'Город',cityAll:'Все города',cityBrno:'Брно',cityPrague:'Прага',cityOther:'Другие / уточняется',cityEmpty:'В выбранном городе в этом месяце пока нет проверенных опубликованных мероприятий.',moreDates:'ещё',menu:'Навигация'},
+    uk:{home:'Головна',events:'Події',academyNav:'Академія',clubNav:'Дружина',walkersNav:'BrnoWalkers',about:'Про мене',heroEvents:'Обрати подію',heroTypes:'Дружина · BrnoWalkers',heroAcademy:'Записатися на урок Академії',academyNote:'Дату й ціну погодимо окремо',academyMsg:'Вітаю! Хочу записатися на урок Академії. Прошу уточнити предмет, доступні дати, ціну й умови. Розумію, що запит не є підтвердженим бронюванням. [ACADEMY:FRONTDOOR]',city:'Місто',cityAll:'Усі міста',cityBrno:'Брно',cityPrague:'Прага',cityOther:'Інші / уточнюється',cityEmpty:'Для обраного міста й місяця поки немає перевірених опублікованих подій.',moreDates:'ще',menu:'Навігація'}
+  };
+  function ft(k){return (FRONT_COPY[lang]||FRONT_COPY.cs)[k]||FRONT_COPY.en[k]||k;}
   var paths = {club:'druzina/',walkers:'walkers/',academy:'academy/'};
   var query = new URLSearchParams(location.search);
   var requested = query.get('lang');
   var saved=null;try {saved=localStorage.getItem('dm_lang');} catch (_) {}
   var lang = LANGS.indexOf(requested)>=0 ? requested : (LANGS.indexOf(saved)>=0 ? saved : 'cs');
-  var data=[], status='loading', filter='all', selectedId='', chosenDay='', month=new Date(), pending=false;
+  var data=[], status='loading', filter='all', city='all', selectedId='', chosenDay='', month=new Date(), pending=false;
   var modalShown=false, modalDay='';
   var tzFormatter = new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Prague',year:'numeric',month:'2-digit',day:'2-digit'});
   function tr(k){return COPY[lang][k]||COPY.en[k]||k;}
@@ -133,20 +141,26 @@
   var html = [
     '<div id="imperion-frontdoor">',
     '<header class="fd-header"><div class="fd-shell fd-header-inner">',
-      '<div class="fd-logo"><span class="fd-logo-mark" aria-hidden="true">✦</span><span>BRNO <span style="color:#f3cf8f">/</span> EXPERIENCE</span></div>',
-      '<div class="fd-directions" aria-label="Our activities"><span id="fdDir1"></span><span id="fdDir2"></span><span id="fdDir3"></span></div>',
+      '<a class="fd-logo" href="#imperion-frontdoor"><span class="fd-logo-mark" aria-hidden="true">✦</span><span>IMPERION <span class="fd-logo-sub">/ EVENTS</span></span></a>',
+      '<nav class="fd-nav" id="fdNav" aria-label="Primary navigation">',
+      '<a id="fdNavHome" href="#imperion-frontdoor"></a><a id="fdNavEvents" href="#impr-calendar"></a><a id="fdNavAcademy" href="academy/"></a>',
+      '<a id="fdNavClub" href="druzina/"></a><a id="fdNavWalkers" href="walkers/"></a><a id="fdNavAbout" href="?view=details"></a>',
+      '</nav>',
       '<div class="fd-languages" aria-label="Language">',
       '<button type="button" data-fd-language="cs">CZ</button><button type="button" data-fd-language="en">EN</button><button type="button" data-fd-language="ru">RU</button><button type="button" data-fd-language="uk">UA</button>',
       '</div></div></header>',
     '<main>',
       '<section class="fd-hero" aria-label="Welcome">',
-        '<div class="fd-mosaic" aria-hidden="true"><span></span><span></span><span></span></div>',
-        '<div class="fd-fighters" aria-hidden="true"></div>',
+        '<div class="fd-mosaic fd-photo-shadows" aria-hidden="true"><span></span><span></span></div>',
         '<div class="fd-shell fd-hero-inner">',
           '<div class="fd-eyebrow" id="fdEyebrow"></div>',
           '<h1><span id="fdHero1" style="color:#fffdf3"></span><span id="fdHero2"></span></h1>',
           '<p class="fd-lede" id="fdLead"></p>',
-          '<a class="fd-hero-cta" id="fdHeroCta" href="#impr-calendar"><span id="fdHeroLabel"></span><span aria-hidden="true">↗</span></a>',
+          '<div class="fd-hero-actions">',
+          '<a class="fd-hero-cta" id="fdHeroCta" href="#impr-calendar"><span aria-hidden="true">▦</span><span class="fd-hero-cta-copy"><strong id="fdHeroLabel"></strong><small id="fdHeroSub"></small></span></a>',
+          '<a class="fd-hero-academy" id="fdAcademyCta" href="https://wa.me/420702914842" target="_blank" rel="noopener noreferrer"><span class="fd-academy-symbol" aria-hidden="true">🎓</span><span class="fd-academy-copy"><strong id="fdAcademyLabel"></strong><small id="fdAcademyNote"></small></span></a>',
+          '</div>',
+          '<div class="fd-hero-topics" aria-hidden="true"><span id="fdDir1"></span><span id="fdDir2"></span><span id="fdDir3"></span></div>',
         '</div>',
         '<div class="fd-hero-bottom" id="fdUnder"></div>',
       '</section>',
@@ -155,6 +169,9 @@
           '<div class="fd-topline"><div><div class="fd-eyebrow" id="fdCalEyebrow"></div><h2 id="fdCalTitle"></h2></div><p id="fdCalIntro"></p></div>',
           '<div class="fd-filters" role="group" aria-label="Activities">',
           '<button type="button" data-fd-filter="all"></button><button type="button" data-fd-filter="club"></button><button type="button" data-fd-filter="walkers"></button><button type="button" data-fd-filter="academy"></button></div>',
+          '<div class="fd-city-filter"><span id="fdCityHeading"></span><div class="fd-city-options" role="group" aria-label="City">',
+          '<button type="button" data-fd-city="all"></button><button type="button" data-fd-city="brno"></button><button type="button" data-fd-city="prague"></button><button type="button" data-fd-city="other"></button>',
+          '</div></div>',
           '<div class="fd-calendar-layout">',
             '<div class="fd-calendar-pane">',
               '<div class="fd-calendar-nav"><button type="button" id="fdPrev" aria-label="Previous month">‹</button><h3 id="fdMonth"></h3><button type="button" id="fdNext" aria-label="Next month">›</button></div>',
@@ -238,7 +255,19 @@
     if(group(e)==='walkers')return '🥾';
     return '📅';
   }
-  function matches(e){return filter==='all'||group(e)===filter;}
+  
+  function eventCity(e){
+    // Treat an unstated city as OTHER, never invent Prague inventory.
+    var declared=String(e.city||e.location_city||'').trim();
+    var place=declared||String(e.venue||'');
+    if(/praha|praze|prahy|prague|praž|prag\b/i.test(place))return 'prague';
+    if(/\bbrno\b|\bbrně\b|\bbrna\b|husovice|obřany|obrany|zbrojovka|jurkovičov|malinovsk|dům umění města brna|dum umeni mesta brna|červený kopec|cerveny kopec|bílovice|bilovice/i.test(place))return 'brno';
+    // Current club training venue is not exposed until individual confirmation,
+    // but the confirmed operating city is Brno (existing publicVenue function).
+    if(e.category==='HEMA Training'&&group(e)==='club')return 'brno';
+    return 'other';
+  }
+  function matches(e){return (filter==='all'||group(e)===filter)&&(city==='all'||eventCity(e)===city);}
   function isSuppressed(e){
     var date=String(e.begins_at||'').slice(0,10);
     // Owner decision: regular Saturday HEMA is suspended from 7 Nov until separately reinstated.
@@ -253,9 +282,19 @@
   function timeOf(e){
     return new Intl.DateTimeFormat(locale(),{timeZone:'Europe/Prague',weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}).format(new Date(e.begins_at));
   }
+  function shortTime(e){
+    return new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Prague',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(e.begins_at));
+  }
   function applyLanguage() {
     document.documentElement.lang=lang;
-    [['fdEyebrow','eyebrow'],['fdHero1','title'],['fdHero2','title2'],['fdLead','lead'],['fdHeroLabel','button'],['fdUnder','under'],['fdDir1','dir1'],['fdDir2','dir2'],['fdDir3','dir3'],['fdCalEyebrow','calendarEyebrow'],['fdCalTitle','calendarTitle'],['fdCalIntro','calendarIntro'],['fdCalNote','calendarNote'],['fdNotice','notice'],['fdFooterCalendar','liveCalendar'],['fdFooterPrivacy','privacy'],['fdFooterInfo','back']].forEach(function(pair){label(pair[0],pair[1]);});
+    [['fdEyebrow','eyebrow'],['fdHero1','title'],['fdHero2','title2'],['fdLead','lead'],['fdUnder','under'],['fdDir1','dir1'],['fdDir2','dir2'],['fdDir3','dir3'],['fdCalEyebrow','calendarEyebrow'],['fdCalTitle','calendarTitle'],['fdCalIntro','calendarIntro'],['fdCalNote','calendarNote'],['fdNotice','notice'],['fdFooterCalendar','liveCalendar'],['fdFooterPrivacy','privacy'],['fdFooterInfo','back']].forEach(function(pair){label(pair[0],pair[1]);});
+    [['fdHeroLabel','heroEvents'],['fdHeroSub','heroTypes'],['fdAcademyLabel','heroAcademy'],['fdAcademyNote','academyNote'],
+      ['fdNavHome','home'],['fdNavEvents','events'],['fdNavAcademy','academyNav'],['fdNavClub','clubNav'],
+      ['fdNavWalkers','walkersNav'],['fdNavAbout','about'],['fdCityHeading','city']].forEach(function(pair){el(pair[0]).textContent=ft(pair[1]);});
+    el('fdAcademyCta').href='https://wa.me/420702914842?text='+encodeURIComponent(ft('academyMsg'));
+    [['fdNavAcademy','academy/'],['fdNavClub','druzina/'],['fdNavWalkers','walkers/']].forEach(function(pair){el(pair[0]).href=pair[1]+'?lang='+encodeURIComponent(lang);});
+    el('fdNavAbout').href='?lang='+encodeURIComponent(lang)+'&view=details';
+    parent.querySelectorAll('[data-fd-city]').forEach(function(btn){btn.textContent=ft('city'+btn.dataset.fdCity.charAt(0).toUpperCase()+btn.dataset.fdCity.slice(1));});
     parent.querySelectorAll('[data-fd-language]').forEach(function(btn){btn.setAttribute('aria-pressed',String(btn.dataset.fdLanguage===lang));});
     parent.querySelectorAll('[data-fd-filter]').forEach(function(btn){btn.textContent=tr(btn.dataset.fdFilter==='club'?'club':btn.dataset.fdFilter==='walkers'?'walkers':btn.dataset.fdFilter==='academy'?'academy':'all');});
     el('fdPrev').setAttribute('aria-label',tr('prev'));el('fdNext').setAttribute('aria-label',tr('next'));
@@ -309,6 +348,7 @@
     for(var n=0;n<7;n++){var wd=document.createElement('span');wd.textContent=weekday.format(new Date(Date.UTC(2024,0,1+n)));el('fdWeekdays').appendChild(wd);}
     el('fdMonth').textContent=new Intl.DateTimeFormat(locale(),{timeZone:'UTC',month:'long',year:'numeric'}).format(new Date(Date.UTC(month.getFullYear(),month.getMonth(),12)));
     parent.querySelectorAll('[data-fd-filter]').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.fdFilter===filter));});
+    parent.querySelectorAll('[data-fd-city]').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.fdCity===city));});
     var year=month.getFullYear(),m=month.getMonth(),first=(new Date(Date.UTC(year,m,1)).getUTCDay()+6)%7;
     var days=new Date(Date.UTC(year,m+1,0)).getUTCDate(),grid=el('fdDays');grid.replaceChildren();
     for(var offset=0;offset<first;offset++){var blank=document.createElement('span');blank.className='fd-day fd-blank';blank.setAttribute('aria-hidden','true');grid.appendChild(blank);}
@@ -320,7 +360,18 @@
       var item=document.createElement(evs.length?'button':'span');item.className='fd-day'+(key===today?' fd-today':'')+(key<today?' fd-past':'');
       if(evs.length){item.type='button';item.setAttribute('aria-label',key+' · '+evs.map(function(e){return e.title;}).join('; '));item.setAttribute('aria-pressed',String(key===chosenDay));item.addEventListener('click',function(k){return function(){chosenDay=k;selectedId='';sendSignal('calendar_day_select','calendar');render();openEventModal(k);};}(key));}
       var number=document.createElement('span');number.className='fd-daynum';number.textContent=day;item.appendChild(number);
-      if(evs.length){var symbol=document.createElement('span');symbol.className='fd-dayicons';symbol.textContent=evs.slice(0,2).map(icon).join('');if(evs.length>2)symbol.textContent+='+'+(evs.length-2);item.appendChild(symbol);}
+      if(evs.length){
+        var icons=document.createElement('span');icons.className='fd-dayicons';
+        evs.slice(0,3).forEach(function(e){
+          var mark=document.createElement('span');mark.className='fd-day-activity';
+          var glyph=document.createElement('span');glyph.className='fd-day-glyph';glyph.textContent=icon(e);glyph.setAttribute('aria-hidden','true');
+          var clock=document.createElement('time');clock.className='fd-day-time';clock.dateTime=e.begins_at;clock.textContent=shortTime(e);
+          mark.appendChild(glyph);mark.appendChild(clock);icons.appendChild(mark);
+        });
+        if(evs.length>2){var moreMobile=document.createElement('span');moreMobile.className='fd-day-more fd-more-mobile';moreMobile.textContent='+'+(evs.length-2);icons.appendChild(moreMobile);}
+        if(evs.length>3){var moreDesktop=document.createElement('span');moreDesktop.className='fd-day-more fd-more-desktop';moreDesktop.textContent='+'+(evs.length-3);icons.appendChild(moreDesktop);}
+        item.appendChild(icons);
+      }
       grid.appendChild(item);
     }
     if(!chosenDay||!eventsForDay(chosenDay).length)chosenDay=firstWithEvents||'';
@@ -329,7 +380,7 @@
     fallback.hidden=!!chosenDay||status==='loading';
     if(!fallback.hidden){
       var isAcademy=filter==='academy';
-      el('fdFallbackHint').textContent=isAcademy?tr('learnDesc'):(status==='error'?tr('offline'):tr('empty'));
+      el('fdFallbackHint').textContent=isAcademy?tr('learnDesc'):(status==='error'?tr('offline'):(city!=='all'?ft('cityEmpty'):tr('empty')));
       el('fdFallbackLink').textContent=isAcademy?tr('learnCta'):tr('liveCalendar');
       el('fdFallbackLink').href=isAcademy?'academy/':'calendar/';
     }
@@ -360,6 +411,9 @@
     applyLanguage();
   });});
   parent.querySelectorAll('[data-fd-filter]').forEach(function(b){b.addEventListener('click',function(){closeEventModal(false);filter=b.dataset.fdFilter;chosenDay='';selectedId='';sendSignal('activity_filter','calendar');render();});});
+  parent.querySelectorAll('[data-fd-city]').forEach(function(b){b.addEventListener('click',function(){closeEventModal(false);city=b.dataset.fdCity;chosenDay='';selectedId='';sendSignal('city_filter','calendar');render();});});
+  el('fdAcademyCta').addEventListener('click',function(){sendSignal('academy_enquiry','hero');});
+  el('fdNavEvents').addEventListener('click',function(){sendSignal('calendar_open','navigation');});
   el('fdHeroCta').addEventListener('click',function(){sendSignal('calendar_open','hero');});
   el('fdBook').addEventListener('click',function(){sendSignal('event_cta_'+(this.dataset.status||'browse'),'calendar_detail');});
   el('fdFooterInfo').href='?lang='+lang+'&view=details';
