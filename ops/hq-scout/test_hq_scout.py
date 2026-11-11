@@ -24,6 +24,7 @@ class HQScoutTests(unittest.TestCase):
         self.assertFalse(allowed("http://www.brno.cz/"))
         self.assertFalse(allowed("https://127.0.0.1/private"))
         self.assertFalse(allowed("https://user:pass@brno.cz/"))
+        self.assertFalse(allowed("https://www.brno.cz:notaport/"))
     def test_tracking_removed(self):
         self.assertEqual(canon("https://www.brno.cz/a/?utm_source=sp&foo=1#top"),"https://www.brno.cz/a?foo=1")
     def test_free_and_term_signals(self):
