@@ -78,6 +78,7 @@
               '<div class="fd-calendar-nav"><button type="button" id="fdPrev" aria-label="Previous month">‹</button><h3 id="fdMonth"></h3><button type="button" id="fdNext" aria-label="Next month">›</button></div>',
               '<div class="fd-weekdays" id="fdWeekdays"></div><div class="fd-days" id="fdDays" role="group" aria-label="Event dates"></div>',
               '<p class="fd-cal-note" id="fdCalNote"></p>',
+              '<div class="fd-calendar-fallback" id="fdFallback" hidden><p id="fdFallbackHint"></p><a id="fdFallbackLink" href="academy/"></a></div>',
             '</div>',
             '</div>',
             '<div class="fd-modal-backdrop" id="fdOverlay" hidden></div>',
@@ -233,6 +234,14 @@
     }
     if(!chosenDay||!eventsForDay(chosenDay).length)chosenDay=firstWithEvents||'';
     if(chosenDay)renderDetail(chosenDay);else setDetailEmpty(status==='error');
+    var fallback=el('fdFallback');
+    fallback.hidden=!!chosenDay||status==='loading';
+    if(!fallback.hidden){
+      var isAcademy=filter==='academy';
+      el('fdFallbackHint').textContent=isAcademy?tr('learnDesc'):(status==='error'?tr('offline'):tr('empty'));
+      el('fdFallbackLink').textContent=isAcademy?tr('learnCta'):tr('liveCalendar');
+      el('fdFallbackLink').href=isAcademy?'academy/':'calendar/';
+    }
     parent.querySelectorAll('.fd-day[aria-pressed]').forEach(function(b){b.setAttribute('aria-pressed',String(b.getAttribute('aria-label').slice(0,10)===chosenDay));});
   }
   function monthShift(delta){closeEventModal(false);month=new Date(month.getFullYear(),month.getMonth()+delta,1);chosenDay='';selectedId='';render();}
