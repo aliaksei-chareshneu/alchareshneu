@@ -52,9 +52,16 @@ class HQScoutTests(unittest.TestCase):
         known = [{"name":"Klobásova 9","status":"WATCH"}]
         self.assertEqual(classification(signals("budova"),known),"EXISTING_LEAD_CHECK_THREAD")
     def test_link_follow_bounded(self):
-        html = '<a href="/availability">pronájem budovy</a><a href="https://evil.org/">pronájem</a><a href="/asset.pdf">Výpůjčka</a>'
+        html = '<a href="/availability">pronájem budovy</a><a href="https://evil.org/">pronájem</a><a href="/docs/file.pdf/id">Výpůjčka</a>'
         _,_,links = html_info(html)
         self.assertEqual(same_host_links("https://www.brno.cz/root",links,4),["https://www.brno.cz/availability"])
+    def test_government_loan_index_not_confirmed_offer(self):
+        r = analyze("GOV_LOAN","https://www.nabidkamajetku.gov.cz/Home/Tenders?ListType=Loan",
+                    "<h1>Výpůjčka</h1> Pronájem nebytové budovy",[],False)
+        self.assertEqual(r["status"],"LOAN_CATEGORY_INDEX_VERIFY_INDIVIDUAL_OFFER")
+        self.assertEqual(r["score_research_only"],0)
+        self.assertFalse(r["verified_available"])
+
     def test_redirect_outside_denied(self):
         request = __import__("urllib.request",fromlist=["Request"]).Request("https://www.brno.cz/a")
         self.assertIsNone(RestrictedRedirect().redirect_request(request,None,302,"Moved",{}, "https://evil.org/a"))

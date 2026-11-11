@@ -219,7 +219,7 @@ def same_host_links(url: str, links: list[tuple[str, str]], limit: int) -> list[
             continue
         if not any(term in fold(candidate + " " + title) for term in LINK_TERMS):
             continue
-        if urlparse(candidate).path.lower().endswith((".pdf", ".docx", ".zip", ".jpg", ".jpeg")):
+        if any(ext in urlparse(candidate).path.lower() for ext in (".pdf", ".docx", ".doc/", ".zip", ".jpg", ".jpeg")):
             continue
         if candidate != canon(url) and candidate not in result:
             result.append(candidate)
@@ -259,11 +259,23 @@ def analyze(source: str, url: str, raw: str, known: list[dict], model: bool) -> 
     text, title, _ = html_info(raw)
     found = match_existing(title, text, known)
     flags = signals(text)
+    # NMS free-loan category is a JavaScript index, not an accepted property offer.
+    # Generic navigation also has "Pronájem"; do not misclassify its loan index.
+    parsed = urlparse(url)
+    category_page = parsed.hostname and parsed.hostname.endswith("nabidkamajetku.gov.cz") and parsed.path.lower().startswith("/home/tenders")
+    if category_page:
+        params = dict(parse_qsl(parsed.query))
+        loan_index = params.get("ListType", "").lower() == "loan"
+        source_status = "LOAN_CATEGORY_INDEX_VERIFY_INDIVIDUAL_OFFER" if loan_index else "GOV_CATEGORY_INDEX_NOT_A_PROPERTY_OFFER"
+        source_score = 0
+    else:
+        source_status = classification(flags, found)
+        source_score = rank(flags, found)
     entry = {
         "source": source, "url": canon(url), "title": title,
         "checked_utc": datetime.now(timezone.utc).isoformat(),
         "source_text_sha256": hashlib.sha256(text.encode()).hexdigest(),
-        "status": classification(flags, found), "score_research_only": rank(flags, found),
+        "status": source_status, "score_research_only": source_score,
         "signals": flags, "existing_matches": [{"name": x["name"], "status": x["status"][:100]} for x in found],
         "verified_available": False, "legal_free_5plus_term_verified": False,
         "next": "Identify exact building+land KN owner; verify vacancy, safe use, 0 Kč rent, term >=5 years, repair/OSVC permissions; check current Gmail SENT+DNC before individual approach."
