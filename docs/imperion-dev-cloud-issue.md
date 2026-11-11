@@ -1,7 +1,7 @@
 # IMPERION DEV Agent — cloud issue coding (Stage 7, review-only)
 
 **Entity:** personal OSVČ. **Repository:** aliaksei-chareshneu/alchareshneu.
-**Owner GO (9 Nov 2026):** isolated development on GitHub branches and zmrzlina; **not** merging, deploying, changing permissions, purchases or publishing.
+**Owner authorization history:** On 9 Nov 2026, GO covered isolated development only. On 10 Nov 2026, the owner separately authorized and completed merges of reviewed PRs #250 and #258; on 11 Nov the owner confirmed enabling GitHub Actions to create pull requests. Agent-generated changes remain review-only: no automatic merging, deployment, purchases or paid inference API.
 **Cost model:** GitHub-hosted CPU with local Ollama qwen3:4b-instruct, no paid inference API or account secrets. GitHub runner quotas and electricity have nonzero resource cost; never enable billed overage.
 **Case:** IMP-DEV-CLOUD-ISSUE-20261109.
 
@@ -12,7 +12,7 @@
 - [Cloud acceptance #245](https://github.com/aliaksei-chareshneu/alchareshneu/issues/245) is a **public owner-only issue** to request bounded coding from Android or desktop.
 - Existing [Draft PR #231](https://github.com/aliaksei-chareshneu/alchareshneu/pull/231) and [Draft PR #247](https://github.com/aliaksei-chareshneu/alchareshneu/pull/247) remain separate; do not merge old site versions or silently restore superseded tariffs.
 
-## How to submit (AFTER owner-approved activation in main)
+## How to submit (active on main after owner approval)
 
 From the logged-in GitHub Mobile app or mobile browser, open the existing issue #245 and create a new public comment:
 
@@ -30,7 +30,7 @@ For the first owner-authorized end-to-end cloud acceptance, use this exact publi
 
 The complete fixture file/test pair is an explicitly validated exception to normal path restrictions. This confirms real GitHub issue → cloud Qwen → independent test → Draft PR without modifying application code or prices. It does not establish native Android app provenance until a command is submitted from that device and observed.
 
-For later non-synthetic work, replace the file and test with real **already tracked** public paths from this repo. A suitable trusted test must exist before submitting. Only one file is edited per command. Accepted source paths: non-sensitive .js, .cjs, .md under scripts/, docs/, ops/; pre-existing independent tests remain read-only under tests/; sensitive paths, .github, credentials, billing, auth, registration, deployment, personal data and private code are rejected. This is NOT yet a universal multi-file programmer.
+For later non-synthetic work, replace the file and test with real **already tracked** public paths from this repo. A suitable trusted test must exist before submitting. One or two pre-existing source files can be edited per command. For a coordinated two-file change, insert an optional `file2: ops/approved-public-module.cjs` line **immediately after** the `file:` line, before `test:`. The model proposes a separate anchored replacement for each file, both original SHA-256 digests are validated before either edit is staged, and the exact two-file diff is verified before the bot can create a Draft PR. The same independently maintained pre-existing test must pass after **both** edits. This is bounded multi-file coding, not a general-purpose multi-repo agent or independently generated new tests. Accepted source paths: non-sensitive .js, .cjs, .md under scripts/, docs/, ops/; pre-existing independent tests remain read-only under tests/; sensitive paths, .github, credentials, billing, auth, registration, deployment, personal data and private code are rejected. This is NOT yet a universal multi-file programmer.
 
 GitHub issue comments are public. Never include account details, tokens, customer records, health data, legal matters, passwords or unpublished financial information. Only your GitHub account (repository owner), with correct GitHub author association, can trigger execution. No direct shell execution or model-selected paths.
 
@@ -44,7 +44,13 @@ GitHub issue comments are public. Never include account details, tokens, custome
 6. **Only after tests**, an independent workflow job with separate GitHub token permissions (subject to owner review) may push a unique review branch and attempt gh pr create --draft. Duplicate comment IDs never create duplicate PRs; a surviving branch without PR is reported BLOCKED.
 7. Read back from GitHub to prove an open Draft PR. Nothing merges, deploys, publishes, changes prices, or sends customer messages.
 
-**Known external blockers:** GitHub only triggers issue-comment workflows that exist in default branch. GitHub can also forbid PR creation from GitHub Actions by repository policy (403). Neither default-branch activation nor permission changes are authorized by the current GO. The preview PR can test the model and isolation; it cannot prove fully unattended Android-origin issue → PR until those separate gates are approved and independently tested.
+**Verified activation:** The `AFTER owner-approved activation` precondition was fulfilled by owner-authorized PRs #250 and #258 on 10 Nov 2026. GitHub Actions' repository permission to create Draft pull requests was confirmed by its actual use on 11 Nov 2026: [issue comment #6787842684](https://github.com/aliaksei-chareshneu/alchareshneu/issues/245#issuecomment-6787842684) → [cloud workflow #42965529871](https://github.com/aliaksei-chareshneu/alchareshneu/actions/runs/42965529871) (3/3 jobs SUCCESS) → bot-created [Draft PR #268](https://github.com/aliaksei-chareshneu/alchareshneu/pull/268). This proves owner issue submission, Qwen inference, independent sandbox tests, and automated review PR creation.
+
+**Still NOT verified / BLOCKED for broader scope:** An issue comment *specifically originating from Android* has not been independently tested; unrestricted multi-file coding, automatically writing independent new tests, reading private repositories, changes to access controls, and deployment are not part of this stage. The developer must review all model-generated changes, pass relevant CI and specifically approve each merge. A GitHub Pages publication and successful PR checks are distinct from a Draft PR.
+
+**CI baseline warning (11 Nov 2026):** The unrelated site-wide browser regression suite fails on `main` as well, including older registration-catalog and home-page tests; do not silently waive the failures or mark this entire repository green. The DEV-specific cloud preflight and sandbox Qwen checks are independently passing.
+
+**Actual owner command link:** https://github.com/aliaksei-chareshneu/alchareshneu/issues/245 . Only the signed-in repository owner's public comment with the exact four-line syntax is accepted. Each unique comment ID makes an independent review branch; do not re-send existing accepted comments. Usage consumes GitHub-hosted runner minutes and cache quota, which are not unlimited or a guaranteed free allowance.
 
 **The code does not autonomously author separate test files.** It requires an existing trusted test for the requested public file and verifies its outcome. General unrestricted agent coding, multi-file edits and private tasks remain outside this scoped stage.
 
@@ -65,3 +71,15 @@ Invalid actor, wrong issue number, closed issue, wrong command format, missing t
 GitHub official references:
 - https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#issue_comment
 - https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/enabling-features-for-your-repository/managing-github-actions-settings-for-a-repository
+
+## Stage 8 — bounded two-file acceptance (review-only)
+
+This second fixture uses two separate **public, synthetic** arithmetic helpers with an independently maintained, already passing trusted test. It does not change any production price or event record. After the Stage 8 reviewed code has been merged into main, the signed-in repository owner can submit one unique comment to existing Issue #245:
+
+    /imperion-dev cloud
+    file: ops/imperion-dev-cloud-fixture/multi-price.cjs
+    file2: ops/imperion-dev-cloud-fixture/multi-shipping.cjs
+    test: tests/imperion-dev-cloud-multi-fixture.test.cjs
+    goal: Add a concise explanatory comment to each helper function without changing outputs or exports.
+
+Acceptance is complete only when a new GitHub Actions issue_comment workflow independently verifies **two model proposals**, tests both changes in a no-network container, the publisher commits exactly those two source files, and GitHub reports a bot-created OPEN/DRAFT review PR. A model proposal or a green baseline alone is insufficient. Reject duplicate comments and do not merge these purely synthetic patches into the main branch.
