@@ -6,7 +6,7 @@ const os=require('node:os');
 const path=require('node:path');
 const W=require('../scripts/imperion-dev-cloud-issue.cjs');
 const cmd='/imperion-dev cloud\nfile: scripts/imperion-public-example.cjs\ntest: tests/imperion-public-example.test.cjs\ngoal: Correct total price to include each item quantity';
-const event={action:'created',repository:{full_name:W.REPO},issue:{number:245,state:'open'},
+const event={action:'created',repository:{full_name:W.REPO},issue:{number:245,state:'open',user:{login:'aliaksei-chareshneu'}},
   sender:{login:'aliaksei-chareshneu'},
   comment:{id:1234,body:cmd,user:{login:'aliaksei-chareshneu'},author_association:'OWNER'}};
 const source="function total(items) { return items.reduce((sum, row) => sum + row.price, 0); }\nmodule.exports={total};\n";
@@ -26,10 +26,26 @@ test('only exact owner-authenticated public issue trigger',()=>{
   goal:'Correct total price to include each item quantity',issue:245,comment:1234,mode:'OWNER_ISSUE'});
  for (const tamper of [
   {sender:{login:'hacker'}},{comment:{...event.comment,author_association:'CONTRIBUTOR'}},
-  {issue:{number:244,state:'open'}},{issue:{number:245,state:'closed'}},
+  {issue:{...event.issue,number:0}},
+  {issue:{...event.issue,state:'closed'}},
+  {issue:{...event.issue,user:{login:'other-account'}}},
   {repository:{full_name:'attacker/repo'}},{action:'edited'}
  ]) assert.throws(()=>W.taskFromEvent({...event,...tamper}),/UNTRUSTED_TRIGGER_REJECTED/);
  assert.throws(()=>W.taskFromEvent({...event,issue:{...event.issue,pull_request:{}}}),/UNTRUSTED_TRIGGER_REJECTED/);
+});
+
+test('owner-created public issues are accepted without collisions, other owners blocked',()=>{
+ const alternate={...event,issue:{...event.issue,number:314}};
+ assert.equal(W.taskFromEvent(alternate).issue,314);
+ assert.equal(W.reviewBranch(245,1234),'agent/imperion-dev-cloud-245-1234');
+ assert.equal(W.reviewBranch(314,1234),'agent/imperion-dev-cloud-314-1234');
+ assert.notEqual(W.reviewBranch(245,1234),W.reviewBranch(314,1234));
+ for(const value of [0,-1,1.25,Number.MAX_SAFE_INTEGER+1,'245',null])
+   assert.throws(()=>W.reviewBranch(value,1234),/REVIEW_BRANCH_IDS_REJECTED/);
+ for(const value of [0,-1,'1234',null])
+   assert.throws(()=>W.reviewBranch(245,value),/REVIEW_BRANCH_IDS_REJECTED/);
+ assert.throws(()=>W.taskFromEvent({...alternate,
+   issue:{...alternate.issue,user:{login:'untrusted-author'}}}),/UNTRUSTED_TRIGGER_REJECTED/);
 });
 test('public-only strict command and path gate',()=>{
  assert.deepEqual(W.parseCommand(cmd).file,'scripts/imperion-public-example.cjs');
@@ -114,7 +130,9 @@ test('GitHub Actions stays scoped to isolated cloud preview, not deployment',()=
  const y=fs.readFileSync(path.join(__dirname,'../.github/workflows/imperion-dev-cloud-issue.yml'),'utf8');
  assert.match(y,/issue_comment:\s*\n\s*types: \[created\]/);
  assert.match(y,/persist-credentials: false/);
- assert.match(y,/github\.event\.issue\.number == 245/);
+ assert.match(y,/github\.event\.issue\.user\.login == 'aliaksei-chareshneu'/);
+ assert.match(y,/github\.event\.issue\.state == 'open'/);
+ assert.match(y,/OWNER_ISSUE_NUMBER/);
  assert.match(y,/--network none --read-only --cap-drop ALL/);
  assert.match(y,/gh pr create --draft/);
  assert.match(y,/permissions:\s*\n\s*contents: read/);
@@ -124,7 +142,7 @@ test('GitHub Actions stays scoped to isolated cloud preview, not deployment',()=
 });
 test('owner instructions identify stage boundaries, no assumed cloud publication',()=>{
  const m=fs.readFileSync(path.join(__dirname,'../docs/imperion-dev-cloud-issue.md'),'utf8');
- for(const phrase of ['AFTER owner-approved activation','main','BLOCKED','Android','Draft PR','existing trusted test'])
+ for(const phrase of ['ACTIVE in main','main','BLOCKED','Android','Draft PR','existing trusted test'])
    assert.ok(m.includes(phrase),phrase);
 });
 
