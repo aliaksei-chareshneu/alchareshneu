@@ -96,12 +96,20 @@
     el('fdPaymentWhatsApp').href='https://wa.me/420702914842?text='+encodeURIComponent(message);
     el('fdPaymentTelegram').href='https://t.me/Chareshneu';
   }
+  /* Small navigation and two focused customer paths (no extra tracking). */
+  var FRONT_COPY = {
+    cs:{home:'Úvod',events:'Akce',academyNav:'Akademie',clubNav:'Družina',walkersNav:'BrnoWalkers',about:'O mně',heroEvents:'Vybrat akci',heroTypes:'Družina · BrnoWalkers',heroAcademy:'Přihlásit se na lekci Akademie',city:'Město',cityAll:'Všechna místa',cityBrno:'Brno',cityPrague:'Praha',cityOther:'Ostatní / upřesníme',cityEmpty:'Pro zvolené místo a období zatím není zveřejněna potvrzená akce.',moreDates:'další',menu:'Navigace'},
+    en:{home:'Home',events:'Events',academyNav:'Academy',clubNav:'Družina',walkersNav:'BrnoWalkers',about:'About',heroEvents:'Choose an event',heroTypes:'Družina · BrnoWalkers',heroAcademy:'Book an Academy lesson',city:'City',cityAll:'All places',cityBrno:'Brno',cityPrague:'Prague',cityOther:'Other / to confirm',cityEmpty:'No verified published events for this place and month yet.',moreDates:'more',menu:'Navigation'},
+    ru:{home:'Главная',events:'События',academyNav:'Академия',clubNav:'Дружина',walkersNav:'BrnoWalkers',about:'Обо мне',heroEvents:'Выбрать событие',heroTypes:'Дружина · BrnoWalkers',heroAcademy:'Записаться на урок в Академии',city:'Город',cityAll:'Все города',cityBrno:'Брно',cityPrague:'Прага',cityOther:'Другие / уточняется',cityEmpty:'В выбранном городе в этом месяце пока нет проверенных опубликованных мероприятий.',moreDates:'ещё',menu:'Навигация'},
+    uk:{home:'Головна',events:'Події',academyNav:'Академія',clubNav:'Дружина',walkersNav:'BrnoWalkers',about:'Про мене',heroEvents:'Обрати подію',heroTypes:'Дружина · BrnoWalkers',heroAcademy:'Записатися на урок Академії',city:'Місто',cityAll:'Усі міста',cityBrno:'Брно',cityPrague:'Прага',cityOther:'Інші / уточнюється',cityEmpty:'Для обраного міста й місяця поки немає перевірених опублікованих подій.',moreDates:'ще',menu:'Навігація'}
+  };
+  function ft(k){return (FRONT_COPY[lang]||FRONT_COPY.cs)[k]||FRONT_COPY.en[k]||k;}
   var paths = {club:'druzina/',walkers:'walkers/',academy:'academy/'};
   var query = new URLSearchParams(location.search);
   var requested = query.get('lang');
   var saved=null;try {saved=localStorage.getItem('dm_lang');} catch (_) {}
   var lang = LANGS.indexOf(requested)>=0 ? requested : (LANGS.indexOf(saved)>=0 ? saved : 'cs');
-  var data=[], status='loading', filter='all', selectedId='', chosenDay='', month=new Date(), pending=false;
+  var data=[], status='loading', filter='all', city='all', selectedId='', chosenDay='', month=new Date(), pending=false;
   var modalShown=false, modalDay='';
   var tzFormatter = new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Prague',year:'numeric',month:'2-digit',day:'2-digit'});
   function tr(k){return COPY[lang][k]||COPY.en[k]||k;}
@@ -133,20 +141,26 @@
   var html = [
     '<div id="imperion-frontdoor">',
     '<header class="fd-header"><div class="fd-shell fd-header-inner">',
-      '<div class="fd-logo"><span class="fd-logo-mark" aria-hidden="true">✦</span><span>BRNO <span style="color:#f3cf8f">/</span> EXPERIENCE</span></div>',
-      '<div class="fd-directions" aria-label="Our activities"><span id="fdDir1"></span><span id="fdDir2"></span><span id="fdDir3"></span></div>',
+      '<a class="fd-logo" href="#imperion-frontdoor"><span class="fd-logo-mark" aria-hidden="true">✦</span><span>IMPERION <span class="fd-logo-sub">/ BRNO</span></span></a>',
+      '<nav class="fd-nav" id="fdNav" aria-label="Primary navigation">',
+      '<a id="fdNavHome" href="#imperion-frontdoor"></a><a id="fdNavEvents" href="#impr-calendar"></a><a id="fdNavAcademy" href="academy/"></a>',
+      '<a id="fdNavClub" href="druzina/"></a><a id="fdNavWalkers" href="walkers/"></a><a id="fdNavAbout" href="?view=details"></a>',
+      '</nav>',
       '<div class="fd-languages" aria-label="Language">',
       '<button type="button" data-fd-language="cs">CZ</button><button type="button" data-fd-language="en">EN</button><button type="button" data-fd-language="ru">RU</button><button type="button" data-fd-language="uk">UA</button>',
       '</div></div></header>',
     '<main>',
       '<section class="fd-hero" aria-label="Welcome">',
-        '<div class="fd-mosaic" aria-hidden="true"><span></span><span></span><span></span></div>',
-        '<div class="fd-fighters" aria-hidden="true"></div>',
+        '<div class="fd-mosaic fd-photo-shadows" aria-hidden="true"><span></span><span></span></div>',
         '<div class="fd-shell fd-hero-inner">',
           '<div class="fd-eyebrow" id="fdEyebrow"></div>',
           '<h1><span id="fdHero1" style="color:#fffdf3"></span><span id="fdHero2"></span></h1>',
           '<p class="fd-lede" id="fdLead"></p>',
-          '<a class="fd-hero-cta" id="fdHeroCta" href="#impr-calendar"><span id="fdHeroLabel"></span><span aria-hidden="true">↗</span></a>',
+          '<div class="fd-hero-actions">',
+          '<a class="fd-hero-cta" id="fdHeroCta" href="#impr-calendar"><span aria-hidden="true">▦</span><span class="fd-hero-cta-copy"><strong id="fdHeroLabel"></strong><small id="fdHeroSub"></small></span></a>',
+          '<a class="fd-hero-academy" id="fdAcademyCta" href="academy/"><span class="fd-academy-symbol" aria-hidden="true">🎓</span><span id="fdAcademyLabel"></span></a>',
+          '</div>',
+          '<div class="fd-hero-topics" aria-hidden="true"><span id="fdDir1"></span><span id="fdDir2"></span><span id="fdDir3"></span></div>',
         '</div>',
         '<div class="fd-hero-bottom" id="fdUnder"></div>',
       '</section>',
@@ -155,6 +169,9 @@
           '<div class="fd-topline"><div><div class="fd-eyebrow" id="fdCalEyebrow"></div><h2 id="fdCalTitle"></h2></div><p id="fdCalIntro"></p></div>',
           '<div class="fd-filters" role="group" aria-label="Activities">',
           '<button type="button" data-fd-filter="all"></button><button type="button" data-fd-filter="club"></button><button type="button" data-fd-filter="walkers"></button><button type="button" data-fd-filter="academy"></button></div>',
+          '<div class="fd-city-filter"><span id="fdCityHeading"></span><div class="fd-city-options" role="group" aria-label="City">',
+          '<button type="button" data-fd-city="all"></button><button type="button" data-fd-city="brno"></button><button type="button" data-fd-city="prague"></button><button type="button" data-fd-city="other"></button>',
+          '</div></div>',
           '<div class="fd-calendar-layout">',
             '<div class="fd-calendar-pane">',
               '<div class="fd-calendar-nav"><button type="button" id="fdPrev" aria-label="Previous month">‹</button><h3 id="fdMonth"></h3><button type="button" id="fdNext" aria-label="Next month">›</button></div>',
@@ -238,7 +255,19 @@
     if(group(e)==='walkers')return '🥾';
     return '📅';
   }
-  function matches(e){return filter==='all'||group(e)===filter;}
+  
+  function eventCity(e){
+    // Treat an unstated city as OTHER, never invent Prague inventory.
+    var declared=String(e.city||e.location_city||'').trim();
+    var place=declared||String(e.venue||'');
+    if(/praha|praze|prahy|prague|praž|prag\b/i.test(place))return 'prague';
+    if(/\bbrno\b|\bbrně\b|\bbrna\b|husovice|obřany|obrany|zbrojovka|jurkovičov|malinovsk|dům umění města brna|dum umeni mesta brna|červený kopec|cerveny kopec|bílovice|bilovice/i.test(place))return 'brno';
+    // Current club training venue is not exposed until individual confirmation,
+    // but the confirmed operating city is Brno (existing publicVenue function).
+    if(e.category==='HEMA Training'&&group(e)==='club')return 'brno';
+    return 'other';
+  }
+  function matches(e){return (filter==='all'||group(e)===filter)&&(city==='all'||eventCity(e)===city);}
   function isSuppressed(e){
     var date=String(e.begins_at||'').slice(0,10);
     // Owner decision: regular Saturday HEMA is suspended from 7 Nov until separately reinstated.
@@ -253,9 +282,19 @@
   function timeOf(e){
     return new Intl.DateTimeFormat(locale(),{timeZone:'Europe/Prague',weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}).format(new Date(e.begins_at));
   }
+  function shortTime(e){
+    return new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Prague',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(e.begins_at));
+  }
   function applyLanguage() {
     document.documentElement.lang=lang;
-    [['fdEyebrow','eyebrow'],['fdHero1','title'],['fdHero2','title2'],['fdLead','lead'],['fdHeroLabel','button'],['fdUnder','under'],['fdDir1','dir1'],['fdDir2','dir2'],['fdDir3','dir3'],['fdCalEyebrow','calendarEyebrow'],['fdCalTitle','calendarTitle'],['fdCalIntro','calendarIntro'],['fdCalNote','calendarNote'],['fdNotice','notice'],['fdFooterCalendar','liveCalendar'],['fdFooterPrivacy','privacy'],['fdFooterInfo','back']].forEach(function(pair){label(pair[0],pair[1]);});
+    [['fdEyebrow','eyebrow'],['fdHero1','title'],['fdHero2','title2'],['fdLead','lead'],['fdUnder','under'],['fdDir1','dir1'],['fdDir2','dir2'],['fdDir3','dir3'],['fdCalEyebrow','calendarEyebrow'],['fdCalTitle','calendarTitle'],['fdCalIntro','calendarIntro'],['fdCalNote','calendarNote'],['fdNotice','notice'],['fdFooterCalendar','liveCalendar'],['fdFooterPrivacy','privacy'],['fdFooterInfo','back']].forEach(function(pair){label(pair[0],pair[1]);});
+    [['fdHeroLabel','heroEvents'],['fdHeroSub','heroTypes'],['fdAcademyLabel','heroAcademy'],
+      ['fdNavHome','home'],['fdNavEvents','events'],['fdNavAcademy','academyNav'],['fdNavClub','clubNav'],
+      ['fdNavWalkers','walkersNav'],['fdNavAbout','about'],['fdCityHeading','city']].forEach(function(pair){el(pair[0]).textContent=ft(pair[1]);});
+    el('fdAcademyCta').href='academy/?lang='+encodeURIComponent(lang);
+    [['fdNavAcademy','academy/'],['fdNavClub','druzina/'],['fdNavWalkers','walkers/']].forEach(function(pair){el(pair[0]).href=pair[1]+'?lang='+encodeURIComponent(lang);});
+    el('fdNavAbout').href='?lang='+encodeURIComponent(lang)+'&view=details';
+    parent.querySelectorAll('[data-fd-city]').forEach(function(btn){btn.textContent=ft('city'+btn.dataset.fdCity.charAt(0).toUpperCase()+btn.dataset.fdCity.slice(1));});
     parent.querySelectorAll('[data-fd-language]').forEach(function(btn){btn.setAttribute('aria-pressed',String(btn.dataset.fdLanguage===lang));});
     parent.querySelectorAll('[data-fd-filter]').forEach(function(btn){btn.textContent=tr(btn.dataset.fdFilter==='club'?'club':btn.dataset.fdFilter==='walkers'?'walkers':btn.dataset.fdFilter==='academy'?'academy':'all');});
     el('fdPrev').setAttribute('aria-label',tr('prev'));el('fdNext').setAttribute('aria-label',tr('next'));
@@ -309,6 +348,7 @@
     for(var n=0;n<7;n++){var wd=document.createElement('span');wd.textContent=weekday.format(new Date(Date.UTC(2024,0,1+n)));el('fdWeekdays').appendChild(wd);}
     el('fdMonth').textContent=new Intl.DateTimeFormat(locale(),{timeZone:'UTC',month:'long',year:'numeric'}).format(new Date(Date.UTC(month.getFullYear(),month.getMonth(),12)));
     parent.querySelectorAll('[data-fd-filter]').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.fdFilter===filter));});
+    parent.querySelectorAll('[data-fd-city]').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.fdCity===city));});
     var year=month.getFullYear(),m=month.getMonth(),first=(new Date(Date.UTC(year,m,1)).getUTCDay()+6)%7;
     var days=new Date(Date.UTC(year,m+1,0)).getUTCDate(),grid=el('fdDays');grid.replaceChildren();
     for(var offset=0;offset<first;offset++){var blank=document.createElement('span');blank.className='fd-day fd-blank';blank.setAttribute('aria-hidden','true');grid.appendChild(blank);}
@@ -320,7 +360,18 @@
       var item=document.createElement(evs.length?'button':'span');item.className='fd-day'+(key===today?' fd-today':'')+(key<today?' fd-past':'');
       if(evs.length){item.type='button';item.setAttribute('aria-label',key+' · '+evs.map(function(e){return e.title;}).join('; '));item.setAttribute('aria-pressed',String(key===chosenDay));item.addEventListener('click',function(k){return function(){chosenDay=k;selectedId='';sendSignal('calendar_day_select','calendar');render();openEventModal(k);};}(key));}
       var number=document.createElement('span');number.className='fd-daynum';number.textContent=day;item.appendChild(number);
-      if(evs.length){var symbol=document.createElement('span');symbol.className='fd-dayicons';symbol.textContent=evs.slice(0,2).map(icon).join('');if(evs.length>2)symbol.textContent+='+'+(evs.length-2);item.appendChild(symbol);}
+      if(evs.length){
+        var icons=document.createElement('span');icons.className='fd-dayicons';
+        evs.slice(0,3).forEach(function(e){
+          var mark=document.createElement('span');mark.className='fd-day-activity';
+          var glyph=document.createElement('span');glyph.className='fd-day-glyph';glyph.textContent=icon(e);glyph.setAttribute('aria-hidden','true');
+          var clock=document.createElement('time');clock.className='fd-day-time';clock.dateTime=e.begins_at;clock.textContent=shortTime(e);
+          mark.appendChild(glyph);mark.appendChild(clock);icons.appendChild(mark);
+        });
+        if(evs.length>2){var moreMobile=document.createElement('span');moreMobile.className='fd-day-more fd-more-mobile';moreMobile.textContent='+'+(evs.length-2);icons.appendChild(moreMobile);}
+        if(evs.length>3){var moreDesktop=document.createElement('span');moreDesktop.className='fd-day-more fd-more-desktop';moreDesktop.textContent='+'+(evs.length-3);icons.appendChild(moreDesktop);}
+        item.appendChild(icons);
+      }
       grid.appendChild(item);
     }
     if(!chosenDay||!eventsForDay(chosenDay).length)chosenDay=firstWithEvents||'';
@@ -329,7 +380,7 @@
     fallback.hidden=!!chosenDay||status==='loading';
     if(!fallback.hidden){
       var isAcademy=filter==='academy';
-      el('fdFallbackHint').textContent=isAcademy?tr('learnDesc'):(status==='error'?tr('offline'):tr('empty'));
+      el('fdFallbackHint').textContent=isAcademy?tr('learnDesc'):(status==='error'?tr('offline'):(city!=='all'?ft('cityEmpty'):tr('empty')));
       el('fdFallbackLink').textContent=isAcademy?tr('learnCta'):tr('liveCalendar');
       el('fdFallbackLink').href=isAcademy?'academy/':'calendar/';
     }
@@ -360,6 +411,9 @@
     applyLanguage();
   });});
   parent.querySelectorAll('[data-fd-filter]').forEach(function(b){b.addEventListener('click',function(){closeEventModal(false);filter=b.dataset.fdFilter;chosenDay='';selectedId='';sendSignal('activity_filter','calendar');render();});});
+  parent.querySelectorAll('[data-fd-city]').forEach(function(b){b.addEventListener('click',function(){closeEventModal(false);city=b.dataset.fdCity;chosenDay='';selectedId='';sendSignal('city_filter','calendar');render();});});
+  el('fdAcademyCta').addEventListener('click',function(){sendSignal('academy_enquiry','hero');});
+  el('fdNavEvents').addEventListener('click',function(){sendSignal('calendar_open','navigation');});
   el('fdHeroCta').addEventListener('click',function(){sendSignal('calendar_open','hero');});
   el('fdBook').addEventListener('click',function(){sendSignal('event_cta_'+(this.dataset.status||'browse'),'calendar_detail');});
   el('fdFooterInfo').href='?lang='+lang+'&view=details';
