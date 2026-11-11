@@ -163,6 +163,8 @@ for(const locale of ['cs','en','ru','uk']){
 test('48h boundary rounds only a new request, not already booked participants',async({page})=>{
   const posts=await prepare(page,'2026-11-16T17:30:00.000Z');
   await page.goto('/?lang=ru');
+  // page.clock.install advances with elapsed real test time; freeze exactly at threshold.
+  await page.clock.setFixedTime(new Date('2026-11-16T17:30:00.000Z'));
   await page.locator('#fdDays button[aria-label^="2026-11-18"]').click();
   await expect(page.locator('#fdFacts')).toContainText('100 Kč');
   await expect(page.locator('#fdFacts')).not.toContainText('125 Kč');
