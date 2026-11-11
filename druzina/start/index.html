@@ -43,6 +43,20 @@ h1{font:800 clamp(2.5rem,5.8vw,5.5rem)/1.04 Georgia,serif;letter-spacing:-.035em
 .intro{margin:20px auto 4px;padding:22px clamp(15px,3vw,28px);border:2px solid #c8a66f;border-radius:16px;background:#263745;display:flex;align-items:center;justify-content:space-between;gap:24px}.intro h2{font:800 clamp(1.4rem,2.7vw,2.2rem)/1.2 Georgia,serif;margin:5px 0 10px}.intro p{margin:4px 0 0}.intro .event-note{font-size:.87rem;color:#e0e6ea;margin-top:9px}.intro .primary{flex:0 0 min(36%,340px);max-width:340px;min-width:225px}.intro .eyebrow{margin:0}
 @media(max-width:760px){.intro{display:block;padding:18px 16px;margin-top:14px}.intro .primary{max-width:none;min-width:0;margin-top:17px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+/* Other pages use #main > .wrap as a grid. Restore the event-specific layout. */
+#main > section.wrap.intro{display:flex}
+#main > section.wrap.trust{display:block}
+@media(max-width:760px){#main > section.wrap.intro{display:block}}
+@media(max-width:360px){
+ .wrap{padding-left:16px;padding-right:16px}
+ .top{gap:7px}.brand{font-size:1rem}.brand span{font-size:.6rem}
+ .langs button{min-width:39px;padding:7px}
+ .hero{padding-top:18px}
+ .hero h1{font-size:clamp(2rem,9vw,2.6rem)}
+ .hero .lead{font-size:1rem;line-height:1.45}
+ .hero .media{max-height:255px}
+ .primary{padding:13px 12px}
+}
 </style>
 <link rel="stylesheet" href="../../brand-theme.css?v=20261025">
 <link rel="stylesheet" href="../../site-design.css?v=20261027">
@@ -72,7 +86,7 @@ h1{font:800 clamp(2.5rem,5.8vw,5.5rem)/1.04 Georgia,serif;letter-spacing:-.035em
 <p class="eyebrow" data-k="eyebrow">Družina Moravy · Brno</p>
 <h1 data-k="title">Looking for adventure and new friends in Brno?</h1>
 <p class="lead" data-k="lead">Try historical fencing, meet real teammates and come back when you're ready. Trust grows across meetings, not from filling out a form.</p>
-<a class="primary" id="nextTraining" href="https://wa.me/420702914842" rel="noopener noreferrer" target="_blank">Chci na další trénink · první 2 h 240 Kč</a>
+<a class="primary" id="nextTraining" href="https://wa.me/420702914842" rel="noopener noreferrer" target="_blank">Chci na další trénink · od 240 Kč</a>
 <p class="label" id="nextNote">Nezávazný dotaz, nikoli rezervace ani platba.</p>
 <a class="secondary" id="action" href="https://chat.whatsapp.com/DuTpgF22mxMFy6L1Cfrcvu" rel="noopener noreferrer" target="_blank" data-k="action">Follow the next club meetup</a>
 <p class="label" data-k="actionNote">Join our public announcements. No booking, payment, or legal association membership.</p>
@@ -105,7 +119,7 @@ uk:{introEyebrow:"БЕЗКОШТОВНО · СУБОТА, 14 ЛИСТОПАДА"
 };
 const srcParam=new URLSearchParams(window.location.search).get('src')||'START';
 const sourceTag=/^[A-Za-z0-9_-]{1,32}$/.test(srcParam)?srcParam:'START';
-const nextCopy={"cs":{"title":"Další trénink a novinky | Družina Moravy","cta":"Chci na další trénink · první 2 h 240 Kč","note":"Zeptej se na další potvrzený termín. Starter 4: 800 Kč / 4 tréninky za platných podmínek. Nezávazná žádost není rezervace, nic neplať bez potvrzení.","msg":"Dobrý den! Poznal/a jsem Družinu Moravy na akci. Chci se zeptat na další vhodný dvouhodinový trénink: potvrzený termín, místo, bezpečnost a platební podmínky. Vím, že to není rezervace."},"en":{"title":"Next training and news | Družina Moravy","cta":"Ask for the next training · first 2 h 240 Kč","note":"Ask for the next confirmed session. Starter 4: 800 Kč for four sessions subject to conditions. An enquiry is not a booking; do not pay before confirmation.","msg":"Hello! I met Družina Moravy at an event. Please tell me about the next suitable two-hour training: confirmed date, venue, safety and payment terms. I understand this is not a booking."},"ru":{"title":"Следующая тренировка и новости | Družina Moravy","cta":"Узнать о следующей тренировке · первые 2 ч 240 Kč","note":"Спроси подтверждённую дату. Starter 4: 800 Kč за четыре занятия по действующим условиям. Запрос — не бронь и не счёт.","msg":"Здравствуйте! Я узнал/а о Družina Moravy на мероприятии. Хочу узнать о следующей подходящей двухчасовой тренировке: точная дата, место, безопасность и оплата. Понимаю, что сообщение не является бронью."},"uk":{"title":"Наступне тренування та новини | Družina Moravy","cta":"Дізнатись про тренування · перші 2 год 240 Kč","note":"Запитай підтверджену дату. Starter 4: 800 Kč за чотири заняття за чинними умовами. Запит не є бронюванням або рахунком.","msg":"Вітаю! Я дізнався/дізналася про Družina Moravy на події. Хочу дізнатися про наступне двогодинне тренування: підтверджену дату, місце, безпеку і оплату. Розумію, що це не бронювання."}};
+const nextCopy={"cs":{"title":"Další trénink a novinky | Družina Moravy","cta":"Chci na další trénink · od 240 Kč","note":"Základ první 2h lekce: 240 Kč; Starter 4: 800 Kč / 4 lekce. Nová přihláška méně než 48 h před tréninkem: +25 %. Termín a platbu potvrzujeme individuálně; neplať před potvrzením.","msg":"Dobrý den! Poznal/a jsem Družinu Moravy na akci. Chci se zeptat na další vhodný dvouhodinový trénink: potvrzený termín, místo, bezpečnost a platební podmínky. Vím, že to není rezervace."},"en":{"title":"Next training and news | Družina Moravy","cta":"Ask for the next training · from 240 Kč","note":"First 2-hour session: 240 Kč base; Starter 4: 800 Kč / 4 sessions. New requests less than 48 h before training: +25 %. Date and payment must be individually confirmed; do not pay beforehand.","msg":"Hello! I met Družina Moravy at an event. Please tell me about the next suitable two-hour training: confirmed date, venue, safety and payment terms. I understand this is not a booking."},"ru":{"title":"Следующая тренировка и новости | Družina Moravy","cta":"Узнать о следующей тренировке · от 240 Kč","note":"База за первые 2 часа — 240 Kč; Starter 4 — 800 Kč за 4 занятия. При новой записи менее чем за 48 ч: +25 %. Дата и оплата — после личного подтверждения; заранее не переводи деньги.","msg":"Здравствуйте! Я узнал/а о Družina Moravy на мероприятии. Хочу узнать о следующей подходящей двухчасовой тренировке: точная дата, место, безопасность и оплата. Понимаю, что сообщение не является бронью."},"uk":{"title":"Наступне тренування та новини | Družina Moravy","cta":"Дізнатись про тренування · від 240 Kč","note":"Базова ціна перших 2 годин — 240 Kč; Starter 4 — 800 Kč / 4 заняття. Для нової заявки менш ніж за 48 годин: +25 %. Дату й оплату підтверджуємо індивідуально; не сплачуй завчасно.","msg":"Вітаю! Я дізнався/дізналася про Družina Moravy на події. Хочу дізнатися про наступне двогодинне тренування: підтверджену дату, місце, безпеку і оплату. Розумію, що це не бронювання."}};
 function render(lang){
 const c=dict[lang]?lang:'en',t=dict[c];document.documentElement.lang=c;
 for(const node of document.querySelectorAll('[data-k]')){const k=node.getAttribute('data-k');if(Object.prototype.hasOwnProperty.call(t,k))node.textContent=t[k];}
@@ -115,9 +129,15 @@ document.getElementById('nextNote').textContent=d.note;
 document.getElementById('nextTraining').href='https://wa.me/420702914842?text='+encodeURIComponent(d.msg+' [DM:'+sourceTag+']');
 for(const btn of document.querySelectorAll('button[data-lang]'))btn.setAttribute('aria-pressed',String(btn.dataset.lang===c));
 document.getElementById('action').href=c==='ru'?'https://t.me/druzinamoravy_news':'https://chat.whatsapp.com/DuTpgF22mxMFy6L1Cfrcvu';
-document.getElementById('question').href=c==='ru'?'https://t.me/Chareshneu':'https://wa.me/420702914842?text='+encodeURIComponent(({en:'Hello! I would like to meet the Družina Moravy team. Is there a confirmed upcoming event? I understand this is not a booking.',cs:'Dobrý den, rád/a bych poznal/a partu Družiny Moravy. Kdy se koná nejbližší potvrzená akce? Chápu, že nejde o rezervaci.',uk:'Вітаю! Хочу познайомитися з командою Дружини Морави. Коли наступна підтверджена подія? Розумію, що це не бронювання.'})[c]||'Hello!');
+// Every personal contact request uses a user-initiated WhatsApp draft with the source tag.
+ // A Telegram user-profile URL cannot reliably prefill a tracked message.
+ const questionText=({en:'Hello! I would like to meet Družina Moravy. When is the next confirmed activity? I understand this is not a booking.',
+   cs:'Dobrý den! Rád/a bych poznal/a Družinu Moravy. Kdy je další potvrzená akce? Chápu, že nejde o rezervaci.',
+   ru:'Здравствуйте! Хочу познакомиться с Družina Moravy. Когда следующее подтверждённое занятие? Это пока вопрос, не запись.',
+   uk:'Вітаю! Хочу познайомитися з Družina Moravy. Коли наступне підтверджене заняття? Це запитання, не бронювання.'})[c];
+ document.getElementById('question').href='https://wa.me/420702914842?text='+encodeURIComponent(questionText+' [DM:'+sourceTag+']');
 document.getElementById('introCta').href='../../register/?event=PUB-OREL-20261114&lang='+encodeURIComponent(c)+'&src='+encodeURIComponent(sourceTag);
-document.getElementById('details').href='../join/?lang='+encodeURIComponent(c);
+document.getElementById('details').href='../join/?lang='+encodeURIComponent(c)+'&src='+encodeURIComponent(sourceTag);
 const u=new URL(window.location.href);u.searchParams.set('lang',c);history.replaceState(null,'',u);
 document.title=d.title;
 }
