@@ -14,7 +14,7 @@ for(const path of pages){
 test('manual EN preference persists across primary pages',async({page})=>{
  await page.goto('/');
  await expect(page.locator('html')).toHaveAttribute('lang','cs');
- await page.locator('#langSwitch [data-lang="en"]').click();
+ await page.locator('#imperion-frontdoor [data-fd-language="en"]').click();
  await expect(page.locator('html')).toHaveAttribute('lang','en');
  await page.goto('/academy/');
  await expect(page.locator('html')).toHaveAttribute('lang','en');
