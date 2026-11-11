@@ -48,16 +48,21 @@ for(const width of [390,1440]){
     for(const hold of ['2026-11-15','2026-11-17','2026-11-21','2026-11-28'])
       expect(dayLabels.some(x=>x.startsWith(hold)),hold+' must not be visible').toBe(false);
     await page.locator('#fdDays button[aria-label^="2026-11-16"]').click();
+    await expect(page.locator('#fdDetails')).toBeVisible();
+    await expect(page.locator('#fdOverlay')).toBeVisible();
+    await expect(page.locator('#fdClose')).toBeFocused();
     await expect(page.locator('#fdBook')).toHaveAttribute('href',/event=PUB-HEMA-20261116/);
     await expect(page.locator('#fdFacts')).toContainText('240 Kč');
     await expect(page.locator('#fdFacts')).toContainText('Družina Moravy, z. s.');
     await page.locator('#impr-calendar').screenshot({path:'test-results/conversion-frontdoor-'+width+'-calendar.png'});
+    await page.locator('#fdClose').click();
+    await expect(page.locator('#fdDetails')).toBeHidden();
     await page.locator('[data-fd-filter="academy"]').click();
     await expect(page.locator('#fdEventTitle')).toContainText('Move toward your goal');
     await expect(page.locator('#fdBook')).toHaveAttribute('href','academy/');
     expect(await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth)).toBeLessThanOrEqual(1);
     const layout=await page.locator('.fd-calendar-layout').evaluate(x=>getComputedStyle(x).gridTemplateColumns.split(' ').filter(Boolean).length);
-    expect(layout).toBe(width===390?1:2);
+    expect(layout).toBe(1);
     expect(posts()).toBe(0);
     expect(errors).toEqual([]);
   });
@@ -81,3 +86,27 @@ test('unavailable catalog fails closed without imaginary booking',async({page})=
   await expect(page.locator('#fdBook')).toContainText('Public calendar');
   expect(await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth)).toBeLessThanOrEqual(1);
 });
+
+for(const width of [390,1440]){
+  test('event popup closes by Escape and restores focus '+width,async({page})=>{
+    await page.setViewportSize({width,height:840});
+    await prepare(page);
+    await page.goto('/?lang=en');
+    const dateButton=page.locator('#fdDays button[aria-label^="2026-11-16"]');
+    await dateButton.click();
+    await expect(page.locator('#fdDetails')).toBeVisible();
+    await expect(page.locator('#fdDetails')).toHaveAttribute('aria-modal','true');
+    await expect(page.locator('body')).toHaveClass(/fd-modal-open/);
+    await expect(page.locator('#fdEventTitle')).toContainText('Historical fencing');
+    await expect(page.locator('#fdBook')).toHaveAttribute('href',/event=PUB-HEMA-20261116/);
+    await page.keyboard.press('Escape');
+    await expect(page.locator('#fdDetails')).toBeHidden();
+    await expect(page.locator('#fdOverlay')).toBeHidden();
+    await expect(page.locator('body')).not.toHaveClass(/fd-modal-open/);
+    await expect(dateButton).toBeFocused();
+    await dateButton.click();
+    await page.mouse.click(5,5);
+    await expect(page.locator('#fdDetails')).toBeHidden();
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth)).toBeLessThanOrEqual(1);
+  });
+}
