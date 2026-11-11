@@ -130,3 +130,67 @@ html[data-imperion-frontdoor="ready"] body { margin:0 !important; background:#09
  #imperion-frontdoor .fd-day { min-height:41px; }
 }
 @media (prefers-reduced-motion:reduce) { #imperion-frontdoor *,#imperion-frontdoor *:before,#imperion-frontdoor *:after { animation:none !important; transition:none !important; scroll-behavior:auto !important; } }
+
+
+/* v2: illustrated historical silhouettes, deliberately behind the only primary CTA. */
+#imperion-frontdoor .fd-mosaic span { filter:saturate(.66) brightness(.79); }
+#imperion-frontdoor .fd-fighters {
+ position:absolute; inset:0; pointer-events:none; z-index:-1;
+ background:url('images/frontdoor-fighter-shadows.svg') center 24% / cover no-repeat;
+ opacity:.83;
+}
+#imperion-frontdoor .fd-hero-inner { position:relative; z-index:1; }
+@media(max-width:700px) {
+ #imperion-frontdoor .fd-fighters { background-position:center top; opacity:.64; }
+}
+
+/* Calendar-first, event details only on deliberate day selection. */
+#imperion-frontdoor .fd-calendar-layout {
+ grid-template-columns:minmax(0,1fr);
+ width:100%; max-width:850px;
+ margin-inline:auto;
+}
+#imperion-frontdoor .fd-modal-backdrop {
+ position:fixed; inset:0; z-index:25; background:rgba(2,12,23,.78);
+ backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px);
+}
+#imperion-frontdoor .fd-detail-pane.fd-modal {
+ display:flex; position:fixed; z-index:26; top:50%; left:50%;
+ transform:translate(-50%,-50%);
+ width:min(660px,calc(100vw - 36px)); min-height:0;
+ max-height:calc(100dvh - 36px); overflow-x:hidden; overflow-y:auto;
+ overscroll-behavior:contain; background:#132e38; border:1px solid #72908b;
+ border-radius:22px; box-shadow:0 28px 90px rgba(0,0,0,.7);
+}
+#imperion-frontdoor .fd-modal-backdrop[hidden],
+#imperion-frontdoor .fd-detail-pane.fd-modal[hidden] { display:none !important; }
+html[data-imperion-frontdoor="ready"] body.fd-modal-open { overflow:hidden !important; }
+#imperion-frontdoor .fd-modal-close {
+ position:absolute; top:13px; right:13px; z-index:2;
+ width:44px; height:44px; border:1px solid #d1e3da88; border-radius:50%;
+ background:#0c2533eb; color:#fff9e7; font-size:28px; line-height:1; cursor:pointer;
+}
+#imperion-frontdoor .fd-modal .fd-photo { height:190px; min-height:190px; flex:0 0 auto; }
+#imperion-frontdoor .fd-modal .fd-detail-content { flex:0 0 auto; }
+#imperion-frontdoor .fd-modal .fd-actions { position:sticky; bottom:-1px; padding:12px 0 5px; background:#132e38; }
+#imperion-frontdoor .fd-modal .fd-description { margin-bottom:13px; }
+@media(max-width:970px) {
+ #imperion-frontdoor .fd-calendar-layout { grid-template-columns:minmax(0,1fr); }
+}
+@media(max-width:700px) {
+ #imperion-frontdoor .fd-modal-backdrop { background:rgba(1,10,20,.72); }
+ #imperion-frontdoor .fd-detail-pane.fd-modal {
+  top:auto; bottom:0; left:0; width:100%; max-width:none;
+  max-height:min(88dvh,780px); transform:none;
+  border-radius:22px 22px 0 0; border-bottom:0;
+ }
+ #imperion-frontdoor .fd-modal .fd-photo { min-height:148px; height:148px; }
+ #imperion-frontdoor .fd-modal .fd-detail-content { padding:18px 19px 22px; }
+ #imperion-frontdoor .fd-modal .fd-detail-content h3 { font-size:28px; }
+ #imperion-frontdoor .fd-modal .fd-facts { font-size:13px; }
+ #imperion-frontdoor .fd-modal .fd-actions { gap:8px; }
+}
+@supports not (height:100dvh) {
+ #imperion-frontdoor .fd-detail-pane.fd-modal { max-height:calc(100vh - 36px); }
+ @media(max-width:700px) { #imperion-frontdoor .fd-detail-pane.fd-modal { max-height:88vh; } }
+}
