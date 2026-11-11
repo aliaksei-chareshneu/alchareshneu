@@ -541,6 +541,21 @@ class MaintenanceTests(unittest.TestCase):
         self.assertEqual(output['status'],'BLOCKED')
         self.assertFalse(reg.deletes)
 
+    def test_46_local_cli_refuses_missing_approval_file(self):
+        root=Path(self.temp.name)
+        missing=local_remediate.safe_result(local_remediate._read_local_go,
+                                           root,'a'*64)
+        self.assertEqual(missing['status'],'BLOCKED')
+        self.assertEqual(missing['reason'],'TRUSTED_OPERATOR_GO_MISSING')
+
+    def test_47_local_cli_refuses_redirected_approval_folder(self):
+        root=Path(self.temp.name)
+        outside=root/'outside';outside.mkdir()
+        (root/'approvals').symlink_to(outside,target_is_directory=True)
+        blocked=local_remediate.safe_result(local_remediate._read_local_go,
+                                           root,'b'*64)
+        self.assertEqual(blocked['reason'],'GO_PATH_REDIRECT_DENIED')
+
     def test_26_audit_timeout_denied_with_no_private_error(self):
         def timed_out(argv, **kwargs):
             raise subprocess.TimeoutExpired(argv,kwargs['timeout'])
