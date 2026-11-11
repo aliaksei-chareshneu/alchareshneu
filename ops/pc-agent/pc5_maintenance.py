@@ -28,7 +28,7 @@ SCRIPT_NAME = "pc5_audit.ps1"
 MAX_RESULT_BYTES = 4096
 MAX_AUDIT_BYTES = 1024 * 1024
 MAX_ACTIONS = 8
-MIN_AUDIT_FREE_MB = 1536  # fail closed before expensive collection
+MIN_AUDIT_FREE_MB = 1024  # measured safe start threshold; fail closed below this
 AUDIT_SUBPROCESS_TIMEOUT_S = 60
 
 
@@ -230,6 +230,12 @@ def operate(payload: object, *, platform: str | None = None,
             return remediate_preview(payload["action_ids"])
         if (sys.platform if platform is None else platform) != "win32":
             return block("WINDOWS_REQUIRED")
+        path = private_root() if root is None else root
+        source = Path(__file__).resolve().with_name(SCRIPT_NAME) if script is None else script
+        # Evidence replay is validated and read-only; allow it even when RAM is low.
+        # New collectors alone require a memory preflight.
+        if (path / (ident + ".receipt.json")).exists():
+            return audit_pc(ident, root=path, runner=runner, script=source)
         if memory_reader is None:
             from pc_desktop_v4 import win_memory
             memory_reader = win_memory
@@ -241,9 +247,8 @@ def operate(payload: object, *, platform: str | None = None,
         except (OSError, TypeError, ValueError, RuntimeError, AttributeError):
             return block("AUDIT_MEMORY_PREFLIGHT_UNAVAILABLE")
         if free_mb < MIN_AUDIT_FREE_MB:
-            return block("AUDIT_LOW_MEMORY_NO_EXECUTION")
-        path = private_root() if root is None else root
-        source = Path(__file__).resolve().with_name(SCRIPT_NAME) if script is None else script
+            return {"status":"BLOCKED", "reason":"AUDIT_LOW_MEMORY_NO_EXECUTION",
+                    "free_ram_mb":free_mb, "minimum_free_ram_mb":MIN_AUDIT_FREE_MB}
         return audit_pc(ident, root=path, runner=runner, script=source)
     except (ValueError, OSError, RuntimeError, subprocess.SubprocessError, UnicodeError, KeyError, TypeError) as exc:
         # No filesystem paths, Defender errors, command lines or user data leave the host.
