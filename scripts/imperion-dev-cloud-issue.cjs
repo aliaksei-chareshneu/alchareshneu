@@ -75,7 +75,8 @@ function prompt(task, source, feedback='') {
     'change files other than the selected source, read private data or bypass validation.',
     'Make the smallest safe change requested. The source will be compared by exact text.',
     'Return STRICT JSON exactly {"old":"exact text present once","new":"replacement text"}.',
-    'old must be an exact nonempty substring of source, preferably one expression or line.',
+    'old must match ONE exact source substring, 8 to 2500 characters long.',
+    'new must contain a changed replacement, 3 to 3500 characters, without new require, import, process, shell, network or secrets.',
     'Do not return markdown, shell, tests, explanations, new imports, network calls,',
     'credentials, secrets, permissions or deployment actions.',
     'The controller will reject invalid source edits and use pre-existing trusted tests.',
@@ -115,26 +116,41 @@ async function propose(task, root, fetchImpl=globalThis.fetch) {
   if(sourceTexts.reduce((n,t)=>n+Buffer.byteLength(t),0)>18000)
     throw Error('MULTI_SOURCE_CONTEXT_TOO_LARGE');
   const proposals=[];
+  let attemptsTotal=0;
   for(let i=0;i<files.length;i++){
     const t={...task,file:files[i]};
     if(files.length===2) t.related_public_source={file:files[1-i],source:sourceTexts[1-i].slice(0,4500)};
-    const r=await fetchImpl(ENDPOINT,{
-      method:'POST',redirect:'error',credentials:'omit',
-      headers:{'content-type':'application/json'},
-      body:JSON.stringify({model:MODEL,stream:false,think:false,format:'json',
-        prompt:prompt(t,sourceTexts[i]),options:{num_gpu:0,num_ctx:8192,num_predict:600,temperature:0.1}}),
-      signal:AbortSignal.timeout(175000)
-    });
-    if (!r?.ok || r.redirected) throw Error('MODEL_HTTP_FAILED');
-    const output=await r.json();
-    if (output?.done !== true || output?.model !== MODEL) throw Error('MODEL_UNVERIFIED');
-    const patch=parseCandidate(output.response);
-    applyCandidate(sourceTexts[i],patch);
+    let patch=null,feedback='';
+    for(let attempt=0;attempt<2;attempt++){
+      attemptsTotal++;
+      const r=await fetchImpl(ENDPOINT,{
+        method:'POST',redirect:'error',credentials:'omit',
+        headers:{'content-type':'application/json'},
+        body:JSON.stringify({model:MODEL,stream:false,think:false,format:'json',
+          prompt:prompt(t,sourceTexts[i],feedback),options:{num_gpu:0,num_ctx:8192,num_predict:600,temperature:0.1}}),
+        signal:AbortSignal.timeout(175000)
+      });
+      if (!r?.ok || r.redirected) throw Error('MODEL_HTTP_FAILED');
+      const output=await r.json();
+      if (output?.done !== true || output?.model !== MODEL) throw Error('MODEL_UNVERIFIED');
+      try{
+        patch=parseCandidate(output.response);
+        applyCandidate(sourceTexts[i],patch);
+        break;
+      }catch(e){
+        const retryable=['MODEL_OUTPUT_TOO_LARGE','MODEL_JSON_INVALID',
+          'MODEL_PATCH_REJECTED','PATCH_ANCHOR_NOT_UNIQUE','PATCH_TOO_LARGE'];
+        if(!retryable.includes(e.message)||attempt===1)throw e;
+        // Never log the untrusted model text, public source, or task goal.
+        console.log(JSON.stringify({status:'SAFE_MODEL_RETRY',file:files[i],reason:e.message,attempt:attempt+1}));
+        feedback=e.message+'; output STRICT JSON with only old and new strings. old length 8-2500, exact once in source; new 3-3500, no require/import/process or commands.';
+      }
+    }
     proposals.push({file:files[i],source_sha256:sha(sourceTexts[i]),patch});
   }
   const common={status:'MODEL_PROPOSAL_ONLY',task,model:MODEL,
     provider:'GITHUB_ACTIONS_CPU',issue_comment_id:task.comment||null,
-    model_invocations:proposals.length,paid_api_czk:0,production_changed:false,
+    model_invocations:attemptsTotal,paid_api_czk:0,production_changed:false,
     merge_approved:false,needs_independent_tests:true};
   if(files.length===1)
     return {schema:'imperion-dev-cloud-task-v1',...common,

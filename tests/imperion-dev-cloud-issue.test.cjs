@@ -242,3 +242,32 @@ test('workflow admits at most two exact public edits but never a deploy',()=>{
  assert.match(y,/test "\$actual" = "\$expected"/);
  assert.doesNotMatch(y,/gh pr merge|git push origin main|auto-merge: true/);
 });
+
+test('bounded model retry corrects only format errors without changing protected tests',async()=>{
+ const root=workspace();
+ const task={file:W.FIXTURE_FILE,test:W.FIXTURE_TEST,
+   goal:'Correct total by multiplying unit price and quantity safely',comment:0,mode:'FIXTURE'};
+ let n=0;
+ const gen=async(_url,opts)=>{
+   const req=JSON.parse(opts.body);
+   assert.equal(req.model,W.MODEL);
+   if(n===1)assert.match(req.prompt,/PREVIOUS_PATCH_FAILURE/);
+   const invalid={old:'x',new:'oops'};
+   const valid={old:'sum + row.price',new:'sum + row.price * row.quantity'};
+   const response=JSON.stringify((++n===1)?invalid:valid);
+   return {ok:true,redirected:false,json:async()=>({done:true,model:W.MODEL,response})};
+ };
+ try{
+   const before=fs.readFileSync(path.join(root,W.FIXTURE_FILE),'utf8');
+   const proposal=await W.propose(task,root,gen);
+   assert.equal(n,2);
+   assert.equal(proposal.model_invocations,2);
+   assert.equal(fs.readFileSync(path.join(root,W.FIXTURE_FILE),'utf8'),before);
+   let failed=0;
+   await assert.rejects(W.propose(task,root,async()=>({
+     ok:true,redirected:false,json:async()=>({done:true,model:W.MODEL,
+       response:JSON.stringify({old:'x',new:'oops'+(++failed)})})
+   })),/MODEL_PATCH_REJECTED/);
+   assert.equal(failed,2);
+ }finally{fs.rmSync(root,{recursive:true,force:true});}
+});
