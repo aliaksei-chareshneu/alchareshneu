@@ -1,5 +1,6 @@
 """Synthetic, no-network tests for Windows Agent #5 maintenance review code."""
 import hashlib
+from datetime import datetime, timedelta, timezone
 import json
 import os
 from pathlib import Path
@@ -14,6 +15,7 @@ sys.path.insert(0, str(HERE))
 import pc5_maintenance as pc5
 import pc5_adapter_hook as hook
 import pc5_adapter_install as install
+import pc5_local_remediation as local_remediate
 
 ID = 'IMP-PC5-MAINT-20261110-UNIT01'
 
@@ -34,6 +36,7 @@ def fixture(ident=ID):
             'disks': [{'drive': 'C:', 'free_gb': 150.0}],
             'defender': {'status': 'AVAILABLE', 'realtime': True, 'detections_count': 0}
         },
+        'registry_autostart': [{'name':'Comet','key':r'HKCU:\Software\Microsoft\Windows\CurrentVersion\Run'}],
         'process_groups': [
             {'name': 'Comet', 'working_set_mb': 1250.5},
             {'name': 'Discord', 'working_set_mb': 312.2},
@@ -65,6 +68,29 @@ class FakeRunner:
         if self.stdout_override is not None:
             stdout = self.stdout_override
         return subprocess.CompletedProcess(argv, self.status, stdout, '')
+
+
+class FakeHKCURun:
+    def __init__(self):
+        self.values = {'Comet': ('C:/Synthetic/App.exe --token=SYNTHETIC-SECRET', 1)}
+        self.deletes = []
+        self.restores = []
+        self.fail_delete = False
+
+    def get(self, name):
+        if name not in self.values:
+            raise FileNotFoundError(name)
+        return self.values[name]
+
+    def remove(self, name):
+        self.deletes.append(name)
+        if self.fail_delete:
+            raise OSError('untrusted local registry error with private data')
+        self.values.pop(name)
+
+    def restore(self, name, value, kind):
+        self.restores.append(name)
+        self.values[name] = (value, kind)
 
 
 class MaintenanceTests(unittest.TestCase):
@@ -414,6 +440,105 @@ class MaintenanceTests(unittest.TestCase):
         core.symlink_to(HERE/'pc5_maintenance.py')
         with self.assertRaises(ValueError):
             install.inspect(adapter,core)
+
+    def _fake_go(self, plan_id, *, enabled=True, expiry_minutes=30):
+        return {'source':local_remediate.APPROVAL_SOURCE,
+                'go':enabled, 'plan_id':plan_id,
+                'expires_utc':(datetime.now(timezone.utc)
+                               +timedelta(minutes=expiry_minutes)).isoformat()}
+
+    def test_39_offline_postgo_preview_is_privacy_safe_and_read_only(self):
+        self.call()
+        registry=FakeHKCURun()
+        plan=local_remediate.prepare(ID,'startup.comet',
+                                    audit_root=self.root,registry=registry)
+        self.assertEqual(plan['status'],'GO_REQUIRED')
+        self.assertEqual(plan['expected_released_ram_mb'],None)
+        self.assertEqual(plan['effect'],'DISABLE_THIS_USER_AUTORUN_ON_NEXT_LOGIN_ONLY')
+        self.assertFalse(registry.deletes)
+        self.assertNotIn('SYNTHETIC-SECRET',json.dumps(plan))
+
+    def test_40_local_apply_denied_without_separate_go(self):
+        self.call()
+        registry=FakeHKCURun()
+        result=local_remediate.safe_result(local_remediate.apply_approved,
+            ID,'startup.comet',audit_root=self.root,approval={'go':True},
+            registry=registry)
+        self.assertEqual(result['status'],'BLOCKED')
+        self.assertEqual(result['reason'],'TRUSTED_OPERATOR_GO_MISSING')
+        self.assertFalse(registry.deletes)
+
+    def test_41_postgo_local_apply_idempotent_with_exact_rollback(self):
+        self.call()
+        registry=FakeHKCURun()
+        plan=local_remediate.prepare(ID,'startup.comet',
+                                    audit_root=self.root,registry=registry)
+        go=self._fake_go(plan['plan_id'])
+        initial=registry.values['Comet']
+        applied=local_remediate.apply_approved(
+            ID,'startup.comet',audit_root=self.root,approval=go,
+            registry=registry)
+        self.assertEqual(applied['status'],'APPLIED')
+        self.assertEqual(applied['changes_applied'],1)
+        self.assertEqual(registry.deletes,['Comet'])
+        self.assertNotIn('Comet',registry.values)
+        repeat=local_remediate.apply_approved(
+            ID,'startup.comet',audit_root=self.root,approval=go,
+            registry=registry)
+        self.assertEqual(repeat['status'],'ALREADY_APPLIED')
+        self.assertEqual(repeat['changes_applied'],0)
+        self.assertEqual(registry.deletes,['Comet'])
+        rolled=local_remediate.rollback_approved(
+            plan['plan_id'],audit_root=self.root,approval=go,
+            registry=registry)
+        self.assertEqual(rolled['status'],'ROLLED_BACK')
+        self.assertEqual(registry.values['Comet'],initial)
+        private=(self.root/'remediations'/('startup-'+plan['plan_id']+'.private.json'))
+        record=json.loads(private.read_text())
+        self.assertEqual(record['status'],'ROLLED_BACK')
+
+    def test_42_local_action_denies_unapproved_windows_roots_and_commands(self):
+        self.call()
+        for action in ('kill.chrome','startup.ollama','startup.edge_autolaunch',
+                       'startup.winzip_preloader','delete.user_files','disable.defender'):
+            result=local_remediate.safe_result(local_remediate.prepare,
+                  ID,action,audit_root=self.root,registry=FakeHKCURun())
+            self.assertEqual(result['reason'],'ACTION_NOT_EXECUTABLE')
+
+    def test_43_offline_go_expired_or_disabled_fail_closed(self):
+        self.call()
+        reg=FakeHKCURun()
+        plan=local_remediate.prepare(ID,'startup.comet',
+                                    audit_root=self.root,registry=reg)
+        for go in (self._fake_go(plan['plan_id'],enabled=False),
+                   self._fake_go(plan['plan_id'],expiry_minutes=-1)):
+            result=local_remediate.safe_result(local_remediate.apply_approved,
+                ID,'startup.comet',audit_root=self.root,approval=go,registry=reg)
+            self.assertEqual(result['status'],'BLOCKED')
+        self.assertFalse(reg.deletes)
+
+    def test_44_failed_local_registry_change_is_rolled_back_safely(self):
+        self.call()
+        reg=FakeHKCURun();reg.fail_delete=True
+        plan=local_remediate.prepare(ID,'startup.comet',audit_root=self.root,registry=reg)
+        go=self._fake_go(plan['plan_id'])
+        output=local_remediate.safe_result(local_remediate.apply_approved,
+            ID,'startup.comet',audit_root=self.root,approval=go,registry=reg)
+        self.assertEqual(output['status'],'BLOCKED')
+        self.assertIn('Comet',reg.values)
+        self.assertEqual(reg.restores,['Comet'])
+        self.assertNotIn('private',json.dumps(output).lower())
+
+    def test_45_baseline_and_changed_target_prevent_postgo_apply(self):
+        self.call()
+        reg=FakeHKCURun()
+        plan=local_remediate.prepare(ID,'startup.comet',audit_root=self.root,registry=reg)
+        reg.values['Comet']=('C:/Other/Modified.exe',1)
+        output=local_remediate.safe_result(local_remediate.apply_approved,
+            ID,'startup.comet',audit_root=self.root,
+            approval=self._fake_go(plan['plan_id']),registry=reg)
+        self.assertEqual(output['status'],'BLOCKED')
+        self.assertFalse(reg.deletes)
 
     def test_26_audit_timeout_denied_with_no_private_error(self):
         def timed_out(argv, **kwargs):
