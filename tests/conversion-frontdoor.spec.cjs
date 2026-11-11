@@ -13,7 +13,7 @@ const fixture=[
   {...base,event_id:'PUB-WALK-20261115',title:'15 Nov owner HOLD',community:'Brnowalkers',category:'Hike',begins_at:'2026-11-15T13:00:00Z'},
   {...base,event_id:'PUB-HEMA-20261116',title:'Monday training',begins_at:'2026-11-16T17:00:00Z'},
   {...base,event_id:'PUB-WALK-20261117',title:'17 Nov owner HOLD',community:'Brnowalkers',category:'Hike',begins_at:'2026-11-17T08:00:00Z'},
-  {...base,event_id:'PUB-WALK-TALK-20261118',title:'Brno After Dark',community:'Brnowalkers',category:'City Walk',begins_at:'2026-11-18T17:30:00Z',price_czk:100},
+  {...base,event_id:'PUB-WALK-TALK-20261118',title:'Brno After Dark',community:'Brnowalkers',category:'City Walk',begins_at:'2026-11-18T17:30:00Z',price_czk:100,data_controller:'Aliaksei Chareshneu (OSVČ, IČO 23041625)'},
   {...base,event_id:'PUB-HEMA-20261121',title:'Saturday training suspended',begins_at:'2026-11-21T17:00:00Z'},
   {...base,event_id:'PUB-HEMA-20261123',title:'Monday 23 November',begins_at:'2026-11-23T17:00:00Z'},
   {...base,event_id:'PUB-HEMA-20261128',title:'Saturday training suspended',begins_at:'2026-11-28T17:00:00Z'},
@@ -148,7 +148,7 @@ for(const locale of ['cs','en','ru','uk']){
   await expect(page.locator('#fdPaymentTiming')).toContainText('25');
   await expect(page.locator('#fdPaymentCancellation')).toContainText('48');
   await expect(page.locator('#fdPaymentException')).toBeVisible();
-  await expect(page.locator('#fdPaymentPayee')).toContainText('Družina Moravy, z. s.'); // fixture's controller, not inferred from category
+  await expect(page.locator('#fdPaymentPayee')).toContainText('Aliaksei Chareshneu (OSVČ, IČO 23041625)'); // payee follows source-controller, not category
   const email=await page.locator('#fdPaymentEmail').getAttribute('href');
   const whatsapp=await page.locator('#fdPaymentWhatsApp').getAttribute('href');
   expect(email).toMatch(/^mailto:chereshnev\.biochem@gmail\.com\?/);
