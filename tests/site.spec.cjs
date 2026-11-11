@@ -56,7 +56,11 @@ for(const language of languages)for(const width of [360,768,1440]){
   await expect(page.locator('h1')).toHaveCount(1);
   await expect(page.locator('#action')).toHaveCount(1);
   expect(await page.locator('#action').getAttribute('href')).toBe(language==='ru'?'https://t.me/druzinamoravy_news':'https://chat.whatsapp.com/DuTpgF22mxMFy6L1Cfrcvu');
-  expect((await page.locator('#question').getAttribute('href')).startsWith(language==='ru'?'https://t.me/Chareshneu':'https://wa.me/420702914842')).toBe(true);
+  const question=new URL(await page.locator('#question').getAttribute('href'));
+  expect(question.origin+question.pathname).toBe('https://wa.me/420702914842');
+  expect(question.searchParams.get('text')).toContain('[DM:START]');
+  const training=new URL(await page.locator('#nextTraining').getAttribute('href'));
+  expect(training.searchParams.get('text')).toContain('[DM:START]');
   await expect(page.locator('form')).toHaveCount(0);
   await expect(page.locator('[data-k="membership"]')).not.toBeEmpty();
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
