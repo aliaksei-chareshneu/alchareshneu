@@ -85,6 +85,12 @@ test('Python code proposals cannot add file reading or unrestricted execution',(
        new:'return open("private.key").read()'},model:W.MODEL};
    assert.throws(()=>W.verifiedApply(proof,base),/PYTHON_PATCH_CAPABILITY_REJECTED/);
    assert.equal(fs.readFileSync(path.join(base,'scripts/example.py'),'utf8'),src);
+   const safeProof={...proof,patch:{old:'return sum(row["price"] for row in rows)',
+     new:'return sum(row["price"] * row["quantity"] for row in rows)'}};
+   const accepted=W.verifiedApply(safeProof,base);
+   assert.equal(accepted.status,'PATCH_STAGED_PENDING_SANDBOX_TESTS');
+   assert.match(fs.readFileSync(path.join(base,'scripts/example.py'),'utf8'),/row\["quantity"\]/);
+   assert.throws(()=>W.verifiedApply(safeProof,base),/BASELINE_SHA_CHANGED/);
  }finally{
    if(prev===undefined) delete process.env.GITHUB_EVENT_PATH;
    else process.env.GITHUB_EVENT_PATH=prev;
