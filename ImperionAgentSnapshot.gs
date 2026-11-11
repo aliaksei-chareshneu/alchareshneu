@@ -22,8 +22,8 @@ function imperionAgentTrustedSnapshot_(hubId) {
   var specs = [
     ['Leads', 'Lead_ID', ['Lead_ID','Email','Stage','Action_Status','Expected_Value_CZK','Next_Action_At','Last_Contact_At']],
     ['Revenue_Actions', 'Lead_ID', ['Lead_ID','Stage','Action_Status','Expected_CZK','Next_Action_At']],
-    ['SocialPublishing', 'Job_ID', ['Job_ID','Event_ID','Channel','Status','Rights_OK','Approved_At','Video_Drive_ID']],
-    ['Events', 'Event_ID', ['Event_ID','Status','Start_DateTime']],
+    ['SocialPublishing', 'Job_ID', ['Job_ID','Event_ID','Channel','Status','Rights_OK','Approved_At','Video_Drive_ID','Post_URL','Scheduled_At','Entity','Duplicate_Checked']],
+    ['Events', 'Event_ID', ['Event_ID','Status','Start_DateTime','Title','Location_Name','Location_Address','Price_CZK','Tally_Form_URL','Data_Controller','Registration_Mode','RSVP_Link_Check']],
     ['IMPERION_Agent_Jobs', 'Job_ID', ['Job_ID','Status','Priority','Deadline_At','Owner_Approval','Evidence_URI']]
   ];
   // Hub ID must still match the existing configuration.
