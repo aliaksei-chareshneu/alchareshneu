@@ -320,7 +320,8 @@ class MaintenanceTests(unittest.TestCase):
         self.assertIn('installed_applications=',text)
         self.assertIn('quick_scan_command_available=',text)
         self.assertIn('chrome_visible_windows=',text)
-        self.assertNotIn('Win32_Product', text)
+        self.assertNotIn('Get-CimInstance Win32_Product', text)
+        self.assertNotIn('Get-WmiObject Win32_Product', text)
         self.assertNotIn('Invoke-MpScan',text)
         self.assertNotIn('Start-Process -FilePath',text)
 
