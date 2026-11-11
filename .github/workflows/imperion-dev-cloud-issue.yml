@@ -110,7 +110,7 @@ jobs:
             tests/test_*.py)
               case "$target" in *.py) ;; *) echo "BLOCKED: Python test/source mismatch"; exit 9 ;; esac
               test_image='python:3.12-alpine'
-              test_argv=(python3 -B -m unittest discover -s tests -p "${testfile##*/}")
+              test_argv=(python3 -B -c 'import sys,unittest; s=unittest.defaultTestLoader.discover("tests",pattern=sys.argv[1]); n=s.countTestCases(); print("PYTHON_TRUSTED_TESTS="+str(n)); assert n>0, "NO_TRUSTED_TESTS"; r=unittest.TextTestRunner(verbosity=2).run(s); sys.exit(0 if r.wasSuccessful() else 1)' "${testfile##*/}")
               ;;
             *.test.cjs|ops/imperion-dev-cloud-fixture/check.cjs)
               case "$target" in *.py) echo "BLOCKED: JS test/Python mismatch"; exit 9 ;; esac
