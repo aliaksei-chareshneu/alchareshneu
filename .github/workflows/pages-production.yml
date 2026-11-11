@@ -75,6 +75,7 @@ jobs:
           test -s _pages/intent-home.css
           test -s _pages/conversion-frontdoor.css
           test -s _pages/conversion-frontdoor.js
+          test -s _pages/images/frontdoor-fighter-shadows.svg
           grep -Fq 'conversion-frontdoor.js?v=20261111' _pages/index.html
           grep -Fq 'id="goal-paths"' _pages/index.html
           grep -Fq 'id="intentDruzinaCta" href="register/?lang=en"' _pages/index.html
