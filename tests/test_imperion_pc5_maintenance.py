@@ -13,6 +13,7 @@ HERE = Path(__file__).resolve().parents[1] / 'ops' / 'pc-agent'
 sys.path.insert(0, str(HERE))
 import pc5_maintenance as pc5
 import pc5_adapter_hook as hook
+import pc5_adapter_install as install
 
 ID = 'IMP-PC5-MAINT-20261110-UNIT01'
 
@@ -324,6 +325,95 @@ class MaintenanceTests(unittest.TestCase):
         self.assertNotIn('Get-WmiObject Win32_Product', text)
         self.assertNotIn('Invoke-MpScan',text)
         self.assertNotIn('Start-Process -FilePath',text)
+
+    def _synthetic_adapter(self):
+        return (
+            'def dispatch(action, payload=None):\\n'
+            '    if action == "pc_operator":\\n'
+            '        if not isinstance(payload, dict):\\n'
+            '            return {"status": "BLOCKED"}\\n'
+            + install.OLD
+            + '        return {"agent":"LEGACY"}\\n'
+            + '    return {"status":"BLOCKED"}\\n'
+        )
+
+    def test_33_reproducible_adapter_patch_does_not_change_other_routes(self):
+        original=self._synthetic_adapter()
+        patched,changed=install.patch_text(original)
+        self.assertTrue(changed)
+        self.assertIn('remediate_pc',patched)
+        self.assertIn('return {"agent":"LEGACY"}',patched)
+        self.assertNotIn('PC5_AUDIT_ONLY_20261110',patched)
+        compile(patched,'synthetic_bridge.py','exec')
+        again,change_again=install.patch_text(patched)
+        self.assertFalse(change_again)
+        self.assertEqual(again,patched)
+
+    def test_34_installer_refuses_adapter_drift(self):
+        self.assertRaises(ValueError,install.patch_text,
+                          self._synthetic_adapter().replace('audit_pc','unsafe_shell'))
+        self.assertRaises(ValueError,install.patch_text,
+                          self._synthetic_adapter()+install.OLD)
+
+    def test_35_installer_preflight_is_read_only_and_pins_core(self):
+        folder=Path(self.temp.name)/'staging';folder.mkdir()
+        adapter=folder/'browser_bridge_adapter.py'
+        core=folder/'pc5_maintenance.py'
+        adapter.write_text(self._synthetic_adapter(),encoding='utf-8')
+        core.write_bytes((HERE/'pc5_maintenance.py').read_bytes())
+        self.assertEqual(install._blob_sha(core.read_bytes()),install.PINNED_CORE_BLOB)
+        check=install.inspect(adapter,core)
+        self.assertEqual(check['status'],'READY_FOR_OWNER_GO')
+        self.assertTrue(check['would_change'])
+        self.assertEqual(adapter.read_text(encoding='utf-8'),self._synthetic_adapter())
+        self.assertFalse((folder/'backups').exists())
+
+    def test_36_installer_requires_go_and_valid_sha_before_backup(self):
+        folder=Path(self.temp.name)/'staging';folder.mkdir()
+        adapter=folder/'browser_bridge_adapter.py';core=folder/'pc5_maintenance.py'
+        adapter.write_text(self._synthetic_adapter(),encoding='utf-8')
+        core.write_bytes((HERE/'pc5_maintenance.py').read_bytes())
+        digest=hashlib.sha256(adapter.read_bytes()).hexdigest()
+        with self.assertRaises(ValueError):
+            install.apply(adapter,core,folder/'backups',
+                          expected_adapter_sha256=digest,owner_approval='forged')
+        with self.assertRaises(ValueError):
+            install.apply(adapter,core,folder/'backups',
+                          expected_adapter_sha256='0'*64,owner_approval=install.APPROVAL)
+        self.assertEqual(adapter.read_text(encoding='utf-8'),self._synthetic_adapter())
+        self.assertFalse((folder/'backups').exists())
+
+    def test_37_install_once_with_reversible_backup_in_synthetic_folder(self):
+        folder=Path(self.temp.name)/'staging';folder.mkdir()
+        adapter=folder/'browser_bridge_adapter.py';core=folder/'pc5_maintenance.py'
+        adapter.write_text(self._synthetic_adapter(),encoding='utf-8')
+        core.write_bytes((HERE/'pc5_maintenance.py').read_bytes())
+        digest=hashlib.sha256(adapter.read_bytes()).hexdigest()
+        result=install.apply(adapter,core,folder/'backups',
+                             expected_adapter_sha256=digest,
+                             owner_approval=install.APPROVAL)
+        self.assertEqual(result['status'],'LOCAL_DRYRUN_ROUTE_STAGED')
+        self.assertEqual(result['worker_restart_required'],True)
+        backup=folder/'backups'/result['backup_filename']
+        self.assertEqual(hashlib.sha256(backup.read_bytes()).hexdigest(),digest)
+        self.assertNotEqual(hashlib.sha256(adapter.read_bytes()).hexdigest(),digest)
+        second=install.apply(adapter,core,folder/'backups',
+                             expected_adapter_sha256=result['new_sha256'],
+                             owner_approval=install.APPROVAL)
+        self.assertEqual(second['status'],'ALREADY_PATCHED')
+        # Verify manual rollback is byte-exact; the installer never restarts.
+        import shutil
+        shutil.copy2(backup,adapter)
+        self.assertEqual(hashlib.sha256(adapter.read_bytes()).hexdigest(),digest)
+
+    def test_38_installer_rejects_redirected_core(self):
+        folder=Path(self.temp.name)/'staging';folder.mkdir()
+        adapter=folder/'browser_bridge_adapter.py';adapter.write_text(
+            self._synthetic_adapter(),encoding='utf-8')
+        core=folder/'pc5_maintenance.py'
+        core.symlink_to(HERE/'pc5_maintenance.py')
+        with self.assertRaises(ValueError):
+            install.inspect(adapter,core)
 
     def test_26_audit_timeout_denied_with_no_private_error(self):
         def timed_out(argv, **kwargs):
