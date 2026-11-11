@@ -1,0 +1,132 @@
+
+/* IMPERION front door v1 — progressive enhancement over the preserved legacy site.
+   This stylesheet has no effect until the new UI is actually mounted. */
+html[data-imperion-frontdoor="ready"] body > :not(#imperion-frontdoor):not(script) { display:none !important; }
+html[data-imperion-frontdoor="ready"] body { margin:0 !important; background:#091624 !important; }
+#imperion-frontdoor, #imperion-frontdoor * { box-sizing:border-box; }
+#imperion-frontdoor { --fd-ink:#ebf5ef; --fd-muted:#b9c9ca; --fd-gold:#f3cf8f; --fd-mint:#b6edc8; --fd-border:#42606a; --fd-deep:#091624; --fd-panel:#102635; color:var(--fd-ink); width:100%; min-height:100vh; font:16px/1.5 system-ui,-apple-system,Segoe UI,sans-serif; }
+#imperion-frontdoor a { color:inherit; text-decoration:none; }
+#imperion-frontdoor button { font:inherit; cursor:pointer; }
+#imperion-frontdoor :focus-visible { outline:3px solid #ffda9a; outline-offset:3px; }
+#imperion-frontdoor .fd-shell { width:min(1320px,calc(100% - 48px)); margin:auto; }
+#imperion-frontdoor .fd-header { height:78px; position:absolute; top:0; left:0; right:0; z-index:5; display:flex; align-items:center; border-bottom:1px solid #e5f5e51c; background:linear-gradient(#071522c9,#07152233); }
+#imperion-frontdoor .fd-header-inner { display:flex; align-items:center; gap:30px; justify-content:space-between; }
+#imperion-frontdoor .fd-logo { display:flex; align-items:center; gap:11px; font-weight:850; letter-spacing:.13em; text-transform:uppercase; font-size:14px; white-space:nowrap; }
+#imperion-frontdoor .fd-logo-mark { display:grid; place-items:center; width:35px; height:35px; border:1px solid #e8d5a1aa; border-radius:50%; font-family:Georgia,serif; font-size:22px; color:var(--fd-gold); line-height:1; }
+#imperion-frontdoor .fd-directions { display:flex; align-items:center; justify-content:center; flex:1; gap:clamp(12px,2.6vw,36px); color:#d8e6dc; font-size:12px; font-weight:700; letter-spacing:.015em; }
+#imperion-frontdoor .fd-directions span { white-space:nowrap; }
+#imperion-frontdoor .fd-languages { display:flex; gap:3px; padding:3px; border:1px solid #ffffff52; border-radius:30px; background:#0d1c2fc7; }
+#imperion-frontdoor .fd-languages button { min-width:36px; min-height:35px; padding:0 5px; color:#dcebe8; background:none; border:0; font-size:11px; font-weight:850; border-radius:22px; letter-spacing:.04em; }
+#imperion-frontdoor .fd-languages button[aria-pressed="true"] { color:#0b2531; background:var(--fd-gold); }
+#imperion-frontdoor .fd-hero { isolation:isolate; min-height:100svh; height:max(690px,100svh); display:flex; position:relative; overflow:hidden; background:#122b31; }
+#imperion-frontdoor .fd-mosaic { position:absolute; inset:0; display:grid; grid-template-columns:1fr 1.08fr 1fr; z-index:-3; }
+#imperion-frontdoor .fd-mosaic span { background-size:cover; background-position:50% 40%; display:block; filter:saturate(.87); }
+#imperion-frontdoor .fd-mosaic span:nth-child(1) { background-image:url('images/druzina_larp.webp'); background-position:51% 44%; }
+#imperion-frontdoor .fd-mosaic span:nth-child(2) { background-image:url('images/walkers_cave.webp'); background-position:48% 45%; }
+#imperion-frontdoor .fd-mosaic span:nth-child(3) { background-image:url('images/portrait_face.webp'); background-position:55% 22%; }
+#imperion-frontdoor .fd-hero:before { content:''; position:absolute; inset:0; z-index:-2; background:linear-gradient(180deg,#08142099 0%,#08162278 29%,#05121be3 80%,#091624 100%),linear-gradient(90deg,#06162591 0%,#07152333 50%,#06162591 100%); }
+#imperion-frontdoor .fd-hero:after { content:''; position:absolute; bottom:-16%; left:50%; transform:translateX(-50%); height:68%; width:72%; background:#24595a55; filter:blur(110px); z-index:-1; pointer-events:none; }
+#imperion-frontdoor .fd-hero-inner { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:126px 0 85px; }
+#imperion-frontdoor .fd-eyebrow { font-weight:850; letter-spacing:.24em; text-transform:uppercase; color:var(--fd-gold); font-size:12px; }
+#imperion-frontdoor .fd-hero h1 { color:#fffdf3; font-family:Georgia,'Times New Roman',serif; font-size:clamp(49px,7.1vw,108px); font-weight:500; letter-spacing:-.055em; line-height:1.04; margin:22px 0 18px; max-width:990px; text-wrap:balance; text-shadow:0 3px 22px #030a19cc; }
+#imperion-frontdoor .fd-hero h1 span { color:var(--fd-gold); display:block; }
+#imperion-frontdoor .fd-lede { color:#e0ecea; font-size:clamp(17px,1.6vw,21px); margin:0 0 35px; max-width:670px; text-wrap:balance; text-shadow:0 2px 14px #061321; }
+#imperion-frontdoor .fd-hero-cta { display:inline-flex; align-items:center; justify-content:center; min-height:80px; min-width:min(430px,100%); gap:22px; border-radius:16px; padding:19px 35px; background:var(--fd-gold); color:#0c2231; font-size:clamp(19px,2.3vw,25px); font-weight:850; border:2px solid #ffe4b2; box-shadow:0 14px 40px #0007; transition:transform .18s,background .18s; }
+#imperion-frontdoor .fd-hero-cta:hover { background:#ffe7b6; transform:translateY(-3px); }
+#imperion-frontdoor .fd-hero-cta span:last-child { font-size:30px; }
+#imperion-frontdoor .fd-hero-bottom { position:absolute; bottom:24px; left:0; right:0; color:#ccdbd8; letter-spacing:.07em; text-align:center; text-transform:uppercase; font-size:11px; font-weight:750; }
+#imperion-frontdoor .fd-section { background:radial-gradient(ellipse 62% 43% at 80% 12%,#163939 0%,transparent 95%),#091624; padding:91px 0 80px; min-height:800px; scroll-margin-top:0; }
+#imperion-frontdoor .fd-topline { display:flex; align-items:end; justify-content:space-between; gap:18px; margin-bottom:20px; }
+#imperion-frontdoor .fd-topline h2 { font:500 clamp(37px,4.1vw,63px)/1.08 Georgia,'Times New Roman',serif; color:#fff3d8; margin:7px 0 4px; letter-spacing:-.035em; }
+#imperion-frontdoor .fd-topline p { color:var(--fd-muted); margin:0; max-width:480px; }
+#imperion-frontdoor .fd-filters { display:flex; flex-wrap:wrap; gap:8px; margin:26px 0 22px; }
+#imperion-frontdoor .fd-filters button { border:1px solid #57717b; background:transparent; color:#dce6df; border-radius:99px; padding:9px 17px; min-height:42px; font-size:13px; font-weight:750; }
+#imperion-frontdoor .fd-filters button[aria-pressed="true"] { color:#07221c; background:var(--fd-mint); border-color:var(--fd-mint); }
+#imperion-frontdoor .fd-calendar-layout { display:grid; grid-template-columns:minmax(0,1.02fr) minmax(0,.98fr); gap:16px; align-items:stretch; }
+#imperion-frontdoor .fd-calendar-pane,#imperion-frontdoor .fd-detail-pane { background:#102332; border:1px solid #3a5862; border-radius:22px; box-shadow:0 24px 60px #010e1a4d; min-width:0; overflow:hidden; }
+#imperion-frontdoor .fd-calendar-pane { padding:clamp(17px,2.7vw,35px); }
+#imperion-frontdoor .fd-calendar-nav { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:24px; }
+#imperion-frontdoor .fd-calendar-nav h3 { font-size:clamp(22px,2.5vw,33px); font-weight:720; margin:0; color:#fff9ed; text-transform:capitalize; }
+#imperion-frontdoor .fd-calendar-nav button { border:1px solid #536b78; color:#eff7ef; background:#1b3542; width:43px; height:43px; border-radius:12px; font-size:23px; line-height:1; }
+#imperion-frontdoor .fd-weekdays, #imperion-frontdoor .fd-days { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:5px; }
+#imperion-frontdoor .fd-weekdays { color:#a9bec8; text-align:center; font-size:11px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; margin-bottom:10px; }
+#imperion-frontdoor .fd-day { min-width:0; aspect-ratio:1/1.14; border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:5px; padding:10px 3px 6px; background:#172d3b; border:1px solid transparent; color:#b7c8cc; }
+#imperion-frontdoor button.fd-day { color:#fff; background:#21434b; border-color:#4b797a; font-weight:750; }
+#imperion-frontdoor button.fd-day:hover { background:#295b5f; }
+#imperion-frontdoor button.fd-day[aria-pressed="true"] { background:#f3cf8f; color:#122c32; border-color:#ffedd0; box-shadow:0 0 0 2px #ebd7a53b; }
+#imperion-frontdoor .fd-day .fd-daynum { font-size:clamp(13px,1.4vw,17px); line-height:1.1; }
+#imperion-frontdoor .fd-day .fd-dayicons { font-size:clamp(12px,1.3vw,18px); white-space:nowrap; line-height:1; letter-spacing:-.1em; }
+#imperion-frontdoor .fd-day.fd-past { opacity:.38; }
+#imperion-frontdoor .fd-day.fd-blank { border:0; background:transparent; }
+#imperion-frontdoor .fd-day.fd-today .fd-daynum { text-decoration:underline; text-underline-offset:4px; }
+#imperion-frontdoor .fd-cal-note { margin:19px 2px 0; font-size:12px; color:#c4d6d5; line-height:1.5; }
+#imperion-frontdoor .fd-detail-pane { display:flex; flex-direction:column; min-height:580px; background:#122d37; }
+#imperion-frontdoor .fd-photo { position:relative; min-height:240px; height:38%; overflow:hidden; background:linear-gradient(135deg,#315f65,#123144); }
+#imperion-frontdoor .fd-photo img { width:100%; height:100%; object-fit:cover; position:absolute; inset:0; }
+#imperion-frontdoor .fd-photo:after { content:''; display:block; position:absolute; inset:0; background:linear-gradient(transparent 45%,#112d36a6 100%); pointer-events:none; }
+#imperion-frontdoor .fd-photo-tag { position:absolute; z-index:1; bottom:13px; left:20px; background:#091b2ec9; color:#f3f6ed; font-size:11px; padding:5px 9px; border:1px solid #ffffff35; border-radius:7px; }
+#imperion-frontdoor .fd-detail-content { padding:clamp(20px,3.2vw,35px); flex:1; display:flex; flex-direction:column; }
+#imperion-frontdoor .fd-meta { color:#b8d5c5; font-size:12px; font-weight:850; letter-spacing:.12em; text-transform:uppercase; margin:0 0 12px; }
+#imperion-frontdoor .fd-detail-content h3 { color:#fff6df; font-family:Georgia,'Times New Roman',serif; font-size:clamp(28px,2.65vw,41px); font-weight:500; letter-spacing:-.025em; line-height:1.1; margin:0 0 15px; }
+#imperion-frontdoor .fd-description { margin:0 0 16px; color:#cfdfdd; line-height:1.6; }
+#imperion-frontdoor .fd-facts { color:#eaf5ec; font-size:14px; margin-bottom:14px; }
+#imperion-frontdoor .fd-facts > span { display:block; margin-bottom:5px; }
+#imperion-frontdoor .fd-status { padding:9px 12px; border-radius:9px; font-size:12px; font-weight:750; color:#f5dbac; background:#3b372f; margin:7px 0 17px; align-self:flex-start; }
+#imperion-frontdoor .fd-status.open { background:#1c5446; color:#d1f5da; }
+#imperion-frontdoor .fd-actions { display:flex; align-items:center; flex-wrap:wrap; gap:12px; margin-top:auto; }
+#imperion-frontdoor .fd-book { display:inline-flex; justify-content:center; align-items:center; min-height:53px; padding:13px 22px; background:var(--fd-gold); color:#122a2d; border-radius:11px; font-weight:850; flex:1; text-align:center; }
+#imperion-frontdoor .fd-book[aria-disabled="true"] { background:#6a8186; color:#edf2f0; cursor:not-allowed; }
+#imperion-frontdoor .fd-info { font-size:13px; color:#bdd7d5; text-decoration:underline; text-underline-offset:4px; }
+#imperion-frontdoor .fd-event-variants { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:15px; }
+#imperion-frontdoor .fd-event-variants button { background:#173c48; color:#eff9f6; border:1px solid #60848a; border-radius:8px; padding:8px 10px; text-align:left; font-size:12px; }
+#imperion-frontdoor .fd-event-variants button[aria-pressed="true"] { background:#e9c98e; color:#122b31; }
+#imperion-frontdoor .fd-empty { color:#e0eeeb; font-size:15px; }
+#imperion-frontdoor .fd-footer { padding:33px 0 43px; background:#081421; color:#b4c9ca; }
+#imperion-frontdoor .fd-footer-inner { display:flex; justify-content:space-between; gap:24px; align-items:center; font-size:13px; }
+#imperion-frontdoor .fd-footer a { text-decoration:underline; text-underline-offset:3px; }
+#imperion-frontdoor .fd-footer-links { display:flex; flex-wrap:wrap; gap:18px; }
+@media (max-width:970px) {
+ #imperion-frontdoor .fd-directions { gap:10px; font-size:10px; }
+ #imperion-frontdoor .fd-directions span { white-space:normal; text-align:center; }
+ #imperion-frontdoor .fd-calendar-layout { grid-template-columns:1fr 1fr; }
+ #imperion-frontdoor .fd-day { padding-top:8px; border-radius:8px; }
+}
+@media (max-width:700px) {
+ #imperion-frontdoor .fd-shell { width:calc(100% - 30px); }
+ #imperion-frontdoor .fd-header { height:91px; }
+ #imperion-frontdoor .fd-header-inner { display:grid; grid-template-columns:1fr auto; grid-template-areas:'logo lang' 'directions directions'; gap:5px 9px; }
+ #imperion-frontdoor .fd-logo { grid-area:logo; font-size:12px; }
+ #imperion-frontdoor .fd-logo-mark { width:27px; height:27px; font-size:18px; }
+ #imperion-frontdoor .fd-languages { grid-area:lang; }
+ #imperion-frontdoor .fd-languages button { min-width:30px; min-height:28px; }
+ #imperion-frontdoor .fd-directions { grid-area:directions; justify-content:space-between; gap:5px; font-size:10px; padding-bottom:3px; }
+ #imperion-frontdoor .fd-hero { height:100svh; min-height:610px; }
+ #imperion-frontdoor .fd-mosaic { grid-template-columns:1.25fr 1fr; }
+ #imperion-frontdoor .fd-mosaic span:last-child { display:none; }
+ #imperion-frontdoor .fd-hero-inner { padding:145px 6px 85px; }
+ #imperion-frontdoor .fd-hero h1 { font-size:clamp(42px,12vw,66px); margin:17px 0 15px; }
+ #imperion-frontdoor .fd-eyebrow { font-size:10px; letter-spacing:.2em; }
+ #imperion-frontdoor .fd-lede { font-size:15px; margin-bottom:26px; line-height:1.42; }
+ #imperion-frontdoor .fd-hero-cta { min-height:68px; font-size:19px; padding:14px 20px; width:100%; min-width:0; }
+ #imperion-frontdoor .fd-section { padding:47px 0 60px; }
+ #imperion-frontdoor .fd-topline { flex-direction:column; align-items:start; gap:10px; }
+ #imperion-frontdoor .fd-topline h2 { font-size:39px; }
+ #imperion-frontdoor .fd-calendar-layout { grid-template-columns:1fr; gap:12px; }
+ #imperion-frontdoor .fd-calendar-pane { padding:15px 12px; border-radius:15px; }
+ #imperion-frontdoor .fd-detail-pane { min-height:0; border-radius:15px; }
+ #imperion-frontdoor .fd-calendar-nav { margin-bottom:14px; }
+ #imperion-frontdoor .fd-calendar-nav h3 { font-size:22px; }
+ #imperion-frontdoor .fd-day { min-height:45px; aspect-ratio:1/1.1; padding-top:7px; gap:4px; }
+ #imperion-frontdoor .fd-day .fd-daynum { font-size:14px; }
+ #imperion-frontdoor .fd-day .fd-dayicons { font-size:13px; }
+ #imperion-frontdoor .fd-weekdays,#imperion-frontdoor .fd-days { gap:3px; }
+ #imperion-frontdoor .fd-photo { height:220px; min-height:220px; }
+ #imperion-frontdoor .fd-detail-content { padding:22px; }
+ #imperion-frontdoor .fd-footer-inner { flex-direction:column; align-items:start; }
+}
+@media (max-width:370px) {
+ #imperion-frontdoor .fd-directions { font-size:9px; }
+ #imperion-frontdoor .fd-filters button { padding:8px 12px; }
+ #imperion-frontdoor .fd-day { min-height:41px; }
+}
+@media (prefers-reduced-motion:reduce) { #imperion-frontdoor *,#imperion-frontdoor *:before,#imperion-frontdoor *:after { animation:none !important; transition:none !important; scroll-behavior:auto !important; } }
