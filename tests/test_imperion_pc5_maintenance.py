@@ -251,6 +251,24 @@ class MaintenanceTests(unittest.TestCase):
                          'AUDIT_MEMORY_PREFLIGHT_UNAVAILABLE')
         self.assertEqual(self.runner.calls,[])
 
+    def test_27_adaptive_threshold_admits_1024_and_blocks_1023(self):
+        denied = self.call(memory_reader=lambda:(1023,16384))
+        self.assertEqual(denied['reason'],'AUDIT_LOW_MEMORY_NO_EXECUTION')
+        self.assertEqual(denied['minimum_free_ram_mb'],1024)
+        self.assertEqual(self.runner.calls,[])
+        completed = self.call(memory_reader=lambda:(1024,16384))
+        self.assertEqual(completed['status'],'DONE')
+        self.assertEqual(len(self.runner.calls),1)
+
+    def test_28_verified_evidence_replay_works_under_ram_pressure(self):
+        original=self.call()
+        low=self.call(memory_reader=lambda:(100,16384))
+        self.assertEqual(original['status'],'DONE')
+        self.assertEqual(low['status'],'DONE')
+        self.assertEqual(low['sha256'],original['sha256'])
+        self.assertTrue(low['replay'])
+        self.assertEqual(len(self.runner.calls),1)
+
     def test_26_audit_timeout_denied_with_no_private_error(self):
         def timed_out(argv, **kwargs):
             raise subprocess.TimeoutExpired(argv,kwargs['timeout'])
