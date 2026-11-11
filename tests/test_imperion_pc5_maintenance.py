@@ -328,13 +328,13 @@ class MaintenanceTests(unittest.TestCase):
 
     def _synthetic_adapter(self):
         return (
-            'def dispatch(action, payload=None):\\n'
-            '    if action == "pc_operator":\\n'
-            '        if not isinstance(payload, dict):\\n'
-            '            return {"status": "BLOCKED"}\\n'
+            'def dispatch(action, payload=None):\n'
+            '    if action == "pc_operator":\n'
+            '        if not isinstance(payload, dict):\n'
+            '            return {"status": "BLOCKED"}\n'
             + install.OLD
-            + '        return {"agent":"LEGACY"}\\n'
-            + '    return {"status":"BLOCKED"}\\n'
+            + '        return {"agent":"LEGACY"}\n'
+            + '    return {"status":"BLOCKED"}\n'
         )
 
     def test_33_reproducible_adapter_patch_does_not_change_other_routes(self):
