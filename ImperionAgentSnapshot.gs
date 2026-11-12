@@ -10,21 +10,23 @@
  * ops/imperion-agent-team.cjs preview. Does not make any agent autonomous.
  */
 function imperionAgentBuildSnapshot_() {
+  if (typeof ocOwner_ !== 'function' || typeof ocId_ !== 'function')
+    throw new Error('IMPERION_OWNER_GUARD_MISSING');
+  ocOwner_();
+  return imperionAgentTrustedSnapshot_(ocId_());
+}
+// Only call after a verified owner or verified installable-trigger guard.
+// Trailing underscore keeps this inaccessible through google.script.run.
+function imperionAgentTrustedSnapshot_(hubId) {
   'use strict';
   var specs = [
     ['Leads', 'Lead_ID', ['Lead_ID','Email','Stage','Action_Status','Expected_Value_CZK','Next_Action_At','Last_Contact_At']],
     ['Revenue_Actions', 'Lead_ID', ['Lead_ID','Stage','Action_Status','Expected_CZK','Next_Action_At']],
-    ['SocialPublishing', 'Job_ID', ['Job_ID','Event_ID','Channel','Status','Rights_OK','Approved_At']],
-    ['Events', 'Event_ID', ['Event_ID','Status','Start_DateTime']],
+    ['SocialPublishing', 'Job_ID', ['Job_ID','Event_ID','Channel','Status','Rights_OK','Approved_At','Video_Drive_ID','Post_URL','Scheduled_At','Entity','Duplicate_Checked']],
+    ['Events', 'Event_ID', ['Event_ID','Status','Start_DateTime','Title','Location_Name','Location_Address','Price_CZK','Tally_Form_URL','Data_Controller','Registration_Mode','RSVP_Link_Check']],
     ['IMPERION_Agent_Jobs', 'Job_ID', ['Job_ID','Status','Priority','Deadline_At','Owner_Approval','Evidence_URI']]
   ];
-  // Owner-only guard from the existing private Community Hub console.
-  // Never export a customer snapshot from a standalone or unrelated script.
-  if (typeof ocOwner_ !== 'function' || typeof ocId_ !== 'function') {
-    throw new Error('IMPERION_OWNER_GUARD_MISSING');
-  }
-  ocOwner_();
-  var hubId = ocId_();
+  // Hub ID must still match the existing configuration.
   if (typeof SPREADSHEET_ID !== 'string' || !SPREADSHEET_ID ||
       SPREADSHEET_ID !== hubId) {
     throw new Error('IMPERION_WRONG_HUB_ID');
@@ -77,7 +79,9 @@ function imperionAgentBuildSnapshot_() {
   // Optional PRIVATE audit from the same owner-bound project. The aggregate
   // is a read-only source CLAIM, never an independent bank/provider receipt.
   if (typeof imperionClosedLoopAudit_ === 'function') {
-    var audit = imperionClosedLoopAudit_();
+    var audit = typeof imperionClosedLoopAuditTrusted_ === 'function'
+      ? imperionClosedLoopAuditTrusted_(hubId)
+      : imperionClosedLoopAudit_();
     if (!audit || audit.mode !== 'READ_ONLY_PRIVATE_OWNER_AUDIT' ||
         audit.source !== 'EXISTING_IMPERION_COMMUNITY_HUB' ||
         audit.paid_checkout_release_allowed !== false ||

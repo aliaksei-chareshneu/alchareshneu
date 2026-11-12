@@ -11,23 +11,27 @@ async function isolateExternalWidgets(page) {
 }
 
 for (const language of ['en', 'cs', 'ru', 'uk']) {
-  test(`redesigned home keeps both audience choices in the phone viewport: ${language}`, async ({page}) => {
+  test(`intent-first home offers three direct booking paths: ${language}`, async ({page}) => {
     await isolateExternalWidgets(page);
     await page.setViewportSize({width:390, height:844});
     await page.goto('/?lang=' + language);
     await expect(page.locator('.site-menu-toggle')).toBeVisible();
     await expect(page.locator('#site-navigation')).toBeHidden();
-    for (const id of ['heroCta', 'heroCorporateCta']) {
-      const box = await page.locator('#' + id).boundingBox();
-      expect(box.y).toBeGreaterThan(0);
-      expect(box.y + box.height).toBeLessThanOrEqual(844);
-      expect(box.height).toBeGreaterThanOrEqual(44);
-    }
-    for (const width of [360, 768, 1024, 1440]) {
+    await expect(page.locator('#goal-paths .intent-card')).toHaveCount(3);
+    await expect(page.locator('#heroCta')).toHaveAttribute('href', /https:\/\/docs\.google\.com\/forms\/d\/e\//);
+    await expect(page.locator('#intentDruzinaCta')).toHaveAttribute('href', 'register/?lang=' + language);
+    await expect(page.locator('#intentWalkersCta')).toHaveAttribute('href', language === 'cs' ? 'register/' : 'register/' + language + '/');
+    await expect(page.locator('#heroCorporateCta')).toHaveAttribute('href', 'start/?lang=' + language);
+    const first = await page.locator('#heroCta').boundingBox();
+    expect(first.y).toBeGreaterThan(0);
+    expect(first.y + first.height).toBeLessThanOrEqual(844);
+    expect(first.height).toBeGreaterThanOrEqual(44);
+    for (const width of [320, 360, 768, 1024, 1440]) {
       await page.setViewportSize({width, height:900});
       expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
     }
-    expect(await page.locator('#main .site-mosaic img').evaluateAll(images => images.every(image => image.complete && image.naturalWidth > 0))).toBe(true);
+    await expect(page.locator('#main .intent-card img')).toHaveCount(3);
+    await expect(page.locator('#main .intent-google')).toHaveAttribute('href', 'https://maps.app.goo.gl/fEbnJHxiVoAx1v498');
   });
 
   test(`Druzina primary action stays compact and reachable on a phone: ${language}`, async ({page}) => {
@@ -38,7 +42,7 @@ for (const language of ['en', 'cs', 'ru', 'uk']) {
     expect(box.height).toBeGreaterThanOrEqual(54);
     expect(box.height).toBeLessThanOrEqual(84);
     expect(box.y + box.height).toBeLessThanOrEqual(844);
-    await expect(page.locator('#druzina .dm-v2-primary')).toHaveAttribute('href', 'prihlaska/?lang=' + language);
+    await expect(page.locator('#druzina .dm-v2-primary')).toHaveAttribute('href', '../register/?lang=' + language);
   });
 
   test(`Academy booking is reachable in the first phone viewport: ${language}`, async ({page}) => {

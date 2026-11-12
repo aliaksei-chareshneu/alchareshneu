@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350" role="img" aria-labelledby="title desc"><title id="title">BrnoWalkers BRNO AFTER DARK November 2026</title><desc id="desc">Original vector illustration poster for a November 2026 BrnoWalkers 50 Czech crown paid walk. Not a photograph of a real event.</desc>
+<defs><linearGradient id="bg" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#101b36"/><stop offset="1" stop-color="#2a3963"/></linearGradient><linearGradient id="overlay" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#101b36" stop-opacity=".05"/><stop offset=".6" stop-color="#101b36" stop-opacity=".0"/><stop offset="1" stop-color="#10172f"/></linearGradient></defs>
+<rect width="1080" height="1350" fill="url(#bg)"/>
+<path d="M0 210H1080 M0 223H1080" fill="none" stroke="#ffffff" stroke-opacity=".14"/>
+
+<circle cx="834" cy="415" r="132" fill="#ffddb0" opacity=".94"/>
+<circle cx="886" cy="367" r="133" fill="#28375d"/>
+<path d="M0 970 H1080 V1190 H0Z" fill="#162642"/>
+<path d="M0 912 L0 759 112 759 112 695 220 695 220 817 290 817 290 608 420 608 420 763 520 763 520 710 685 710 685 527 759 527 759 605 833 605 833 768 913 768 913 662 1080 662 1080 1020Z" fill="#1e3150"/>
+<g fill="#f3c987" opacity=".78"><rect x="52" y="827" width="22" height="34"/><rect x="135" y="761" width="24" height="34"/><rect x="339" y="687" width="20" height="26"/><rect x="374" y="687" width="20" height="26"/><rect x="556" y="777" width="23" height="30"/><rect x="603" y="777" width="23" height="30"/><rect x="709" y="690" width="21" height="33"/><rect x="743" y="690" width="21" height="33"/><rect x="972" y="733" width="23" height="40"/></g>
+<path d="M0 1078 C242 988 474 1112 709 1000 C844 939 932 950 1080 901 V1285 H0 Z" fill="#141e37"/>
+<path d="M355 1282 Q527 1098 692 1017" fill="none" stroke="#8e95ae" stroke-width="25" opacity=".5"/>
+<path d="M296 1221 Q490 1091 661 1046" fill="none" stroke="#c4bbc0" stroke-width="7" opacity=".6"/>
+
+<rect width="1080" height="1350" fill="url(#overlay)"/>
+<text x="84" y="95" fill="#b9d9ff" font-family="Arial, sans-serif" font-weight="800" font-size="39" letter-spacing="4">BRNOWALKERS</text>
+<text x="84" y="160" fill="#ffcf8b" font-family="Arial, sans-serif" font-weight="700" font-size="26" letter-spacing="5">CITY STORIES &amp; PEOPLE</text>
+<text x="84" y="326" fill="#ffffff" font-family="Arial, sans-serif" font-weight="900" font-size="113" letter-spacing="-2">BRNO AFTER</text>
+<text x="84" y="440" fill="#ffffff" font-family="Arial, sans-serif" font-weight="900" font-size="145" letter-spacing="-3">DARK</text>
+<rect x="84" y="495" width="550" height="80" rx="36" fill="#b9d9ff"/>
+<text x="112" y="550" fill="#10172f" font-family="Arial, sans-serif" font-size="43" font-weight="900" letter-spacing="1">WED 18 NOV</text>
+<text x="84" y="674" fill="#ffffff" font-family="Arial, sans-serif" font-size="72" font-weight="800">18:30 – 19:45</text>
+<text x="84" y="738" fill="#f3f4ee" font-family="Arial, sans-serif" font-size="34" font-weight="750" letter-spacing="1">BRNO CITY CENTRE</text>
+<rect x="70" y="1070" width="942" height="206" rx="38" fill="#10172f" stroke="#b9d9ff" stroke-width="3"/>
+<text x="107" y="1127" fill="#b9d9ff" font-family="Arial, sans-serif" font-size="31" font-weight="800" letter-spacing="3">CITY STORIES · NEW CONNECTIONS</text>
+<text x="107" y="1198" fill="#ffffff" font-family="Arial, sans-serif" font-size="50" font-weight="900">75 MIN   ·   100 Kč   ·   18+</text>
+<text x="107" y="1243" fill="#e1e8df" font-family="Arial, sans-serif" font-size="25">Minimum 12 confirmed · Apply on website</text>
+<text x="84" y="1319" fill="#dfebdd" font-family="Arial, sans-serif" font-size="20" opacity=".8">Illustrative artwork · No advance payments · Registration ≠ booking</text>
+</svg>

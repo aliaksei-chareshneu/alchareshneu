@@ -35,6 +35,12 @@ jobs:
           test -f register/uk/index.html
           test -f supabase/functions/imperion-register/index.ts
 
+      - name: Verify price audit source and script syntax before unrelated CI gates
+        run: |
+          node --check academy/a2/quiz.js
+          node --check tests/qualified-pricing-source.test.cjs
+          node --test tests/qualified-pricing-source.test.cjs
+
       - name: Reject stale production placeholders
         shell: bash
         run: |
@@ -56,11 +62,12 @@ jobs:
             for language in en cs ru uk; do
               grep -q "data-notice-lang=\"$language\"" "$page"
             done
-            grep -q 'New paid HEMA bookings are paused' "$page"
-            grep -q 'Nové placené rezervace HEMA jsou pozastaveny' "$page"
-            grep -q 'Новые платные бронирования HEMA приостановлены' "$page"
-            grep -q 'Нові платні бронювання HEMA призупинено' "$page"
-            grep -q 'Ask about a date' "$page"
+            grep -Fq 'New HEMA training applications are open; paid attendance is confirmed individually.' "$page"
+            grep -Fq 'Přihlášky na plánované tréninky HEMA jsou otevřené; placenou účast potvrzujeme jednotlivě.' "$page"
+            grep -Fq 'Заявки на тренировки HEMA открыты; платное участие подтверждается индивидуально.' "$page"
+            grep -Fq 'Заявки на тренування HEMA відкриті; платну участь підтверджуємо індивідуально.' "$page"
+            grep -Fq 'Do not pay or travel without written confirmation' "$page"
+            grep -Fq 'No online payment.' "$page"
             if grep -Eq 'docs[.]google[.]com/forms/d/e|revolut[.]me/' "$page"; then
               echo 'Paused HEMA page still links to a retired booking/payment path' >&2
               exit 1
@@ -69,12 +76,12 @@ jobs:
             # Active pricing page: never silently drop a publicly stated tariff.
             grep -q '120 Kč' "$page"
             grep -q '240 Kč' "$page"
-            grep -q '910 Kč' "$page"
-            grep -q '455 Kč' "$page"
-            grep -Eq '2[, ]870 Kč' "$page"
-            grep -Eq '1[, ]435 Kč' "$page"
-            grep -Eq '8[, ]235 Kč' "$page"
-            grep -Eq '4[, ]120 Kč' "$page"
+            grep -q '800 Kč' "$page"
+            grep -q '560 Kč' "$page"
+            if grep -Eq '(1[ ,]?000[[:space:]]*Kč[[:space:]]*\+[[:space:]]*160|910 Kč|455 Kč)' "$page"; then
+              echo 'Current Druzina page still advertises a withdrawn historical tariff' >&2
+              exit 1
+            fi
           fi
 
       - name: Verify private-to-public Druzina leaderboard isolation
@@ -84,15 +91,53 @@ jobs:
         run: python3 -m unittest discover -s tests -p 'test_druzina_rotation.py' -v
 
       - name: Check public RSVP frontend, consent and server contract
-        run: node tests/imperion-rsvp-source.test.cjs
+        run: |
+          node tests/imperion-rsvp-source.test.cjs
+          node --test tests/imperion-registration-window.test.cjs
+
+      - name: Verify individual Druzina prices, private quote, 48h surcharge and PDF receipts
+        run: node --test tests/druzina-unified-payment.test.cjs
+
+      - name: Verify compliant Welcome Engine and safe Telegram webhook attach
+        run: node --test tests/imperion-welcome-engine.test.mjs tests/imperion-welcome-telegram-attach.test.mjs
 
       - name: Verify CRM-only transactional receipt queue and retries
         run: |
           node --test tests/imperion-intake-bridge-source.test.cjs
           node --test tests/imperion-receipt-mailer.test.cjs
 
+
+      - name: Check four-language information channels and gated chats
+        run: node --test tests/imperion-community-routing.test.cjs
+      - name: Verify zero-credit Qwen cloud agent is public-only and cannot take actions
+        run: node --test tests/imperion-zero-credit-cloud-review.test.cjs tests/imperion-zero-credit-cloud-workflow.test.cjs
+
+      - name: Verify free public-only AI router, durable local quota and fail-closed Pages proof
+        run: node --test tests/imperion-free-model-router.test.cjs tests/imperion-free-local-quota.test.cjs tests/imperion-public-model-worker.test.cjs tests/imperion-public-result-journal.test.cjs tests/imperion-autopilot-workflow-gate.test.cjs
+
+      - name: Verify existing BrowserBridge public-only Qwen adapter (no shell, no sends)
+        run: python3 -m unittest discover -s ops/bridge-public-ai -p 'test_public_ai_draft.py' -v
+
+      - name: Verify A6 observe-only router with 25 synthetic scenarios
+        run: node --test tests/imperion-a6-observe-router.test.cjs
+
+      - name: Verify private five-agent safety and proof logic
+        run: |
+          node --test tests/imperion-agent-snapshot.test.cjs tests/imperion-agent-team.test.cjs tests/imperion-growth-policy.test.cjs tests/imperion-closed-loop-audit.test.cjs tests/imperion-proof-auditor.test.cjs tests/imperion-agent-runtime.test.cjs
+      - name: Parse owner Apps Script installer without invoking it
+        shell: pwsh
+        run: |
+          $tokens = $null
+          $parseErrors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path 'ops/install-imperion-agent-owner.ps1').Path, [ref]$tokens, [ref]$parseErrors) | Out-Null
+          if ($parseErrors.Count -gt 0) { $parseErrors | ForEach-Object { Write-Error $_ }; exit 1 }
+
+
       - name: Verify Apps Script universal registration and retention isolation
         run: node tests/universal-rsvp.test.cjs
+
+      - name: Test staged AI workflow diagnostic math, privacy and CTA
+        run: node --test tests/ai-workflow-diagnostic.test.cjs
 
       - name: Verify legal identity and direct public customer paths
         run: node ops/imperion-public-gates.cjs --json
@@ -136,6 +181,16 @@ jobs:
         run: timeout 240s npx playwright install chromium
       - run: npm run test:security
       - run: npm run test:dom
+      - name: Test conversion-first event calendar, accessibility and two layouts
+        run: npx playwright test tests/conversion-frontdoor.spec.cjs --workers=2
+      - name: Test homepage v4 navigation, dual actions and city-aware timed event badges
+        run: npx playwright test tests/frontdoor-v4-nav-calendar.spec.cjs --workers=2
+      - name: Check cinematic Czech-default homepage, event rail and payment disclosure
+        run: npx playwright test tests/frontdoor-v5-cinematic-czech.spec.cjs --workers=2
+      - name: Check sitewide cinematic rollout, accessible gold CTA and desktop vs mobile dialogs
+        run: npx playwright test tests/cinematic-sitewide-ux.spec.cjs --workers=2
+      - name: Verify Czech default separately from existing unrelated full-suite failures
+        run: npx playwright test tests/czech-default-language.spec.cjs --workers=2
       - run: npm test
       - uses: actions/upload-artifact@v4
         if: always()
@@ -145,18 +200,3 @@ jobs:
             playwright-report/
             test-results/
           retention-days: 7
-
-  agent-review-tests:
-    runs-on: ubuntu-24.04
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-      - name: Test agent and GitHub provider readback logic offline
-        run: |
-          node --test tests/imperion-a6-observe-router.test.cjs
-          node --test tests/imperion-agent-team.test.cjs tests/imperion-agent-snapshot.test.cjs tests/imperion-proof-auditor.test.cjs tests/imperion-closed-loop-audit.test.cjs
-          node ops/imperion-agent-team.cjs --input ops/imperion-agent-team-synthetic.json > /dev/null

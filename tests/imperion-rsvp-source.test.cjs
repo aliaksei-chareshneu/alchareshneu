@@ -12,15 +12,16 @@ for(const loc of ['cs','en','ru','uk']){
 }
 assert.ok(!front.includes('SUPABASE_SERVICE_ROLE_KEY'));
 assert.ok(front.includes("cache:'no-store'"));
-for(const contact of ['function receiptContacts(', 'https://t.me/Chareshneu','https://wa.me/420702914842','mailto:chereshnev.biochem@gmail.com','https://t.me/druzinamoravy_news','https://t.me/pochody_brno_news','https://chat.whatsapp.com/JCyEJNm746nBXNll3VzzX3','https://chat.whatsapp.com/DuTpgF22mxMFy6L1Cfrcvu']) assert.ok(front.includes(contact),'RSVP confirmation contact missing: '+contact);
+for(const contact of ['function receiptContacts(', 'https://t.me/Chareshneu','https://wa.me/420702914842','mailto:chereshnev.biochem@gmail.com','payload?.communityChannels','validChannelUrl']) assert.ok(front.includes(contact),'RSVP confirmation contact missing: '+contact);
+assert.ok(!/https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]{22}/.test(front),'No hardcoded WhatsApp chat invite in the public page');
 assert.ok(front.includes('receiptContacts(el,eventData,body,payload);'),'Only a successful RSVP should show event-specific follow-up channels');
 assert.ok(fn.includes(".select(EVENT_COLS+',updates_group_url').eq('event_id',v.eventId)"),
  'POST must selectively fetch the event logistics group link');
 assert.ok(fn.includes("const EVENT_COLS='") &&
  !fn.split('const EVENT_COLS=')[1].split(';')[0].includes('updates_group_url'),
  'anonymous GET catalog must not expose WhatsApp invite');
-assert.ok(fn.includes("v.age==='adult' && v.rsvp!=='NO'"),
- 'no group invite for minors or declined RSVPs');
+assert.ok(fn.includes("age !== 'adult' || rsvp === 'NO'"),
+ 'no community invite for minors or declined RSVPs');
 // Duplicate submissions are intentionally idempotent: a public request cannot
 // disclose whether someone else's name/email already appears in the database.
 // The receipt therefore says "processed" rather than falsely claiming a new row.
@@ -61,6 +62,10 @@ for(const locale of locales){
   assert.ok(page.includes(heading),'visible localized text '+locale);
   assert.ok(page.includes('id="eventId" required')&&page.includes('id="retry"'),'form and retry '+locale);
   assert.ok(page.includes('id="result" class="state" role="status" aria-live="polite" tabindex="-1"'),'accessible feedback '+locale);
+  assert.ok(page.includes('<details id="bw-cancel-20261028"'),'expired cancellation must be archived '+locale);
+  assert.ok(!page.includes('<aside id="bw-cancel-20261028"'),'past-date alert must not be prominent '+locale);
+  assert.ok(page.includes('BrnoWalkers%2028.10%20refund'),'refund contact retained '+locale);
+  assert.ok(!page.includes('id="hady-rsvp-20261101"'),'past hike pre-registration banner must be removed '+locale);
   assert.ok(!page.includes('"@type":"Event"'),'listing page must not masquerade as event leaf '+locale);
   assert.ok(page.includes('<link rel="alternate" hreflang="x-default"'),'fallback hreflang '+locale);
   for(const other of locales)assert.ok(page.includes('<link rel="alternate" hreflang="'+other+'" href="'+pages[other][1]+'">'),'reciprocal hreflang '+locale+'/'+other);

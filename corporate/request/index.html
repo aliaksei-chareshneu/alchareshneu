@@ -46,8 +46,10 @@ footer{border-top:1px solid #30465a;margin-top:45px;padding-top:20px;color:#b5ca
 @media(max-width:600px){.wrap{padding:20px 16px 50px}.columns{grid-template-columns:1fr}.cards{grid-template-columns:1fr}.panel{padding:18px}}
 .receipt-button{border:1px solid #4e7c71;background:#b9f0d7;color:#122a2a;padding:10px 16px;border-radius:8px;min-height:44px;font-weight:750}#receiptDetails{border:1px solid #41766e;background:#163335;padding:16px 20px;border-radius:10px;margin-top:12px}#receiptDetails p{margin:7px 0;line-height:1.5;overflow-wrap:anywhere}</style>
 <link rel="stylesheet" href="../../site-design.css?v=20261027">
+<!-- IMPERION design checkpoint: visual styles only -->
+<link rel="stylesheet" href="../../imperion-cinematic-site.css?v=20261112-ux1">
 </head>
-<body data-imperion-scope="tech"><div class="wrap">
+<body data-imperion-scope="tech" data-imperion-design="corporate-sub"><div class="wrap">
 <header><a href="../" id="back">← Zpět na firemní služby</a><nav aria-label="Jazyk / Language"><button type="button" data-lang="cs" aria-pressed="true">CZ</button><button type="button" data-lang="en" aria-pressed="false">EN</button><button type="button" data-lang="ru" aria-pressed="false">RU</button><button type="button" data-lang="uk" aria-pressed="false">UA</button></nav></header>
 <main>
 <p class="muted" id="eyebrow">OSVČ · Brno / online · bezplatná poptávka</p>
@@ -107,6 +109,36 @@ const extraCopy={"cs":{"privacyTitle":"Informace o osobních údajích","privacy
 for(const l of Object.keys(extraCopy))Object.assign(dict[l],extraCopy[l]);
 const ids=['back','eyebrow','headline','intro','formTitle','companyLabel','nameLabel','emailLabel','phoneLabel','serviceLabel','budgetLabel','sizeLabel','whenLabel','summaryLabel','summaryNote','submitHint','choose','svc1','svc2','svc3','svc4','budgetChoose','budgetUnsure','fallbackTitle','fallbackText','privacyTitle','privacyText','card1','card2','card3','note1','note2','note3'];
 let lang='cs';const qp=new URLSearchParams(location.search);
+const privateGroupEnquiry=qp.get('src')==='private_hema';
+if(privateGroupEnquiry){
+ const groupText={
+  cs:{headline:'Soukromé historické šermování pro vaši skupinu',intro:'Nezávazně poptejte navrhovaný 120minutový program pro 5–8 dospělých v Brně. Název skupiny stačí neformální. Termín a cenu potvrdíme až po ověření místa, instruktorů, pojištění a podmínek. Žádná platba zde neprobíhá.',formTitle:'Nezávazná poptávka soukromé skupiny',companyLabel:'Název vaší skupiny *',emailLabel:'Kontaktní e-mail *',summaryLabel:'Co si má vaše skupina vyzkoušet? *'},
+  en:{headline:'Private historical fencing for your group',intro:'Request a proposed 120-minute beginner experience for 5–8 adults in Brno. An informal group name is fine. Date and final quote depend on venue, instructors, insurance and agreed terms. No payment takes place here.',formTitle:'Private-group enquiry (non-binding)',companyLabel:'Your group name *',emailLabel:'Contact email *',summaryLabel:'What would your group enjoy? *'},
+  ru:{headline:'Историческое фехтование для вашей группы',intro:'Необязательный запрос двухчасового занятия для 5–8 взрослых в Брно. Название группы может быть неофициальным. Дата и итоговая цена подтверждаются после проверки площадки, инструкторов, страховки и условий. Оплаты здесь нет.',formTitle:'Запрос для закрытой группы',companyLabel:'Название вашей группы *',emailLabel:'Контактный email *',summaryLabel:'Что интересно вашей группе? *'},
+  uk:{headline:'Історичне фехтування для вашої групи',intro:'Запит на двогодинну програму для 5–8 дорослих у Брно без зобов’язань. Можна вказати неофіційну назву групи. Дату й остаточну ціну погоджують після перевірки місця, інструкторів, страхування та умов. Оплата тут не здійснюється.',formTitle:'Запит для приватної групи',companyLabel:'Назва вашої групи *',emailLabel:'Контактний email *',summaryLabel:'Що цікавить вашу групу? *'}
+ };
+ for(const key of Object.keys(groupText))Object.assign(dict[key],groupText[key]);
+ // private-hema-single-card: show exactly the 120-minute group product and its indicative group price.
+ const privateCardCopy={
+  cs:['Soukromá skupina HEMA (120 min)','Orientačně za celou skupinu 5–8 dospělých; termín a podmínky individuálně'],
+  en:['Private HEMA group (120 min)','Indicative total for a group of 5–8 adults; date and terms agreed separately'],
+  ru:['Закрытая группа HEMA (120 мин)','Ориентир за группу из 5–8 взрослых; дату и условия согласуем отдельно'],
+  uk:['Приватна група HEMA (120 хв)','Орієнтир за групу 5–8 дорослих; дата й умови окремо']
+ };
+ for(const key of Object.keys(privateCardCopy)){
+  dict[key].card3=privateCardCopy[key][0];dict[key].note3=privateCardCopy[key][1];
+ }
+ const otherCards=document.querySelectorAll('.cards .card');
+ if(otherCards.length===3){
+  otherCards[0].hidden=true;otherCards[1].hidden=true;
+  const priceNode=otherCards[2].querySelector('b');
+  if(priceNode)priceNode.textContent='od / from 9 900 Kč';
+ }
+
+ $('company').placeholder='Např. Parta přátel / Friends group';$('company').setAttribute('autocomplete','off');
+ document.title='Soukromý šerm — nezávazná poptávka / Private fencing enquiry';
+}
+
 function setLang(next){
  lang=dict[next]?next:'cs';document.documentElement.lang=lang;
  for(const el of document.querySelectorAll('[data-lang]'))el.setAttribute('aria-pressed',String(el.dataset.lang===lang));
@@ -117,7 +149,7 @@ function setLang(next){
  const link=document.createElement('a');link.href='#privacy';link.textContent='Privacy / GDPR';$('privacyLabel').append(link);
 }
 for(const b of document.querySelectorAll('[data-lang]'))b.addEventListener('click',()=>setLang(b.dataset.lang));
-if(dict[qp.get('lang')])lang=qp.get('lang');else if((navigator.language||'').startsWith('en'))lang='en';
+if(dict[qp.get('lang')])lang=qp.get('lang');
 setLang(lang);
 const requested=qp.get('service')||'';
 if(['AI_WORKSHOP','DATA_PILOT','SCIENTIFIC_CONSULTING','HEMA_CORPORATE'].includes(requested))$('offer').value=requested;
@@ -126,6 +158,12 @@ function show(message,error){
  result.hidden=false;result.className=error?'err':'ok';result.textContent=message;
  result.focus({preventScroll:true});result.scrollIntoView({block:'nearest'});
 }
+const INTAKE_UNVERIFIED={
+ cs:'Server nevrátil platné číslo poptávky. Uložení není ověřené. Neodesílejte opakovaně; ozvěte se prosím e-mailem.',
+ en:'No valid enquiry reference was returned. Storage is unverified. Please do not resubmit repeatedly; contact me by email.',
+ ru:'Номер заявки не подтверждён. Сохранение не проверено. Не отправляйте повторно много раз; свяжитесь по email.',
+ uk:'Номер запиту не підтверджено. Збереження не перевірене. Не надсилайте повторно багато разів; напишіть на email.'
+};
 const RECEIPT_B2B={"cs":{"title":"Přehled přijaté poptávky","ref":"Číslo poptávky","company":"Firma","offer":"Služba","contact":"Kontaktní e-mail","when":"Požadovaný termín","next":"Poptávka je uložena. To není objednávka ani přijetí nabídky; rozsah, cenu a podmínky potvrdíme individuálně.","email":"Uložte si číslo a údaje níže; kopie e-mailem může být zpožděná nebo nedostupná.","copy":"Kopírovat potvrzení","copied":"Zkopírováno"},"en":{"title":"Your enquiry receipt","ref":"Enquiry reference","company":"Company","offer":"Service","contact":"Contact email","when":"Requested timeframe","next":"Your request is recorded. No order, price, booking or contract is accepted; terms will be agreed individually.","email":"Save the request reference and details; an email copy may be delayed or unavailable.","copy":"Copy receipt","copied":"Copied"},"ru":{"title":"Данные принятой заявки","ref":"Номер заявки","company":"Компания","offer":"Услуга","contact":"Контактный email","when":"Желаемый срок","next":"Заявка сохранена. Это не заказ и не согласованный договор, стоимость и условия будут подтверждены отдельно.","email":"Сохраните номер заявки и данные ниже: копия по почте может задержаться или быть недоступна.","copy":"Скопировать подтверждение","copied":"Скопировано"},"uk":{"title":"Дані отриманого запиту","ref":"Номер запиту","company":"Компанія","offer":"Послуга","contact":"Контактний email","when":"Бажаний термін","next":"Запит збережено. Це не замовлення й не контракт; ціну та умови узгодять окремо.","email":"Збережіть номер і дані запиту: копія на пошту може затриматися або бути недоступною.","copy":"Копіювати підтвердження","copied":"Скопійовано"}};
 function showB2bReceipt(b,server){
  const d=RECEIPT_B2B[lang],area=$('receiptDetails');area.replaceChildren();
@@ -139,6 +177,7 @@ function showB2bReceipt(b,server){
 }
 form.addEventListener('submit',async e=>{
  e.preventDefault();
+ $('receiptDetails').hidden=true;$('receiptDetails').replaceChildren();
  if(!form.reportValidity()||$('summary').value.trim().length<15){show(dict[lang].invalid,true);return;}
  btn.disabled=true;btn.textContent=dict[lang].sending;result.hidden=true;
  const baseSource=/^[a-zA-Z0-9_-]{2,65}$/.test(qp.get('src')||'')?qp.get('src'):'corporate_website';
@@ -156,6 +195,10 @@ const source=utmLabels.length?(baseSource+'__'+utmLabels.join('_')).slice(0,65):
   const response=await fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),cache:'no-store',signal:AbortSignal.timeout(12000)});
   const obj=await response.json().catch(()=>({}));
   if(!response.ok||obj.ok!==true||obj.status!=='RECEIVED_UNCONFIRMED')throw Error('server');
+  if(obj.duplicate===true||typeof obj.reference!=='string'||
+     !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(obj.reference)){
+   show(INTAKE_UNVERIFIED[lang],true);return;
+  }
   showB2bReceipt(body,obj);form.reset();show(dict[lang].received,false);
  }catch{show(dict[lang].fail,true);}
  finally{btn.disabled=false;btn.textContent=dict[lang].submit}

@@ -20,7 +20,7 @@ function impPrivateConfig_(){
 }
 function impPrivateFetch_(config,payload){
   var opt={method:payload?'post':'get',
-    headers:{Authorization:'Bearer '+config.key},
+    headers:{Authorization:'Bearer '+config.key,'x-imperion-intake-protocol':'payment-v2'},
     contentType:'application/json',muteHttpExceptions:true,timeoutSeconds:25};
   if(payload)opt.payload=JSON.stringify(payload);
   var resp=UrlFetchApp.fetch(IMP_INTAKE_URL,opt),data={};
@@ -72,9 +72,95 @@ function impAppend_(sheet,headers,object){
      sheet.getRange(nextRow,headers.map[receipt]+1).getDisplayValue().trim()!==String(object[receipt]))
     throw Error('CRM append readback failed: '+receipt);
 }
+function impEnsureRsvpAttribution_(sh){
+ var h=impHeader_(sh);
+ ['Discovery_Source','UTM_Source','UTM_Medium','UTM_Campaign'].forEach(function(k){
+  if(h.map[k]!==undefined)return;
+  var col=sh.getLastColumn()+1;
+  if(col>sh.getMaxColumns())sh.insertColumnsAfter(sh.getMaxColumns(),1);
+  sh.getRange(1,col).setValue(k);
+  h.map[k]=col-1;
+ });
+ return impHeader_(sh);
+}
+function impAppendOrelSource_(ss,r){
+ if(String(r.event_id||'')!=='PUB-OREL-20261114')return;
+ var sh=ss.getSheetByName('OREL_20261114_Sources');if(!sh)return;
+ var email=String(r.email||'').toLowerCase().trim(),n=sh.getLastRow();
+ if(!email)return;
+ if(n>1&&sh.getRange(2,2,n-1,1).getDisplayValues().some(function(x){
+  return String(x[0]||'').toLowerCase().trim()===email;
+ }))return;
+ var channels={IS_MUNI:'IS MUNI',SPOLEK_MUNI:'Spolek přírodovědců MUNI',
+  FACEBOOK:'Facebook',INSTAGRAM:'Instagram',WHATSAPP:'WhatsApp',
+  TELEGRAM:'Telegram',FRIEND:'Friends',GOTOBRNO:'GOtoBRNO',
+  OTHER_SITE:'Other website',OTHER:'Other'};
+ var channel=channels[r.discovery_source]||'';
+ var detail=[r.utm_source?'UTM: '+r.utm_source:'',r.utm_campaign?'Campaign: '+r.utm_campaign:''].filter(Boolean).join('; ');
+ var row=[[r.first_name,r.last_name].filter(Boolean).join(' '),email,
+  r.rsvp_status||'',r.language||'',channel,detail,'','','',
+  channel?'FORM_REPORTED':(detail?'CAMPAIGN_TAGGED':'UNATTRIBUTED'),
+  'NOT_REQUESTED','',r.event_id||'','Automatic source data, no seat approval'];
+ sh.getRange(n+1,1,1,14).setValues([row]);
+}
+/** Add payment audit metadata to the SAME Registrations tab; no duplicate CRM.
+ * Never copy bank PDF files, original filenames, storage paths or hashes to Sheets.
+ */
+function impEnsureRsvpPaymentCols_(sh){
+ var h=impHeader_(sh);
+ var required=['Requested_Tier','Quoted_Tier','Personal_Approval_At','Quoted_Base_CZK','Late_Fee_CZK',
+  'Quoted_Total_CZK','Quoted_Group_Size','Late_48h','Payment_Evidence_Status','Payment_Proof_Received_At'];
+ var missing=required.filter(function(k){return h.map[k]===undefined;});
+ if(missing.length){
+  var last=sh.getLastColumn();
+  var space=sh.getMaxColumns()-last;
+  if(space<missing.length)sh.insertColumnsAfter(sh.getMaxColumns(),missing.length-space);
+  missing.forEach(function(key,i){sh.getRange(1,last+i+1).setValue(key);});
+ }
+ return impHeader_(sh);
+}
+/** Update only payment evidence on an already imported RSVP; never add duplicate.
+ * Do not overwrite earlier consents, identities or manually verified bank status.
+ */
+function impUpdateExistingRsvpProof_(sh,h,r){
+ if(r.payment_evidence_status!=='PROOF_RECEIVED')return;
+ var keys={
+  Requested_Tier:r.training_requested_tier||'',
+  Quoted_Tier:r.quoted_tier||'',
+  Personal_Approval_At:impDate_(r.training_authorized_at),
+  Quoted_Base_CZK:r.quoted_base_czk||'',
+  Late_Fee_CZK:r.quoted_late_fee_czk===0?0:(r.quoted_late_fee_czk||''),
+  Quoted_Total_CZK:r.quoted_total_czk||'',
+  Quoted_Group_Size:r.quoted_confirmed_count||'',
+  Late_48h:r.quoted_late_48h===true?'YES':'NO',
+  Payment_Evidence_Status:'PROOF_RECEIVED',
+  Payment_Proof_Received_At:impDate_(r.payment_evidence_received_at),
+ };
+ var col=h.map.Submission_ID+1,last=sh.getLastRow(),id=String(r.id||'');
+ if(last<2)return;
+ var entries=sh.getRange(2,col,last-1,1).getDisplayValues();
+ for(var i=0;i<entries.length;i++){
+  if(String(entries[i][0]||'').trim()!==id)continue;
+  var row=i+2;
+  Object.keys(keys).forEach(function(key){
+   if(h.map[key]===undefined)throw Error('Missing payment CRM column: '+key);
+   sh.getRange(row,h.map[key]+1).setValue(impText_(keys[key]));
+   if(keys[key] instanceof Date)sh.getRange(row,h.map[key]+1).setNumberFormat('dd.mm.yyyy hh:mm');
+  });
+  if(sh.getRange(row,h.map.Payment_Evidence_Status+1).getDisplayValue()!=='PROOF_RECEIVED')
+   throw Error('Payment proof CRM readback failed');
+  return;
+ }
+ throw Error('Existing RSVP row missing for proof sync');
+}
 function impWriteRsvps_(ss,items,events){
   var sh=ss.getSheetByName('Registrations');if(!sh)throw Error('Missing Registrations');
-  var h=impHeader_(sh);if(h.map.Submission_ID===undefined)throw Error('Missing Submission_ID');
+  var h=(items||[]).some(function(r){return r&&Object.prototype.hasOwnProperty.call(r,'discovery_source');})?
+   impEnsureRsvpAttribution_(sh):impHeader_(sh);
+  if((items||[]).some(function(r){return r && (r.payment_evidence_status==='PROOF_RECEIVED' ||
+    /^PUB-HEMA-/.test(String(r.event_id||'')));}))
+   h=impEnsureRsvpPaymentCols_(sh);
+  if(h.map.Submission_ID===undefined)throw Error('Missing Submission_ID');
   var existing=impExisting_(sh,h.map.Submission_ID+1),ids=[],added=0;
   items.forEach(function(r){
     var id=String(r.id||'');if(!/^[a-f0-9-]{36}$/i.test(id))throw Error('Invalid RSVP id');
@@ -105,9 +191,24 @@ function impWriteRsvps_(ss,items,events){
         Rules_Version:r.safety_version||'',Consent_Recorded_At:impDate_(r.created_at),
         Marketing_Consent:r.marketing_requested===true?'REQUESTED_UNCONFIRMED':'NO',
         Data_Controller:r.data_controller||'',Registration_Locale:r.language||'',
+        Discovery_Source:r.discovery_source||'',UTM_Source:r.utm_source||'',
+        UTM_Medium:r.utm_medium||'',UTM_Campaign:r.utm_campaign||'',
+        Requested_Tier:r.training_requested_tier||'',
+        Quoted_Tier:r.quoted_tier||'',
+        Personal_Approval_At:impDate_(r.training_authorized_at),
+        Quoted_Base_CZK:r.quoted_base_czk||'',
+        Late_Fee_CZK:r.quoted_late_fee_czk===0?0:(r.quoted_late_fee_czk||''),
+        Quoted_Total_CZK:r.quoted_total_czk||'',
+        Quoted_Group_Size:r.quoted_confirmed_count||'',
+        Late_48h:r.quoted_late_48h===true?'YES':'NO',
+        Payment_Evidence_Status:r.payment_evidence_status||'NOT_REQUIRED',
+        Payment_Proof_Received_At:impDate_(r.payment_evidence_received_at),
         Receipt_Status:'PENDING',Receipt_Attempts:0,Receipt_Locale:r.language||'cs'
       });
       existing[id]=true;added++;
+      try{impAppendOrelSource_(ss,r);}catch(e){console.error('Orel source mirror unavailable');}
+    }else if(r.payment_evidence_status==='PROOF_RECEIVED'){
+      impUpdateExistingRsvpProof_(sh,h,r);
     }
     ids.push(id);
   });
@@ -153,7 +254,8 @@ function impWriteB2B_(ss,items){
     if(!existing[key]){
       var offer=String(r.offer||''),allowed={
         AI_WORKSHOP:'IT/Science',DATA_PILOT:'IT/Science',
-        SCIENTIFIC_CONSULTING:'IT/Science',HEMA_CORPORATE:'Other'
+        SCIENTIFIC_CONSULTING:'IT/Science',HEMA_CORPORATE:'Other',
+         EVENT_HOST:'Other',EVENT_PROGRAM:'Other',MEDIA_SPONSOR:'Marketing / Media'
       };
       if(!Object.prototype.hasOwnProperty.call(allowed,offer))throw Error('Invalid B2B offer');
       var band=String(r.budget_band||'unknown');
@@ -208,16 +310,55 @@ function impReceiptWords_(lang){
  };
  return all[lang]||all.cs;
 }
-function impReceiptCatalog_(){
+/** A public catalog fetch can transiently fail. Fall back to the existing
+ * canonical Events CRM, never an invented event title/date.
+ */
+function impReceiptCatalog_(ss){
+ var map={};
  try{
   var res=UrlFetchApp.fetch('https://cmrknyhnnehyjpreehcf.supabase.co/functions/v1/imperion-register',
-     {muteHttpExceptions:true});
-  if(res.getResponseCode()!==200)return {};
-  var data=JSON.parse(res.getContentText()||'{}'),map={};
-  (Array.isArray(data.events)?data.events:[]).forEach(function(e){if(e&&e.event_id)map[e.event_id]=e;});
-  return map;
- }catch(e){console.error('Public event catalog unavailable to receipt mailer');return {};}
+    {muteHttpExceptions:true});
+  if(res.getResponseCode()===200){
+   var data=JSON.parse(res.getContentText()||'{}');
+   (Array.isArray(data.events)?data.events:[]).forEach(function(e){
+    if(e&&e.event_id)map[e.event_id]=e;
+   });
+  }else console.error('Public event catalog HTTP '+res.getResponseCode());
+ }catch(e){console.error('Public event catalog unavailable to receipt mailer');}
+ // The fallback is a READ-ONLY lookup: never change Events or Registrations here.
+ try{
+  var sh=ss&&ss.getSheetByName('Events');
+  if(!sh||sh.getLastRow()<2)return map;
+  var m=impHeader_(sh).map;
+  var required=['Event_ID','Status','Title','Start_DateTime','Location_Name','Location_Address',
+   'Price_CZK','Category','Community','Rules_URL'];
+  if(required.some(function(k){return m[k]===undefined;}))return map;
+  var records=sh.getRange(2,1,sh.getLastRow()-1,sh.getLastColumn()).getValues();
+  records.forEach(function(row){
+   var id=String(row[m.Event_ID]||'').trim();
+   if(!/^[A-Za-z0-9-]{2,100}$/.test(id)||
+      String(row[m.Status]||'').trim().toLowerCase()!=='active')return;
+   var price=String(row[m.Price_CZK]===undefined?'':row[m.Price_CZK]).trim();
+   var venue=[row[m.Location_Name],row[m.Location_Address]].filter(Boolean).join(', ').slice(0,180);
+   var fallback={
+    event_id:id,title:String(row[m.Title]||'').trim().slice(0,180),
+    begins_at:row[m.Start_DateTime],venue:venue,category:String(row[m.Category]||'').trim(),
+    community:String(row[m.Community]||'').trim(),
+    rules_url:String(row[m.Rules_URL]||'').trim(),
+    price_czk:/^\d{1,6}$/.test(price)?Number(price):null,
+    price_verified:/^\d{1,6}$/.test(price)
+   };
+   if(!fallback.title||!fallback.begins_at||!fallback.venue)return;
+   var e=map[id]||{};
+   Object.keys(fallback).forEach(function(k){
+    if(e[k]===undefined||e[k]===null||e[k]==='')e[k]=fallback[k];
+   });
+   map[id]=e;
+  });
+ }catch(e){console.error('Private Events catalog fallback unavailable');}
+ return map;
 }
+
 /** Optional per-event logistics link comes from the existing private Events CRM.
  * Do not put this field in anonymous event catalogs or mailing-list opt-ins.
  */
@@ -238,19 +379,113 @@ function impReceiptAttachEventGroups_(ss,events){
   return events;
 }
 
+/** These routes are informational by default. The separate discussion chats are
+ * restricted and may only be sent by impSendApprovedChatInvites_ after operator approval.
+ * Canonical Drive links checked on 2026-11-01; no new CRM or mailing list.
+ */
+function impCommunityRoute_(community,lang){
+ var name=String(community||'').normalize('NFKC').trim().toLowerCase();
+ var key=name==='družina moravy'||name==='druzina moravy'?'druzina':
+   name==='brnowalkers'||name==='brnowalkers / osvč'?'brnowalkers':null;
+ if(!key||['cs','en','ru','uk'].indexOf(lang)<0)return null;
+ var platform=lang==='cs'||lang==='en'?'whatsapp':'telegram';
+ var links={
+  druzina:{
+   whatsapp:{news:'https://chat.whatsapp.com/DuTpgF22mxMFy6L1Cfrcvu',chatProperty:'IMPERION_CHAT_DRUZINA_WA'},
+   telegram:{news:'https://t.me/druzinamoravy_news',chatProperty:'IMPERION_CHAT_DRUZINA_TG'}},
+  brnowalkers:{
+   whatsapp:{news:'https://chat.whatsapp.com/BSlQetCjMoL8IO45c6VnH0',chatProperty:'IMPERION_CHAT_BRNOWALKERS_WA'},
+   telegram:{news:'https://t.me/pochody_brno_news',chatProperty:'IMPERION_CHAT_BRNOWALKERS_TG'}}
+ };
+ var route=links[key][platform];
+ var valid=platform==='whatsapp'?/^https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]{22}$/:
+   /^https:\/\/t\.me\/[A-Za-z0-9_]{5,32}$/;
+ if(!valid.test(route.news))return null;
+ return {community:key,platform:platform,news:route.news,chatProperty:route.chatProperty};
+}
+
+/** Transactional RSVP receipt: record the form answer, never request a second RSVP.
+ * A form submission is not organiser-approved attendance. Optional troubleshooting
+ * screenshots must have personal information hidden.
+ */
+function impRsvpReceiptCopy_(lang,status){
+ var messages={
+  cs:{
+   pending:'Přihláška přijata – místo zatím nepotvrzeno',
+   maybeSubject:'Přihláška přijata – účast zatím nerozhodnuta',
+   declinedSubject:'Vaše odpověď byla zaznamenána',
+   intro:'Děkujeme, Vaši odpověď z registračního formuláře jsme přijali. Toto je potvrzení přijetí, nikoli rezervace místa.',
+   yes:'Zaznamenali jsme, že chcete přijít (ANO). Nemusíte vyplňovat formulář znovu ani potvrzovat svou účast dalším e-mailem. Organizátor Vám po kontrole kapacity samostatně potvrdí místo nebo oznámí další postup.',
+   maybe:'Zaznamenali jsme odpověď MOŽNÁ. Místo zatím není rezervováno. Jakmile budete vědět, zda přijdete, stačí odpovědět na tento e-mail; formulář nevyplňujte znovu.',
+   no:'Zaznamenali jsme odpověď NE. S Vaší účastí nepočítáme. Pokud šlo o omyl, stačí odpovědět na tento e-mail; formulář nevyplňujte znovu.',
+   unknown:'Vaši žádost evidujeme, ale místo zatím potvrzené není. Po kontrole kapacity Vám organizátor samostatně oznámí další postup. Formulář není potřeba vyplňovat znovu.',
+   troubleshooting:'Pokud při registraci nastala chyba nebo něco nebylo jasné, napište nám prosím, co se zobrazilo. Pokud můžete, přiložte snímek obrazovky bez viditelných osobních údajů. Jestli vše fungovalo, nemusíte nic posílat.'
+  },
+  en:{
+   pending:'Registration received – place not yet confirmed',
+   maybeSubject:'Registration received – attendance undecided',
+   declinedSubject:'Your response has been recorded',
+   intro:'Thank you. We have received your form response. This acknowledges your submission; it is not a confirmed booking.',
+   yes:'You selected YES and we have saved it. You do not need to submit the form again or send another email to confirm your interest. After checking capacity, the organiser will separately confirm your place or explain the next step.',
+   maybe:'You selected MAYBE. No place is reserved yet. Once you know whether you can attend, just reply to this email; please do not submit the form again.',
+   no:'You selected NO. We are not expecting you to attend. If this was a mistake, reply to this email rather than submitting the form again.',
+   unknown:'We have recorded your request, but no place is confirmed yet. The organiser will tell you the next step after checking capacity. You do not need to re-submit the form.',
+   troubleshooting:'If you encountered an error or an unclear message while registering, please tell us what appeared. If possible, attach a screenshot with any personal information hidden. If everything worked, no reply is needed.'
+  },
+  ru:{
+   pending:'Заявка получена – место пока не подтверждено',
+   maybeSubject:'Заявка получена – решение об участии не принято',
+   declinedSubject:'Ваш ответ зарегистрирован',
+   intro:'Спасибо! Мы получили ответ из регистрационной формы. Это подтверждение получения заявки, но не бронирование места.',
+   yes:'Вы выбрали ДА, и мы сохранили ваш ответ. Повторно заполнять форму или подтверждать интерес отдельным письмом не нужно. После проверки вместимости организатор отдельно подтвердит место или сообщит о дальнейших действиях.',
+   maybe:'Вы выбрали ВОЗМОЖНО. Место пока не забронировано. Когда решите, сможете ли прийти, просто ответьте на это письмо; форму повторно заполнять не нужно.',
+   no:'Вы выбрали НЕТ. Мы не рассчитываем на ваше участие. Если это ошибка, просто ответьте на это письмо вместо повторной регистрации.',
+   unknown:'Ваша заявка сохранена, но место ещё не подтверждено. После проверки вместимости организатор сообщит о дальнейших действиях; повторная регистрация не требуется.',
+   troubleshooting:'Если при регистрации возникла ошибка или какое-то сообщение было непонятным, напишите, что именно отображалось. По возможности приложите скриншот, скрыв личные данные. Если всё работало, отвечать не нужно.'
+  },
+  uk:{
+   pending:'Заявку отримано – місце ще не підтверджене',
+   maybeSubject:'Заявку отримано – участь ще не визначена',
+   declinedSubject:'Вашу відповідь збережено',
+   intro:'Дякуємо! Ми отримали вашу відповідь із реєстраційної форми. Це підтвердження отримання, а не бронювання місця.',
+   yes:'Ви обрали ТАК, і ми зберегли вашу відповідь. Повторно заповнювати форму або підтверджувати намір окремим листом не потрібно. Після перевірки місткості організатор окремо підтвердить місце або повідомить про наступні дії.',
+   maybe:'Ви обрали МОЖЛИВО. Місце поки не заброньоване. Коли вирішите, чи прийдете, просто дайте відповідь на цей лист; повторно заповнювати форму не потрібно.',
+   no:'Ви обрали НІ. Ми не розраховуємо на вашу участь. Якщо це помилка, просто дайте відповідь на цей лист, а не реєструйтеся повторно.',
+   unknown:'Вашу заявку збережено, але місце ще не підтверджене. Після перевірки місткості організатор повідомить про наступні дії; повторна реєстрація не потрібна.',
+   troubleshooting:'Якщо під час реєстрації виникла помилка або щось було незрозуміло, напишіть, що саме відображалося. За можливості додайте скриншот, приховавши особисті дані. Якщо все працювало, відповідати не потрібно.'
+  }
+ };
+ var w=messages[lang]||messages.cs;
+ var selected=status==='DECLINED'?'no':status==='MAYBE'?'maybe':status==='REGISTERED'?'yes':'unknown';
+ return {intro:w.intro,next:w[selected],troubleshooting:w.troubleshooting,
+  subject:selected==='no'?w.declinedSubject:selected==='maybe'?w.maybeSubject:w.pending};
+}
+
 function impReceiptMessage_(kind,row,m,events){
  function v(n){return m[n]===undefined?'':String(row[m[n]]||'').trim().slice(0,300);}
  var id='',email=v('Email'),label='',lang=v('Receipt_Locale')||'cs',w=impReceiptWords_(lang);
- var parts=[w[1]],sender='Družina Moravy';
+ var receiptCopy=kind==='RSVP'?impRsvpReceiptCopy_(lang,v('RSVP_Status')):null;
+ var parts=[receiptCopy?receiptCopy.intro:w[1]],sender='Družina Moravy';
  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email))return null;
  if(kind==='RSVP'){
   id=v('Submission_ID');if(!/^[0-9a-f-]{36}$/i.test(id)||!/^WEBSITE_RSVP_SUPABASE_/.test(v('Source_Channel')))return null;
-  var e=events[v('Event_ID')];label=e&&e.title?e.title:v('Event_ID');
+  var e=events&&events[v('Event_ID')];if(!e||!String(e.title||'').trim())return null;
+  label=e.title;
   if(e&&e.begins_at){
-   var d=new Date(e.begins_at);if(isFinite(d.getTime()))parts.push(w[4]+': '+Utilities.formatDate(d,'Europe/Prague','dd.MM.yyyy HH:mm'));
+   var originalTime=String(e.begins_at||'').trim();
+   var local=/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})$/.exec(originalTime);
+   if(local)parts.push(w[4]+': '+local[3]+'.'+local[2]+'.'+local[1]+' '+local[4]+':'+local[5]);
+   else{
+    var d=new Date(e.begins_at);
+    if(isFinite(d.getTime()))parts.push(w[4]+': '+Utilities.formatDate(d,'Europe/Prague','dd.MM.yyyy HH:mm'));
+   }
   }
   if(e&&e.venue)parts.push(w[5]+': '+String(e.venue).slice(0,200));
-  if(e&&e.price_verified===true&&Number.isInteger(e.price_czk))parts.push(w[6]+': '+e.price_czk+' Kč');
+  var paidQuote=Number(v('Quoted_Total_CZK'));
+  if(v('Payment_Evidence_Status')==='PROOF_RECEIVED'&&paidQuote>0)
+    parts.push(w[6]+': '+paidQuote+' Kč (PDF received for review; bank not verified)');
+  else if(e&&e.price_verified===true&&Number.isInteger(e.price_czk)&&
+       !e.trainingPayment)parts.push(w[6]+': '+e.price_czk+' Kč');
   var rulesUrl=e&&String(e.rules_url||'')||'';
   if(!/^https:\/\/aliaksei-chareshneu\.github\.io\/alchareshneu\//.test(rulesUrl))
    rulesUrl='https://aliaksei-chareshneu.github.io/alchareshneu/register/safety/';
@@ -263,7 +498,8 @@ function impReceiptMessage_(kind,row,m,events){
   // A WhatsApp invitation is event logistics, not marketing consent or
   // confirmation of a place. Do not invite a minor or a declined RSVP.
   var group=e&&String(e.updates_group_url||'').trim();
-  if(/^https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]{22}$/.test(group)&&
+  if((lang==='cs'||lang==='en')&&
+     /^https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]{22}$/.test(group)&&
      /^adult$/i.test(v('Age'))&&v('RSVP_Status')!=='DECLINED'){
     var copy={
      cs:['WhatsApp skupina pouze pro aktualizace k této akci:',
@@ -277,6 +513,21 @@ function impReceiptMessage_(kind,row,m,events){
     };
     var words=copy[lang]||copy.cs;
     parts.push('',words[0]+' '+group,words[1]);
+  }
+  // A link to a voluntary information channel is NOT a subscription or approved booking.
+  // Never offer community membership links to minors or declined applications.
+  if(/^adult$/i.test(v('Age'))&&v('RSVP_Status')!=='DECLINED'){
+    var route=impCommunityRoute_(e&&e.community,lang);
+    if(route){
+      var communityText={
+       cs:['Novinky komunity (dobrovolně):','Členové WhatsApp skupiny mohou vidět vaše telefonní číslo.','Členové Telegramu mohou vidět váš profil dle nastavení soukromí.','Diskusní chat se zpřístupňuje až po ověření účasti; u Družiny také po úhradě dalšího tréninku.'],
+       en:['Community announcements (optional):','WhatsApp group members may see your phone number.','Telegram members may see your profile depending on privacy settings.','The discussion chat requires verified attendance; Družina also requires payment for the next training.'],
+       ru:['Новости сообщества (добровольно):','Участники WhatsApp могут видеть ваш номер телефона.','Участники Telegram могут видеть ваш профиль в зависимости от настроек приватности.','Доступ в чат — после подтверждённого посещения, для Družina также после оплаты следующей тренировки.'],
+       uk:['Новини спільноти (добровільно):','Учасники WhatsApp можуть бачити ваш номер телефону.','Учасники Telegram можуть бачити ваш профіль відповідно до налаштувань приватності.','Доступ до чату — після підтвердженого відвідування, для Družina також після оплати наступного тренування.']
+      }[lang];
+      parts.push('',communityText[0]+' '+route.news,
+        route.platform==='whatsapp'?communityText[1]:communityText[2],communityText[3]);
+    }
   }
   sender=v('Data_Controller').includes('Aliaksei Chareshneu')?'Aliaksei Chareshneu (OSVČ)':'Družina Moravy';
   parts.push(w[8]);
@@ -292,25 +543,19 @@ function impReceiptMessage_(kind,row,m,events){
  }else{return null;}
  parts.splice(1,0,w[2]+': '+id,w[3]+': '+label);
  if(kind==='RSVP'){
-  var followNote={
-   cs:'Pokud plánujete přijít, dejte nám prosím ještě krátce vědět. Vaše místo není potvrzené, dokud vám pořadatel neodpoví.',
-   en:'If you plan to join us, please send a short message. Your place is not confirmed until the organiser replies.',
-   ru:'Если вы планируете прийти, пожалуйста, напишите короткое сообщение организатору. Участие подтвердят ответным сообщением.',
-   uk:'Якщо плануєте прийти, будь ласка, напишіть організатору коротке повідомлення. Участь буде підтверджено окремою відповіддю.'
-  };
-  parts.push('',followNote[lang]||followNote.cs,
+  parts.push('',receiptCopy.next,'',receiptCopy.troubleshooting,
    'Telegram: https://t.me/Chareshneu',
    'WhatsApp: https://wa.me/420702914842',
    'Email: reply to this message');
  }
  parts.push('',w[10]);
- return {to:email,subject:w[0]+' · '+id.slice(0,8),body:parts.join('\n'),sender:sender};
+ return {to:email,subject:(receiptCopy?receiptCopy.subject:w[0])+' · '+id.slice(0,8),body:parts.join('\n'),sender:sender};
 }
 function impSendReceiptQueue_(ss,cfg,events){
  var tabs=[['Registrations','RSVP'],['Druzina_Requests','TRAINING'],['Leads','B2B']];
  var quota=MailApp.getRemainingDailyQuota(),max=Math.min(30,Math.max(0,quota-1)),sent=0,failed=0;
  if(max<=0)return {sent:0,failed:0,quotaBlocked:true};
- events=impReceiptAttachEventGroups_(ss,events||impReceiptCatalog_());
+ events=impReceiptAttachEventGroups_(ss,events||impReceiptCatalog_(ss));
  tabs.forEach(function(pair){
   if(sent>=max)return;
   var sh=ss.getSheetByName(pair[0]);if(!sh||sh.getLastRow()<2)return;
@@ -324,7 +569,13 @@ function impSendReceiptQueue_(ss,cfg,events){
    var count=Number(row[m.Receipt_Attempts]||0);
    if(count>=5){sh.getRange(i+2,m.Receipt_Status+1).setValue('FAILED_REVIEW');return;}
    var msg=impReceiptMessage_(pair[1],row,m,events);
-   if(!msg){sh.getRange(i+2,m.Receipt_Status+1).setValue('REVIEW_NO_EMAIL');failed++;return;}
+   if(!msg){
+    if(pair[1]==='RSVP'&&(!events[String(row[m.Event_ID]||'').trim()]||!String(events[String(row[m.Event_ID]||'').trim()].title||'').trim())){
+      sh.getRange(i+2,m.Receipt_Attempts+1).setValue(count+1);
+      sh.getRange(i+2,m.Receipt_Status+1).setValue(count+1>=5?'FAILED_REVIEW':'RETRY');
+    }else sh.getRange(i+2,m.Receipt_Status+1).setValue('REVIEW_NO_EMAIL');
+    failed++;return;
+   }
    try{
     MailApp.sendEmail({to:msg.to,subject:msg.subject,body:msg.body,
       name:msg.sender,replyTo:cfg.email});
@@ -670,11 +921,100 @@ function imperionSyncPrivateIntake(){
     impFlushOwnerDigest_(cfg,ss,events);
     var receipts=impSendReceiptQueue_(ss,cfg,events);
     var followups=impSendAttendedFollowups_(ss,cfg);
+    var chatInvites=impSendApprovedChatInvites_(ss,cfg);
     console.log('Private intake receipts: dispatched='+receipts.sent+', errors='+receipts.failed);
     console.log('Private intake: new RSVP='+addedR+', enquiries='+addedE+', corporate OSVC='+addedB+', acked='+processed);
-    return {newRsvps:addedR,newEnquiries:addedE,newB2B:addedB,acked:processed,receipts:receipts,followups:followups};
+    return {newRsvps:addedR,newEnquiries:addedE,newB2B:addedB,acked:processed,receipts:receipts,followups:followups,chatInvites:chatInvites};
   }finally{lock.releaseLock();}
 }
+
+/** Optional, separate, *approved* discussion-chat invite queue in canonical CRM.
+ * Disabled until IMPERION_CHAT_INVITES_LIVE=true. No RSVP alone can set the
+ * approval marker, and no chat URL is exposed to the public browser/API.
+ * Chat_Access_Approval must be set by an operator after checking evidence:
+ * BW = ATTENDED_VERIFIED; Družina = ATTENDED_AND_NEXT_TRAINING_PAID_VERIFIED.
+ */
+var IMP_CHAT_COLS=['Chat_Access_Approval','Chat_Invite_Status','Chat_Invite_Attempts','Chat_Invite_Sent_At'];
+function impEnsureChatCols_(sheet){
+ var h=impHeader_(sheet);
+ IMP_CHAT_COLS.forEach(function(name){
+  if(h.map[name]!==undefined)return;
+  var col=sheet.getLastColumn()+1;
+  if(col>sheet.getMaxColumns())sheet.insertColumnsAfter(sheet.getMaxColumns(),1);
+  sheet.getRange(1,col).setValue(name);h.map[name]=col-1;
+ });
+}
+function impSendApprovedChatInvites_(ss,cfg){
+ if(PropertiesService.getScriptProperties().getProperty('IMPERION_CHAT_INVITES_LIVE')!=='true')
+  return {sent:0,failed:0,disabled:true};
+ var regs=ss.getSheetByName('Registrations'),eventSheet=ss.getSheetByName('Events');
+ if(!regs||!eventSheet)throw Error('Canonical CRM tabs unavailable');
+ impEnsureChatCols_(regs);
+ var m=impHeader_(regs).map,em=impHeader_(eventSheet).map;
+ ['Email','Event_ID','Age','Check_In_At','RSVP_Status','Source_Channel',
+  'Registration_Locale','Data_Controller'].concat(IMP_CHAT_COLS).forEach(function(k){
+   if(m[k]===undefined)throw Error('Missing Registrations.'+k);
+ });
+ ['Event_ID','Community','Data_Controller','Status'].forEach(function(k){
+   if(em[k]===undefined)throw Error('Missing Events.'+k);
+ });
+ var byId={};
+ eventSheet.getDataRange().getDisplayValues().slice(1).forEach(function(row){
+  var id=String(row[em.Event_ID]||'').trim();
+  if(id&&!/cancel|zruš|withdraw/i.test(String(row[em.Status]||''))){
+   byId[id]={community:String(row[em.Community]||''),
+     controller:String(row[em.Data_Controller]||'').trim()};
+  }
+ });
+ var quota=Math.max(0,MailApp.getRemainingDailyQuota()-3),
+     max=Math.min(10,quota),sent=0,failed=0;
+ if(!max||regs.getLastRow()<2)return {sent:0,failed:0,quotaBlocked:!max};
+ var rows=regs.getRange(2,1,regs.getLastRow()-1,regs.getLastColumn()).getDisplayValues();
+ rows.forEach(function(row,i){
+  if(sent>=max)return;
+  var v=function(k){return String(row[m[k]]||'').trim();};
+  var ev=byId[v('Event_ID')];
+  if(!ev||!ev.controller||ev.controller!==v('Data_Controller')||
+     v('Source_Channel')!=='WEBSITE_RSVP_SUPABASE_UNCONFIRMED'||
+     !/^adult$/i.test(v('Age'))||!v('Check_In_At')||
+     /^(NO|DECLINED)$/i.test(v('RSVP_Status')))return;
+  var route=impCommunityRoute_(ev.community,v('Registration_Locale'));
+  if(!route)return;
+  var approval=route.community==='druzina'
+    ? 'ATTENDED_AND_NEXT_TRAINING_PAID_VERIFIED' : 'ATTENDED_VERIFIED';
+  if(v('Chat_Access_Approval')!==approval)return;
+  var email=v('Email'),state=v('Chat_Invite_Status'),
+      attempts=Number(v('Chat_Invite_Attempts')||0);
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)||state&&state!=='RETRY')return;
+  if(attempts>=3){regs.getRange(i+2,m.Chat_Invite_Status+1).setValue('FAILED_REVIEW');return;}
+  // Only private Script Properties carry gated chat invitations. No URLs in GitHub.
+  var chatUrl=String(PropertiesService.getScriptProperties().getProperty(route.chatProperty)||'').trim();
+  var chatPattern=route.platform==='whatsapp'?/^https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]{22}$/:
+    /^https:\/\/t\.me\/[A-Za-z0-9_]{5,32}$/;
+  if(!chatPattern.test(chatUrl))return; // Missing/revoked invitation: do not send.
+  var locale=v('Registration_Locale'),w={
+   cs:['Pozvánka do diskusního chatu','Po ověření podmínek přístupu vás zveme do diskusního chatu. Připojení je dobrovolné.','Ostatní členové WhatsAppu mohou vidět vaše telefonní číslo.','Ostatní členové Telegramu mohou vidět váš profil dle nastavení soukromí.'],
+   en:['Discussion chat invitation','After verifying the membership conditions, you are invited to the discussion chat. Joining is optional.','Other WhatsApp members may see your phone number.','Other Telegram members may see your profile depending on privacy settings.'],
+   ru:['Приглашение в чат сообщества','После проверки условий доступа приглашаем вас в чат. Вступление добровольное.','Участники WhatsApp могут видеть ваш номер телефона.','Участники Telegram могут видеть ваш профиль в зависимости от настроек приватности.'],
+   uk:['Запрошення до чату спільноти','Після перевірки умов доступу запрошуємо до чату. Вступ добровільний.','Учасники WhatsApp можуть бачити ваш номер телефону.','Учасники Telegram можуть бачити ваш профіль залежно від налаштувань приватності.']
+  }[locale]||[];
+  try{
+   MailApp.sendEmail({to:email,subject:w[0],body:[w[1],chatUrl,
+    route.platform==='whatsapp'?w[2]:w[3]].join('\n'),
+    name:route.community==='druzina'?'Družina Moravy':'BrnoWalkers',
+    replyTo:cfg.email});
+   regs.getRange(i+2,m.Chat_Invite_Sent_At+1).setValue(new Date());
+   regs.getRange(i+2,m.Chat_Invite_Status+1).setValue('SENT_TO_PROVIDER');
+   sent++;
+  }catch(e){
+   regs.getRange(i+2,m.Chat_Invite_Attempts+1).setValue(attempts+1);
+   regs.getRange(i+2,m.Chat_Invite_Status+1).setValue(attempts+1>=3?'FAILED_REVIEW':'RETRY');
+   failed++;console.error('Approved chat invite mail failed; canonical row retained');
+  }
+ });
+ return {sent:sent,failed:failed};
+}
+
 function imperionCleanupPrivateIntake(){
   var cfg=impPrivateConfig_(),ss=SpreadsheetApp.openById(cfg.sheetId),now=new Date(),cleared=0;
   var r=ss.getSheetByName('Registrations');

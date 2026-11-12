@@ -2,6 +2,24 @@
 
 **Launched:** 21 October 2026. **Mission:** new real adult members and recurring safe attendance, trained *internal* instructors and community-based referrals. No mass unsolicited marketing.
 
+## OWNER-APPROVED POSITIONING — 04 NOV 2026
+
+**Primary audience is NOT limited to people who already know HEMA or LARP.** We are looking for people who simply want **adventures, movement/physical activity, friends/a real crew, history, and costumes**. HEMA, safe padded-sword practice, LARP, roleplay and crafts are ways to experience those motivations, not prerequisites.
+
+| Language | Campaign-first hook |
+| --- | --- |
+| CS | Dobrodružství, pohyb, přátelé, historie a kostýmy — najdi svou družinu v Brně. |
+| EN | Adventure, movement, friends, history and costumes — find your crew in Brno. |
+| RU | Приключения, движение, друзья, история и костюмы — найди свою дружину в Брно. |
+| UA | Пригоди, рух, друзі, історія та костюми — знайди свою дружину в Брно. |
+
+**New campaign workflow:** lead with one or more universal motives in the audience's native voice, then give specific true event details, appropriate age/safety/guardian rules, status (enquiry vs confirmed place), and CTA to https://aliaksei-chareshneu.github.io/alchareshneu/druzina/. Facebook organic external link goes in first comment when permitted; other platforms follow their native allowed link placement. Four language variants are prepared, but only one relevant version per actual post. No AI-made footage presented as an actual event. No promise that every programme is open to children. Consent, capacity, lawful seller, moderation, 72h group cadence, opt-outs and owner publication GO remain separate.
+
+**Source/readback:** owner approved 04NOV2026; canonical manifesto chapter 3 and 20 Družina Project Context updated; GitHub public site first-screen copy and multilingual homepage card source updated. This SOP update is not proof of any new live social post.
+
+**Distribution discovery update 04NOV:** 10 additional channel candidates recorded in the existing restricted canonical registry CH489–CH498, including fantasy/cosplay/RPG, outdoor adventures, student media, Snapchat and Pinterest. No channel was authorized to post based solely on discovery. Prior private relationship history, pending replies, restrictions and source-attribution corrections remain in the restricted CRM only; verify there before external contact. No public social posts were created by this change.
+
+
 ## Live / auditable results
 
 **Owned Facebook Pages (organic, no paid spend):**

@@ -8,7 +8,7 @@ function harness(){
    Submission_ID:ref,Event_ID:'PUB-HIKE-20261101',
    Source_Channel:'WEBSITE_RSVP_SUPABASE_UNCONFIRMED',
    Email:'applicant@example.invalid',Data_Controller:'Družina Moravy, z. s.',
-   Receipt_Status:'PENDING',Receipt_Attempts:'0',Receipt_Sent_At:'',Receipt_Locale:'ru'
+   Receipt_Status:'PENDING',Receipt_Attempts:'0',Receipt_Sent_At:'',Receipt_Locale:'ru',RSVP_Status:'REGISTERED'
  };
  const keys=Object.keys(record),rows=[keys,keys.map(k=>record[k])];
  const sheet={
@@ -58,11 +58,77 @@ test('retries mail outage without creating a second CRM or a confirmed booking',
 });
 test('rejects stale/wrong-source and non-email rows, including business rows outside New',()=>{
  const h=harness(), m=Object.fromEntries(h.keys.map((k,i)=>[k,i])),row=h.rows[1].slice();
- assert.ok(h.api.impReceiptMessage_('RSVP',row,m,{}));
+ const events={[row[m.Event_ID]]:{title:'A verified walk',begins_at:'2026-11-01T11:45:00Z',venue:'Velká Klajdovka'}};
+ assert.ok(h.api.impReceiptMessage_('RSVP',row,m,events));
  row[m.Source_Channel]='IMPORTED_LEGACY';assert.equal(h.api.impReceiptMessage_('RSVP',row,m,{}),null);
  row[m.Source_Channel]='WEBSITE_RSVP_SUPABASE_UNCONFIRMED';
  row[m.Email]='not-a-valid-email';assert.equal(h.api.impReceiptMessage_('RSVP',row,m,{}),null);
 });
+test('RSVP receipt uses the saved answer, distinguishes pending seats and requests optional redacted screenshots',()=>{
+ const h=harness(),m=Object.fromEntries(h.keys.map((k,i)=>[k,i]));
+ const events={'PUB-HIKE-20261101':{title:'A verified walk',begins_at:'2026-11-01T11:45:00Z',venue:'Velká Klajdovka'}};
+ const translations={
+  cs:{yes:'Zaznamenali jsme, že chcete přijít',screen:'snímek obrazovky',subject:'místo zatím nepotvrzeno'},
+  en:{yes:'You selected YES',screen:'screenshot',subject:'place not yet confirmed'},
+  ru:{yes:'Вы выбрали ДА',screen:'скриншот',subject:'место пока не подтверждено'},
+  uk:{yes:'Ви обрали ТАК',screen:'скриншот',subject:'місце ще не підтверджене'}
+ };
+ for(const [lang,expected] of Object.entries(translations)){
+  const row=h.rows[1].slice();
+  row[m.Receipt_Locale]=lang;
+  row[m.RSVP_Status]='REGISTERED';
+  const receipt=h.api.impReceiptMessage_('RSVP',row,m,events);
+  assert.ok(receipt);
+  assert.ok(receipt.subject.includes(expected.subject),lang);
+  assert.ok(receipt.body.includes(expected.yes),lang);
+  assert.ok(receipt.body.includes(expected.screen),lang);
+  assert.doesNotMatch(receipt.body,/Pokud plánujete přijít|If you plan to join us|Если вы планируете прийти|Якщо плануєте прийти/);
+  row[m.RSVP_Status]='MAYBE';
+  const maybe=h.api.impReceiptMessage_('RSVP',row,m,events);
+  assert.ok(!maybe.body.includes(expected.yes),lang+' maybe');
+  row[m.RSVP_Status]='DECLINED';
+  const declined=h.api.impReceiptMessage_('RSVP',row,m,events);
+  assert.ok(!declined.body.includes(expected.yes),lang+' declined');
+ }
+});
+
+test('falls back to canonical Events on a public catalog outage without shifting local time',()=>{
+ const eventId='PUB-OREL-20261114';
+ const headers=['Event_ID','Status','Title','Start_DateTime','Location_Name','Location_Address','Price_CZK','Category','Community','Rules_URL'];
+ const values=[eventId,'Active','FREE Beginner HEMA Workshop','2026-11-14 12:00','Orlovna Husovice','Vranovská 93, Brno',0,'HEMA Training','Družina Moravy','https://aliaksei-chareshneu.github.io/alchareshneu/druzina/safety/'];
+ const sheet={
+  getLastRow:()=>2,getLastColumn:()=>headers.length,
+  getRange:(row,col,n=1,w=headers.length)=>({
+   getDisplayValues:()=>[headers,values].slice(row-1,row-1+n).map(r=>r.slice(col-1,col-1+w).map(String)),
+   getValues:()=>[headers,values].slice(row-1,row-1+n).map(r=>r.slice(col-1,col-1+w))
+  })
+ };
+ const db={getSheetByName:n=>n==='Events'?sheet:null};
+ const api=new Function('UrlFetchApp','Utilities',source+
+  ';return {impReceiptCatalog_,impReceiptMessage_};')({fetch:()=>{throw Error('Public API unavailable');}},{formatDate:()=>{throw Error('Unexpected date conversion');}});
+ const catalog=api.impReceiptCatalog_(db);
+ assert.equal(catalog[eventId].title,'FREE Beginner HEMA Workshop');
+ assert.equal(catalog[eventId].price_czk,0);
+ assert.equal(catalog[eventId].price_verified,true);
+ const keys=['Submission_ID','Event_ID','Source_Channel','Email','Receipt_Locale','RSVP_Status','Age','Data_Controller'];
+ const row=[ref,eventId,'WEBSITE_RSVP_SUPABASE_UNCONFIRMED','applicant@example.invalid','cs','REGISTERED','adult','Družina Moravy, z. s.'];
+ const m=Object.fromEntries(keys.map((k,i)=>[k,i]));
+ const msg=api.impReceiptMessage_('RSVP',row,m,catalog);
+ assert.ok(msg);
+ assert.match(msg.body,/14\.11\.2026 12:00/);
+ assert.match(msg.body,/Orlovna Husovice, Vranovská 93/);
+ assert.match(msg.body,/FREE Beginner HEMA Workshop/);
+ assert.doesNotMatch(msg.body,/Akce \/ služba: PUB-OREL/);
+});
+test('missing event metadata causes retry, not a confusing bare ID email',()=>{
+ const h=harness();
+ const res=h.api.impSendReceiptQueue_(h.db,{email:'owner@example.invalid'},{});
+ assert.deepEqual(res,{sent:0,failed:1});
+ assert.equal(h.rows[1][h.keys.indexOf('Receipt_Status')],'RETRY');
+ assert.equal(h.rows[1][h.keys.indexOf('Receipt_Attempts')],1);
+ assert.equal(h.dispatched.length,0);
+});
+
 test('source contains GDPR-safe dispatch, retry and 5-minute trigger not a marketing campaign',()=>{
  assert.doesNotThrow(()=>new Function(source));
  assert.match(source,/everyMinutes\(5\)/);

@@ -11,6 +11,7 @@
  */
 const fs = require('node:fs');
 const path = require('node:path');
+const growthPolicy = require('./imperion-growth-policy.cjs');
 
 const ROOT = path.resolve(__dirname, '..');
 const FIELDS = Object.freeze({
@@ -323,6 +324,7 @@ async function runAll(snapshot, options={}) {
     schema_version:1, snapshot_id:snapshot.snapshot_id, checked_at:snapshot.captured_at,
     mode:'READ_ONLY_PREVIEW', paid_api_calls:0, new_crm_records:0,
     chief:chief(snapshot), sales:sales(snapshot), social:await social(snapshot),
+    growth:growthPolicy.review(snapshot,pragueEventIso),
     seo:seo(options.root||ROOT), video:video(snapshot,options.root||ROOT),
     closed_loop:closedLoop(snapshot),
     external_messages_sent:0, external_posts_published:0, payments_created:0,

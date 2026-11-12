@@ -1,56 +1,37 @@
-name: IMPERION autopilot — verified public campaigns
+name: IMPERION public campaign source QA — no duplicate Pages publisher
 on:
-  schedule:
-    - cron: '17 */6 * * *'
   workflow_dispatch:
   push:
     branches: [main]
     paths:
       - 'scripts/imperion-autopilot.cjs'
       - 'tests/imperion-autopilot.test.cjs'
+      - 'tests/imperion-live-readback.test.cjs'
+      - 'tests/imperion-autopilot-workflow-gate.test.cjs'
       - 'autopilot/index.html'
       - '.github/workflows/imperion-autopilot.yml'
 permissions:
-  contents: write
+  contents: read
 concurrency:
-  group: imperion-public-autopilot
-  cancel-in-progress: false
+  group: imperion-public-source-qa
+  cancel-in-progress: true
 jobs:
-  refresh-and-publish:
+  verify-approved-public-source:
     runs-on: ubuntu-24.04
     timeout-minutes: 6
     steps:
-      - name: Check out canonical main sources
+      - name: Checkout canonical sources
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Verify safety, no-spam, open-status and duplicate gates
-        run: node --test tests/imperion-autopilot.test.cjs
-      - name: Read only already-public, approved signup catalog
+      - name: Reject unapproved public data, duplicate publishers and paid model fallback
+        run: node --test tests/imperion-autopilot.test.cjs tests/imperion-live-readback.test.cjs tests/imperion-free-model-router.test.cjs tests/imperion-autopilot-workflow-gate.test.cjs
+      - name: Validate public approved catalog without external publication
         run: node scripts/imperion-autopilot.cjs
-      - name: Check out verified GitHub Pages publication branch
-        uses: actions/checkout@v4
-        with:
-          ref: growth-experience
-          path: pages
-          persist-credentials: true
-      - name: Publish public-only page, feed and review drafts to Pages
-        shell: bash
+      - name: Report validation only
         run: |
-          set -euo pipefail
-          mkdir -p pages/autopilot
-          cp autopilot/index.html autopilot/feed.json autopilot/social-drafts.json autopilot/campaigns.html autopilot/rss.xml pages/autopilot/
-          cd pages
-          git config user.name 'imperion-autopilot[bot]'
-          git config user.email '52605565+aliaksei-chareshneu@users.noreply.github.com'
-          git add autopilot/index.html autopilot/feed.json autopilot/social-drafts.json autopilot/campaigns.html autopilot/rss.xml
-          if git diff --cached --quiet; then
-            echo 'Public Pages feed unchanged; no duplicate commit.'
-          else
-            git commit -m 'chore(autopilot): refresh public campaigns on Pages source'
-            git push origin HEAD:growth-experience
-          fi
-          echo '## IMPERION public autopilot' >> "$GITHUB_STEP_SUMMARY"
-          echo 'Verified public-only events published to growth-experience (the actual Pages branch).' >> "$GITHUB_STEP_SUMMARY"
-          echo 'Social drafts require approval. No direct Facebook/group posts or private CRM export.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Public feed validated. No Pages deploy, CRM export, social post, message or payment.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'The sole scheduled publisher is .github/workflows/pages-production.yml.' >> "$GITHUB_STEP_SUMMARY"

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="cs">
 <head>
 <meta name="theme-color" content="#0b1729">
 <meta charset="utf-8">
@@ -39,16 +39,18 @@ body{margin:0;background:#16171a;color:#ece7d8;font:16px/1.65 'Source Sans 3',sy
 </style>
 <link rel="stylesheet" href="../brand-theme.css?v=20261025">
 <link rel="stylesheet" href="../site-design.css?v=20261027">
+<!-- IMPERION design checkpoint: visual styles only -->
+<link rel="stylesheet" href="../imperion-cinematic-site.css?v=20261112-ux1">
 </head>
-<body data-imperion-scope="shared">
+<body data-imperion-scope="shared" data-imperion-design="hub">
 <div class="idea-shell">
 <header class="idea-top">
 <a href="../" aria-label="Back to Aliaksei Chareshneu home">← Aliaksei Chareshneu</a>
 <small>Open ideas · ongoing</small>
 </header>
 <nav class="idea-langs" aria-label="Select language">
-<button type="button" data-select-lang="cs" aria-pressed="false">CZ</button>
-<button type="button" data-select-lang="en" aria-pressed="true">EN</button>
+<button type="button" data-select-lang="cs" aria-pressed="true">CZ</button>
+<button type="button" data-select-lang="en" aria-pressed="false">EN</button>
 <button type="button" data-select-lang="ru" aria-pressed="false">RU</button>
 <button type="button" data-select-lang="uk" aria-pressed="false">UA</button>
 </nav>
@@ -118,15 +120,14 @@ body{margin:0;background:#16171a;color:#ece7d8;font:16px/1.65 'Source Sans 3',sy
   const buttons=Array.from(document.querySelectorAll('[data-select-lang]'));
   const valid=['cs','en','ru','uk'];
   function select(lang){
-    if(!valid.includes(lang))lang='en';
+    if(!valid.includes(lang))lang='cs';
     panels.forEach(p=>{p.hidden=p.dataset.ideaLang!==lang;});
     buttons.forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.selectLang===lang)));
     document.documentElement.lang=lang;
   }
   buttons.forEach(b=>b.addEventListener('click',()=>select(b.dataset.selectLang)));
   const requested=new URLSearchParams(location.search).get('lang');
-  const browser=(navigator.language||'en').slice(0,2).toLowerCase();
-  select(valid.includes(requested)?requested:browser);
+  select(valid.includes(requested)?requested:'cs');
 })();
 </script>
 </body>

@@ -55,6 +55,18 @@ function safeEnum(v: unknown, allowed: readonly string[]): string {
   if (!allowed.includes(s)) throw new Error('option');
   return s;
 }
+// Participant-reported first discovery is optional and never a marketing opt-in.
+// Campaign codes are short ASCII tokens: no URLs, IP addresses, emails or click IDs.
+const DISCOVERY_CHOICES=['FACEBOOK','INSTAGRAM','WHATSAPP','TELEGRAM','FRIEND',
+  'GOTOBRNO','IS_MUNI','SPOLEK_MUNI','OTHER_SITE','OTHER'] as const;
+function discoveryCode(v:unknown):string|null {
+  const s=text(v,30).toUpperCase();
+  return DISCOVERY_CHOICES.includes(s as typeof DISCOVERY_CHOICES[number])?s:null;
+}
+function campaignCode(v:unknown,max:number):string|null {
+  const s=text(v,max+1);
+  return s.length>0&&s.length<=max&&/^[A-Za-z0-9][A-Za-z0-9_.-]*$/.test(s)?s:null;
+}
 async function hashedBucket(label: string, value: string): Promise<string> {
   // HMAC prevents later dictionary lookup of identifiable IP/email values.
   // Inputs are NOT written to request logs or the rate-limit table.
@@ -72,7 +84,116 @@ async function allow(label: string, raw: string, max: number): Promise<boolean> 
   return data === true;
 }
 const INVITE_LINK = /^https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]{22}$/;
-const EVENT_COLS='event_id,title,community,category,begins_at,ends_at,venue,price_czk,data_controller,rules_url,contact_activity,is_open,registration_mode,action_url,public_note,price_verified,end_time_verified,source_active';
+
+// Canonical community announcement links (Drive 00 READ FIRST, checked 2026-11-01).
+// Chat invitation links are NEVER returned by an anonymous registration endpoint.
+const COMMUNITY_UPDATES = {
+  druzina: {
+    whatsapp: 'https://chat.whatsapp.com/DuTpgF22mxMFy6L1Cfrcvu',
+    telegram: 'https://t.me/druzinamoravy_news',
+  },
+  brnowalkers: {
+    whatsapp: 'https://chat.whatsapp.com/BSlQetCjMoL8IO45c6VnH0',
+    telegram: 'https://t.me/pochody_brno_news',
+  },
+} as const;
+const TG_PUBLIC_LINK = /^https:\/\/t\.me\/[A-Za-z0-9_]{5,32}$/;
+function communityChannels(community: string, locale: string, age: string, rsvp: string) {
+  // A submitted RSVP is NOT attendance/booking confirmation or marketing opt-in.
+  if (age !== 'adult' || rsvp === 'NO') return null;
+  const name = community.normalize('NFKC').trim().toLowerCase();
+  const key = name === 'družina moravy' || name === 'druzina moravy'
+    ? 'druzina'
+    : name === 'brnowalkers' || name === 'brnowalkers / osvč'
+      ? 'brnowalkers' : null;
+  if (!key) return null; // Never mix organizers or guess from an event category.
+  const platform = locale === 'cs' || locale === 'en' ? 'whatsapp'
+    : locale === 'ru' || locale === 'uk' ? 'telegram' : null;
+  if (!platform) return null;
+  return {
+    platform,
+    informationUrl: COMMUNITY_UPDATES[key][platform],
+    chatAccess: key === 'druzina' ? 'AFTER_ATTENDANCE_AND_NEXT_TRAINING_PAYMENT' : 'AFTER_ATTENDANCE',
+  };
+}
+
+const EVENT_COLS='event_id,title,community,category,begins_at,ends_at,venue,price_czk,data_controller,rules_url,contact_activity,is_open,registration_mode,action_url,public_note,price_verified,end_time_verified,source_active,training_price_scheme,training_confirmed_count,training_quote_locked_at,training_operational_go_at,training_payment_open,training_payment_recipient,training_payment_account';
+const PROOF_BUCKET='imperion-training-payment-proofs';
+const MAX_PDF_BYTES=2*1024*1024;
+const MAX_MULTIPART_BYTES=MAX_PDF_BYTES+15000;
+const LATE_WINDOW_MS=48*60*60*1000;
+type TrainingTier='STANDARD'|'SENIOR'|'STARTER4';
+type TrainingEvent={event_id:string;community:string;category:string;price_czk:number;begins_at:string;ends_at:string;price_verified:boolean;end_time_verified:boolean;source_active:boolean;is_open:boolean;registration_mode:string;training_price_scheme:string;training_quote_locked_at:string|null;training_operational_go_at:string|null;training_payment_open:boolean;training_payment_recipient:string|null;training_payment_account:string|null};
+const TRAINING_TIER_PRICE_CZK:Record<TrainingTier,number>={STANDARD:240,SENIOR:120,STARTER4:800};
+function trainingQuote(e:TrainingEvent,tier:TrainingTier='STANDARD',now=Date.now(),privateBank=false){
+  // 9 Nov 2026 approved owner tariffs. The 7 Nov group-size formula is withdrawn.
+  // Free Orel and legacy individual commitments are never repriced.
+  if(e.community!=='Družina Moravy'||e.category!=='HEMA Training'||
+    e.training_price_scheme!=='INDIVIDUAL'||Number(e.price_czk)<=0||
+    e.event_id==='PUB-OREL-20261114')return null;
+  const ready=!!(e.training_quote_locked_at&&e.training_operational_go_at&&
+    e.training_payment_open&&e.is_open&&e.registration_mode==='FORM'&&
+    e.source_active&&e.price_verified&&e.end_time_verified&&
+    String(e.training_payment_recipient||'').trim().length>=3&&
+    String(e.training_payment_account||'').trim().length>=8);
+  const base=TRAINING_TIER_PRICE_CZK[tier];
+  const late=Date.parse(e.begins_at)-now<LATE_WINDOW_MS;
+  const surcharge=late?Math.ceil(base*0.25):0;
+  return {status:ready?'AWAITING_PERSONAL_APPROVAL':'AWAITING_ORGANIZER_GO',
+    tier,baseCzk:base,surchargeCzk:surcharge,totalCzk:base+surcharge,
+    late48h:late,proofRequired:false,quoteLockedAt:ready?e.training_quote_locked_at:null,
+    recipient:ready&&privateBank?e.training_payment_recipient:null,
+    account:ready&&privateBank?e.training_payment_account:null,
+    sessionPaymentOpen:ready,starterUpgradeAfterPaidAttendedFirstCzk:560};
+}
+function publicTrainingQuote(e:TrainingEvent){
+  const q=trainingQuote(e);if(!q)return null;
+  return {status:q.status,late48h:q.late48h,sessionPaymentOpen:q.sessionPaymentOpen,
+    tiers:(['STANDARD','SENIOR','STARTER4'] as TrainingTier[]).map(t=>{
+      const price=trainingQuote(e,t)!;
+      return {tier:t,baseCzk:price.baseCzk,surchargeCzk:price.surchargeCzk,totalCzk:price.totalCzk};
+    }),starterUpgradeAfterPaidAttendedFirstCzk:560,proofRequired:false,
+    requiresPersonalConfirmation:true};
+}
+async function readSmallMultipart(req:Request,contentType:string){
+  if(!req.body)throw new Error('empty');
+  const reader=req.body.getReader();const chunks:Uint8Array[]=[];let length=0;
+  while(true){const item=await reader.read();if(item.done)break;
+    length+=item.value.byteLength;if(length>MAX_MULTIPART_BYTES){await reader.cancel();throw new Error('size');}
+    chunks.push(item.value);
+  }
+  const bytes=new Uint8Array(length);let offset=0;
+  for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.byteLength;}
+  return new Request('https://upload.invalid/',{method:'POST',headers:{'content-type':contentType},body:bytes}).formData();
+}
+function generateResumeToken(){
+ const bytes=crypto.getRandomValues(new Uint8Array(32));
+ return btoa(String.fromCharCode(...bytes)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/g,'');
+}
+async function tokenHash(value:string){
+ const bytes=new Uint8Array(await crypto.subtle.digest('SHA-256',controller.encode(value)));
+ return Array.from(bytes).map(x=>x.toString(16).padStart(2,'0')).join('');
+}
+async function pdfInfo(file:File){
+  if(file.size<100||file.size>MAX_PDF_BYTES||!file.name.toLowerCase().endsWith('.pdf')
+    ||(file.type&&file.type!=='application/pdf'))throw new Error('invalid_pdf');
+  const bytes=new Uint8Array(await file.arrayBuffer());
+  if(new TextDecoder().decode(bytes.slice(0,5))!=='%PDF-')throw new Error('invalid_pdf');
+  const digest=new Uint8Array(await crypto.subtle.digest('SHA-256',bytes));
+  return {hash:Array.from(digest).map(x=>x.toString(16).padStart(2,'0')).join(''),bytes};
+}
+
+// 02 Nov 2026 decision: the minimum attendance threshold is met.
+// Orel 14 Nov workshop accepts preliminary RSVPs until the event begins,
+// 14 Nov 2026 12:00 Europe/Prague; acceptance is NOT a confirmed place.
+// Keep this cutoff aligned with begins_at and do not change unrelated events.
+const REGISTRATION_CLOSES_AT = Object.freeze({
+  'PUB-OREL-20261114': Date.parse('2026-11-14T12:00:00+01:00'),
+});
+function registrationStillOpen(eventId: string, atMs: number = Date.now()): boolean {
+  const cutoff = REGISTRATION_CLOSES_AT[eventId as keyof typeof REGISTRATION_CLOSES_AT];
+  return cutoff === undefined || (Number.isFinite(cutoff) && atMs < cutoff);
+}
 
 Deno.serve(async (req:Request):Promise<Response>=>{
   const origin=req.headers.get('origin');
@@ -87,21 +208,32 @@ Deno.serve(async (req:Request):Promise<Response>=>{
       .eq('public_listing',true).eq('source_active',true)
       .gt('begins_at',new Date().toISOString()).order('begins_at',{ascending:true}).limit(120);
     if (error) return reply({error:'temporarily_unavailable'},503,origin);
-    return reply({events:data||[],version:'2026-10-25-catalog-v3',bookingConfirmed:false},200,origin);
+    return reply({events:(data||[]).filter(e=>registrationStillOpen(e.event_id)).map(e=>{
+      const {training_payment_recipient,training_payment_account,...safe}=e;
+      return {...safe,trainingPayment:publicTrainingQuote(e)};
+    }),version:'2026-11-09-training-quotes-v1',bookingConfirmed:false},200,origin);
   }
   // POST requires a real browser origin. A non-browser script can forge it,
   // so we also validate strictly and rate-limit server-side.
   if (origin!==ALLOWED_ORIGIN) return reply({error:'forbidden_origin'},403,origin);
   const len=Number(req.headers.get('content-length')||'0');
-  if (len>8192 || !req.headers.get('content-type')?.toLowerCase().startsWith('application/json'))
-    return reply({error:'invalid_request'},400,origin);
-  let body:Record<string,unknown>;
-  try {
-    const raw=await req.text();
-    if (raw.length>8192) throw new Error('size');
-    body=JSON.parse(raw);
-    if (!body || typeof body!=='object' || Array.isArray(body)) throw new Error('type');
-  } catch {return reply({error:'invalid_request'},400,origin);}
+  const contentType=(req.headers.get('content-type')||'').toLowerCase();
+  if(len>MAX_MULTIPART_BYTES)return reply({error:'payload_too_large'},413,origin);
+  let body:Record<string,unknown>;let proof:File|null=null;
+  try{
+    if(contentType.startsWith('multipart/form-data;')){
+      const fields=await readSmallMultipart(req,req.headers.get('content-type')||'');
+      const raw=fields.get('payload'),file=fields.get('paymentProof');
+      if(typeof raw!=='string'||raw.length>8192)throw new Error('payload');
+      body=JSON.parse(raw);
+      if(file instanceof File)proof=file;
+      if(fields.get('paymentProof')&&!proof)throw new Error('file');
+    }else if(contentType.startsWith('application/json')){
+      const raw=await req.text();if(raw.length>8192)throw new Error('size');
+      body=JSON.parse(raw);
+    }else throw new Error('type');
+    if(!body||typeof body!=='object'||Array.isArray(body))throw new Error('type');
+  }catch{return reply({error:'invalid_request'},400,origin);}
   if (body.website) return reply({ok:true,status:'RECEIVED'},200,origin); // anti-bot honeypot
 
   // A short, genuine contact REQUEST for adult Druzina participants.
@@ -160,6 +292,7 @@ Deno.serve(async (req:Request):Promise<Response>=>{
     eventId:string;first:string;last:string;email:string;phone:string;age:string;
     guardianName:string|null;guardianPhone:string|null;photo:string;
     future:boolean;rsvp:string;locale:string;
+    discovery:string|null;utmSource:string|null;utmMedium:string|null;utmCampaign:string|null;
   };
   try {
     const age=safeEnum(body.ageGroup,['adult','under18']);
@@ -173,6 +306,10 @@ Deno.serve(async (req:Request):Promise<Response>=>{
       future:age==='adult'&&body.futureUpdates===true,
       rsvp:safeEnum(body.rsvp,['YES','MAYBE','NO']),
       locale:safeEnum(body.language||'en',['en','cs','ru','uk']),
+      discovery:discoveryCode(body.discoverySource),
+      utmSource:campaignCode(body.utmSource,48),
+      utmMedium:campaignCode(body.utmMedium,24),
+      utmCampaign:campaignCode(body.utmCampaign,64),
     };
     v.eventId=text(body.eventId,100);
     if (!/^[A-Za-z0-9-]{2,100}$/.test(v.eventId)) throw new Error('event');
@@ -180,6 +317,7 @@ Deno.serve(async (req:Request):Promise<Response>=>{
     if (body.safety!==true) throw new Error('safety');
     if (age==='under18') v.photo='NO';
   } catch {return reply({error:'please_check_required_fields'},400,origin);}
+  if (!registrationStillOpen(v.eventId)) return reply({error:'event_not_available'},400,origin);
   const {data:event,error:eventError}=await api.from('imperion_rsvp_events')
     .select(EVENT_COLS+',updates_group_url').eq('event_id',v.eventId).eq('is_open',true)
     .eq('registration_mode','FORM').eq('source_active',true)
@@ -194,31 +332,131 @@ Deno.serve(async (req:Request):Promise<Response>=>{
     req.headers.get('x-forwarded-for')||'').split(',')[0].trim().slice(0,100);
   if (ip && !(await allow('ip',ip,12))) return reply({error:'too_many_requests'},429,origin);
   if (!(await allow('email',v.email,8))) return reply({error:'too_many_requests'},429,origin);
+  // A direct POST must not bypass the calendar registration cutoff even when
+  // the sheet feed still says is_open=true. Recheck after database read.
+  if (!registrationStillOpen(v.eventId)) return reply({error:'event_not_available'},400,origin);
+  const training=trainingQuote(event);
+  if(training&&Date.now()>=Date.parse(event.begins_at))
+    return reply({error:'event_not_available'},409,origin);
+  let trainingTier:TrainingTier='STANDARD';
+  if(training){
+    try{trainingTier=safeEnum(body.trainingTier||'STANDARD',['STANDARD','SENIOR','STARTER4']) as TrainingTier;}
+    catch{return reply({error:'invalid_training_tier'},400,origin);}
+  }
+  const resumeToken=String(body.paymentResumeToken||'').trim();
+  const action=String(body.action||'submit');
+  if(!['submit','quote'].includes(action))return reply({error:'invalid_request'},400,origin);
+  if(resumeToken&&!/^[A-Za-z0-9_-]{43}$/.test(resumeToken))
+    return reply({error:'invalid_payment_code'},400,origin);
+  if(action==='quote'&&!resumeToken)return reply({error:'payment_code_required'},400,origin);
+  if(proof&&(!resumeToken||!training))return reply({error:'payment_not_open'},400,origin);
   const expiry=new Date(new Date(event.ends_at).getTime()+90*86400000);
-  const {error:writeError}=await api.from('imperion_rsvp_submissions').insert({
-    event_id:v.eventId,first_name:v.first,last_name:v.last,email:v.email,phone:v.phone,
-    age_group:v.age,guardian_name:v.guardianName,guardian_phone:v.guardianPhone,
-    rsvp_status:v.rsvp,safety_acknowledged:true,safety_version:'2026-10-25-v1',
-    photo_choice:v.photo,marketing_requested:v.future,data_controller:event.data_controller,
-    language:v.locale,retention_until:expiry.toISOString(),
-  });
-  // A duplicate is deliberately indistinguishable to avoid an identity oracle
-  // and must never mutate existing contact information or consents.
-  if (writeError && writeError.code!=='23505') return reply({error:'temporarily_unavailable'},503,origin);
-  if (!writeError && v.future) {
-    const {error:inviteError}=await api.from('imperion_rsvp_invite_requests').insert({
-      data_controller:event.data_controller,email:v.email,first_name:v.first,
-      confirmation_status:'PENDING_CONFIRMATION',
-    });
-    // RSVP remains valid; an opt-in request is NEVER an active mailing list entry.
-    if (inviteError && inviteError.code!=='23505') console.error('Invitation request storage unavailable');
+  let receiptId:string|null=null,issuedToken:string|null=null;
+  let proofReceived=false,verifiedQuote:null|ReturnType<typeof trainingQuote>=null;
+  if(resumeToken){
+    if(!training||!training.sessionPaymentOpen||v.rsvp!=='YES')
+      return reply({error:'payment_not_open'},409,origin);
+    const hashed=await tokenHash(resumeToken);
+    const lookup=await api.from('imperion_rsvp_submissions')
+      .select('id,created_at,training_requested_tier,training_authorized_tier,training_authorized_at')
+      .eq('event_id',v.eventId).eq('email',v.email).eq('first_name',v.first)
+      .eq('last_name',v.last).eq('payment_resume_token_hash',hashed)
+      .eq('rsvp_status','YES').eq('payment_evidence_status','NOT_REQUIRED')
+      .is('payment_pdf_path',null).maybeSingle();
+    if(lookup.error)return reply({error:'temporarily_unavailable'},503,origin);
+    if(!lookup.data?.id)return reply({error:'invalid_payment_code'},400,origin);
+    const savedTier=lookup.data.training_requested_tier as TrainingTier;
+    if(savedTier!==trainingTier)return reply({error:'training_tier_changed'},409,origin);
+    const approved=!!lookup.data.training_authorized_at &&
+      (savedTier==='STANDARD'||lookup.data.training_authorized_tier===savedTier);
+    if(!approved)return reply({error:'personal_confirmation_pending'},409,origin);
+    // Late fee belongs to the original registration timestamp, not to a later PDF upload.
+    const registrationMs=Date.parse(lookup.data.created_at||'');
+    if(!Number.isFinite(registrationMs)||registrationMs>Date.now())
+      return reply({error:'invalid_registration_timestamp'},409,origin);
+    verifiedQuote=trainingQuote(event,savedTier,registrationMs,true);
+    if(!verifiedQuote||!verifiedQuote.sessionPaymentOpen||!verifiedQuote.account)
+      return reply({error:'payment_not_open'},409,origin);
+    if(action==='quote'){
+      if(proof)return reply({error:'invalid_request'},400,origin);
+      return reply({ok:true,confirmed:false,trainingPayment:{
+        tier:savedTier,baseCzk:verifiedQuote.baseCzk,
+        surchargeCzk:verifiedQuote.surchargeCzk,totalCzk:verifiedQuote.totalCzk,
+        late48h:verifiedQuote.late48h,quoteLockedAt:verifiedQuote.quoteLockedAt,
+        recipient:verifiedQuote.recipient,account:verifiedQuote.account,
+        proofRequired:true,bankVerified:false}},200,origin);
+    }
+    if(!proof)return reply({error:'payment_pdf_required'},400,origin);
+    let bytes:Uint8Array,hash:string;
+    try{const parsed=await pdfInfo(proof);bytes=parsed.bytes;hash=parsed.hash;}
+    catch{return reply({error:'invalid_payment_pdf'},400,origin);}
+    if(body.quotedTotalCzk!==verifiedQuote.totalCzk||
+       body.quoteLockedAt!==verifiedQuote.quoteLockedAt||
+       body.quotedTier!==savedTier)
+      return reply({error:'quote_changed'},409,origin);
+    const pdfPath=expiry.toISOString().slice(0,10)+'/'+crypto.randomUUID()+'.pdf';
+    const upload=await api.storage.from(PROOF_BUCKET).upload(pdfPath,bytes,{
+      contentType:'application/pdf',upsert:false,cacheControl:'0'});
+    if(upload.error)return reply({error:'proof_storage_unavailable'},503,origin);
+    const save=await api.from('imperion_rsvp_submissions').update({
+      quoted_base_czk:verifiedQuote.baseCzk,
+      quoted_late_fee_czk:verifiedQuote.surchargeCzk,
+      quoted_total_czk:verifiedQuote.totalCzk,
+      quoted_confirmed_count:null,quoted_late_48h:verifiedQuote.late48h,
+      quoted_tier:savedTier,payment_pdf_path:pdfPath,payment_pdf_sha256:hash,
+      payment_evidence_status:'PROOF_RECEIVED',
+      payment_evidence_received_at:new Date().toISOString(),
+      payment_resume_token_hash:null,payment_crm_synced_at:null
+    }).eq('id',lookup.data.id).eq('payment_resume_token_hash',hashed)
+      .eq('payment_evidence_status','NOT_REQUIRED').is('payment_pdf_path',null)
+      .select('id').maybeSingle();
+    if(save.error||!save.data){
+      await api.storage.from(PROOF_BUCKET).remove([pdfPath]);
+      return reply({error:'proof_storage_unavailable'},503,origin);
+    }
+    receiptId=save.data.id;proofReceived=true;
+  }else{
+    // Registration creates a request, never a paid booking. A secret continuation
+    // code is revealed only for a genuinely new RSVP; duplicate contacts get none.
+    issuedToken=training&&v.rsvp==='YES'?generateResumeToken():null;
+    const created=await api.from('imperion_rsvp_submissions').insert({
+      event_id:v.eventId,first_name:v.first,last_name:v.last,email:v.email,phone:v.phone,
+      age_group:v.age,guardian_name:v.guardianName,guardian_phone:v.guardianPhone,
+      rsvp_status:v.rsvp,safety_acknowledged:true,safety_version:'2026-10-25-v1',
+      photo_choice:v.photo,marketing_requested:v.future,data_controller:event.data_controller,
+      language:v.locale,retention_until:expiry.toISOString(),
+      discovery_source:v.discovery,utm_source:v.utmSource,
+      utm_medium:v.utmMedium,utm_campaign:v.utmCampaign,
+      ...(training?{training_requested_tier:trainingTier}:{}),
+      ...(issuedToken?{payment_resume_token_hash:await tokenHash(issuedToken),
+        payment_resume_token_issued_at:new Date().toISOString()}:{}),
+    }).select('id').single();
+    const writeError=created.error;
+    if(writeError&&writeError.code!=='23505')
+      return reply({error:'temporarily_unavailable'},503,origin);
+    receiptId=writeError?null:created.data?.id||null;
+    if(!writeError&&v.future){
+      const {error:inviteError}=await api.from('imperion_rsvp_invite_requests').insert({
+        data_controller:event.data_controller,email:v.email,first_name:v.first,
+        confirmation_status:'PENDING_CONFIRMATION',
+      });
+      if(inviteError&&inviteError.code!=='23505')console.error('Invitation request storage unavailable');
+    }
   }
   // Event-specific logistics only, never marketing; intentionally excluded from
   // the anonymous GET catalog. Minors do not receive a public group invite.
-  const invite = v.age==='adult' && v.rsvp!=='NO' &&
-    typeof event.updates_group_url==='string' &&
-    INVITE_LINK.test(event.updates_group_url) ? event.updates_group_url : null;
+  const channels = communityChannels(String(event.community||''), v.locale, v.age, v.rsvp);
+  const rawEventGroup = typeof event.updates_group_url === 'string' ? event.updates_group_url : '';
+  // Event-specific logistics invitations remain POST-only and must match locale.
+  const invite = channels && (
+    (channels.platform === 'whatsapp' && INVITE_LINK.test(rawEventGroup)) ||
+    (channels.platform === 'telegram' && TG_PUBLIC_LINK.test(rawEventGroup))
+  ) ? rawEventGroup : null;
   return reply({ok:true,status:'RECEIVED',confirmed:false,
+    ...(proofReceived&&receiptId?{paymentEvidenceStatus:'PROOF_RECEIVED',bankVerified:false,
+      quotedTotalCzk:verifiedQuote?.totalCzk,quotedTier:verifiedQuote?.tier}:{}),
+    ...(issuedToken&&receiptId?{reference:receiptId,resumeToken:issuedToken}:{}),
+    ...(channels ? {communityChannels:channels} : {}),
     ...(invite ? {updatesGroupUrl:invite} : {}),
     message:'Your RSVP request was received; the organizer must confirm participation separately.'},200,origin);
 });

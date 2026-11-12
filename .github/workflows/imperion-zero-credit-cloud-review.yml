@@ -1,0 +1,92 @@
+name: IMPERION zero-credit cloud Qwen editorial agent
+on:
+  schedule:
+    - cron: '36 4 * * *'
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'scripts/imperion-zero-credit-cloud-review.cjs'
+      - 'tests/imperion-zero-credit-cloud-review.test.cjs'
+      - '.github/workflows/imperion-zero-credit-cloud-review.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/imperion-zero-credit-cloud-review.cjs'
+      - 'tests/imperion-zero-credit-cloud-review.test.cjs'
+      - '.github/workflows/imperion-zero-credit-cloud-review.yml'
+permissions:
+  contents: read
+concurrency:
+  group: imperion-zero-credit-cloud-review
+  cancel-in-progress: false
+jobs:
+  public-safe-cpu-inference:
+    if: github.repository == 'aliaksei-chareshneu/alchareshneu'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Checkout only public repository source without credentials
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Offline safety tests - public-only inputs, model draft output, no sends
+        run: node --test tests/imperion-zero-credit-cloud-review.test.cjs
+      - name: Validate public source and skip model when no future event exists
+        id: public-preflight
+        shell: bash
+        run: node scripts/imperion-zero-credit-cloud-review.cjs --preflight
+      - name: Restore public Apache-2.0 open-model cache (no tokens or credits)
+        if: steps.public-preflight.outputs.has_future == 'true' && github.event_name != 'pull_request'
+        uses: actions/cache@v4
+        with:
+          path: .ollama-models/models
+          key: imperion-apache2-qwen3-4b-instruct-20261103-v2
+      - name: Run temporary local-only CPU Ollama on GitHub-hosted runner
+        if: steps.public-preflight.outputs.has_future == 'true' && github.event_name != 'pull_request'
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .ollama-models
+          docker run -d --rm --name imperion-qwen --cpus=2 \
+            -p 127.0.0.1:11434:11434 \
+            -v "$GITHUB_WORKSPACE/.ollama-models:/root/.ollama" \
+            ollama/ollama@sha256:ebaef4f4c5d93660e1f25f8ad085a112f51ccfb0e8458073e71793959dba91c9
+          for i in $(seq 1 45); do
+            if curl -fsS http://127.0.0.1:11434/api/version > "$RUNNER_TEMP/ollama-version.json"; then break; fi
+            sleep 2
+          done
+          curl -fsS http://127.0.0.1:11434/api/version > /dev/null
+          docker exec imperion-qwen ollama pull qwen3:4b-instruct > "$RUNNER_TEMP/imperion-ollama-pull.log" 2>&1 || {
+            tail -n 20 "$RUNNER_TEMP/imperion-ollama-pull.log"
+            exit 1
+          }
+      - name: Read own published event feed, run CPU Qwen, save review-only proof
+        if: steps.public-preflight.outputs.has_future == 'true' && github.event_name != 'pull_request'
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/imperion-zero-credit-cloud-review.cjs
+      - name: Retain only bounded public-source review proof (not customer data)
+        uses: actions/upload-artifact@v4
+        with:
+          name: imperion-zero-credit-qwen-review-${{ github.run_id }}
+          path: ${{ runner.temp }}/imperion-zero-credit-qwen-proof.json
+          if-no-files-found: error
+          retention-days: 3
+      - name: Stop ephemeral model regardless of outcome
+        if: always()
+        shell: bash
+        run: docker rm -f imperion-qwen || true
+      - name: Restore safe runner ownership of cacheable public model weights
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -d .ollama-models/models ]; then
+            sudo chown -R "$(id -u):$(id -g)" .ollama-models/models
+            chmod -R u+rwX .ollama-models/models
+          fi
+          echo 'Only public Qwen weights/manifests will be cached; generated Ollama private identity key is excluded.' >> "$GITHUB_STEP_SUMMARY"

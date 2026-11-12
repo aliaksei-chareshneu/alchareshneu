@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="cs">
 <head>
 <meta name="theme-color" content="#0b1729">
 <meta charset="utf-8">
@@ -41,10 +41,12 @@
 <link rel="stylesheet" href="../brand-theme.css?v=20261025">
 <link rel="stylesheet" href="../site-design.css?v=20261027">
 <script src="../site-design.js?v=20261027" defer></script>
+<!-- IMPERION design checkpoint: visual styles only -->
+<link rel="stylesheet" href="../imperion-cinematic-site.css?v=20261112-ux1">
 </head>
-<body class="site-corporate" data-imperion-scope="shared">
+<body class="site-corporate" data-imperion-scope="shared" data-imperion-design="corporate">
 <nav class="nav"><div class="wrap"><div class="brand"><a href="../" style="color:inherit;text-decoration:none">Aliaksei Chareshneu, PhD</a><small>Corporate & Expert Services</small></div><div class="nav-actions"><a class="btn" href="../academy/">Academy</a><a class="btn" href="../academy/courses/">31 Courses / Kurzy</a><a class="btn" href="../#contacts">Contact</a></div></div></nav>
-<div class="revenue-lang"><button type="button" data-lang="en" aria-pressed="true">EN</button><button type="button" data-lang="cs" aria-pressed="false">CZ</button><button type="button" data-lang="ru" aria-pressed="false">RU</button><button type="button" data-lang="uk" aria-pressed="false">UA</button></div>
+<div class="revenue-lang"><button type="button" data-lang="cs" aria-pressed="true">CZ</button><button type="button" data-lang="en" aria-pressed="false">EN</button><button type="button" data-lang="ru" aria-pressed="false">RU</button><button type="button" data-lang="uk" aria-pressed="false">UA</button></div>
 <main>
 <section class="revenue-head"><div class="revenue-wrap">
 <div data-locale="en"><p>FOR COMPANIES · TRAINING PROVIDERS · RESEARCH TEAMS</p><h1>Make technical answers traceable. Keep your team in control.</h1><p>Test AI-assisted answers grounded in approved specifications and documentation, with human sign-off. Also available: tailored AI/Python workshops and scientific data consulting. Brno or online.</p></div>
@@ -56,6 +58,18 @@
 <a class="btn solid" data-locale="ru" hidden href="request/?lang=ru&amp;src=corporate_hero">Запросить расчёт — 1 минута →</a>
 <a class="btn solid" data-locale="uk" hidden href="request/?lang=uk&amp;src=corporate_hero">Запитати ціну й обсяг — 1 хвилина →</a>
 </div>
+<div class="revenue-row" id="leadership-service-cta">
+<a class="btn solid" data-locale="en" href="leadership/?lang=en">Leadership, communication & motivational speaking →</a>
+<a class="btn solid" data-locale="cs" hidden href="leadership/?lang=cs">Leadership, komunikace a motivační přednášky →</a>
+<a class="btn solid" data-locale="ru" hidden href="leadership/?lang=en">Лидерство, коммуникация и мотивационные выступления →</a>
+<a class="btn solid" data-locale="uk" hidden href="leadership/?lang=en">Лідерство, комунікація та мотиваційні виступи →</a>
+</div>
+<div class="revenue-row" id="ai-diagnostic-cta">
+<a class="btn" data-locale="en" href="diagnostic/?lang=en">Estimate team time saved — local-only calculator →</a>
+<a class="btn" data-locale="cs" hidden href="diagnostic/?lang=cs">Spočítat modelovou úsporu času — bez odeslání dat →</a>
+<a class="btn" data-locale="ru" hidden href="diagnostic/?lang=ru">Оценить возможную экономию времени — без отправки данных →</a>
+<a class="btn" data-locale="uk" hidden href="diagnostic/?lang=uk">Оцінити можливу економію часу — без надсилання даних →</a>
+</div>
 <div class="revenue-row" id="technical-first-cta">
 <a class="btn solid" data-locale="en" href="technical-answers/?lang=en">Technical AI pilot from 14,900 CZK →</a>
 <a class="btn solid" data-locale="cs" hidden href="technical-answers/?lang=cs">AI pilot technických odpovědí od 14 900 Kč →</a>
@@ -65,6 +79,7 @@
 <div class="revenue-row"><a class="btn" data-locale="cs" hidden href="#ai-pilot">AI pilot zákaznických dotazů · 19 900 Kč ↓</a><a class="btn" data-locale="en" href="#ai-pilot">Customer enquiry AI pilot · 19,900 CZK ↓</a><a class="btn" data-locale="ru" hidden href="#ai-pilot">AI-пилот клиентских запросов · 19 900 Kč ↓</a><a class="btn" data-locale="uk" hidden href="#ai-pilot">AI-пілот запитів клієнтів · 19 900 Kč ↓</a></div>
 <div class="revenue-row"><a class="btn solid" href="mailto:chereshnev.biochem@gmail.com?subject=Corporate%20inquiry%20from%20website&amp;body=Company%3A%0ARequested%20service%20(AI%20pilot%2C%20training%2C%20scientific%20consulting)%3A%0AProblem%20and%20desired%20result%3A%0AEstimated%20scope%2Fteam%20size%3A%0ATarget%20date%3A%0ABudget%20range%3A%0A%0ASource%3A%20corporate-website%0A" target="_blank" rel="noopener noreferrer">Request a proposal / Poptat / Запросить →</a><a class="btn" data-locale="en" href="https://wa.me/420702914842?text=Hello!%20Company%3A%20__.%20What%20should%20we%20improve%20(AI%2C%20Python%20training%2C%20data)%3A%20__.%20Team%20size%20and%20approximate%20budget%3A%20__.%20Preferred%20date%3A%20__.%20Please%20send%20a%20scoped%20proposal.%20This%20is%20an%20enquiry%20only%2C%20not%20an%20order.%20I%20will%20not%20send%20customer%20or%20sensitive%20data." target="_blank" rel="noopener noreferrer">Ask via WhatsApp</a><a class="btn" data-locale="cs" hidden href="https://wa.me/420702914842?text=Dobr%C3%BD%20den!%20Firma%3A%20__.%20Co%20pot%C5%99ebujeme%20vy%C5%99e%C5%A1it%20(AI%2C%20Python%2C%20data)%3A%20__.%20Velikost%20t%C3%BDmu%20a%20orienta%C4%8Dn%C3%AD%20rozpo%C4%8Det%3A%20__.%20Preferovan%C3%BD%20term%C3%ADn%3A%20__.%20Pros%C3%ADm%20o%20konkr%C3%A9tn%C3%AD%20nab%C3%ADdku.%20Jde%20o%20nez%C3%A1vaznou%20popt%C3%A1vku.%20Nepos%C3%ADl%C3%A1m%20klientsk%C3%A1%20ani%20citliv%C3%A1%20data." target="_blank" rel="noopener noreferrer">Rychlý dotaz přes WhatsApp</a><a class="btn" data-locale="ru" hidden href="https://wa.me/420702914842?text=%D0%97%D0%B4%D1%80%D0%B0%D0%B2%D1%81%D1%82%D0%B2%D1%83%D0%B9%D1%82%D0%B5!%20%D0%9A%D0%BE%D0%BC%D0%BF%D0%B0%D0%BD%D0%B8%D1%8F%3A%20__.%20%D0%97%D0%B0%D0%B4%D0%B0%D1%87%D0%B0%20(AI%2C%20Python%2C%20%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D0%B5)%3A%20__.%20%D0%A0%D0%B0%D0%B7%D0%BC%D0%B5%D1%80%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20%D0%B8%20%D0%BE%D1%80%D0%B8%D0%B5%D0%BD%D1%82%D0%B8%D1%80%D0%BE%D0%B2%D0%BE%D1%87%D0%BD%D1%8B%D0%B9%20%D0%B1%D1%8E%D0%B4%D0%B6%D0%B5%D1%82%3A%20__.%20%D0%96%D0%B5%D0%BB%D0%B0%D0%B5%D0%BC%D1%8B%D0%B9%20%D1%81%D1%80%D0%BE%D0%BA%3A%20__.%20%D0%9F%D1%80%D0%BE%D1%88%D1%83%20%D0%BA%D0%BE%D0%BD%D0%BA%D1%80%D0%B5%D1%82%D0%BD%D0%BE%D0%B5%20%D0%BF%D1%80%D0%B5%D0%B4%D0%BB%D0%BE%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5.%20%D0%AD%D1%82%D0%BE%20%D0%BF%D1%80%D0%B5%D0%B4%D0%B2%D0%B0%D1%80%D0%B8%D1%82%D0%B5%D0%BB%D1%8C%D0%BD%D1%8B%D0%B9%20%D0%B7%D0%B0%D0%BF%D1%80%D0%BE%D1%81%2C%20%D0%BD%D0%B5%20%D0%B7%D0%B0%D0%BA%D0%B0%D0%B7.%20%D0%9D%D0%B5%20%D0%BE%D1%82%D0%BF%D1%80%D0%B0%D0%B2%D0%BB%D1%8F%D1%8E%20%D0%BF%D0%B5%D1%80%D1%81%D0%BE%D0%BD%D0%B0%D0%BB%D1%8C%D0%BD%D1%8B%D0%B5%20%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D0%B5%20%D0%BA%D0%BB%D0%B8%D0%B5%D0%BD%D1%82%D0%BE%D0%B2%20%D0%B8%D0%BB%D0%B8%20%D0%BA%D0%BE%D0%BD%D1%84%D0%B8%D0%B4%D0%B5%D0%BD%D1%86%D0%B8%D0%B0%D0%BB%D1%8C%D0%BD%D1%8B%D0%B5%20%D1%81%D0%B2%D0%B5%D0%B4%D0%B5%D0%BD%D0%B8%D1%8F." target="_blank" rel="noopener noreferrer">Запрос через WhatsApp</a><a class="btn" data-locale="uk" hidden href="https://wa.me/420702914842?text=%D0%92%D1%96%D1%82%D0%B0%D1%8E!%20%D0%9A%D0%BE%D0%BC%D0%BF%D0%B0%D0%BD%D1%96%D1%8F%3A%20__.%20%D0%97%D0%B0%D0%B2%D0%B4%D0%B0%D0%BD%D0%BD%D1%8F%20(AI%2C%20Python%2C%20%D0%B4%D0%B0%D0%BD%D1%96)%3A%20__.%20%D0%A0%D0%BE%D0%B7%D0%BC%D1%96%D1%80%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D0%B8%20%D0%B9%20%D0%BE%D1%80%D1%96%D1%94%D0%BD%D1%82%D0%BE%D0%B2%D0%BD%D0%B8%D0%B9%20%D0%B1%D1%8E%D0%B4%D0%B6%D0%B5%D1%82%3A%20__.%20%D0%91%D0%B0%D0%B6%D0%B0%D0%BD%D0%B8%D0%B9%20%D1%82%D0%B5%D1%80%D0%BC%D1%96%D0%BD%3A%20__.%20%D0%9F%D1%80%D0%BE%D1%88%D1%83%20%D0%BF%D1%80%D0%B5%D0%B4%D0%BC%D0%B5%D1%82%D0%BD%D1%83%20%D0%BF%D1%80%D0%BE%D0%BF%D0%BE%D0%B7%D0%B8%D1%86%D1%96%D1%8E.%20%D0%A6%D0%B5%20%D0%BF%D0%BE%D0%BF%D0%B5%D1%80%D0%B5%D0%B4%D0%BD%D1%96%D0%B9%20%D0%B7%D0%B0%D0%BF%D0%B8%D1%82%2C%20%D0%BD%D0%B5%20%D0%B7%D0%B0%D0%BC%D0%BE%D0%B2%D0%BB%D0%B5%D0%BD%D0%BD%D1%8F.%20%D0%9D%D0%B5%20%D0%BD%D0%B0%D0%B4%D1%81%D0%B8%D0%BB%D0%B0%D1%8E%20%D0%B4%D0%B0%D0%BD%D1%96%20%D0%BA%D0%BB%D1%96%D1%94%D0%BD%D1%82%D1%96%D0%B2%20%D1%87%D0%B8%20%D0%BA%D0%BE%D0%BD%D1%84%D1%96%D0%B4%D0%B5%D0%BD%D1%86%D1%96%D0%B9%D0%BD%D1%83%20%D1%96%D0%BD%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%86%D1%96%D1%8E." target="_blank" rel="noopener noreferrer">Запит через WhatsApp</a></div>
 <p style="font-size:.95rem">Send your goal, target date, group size and budget. The scope, quote and payment terms are confirmed before any order.</p>
+<div class="corporate-call-policy"><p data-locale="en" style="font-size:.93rem">For substantial qualified business projects, a call may be arranged by agreement after a written brief with scope and budget. Free discovery calls are not the default. Service-choice consultations for individuals are 10 minutes for 200 Kč. <a href="../start/?lang=en">Service choice / Výběr služby →</a></p><p data-locale="cs" hidden style="font-size:.93rem">U větších konkrétních firemních zakázek lze po písemném zadání, rozsahu a rozpočtu individuálně domluvit hovor. Bezplatné úvodní hovory nejsou standard. Výběr osobní služby: 10 minut za 200 Kč. <a href="../start/?lang=cs">Service choice / Výběr služby →</a></p><p data-locale="ru" hidden style="font-size:.93rem">По крупным B2B-заказам звонок возможен по договорённости после письменного брифа с объёмом и бюджетом. Бесплатные ознакомительные звонки не являются стандартом. Выбор личной услуги — 10 минут за 200 Kč. <a href="../start/?lang=ru">Service choice / Výběr služby →</a></p><p data-locale="uk" hidden style="font-size:.93rem">Для великих B2B-замовлень дзвінок можливий за домовленістю після письмового опису обсягу й бюджету. Безкоштовні ознайомчі дзвінки не є стандартом. Вибір особистої послуги — 10 хвилин за 200 Kč. <a href="../start/?lang=uk">Service choice / Výběr služby →</a></p></div>
 <div class="site-mosaic-feature site-corporate-art" aria-hidden="true">
           <span class="site-mosaic-label">AI · DATA · LEARNING</span>
           <svg viewBox="0 0 400 150" fill="none">
@@ -77,6 +92,13 @@
             <path d="m325 57 6 6 11-12M350 57h18m-43 25 6 6 11-12m8 6h18m-43 20h43" stroke="#afc8de" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div></div></section>
+<section class="revenue-sec revenue-muted" id="leadership-preview" aria-label="Leadership and motivational speaking"><div class="revenue-wrap">
+<div data-locale="en"><p class="pilot-eyebrow">FOR HR / L&amp;D · TECHNICAL &amp; INTERNATIONAL TEAMS</p><h2>Leadership, communication and motivation to act</h2><p>Corporate talks and practical workshops with Aliaksei (Alex) Chareshneu, Ph.D. Lead without formal authority, explain complex ideas and agree a practical next step. Czech or English, Brno or online.</p><p><strong>Talks from 15,000 CZK · 3-hour workshops from 28,000 CZK</strong></p><p><a class="btn solid" href="leadership/?lang=en">Explore formats and send a brief →</a></p></div>
+<div data-locale="cs" hidden><p class="pilot-eyebrow">PRO HR / L&amp;D · TECHNICKÉ A MEZINÁRODNÍ TÝMY</p><h2>Leadership, komunikace a motivace k akci</h2><p>Firemní přednášky a praktické workshopy vede Aliaksei (Alex) Chareshneu, Ph.D. Vedení bez formální autority, srozumitelné vysvětlení složitých témat a dohoda na konkrétním kroku. Čeština nebo angličtina, Brno či online.</p><p><strong>Přednášky od 15 000 Kč · 3hodinové workshopy od 28 000 Kč</strong></p><p><a class="btn solid" href="leadership/?lang=cs">Vybrat formát a poslat zadání →</a></p></div>
+<div data-locale="ru" hidden><p class="pilot-eyebrow">ДЛЯ HR / L&amp;D · ТЕХНИЧЕСКИХ И МЕЖДУНАРОДНЫХ КОМАНД</p><h2>Лидерство, коммуникация и мотивация к действию</h2><p>Корпоративные выступления и практические мастер-классы с Aliaksei (Alex) Chareshneu, Ph.D. Лидерство без формальных полномочий, понятное объяснение сложных идей и конкретный следующий шаг команды. Проведение на чешском или английском, Брно и онлайн.</p><p><strong>Выступления от 15 000 Kč · мастер-класс 3 часа от 28 000 Kč</strong></p><p><a class="btn solid" href="leadership/?lang=en">Форматы и запрос предложения (EN) →</a></p></div>
+<div data-locale="uk" hidden><p class="pilot-eyebrow">ДЛЯ HR / L&amp;D · ТЕХНІЧНИХ І МІЖНАРОДНИХ КОМАНД</p><h2>Лідерство, комунікація та мотивація до дії</h2><p>Корпоративні виступи й практичні майстер-класи з Aliaksei (Alex) Chareshneu, Ph.D. Лідерство без формальних повноважень, зрозуміле пояснення складних ідей і конкретний наступний крок команди. Проведення чеською або англійською, Брно й онлайн.</p><p><strong>Виступи від 15 000 Kč · майстер-клас 3 години від 28 000 Kč</strong></p><p><a class="btn solid" href="leadership/?lang=en">Формати й запит пропозиції (EN) →</a></p></div>
+<p class="pilot-note">OSVČ · IČO 23041625 · Indicative prices; final scope, VAT, travel and terms confirmed in writing.</p>
+</div></section>
 <section class="revenue-sec revenue-muted" id="technical-answers-preview" aria-label="Technical answers AI pilot"><div class="revenue-wrap">
 <div data-locale="en"><p class="pilot-eyebrow">NEW · FOR B2B TECHNICAL SUPPLIERS</p><h2>Technical answers from your approved documentation</h2><p>Instead of searching scattered specifications and rewriting similar replies, test one source-backed AI drafting process. Missing parameters are flagged; every customer reply needs human approval. Indicative pilot: <strong>14,900 CZK</strong>.</p><p><a class="btn solid" href="technical-answers/?lang=en">See deliverables and request a pilot →</a></p></div>
 <div data-locale="cs" hidden><p class="pilot-eyebrow">PRO B2B TECHNICKÉ DODAVATELE</p><h2>Technické odpovědi s dohledatelným podkladem</h2><p>Místo hledání ve specifikacích a opakovaného psaní podobných odpovědí ověříme jeden AI postup s odkazy na zdroje. Chybějící parametry výslovně označíme a každou odpověď schvaluje člověk. Orientační pilot: <strong>14 900 Kč</strong>.</p><p><a class="btn solid" href="technical-answers/?lang=cs">Podívat se na rozsah pilotu →</a></p></div>
@@ -136,6 +158,20 @@
 <article class="revenue-card"><h3>AI Knowledge Pilot</h3><p><strong>14 900 Kč</strong> · one bounded process</p><p>One team, limited document set, one AI-assisted workflow and defined acceptance criteria.</p></article>
 <article class="revenue-card"><h3>Knowledge OS Implementation</h3><p><strong>From 29 900 Kč</strong></p><p>Structured knowledge, up to two agreed data sources, one workflow, tests and handover. Optional care plan from <strong>3 900 Kč/month</strong>.</p></article>
 </div>
+<div class="revenue-grid" aria-label="Monthly AI care plans">
+<article class="revenue-card"><h3>Essential care / Základní správa</h3><p><strong>3 900 Kč / month</strong> · up to 1 hour of agreed support per month</p><p>Maintenance of an accepted pilot; extra work quoted separately. No 24/7 SLA or third-party API fees.</p></article>
+<article class="revenue-card"><h3>Business care / Rozšířená správa</h3><p><strong>7 900 Kč / month</strong> · up to 3 hours of agreed support per month</p><p>Bounded monitoring, improvements and checks. New integrations and work outside the scope require a new quote.</p></article>
+</div>
+<p data-locale="cs" hidden>Pravidelná péče je možná po převzetí pilotu. Rozsah, reakční doby, fakturace, ukončení a případná záloha se sjednávají písemně. Automatické předplatné nevzniká.</p>
+<p data-locale="en">Monthly support follows an accepted pilot. Scope, response times, invoices, cancellation and any advance payment require written agreement. No automatic subscription starts here.</p>
+<p data-locale="ru" hidden>Ежемесячное сопровождение возможно после приёмки пилота. Объём, сроки реакции, оплата и отмена согласуются письменно. Автоматической подписки нет.</p>
+<p data-locale="uk" hidden>Щомісячна підтримка можлива після приймання пілоту. Обсяг, строки реакції, оплата та скасування узгоджуються письмово. Автоматичної підписки немає.</p>
+<div class="revenue-row" id="care-cta">
+<a class="btn solid" data-locale="cs" hidden href="request/?lang=cs&amp;service=DATA_PILOT&amp;src=monthly_ai_care">Poptat pravidelnou AI správu →</a>
+<a class="btn solid" data-locale="en" href="request/?lang=en&amp;service=DATA_PILOT&amp;src=monthly_ai_care">Ask for an AI care plan →</a>
+<a class="btn solid" data-locale="ru" hidden href="request/?lang=ru&amp;service=DATA_PILOT&amp;src=monthly_ai_care">Запросить AI-сопровождение →</a>
+<a class="btn solid" data-locale="uk" hidden href="request/?lang=uk&amp;service=DATA_PILOT&amp;src=monthly_ai_care">Запитати AI-підтримку →</a>
+</div>
 <p style="margin-top:18px">Indicative prices only. Formal offer specifies scope, VAT treatment where applicable, timing, subscriptions, data protection, payment and renewal terms. No customer information is uploaded to AI models without an agreed security review.</p>
 <div class="revenue-row" id="quote-second-cta">
 <a class="btn solid" data-locale="en" href="request/?lang=en&amp;src=corporate_footer">Send an exact brief and budget — online form →</a>
@@ -146,6 +182,20 @@
 <div class="revenue-row"><a class="btn solid" href="mailto:chereshnev.biochem@gmail.com?subject=Corporate%20inquiry%20from%20website&amp;body=Company%3A%0ARequested%20service%20(AI%20pilot%2C%20training%2C%20scientific%20consulting)%3A%0AProblem%20and%20desired%20result%3A%0AEstimated%20scope%2Fteam%20size%3A%0ATarget%20date%3A%0ABudget%20range%3A%0A%0ASource%3A%20corporate-website%0A" target="_blank" rel="noopener noreferrer">Request a paid AI pilot →</a><a class="btn" href="mailto:chereshnev.biochem@gmail.com?subject=AI%20Knowledge%20Pilot%20%E2%80%94%20company%20brief">Email a brief →</a></div>
 </div>
 </section>
+<section class="revenue-sec revenue-muted" id="private-hema" aria-label="Private historical fencing enquiry">
+<div class="revenue-wrap">
+<div data-locale="cs" hidden><p class="pilot-eyebrow">SOUKROMÉ SKUPINY · BRNO · NEZÁVAZNÁ POPTÁVKA</p><h2>Historický šerm pro vaši skupinu</h2><p>Navrhovaný 120minutový workshop pro 5–8 dospělých začátečníků: měkčené tréninkové pomůcky, základy techniky a týmová výzva. Orientačně od 9 900 Kč za celou skupinu. Místo, dostupnost, instruktory a bezpečnost předem ověříme. Platbu předem lze domluvit až po písemném odsouhlasení zakázky.</p></div>
+<div data-locale="en"><p class="pilot-eyebrow">PRIVATE GROUPS · BRNO · NON-BINDING ENQUIRY</p><h2>Historical fencing for your own group</h2><p>Proposed 120-minute workshop for 5–8 adult beginners: padded training gear, fundamentals and a team challenge. Indicative price from 9,900 CZK per group. Venue, availability, instructors and safety are checked before confirmation. Advance payment can only be arranged after written agreement.</p></div>
+<div data-locale="ru" hidden><p class="pilot-eyebrow">ЗАКРЫТЫЕ ГРУППЫ · БРНО · ЗАПРОС БЕЗ ОБЯЗАТЕЛЬСТВ</p><h2>Фехтование для своей компании</h2><p>Предлагаемый формат: 120 минут для 5–8 взрослых начинающих, мягкий тренировочный инвентарь, основы техники и командное испытание. Ориентировочно от 9 900 Kč за всю группу. Место, инструкторы, доступность и безопасность проверяются до подтверждения. Предоплата — только после письменного согласования.</p></div>
+<div data-locale="uk" hidden><p class="pilot-eyebrow">ПРИВАТНІ ГРУПИ · БРНО · ЗАПИТ БЕЗ ЗОБОВ'ЯЗАНЬ</p><h2>Фехтування для власної компанії</h2><p>Пропонований формат: 120 хвилин для 5–8 дорослих початківців, м'яке спорядження, основи техніки та командне випробування. Орієнтовно від 9 900 Kč за групу. Місце, інструктори, доступність і безпека перевіряються до підтвердження. Передоплата лише після письмової угоди.</p></div>
+<div class="revenue-row" id="private-hema-cta">
+<a class="btn solid" data-locale="cs" hidden href="request/?lang=cs&amp;service=HEMA_CORPORATE&amp;src=private_hema">Poptat termín soukromé skupiny →</a>
+<a class="btn solid" data-locale="en" href="request/?lang=en&amp;service=HEMA_CORPORATE&amp;src=private_hema">Check a private-group date →</a>
+<a class="btn solid" data-locale="ru" hidden href="request/?lang=ru&amp;service=HEMA_CORPORATE&amp;src=private_hema">Запросить дату для группы →</a>
+<a class="btn solid" data-locale="uk" hidden href="request/?lang=uk&amp;service=HEMA_CORPORATE&amp;src=private_hema">Запитати дату для групи →</a>
+</div>
+<p class="pilot-note">OSVČ commercial enquiry — separate from nonprofit Družina Moravy membership and events. No automatic booking, contract, invoice or payment. Venue, staffing, equipment permissions, insurance and any extra costs are verified and agreed before accepting an order.</p>
+</div></section>
 <section class="revenue-sec"><div class="revenue-wrap">
 <h2>Platform Evidence Operations — administrativní B2B služba</h2>
 <p>Evidence e-mailů, faktická chronologie událostí a index příloh pro advokátní kanceláře, compliance týmy a online prodejce. Technická a administrativní podpora; nikoliv právní poradenství.</p>
@@ -170,7 +220,7 @@
 (function(){
 var buttons=Array.from(document.querySelectorAll('[data-lang]'));
 var blocks=Array.from(document.querySelectorAll('[data-locale]'));
-function setLang(lang){if(['en','cs','ru','uk'].indexOf(lang)<0)lang='en';document.documentElement.lang=lang;
+function setLang(lang){if(['en','cs','ru','uk'].indexOf(lang)<0)lang='cs';document.documentElement.lang=lang;
 try{localStorage.setItem('dm_lang',lang);}catch(e){}
 var url=new URL(location.href);url.searchParams.set('lang',lang);history.replaceState(null,'',url);
 buttons.forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.lang===lang));});
@@ -178,7 +228,18 @@ blocks.forEach(function(el){var effective=lang;if(lang==='uk'&&el.dataset.locale
 }
 buttons.forEach(function(b){b.addEventListener('click',function(){setLang(b.dataset.lang);});});
 var saved;try{saved=localStorage.getItem('dm_lang');}catch(e){}
-setLang(new URLSearchParams(location.search).get('lang')||saved||(navigator.language||'en').slice(0,2).toLowerCase());
+setLang(new URLSearchParams(location.search).get('lang')||saved||'cs');
+/* private-hema-attribution: preserve the source of public website traffic into the existing qualified enquiry; never forward PII. */
+var landingParams=new URLSearchParams(location.search);
+Array.from(document.querySelectorAll('#private-hema-cta a, #care-cta a')).forEach(function(a){
+ var dest=new URL(a.getAttribute('href'),location.href);
+ ['utm_source','utm_medium','utm_campaign'].forEach(function(k){
+  var value=landingParams.get(k)||'';
+  if(/^[a-zA-Z0-9][a-zA-Z0-9._-]{0,63}$/.test(value))dest.searchParams.set(k,value);
+ });
+ a.setAttribute('href',dest.pathname+dest.search);
+});
+
 })();
 </script>
 </body>
