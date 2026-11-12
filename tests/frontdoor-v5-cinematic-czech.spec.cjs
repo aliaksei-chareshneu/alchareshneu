@@ -113,3 +113,37 @@ test('empty or offline event feed shows honest status, keeps Academy lesson CTA'
  await expect(page.locator('#fdAcademyCta')).toHaveAttribute('href',/wa\.me\/420702914842/);
  await expect(page.locator('#fdFallback')).toBeVisible();
 });
+
+test('full illustrated list below calendar includes overflow and future months without a calendar-only footnote',async({page})=>{
+ await page.setViewportSize({width:390,height:844});
+ const december={...b,event_id:'PUB-DEC-20261204',title:'December city stroll',category:'City Walk',begins_at:'2026-12-04T09:30:00Z',venue:'Brno'};
+ const posts=await prepare(page,[...events,december]);
+ await page.goto('/');
+ const list=page.locator('#fdAllList .fd-all-event');
+ await expect(page.locator('#fdAllTitle')).toHaveText('Všechny nadcházející akce');
+ await expect(page.locator('#fdUpcoming .fd-upcoming-event')).toHaveCount(5);
+ await expect(list).toHaveCount(7);
+ await expect(page.locator('#fdAllList .fd-all-photo')).toHaveCount(7);
+ await expect(page.locator('#fdAllList .fd-all-photo').first()).toHaveAttribute('alt','Ilustrační fotografie podobné aktivity');
+ await expect(page.locator('#fdUpcoming')).not.toContainText('Další termíny najdete v kalendáři.');
+ await expect(list.nth(5)).toContainText('Future hiking activity');
+ await expect(list.nth(6)).toContainText('December city stroll');
+ expect(await page.locator('.fd-stage').evaluate(node=>node.nextElementSibling?.classList.contains('fd-all-section'))).toBe(true);
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth)).toBeLessThanOrEqual(1);
+ await list.nth(5).click();
+ await expect(page.locator('#fdDetails')).toBeVisible();
+ await expect(page.locator('#fdEventTitle')).toContainText('Future hiking activity');
+ await page.keyboard.press('Escape');
+ await list.last().click();
+ await expect(page.locator('#fdEventTitle')).toContainText('December city stroll');
+ await expect(page.locator('#fdMonth')).toContainText('prosinec 2026');
+ await page.keyboard.press('Escape');
+ await page.locator('[data-fd-city="prague"]').click();
+ await expect(list).toHaveCount(1);
+ await expect(page.locator('#fdAllList')).toContainText('Praha');
+ await page.locator('[data-fd-language="ru"]').click();
+ await expect(page.locator('#fdAllTitle')).toHaveText('Все предстоящие события');
+ await page.locator('[data-fd-city="all"]').click();
+ await expect(list).toHaveCount(7);
+ expect(posts()).toBe(0);
+});

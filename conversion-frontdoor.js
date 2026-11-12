@@ -188,6 +188,7 @@
             '</div>',
             '<aside class="fd-upcoming-pane" aria-labelledby="fdUpcomingTitle"><h3 id="fdUpcomingTitle"></h3><p id="fdUpcomingIntro"></p><div class="fd-upcoming-list" id="fdUpcoming"></div></aside>',
             '</div>',
+            '<section class="fd-all-section" aria-labelledby="fdAllTitle"><div class="fd-all-head"><h3 id="fdAllTitle"></h3><p id="fdAllIntro"></p></div><div class="fd-all-list" id="fdAllList" role="list"></div></section>',
             '<div class="fd-modal-backdrop" id="fdOverlay" hidden></div>',
             '<aside class="fd-detail-pane fd-modal" id="fdDetails" role="dialog" aria-modal="true" aria-labelledby="fdEventTitle" tabindex="-1" hidden>',
               '<button class="fd-modal-close" type="button" id="fdClose" aria-label="Close event details">×</button>',
@@ -291,12 +292,19 @@
     return new Intl.DateTimeFormat(locale(),{timeZone:'Europe/Prague',weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}).format(new Date(e.begins_at));
   }
   var EDITORIAL = {
-    cs:{facet:'Filtrovat',upcoming:'Akce v tomto měsíci',upcomingIntro:'Kliknutím otevřete popis, cenu a přihlášku.',reset:'Zrušit filtry',none:'Žádné potvrzené veřejné termíny pro zvolený výběr.',extra:'Další termíny najdete v kalendáři.'},
-    en:{facet:'Filter events',upcoming:'Events this month',upcomingIntro:'Select an event for details, price and enquiry.',reset:'Clear filters',none:'No verified public dates for this selection.',extra:'See other dates in the calendar.'},
-    ru:{facet:'Фильтры',upcoming:'События месяца',upcomingIntro:'Нажмите на событие, чтобы увидеть цену и запись.',reset:'Сбросить фильтры',none:'Для выбранных фильтров нет подтверждённых публичных дат.',extra:'Остальные даты — в календаре.'},
-    uk:{facet:'Фільтри',upcoming:'Події цього місяця',upcomingIntro:'Натисніть, щоб побачити ціну, опис і запис.',reset:'Скинути фільтри',none:'Для вибраних фільтрів немає підтверджених дат.',extra:'Інші дати — у календарі.'}
+    cs:{facet:'Filtrovat',upcoming:'Akce v tomto měsíci',upcomingIntro:'Kliknutím otevřete popis, cenu a přihlášku.',reset:'Zrušit filtry',none:'Žádné potvrzené veřejné termíny pro zvolený výběr.',allTitle:'Všechny nadcházející akce',allIntro:'Přehled termínů s fotografiemi, podrobnostmi a přihláškou.'},
+    en:{facet:'Filter events',upcoming:'Events this month',upcomingIntro:'Select an event for details, price and enquiry.',reset:'Clear filters',none:'No verified public dates for this selection.',allTitle:'All upcoming events',allIntro:'A dated list with images, event details and booking options.'},
+    ru:{facet:'Фильтры',upcoming:'События месяца',upcomingIntro:'Нажмите на событие, чтобы увидеть цену и запись.',reset:'Сбросить фильтры',none:'Для выбранных фильтров нет подтверждённых публичных дат.',allTitle:'Все предстоящие события',allIntro:'Список по датам с фотографиями, описанием и записью.'},
+    uk:{facet:'Фільтри',upcoming:'Події цього місяця',upcomingIntro:'Натисніть, щоб побачити ціну, опис і запис.',reset:'Скинути фільтри',none:'Для вибраних фільтрів немає підтверджених дат.',allTitle:'Усі найближчі події',allIntro:'Список за датами зі світлинами, подробицями та записом.'}
   };
   function ed(k){return (EDITORIAL[lang]||EDITORIAL.cs)[k];}
+  function activateFromList(e){
+    // Open the exact event, including an event outside the month currently shown.
+    var key=dayKey(e.begins_at);
+    month=new Date(Number(key.slice(0,4)),Number(key.slice(5,7))-1,1);
+    chosenDay=key;selectedId=e.event_id;
+    render();openEventModal(key);
+  }
   function renderUpcoming(){
     var pane=el('fdUpcoming');pane.replaceChildren();
     if(status==='loading'){var loading=document.createElement('p');loading.className='fd-upcoming-empty';loading.textContent=tr('loading');pane.appendChild(loading);return;}
@@ -312,12 +320,41 @@
       var foot=document.createElement('span');foot.className='fd-upcoming-foot';foot.appendChild(when);
       var dot=document.createElement('span');dot.textContent=' · '+(eventCity(e)==='prague'?ft('cityPrague'):eventCity(e)==='brno'?ft('cityBrno'):ft('cityOther'));foot.appendChild(dot);
       btn.appendChild(head);btn.appendChild(name);btn.appendChild(foot);
-      btn.addEventListener('click',function(){chosenDay=dayKey(e.begins_at);selectedId=e.event_id;render();openEventModal(chosenDay);});
+      btn.addEventListener('click',function(){activateFromList(e);});
       pane.appendChild(btn);
     });
-    if(data.filter(function(e){return matches(e)&&dayKey(e.begins_at).slice(0,7)===m;}).length>5){
-      var more=document.createElement('p');more.className='fd-upcoming-extra';more.textContent=ed('extra');pane.appendChild(more);
+  }
+  function renderAllEvents(){
+    var list=el('fdAllList');list.replaceChildren();
+    if(status!=='ready'){
+      var notice=document.createElement('p');notice.className='fd-all-empty';
+      notice.textContent=status==='loading'?tr('loading'):tr('offline');
+      list.appendChild(notice);return;
     }
+    var upcoming=data.filter(matches);
+    if(!upcoming.length){
+      var none=document.createElement('p');none.className='fd-all-empty';none.textContent=ed('none');
+      list.appendChild(none);return;
+    }
+    upcoming.forEach(function(e){
+      var item=document.createElement('div');item.className='fd-all-item';item.setAttribute('role','listitem');
+      var btn=document.createElement('button');btn.type='button';btn.className='fd-all-event';
+      btn.setAttribute('aria-label',timeOf(e)+' · '+publicTitle(e)+' · '+displayEventPrice(e));
+      var photo=document.createElement('img');photo.className='fd-all-photo';
+      photo.src=({club:'images/druzina_train.webp',walkers:'images/walkers_group.webp',academy:'images/portrait_face.webp'})[group(e)]||'images/main_hero.webp';
+      photo.alt=tr('photo');photo.width=118;photo.height=84;photo.loading='lazy';photo.decoding='async';
+      var copy=document.createElement('span');copy.className='fd-all-copy';
+      var meta=document.createElement('span');meta.className='fd-all-meta';
+      var time=document.createElement('time');time.dateTime=e.begins_at;time.textContent=timeOf(e);
+      var category=document.createElement('span');category.textContent=icon(e)+' '+(group(e)==='club'?tr('club'):group(e)==='walkers'?tr('walkers'):tr('academy'));
+      meta.appendChild(time);meta.appendChild(category);
+      var title=document.createElement('strong');title.textContent=publicTitle(e);
+      var foot=document.createElement('span');foot.className='fd-all-foot';foot.textContent=publicVenue(e)+' · '+displayEventPrice(e);
+      var arrow=document.createElement('span');arrow.className='fd-all-arrow';arrow.textContent='›';arrow.setAttribute('aria-hidden','true');
+      copy.appendChild(meta);copy.appendChild(title);copy.appendChild(foot);
+      btn.appendChild(photo);btn.appendChild(copy);btn.appendChild(arrow);item.appendChild(btn);list.appendChild(item);
+      btn.addEventListener('click',function(){activateFromList(e);});
+    });
   }
   function shortTime(e){
     return new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Prague',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(e.begins_at));
@@ -331,7 +368,7 @@
     el('fdAcademyCta').href='https://wa.me/420702914842?text='+encodeURIComponent(ft('academyMsg'));
     [['fdNavAcademy','academy/'],['fdNavClub','druzina/'],['fdNavWalkers','walkers/']].forEach(function(pair){el(pair[0]).href=pair[1]+'?lang='+encodeURIComponent(lang);});
     el('fdNavAbout').href='?lang='+encodeURIComponent(lang)+'&view=details';
-    [['fdFacetTitle','facet'],['fdUpcomingTitle','upcoming'],['fdUpcomingIntro','upcomingIntro'],['fdReset','reset']].forEach(function(pair){el(pair[0]).textContent=ed(pair[1]);});
+    [['fdFacetTitle','facet'],['fdUpcomingTitle','upcoming'],['fdUpcomingIntro','upcomingIntro'],['fdAllTitle','allTitle'],['fdAllIntro','allIntro'],['fdReset','reset']].forEach(function(pair){el(pair[0]).textContent=ed(pair[1]);});
     parent.querySelectorAll('[data-fd-city]').forEach(function(btn){btn.textContent=ft('city'+btn.dataset.fdCity.charAt(0).toUpperCase()+btn.dataset.fdCity.slice(1));});
     parent.querySelectorAll('[data-fd-language]').forEach(function(btn){btn.setAttribute('aria-pressed',String(btn.dataset.fdLanguage===lang));});
     parent.querySelectorAll('[data-fd-filter]').forEach(function(btn){btn.textContent=tr(btn.dataset.fdFilter==='club'?'club':btn.dataset.fdFilter==='walkers'?'walkers':btn.dataset.fdFilter==='academy'?'academy':'all');});
@@ -424,6 +461,7 @@
     }
     parent.querySelectorAll('.fd-day[aria-pressed]').forEach(function(b){b.setAttribute('aria-pressed',String(b.getAttribute('aria-label').slice(0,10)===chosenDay));});
     renderUpcoming();
+    renderAllEvents();
   }
   function monthShift(delta){closeEventModal(false);month=new Date(month.getFullYear(),month.getMonth()+delta,1);chosenDay='';selectedId='';render();}
   el('fdPrev').addEventListener('click',function(){monthShift(-1);});
