@@ -1,6 +1,7 @@
 const {JSDOM}=require('jsdom');const fs=require('fs');const assert=require('node:assert/strict');
-async function load(path,language){
+async function load(path,language,options={}){
  const html=fs.readFileSync(path,'utf8');const dom=new JSDOM(html,{url:'https://aliaksei-chareshneu.github.io/alchareshneu/'+path.replace('index.html','')+'?lang='+language,runScripts:'outside-only',pretendToBeVisual:true});const w=dom.window;
+ if(typeof options.fetch==='function')w.fetch=options.fetch;
  w.matchMedia=()=>({matches:true,addEventListener(){},removeEventListener(){}});w.IntersectionObserver=class{observe(){}disconnect(){}unobserve(){}};w.ResizeObserver=class{observe(){}disconnect(){}};w.scrollTo=()=>{};w.HTMLElement.prototype.scrollIntoView=()=>{};w.HTMLCanvasElement.prototype.getContext=()=>null;w.HTMLMediaElement.prototype.play=()=>Promise.resolve();w.HTMLMediaElement.prototype.pause=()=>{};
  const errors=[];w.addEventListener('error',e=>errors.push(e.message));
  for(const script of w.document.querySelectorAll('script:not([src])')){if(script.type==='application/ld+json'){JSON.parse(script.textContent);continue;}w.eval(script.textContent);}
