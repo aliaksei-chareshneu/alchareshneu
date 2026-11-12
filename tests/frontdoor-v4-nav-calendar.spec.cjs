@@ -45,10 +45,8 @@ for(const width of [320,390,1440]){
   await expect(page.locator('#fdNavWalkers')).toHaveAttribute('href','walkers/?lang=ru');
   await expect(page.locator('#fdNavAbout')).toHaveAttribute('href','?lang=ru&view=details');
   await expect(page.locator('.fd-fighters')).toHaveCount(0);
-  await expect(page.locator('.fd-photo-shadows span')).toHaveCount(2);
-  const backgrounds=await page.locator('.fd-photo-shadows span').evaluateAll(xs=>xs.map(x=>getComputedStyle(x).backgroundImage));
-  expect(backgrounds[0]).toContain('druzina_larp.webp');
-  expect(backgrounds[1]).toContain('druzina_train.webp');
+  await expect(page.locator('.fd-photo-shadows span')).toHaveCount(0);
+  await expect(page.locator('.fd-photo-shadows')).toHaveCSS('background-image',/imperion-hero-cinematic-20261112\.webp/);
   expect(await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth)).toBeLessThanOrEqual(1);
   if(width<=390){
    await expect(page.locator('#fdHeroCta')).toBeInViewport();
