@@ -15,7 +15,7 @@ for (const lang of ['en', 'cs', 'ru', 'uk']) {
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);
       for (const link of await page.locator('.locale:visible .card .primary').all()) {
         const href = await link.getAttribute('href');
-        expect(href).toMatch(/^(?:mailto:|https:\/\/(?:wa\.me|t\.me)\/|\.\.\/corporate\/request\/\?|\.\.\/shop\/|\.\.\/register\/\?)/);
+        expect(href).toMatch(/^(?:mailto:|https:\/\/(?:wa\.me|t\.me)\/|\.\.\/corporate\/request\/\?|\.\.\/shop\/|\.\.\/register\/\?|\.\.\/\?lang=(?:en|cs|ru|uk)#impr-calendar)/);
         expect(href).not.toMatch(/^https:\/\/(?:revolut\.me|checkout\.)/i);
       }
       expect(errors).toEqual([]);
@@ -33,24 +33,22 @@ test('client start language chooser and accessible controls', async ({ page }) =
   await expect(page.locator('.locale:visible footer a')).toHaveAttribute('href', '../');
 });
 
-test('home hero and sticky customer path keep active language', async ({ page }) => {
+test('visible homepage paths preserve language and open course catalogue', async ({ page }) => {
   const errors = [];
   page.on('pageerror', e => errors.push(e.message));
   await page.setViewportSize({ width: 390, height: 850 });
-  await page.route('https://script.google.com/**', route => {
-    const cb = new URL(route.request().url()).searchParams.get('callback');
-    return route.fulfill({ contentType: 'application/javascript', body: `${cb}({"events":[]})` });
-  });
+  await page.route('https://cmrknyhnnehyjpreehcf.supabase.co/functions/v1/imperion-register', r=>
+    r.fulfill({status:200,contentType:'application/json',headers:{'Access-Control-Allow-Origin':'*'},body:'{"events":[]}'}));
   await page.goto('/?lang=ru');
-  await expect(page.locator('#heroCorporateCta')).toHaveAttribute('href', 'start/?lang=ru');
-  await expect(page.locator('#navBookBtn')).toHaveAttribute('href', 'start/?lang=ru');
-  await expect(page.locator('#mobileCta .mobile-cta-btn')).toHaveAttribute('href', 'start/?lang=ru');
-  await page.locator('#heroCorporateCta').click();
-  await expect(page).toHaveURL(/\/start\/\?lang=ru$/);
-  await expect(page.locator('.locale:visible')).toHaveAttribute('lang', 'ru');
+  await expect(page.locator('html')).toHaveAttribute('data-imperion-frontdoor','ready');
+  await expect(page.locator('#fdHeroCta')).toHaveAttribute('href','#impr-calendar');
+  await expect(page.locator('#fdNavClub')).toHaveAttribute('href','druzina/?lang=ru');
+  await expect(page.locator('#fdAcademyCta')).toHaveAttribute('href','academy/courses/?lang=ru');
+  await page.locator('#fdAcademyCta').click();
+  await expect(page).toHaveURL(/\/academy\/courses\/\?lang=ru$/);
+  await expect(page.locator('html')).toHaveAttribute('lang','ru');
   expect(errors).toEqual([]);
 });
-
 
 test('a direct free HEMA workshop route exists in all four languages', async ({ page }) => {
   for (const lang of ['en', 'cs', 'ru', 'uk']) {
