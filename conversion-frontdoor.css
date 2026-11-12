@@ -517,7 +517,7 @@ html[data-imperion-frontdoor="ready"] body { background:#071b20 !important; }
 }
 #imperion-frontdoor .fd-reset:before { content:'↺';font-size:18px;margin-right:8px; }
 #imperion-frontdoor .fd-reset:hover { background:#274446; }
-#imperion-frontdoor .fd-calendar-layout {display:block;width:100%;max-width:none;min-width:0;margin:0;}
+#imperion-frontdoor .fd-calendar-layout {display:grid;grid-template-columns:minmax(0,1fr);width:100%;max-width:none;min-width:0;margin:0;}
 #imperion-frontdoor .fd-calendar-pane {
  border-radius:16px;background:linear-gradient(165deg,#102e32,#0b252a);
  border:1px solid #6e8b7cb0;padding:17px 15px 15px;box-shadow:0 15px 45px #0005;
