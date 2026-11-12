@@ -76,7 +76,8 @@ jobs:
           test -s _pages/conversion-frontdoor.css
           test -s _pages/conversion-frontdoor.js
           test -s _pages/images/frontdoor-fighter-shadows.svg
-          grep -Fq 'conversion-frontdoor.js?v=20261111' _pages/index.html
+          test -s _pages/images/imperion-hero-cinematic-20261112.webp
+          grep -Fq 'conversion-frontdoor.js?v=20261112' _pages/index.html
           grep -Fq 'id="goal-paths"' _pages/index.html
           grep -Fq 'id="intentDruzinaCta" href="register/?lang=en"' _pages/index.html
           test -s _pages/sitemap.xml
@@ -215,7 +216,7 @@ jobs:
             if curl -fsSL --max-time 20 "$base/?v=$GITHUB_SHA" -o "$page" \
               && curl -fsSL --max-time 20 "$base/conversion-frontdoor.css?v=$GITHUB_SHA" -o "$style" \
               && curl -fsSL --max-time 20 "$base/conversion-frontdoor.js?v=$GITHUB_SHA" -o "$logic" \
-              && grep -Fq 'conversion-frontdoor.js?v=20261111' "$page" \
+              && grep -Fq 'conversion-frontdoor.js?v=20261112' "$page" \
               && grep -Fq 'imperion-frontdoor' "$style" \
               && grep -Fq "imperion-register" "$logic"; then
               ok=1; break
