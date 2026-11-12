@@ -58,7 +58,7 @@ test('evergreen service entrypoints use current event catalogue and honest HEMA 
   home=get('conversion-frontdoor.js'),safety=get('druzina/safety/index.html'),paths=get('druzina/cesty/index.html');
  expect(start).not.toContain('PUB-HIKE-20261101');
  expect(start).not.toContain('New paid HEMA bookings are paused');
- expect(start).toContain('href="../#impr-calendar"');
+ for(const lang of ['cs','en','ru','uk'])expect(start).toContain('href="../?lang='+lang+'#impr-calendar"');
  expect(calendar).toContain('functions/v1/imperion-register');
  expect(calendar).not.toContain('const EVENTS_API_URL');
  expect(calendar).not.toContain('script.google.com/macros/s/');
