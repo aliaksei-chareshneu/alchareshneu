@@ -633,3 +633,131 @@ html[data-imperion-frontdoor="ready"] body { background:#071b20 !important; }
 @media(prefers-reduced-motion:reduce){
  #imperion-frontdoor .fd-upcoming-event {transition:none;}
 }
+
+
+/* IMPERION visual checkpoint 2026-11-12: readability, accessible gold CTA,
+   full desktop event details. Keep the existing mobile bottom sheet. */
+#imperion-frontdoor .fd-hero-cta,
+#imperion-frontdoor a.fd-hero-cta,
+#imperion-frontdoor .fd-hero-cta strong,
+#imperion-frontdoor .fd-hero-cta small,
+#imperion-frontdoor .fd-hero-cta span {
+  color:#15201e !important;
+  text-shadow:none !important;
+}
+#imperion-frontdoor .fd-hero-cta {
+  border:2px solid #ffe7a9;
+  background:linear-gradient(180deg,#ffe49b 0%,#f2c66a 100%);
+}
+#imperion-frontdoor .fd-hero-cta:hover,
+#imperion-frontdoor .fd-hero-cta:focus-visible {
+  background:linear-gradient(180deg,#ffecb5 0%,#f8d37f 100%);
+}
+#imperion-frontdoor .fd-hero-cta-copy strong {font-size:clamp(20px,2.08vw,28px);font-weight:900;line-height:1.17;}
+#imperion-frontdoor .fd-hero-cta-copy small {font-size:clamp(12px,1.07vw,14px);font-weight:700;line-height:1.36;}
+#imperion-frontdoor .fd-academy-copy strong {font-size:clamp(18px,1.75vw,23px);line-height:1.2;}
+#imperion-frontdoor .fd-academy-copy small {font-size:clamp(12px,1.05vw,14px);}
+#imperion-frontdoor .fd-nav a {font-size:clamp(13px,1.11vw,16px);}
+#imperion-frontdoor .fd-lede {font-size:clamp(17px,1.55vw,22px);line-height:1.52;}
+#imperion-frontdoor .fd-filters button {font-size:14px;line-height:1.34;}
+#imperion-frontdoor .fd-city-options button {font-size:13px;line-height:1.3;}
+#imperion-frontdoor .fd-city-filter > span {font-size:14px;}
+#imperion-frontdoor .fd-topline p {font-size:15px;}
+#imperion-frontdoor .fd-upcoming-pane h3 {font-size:24px;}
+#imperion-frontdoor .fd-upcoming-pane > p {font-size:13px;}
+#imperion-frontdoor .fd-upcoming-event strong {font-size:15px;line-height:1.34;}
+#imperion-frontdoor .fd-upcoming-type {font-size:11px;}
+#imperion-frontdoor .fd-upcoming-foot {font-size:12.5px;}
+#imperion-frontdoor .fd-day-time {font-size:11px;letter-spacing:0;}
+#imperion-frontdoor .fd-cal-note {font-size:13px;line-height:1.5;}
+#imperion-frontdoor .fd-payment-body p {font-size:14px;}
+#imperion-frontdoor .fd-payment-terms summary {font-size:15px;}
+#imperion-frontdoor .fd-detail-pane.fd-modal {
+  display:grid;
+  grid-template-columns:minmax(270px,39%) minmax(0,61%);
+  align-items:stretch;
+  top:50%;left:50%;right:auto;bottom:auto;
+  transform:translate(-50%,-50%);
+  width:min(920px,calc(100vw - 68px));
+  max-width:920px;
+  height:min(700px,calc(100dvh - 72px));
+  max-height:calc(100dvh - 72px);
+  padding:0;
+  overflow:hidden;
+  border-radius:20px;
+}
+#imperion-frontdoor .fd-detail-pane.fd-modal .fd-photo {
+  grid-column:1;grid-row:1;
+  width:100%;height:100%;min-height:100%;
+  max-height:none;align-self:stretch;
+  border-radius:0;
+}
+#imperion-frontdoor .fd-detail-pane.fd-modal .fd-photo img {
+  width:100%;height:100%;object-fit:cover;object-position:center;
+}
+#imperion-frontdoor .fd-detail-pane.fd-modal .fd-detail-content {
+  grid-column:2;grid-row:1;
+  display:flex;flex-direction:column;
+  min-width:0;min-height:0;max-height:100%;
+  padding:33px 30px 22px;
+  overflow-y:auto;overscroll-behavior:contain;
+  scrollbar-gutter:stable;
+}
+#imperion-frontdoor .fd-detail-pane.fd-modal .fd-detail-content h3 {
+  font-size:clamp(29px,2.75vw,39px);line-height:1.15;
+}
+#imperion-frontdoor .fd-detail-pane.fd-modal .fd-description {font-size:16px;line-height:1.63;}
+#imperion-frontdoor .fd-detail-pane.fd-modal .fd-facts {font-size:15px;line-height:1.48;}
+#imperion-frontdoor .fd-detail-pane.fd-modal .fd-event-variants button {font-size:14px;min-height:43px;}
+#imperion-frontdoor .fd-detail-pane.fd-modal .fd-actions {
+  margin-top:auto;flex-shrink:0;min-height:64px;
+  position:sticky;bottom:-22px;z-index:1;
+  background:linear-gradient(180deg,#102b2ee8,#102b2e 14%);
+}
+#imperion-frontdoor .fd-detail-pane.fd-modal .fd-modal-close {
+  position:absolute;top:14px;right:14px;z-index:4;
+  width:45px;height:45px;box-shadow:0 2px 12px #0008;
+}
+@media(max-width:1010px) and (min-width:701px){
+  #imperion-frontdoor .fd-detail-pane.fd-modal {
+    display:flex;flex-direction:column;
+    width:min(720px,calc(100vw - 45px));max-width:720px;
+    height:auto;max-height:calc(100dvh - 60px);
+    overflow-y:auto;
+  }
+  #imperion-frontdoor .fd-detail-pane.fd-modal .fd-photo {
+    height:200px;min-height:200px;max-height:200px;flex:0 0 200px;
+  }
+  #imperion-frontdoor .fd-detail-pane.fd-modal .fd-detail-content {
+    max-height:none;overflow:visible;padding:24px 28px;
+  }
+}
+@media(max-width:700px){
+  #imperion-frontdoor .fd-hero-cta-copy strong {font-size:20px;}
+  #imperion-frontdoor .fd-hero-cta-copy small {font-size:12px;}
+  #imperion-frontdoor .fd-academy-copy strong {font-size:18px;}
+  #imperion-frontdoor .fd-nav a {font-size:12px;}
+  #imperion-frontdoor .fd-filters button {font-size:13px;}
+  #imperion-frontdoor .fd-day-time {font-size:9px;}
+  #imperion-frontdoor .fd-detail-pane.fd-modal {
+    display:flex;flex-direction:column;
+    width:100%;max-width:none;min-height:0;height:auto;
+    max-height:min(88dvh,780px);
+    top:auto;bottom:0;left:0;right:0;transform:none;
+    overflow-y:auto;border-radius:20px 20px 0 0;
+  }
+  #imperion-frontdoor .fd-detail-pane.fd-modal .fd-photo {
+    width:100%;height:155px;min-height:155px;max-height:155px;flex:0 0 155px;
+  }
+  #imperion-frontdoor .fd-detail-pane.fd-modal .fd-detail-content {
+    padding:20px 19px 25px;max-height:none;overflow:visible;
+  }
+  #imperion-frontdoor .fd-detail-pane.fd-modal .fd-detail-content h3 {font-size:28px;}
+  #imperion-frontdoor .fd-detail-pane.fd-modal .fd-description {font-size:15px;}
+  #imperion-frontdoor .fd-detail-pane.fd-modal .fd-facts {font-size:14px;}
+  #imperion-frontdoor .fd-detail-pane.fd-modal .fd-actions {position:sticky;bottom:-25px;}
+}
+@supports not (height:100dvh){
+  #imperion-frontdoor .fd-detail-pane.fd-modal {height:min(700px,calc(100vh - 72px));max-height:calc(100vh - 72px);}
+  @media(max-width:700px){#imperion-frontdoor .fd-detail-pane.fd-modal {height:auto;max-height:88vh;}}
+}
