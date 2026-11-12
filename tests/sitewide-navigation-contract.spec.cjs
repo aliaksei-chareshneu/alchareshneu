@@ -52,6 +52,18 @@ test('all public HTML pages have valid same-site static navigation targets',()=>
  expect(bad,'invalid same-site links:\n'+bad.slice(0,30).join('\n')).toEqual([]);
  expect(count).toBeGreaterThan(400);
 });
+test('sitemap only advertises existing public HTML and pages, not 404 inventory',()=>{
+ const map=fs.readFileSync(path.join(root,'sitemap.xml'),'utf8');
+ const broken=[];
+ for(const m of map.matchAll(/<loc>([^<]+)<\/loc>/g)){
+  const u=new URL(m[1]);
+  if(u.origin!=='https://aliaksei-chareshneu.github.io'||!u.pathname.startsWith(base))continue;
+  const p=u.pathname.slice(base.length);
+  const name=!p||p.endsWith('/')?p+'index.html':p;
+  if(!fs.existsSync(path.join(root,name)))broken.push(name);
+ }
+ expect(broken).toEqual([]);
+});
 test('evergreen service entrypoints use current event catalogue and honest HEMA booking state',()=>{
  const get=p=>fs.readFileSync(path.join(root,p),'utf8');
  const start=get('start/index.html'),calendar=get('calendar/index.html'),
