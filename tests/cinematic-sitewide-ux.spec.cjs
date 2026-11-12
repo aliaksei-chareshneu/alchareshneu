@@ -90,9 +90,21 @@ const cases=[
  ['/corporate/technical-answers/','corporate-sub'],
  ['/corporate/diagnostic/','corporate-sub'],
  ['/brno-stories/','stories'],
+ ['/druzina/share/','druzina'],
+ ['/druzina/arsenal/','druzina'],
+ ['/druzina/novinky/','druzina'],
+ ['/corporate/request/','corporate-sub'],
+ ['/corporate/travel-audit/','corporate-sub'],
+ ['/brno-stories/tanec-draku-2026/','stories'],
+ ['/brno-stories/weekly/','stories'],
+ ['/ideas/','hub'],
+ ['/dame-na-vas-2755/','druzina'],
+ ['/platform-evidence/','corporate-sub'],
+ ['/autopilot/','walkers-event'],
+ ['/shop/','hub'],
 ];
-test('the 28 public pages load their themed styles without redirecting or editing registration data',async({page})=>{
- test.setTimeout(150000);
+test('the 40 public pages load their themed styles without redirecting or editing registration data',async({page})=>{
+ test.setTimeout(180000);
  await page.setViewportSize({width:1280,height:850});
  const mut=await keepReadOnly(page);
  const style=await page.request.get('/imperion-cinematic-site.css?v=20261112-ux1');
