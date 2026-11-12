@@ -1,0 +1,343 @@
+/* IMPERION shared visual checkpoint — 2026-11-12
+   This stylesheet is opt-in via body[data-imperion-design], so the validated
+   registration rules, controllers and event data are untouched.
+   Photographic assets already belong to the public repository; CSS overlays
+   preserve the readability of real headings and functional links. */
+body[data-imperion-design] {
+  --imp-bg:#081c22;
+  --imp-bg2:#0e2a2e;
+  --imp-paper:#142f32;
+  --imp-gold:#f2cb7f;
+  --imp-gold-strong:#ffe29f;
+  --imp-light:#f9f1e4;
+  --imp-muted:#d5dfda;
+  --imp-edge:#8c977c8c;
+  --imp-shadow:0 22px 56px rgba(0,7,12,.32);
+  --imp-scene:url("images/imperion-hero-cinematic-20261112.webp");
+  background:radial-gradient(ellipse 74% 24% at 72% 0%,#2b514770,transparent 90%),
+             linear-gradient(180deg,#091d24,#0a2027 67%,#07171c);
+  color:#f9f1e4;
+  color-scheme:dark;
+  font-family:"Source Sans 3",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:17px;
+  line-height:1.63;
+  -webkit-font-smoothing:antialiased;
+}
+body[data-imperion-design="academy"],
+body[data-imperion-design="academy-course"],
+body[data-imperion-design="academy-a2"] { --imp-scene:url("images/hero-scholar.webp"); }
+body[data-imperion-design="druzina"],
+body[data-imperion-design="druzina-start"],
+body[data-imperion-design="druzina-join"],
+body[data-imperion-design="druzina-safety"],
+body[data-imperion-design="druzina-rules"],
+body[data-imperion-design="druzina-teambuilding"],
+body[data-imperion-design="druzina-ranks"],
+body[data-imperion-design="druzina-pricing"],
+body[data-imperion-design="praha-hema"] { --imp-scene:url("images/hero-knight.webp"); }
+body[data-imperion-design="walkers"],
+body[data-imperion-design="walkers-event"],
+body[data-imperion-design="calendar"],
+body[data-imperion-design="events"] { --imp-scene:url("images/hero-ranger.webp"); }
+body[data-imperion-design="register"] { --imp-scene:url("images/main_hero.webp"); }
+body[data-imperion-design="hub"],
+body[data-imperion-design="corporate"],
+body[data-imperion-design="corporate-sub"] { --imp-scene:url("images/hero-scholar.webp"); }
+body[data-imperion-design="stories"] { --imp-scene:url("images/walkers_group.webp"); }
+
+body[data-imperion-design] :is(h1,h2,h3) {
+  font-family:Georgia,"Spectral","Times New Roman",serif;
+  letter-spacing:-.028em;
+  text-wrap:balance;
+}
+body[data-imperion-design] :is(.eyebrow,.kicker,.overline) {
+  color:#f2cb7f;
+  font-size:clamp(12px,1.1vw,14px);
+  letter-spacing:.13em;
+  font-weight:800;
+}
+body[data-imperion-design] :is(.nav,.top,header.top,header.nav) {
+  background:linear-gradient(180deg,rgba(8,22,26,.95),rgba(13,31,34,.93));
+  border-bottom:1px solid rgba(237,191,118,.38);
+  color:#f7e6c5;
+  backdrop-filter:blur(12px);
+}
+body[data-imperion-design] :is(.brand,.logo,.brand a,.nav .brand,.top .brand) {
+  color:#fbe4ae;
+  font-family:Georgia,"Spectral",serif;
+  font-size:clamp(18px,1.7vw,24px);
+  letter-spacing:.018em;
+  text-shadow:0 2px 9px #030e15a3;
+}
+body[data-imperion-design] :is(.brand small,.brand span,.logo small) {
+  color:#d6d8cb;
+  font-family:system-ui,sans-serif;
+  font-size:11px;
+  letter-spacing:.06em;
+}
+body[data-imperion-design] :is(.tabs-bar,.tabs) {
+  background:rgba(11,34,38,.95);
+  border-color:rgba(213,179,116,.25);
+}
+body[data-imperion-design] .tab-btn {
+  color:#e0e7dd;
+  font-size:clamp(13px,1.1vw,15px);
+  min-height:44px;
+}
+body[data-imperion-design] :is(.tab-btn.active,.tab-btn[aria-current="page"]) {
+  background:rgba(245,203,124,.14);
+  color:#ffe4a6;
+  border-color:rgba(251,215,153,.44);
+}
+body[data-imperion-design] :is(.langs button,.lang button,.languages button) {
+  border-color:#d2b77594;
+  color:#f7eee0;
+  font-weight:700;
+}
+body[data-imperion-design] :is(.langs button[aria-pressed="true"],.lang button[aria-pressed="true"],.languages button[aria-pressed="true"]) {
+  background:#f7d389;
+  color:#152522;
+  border-color:#ffe4b1;
+}
+
+/* Matching themed hero artwork and atmospheric amber/teal palette. */
+body[data-imperion-design] .hero {
+  position:relative;
+  isolation:isolate;
+  background-color:#101f25;
+  background-image:
+    linear-gradient(90deg,rgba(7,19,26,.96) 0%,rgba(7,24,29,.89) 31%,rgba(8,30,33,.67) 65%,rgba(8,25,25,.39) 100%),
+    linear-gradient(0deg,rgba(8,21,24,.9),transparent 55%),
+    var(--imp-scene);
+  background-size:cover;
+  background-position:center,center,center 34%;
+  border-bottom:1px solid rgba(249,204,125,.27);
+  box-shadow:inset 0 -52px 72px rgba(7,25,29,.58);
+  min-height:clamp(395px,53vw,610px);
+  padding:clamp(48px,6.8vw,103px) 0;
+}
+body[data-imperion-design] .hero > .wrap,
+body[data-imperion-design] .hero > .hero-grid {
+  position:relative;
+  z-index:2;
+}
+body[data-imperion-design] .hero .hero-visuals {
+  opacity:.34;
+  mix-blend-mode:screen;
+  pointer-events:none;
+}
+body[data-imperion-design] .hero .hero-scrim {
+  background:linear-gradient(90deg,#07161ff7,#102e348e 65%,#0b232f1c);
+}
+body[data-imperion-design] .hero h1 {
+  font-family:Georgia,"Spectral",serif;
+  font-size:clamp(39px,5vw,73px);
+  line-height:1.09;
+  max-width:930px;
+  color:#fff5e4;
+  text-shadow:0 3px 18px #030e14e8;
+}
+body[data-imperion-design] .hero :is(.tagline,.lead,.intro,.sub,.lede,.hero-mission) {
+  font-size:clamp(17px,1.55vw,21px);
+  line-height:1.6;
+  max-width:800px;
+  color:#f3e9de;
+  text-shadow:0 2px 12px #041116a5;
+}
+body[data-imperion-design] :is(.hero,.revenue-head) :is(h1,h2) em {
+  color:#ffda94;
+  font-style:italic;
+}
+body[data-imperion-design] .hero :is(.hero-ctas,.actions,.ctas) {
+  gap:12px;
+  margin-top:24px;
+}
+/* The primary CTA always has DARK text on GOLD, including nested text nodes. */
+body[data-imperion-design] :is(.hero .btn.solid,.hero .btn.primary,.hero .btn-primary,.hero a.primary,.hero .primary,.hero .btn:not(.secondary):first-child,.pitch .mobile-jump,.hero .actions .btn-primary) {
+  background:linear-gradient(180deg,#ffe29a,#efc06a);
+  border:2px solid #ffe4ac;
+  color:#15211e !important;
+  font-weight:800;
+  text-shadow:none !important;
+  border-radius:12px;
+  box-shadow:0 9px 30px rgba(221,156,62,.19);
+  padding:12px 21px;
+  min-height:47px;
+}
+body[data-imperion-design] :is(.hero .btn.solid,.hero .btn.primary,.hero .btn-primary,.hero a.primary,.hero .primary,.hero .actions .btn-primary) :is(span,strong,small,em) {
+  color:#15211e !important;
+  text-shadow:none !important;
+}
+body[data-imperion-design] :is(.hero .btn.solid,.hero a.primary,.hero .btn-primary):hover {
+  background:linear-gradient(180deg,#ffedb4,#f5cf83);
+  color:#101e1c !important;
+}
+body[data-imperion-design] :is(.hero .btn:not(.solid):not(.primary),.hero .btn.secondary,.hero .secondary) {
+  background:rgba(9,24,29,.82);
+  color:#fff0d2;
+  border:1px solid #e6c180ad;
+  border-radius:12px;
+}
+body[data-imperion-design] :is(.btn,.button,.primary,.secondary) {
+  font-size:clamp(14px,1.28vw,17px);
+  line-height:1.35;
+}
+body[data-imperion-design] a:focus-visible,
+body[data-imperion-design] button:focus-visible,
+body[data-imperion-design] summary:focus-visible,
+body[data-imperion-design] input:focus-visible {
+  outline:3px solid #ffe1a0;
+  outline-offset:3px;
+}
+
+/* Thematic sections and cards share rounded dark teal panels. */
+body[data-imperion-design] main :is(.card,.feature-card,.revenue-card,.event-card,.event,.step,.service-card,.service-tile,.fact,.panel,.workflow) {
+  border-radius:clamp(12px,1.4vw,18px);
+  border-color:rgba(184,188,145,.43);
+  box-shadow:0 9px 30px rgba(4,15,21,.16);
+}
+body[data-imperion-design] main :is(.card,.feature-card,.revenue-card,.event-card,.service-card,.service-tile,.fact) {
+  background:linear-gradient(145deg,rgba(25,60,64,.95),rgba(13,37,45,.97));
+  color:#f5f2e6;
+}
+body[data-imperion-design] main :is(.card,.feature-card,.revenue-card,.event-card,.service-card,.service-tile,.fact) :is(p,small,li) {
+  color:#dce8e2;
+}
+body[data-imperion-design] main :is(.card,.feature-card,.revenue-card,.event-card,.service-card,.service-tile,.fact) :is(h2,h3,h4) {
+  color:#fff0d4;
+}
+body[data-imperion-design] main :is(.card,.feature-card,.revenue-card,.event-card,.service-card,.service-tile,.fact) a {
+  color:#ffe4a6;
+}
+body[data-imperion-design] main :is(h2,h3):not(.hero h2) {
+  line-height:1.22;
+}
+body[data-imperion-design] main > :is(section,article):not(.hero) {
+  scroll-margin-top:96px;
+}
+body[data-imperion-design] :is(.btn,.button,.tab-btn,button) {transition:filter .14s,border-color .14s;}
+body[data-imperion-design] :is(.btn,.button):hover {filter:brightness(1.09);}
+body[data-imperion-design] :is(.footer,footer) {
+  border-top-color:rgba(244,197,109,.34);
+}
+
+/* Route-specific hero images and layouts without changing their forms or data. */
+body[data-imperion-design="academy"] .hero,
+body[data-imperion-design="academy-course"] .hero,
+body[data-imperion-design="academy-a2"] .hero {
+  background-position:center,center,center 25%;
+}
+body[data-imperion-design="druzina"] .hero,
+body[data-imperion-design="druzina-start"] .hero,
+body[data-imperion-design="druzina-join"] .hero {
+  background-position:center,center,center 43%;
+}
+body[data-imperion-design="walkers"] .hero,
+body[data-imperion-design="calendar"] .hero,
+body[data-imperion-design="walkers-event"] .hero {
+  background-position:center,center,center 57%;
+}
+body[data-imperion-design="register"] .pitch {
+  background:
+    linear-gradient(105deg,rgba(12,29,36,.95),rgba(13,37,42,.82)),
+    var(--imp-scene) center/cover;
+  border:1px solid rgba(245,202,126,.43);
+  border-radius:20px;
+  box-shadow:var(--imp-shadow);
+  padding:clamp(22px,3vw,38px);
+}
+body[data-imperion-design="register"] :is(.panel,.event-calendar) {
+  background:#102d34;
+  border:1px solid rgba(203,178,125,.57);
+  color:#f7f2e8;
+  border-radius:19px;
+  box-shadow:var(--imp-shadow);
+}
+body[data-imperion-design="register"] #rsvpForm :is(input,select,textarea) {
+  background:#0c232c;
+  color:#fbf4e5;
+  border:1px solid #64847d;
+}
+body[data-imperion-design="register"] #rsvpForm :is(label,.sub) {font-size:15px;}
+body[data-imperion-design="register"] #rsvpForm :is(input,select,textarea)::placeholder {color:#bfcfc9;opacity:1;}
+body[data-imperion-design="register"] #rsvpForm button[type="submit"] {
+  background:#f5cf84;color:#15231e;border:1px solid #ffe0a3;
+  font-weight:800;
+}
+body[data-imperion-design="register"] .pitch h1 {
+  font:600 clamp(37px,4.5vw,64px)/1.08 Georgia,"Spectral",serif;
+  color:#fff2de;
+}
+body[data-imperion-design="events"] .lang-page,
+body[data-imperion-design="hub"] .hero,
+body[data-imperion-design="stories"] main {
+  background-image:
+    linear-gradient(115deg,rgba(7,23,30,.96),rgba(12,39,43,.84) 63%,rgba(10,29,34,.66)),
+    var(--imp-scene);
+  background-size:cover;
+  background-position:center;
+  border:1px solid rgba(245,205,136,.25);
+  border-radius:18px;
+}
+body[data-imperion-design="events"] .event {
+  background:linear-gradient(150deg,#17383e,#0e2632);
+  border:1px solid rgba(225,190,122,.52);
+  color:#f4f1e7;
+}
+body[data-imperion-design="events"] .event :is(h2,h3,p) {color:#f5eee1;}
+body[data-imperion-design="hub"] :is(.card,.hero) {box-shadow:var(--imp-shadow);}
+body[data-imperion-design="hub"] a.primary {background:#f3cf84;color:#102322;font-weight:800;border-radius:10px;}
+body[data-imperion-design="corporate"] .revenue-head {
+  background:
+    linear-gradient(100deg,rgba(6,22,29,.97),rgba(10,37,44,.77)),
+    var(--imp-scene) center/cover;
+  border-bottom:1px solid #dfbd7e6f;
+}
+body[data-imperion-design="corporate"] .revenue-head h1 {color:#fff0d8;font-family:Georgia,"Spectral",serif;}
+body[data-imperion-design="corporate"] .revenue-head .btn,
+body[data-imperion-design="corporate-sub"] .hero .btn {border-radius:10px;}
+body[data-imperion-design="druzina-join"] .hero,
+body[data-imperion-design="druzina-start"] .hero,
+body[data-imperion-design="praha-hema"] .hero {
+  background-image:
+    linear-gradient(115deg,rgba(7,21,29,.96),rgba(11,29,38,.80) 70%,rgba(10,29,35,.54)),
+    var(--imp-scene);
+  background-position:center;
+  background-size:cover;
+}
+body[data-imperion-design="druzina-start"] .hero-grid {align-items:center;}
+body[data-imperion-design="druzina-start"] .hero .media {
+  border:1px solid rgba(245,209,142,.52);
+  border-radius:18px;
+  overflow:hidden;
+  box-shadow:var(--imp-shadow);
+}
+body[data-imperion-design="druzina-join"] .hero .intro,
+body[data-imperion-design="druzina-start"] .hero .lead {color:#f4ede3;}
+body[data-imperion-design="praha-hema"] .hero .video {
+  border-radius:16px;border:1px solid #c6a46c8e;overflow:hidden;
+}
+body[data-imperion-design="druzina-safety"] main,
+body[data-imperion-design="druzina-rules"] main,
+body[data-imperion-design="druzina-pricing"] main {
+  color:#f6ede0;
+}
+
+/* Maintain mobile tap targets and original page flow, not a fake app shell. */
+@media(max-width:820px){
+ body[data-imperion-design] .hero {min-height:360px;padding:50px 0;}
+ body[data-imperion-design] .hero h1 {font-size:clamp(35px,7.7vw,58px);}
+ body[data-imperion-design] .hero :is(.tagline,.lead,.intro,.lede) {font-size:17px;}
+ body[data-imperion-design] .hero .hero-visuals {opacity:.2;}
+ body[data-imperion-design] .nav .wrap {padding-block:12px;}
+ body[data-imperion-design] .hero :is(.hero-ctas,.actions,.ctas) {flex-wrap:wrap;}
+}
+@media(max-width:420px){
+ body[data-imperion-design] {font-size:16px;}
+ body[data-imperion-design] .hero h1 {font-size:clamp(32px,9vw,43px);}
+ body[data-imperion-design] .hero :is(.btn,.primary,.secondary) {min-height:46px;}
+ body[data-imperion-design="register"] .pitch {padding:18px;}
+}
+@media(prefers-reduced-motion:reduce){
+ body[data-imperion-design] :is(.btn,.button,.tab-btn,button) {transition:none;}
+}
