@@ -23,6 +23,7 @@ function t(value) {
   const ms=Date.parse(value);
   return Number.isFinite(ms)?ms:null;
 }
+function safeId(v) { return typeof v==='string' && SOURCE_ID.test(v); }
 function idKey(e) { return [e.source_system,e.event_type,e.source_id].join(':'); }
 function preview({now,signals,mandate,existing_jobs=[]}={}) {
   const clock=t(now);
@@ -40,12 +41,14 @@ function preview({now,signals,mandate,existing_jobs=[]}={}) {
   for(const event of signals){
     const e=event && typeof event==='object' && !Array.isArray(event)?event:{};
     // An explicit allowlist avoids echoing PII, messages, raw payload, and secrets.
-    const key = SOURCE_ID.test(e.source_id||'') && SOURCE_ID.test(e.event_type||'') &&
-      SOURCE_ID.test(e.source_system||'') ? idKey(e) : null;
+    // SQL claim/done/error/retry events describe lifecycle, NOT new agent intents.
+    // Never fabricate a source identity for legacy browser_jobs with null idempotency_key.
+    const key = safeId(e.source_id) && safeId(e.event_type) &&
+      safeId(e.source_system) ? idKey(e) : null;
     let verdict='BLOCKED',reason='INVALID_SIGNAL',role=null;
     const rule=Object.hasOwn(POLICY,e.event_type)?POLICY[e.event_type]:null;
     const stamp=t(e.received_at);
-    if(!key||!SOURCE_ID.test(e.case_id||'')||stamp===null){reason='INVALID_SIGNAL';}
+    if(!key||!safeId(e.case_id)||stamp===null){reason='INVALID_SIGNAL';}
     else if(stamp>clock+300000){reason='FUTURE_SIGNAL';}
     else if(e.payload!==undefined||e.text!==undefined||e.email!==undefined||e.secret!==undefined){reason='RAW_PAYLOAD_FORBIDDEN';}
     else if(Object.keys(e).some(k=>!EVENT_FIELDS.has(k))){reason='UNEXPECTED_EVENT_FIELD';}
@@ -73,7 +76,7 @@ function preview({now,signals,mandate,existing_jobs=[]}={}) {
     }
     else {verdict='ROUTE_PREVIEW';reason='BOUNDED_OBSERVE_ONLY';role=rule[0];}
     if(key&&!seen.has(key))seen.set(key,e.case_id);
-    results.push({case_id:SOURCE_ID.test(e.case_id||'')?e.case_id:null,
+    results.push({case_id:safeId(e.case_id)?e.case_id:null,
       idempotency_key:key,role,verdict,reason,next:verdict==='ROUTE_PREVIEW'?'OWNER_REVIEW':
       verdict==='EXISTS_READBACK'?'PROVIDER_READBACK':verdict==='WATCHDOG_REVIEW'?'ESCALATE_OWNER':'NO_ACTION'});
   }

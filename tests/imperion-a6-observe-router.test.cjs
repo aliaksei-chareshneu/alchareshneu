@@ -38,3 +38,33 @@ test('17 private lead text is refused at metadata boundary',()=>{const x=run({ev
 test('18 privileged deploy action is denied even on valid source',()=>{const x=run({requested_action:'DEPLOY'});check(x,'BLOCKED','ACTION_NOT_IN_OBSERVE_ALLOWLIST');});
 test('19 stale signal escalates, never automatically retries',()=>{const x=run({received_at:'2026-11-12T17:00:00+01:00'});check(x,'WATCHDOG_REVIEW','STALE_EVENT_REQUIRES_OWNER_REVIEW');assert.equal(x.results[0].next,'ESCALATE_OWNER');});
 test('20 unknown event type fails closed',()=>{const x=run({event_type:'UNLISTED_OPERATION'});check(x,'BLOCKED','UNKNOWN_EVENT_TYPE');});
+
+test('21 live Supabase lifecycle kinds cannot become agent work intents',()=>{
+  for(const event_type of ['claimed','done','error','retry','source_blocked']){
+    const x=run({event_type,source_system:'SUPABASE'});
+    check(x,'BLOCKED','UNKNOWN_EVENT_TYPE');
+    assert.equal(x.route_previews,0);
+  }
+});
+test('22 legacy browser event without stable source ID is blocked, not given a synthetic key',()=>{
+  const x=run({event_type:'PC_HEALTH',source_system:'WINDOWS_BRIDGE',source_id:null});
+  check(x,'BLOCKED','INVALID_SIGNAL');
+  assert.equal(x.results[0].idempotency_key,null);
+});
+test('23 raw live operator command fields are not trusted as reviewed event metadata',()=>{
+  const x=run({event_type:'COO_HEALTH',source_system:'SUPABASE',
+    dry_run:false,requires_owner_gate:false});
+  check(x,'BLOCKED','UNEXPECTED_EVENT_FIELD');
+});
+test('24 future provider timestamp cannot authorize routing',()=>{
+  const x=run({received_at:'2026-11-12T19:41:00+01:00'});
+  check(x,'BLOCKED','FUTURE_SIGNAL');
+});
+test('25 structured ID values cannot spoof stable string IDs',()=>{
+  const a=run({source_id:['e0001']});
+  check(a,'BLOCKED','INVALID_SIGNAL');
+  assert.equal(a.results[0].idempotency_key,null);
+  const b=run({case_id:['IMPTEST01']});
+  check(b,'BLOCKED','INVALID_SIGNAL');
+  assert.equal(b.results[0].case_id,null);
+});
