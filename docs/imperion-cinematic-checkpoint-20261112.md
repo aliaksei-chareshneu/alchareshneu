@@ -22,13 +22,13 @@ Reference design: approved earlier cinematic hero and calendar mockups, *not* sc
 
 - `conversion-frontdoor.css`: contrast, type and responsive desktop event modal.
 - `imperion-cinematic-site.css`: opt-in design system for public section pages; `data-imperion-design` indicates the theme.
-- 28 section pages: stylesheet injected at end of head, theme only on body; no changes to the pages’ JS registration/price logic.
+- 40 section pages: stylesheet injected at end of head, theme only on body; no changes to the pages’ JS registration/price logic.
 - Existing relevant imagery: `images/hero-scholar.webp`, `images/hero-knight.webp`, `images/hero-ranger.webp`, `images/main_hero.webp`, `images/walkers_group.webp` and approved `images/imperion-hero-cinematic-20261112.webp`.
 - Production Pages whitelist and live readback must include the new CSS and representative nested routes.
 
 ## Release gate
 
-Run existing security, DOM and frontend CI, the new Playwright suite `tests/cinematic-sitewide-ux.spec.cjs`, plus direct GitHub Pages production readback. Do not call it LIVE before both deployment and HTTP inspection succeed. Report unrelated legacy test failures separately.
+Run existing security, DOM and frontend CI, the 40-route Playwright suite `tests/cinematic-sitewide-ux.spec.cjs`, plus direct GitHub Pages production readback. Do not call it LIVE before both deployment and HTTP inspection succeed. Report unrelated legacy test failures separately.
 
 Rollback: use the GitHub commit immediately before merging this PR, or selectively remove `data-imperion-design` and its stylesheet link; prior routes, functions and controllers are untouched.
 
