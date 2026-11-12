@@ -80,3 +80,16 @@ test('evergreen service entrypoints use current event catalogue and honest HEMA 
  expect(safety).not.toContain('New paid HEMA bookings are paused');
  expect(paths).not.toContain('New paid HEMA bookings are not open yet');
 });
+
+test('Start discovery keeps locale and lands in the JS-mounted events calendar',async({page})=>{
+ await page.route('https://cmrknyhnnehyjpreehcf.supabase.co/functions/v1/imperion-register',r=>r.fulfill({
+  status:200,contentType:'application/json',headers:{'Access-Control-Allow-Origin':'*'},body:'{"events":[]}'
+ }));
+ await page.goto('/start/?lang=ru');
+ const link=page.locator('a[href="../?lang=ru#impr-calendar"]').first();
+ await expect(link).toBeVisible();
+ await link.click();
+ await expect(page).toHaveURL(/\?lang=ru#impr-calendar$/);
+ await expect(page.locator('#impr-calendar')).toBeInViewport();
+ await expect(page.locator('html')).toHaveAttribute('lang','ru');
+});
