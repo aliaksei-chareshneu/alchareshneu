@@ -32,14 +32,11 @@ for(const width of [320,390,1440]){
   await expect(page.locator('html')).toHaveAttribute('data-imperion-frontdoor','ready');
   await expect(page.locator('#fdHeroLabel')).toHaveText('Выбрать событие');
   await expect(page.locator('#fdHeroSub')).toContainText('BrnoWalkers');
-  await expect(page.locator('#fdAcademyLabel')).toHaveText('Записаться на урок в Академии');
+  await expect(page.locator('#fdAcademyLabel')).toHaveText('Выбрать курс Академии');
   await expect(page.locator('#fdHeroCta')).toHaveAttribute('href','#impr-calendar');
-  const academyHref=await page.locator('#fdAcademyCta').getAttribute('href');
-  const academyWhatsApp=new URL(academyHref);
-  expect(academyWhatsApp.origin+academyWhatsApp.pathname).toBe('https://wa.me/420702914842');
-  expect(academyWhatsApp.searchParams.get('text')).toContain('[ACADEMY:FRONTDOOR]');
-  await expect(page.locator('#fdAcademyCta')).toHaveAttribute('rel',/noopener/);
-  await expect(page.locator('#fdAcademyNote')).toContainText('согласуем лично');
+  await expect(page.locator('#fdAcademyCta')).toHaveAttribute('href','academy/courses/?lang=ru');
+  await expect(page.locator('#fdAcademyCta')).not.toHaveAttribute('target','_blank');
+  await expect(page.locator('#fdAcademyNote')).toContainText('программы');
   await expect(page.locator('#fdNavAcademy')).toHaveAttribute('href','academy/?lang=ru');
   await expect(page.locator('#fdNavClub')).toHaveAttribute('href','druzina/?lang=ru');
   await expect(page.locator('#fdNavWalkers')).toHaveAttribute('href','walkers/?lang=ru');
@@ -62,10 +59,10 @@ for(const width of [320,390,1440]){
  });
 }
 for(const [lang,calendar,academy] of [
- ['cs','Vybrat akci','Přihlásit se na lekci Akademie'],
- ['en','Choose an event','Book an Academy lesson'],
- ['ru','Выбрать событие','Записаться на урок в Академии'],
- ['uk','Обрати подію','Записатися на урок Академії']
+ ['cs','Vybrat akci','Vybrat kurz v Akademii'],
+ ['en','Choose an event','Explore Academy courses'],
+ ['ru','Выбрать событие','Выбрать курс Академии'],
+ ['uk','Обрати подію','Обрати курс Академії']
 ]){
  test('two CTAs and usable header links '+lang,async({page})=>{
   await prepare(page);
@@ -73,14 +70,10 @@ for(const [lang,calendar,academy] of [
   await expect(page.locator('#fdHeroLabel')).toHaveText(calendar);
   await expect(page.locator('#fdAcademyLabel')).toHaveText(academy);
   await expect(page.locator('#fdNavAcademy')).toHaveAttribute('href','academy/?lang='+lang);
-  const academyLink=new URL(await page.locator('#fdAcademyCta').getAttribute('href'));
-  expect(academyLink.origin+academyLink.pathname).toBe('https://wa.me/420702914842');
-  expect(academyLink.searchParams.get('text')).toContain('[ACADEMY:FRONTDOOR]');
+  await expect(page.locator('#fdAcademyCta')).toHaveAttribute('href','academy/courses/?lang='+(lang==='uk'?'cs':lang));
   await expect(page.locator('#fdNavEvents')).toHaveAttribute('href','#impr-calendar');
   await page.locator('[data-fd-language="en"]').click();
-  const academyEnglish=new URL(await page.locator('#fdAcademyCta').getAttribute('href'));
-  expect(academyEnglish.searchParams.get('text')).toContain('Hello');
-  expect(academyEnglish.searchParams.get('text')).toContain('[ACADEMY:FRONTDOOR]');
+  await expect(page.locator('#fdAcademyCta')).toHaveAttribute('href','academy/courses/?lang=en');
   await expect(page.locator('#fdNavAbout')).toHaveAttribute('href','?lang=en&view=details');
  });
 }
@@ -121,5 +114,16 @@ test('Prague filter remains honest when catalog contains only Brno events',async
  await expect(page.locator('#fdFallbackHint')).toContainText('нет проверенных');
  await expect(page.locator('#fdDays button')).toHaveCount(0);
  await expect(page.locator('#fdFallbackLink')).toHaveAttribute('href','calendar/');
+ expect(mutations()).toBe(0);
+});
+
+test('Academy hero CTA opens course directory in the same tab instead of WhatsApp',async({page})=>{
+ const mutations=await prepare(page);
+ await page.goto('/?lang=cs');
+ await expect(page.locator('#fdAcademyLabel')).toHaveText('Vybrat kurz v Akademii');
+ await page.locator('#fdAcademyCta').click();
+ await expect(page).toHaveURL(/\/academy\/courses\/\?lang=cs$/);
+ await expect(page.locator('.hero h1 [data-locale="cs"]')).toBeVisible();
+ await expect(page.locator('.hero h1')).toContainText('Naučte se něco, co opravdu využijete.');
  expect(mutations()).toBe(0);
 });
