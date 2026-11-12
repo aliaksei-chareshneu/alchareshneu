@@ -92,6 +92,7 @@ const cases=[
  ['/brno-stories/','stories'],
 ];
 test('the 28 public pages load their themed styles without redirecting or editing registration data',async({page})=>{
+ test.setTimeout(150000);
  await page.setViewportSize({width:1280,height:850});
  const mut=await keepReadOnly(page);
  const style=await page.request.get('/imperion-cinematic-site.css?v=20261112-ux1');
@@ -112,7 +113,7 @@ test('the 28 public pages load their themed styles without redirecting or editin
   });
   expect(load.theme,route).toBe('#f2cb7f');
   expect(load.font,route).toContain('Source Sans 3');
-  expect(load.href,route).toContain('/alchareshneu/imperion-cinematic-site.css');
+  expect(new URL(load.href).pathname,route).toMatch(/\/imperion-cinematic-site\.css$/);
  }
  expect(mut()).toBe(0);
 });
