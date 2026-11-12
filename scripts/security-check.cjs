@@ -19,15 +19,34 @@ function webhook(secret='test-only-secret',duplicate=false) {
  const malformed=webhook();assert.equal(JSON.parse(malformed.call({parameter:req.parameter,postData:{contents:'{"data":{"fields":[]}}'}}).body).error,'invalid_request');assert.equal(malformed.rows.length,0);assert.equal(malformed.released(),1);
  console.log('PASS webhook authentication, validation, duplicate suppression, formula escaping, checkbox state and lock release');
  for(const lang of ['en','ru','cs','uk']){
-  const {dom,w,d,errors}=await load('calendar/index.html',lang);
+  const event={event_id:'PUB-SECURITY-TEST001',title:'<img src=x onerror=alert(1)>',
+   public_note:'<script>throw 1</script>',begins_at:'2099-10-01T16:00:00Z',price_czk:null,
+   price_verified:false,end_time_verified:true,source_active:true,is_open:true,
+   registration_mode:'FORM',community:'__proto__',category:'constructor',
+   venue:'Brno',imageOverride:'../../bad.png'};
+  const good={fetch:async()=>({ok:true,json:async()=>({events:[null,{},event,{...event,begins_at:'2000-01-01T00:00:00Z'}]})})};
+  const {dom,w,d,errors}=await load('calendar/index.html',lang,good);
   try{
-   const script=d.querySelector('script[src*="script.google.com"]');const cb=new URL(script.src).searchParams.get('callback');
-   const event={title:'<img src=x onerror=alert(1)>',description:'<script>throw 1</script>',startISO:'2099-10-01T16:00:00Z',priceCzk:null,registerUrl:'javascript:alert(1)',community:'__proto__',category:'constructor',imageOverride:'../../bad.png'};
-   w[cb]({events:[null,{},event,{...event,startISO:'2000-01-01T00:00:00Z'}]});
-   assert.equal(d.querySelectorAll('.event-upcoming-card').length,1);assert.equal(d.querySelector('.eu-title').textContent,event.title);assert.equal(d.querySelectorAll('.eu-title img,.eu-desc script').length,0);assert.equal(d.querySelector('.eu-ctas a').href,d.querySelector('#navBookBtn').href);assert.equal(new URL(d.querySelector('.eu-ctas a').href).protocol,'https:');assert.ok(!d.querySelector('.eu-ctas a').href.startsWith('javascript:'));assert.ok(!d.querySelector('.eu-price').textContent.includes('0 Kč'));assert.ok(d.querySelector('.eu-img img').src.endsWith('main_hero.webp'));assert.ok(d.querySelector('.eu-date').textContent.includes('18:00'));assert.deepEqual(errors,[]);
-   const emptyDom=await load('calendar/index.html',lang);const emptyScript=emptyDom.d.querySelector('script[src*="script.google.com"]');const emptyCb=new URL(emptyScript.src).searchParams.get('callback');emptyDom.w[emptyCb]({events:[]});assert.equal(emptyDom.d.querySelector('#calEventsBody').dataset.eventStatus,'ready');assert.equal(emptyDom.d.querySelectorAll('.events-empty-message a').length,3);emptyDom.dom.window.close();
-   const failed=await load('calendar/index.html',lang);failed.d.querySelector('script[src*="script.google.com"]').dispatchEvent(new failed.w.Event('error'));assert.equal(failed.d.querySelector('#calEventsBody').dataset.eventStatus,'error');assert.ok(failed.d.querySelector('.calendar-cta-btn'));failed.dom.window.close();
-   console.log('PASS event sanitization, missing price, malformed records, empty state and error fallback',lang);
+   assert.equal(d.querySelectorAll('.event-upcoming-card').length,1);
+   assert.equal(d.querySelector('.eu-title').textContent,event.title);
+   assert.equal(d.querySelectorAll('.eu-title img,.eu-desc script').length,0);
+   assert.ok(d.querySelector('.eu-ctas a').href.endsWith('/walkers/'),'unconfirmed event must not open a paid booking');
+   assert.equal(new URL(d.querySelector('.eu-ctas a').href).protocol,'https:');
+   assert.ok(!d.querySelector('.eu-price').textContent.includes('0 Kč'));
+   assert.ok(d.querySelector('.eu-img img').src.endsWith('main_hero.webp'));
+   assert.ok(d.querySelector('.eu-date').textContent.includes('18:00'));
+   assert.deepEqual(errors,[]);
+   const empty=await load('calendar/index.html',lang,{fetch:async()=>({ok:true,json:async()=>({events:[]})})});
+   assert.equal(empty.d.querySelector('#calEventsBody').dataset.eventStatus,'ready');
+   assert.equal(empty.d.querySelectorAll('.events-empty-message a').length,3);
+   assert.equal(empty.d.querySelectorAll('iframe[src*="calendar.google.com"]').length,0,'no stale alternative calendar on empty');
+   empty.dom.window.close();
+   const failed=await load('calendar/index.html',lang,{fetch:async()=>{throw Error('unavailable')}});
+   assert.equal(failed.d.querySelector('#calEventsBody').dataset.eventStatus,'error');
+   assert.ok(failed.d.querySelector('.calendar-cta-btn'));
+   failed.dom.window.close();
+   console.log('PASS public event sanitization, unverified price, empty/error fail-closed state',lang);
   }finally{dom.window.close();}
  }
+
 })().catch(e=>{console.error(e);process.exitCode=1});

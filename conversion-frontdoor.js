@@ -498,6 +498,11 @@
   el('fdFooterInfo').href='?lang='+lang+'&view=details';
   applyLanguage();
   document.documentElement.setAttribute('data-imperion-frontdoor','ready');
+  // Incoming links from Start/other pages can arrive with a fragment before
+  // this JS-mounted calendar exists. Restore the intended landing position.
+  if(location.hash==='#impr-calendar'){
+    requestAnimationFrame(function(){var target=el('impr-calendar');if(target)target.scrollIntoView({block:'start'});});
+  }
   try{
     var controller=new AbortController();var timeout=setTimeout(function(){controller.abort();},10000);
     fetch(API,{method:'GET',cache:'no-store',signal:controller.signal}).then(function(r){if(!r.ok)throw Error('catalog_unavailable');return r.json();}).then(function(payload){
