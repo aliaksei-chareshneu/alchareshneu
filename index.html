@@ -93,8 +93,8 @@
 <link rel="stylesheet" href="intent-home.css?v=20261109">
 <script src="site-design.js?v=20261027" defer></script>
 <!-- Conversion-first frontend (legacy site retained below for safe rollback). -->
-<link rel="stylesheet" href="conversion-frontdoor.css?v=20261111-v4-nav-city">
-<script src="conversion-frontdoor.js?v=20261111-v4-nav-city" defer></script>
+<link rel="stylesheet" href="conversion-frontdoor.css?v=20261112-cinematic-default-cs">
+<script src="conversion-frontdoor.js?v=20261112-cinematic-default-cs" defer></script>
 </head>
 <body class="quest-site" data-imperion-scope="shared">
 <a class="skip-link" href="#page-content" data-exp="skip">Skip to content</a>
@@ -3420,12 +3420,9 @@ function drawDruzinaParticles(ctx, bounds, particles){
 
 function detectLang(){
   const requested = new URLSearchParams(location.search).get('lang');
-  if (['ru','en','cs','uk'].includes(requested)) return requested;
-  try{
-    const saved = localStorage.getItem('dm_lang');
-    if(saved && T[saved]) return saved;
-  }catch(e){}
-  return 'cs';
+  // Czech is the public default for every clean URL, including returning visitors.
+  // Language selections remain shareable/reloadable via explicit ?lang=cs|en|ru|uk.
+  return ['ru','en','cs','uk'].includes(requested) ? requested : 'cs';
 }
 
 // ====================== HEMA TRIAL PRICE ======================
