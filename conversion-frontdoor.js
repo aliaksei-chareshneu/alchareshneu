@@ -306,10 +306,10 @@
     return new Intl.DateTimeFormat(locale(),{timeZone:'Europe/Prague',weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}).format(new Date(e.begins_at));
   }
   var EDITORIAL = {
-    cs:{facet:'Filtrovat',upcoming:'Akce v tomto měsíci',upcomingIntro:'Kliknutím otevřete popis, cenu a přihlášku.',reset:'Zrušit filtry',none:'Žádné potvrzené veřejné termíny pro zvolený výběr.',allTitle:'Všechny nadcházející akce',allIntro:'Přehled termínů s fotografiemi, podrobnostmi a přihláškou.'},
-    en:{facet:'Filter events',upcoming:'Events this month',upcomingIntro:'Select an event for details, price and enquiry.',reset:'Clear filters',none:'No verified public dates for this selection.',allTitle:'All upcoming events',allIntro:'A dated list with images, event details and booking options.'},
-    ru:{facet:'Фильтры',upcoming:'События месяца',upcomingIntro:'Нажмите на событие, чтобы увидеть цену и запись.',reset:'Сбросить фильтры',none:'Для выбранных фильтров нет подтверждённых публичных дат.',allTitle:'Все предстоящие события',allIntro:'Список по датам с фотографиями, описанием и записью.'},
-    uk:{facet:'Фільтри',upcoming:'Події цього місяця',upcomingIntro:'Натисніть, щоб побачити ціну, опис і запис.',reset:'Скинути фільтри',none:'Для вибраних фільтрів немає підтверджених дат.',allTitle:'Усі найближчі події',allIntro:'Список за датами зі світлинами, подробицями та записом.'}
+    cs:{facet:'Filtrovat',upcoming:'Akce v tomto měsíci',upcomingIntro:'Kliknutím otevřete popis, cenu a přihlášku.',reset:'Zrušit filtry',none:'Žádné potvrzené veřejné termíny pro zvolený výběr.',allTitle:'Všechny nadcházející akce',allIntro:'Pouze následujících 30 dní · ověřené veřejné akce, podrobnosti a přihláška.'},
+    en:{facet:'Filter events',upcoming:'Events this month',upcomingIntro:'Select an event for details, price and enquiry.',reset:'Clear filters',none:'No verified public dates for this selection.',allTitle:'All upcoming events',allIntro:'Next 30 days only · verified public dates, details and requests.'},
+    ru:{facet:'Фильтры',upcoming:'События месяца',upcomingIntro:'Нажмите на событие, чтобы увидеть цену и запись.',reset:'Сбросить фильтры',none:'Для выбранных фильтров нет подтверждённых публичных дат.',allTitle:'Все предстоящие события',allIntro:'Только ближайшие 30 дней · проверенные даты, описание и запись.'},
+    uk:{facet:'Фільтри',upcoming:'Події цього місяця',upcomingIntro:'Натисніть, щоб побачити ціну, опис і запис.',reset:'Скинути фільтри',none:'Для вибраних фільтрів немає підтверджених дат.',allTitle:'Усі найближчі події',allIntro:'Лише найближчі 30 днів · перевірені дати, опис та запис.'}
   };
   function ed(k){return (EDITORIAL[lang]||EDITORIAL.cs)[k];}
   function activateFromList(e){
