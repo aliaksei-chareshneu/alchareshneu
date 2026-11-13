@@ -12,6 +12,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const growthPolicy = require('./imperion-growth-policy.cjs');
+const socialSalesRouting = require('./imperion-social-sales-routing.cjs');
 
 const ROOT = path.resolve(__dirname, '..');
 const FIELDS = Object.freeze({
@@ -325,6 +326,12 @@ async function runAll(snapshot, options={}) {
     mode:'READ_ONLY_PREVIEW', paid_api_calls:0, new_crm_records:0,
     chief:chief(snapshot), sales:sales(snapshot), social:await social(snapshot),
     growth:growthPolicy.review(snapshot,pragueEventIso),
+    // Existing Agent #4 is PRIVATE and external from this preview. No model is
+    // assumed available unless independently verified local runtime evidence
+    // is injected by its authenticated operator. This performs no inference.
+    sales_private_model_gate:socialSalesRouting.modelRoute(
+      {action:'DRAFT',purpose:'SALES_PRIVATE_DRAFT',data_classification:'PRIVATE_CUSTOMER'},
+      options.agent4ModelRuntime || {}),
     seo:seo(options.root||ROOT), video:video(snapshot,options.root||ROOT),
     closed_loop:closedLoop(snapshot),
     external_messages_sent:0, external_posts_published:0, payments_created:0,
