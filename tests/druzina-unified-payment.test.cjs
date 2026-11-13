@@ -105,7 +105,7 @@ test('the existing CRM is updated in place; PDF files stay outside public Sheets
 test('private receipt cleanup is controlled, not public file listing',()=>{
  const source=fs.readFileSync('supabase/functions/imperion-training-proof-retention/index.ts','utf8');
  assert.ok(source.includes('verify_imperion_intake_bridge_token'));
- assert.ok(source.includes('.storage.from(BUCKET).list('));
- assert.ok(source.includes('.storage.from(BUCKET).remove('));
+ assert.ok(source.includes('.storage.from(item.name).list(')&&source.includes('imperion-training-payment-proofs'));
+ assert.ok(source.includes('.storage.from(item.name).remove(')&&source.includes('imperion-academy-payment-proofs'));
  assert.ok(!source.includes('getPublicUrl('));
 });
