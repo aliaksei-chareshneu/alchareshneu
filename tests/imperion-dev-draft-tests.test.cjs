@@ -151,3 +151,31 @@ test('wrong Qwen expected values use the trusted oracle without repeat inference
  assert.equal(output.oracle_recomputed_cases,1);
  assert.equal(output.data.cases[2].expected,15);
 });
+
+test('minimal three-case JSON rows from Qwen are independently assigned trusted expected values',()=>{
+ const minimal={cases:good.cases.map(c=>({name:c.name,rows:c.args[0]}))};
+ const checked=D.normalizeWithTrustedOracle(JSON.stringify(minimal));
+ assert.deepEqual(checked.data,good);
+ assert.equal(checked.oracle_recomputed_cases,3);
+ assert.match(D.draftPrompt('source'),/No export, args, expected or extra fields/);
+ const altered={...minimal,cases:[minimal.cases[0],
+  {...minimal.cases[1],rows:[{price:8,quantity:"3"}]},minimal.cases[2]]};
+ assert.throws(()=>D.normalizeWithTrustedOracle(JSON.stringify(altered)),/TEST_VECTOR_ARGUMENTS_REJECTED/);
+ const untrusted={...minimal,cases:[minimal.cases[0],
+  {...minimal.cases[1],extra:"eval()"},minimal.cases[2]]};
+ assert.throws(()=>D.normalizeWithTrustedOracle(JSON.stringify(untrusted)),/TEST_VECTOR_SCHEMA_REJECTED/);
+});
+test('minimal model rows can pass one real-request-shaped inference mock',async()=>{
+ let n=0;
+ const minimal={cases:good.cases.map(c=>({name:c.name,rows:c.args[0]}))};
+ const r=await D.askDraftVectors('source',async(_url,req)=>({
+  ok:true,redirected:false,json:async()=>{
+   n++;
+   assert.match(JSON.parse(req.body).prompt,/EXAMPLE FORMAT/);
+   return {done:true,model:W.MODEL,response:JSON.stringify(minimal)};
+  }
+ }));
+ assert.equal(n,1);
+ assert.equal(r.oracle_recomputed_cases,3);
+ assert.deepEqual(r.data,good);
+});

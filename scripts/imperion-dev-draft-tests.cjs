@@ -53,35 +53,52 @@ function parseDraftVectors(raw) {
  if(!empty||!single||!multi)reject('TEST_VECTOR_COVERAGE_MISSING');
  return data;
 }
-// Model-generated test INPUTS are untrusted; in this fixture the deterministic
-// arithmetic oracle computes every expected value. No model-authored test code.
+// Stage 10 fixture ONLY. Qwen supplies bounded rows; a trusted oracle supplies
+// all expected results. Both the minimal new schema and the earlier full JSON
+// schema are accepted, then rechecked through one strict internal validator.
 function normalizeWithTrustedOracle(raw) {
  if(typeof raw!=='string'||Buffer.byteLength(raw)>MAX_RESPONSE)
   reject('TEST_VECTOR_OUTPUT_SIZE_REJECTED');
  let data;try{data=JSON.parse(raw)}catch{reject('TEST_VECTOR_JSON_REJECTED')}
- exactKeys(data,['export','cases']);
- if(data.export!=='total'||!Array.isArray(data.cases)||data.cases.length!==3)
+ if(!data||typeof data!=='object'||Array.isArray(data))
   reject('TEST_VECTOR_SCHEMA_REJECTED');
- let corrected=0;
- for(const c of data.cases){
+ const bare=Object.keys(data).sort().join('|')==='cases';
+ let normalized;
+ if(bare) {
+  exactKeys(data,['cases']);
+  if(!Array.isArray(data.cases)||data.cases.length!==3)
+   reject('TEST_VECTOR_SCHEMA_REJECTED');
+  normalized={export:'total',cases:data.cases.map(c=>{
+   exactKeys(c,['name','rows']);
+   return {name:c.name,args:[c.rows],expected:0};
+  })};
+ }else {
+  exactKeys(data,['export','cases']);
+  if(data.export!=='total'||!Array.isArray(data.cases)||data.cases.length!==3)
+   reject('TEST_VECTOR_SCHEMA_REJECTED');
+  normalized=data;
+ }
+ let recalculated=0;
+ for(const c of normalized.cases){
   exactKeys(c,['name','args','expected']);
   if(!Array.isArray(c.args)||c.args.length!==1||
      !Array.isArray(c.args[0])||c.args[0].length>8||
      !Number.isSafeInteger(c.expected)||c.expected<0||c.expected>100000000)
     reject('TEST_VECTOR_ARGUMENTS_REJECTED');
   let expected=0;
-  for(const r of c.args[0]){
-   exactKeys(r,['price','quantity']);
-   if(!Number.isSafeInteger(r.price)||!Number.isSafeInteger(r.quantity)||
-     r.price<0||r.price>10000||r.quantity<0||r.quantity>10000)
-     reject('TEST_VECTOR_ARGUMENTS_REJECTED');
-   expected+=r.price*r.quantity;
+  for(const row of c.args[0]){
+   exactKeys(row,['price','quantity']);
+   if(!Number.isSafeInteger(row.price)||!Number.isSafeInteger(row.quantity)||
+      row.price<0||row.price>10000||row.quantity<0||row.quantity>10000)
+    reject('TEST_VECTOR_ARGUMENTS_REJECTED');
+   expected+=row.price*row.quantity;
   }
   if(expected>100000000)reject('TEST_VECTOR_ARGUMENTS_REJECTED');
-  if(c.expected!==expected)corrected++;
+  if(bare||expected!==c.expected)recalculated++;
   c.expected=expected;
  }
- return {data:parseDraftVectors(JSON.stringify(data)),oracle_recomputed_cases:corrected};
+ return {data:parseDraftVectors(JSON.stringify(normalized)),
+   oracle_recomputed_cases:recalculated};
 }
 function renderDraftTest(task,data) {
  if(task?.file!==W.FIXTURE_FILE||task.mode!=='FIXTURE')
@@ -105,18 +122,18 @@ function renderDraftTest(task,data) {
 }
 function draftPrompt(patchedSource,feedback='') {
  return [
-  'You propose JSON DATA ONLY for a public arithmetic JavaScript test. No executable test source.',
-  'The trusted controller constructs the test file; you cannot name files or call tools.',
-  'The function is total(items), returns sum of price * quantity, empty input gives zero.',
-  'Return EXACT JSON keys export and cases. export must be "total". Exactly 3 distinct cases.',
-  'Case names lowercase ASCII 3-36 chars. Each args is one array of 0 to 8 rows.',
-  'Each row has exactly integer nonnegative price and quantity (0..10000). expected integer.',
-  'Use ONE empty-list case, ONE single-row case and ONE case with >=2 rows.',
-  'Suggest diverse test INPUTS; the trusted controller will compute the expected values.',
-  'Expected numbers in your response are advisory only. Avoid existing example 7*3.',
-  'JSON shape example (use your own numbers): '+TEST_SHAPE,
+  'Suggest JSON DATA ONLY for a public arithmetic test, not executable test code.',
+  'Return EXACT JSON with only the key cases. Exactly 3 cases.',
+  'Each case has EXACT keys name and rows. No export, args, expected or extra fields.',
+  'Each name lowercase ASCII a-z and 0-9, 3-36 chars.',
+  'Each rows is an array of objects containing exactly price and quantity.',
+  'price and quantity are integers from 0 to 10000.',
+  'The three cases must cover empty rows, exactly one row, and two or more rows.',
+  'A trusted independent oracle calculates all expected results; do not calculate.',
+  'EXAMPLE FORMAT (choose different simple numbers):',
+  '{"cases":[{"name":"empty_rows","rows":[]},{"name":"one_row","rows":[{"price":2,"quantity":3}]},{"name":"two_rows","rows":[{"price":3,"quantity":4},{"price":5,"quantity":2}]}]}',
   feedback?'RETRY_REASON: '+feedback.slice(0,100):'',
-  'PATCHED_PUBLIC_SOURCE: '+patchedSource.slice(0,9000)
+  'PATCHED_PUBLIC_SOURCE: '+patchedSource.slice(0,2500)
  ].filter(Boolean).join('\n');
 }
 async function askDraftVectors(patchedSource,fetchImpl=globalThis.fetch) {
