@@ -65,6 +65,75 @@ function spValidate_(e,j){
   throw Error('Set YouTube visibility and Made_For_Kids YES/NO');
  return true;
 }
+
+/* PRIVATE per-job release: a worksheet APPROVED cell is not publication consent.
+ * Key/approval must be installed by the account owner in Script Properties.
+ * No per-job scope, quota readback or current media rights => no provider call.
+ */
+function spReleaseGate_(e,j){
+ var props;
+ try{props=PropertiesService.getScriptProperties();}
+ catch(_){throw Error('OWNER_RELEASE_NOT_CONFIGURED');}
+ if(!props||props.getProperty('SOCIAL_PUBLISHER_ENABLED')!=='true'||
+   props.getProperty('SOCIAL_PUBLISHER_KILL_SWITCH')!=='false')
+   throw Error('OWNER_RELEASE_DISABLED');
+ var jobId=String(j.Job_ID||'');
+ if(!/^[A-Za-z0-9][A-Za-z0-9_:.~-]{2,130}$/.test(jobId))
+   throw Error('INVALID_RELEASE_JOB_ID');
+ var raw=props.getProperty('SOCIAL_GO_'+jobId),g;
+ try{g=JSON.parse(raw||'null');}catch(_){throw Error('SCOPED_OWNER_GO_INVALID');}
+ if(!g||g.state!=='ACTIVE'||g.owner_verified!==true||
+    !/^GO-[A-Za-z0-9_-]{8,80}$/.test(String(g.approval_ref||''))||
+    g.job_id!==jobId||g.channel!==j.Channel||g.entity!==j.Entity||
+    !/^[A-Za-z0-9_:-]{3,100}$/.test(String(g.account_id||'')))
+   throw Error('NO_EXACT_SCOPED_OWNER_GO');
+ var now=Date.now(),start=Date.parse(g.valid_from),end=Date.parse(g.valid_until);
+ if(!isFinite(start)||!isFinite(end)||end<=start||end-start>31*86400000||
+    now<start||now>end)throw Error('SCOPED_OWNER_GO_EXPIRED');
+ var approved=j.Approved_At instanceof Date?j.Approved_At.getTime():
+    Date.parse(String(j.Approved_At||''));
+ if(!isFinite(approved)||approved>now||approved<start||approved>now+300000)
+   throw Error('APPROVED_AT_OUTSIDE_SCOPED_GO');
+ var entity=e.Community==='Družina Moravy'?'Družina Moravy z.s.':
+   e.Community==='Brnowalkers'?
+     (e.Category==='Community Info'?'BrnoWalkers — informational community (no sale)':'Aliaksei Chareshneu OSVČ'):
+   e.Community==='OSVC'?'OSVC':null;
+ if(entity===null||String(j.Entity)!==entity)throw Error('LEGAL_ENTITY_SOURCE_MISMATCH');
+ if(props.getProperty('SOCIAL_ACCOUNT_ID_'+String(g.entity).replace(/[^A-Za-z0-9_]/g,'_')+
+   '_'+j.Channel)!==g.account_id)throw Error('OWNER_ACCOUNT_ID_NOT_VERIFIED');
+ if(g.provider_quota_verified!==true||
+    !Number.isSafeInteger(g.provider_posts_last_24h)||g.provider_posts_last_24h<0||
+    !Number.isSafeInteger(g.max_posts_per_24h)||g.max_posts_per_24h<1||
+    g.max_posts_per_24h>10||g.provider_posts_last_24h>=g.max_posts_per_24h||
+    !isFinite(Date.parse(g.quota_readback_at))||
+    now-Date.parse(g.quota_readback_at)>3*3600000||
+    Date.parse(g.quota_readback_at)>now)
+   throw Error('PROVIDER_QUOTA_OR_READBACK_UNVERIFIED');
+ if(g.recent_posts_reconciled!==true||g.cta_verified!==true||
+    g.legal_and_grant_terms_verified!==true||g.opt_out_checked!==true)
+   throw Error('PUBLISH_FACTS_OR_DEDUP_UNVERIFIED');
+ if(j.Channel==='facebook_page' &&
+    (g.facebook_same_destination_posts_72h!==0||g.facebook_rules_verified!==true))
+   throw Error('FACEBOOK_72H_OR_RULES_UNKNOWN');
+ if(j.Media_URL||j.Video_Drive_ID){
+   if(String(j.Rights_OK).toUpperCase()!=='YES'||
+      g.media_rights_verified!==true||
+      g.media_binding!==String(j.Video_Drive_ID||j.Media_URL))
+     throw Error('MEDIA_RIGHTS_OR_SOURCE_NOT_VERIFIED');
+ }
+ if(e.Community==='Družina Moravy' &&
+    e.Category!=='Community Info'&&e.Category!=='ShortFactory Media'){
+   var n=['safe_capacity','confirmed_persons','promised_places','pending_requests'];
+   if(g.safety_verified!==true||!n.every(function(k){
+       return Number.isSafeInteger(g[k])&&g[k]>=0;
+     })||g.safe_capacity<1||
+     g.confirmed_persons+g.promised_places+g.pending_requests>=g.safe_capacity||
+     g.pending_requests!==0)
+     throw Error('SAFETY_CAPACITY_UNVERIFIED_OR_FULL');
+ }
+ return true;
+}
+
 /* Select Events row, add DRAFT rows, never publish. */
 function spPrepareSelectedEvent(){
  var s=SpreadsheetApp.getActiveSheet(),row=s.getActiveCell().getRow();
@@ -123,6 +192,7 @@ function spRunDue(){
   jobs.forEach(function(j){
    try{
     var e=spSource_(j);spValidate_(e,j);
+    spReleaseGate_(e,j); // always verify owner-private scope BEFORE claiming a send
     s.getRange(j.row,m.Status).setValue('CLAIMED');
     s.getRange(j.row,m.Attempted_At).setValue(new Date());SpreadsheetApp.flush();
     var result=spSend_(e,j);

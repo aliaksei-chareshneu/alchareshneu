@@ -10,6 +10,9 @@ function spSetEventReceipt_(event,field,value) {
  if(map[field] && event.row) sheet.getRange(event.row,map[field]).setValue(value);
 }
 function spSend_(event,job) {
+ if(SP_AUTO.indexOf(job.Channel)<0)
+   throw Error('Automatic publishing not supported for '+job.Channel);
+ spReleaseGate_(event,job); // cannot bypass the dispatcher by calling this adapter directly
  switch(job.Channel) {
   case 'telegram':
    if(event.Community!=='Brnowalkers'&&event.Community!=='Družina Moravy'){

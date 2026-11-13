@@ -95,6 +95,7 @@ test('approved community job is sent once and retains provider receipt in SAME q
  s.LockService={getDocumentLock:()=>({tryLock:()=>true,releaseLock(){}})};
  s.SpreadsheetApp={flush(){}};
  let sent=0;
+ s.spReleaseGate_=()=>true; // synthetic provider fixture only
  s.spSend_=()=>{sent++;return{id:'44',url:'https://t.me/example/44'};};
  s.spRunDue();
  assert.equal(j.Status,'PUBLISHED_PROVIDER_CONFIRMED');assert.equal(j.Post_ID,'44');assert.equal(sent,1);
@@ -128,6 +129,7 @@ test('missing publish receipt is not called published and never auto-retried',()
  c.LockService={getDocumentLock:()=>({tryLock:()=>true,releaseLock(){}})};
  c.SpreadsheetApp={flush(){}};
  let sends=0;
+ c.spReleaseGate_=()=>true; // synthetic provider fixture only
  c.spSend_=()=>{sends++;return {url:'https://example.org/uncertain'};};
  c.spRunDue();
  assert.equal(j.Status,'DELIVERY_UNVERIFIED');
@@ -145,6 +147,7 @@ test('pre-existing event receipt is not falsely called independently verified li
  c.spMap_=()=>fields;c.spItems_=()=>[j];
  c.LockService={getDocumentLock:()=>({tryLock:()=>true,releaseLock(){}})};
  c.SpreadsheetApp={flush(){}};
+ c.spReleaseGate_=()=>true; // synthetic provider fixture only
  c.spSend_=()=>({existing:true,id:'old-44',url:'https://t.me/example/44'});
  c.spRunDue();
  assert.equal(j.Status,'HISTORICAL_RECEIPT_NEEDS_READBACK');
@@ -204,6 +207,7 @@ test('ShortFactory-approved dry-run fake provider reaches receipt state, never t
  s.LockService={getDocumentLock:()=>({tryLock:()=>true,releaseLock(){}})};
  s.SpreadsheetApp={flush(){}};
  let simulatedCalls=0;
+ s.spReleaseGate_=()=>true; // synthetic provider fixture only
  s.spSend_=()=>{simulatedCalls++;return{id:'synthetic-video-id',
   url:'https://www.youtube.com/watch?v=synthetic-video-id'};};
  s.spRunDue();
