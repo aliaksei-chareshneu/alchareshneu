@@ -78,3 +78,17 @@ Qwen3:4b-instruct reads a **single specified public directory**, and from 1–8 
 **Fail-closed rules:** no trusted test, private or sensitive path, source not explicitly referenced by that test, >2 selected sources, Python/source language mixing, malformed JSON, model guessing wrong expected values, changed SHA, test failure, lost GitHub permission or duplicate review branch → BLOCKED, no merge or deploy. Stage 9 explicit-file command continues to support its existing bounded single-file Python route; Stage 11 self-selection is JS/CJS only.
 
 **Evidence boundary:** code and tests in a PR are not proof of LIVE. The feature becomes verified only after a real owner-authored Issue comment triggers GitHub Actions and GitHub confirms its own Draft PR with the expected changes and test logs. No automatic merges, deployments, paid APIs, secrets or changes to customer/NGO data. Native Android app-origin issuance and paid Copilot availability remain independently UNVERIFIED.
+
+## Stage 12 review — model selection and behavior-test safeguards (NOT LIVE until merged)
+
+The existing cloud execution model is **qwen3:4b-instruct** on ephemeral GitHub Actions CPU/Ollama. The Windows poller is separate (local `imperion-qwen35:4b`); do not copy any ChatGPT/Codex/Copilot authentication into GitHub Actions.
+
+On review and with separately authorized repository settings, `IMPERION_DEV_MODEL` may select exactly `qwen3:4b-instruct` (default) or `qwen3.5:4b` (alternative). The latter's Ollama tag exists, but passing this branch's offline allowlist tests is **not** a hosted Qwen3.5 inference acceptance. A real hosted preview and quota check is mandatory before claiming it usable. Unknown values fail before model download, and there is no fallback to paid inference or additional credentials.
+
+For functional changes in Stage 11, the new fixed-template advisory test must fail against ORIGINAL public source before it may count as behavior evidence. If it passes on original, a controller permits at most **one bounded re-draft** of JSON-only advisory cases; another green original test blocks the PR. The independent pre-existing test must still pass in a no-network, non-root, read-only Docker container. Advisory test data from the same model is **never independent proof**. Comment-only changes may keep unchanged original behavior and are not required to fail baseline.
+
+Current restrictions persist: no unattended arbitrary repo changes, private tasks, unknown providers, unapproved account settings, production merges, deploys, permission escalation, recurring costs or customer messages. A task passing the issue workflow is not automatically `pull_request`-head CI green; bot PR workflows can show `action_required` and require separate GitHub review.
+
+Stage 12 acceptance is limited to a Draft PR with real GitHub Actions readback. The owner must approve any future merge separately.
+
+**Stage 12 code-repair gate:** if the first isolated, independently maintained trusted tests fail, the existing Qwen controller may propose ONE replacement patch against the SAME original tracked source(s) and SHA, using a bounded read-only failure hint. The entire fixed-template advisory witness and independent Docker tests run again in a new temporary sandbox. A second failure blocks publication; no self-approved merge or broader permissions. Only this narrow one-retry route is implemented, NOT unrestricted automatic debug/refactor loops.

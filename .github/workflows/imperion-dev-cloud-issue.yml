@@ -7,6 +7,11 @@ on:
       - 'tests/imperion-dev-cloud-issue.test.cjs'
       - 'scripts/imperion-dev-draft-tests.cjs'
       - 'scripts/imperion-dev-autonomous.cjs'
+      - 'scripts/imperion-dev-model-policy.cjs'
+      - 'scripts/imperion-dev-witness.sh'
+      - 'scripts/imperion-dev-repair.sh'
+      - 'tests/imperion-dev-stage12.test.cjs'
+      - 'tests/imperion-dev-model-policy.test.cjs'
       - 'tests/imperion-dev-autonomous.test.cjs'
       - 'tests/imperion-dev-draft-tests.test.cjs'
       - 'ops/imperion-dev-cloud-fixture/**'
@@ -22,6 +27,8 @@ concurrency:
   cancel-in-progress: false
 jobs:
   task-preflight:
+    env:
+      IMPERION_DEV_MODEL: ${{ vars.IMPERION_DEV_MODEL || 'qwen3:4b-instruct' }}
     # Preview runs ONLY from the known owner PR branch.
     # Later, on default branch, ONLY an exact owner comment on issue 245.
     if: >-
@@ -48,7 +55,11 @@ jobs:
         with:
           node-version: '22'
       - name: Validate owner, scope, model parser, patch gates and mock cases
-        run: node --test tests/imperion-dev-cloud-issue.test.cjs tests/imperion-dev-cloud-acceptance.test.cjs tests/imperion-dev-draft-tests.test.cjs tests/imperion-dev-autonomous.test.cjs
+        run: node --test tests/imperion-dev-cloud-issue.test.cjs tests/imperion-dev-cloud-acceptance.test.cjs tests/imperion-dev-draft-tests.test.cjs tests/imperion-dev-autonomous.test.cjs tests/imperion-dev-model-policy.test.cjs tests/imperion-dev-stage12.test.cjs
+      - name: Check advisory witness shell syntax
+        run: bash -n scripts/imperion-dev-witness.sh && bash -n scripts/imperion-dev-repair.sh
+      - name: Reject unapproved CPU model before model startup
+        run: node scripts/imperion-dev-model-policy.cjs
       - name: Fail closed on bad legacy owner comment, sensitive path or absent trusted test
         if: github.event_name == 'issue_comment' && startsWith(github.event.comment.body, '/imperion-dev cloud')
         run: node scripts/imperion-dev-cloud-issue.cjs --check-event
@@ -57,6 +68,8 @@ jobs:
         run: node scripts/imperion-dev-autonomous.cjs --check-event
 
   cloud-qwen-coding:
+    env:
+      IMPERION_DEV_MODEL: ${{ vars.IMPERION_DEV_MODEL || 'qwen3:4b-instruct' }}
     needs: task-preflight
     runs-on: ubuntu-24.04
     timeout-minutes: 24
@@ -69,6 +82,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Check CPU model allowlist
+        run: node scripts/imperion-dev-model-policy.cjs
       - name: Restore existing Qwen model cache (no private keys)
         uses: actions/cache@v4
         with:
@@ -88,7 +103,7 @@ jobs:
             sleep 2
           done
           curl -fsS http://127.0.0.1:11434/api/version >/dev/null
-          docker exec imperion-cloud-issue-qwen ollama pull qwen3:4b-instruct > "$RUNNER_TEMP/imperion-cloud-ollama.log" 2>&1 || {
+          docker exec imperion-cloud-issue-qwen ollama pull "$IMPERION_DEV_MODEL" > "$RUNNER_TEMP/imperion-cloud-ollama.log" 2>&1 || {
             tail -n 15 "$RUNNER_TEMP/imperion-cloud-ollama.log"
             exit 1
           }
@@ -268,7 +283,8 @@ jobs:
         if: >-
           (github.event_name == 'issue_comment' && startsWith(github.event.comment.body, '/imperion-dev autonomous')) ||
           (github.event_name == 'pull_request' && (github.event.pull_request.head.ref == 'agent/imperion-dev-cloud-stage11-autonomous-20261113' ||
-            github.event.pull_request.head.ref == 'agent/imperion-dev-cloud-stage11-repair-20261113'))
+            github.event.pull_request.head.ref == 'agent/imperion-dev-cloud-stage11-repair-20261113' ||
+             github.event.pull_request.head.ref == 'agent/imperion-dev-cloud-stage12-quality-routing-20261113'))
         shell: bash
         run: |
           set -euo pipefail
@@ -282,7 +298,8 @@ jobs:
         if: >-
           (github.event_name == 'issue_comment' && startsWith(github.event.comment.body, '/imperion-dev autonomous')) ||
           (github.event_name == 'pull_request' && (github.event.pull_request.head.ref == 'agent/imperion-dev-cloud-stage11-autonomous-20261113' ||
-            github.event.pull_request.head.ref == 'agent/imperion-dev-cloud-stage11-repair-20261113'))
+            github.event.pull_request.head.ref == 'agent/imperion-dev-cloud-stage11-repair-20261113' ||
+             github.event.pull_request.head.ref == 'agent/imperion-dev-cloud-stage12-quality-routing-20261113'))
         shell: bash
         run: |
           set -euo pipefail
@@ -298,6 +315,7 @@ jobs:
             --cpus 1 --user 10001:10001 --tmpfs /tmp:rw,noexec,nosuid,size=64m \
             -v "$GITHUB_WORKSPACE:/work:ro" -w /work node:22-alpine \
             node --test "$trusted" > "$RUNNER_TEMP/imperion-dev-auto-baseline.log" 2>&1 && baseline=PASS
+          bash scripts/imperion-dev-witness.sh "$proof"
           node scripts/imperion-dev-autonomous.cjs --apply "$proof" "$sandbox"
           node -e 'const p=require(process.argv[1]),W=require("./scripts/imperion-dev-cloud-issue.cjs");
             if(!Array.isArray(p.selected)||p.selected.length<1||p.selected.length>2||
@@ -307,22 +325,26 @@ jobs:
             node --check "$sandbox/$f"
           done
           node --check "$sandbox/$draft"
-          docker run --rm --network none --read-only --cap-drop ALL \
+          if docker run --rm --network none --read-only --cap-drop ALL \
             --security-opt no-new-privileges --pids-limit 64 --memory 512m \
             --cpus 1 --user 10001:10001 --tmpfs /tmp:rw,noexec,nosuid,size=64m \
             -v "$sandbox:/work:ro" -w /work node:22-alpine \
-            node --test "$trusted" "$draft" > "$RUNNER_TEMP/imperion-dev-auto-tests.log" 2>&1 || {
-              tail -n 35 "$RUNNER_TEMP/imperion-dev-auto-tests.log"
-              exit 9
-            }
-          grep -Eq '^# tests [1-9][0-9]*$' "$RUNNER_TEMP/imperion-dev-auto-tests.log"
-          grep -Fxq '# fail 0' "$RUNNER_TEMP/imperion-dev-auto-tests.log"
+            node --test "$trusted" "$draft" > "$RUNNER_TEMP/imperion-dev-auto-tests.log" 2>&1; then
+            verified_log="$RUNNER_TEMP/imperion-dev-auto-tests.log"
+          else
+            tail -n 35 "$RUNNER_TEMP/imperion-dev-auto-tests.log"
+            bash scripts/imperion-dev-repair.sh "$proof" "$trusted" "$draft"
+            verified_log="$RUNNER_TEMP/imperion-dev-auto-repaired-tests.log"
+          fi
+          grep -Eq '# tests [1-9][0-9]*$' "$verified_log"
+          grep -Fxq '# fail 0' "$verified_log"
           node -e 'const fs=require("node:fs"),p=require(process.argv[1]);
             if(p.status!=="AUTO_MODEL_PROPOSAL_ONLY"||p.auto_merge!==false)process.exit(9);
             const r={status:"AUTO_ISOLATED_TRUSTED_AND_ADVISORY_PASS",
               issue:p.task.issue,comment:p.task.comment,files:p.selected,
               independent_test:p.task.test,advisory_test:p.generated_file,
               advisory_sha256:p.generated_sha256,model:p.model,baseline:process.argv[3],
+              code_retry_done:p.code_retry_done===true,
               public_only:true,advisory_not_independent:true,paid_api_czk:0,
               auto_merge:false,host:"GITHUB_ACTIONS_CPU"};
             fs.writeFileSync(process.argv[2],JSON.stringify(r,null,2)+"\n",{flag:"wx"});' \
@@ -355,6 +377,8 @@ jobs:
           fi
 
   draft-review-pr:
+    env:
+      IMPERION_DEV_MODEL: ${{ vars.IMPERION_DEV_MODEL || 'qwen3:4b-instruct' }}
     needs: cloud-qwen-coding
     # Never write a branch for PR preview. The issue workflow itself must
     # first be reviewed and merged with owner's separate GO.
