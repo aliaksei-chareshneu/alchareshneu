@@ -12,7 +12,7 @@ en:{badge:'★ Google reviews',badgeSub:'Read genuine reviews',eyebrow:'PEOPLE�
 ru:{badge:'★ Отзывы Google',badgeSub:'Читать реальные отзывы',eyebrow:'ОПЫТ УЧАСТНИКОВ',title:'Что говорят люди',lead:'Подборка ранее опубликованных отзывов. Актуальное количество, рейтинг и полные тексты проверяйте непосредственно в Google.',cta:'Читать все отзывы в Google',alt:'Снимок ранее опубликованного отзыва'},
 uk:{badge:'★ Відгуки Google',badgeSub:'Читати справжні відгуки',eyebrow:'ДОСВІД УЧАСНИКІВ',title:'Що говорять люди',lead:'Добірка раніше опублікованих відгуків. Актуальну кількість, рейтинг і повні тексти перевіряйте безпосередньо в Google.',cta:'Читати всі відгуки в Google',alt:'Знімок раніше опублікованого відгуку'}
 };
-var badge=document.createElement('a');badge.id='imp-google-review-badge';badge.href=href;badge.target='_blank';badge.rel='noopener noreferrer';badge.innerHTML='<span class="imp-review-stars" aria-hidden="true">★★★★★</span><strong></strong><small></small>';
+var badge=document.createElement('a');badge.id='imp-google-review-badge';badge.href=href;badge.target='_blank';badge.rel='noopener noreferrer';badge.innerHTML='<span class="imp-review-stars" aria-hidden="true">★</span><strong></strong><small></small>';
 var hero=mount.querySelector('.fd-hero');
 if(hero)hero.append(badge);
 var section=document.createElement('section');section.id='imp-home-reviews';section.setAttribute('aria-label','Google reviews');
