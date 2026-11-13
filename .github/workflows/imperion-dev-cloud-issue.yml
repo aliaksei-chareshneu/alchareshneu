@@ -5,6 +5,8 @@ on:
       - '.github/workflows/imperion-dev-cloud-issue.yml'
       - 'scripts/imperion-dev-cloud-issue.cjs'
       - 'tests/imperion-dev-cloud-issue.test.cjs'
+      - 'scripts/imperion-dev-draft-tests.cjs'
+      - 'tests/imperion-dev-draft-tests.test.cjs'
       - 'ops/imperion-dev-cloud-fixture/**'
       - '.github/agents/imperion-dev.agent.md'
       - 'docs/imperion-dev-android.md'
@@ -43,7 +45,7 @@ jobs:
         with:
           node-version: '22'
       - name: Validate owner, scope, model parser, patch gates and mock cases
-        run: node --test tests/imperion-dev-cloud-issue.test.cjs tests/imperion-dev-cloud-acceptance.test.cjs
+        run: node --test tests/imperion-dev-cloud-issue.test.cjs tests/imperion-dev-cloud-acceptance.test.cjs tests/imperion-dev-draft-tests.test.cjs
       - name: Fail closed on bad owner comment, sensitive paths or absent trusted test
         if: github.event_name == 'issue_comment'
         run: node scripts/imperion-dev-cloud-issue.cjs --check-event
@@ -199,6 +201,32 @@ jobs:
             -v "$RUNNER_TEMP/imperion-dev-python-review:/work:ro" -w /work python:3.12-alpine \
             "${py_argv[@]}"
           echo "PYTHON_QWEN_PATCH_ISOLATED_3_TESTS_PASS" >> "$GITHUB_STEP_SUMMARY"
+      - name: Generate advisory Qwen test vectors on public synthetic PR preview
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          set -euo pipefail
+          sandbox="$RUNNER_TEMP/imperion-dev-test-vector-sandbox"
+          mkdir -p "$sandbox"
+          git ls-files -z | tar --null -T - -cf - | tar -C "$sandbox" -xf -
+          RUNNER_TEMP="$RUNNER_TEMP" node scripts/imperion-dev-draft-tests.cjs \
+            --preview "$RUNNER_TEMP/imperion-dev-cloud-proposal.json" "$sandbox"
+          test -s "$RUNNER_TEMP/imperion-dev-test-vector-result.json"
+          node -e 'const p=require(process.argv[1]);
+            if(p.status!=="UNTRUSTED_TEST_DRAFT_ONLY" || p.merged!==false ||
+               p.paid_api_czk!==0 || p.file!=="tests/generated/imperion-dev-cloud-preview.test.cjs")
+              process.exit(9)' "$RUNNER_TEMP/imperion-dev-test-vector-result.json"
+          (
+            cd "$sandbox"
+            node "$GITHUB_WORKSPACE/scripts/imperion-dev-cloud-issue.cjs" \
+              --apply "$RUNNER_TEMP/imperion-dev-cloud-proposal.json"
+          )
+          docker run --rm --network none --read-only --cap-drop ALL \
+            --security-opt no-new-privileges --pids-limit 64 --memory 512m \
+            --cpus 1 --user 10001:10001 --tmpfs /tmp:rw,noexec,nosuid,size=64m \
+            -v "$sandbox:/work:ro" -w /work node:22-alpine \
+            node --test tests/generated/imperion-dev-cloud-preview.test.cjs
+          echo "MODEL_DRAFT_TEST_VECTORS_SANDBOX_PASS_ADVISORY_NOT_TRUSTED" >> "$GITHUB_STEP_SUMMARY"
       - name: Retain bounded public review proof for 3 days (never deploy)
         if: always()
         uses: actions/upload-artifact@v4
@@ -208,6 +236,7 @@ jobs:
             ${{ runner.temp }}/imperion-dev-cloud-proposal.json
             ${{ runner.temp }}/imperion-dev-cloud-test-result.json
             ${{ runner.temp }}/imperion-dev-cloud-python-proposal.json
+            ${{ runner.temp }}/imperion-dev-test-vector-result.json
           if-no-files-found: warn
           retention-days: 3
       - name: Stop ephemeral cloud Ollama
