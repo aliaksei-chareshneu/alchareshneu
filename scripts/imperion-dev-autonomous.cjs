@@ -202,7 +202,9 @@ async function propose(task,root,fetchImpl=globalThis.fetch){
  for(const src of sources){
   const old=W.safeFileRead(root,src.file);
   if(W.sha(old)!==src.source_sha256)reject('AUTO_SOURCE_SHA_MISMATCH');
-  updated[src.file]=W.applyCandidate(old,W.parseCandidate(JSON.stringify(src.patch)));
+  const changed=W.applyCandidate(old,W.parseCandidate(JSON.stringify(src.patch)));
+  W.enforceCommentOnly({...task,mode:'AUTO_OWNER_ISSUE'},old,changed);
+  updated[src.file]=changed;
  }
  const draft=await draftAdvisory(task,selected,updated,c,fetchImpl);
  return {schema:'imperion-dev-autonomous-v1',status:'AUTO_MODEL_PROPOSAL_ONLY',
@@ -237,6 +239,7 @@ function verifyManifest(p,root){
   const old=W.safeFileRead(root,s.file);
   if(W.sha(old)!==s.source_sha256)reject('AUTO_SOURCE_SHA_MISMATCH');
   const changed=W.applyCandidate(old,W.parseCandidate(JSON.stringify(s.patch)));
+  W.enforceCommentOnly({...task,mode:'AUTO_OWNER_ISSUE'},old,changed);
   updates.push({file:s.file,changed});
  }
  const draft=validateTestDraft(p.test_draft,p.selected);
