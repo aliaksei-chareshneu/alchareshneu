@@ -139,6 +139,9 @@ jobs:
       - name: Test staged AI workflow diagnostic math, privacy and CTA
         run: node --test tests/ai-workflow-diagnostic.test.cjs
 
+      - name: Verify standard Academy nonbinding lesson intake
+        run: node --test tests/academy-standard-intake.test.cjs tests/imperion-public-gates.test.cjs
+
       - name: Verify legal identity and direct public customer paths
         run: node ops/imperion-public-gates.cjs --json
 

@@ -4,7 +4,7 @@ const ORIGIN = "https://aliaksei-chareshneu.github.io";
 const S_URL = Deno.env.get("SUPABASE_URL") || "";
 const S_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 const api = S_URL && S_KEY ? createClient(S_URL,S_KEY,{auth:{persistSession:false,autoRefreshToken:false}}) : null;
-const PRODS = new Set(["UNI","MED","A2","CER","CAREER","DEFENSE","EXEC","LIFE"]);
+const PRODS = new Set(["UNI","MED","A2","CER","CAREER","DEFENSE","EXEC","LIFE","LESSON","CONSULT","PACK5","PACK10","PACK20"]);
 const LOCALES = new Set(["en","cs","ru","uk"]);
 const enc = new TextEncoder();
 function headers(origin:string|null):Record<string,string>{
@@ -51,10 +51,10 @@ Deno.serve(async(req:Request):Promise<Response>=>{
  const ip=String(req.headers.get("cf-connecting-ip")||req.headers.get("x-forwarded-for")||"").split(",")[0].trim().slice(0,90);
  if(ip&&!(await allow("ip",ip,12)))return reply({error:"too_many_requests"},429,origin);
  if(!(await allow("email",email,4)))return reply({error:"too_many_requests"},429,origin);
- const idempotency_key=await hash(S_KEY.slice(0,48)+"|dedup|"+new Date().toISOString().slice(0,10)+"|"+email+"|"+product_code);
+ const idempotency_key=await hash(S_KEY.slice(0,48)+"|dedup|"+new Date().toISOString().slice(0,10)+"|"+email+"|"+product_code+"|"+goal+"|"+deadline);
  const {data,error}=await api.from("imperion_academy_inquiries").insert({
   first_name,email,product_code,goal,deadline,locale,utm_source,utm_medium,utm_campaign,
-  source:"academy_programmes_20261105",privacy_acknowledged:true,adult_or_guardian_confirmed:true,
+  source:["LESSON","CONSULT","PACK5","PACK10","PACK20"].includes(product_code)?"academy_standard_20261113":"academy_programmes_20261105",privacy_acknowledged:true,adult_or_guardian_confirmed:true,
   idempotency_key
  }).select("id").single();
  if(error){if(error.code==="23505")return reply({ok:true,status:"RECEIVED_UNCONFIRMED",confirmed:false,duplicate:true,bookingConfirmed:false},200,origin);console.error("insert_failed",error.code);return reply({error:"temporarily_unavailable"},503,origin);}

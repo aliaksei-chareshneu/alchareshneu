@@ -45,7 +45,7 @@ test('catalogue-first Academy is allowed only with verified course contacts', ()
   docs['academy/courses/index.html']=original.replaceAll('https://docs.google.com/forms/d/e/1FAIpQLSfa3qOWpQBfoA877ip9eOTWwFweOrNTib2mq8_C1D9xr55dtQ/viewform','https://example.invalid/intake');
   assert.ok(runAudit(docs).errors.some(x=>x.id==='academy:relevant-contact'),'catalogue must retain verified fallback form');
   docs['academy/courses/index.html']=original;
-  docs['academy/index.html']=docs['academy/index.html'].replace('href="courses/?lang=cs"','href="https://example.invalid/"');
+  docs['academy/index.html']=docs['academy/index.html'].replace('href="programmes/?lang=cs&amp;programme=LESSON#enquire"','href="https://example.invalid/"');
   assert.ok(runAudit(docs).errors.some(x=>x.id==='academy:relevant-contact'),'external shortcut fails closed');
 });
 test('an Academy WhatsApp number other than the verified one is blocked', () => {
@@ -69,7 +69,7 @@ const loadPages = () => {
 test('homepage is consumer-first and every intent keeps its guarded destination', () => {
   const docs = loadPages();
   const home = docs['index.html'];
-  assert.equal(linkWithId(home,'heroCta'), 'https://docs.google.com/forms/d/e/1FAIpQLSfa3qOWpQBfoA877ip9eOTWwFweOrNTib2mq8_C1D9xr55dtQ/viewform');
+  assert.equal(linkWithId(home,'heroCta'), 'academy/programmes/?lang=en&amp;programme=LESSON#enquire');
   assert.equal(linkWithId(home,'intentDruzinaCta'), 'register/?lang=en');
   assert.equal(linkWithId(home,'intentWalkersCta'), 'register/en/');
   assert.equal(linkWithId(home,'intentBusinessCta'), 'corporate/');
@@ -93,8 +93,9 @@ test('public home blocks redirect to arbitrary third-party sales or booking page
     assert.ok(runAudit(docs).errors.some(e=>e.id===check), id+' missing '+check);
   }
 });
-test('home review proof link cannot silently claim a hard-coded rating', () => {
+test('Google reviews dated proof must match the independently verified 13 Nov 2026 snapshot', () => {
   const docs=loadPages();
-  docs['index.html']=docs['index.html'].replace('data-intent="reviews">Read customer reviews on Google','data-intent="reviews">50+ Google reviews · 5.0');
-  assert.ok(runAudit(docs).errors.some(e=>e.id==='root:review-link'));
+  assert.ok(!runAudit(docs).errors.some(e=>e.id==='root:review-link'));
+  docs['index.html']=docs['index.html'].replace('data-intent="reviews">56 Google reviews · 5.0 ★ (13 Nov 2026)', 'data-intent="reviews">500 Google reviews · 5.0 ★ (13 Nov 2026)');
+  assert.ok(runAudit(docs).errors.some(e=>e.id==='root:review-link'),'fabricated count must fail');
 });

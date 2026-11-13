@@ -10,6 +10,7 @@ const REQUIRED = Object.freeze([
   'corporate/request/index.html',
   'academy/index.html',
   'academy/courses/index.html',
+  'academy/programmes/index.html',
   'druzina/index.html',
   'walkers/index.html',
   'start/index.html',
@@ -46,6 +47,7 @@ function runAudit(pages) {
   const corporate = pages['corporate/index.html'] || '';
   const academy = pages['academy/index.html'] || '';
   const academyCourses = pages['academy/courses/index.html'] || '';
+  const academyProgrammes = pages['academy/programmes/index.html'] || '';
   const druzina = pages['druzina/index.html'] || '';
   const walkers = pages['walkers/index.html'] || '';
 
@@ -55,8 +57,10 @@ function runAudit(pages) {
   // checkout, invented availability, or paid training confirmation).
   const verifiedAcademyForm='https://docs.google.com/forms/d/e/1FAIpQLSfa3qOWpQBfoA877ip9eOTWwFweOrNTib2mq8_C1D9xr55dtQ/viewform';
   const academyHeroRoute=linkWithId(home,'heroCta').replace(/&amp;/g,'&');
-  verify('root:academy-route', academyHeroRoute===verifiedAcademyForm
-    && /id="goal-paths"/.test(home),
+  verify('root:academy-route', academyHeroRoute==='academy/programmes/?lang=en&programme=LESSON#enquire'
+    && /id="goal-paths"/.test(home)
+    && /id="interest-form"/.test(academyProgrammes)
+    && /imperion-academy-intake/.test(academyProgrammes),
     'Primary lesson CTA must reach the approved Academy enquiry, not an unverified checkout');
   verify('root:druzina-route', linkWithId(home,'intentDruzinaCta')==='register/?lang=en'
     && /id="safety" type="checkbox" required/.test(pages['register/index.html'] || '')
@@ -74,8 +78,12 @@ function runAudit(pages) {
     && (pages['start/index.html'] || '').length>0,
     'Further activities CTA must open the existing language-aware service picker');
   verify('root:review-link', /<a[^>]*class="intent-google"[^>]*href="https:\/\/maps\.app\.goo\.gl\/fEbnJHxiVoAx1v498"/.test(home)
-    && !/<span[^>]*data-intent="reviews"[^>]*>\s*(?:50\+|5\.0)/.test(home),
-    'Customer proof must link to real public reviews without unverified counts');
+    && /data-intent="reviews">56 Google reviews · 5\.0 ★ \(13 Nov 2026\)/.test(home)
+    && home.includes("reviews:'56 Google reviews · 5.0 ★ (13 Nov 2026)")
+    && home.includes("reviews:'56 recenzí na Googlu · 5,0 ★ (13. 11. 2026)")
+    && home.includes("reviews:'56 отзывов в Google · 5,0 ★ (13.11.2026)")
+    && home.includes("reviews:'56 відгуків у Google · 5,0 ★ (13.11.2026)"),
+    'Verified 13 Nov 2026 Google Maps profile: 56 public reviews and 5.0 rating; preserve source/date/four languages');
   const clubCard = home.match(/<a\b[^>]*class=["'][^"']*\bventure-card\b[^"']*["'][^>]*href=["']druzina\/["'][^>]*>([\s\S]*?)<\/a>/i)?.[1] || '';
   verify('root:club-card', /(?:plan|confirm|date|term|dotaz)/i.test(clubCard)
     && !/3\s*[×x]\s*(?:a week|týdně|в неделю|на тиждень)/i.test(clubCard)
@@ -128,8 +136,18 @@ function runAudit(pages) {
     /id="PY01"/.test(academyCourses) &&
     academyCourses.includes('https://wa.me/420702914842?text=') &&
     academyCourses.includes(verifiedAcademyForm);
+  const academyDirect=
+    academyUrl==='programmes/?lang=cs&amp;programme=LESSON#enquire' &&
+    /data-i18n="academy\.ctaRegister"[^>]*href="programmes\/\?lang=cs&amp;programme=LESSON#enquire"/.test(academy) &&
+    /id="interest-form"/.test(academyProgrammes) &&
+    /value="LESSON"/.test(academyProgrammes) &&
+    /value="CONSULT"/.test(academyProgrammes) &&
+    /academy-request-day/.test(academyProgrammes) &&
+    /imperion-academy-intake/.test(academyProgrammes) &&
+    academyCourses.includes('https://wa.me/420702914842?text=') &&
+    academyCourses.includes(verifiedAcademyForm);
   verify('academy:relevant-contact',
-    academyUrl===verifiedAcademyForm || academyWhatsapp || catalogueFirst,
+    academyDirect || academyUrl===verifiedAcademyForm || academyWhatsapp || catalogueFirst,
     'Academy must reach its approved direct enquiry OR the verified course catalogue with working course-specific contact and approved fallback form');
   const dmForm = fs.readFileSync(path.join(__dirname,'../register/index.html'),'utf8');
   const dmLegacy = fs.readFileSync(path.join(__dirname,'../druzina/prihlaska/index.html'),'utf8');

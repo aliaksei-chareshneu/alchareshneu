@@ -18,7 +18,7 @@ for (const language of ['en', 'cs', 'ru', 'uk']) {
     await expect(page.locator('.site-menu-toggle')).toBeVisible();
     await expect(page.locator('#site-navigation')).toBeHidden();
     await expect(page.locator('#goal-paths .intent-card')).toHaveCount(3);
-    await expect(page.locator('#heroCta')).toHaveAttribute('href', /https:\/\/docs\.google\.com\/forms\/d\/e\//);
+    await expect(page.locator('#heroCta')).toHaveAttribute('href', 'academy/programmes/?lang=' + language + '&programme=LESSON#enquire');
     await expect(page.locator('#intentDruzinaCta')).toHaveAttribute('href', 'register/?lang=' + language);
     await expect(page.locator('#intentWalkersCta')).toHaveAttribute('href', language === 'cs' ? 'register/' : 'register/' + language + '/');
     await expect(page.locator('#heroCorporateCta')).toHaveAttribute('href', 'start/?lang=' + language);

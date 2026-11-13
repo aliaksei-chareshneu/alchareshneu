@@ -20,7 +20,7 @@ for (const [language, heading] of Object.entries(names)) {
     await expect(page.locator('.offer:visible')).toHaveCount(8);
     await expect(page.locator('.conditions:visible')).toContainText('690 Kč');
     await expect(page.locator('a.choose:visible')).toHaveCount(8);
-    await expect(page.locator('#programme option')).toHaveCount(8);
+    await expect(page.locator('#programme option')).toHaveCount(13);
     await expect(page.locator('link[href="../../site-design.css?v=20261027"]')).toHaveCount(1);
     for(const width of [360,375,768,1280]) {
       await page.setViewportSize({width,height:812});
@@ -111,4 +111,35 @@ test('Academy enquiry on backend error clearly asks for WhatsApp/email fallback'
   await expect(page.locator('#send-enquiry')).toBeEnabled();
   await expect(page.locator('#whatsapp-compose')).toBeVisible();
   await expect(page.locator('#email-compose')).toBeVisible();
+});
+
+test('Academy single lesson requests preferred Prague time without claiming a calendar booking',async({page})=>{
+ await page.addInitScript(()=>{
+  window.__academyTestRequests=[];
+  const previous=window.fetch.bind(window);
+  window.fetch=(url,opts)=>{
+    if(String(url).includes('/functions/v1/imperion-academy-intake')){
+      window.__academyTestRequests.push(JSON.parse(opts.body));
+      return Promise.resolve(new Response(JSON.stringify({ok:true,status:'RECEIVED_UNCONFIRMED',reference:'qa-lesson-test',confirmed:false,bookingConfirmed:false,paymentCollected:false}),{status:200,headers:{'Content-Type':'application/json'}}));
+    }
+    return previous(url,opts);
+  };
+ });
+ await page.setViewportSize({width:390,height:844});
+ await page.goto('/academy/programmes/?lang=ru&programme=LESSON#enquire');
+ await expect(page.locator('#programme')).toHaveValue('LESSON');
+ await expect(page.locator('#academy-preference-note')).toContainText('НЕ проверенная');
+ const later=new Date(Date.now()+10*86400000).toISOString().slice(0,10);
+ await page.locator('#academy-request-day').fill(later);
+ await page.locator('#academy-request-time').fill('10:30');
+ await page.locator('#first-name').fill('Quality Check');
+ await page.locator('#contact-email').fill('qa-test@example.invalid');
+ await page.locator('#adult-confirm').check();
+ await page.locator('#privacy-confirm').check();
+ await page.locator('#send-enquiry').click();
+ await expect(page.locator('#intake-status')).toContainText('Запрос принят');
+ const sent=await page.evaluate(()=>window.__academyTestRequests);
+ expect(sent).toHaveLength(1);
+ expect(sent[0]).toMatchObject({programme:'LESSON',locale:'ru',privacyAcknowledged:true,adultOrGuardianConfirmed:true});
+ expect(sent[0].deadline).toContain(later+' 10:30 Europe/Prague (not a reservation)');
 });
