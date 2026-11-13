@@ -29,6 +29,18 @@ test('home: 55 Google reviews appear outside the hero; nearest verified event ha
  await expect(page.locator('#fdEventTitle')).toContainText('First upcoming walk');
  await page.locator('#fdClose').click();
 });
+for(const [language,title] of [
+ ['cs','IMPERION · Zážitky, výuka a akce v Brně'],
+ ['en','IMPERION · Experiences, lessons and events in Brno'],
+ ['ru','IMPERION · События, занятия и приключения в Брно'],
+ ['uk','IMPERION · Події, заняття та пригоди в Брно']
+]){
+ test('Homepage browser tab title is localized: '+language,async({page})=>{
+  await page.route(ENDPOINT,r=>r.fulfill({status:200,contentType:'application/json',headers:{'Access-Control-Allow-Origin':'*'},body:'{"events":[]}'}));
+  await page.goto('/?lang='+language);
+  await expect(page).toHaveTitle(title);
+ });
+}
 for(const lang of ['cs','en','ru','uk']){
  test('Academy specific three prices route into a first-party Order, not WhatsApp: '+lang,async({page})=>{
   await page.goto('/academy/?lang='+lang);
