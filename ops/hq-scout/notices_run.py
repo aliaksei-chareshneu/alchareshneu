@@ -14,9 +14,11 @@ from zoneinfo import ZoneInfo
 import hq_scout
 from official_notices import Rows, combine_boards, parse_board
 from city_assets import city_public_property_pages, inspect_city_unused_archive
+from official_open_data import scan_feeds
 
 def combined_scan(source_cfg: dict, official_cfg: dict, max_total: int = 20,
-                  fetcher=None, delay: float = 0.4, today=None, scan_archive: bool = False) -> dict:
+                  fetcher=None, delay: float = 0.4, today=None, scan_archive: bool = False,
+                  feeds_config: dict | None = None) -> dict:
     worker = fetcher or hq_scout.PublicFetcher()
     old = hq_scout.run(source_cfg, [], max_total=max_total, fetcher=worker, delay=delay)
     found, diag, notices = [], [], []
@@ -45,6 +47,11 @@ def combined_scan(source_cfg: dict, official_cfg: dict, max_total: int = 20,
     old['city_public_property_pages'] = city_pages
     old['city_public_property_pages_count'] = len(city_pages)
     old['unused_city_property_archive'] = city_archive
+    open_data = scan_feeds(worker, feeds_config or {'feeds': []}, checked=today or datetime.now(ZoneInfo('Europe/Prague')).date())
+    old['official_open_data'] = open_data
+    old['public_json_notices_count'] = open_data['candidate_count']
+    if open_data['candidate_count'] > 0:
+        old['status'] = 'OPEN_DATA_PUBLIC_NOTICES_UNVERIFIED_NO_FREE_USE_AGREEMENT'
     old["official_boards"] = diag
     old["municipal_boards_read"] = len(found)
     old["municipal_rows_seen"] = sum(x["rows_seen"] for x in diag)
@@ -55,7 +62,8 @@ def combined_scan(source_cfg: dict, official_cfg: dict, max_total: int = 20,
     if not found and city_pages:
         old['status'] = 'INDIVIDUAL_CITY_PROPERTY_PAGES_REVIEW_ONLY_NO_FREE_USE_TITLE'
     old["pages_ok"] += len(found)
-    old["pages_attempted"] += len(diag)
+    old["pages_attempted"] += len(diag) + len(open_data["feeds"])
+    old["pages_ok"] += sum(1 for f in open_data["feeds"] if f["status"].startswith("OK_"))
     old["source_coverage"] = "OFFICIAL_BOARD_AND_PUBLIC_SOURCE" if found else "PUBLIC_SOURCE_ONLY"
     # Never transfer private Google CRM contents or Gmail to this public artifact.
     assert all(n["contact_allowed"] is False and n["private_crm_checked"] is False for n in merged)
@@ -79,16 +87,33 @@ def save_report(result: dict, output: Path) -> None:
             writer.writerow((row["url"],row["public_title"],row["status"],"NO","NO","NO"))
     (output/"city_unused_archive.json").write_text(
         json.dumps(result["unused_city_property_archive"],ensure_ascii=False,indent=2),encoding="utf-8")
+    feed_report=result.get("official_open_data", {"feeds":[],"candidate_notices":[],"candidate_count":0})
+    (output/"official_open_data.json").write_text(
+        json.dumps(feed_report,ensure_ascii=False,indent=2),encoding="utf-8")
+    with (output/"official_feed_notices.csv").open("w",encoding="utf-8-sig",newline="") as out:
+        writer=csv.writer(out)
+        columns=("notice_id","source","title","reference","published","deadline",
+                 "status","research_score","document_url","private_crm_checked","contact_allowed")
+        writer.writerow(columns)
+        for row in feed_report["candidate_notices"]:
+            writer.writerow([row.get(c) for c in columns])
     (output/"scan.json").write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding="utf-8")
     original=(output/"review.md").read_text(encoding="utf-8")
     lines=["# Object-level Brno official notices","",
            "**No 0 Kč free-use 5+ year agreement or present availability has been verified.**",
            "**No private CRM or Gmail was connected to the public cloud runner.**",
+           "OFFICIAL OFN JSON-LD feed notices: "+str(result["public_json_notices_count"]),
            "First-party individual city pages: "+str(result["city_public_property_pages_count"]),
            "Unused-property city ZIP status: "+result["unused_city_property_archive"]["status"],
            "Boards read: "+str(result["municipal_boards_read"]),
            "Table records observed: "+str(result["municipal_rows_seen"]),
            "Relevant public notices: "+str(result["public_notices_count"]),""]
+    for item in result["official_open_data"]["candidate_notices"][:40]:
+        lines += ["## OPEN DATA / "+item["title"], "Source: "+item["source"],
+                  "Reference: "+item["reference"],"Deadline: "+str(item["deadline"]),
+                  "Status: "+item["status"],"Official URL: "+item["document_url"],""]
+    for feed in result["official_open_data"]["feeds"]:
+        lines += ["OFN FEED "+feed["source"]+" "+feed["status"]+": "+str(feed["feed_items"])+" items / "+str(len(feed["relevant_notices"]))+" relevant"]
     for item in result["public_notices"][:45]:
         lines += ["## "+item["title"],"Official reference: "+item["reference"],
                   "Notice expiry: "+str(item["deadline"]), "Status: "+item["status"],
@@ -103,6 +128,7 @@ def main(argv=None) -> int:
     base=Path(__file__).parent
     a.add_argument("--sources",default=str(base/"sources.json"))
     a.add_argument("--boards",default=str(base/"official_boards.json"))
+    a.add_argument("--feeds",default=str(base/"official_feeds.json"))
     a.add_argument("--out",default="ops/hq-scout/output")
     a.add_argument("--max-total",type=int,default=16)
     a.add_argument("--min-board-rows",type=int,default=0)
@@ -113,13 +139,18 @@ def main(argv=None) -> int:
         a.error("Invalid scan limits")
     source_cfg=json.loads(Path(args.sources).read_text(encoding="utf-8"))
     boards_cfg=json.loads(Path(args.boards).read_text(encoding="utf-8"))
+    feeds_cfg=json.loads(Path(args.feeds).read_text(encoding="utf-8"))
     if any(not hq_scout.allowed(x["url"]) or not x["url"].startswith("https://edeska.brno.cz/") for x in boards_cfg["boards"]):
         a.error("Official board domain allowlist violated")
-    result=combined_scan(source_cfg,boards_cfg,max_total=args.max_total,scan_archive=args.scan_archive)
+    if any(not hq_scout.allowed(x["url"]) for x in feeds_cfg["feeds"]):
+        a.error("OFN feed domain allowlist violated")
+    result=combined_scan(source_cfg,boards_cfg,max_total=args.max_total,
+                         scan_archive=args.scan_archive,feeds_config=feeds_cfg)
     save_report(result,Path(args.out))
     print(json.dumps({"status":result["status"],"source_pages_ok":result["pages_ok"],
                       "board_rows_seen":result["municipal_rows_seen"],
                       "notices":result["public_notices_count"],
+                      "official_json_feed_notices":result["public_json_notices_count"],
                       "city_object_pages":result["city_public_property_pages_count"],
                       "unused_city_archive":result["unused_city_property_archive"]["status"],
                       "qualified_free_five_year_properties":0,"out":args.out},ensure_ascii=False))
