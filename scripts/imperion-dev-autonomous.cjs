@@ -241,6 +241,40 @@ async function retryAdvisory(p,root,fetchImpl=globalThis.fetch){
  verifyManifest(next,root);
  return next;
 }
+// Exactly one bounded re-proposal after an INDEPENDENT Docker trusted-test failure.
+// Reuses original owner task, original source SHA and the same chosen source files.
+// Model cannot enlarge scope, choose extra paths, modify trusted tests or deploy.
+async function retryCode(p,root,fetchImpl=globalThis.fetch){
+ if(p.code_retry_done)reject('AUTO_CODE_RETRY_LIMIT');
+ verifyManifest(p,root);
+ const t=p.task;
+ const limited={file:p.selected[0],test:t.test,goal:t.goal,
+  mode:'AUTO_OWNER_ISSUE',issue:t.issue||0,comment:t.comment||0,
+  repair_feedback:'Prior code proposal failed independent Docker trusted tests. Preserve exports and existing tested behavior; match read-only trusted tests.'};
+ if(p.selected.length===2)limited.file2=p.selected[1];
+ const candidate=await W.propose(limited,root,fetchImpl);
+ const sources=candidate.schema==='imperion-dev-cloud-task-v2'?candidate.sources:
+  [{file:candidate.task.file,source_sha256:candidate.source_sha256,patch:candidate.patch}];
+ if(sources.length!==p.selected.length)reject('AUTO_CODE_RETRY_SCOPE_REJECTED');
+ const updated={};
+ for(let i=0;i<sources.length;i++){
+  const src=sources[i];
+  if(src.file!==p.selected[i])reject('AUTO_CODE_RETRY_SCOPE_REJECTED');
+  const original=W.safeFileRead(root,src.file);
+  if(W.sha(original)!==src.source_sha256)reject('AUTO_CODE_RETRY_SOURCE_CHANGED');
+  const changed=W.applyCandidate(original,W.parseCandidate(JSON.stringify(src.patch)));
+  W.enforceCommentOnly({...t,mode:'AUTO_OWNER_ISSUE'},original,changed);
+  updated[src.file]=changed;
+ }
+ const c=candidateSources(t,root);
+ const testDraft=await draftAdvisory(t,p.selected,updated,c,fetchImpl,
+  'Prior patch failed independent trusted tests. Test the requested outcome and preserve all established exports.');
+ const next={...p,sources,test_draft:testDraft,
+  generated_sha256:W.sha(renderTest(t,testDraft)),
+  code_retry_done:true,advisory_retry_done:false};
+ verifyManifest(next,root);
+ return next;
+}
 function verifyManifest(p,root){
  if(p?.schema!=='imperion-dev-autonomous-v1'||p.status!=='AUTO_MODEL_PROPOSAL_ONLY'||
     p.model!==MODEL||p.paid_api_czk!==0||p.auto_merge!==false||p.advisory_test_not_independent!==true)
@@ -312,7 +346,19 @@ async function cli(){
   fs.writeFileSync(dest,JSON.stringify(p,null,2)+'\n',{flag:'wx'});
   console.log(JSON.stringify({status:p.status,files:p.selected,generated_file:p.generated_file,
    trusted_test:t.test,paid_api_czk:0}));
-  }else if(mode==='--retry-advisory'&&process.argv.length===4){
+  }else if(mode==='--retry-code'&&process.argv.length===4){
+  const dest=path.resolve(process.argv[3]);
+  if(!process.env.RUNNER_TEMP||
+     dest!==path.resolve(process.env.RUNNER_TEMP,'imperion-dev-autonomous-proposal.json'))
+   reject('AUTO_CODE_RETRY_PATH_REJECTED');
+  const before=JSON.parse(fs.readFileSync(dest,'utf8'));
+  const after=await retryCode(before,root);
+  const tmp=dest+'.code-retry';
+  fs.writeFileSync(tmp,JSON.stringify(after,null,2)+'\n',{flag:'wx'});
+  fs.renameSync(tmp,dest);
+  console.log(JSON.stringify({status:'CODE_REVISED_ONCE_REVIEW_ONLY',
+   selected:after.selected,model:after.model,paid_api_czk:0,auto_merge:false}));
+ }else if(mode==='--retry-advisory'&&process.argv.length===4){
   const dest=path.resolve(process.argv[3]);
   if(!process.env.RUNNER_TEMP||
      dest!==path.resolve(process.env.RUNNER_TEMP,'imperion-dev-autonomous-proposal.json'))
@@ -335,4 +381,4 @@ if(require.main===module)cli().catch(e=>{
 });
 module.exports={COMMAND,parseCommand,taskFromEvent,candidateSources,validateSelection,
  selectFiles,validateTestDraft,renderTest,generatedPath,propose,verifyManifest,apply,
- fixtureTask,modelJSON,requiresBehaviorWitness,retryAdvisory};
+ fixtureTask,modelJSON,requiresBehaviorWitness,retryAdvisory,retryCode};
