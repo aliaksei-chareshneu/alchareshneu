@@ -72,11 +72,20 @@ def save_report(result: dict, output: Path) -> None:
         for r in result["public_notices"]:
             writer.writerow([(";".join(r.get(c, [])) if isinstance(r.get(c),list) else r.get(c,""))
                              for c in columns])
+    with (output/"city_object_pages.csv").open("w",encoding="utf-8-sig",newline="") as out:
+        writer=csv.writer(out)
+        writer.writerow(("Official_URL","Title","Status","Free_Five_Years_Verified","Availability_Verified","CRM_Checked"))
+        for row in result["city_public_property_pages"]:
+            writer.writerow((row["url"],row["public_title"],row["status"],"NO","NO","NO"))
+    (output/"city_unused_archive.json").write_text(
+        json.dumps(result["unused_city_property_archive"],ensure_ascii=False,indent=2),encoding="utf-8")
     (output/"scan.json").write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding="utf-8")
     original=(output/"review.md").read_text(encoding="utf-8")
     lines=["# Object-level Brno official notices","",
            "**No 0 Kč free-use 5+ year agreement or present availability has been verified.**",
            "**No private CRM or Gmail was connected to the public cloud runner.**",
+           "First-party individual city pages: "+str(result["city_public_property_pages_count"]),
+           "Unused-property city ZIP status: "+result["unused_city_property_archive"]["status"],
            "Boards read: "+str(result["municipal_boards_read"]),
            "Table records observed: "+str(result["municipal_rows_seen"]),
            "Relevant public notices: "+str(result["public_notices_count"]),""]
