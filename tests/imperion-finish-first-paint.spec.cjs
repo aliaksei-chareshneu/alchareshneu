@@ -40,8 +40,8 @@ for(const width of [390,1440]){
   expect(academy.pending).toBe(null);
   expect(academy.overflow).toBeLessThanOrEqual(1);
   await expect(page.locator('nav.nav:visible, .tabs-bar:visible')).toHaveCount(0);
-  await page.evaluate(()=>scrollTo(0,500));
-  expect(await page.locator('#imp-shell-top').evaluate(el=>el.getBoundingClientRect().bottom)).toBeLessThan(0);
+  await page.evaluate(()=>window.scrollTo({top:500,behavior:'instant'}));
+  await expect.poll(()=>page.locator('#imp-shell-top').evaluate(el=>el.getBoundingClientRect().bottom)).toBeLessThan(0);
  });
 }
 for(const route of ['/academy/a2/?lang=uk','/academy/courses/?lang=ru']){
