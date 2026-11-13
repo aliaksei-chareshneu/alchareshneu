@@ -168,6 +168,9 @@ for(const code of ['cs','en','ru','uk']){
 }
 test('Walkers historic cancelled hike is a collapsed archival refund notice below hero',async({page})=>{
  await page.goto('/walkers/?lang=cs');
+ const archives=page.locator('#imp-walkers-archives');
+ await expect(archives).toBeVisible();
+ await archives.locator(':scope > summary').click();
  const notice=page.locator('#bw-cancel-20261028');
  await expect(notice).toBeVisible();
  await expect(notice).toHaveJSProperty('open',false);
