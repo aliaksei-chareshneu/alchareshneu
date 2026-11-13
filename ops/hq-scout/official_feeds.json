@@ -1,0 +1,24 @@
+{
+  "feeds": [
+    {
+      "id": "BRNO_CITY_OFN",
+      "url": "https://edeska.brno.cz/eDeska/opendata",
+      "catalogue": "https://data.gov.cz/datová-sada?iri=https%3A%2F%2Fdata.gov.cz%2Fzdroj%2Fdatové-sady%2F44992785%2F85c9876e94ea4500c4ce4de661fe9245"
+    },
+    {
+      "id": "BRNO_STRED_OFN",
+      "url": "https://edeska.brno.cz/eDeska01/opendata",
+      "catalogue": "https://data.gov.cz/"
+    },
+    {
+      "id": "BRNO_SEVER_OFN",
+      "url": "https://edeska.brno.cz/eDeska04/opendata",
+      "catalogue": "https://data.gov.cz/"
+    },
+    {
+      "id": "BRNO_SLATINA_OFN",
+      "url": "https://www.mcslatina.cz/open-data/uredni-deska",
+      "catalogue": "https://data.gov.cz/"
+    }
+  ]
+}
