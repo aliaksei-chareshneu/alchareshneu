@@ -97,6 +97,9 @@
   document.body.insertBefore(skip,header);
   document.body.setAttribute('data-imp-nav-ready','yes');
   document.body.setAttribute('data-imp-active-section',active);
+  // Atomic first render: old navigation is retired before the page becomes visible.
+  document.documentElement.setAttribute('data-imp-shell-complete','yes');
+  document.documentElement.removeAttribute('data-imp-boot');
   // Supplemental social feeds are still reachable, but do not form a second navigation row.
   if(path==='walkers/'||path==='walkers/index.html'){
     var extras=document.querySelector('.hero-ctas-secondary');
