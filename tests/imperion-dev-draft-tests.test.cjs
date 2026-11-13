@@ -81,14 +81,20 @@ test('mocked Qwen creates temporary review test; trusted baseline is not rewritt
   const generated=fs.readFileSync(path.join(root,D.DEST),'utf8');
   assert.match(generated,/two_rows/);
   assert.throws(()=>fs.writeFileSync(path.join(root,D.DEST),'overwrite',{flag:'wx'}),/EEXIST/);
-  // Running against the deliberately broken original must FAIL, proving non-triviality.
-  const baseline=child.spawnSync(process.execPath,['--test',D.DEST],{cwd:root,encoding:'utf8',timeout:10000});
-  assert.notEqual(baseline.status,0);
+  // Node's parent test runner sets NODE_TEST_CONTEXT; inheriting it makes nested
+  // --test child processes silently skip all tests and exit 0.
+  const childEnv={...process.env};delete childEnv.NODE_TEST_CONTEXT;
+  const options={cwd:root,encoding:'utf8',timeout:10000,env:childEnv};
+  // The deliberately broken source must produce actual failing TAP assertions.
+  const baseline=child.spawnSync(process.execPath,['--test',D.DEST],options);
+  assert.notEqual(baseline.status,0,baseline.stdout);
+  assert.match(baseline.stdout,/not ok [1-9]/);
   // A validated patch makes the exact generated test pass.
   const changed=W.applyCandidate(before,proof.patch);
   fs.writeFileSync(path.join(root,W.FIXTURE_FILE),changed);
-  const passing=child.spawnSync(process.execPath,['--test',D.DEST],{cwd:root,encoding:'utf8',timeout:10000});
-  assert.equal(passing.status,0,passing.stderr);
+  const passing=child.spawnSync(process.execPath,['--test',D.DEST],options);
+  assert.equal(passing.status,0,passing.stderr+'\n'+passing.stdout);
+  assert.match(passing.stdout,/# pass 3/);
  }finally{fs.rmSync(root,{recursive:true,force:true});}
 });
 test('invalid model output gets one bounded retry and no test file without passing schema',async()=>{

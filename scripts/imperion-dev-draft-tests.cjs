@@ -140,6 +140,7 @@ async function writePreview(proof,workspace,fetchImpl=globalThis.fetch) {
  return {status:'UNTRUSTED_TEST_DRAFT_ONLY',file:DEST,
    model:W.MODEL,model_invocations:result.model_invocations,
    sha256:crypto.createHash('sha256').update(fileText).digest('hex'),
+   draft_cases:result.data.cases,advisory_only:true,
    paid_api_czk:0,merged:false};
 }
 async function cli(){
