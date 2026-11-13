@@ -55,7 +55,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p _pages
-          for dir in academy autopilot brno-stories calendar corporate dame-na-vas-2755 druzina druzina-moravy events ideas images media platform-evidence praha-hema register start walkers shop partners; do
+          for dir in about academy autopilot brno-stories calendar corporate dame-na-vas-2755 druzina druzina-moravy events ideas images media platform-evidence praha-hema register start walkers shop partners; do
             if [ -d "$dir" ]; then
               cp -a "$dir" "_pages/$dir"
             fi
@@ -348,7 +348,7 @@ jobs:
                curl -fsSL --max-time 25 "$base/partners/?verify=$GITHUB_SHA" -o "$partner" &&
                curl -fsSL --max-time 25 "$base/academy/academy-choice-v4.js?verify=$GITHUB_SHA" -o "$picker" &&
                curl -fsSL --max-time 25 "$base/site-calendar-policy.js?verify=$GITHUB_SHA" -o "$policy" &&
-               grep -Fq 'site-reviews.js?v=20261113c' "$home" &&
+               grep -Fq 'site-reviews.js?v=20261113e' "$home" &&
                grep -Fq 'academy-choice-v4.js?v=20261113d' "$academ" &&
                grep -Fq 'Rodičovské vouchery' "$partner" &&
                grep -Fq 'academy-service-picker' "$picker" &&
