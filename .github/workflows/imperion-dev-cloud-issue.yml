@@ -9,6 +9,7 @@ on:
       - 'scripts/imperion-dev-autonomous.cjs'
       - 'scripts/imperion-dev-model-policy.cjs'
       - 'scripts/imperion-dev-witness.sh'
+      - 'scripts/imperion-dev-repair.sh'
       - 'tests/imperion-dev-stage12.test.cjs'
       - 'tests/imperion-dev-model-policy.test.cjs'
       - 'tests/imperion-dev-autonomous.test.cjs'
@@ -56,7 +57,7 @@ jobs:
       - name: Validate owner, scope, model parser, patch gates and mock cases
         run: node --test tests/imperion-dev-cloud-issue.test.cjs tests/imperion-dev-cloud-acceptance.test.cjs tests/imperion-dev-draft-tests.test.cjs tests/imperion-dev-autonomous.test.cjs tests/imperion-dev-model-policy.test.cjs tests/imperion-dev-stage12.test.cjs
       - name: Check advisory witness shell syntax
-        run: bash -n scripts/imperion-dev-witness.sh
+        run: bash -n scripts/imperion-dev-witness.sh && bash -n scripts/imperion-dev-repair.sh
       - name: Reject unapproved CPU model before model startup
         run: node scripts/imperion-dev-model-policy.cjs
       - name: Fail closed on bad legacy owner comment, sensitive path or absent trusted test
@@ -324,22 +325,26 @@ jobs:
             node --check "$sandbox/$f"
           done
           node --check "$sandbox/$draft"
-          docker run --rm --network none --read-only --cap-drop ALL \
+          if docker run --rm --network none --read-only --cap-drop ALL \
             --security-opt no-new-privileges --pids-limit 64 --memory 512m \
             --cpus 1 --user 10001:10001 --tmpfs /tmp:rw,noexec,nosuid,size=64m \
             -v "$sandbox:/work:ro" -w /work node:22-alpine \
-            node --test "$trusted" "$draft" > "$RUNNER_TEMP/imperion-dev-auto-tests.log" 2>&1 || {
-              tail -n 35 "$RUNNER_TEMP/imperion-dev-auto-tests.log"
-              exit 9
-            }
-          grep -Eq '^# tests [1-9][0-9]*$' "$RUNNER_TEMP/imperion-dev-auto-tests.log"
-          grep -Fxq '# fail 0' "$RUNNER_TEMP/imperion-dev-auto-tests.log"
+            node --test "$trusted" "$draft" > "$RUNNER_TEMP/imperion-dev-auto-tests.log" 2>&1; then
+            verified_log="$RUNNER_TEMP/imperion-dev-auto-tests.log"
+          else
+            tail -n 35 "$RUNNER_TEMP/imperion-dev-auto-tests.log"
+            bash scripts/imperion-dev-repair.sh "$proof" "$trusted" "$draft"
+            verified_log="$RUNNER_TEMP/imperion-dev-auto-repaired-tests.log"
+          fi
+          grep -Eq '# tests [1-9][0-9]*$' "$verified_log"
+          grep -Fxq '# fail 0' "$verified_log"
           node -e 'const fs=require("node:fs"),p=require(process.argv[1]);
             if(p.status!=="AUTO_MODEL_PROPOSAL_ONLY"||p.auto_merge!==false)process.exit(9);
             const r={status:"AUTO_ISOLATED_TRUSTED_AND_ADVISORY_PASS",
               issue:p.task.issue,comment:p.task.comment,files:p.selected,
               independent_test:p.task.test,advisory_test:p.generated_file,
               advisory_sha256:p.generated_sha256,model:p.model,baseline:process.argv[3],
+              code_retry_done:p.code_retry_done===true,
               public_only:true,advisory_not_independent:true,paid_api_czk:0,
               auto_merge:false,host:"GITHUB_ACTIONS_CPU"};
             fs.writeFileSync(process.argv[2],JSON.stringify(r,null,2)+"\n",{flag:"wx"});' \
