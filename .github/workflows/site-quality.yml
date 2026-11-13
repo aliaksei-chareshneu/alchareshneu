@@ -144,7 +144,7 @@ jobs:
         run: node --test tests/ai-workflow-diagnostic.test.cjs
 
       - name: Verify standard Academy nonbinding lesson intake
-        run: node --test tests/academy-standard-intake.test.cjs tests/imperion-public-gates.test.cjs
+        run: node --test tests/academy-standard-intake.test.cjs tests/imperion-public-gates.test.cjs tests/academy-confirmed-slot-integrity.test.mjs
 
       - name: Verify legal identity and direct public customer paths
         run: node ops/imperion-public-gates.cjs --json
