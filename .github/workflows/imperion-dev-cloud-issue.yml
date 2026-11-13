@@ -6,6 +6,8 @@ on:
       - 'scripts/imperion-dev-cloud-issue.cjs'
       - 'tests/imperion-dev-cloud-issue.test.cjs'
       - 'scripts/imperion-dev-draft-tests.cjs'
+      - 'scripts/imperion-dev-autonomous.cjs'
+      - 'tests/imperion-dev-autonomous.test.cjs'
       - 'tests/imperion-dev-draft-tests.test.cjs'
       - 'ops/imperion-dev-cloud-fixture/**'
       - '.github/agents/imperion-dev.agent.md'
@@ -34,7 +36,8 @@ jobs:
        github.event.issue.user.login == 'aliaksei-chareshneu' &&
        github.event.issue.state == 'open' &&
        !github.event.issue.pull_request &&
-       startsWith(github.event.comment.body, '/imperion-dev cloud'))
+       (startsWith(github.event.comment.body, '/imperion-dev cloud') ||
+        startsWith(github.event.comment.body, '/imperion-dev autonomous')))
     runs-on: ubuntu-24.04
     timeout-minutes: 3
     steps:
@@ -45,10 +48,13 @@ jobs:
         with:
           node-version: '22'
       - name: Validate owner, scope, model parser, patch gates and mock cases
-        run: node --test tests/imperion-dev-cloud-issue.test.cjs tests/imperion-dev-cloud-acceptance.test.cjs tests/imperion-dev-draft-tests.test.cjs
-      - name: Fail closed on bad owner comment, sensitive paths or absent trusted test
-        if: github.event_name == 'issue_comment'
+        run: node --test tests/imperion-dev-cloud-issue.test.cjs tests/imperion-dev-cloud-acceptance.test.cjs tests/imperion-dev-draft-tests.test.cjs tests/imperion-dev-autonomous.test.cjs
+      - name: Fail closed on bad legacy owner comment, sensitive path or absent trusted test
+        if: github.event_name == 'issue_comment' && startsWith(github.event.comment.body, '/imperion-dev cloud')
         run: node scripts/imperion-dev-cloud-issue.cjs --check-event
+      - name: Fail closed on invalid autonomous owner comment, scope or trusted test
+        if: github.event_name == 'issue_comment' && startsWith(github.event.comment.body, '/imperion-dev autonomous')
+        run: node scripts/imperion-dev-autonomous.cjs --check-event
 
   cloud-qwen-coding:
     needs: task-preflight
@@ -87,6 +93,7 @@ jobs:
             exit 1
           }
       - name: Generate one bounded public-source replacement with cloud Qwen
+        if: github.event_name == 'pull_request' || startsWith(github.event.comment.body, '/imperion-dev cloud')
         shell: bash
         run: |
           set -euo pipefail
@@ -97,6 +104,7 @@ jobs:
           fi
           test -s "$RUNNER_TEMP/imperion-dev-cloud-proposal.json"
       - name: Independently verify model output in a no-network unprivileged container
+        if: github.event_name == 'pull_request' || startsWith(github.event.comment.body, '/imperion-dev cloud')
         shell: bash
         run: |
           set -euo pipefail
@@ -303,6 +311,7 @@ jobs:
           name: imperion-dev-cloud-issue-${{ github.run_id }}
           path: ${{ runner.temp }}/imperion-dev-cloud-proof
       - name: Revalidate owner comment, source hash, exact one-file patch and PR idempotency
+        if: startsWith(github.event.comment.body, '/imperion-dev cloud')
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
