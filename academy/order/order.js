@@ -174,7 +174,16 @@ async function checkStatus(){
    $('aoAccount').textContent=String(data.bankAccount||'');
    $('aoPaymentMessage').textContent=String(data.paymentMessage||'');
   }
-  if(data.bookingConfirmed)$('aoStatusResult').textContent=t.confirmed;
+  // Display only the bank-backed, owner-confirmed exact time; a preferred date
+  // or a receipt upload must never be described as an appointment.
+  const slotStart=Date.parse(String(data.confirmedSession||''));
+  const slotEnd=Date.parse(String(data.confirmedSessionEnd||''));
+  if(data.bookingConfirmed&&Number.isFinite(slotStart)&&Number.isFinite(slotEnd)&&slotEnd>slotStart){
+   const locale={cs:'cs-CZ',en:'en-GB',ru:'ru-RU',uk:'uk-UA'}[lang];
+   const startLabel=new Intl.DateTimeFormat(locale,{timeZone:'Europe/Prague',dateStyle:'medium',timeStyle:'short'}).format(new Date(slotStart));
+   const endLabel=new Intl.DateTimeFormat(locale,{timeZone:'Europe/Prague',hour:'2-digit',minute:'2-digit'}).format(new Date(slotEnd));
+   $('aoStatusResult').textContent=t.confirmed+' '+startLabel+' – '+endLabel+' (Europe/Prague).';
+  }
   else if(data.bankVerified)$('aoStatusResult').textContent=t.verified;
   else if(data.evidenceReceived)$('aoStatusResult').textContent=t.proofReceived;
   else $('aoStatusResult').textContent=t.review;
