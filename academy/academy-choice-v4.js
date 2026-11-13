@@ -44,7 +44,10 @@
    if(!picker){
      picker=document.createElement('section');picker.id='academy-service-picker';
      picker.innerHTML='<label id="academy-search-label" for="academy-service-search"></label><div class="academy-combo"><input id="academy-service-search" type="search" role="combobox" aria-autocomplete="list" aria-controls="academy-service-options" aria-expanded="false" autocomplete="off"><div id="academy-service-options" role="listbox" hidden></div></div><div id="academy-selected-service" aria-live="polite"></div>';
-     root.prepend(picker);
+     var hero=document.querySelector('main .hero#academy .wrap');
+     var review=hero&&hero.querySelector('.reviews-badge');
+     if(hero)hero.insertBefore(picker,review||null);
+     else root.prepend(picker);
      var input=picker.querySelector('input'),menu=picker.querySelector('#academy-service-options');
      function list(){
        var q=input.value.trim().toLocaleLowerCase(),found=serviceMap.filter(function(s){return Object.values(s[2]).some(function(v){return v.toLocaleLowerCase().includes(q)})}).slice(0,16);
@@ -97,7 +100,9 @@
    var details=document.getElementById('academy-full-prices');
    if(!details){details=document.createElement('details');details.id='academy-full-prices';details.innerHTML='<summary></summary><div id="academy-full-prices-body"></div>';target.append(details);}
    details.querySelector('summary').textContent=d.full;
-   var body=details.querySelector('#academy-full-prices-body');if(jumps)body.append(jumps);if(categories)body.append(categories);
+   var body=details.querySelector('#academy-full-prices-body');
+   if(jumps){var oldJump=body.querySelector('.price-jump-list');if(oldJump&&oldJump!==jumps)oldJump.remove();body.append(jumps);}
+   if(categories){var oldCats=body.querySelector('.price-cats');if(oldCats&&oldCats!==categories)oldCats.remove();body.append(categories);}
    overview.innerHTML='<div class="eyebrow-sm">ACADEMY · OSVČ</div><h2>'+safeText(d.priceTitle)+'</h2><p>'+safeText(d.priceLead)+'</p><div class="academy-price-four">'+
       [[d.priceStudy,'690 Kč / 60 min'],[d.priceGroup,'350 Kč / osoba / 60 min'],[d.priceMove,'400 / 600 Kč / 60 min'],[d.priceConsult,'200 Kč / 10 min']].map(function(x){return '<div class="academy-price-tile"><span>'+safeText(x[0])+'</span><strong>'+safeText(x[1])+'</strong></div>';}).join('')+'</div><p class="academy-price-explainer">'+safeText(d.priceNotes)+'</p><a class="academy-prices-open" href="#academy-full-prices">'+safeText(d.allPrices)+'</a>';
    overview.querySelector('.academy-prices-open').addEventListener('click',function(e){e.preventDefault();details.open=true;details.scrollIntoView({block:'start'});});
