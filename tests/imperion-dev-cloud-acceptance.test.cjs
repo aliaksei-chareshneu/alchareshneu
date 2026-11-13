@@ -44,7 +44,9 @@ test('one-file and two-file example owner commands parse under the live controll
 test('independent acceptance runs in actual preflight; publisher cannot auto merge',()=>{
   assert.ok(workflow.includes('tests/imperion-dev-cloud-acceptance.test.cjs'));
   assert.ok(workflow.includes('tests/imperion-dev-cloud-issue.test.cjs'));
-  assert.ok(workflow.includes('github.event.issue.number == 245'));
+  assert.ok(workflow.includes('github.event.issue.number == 245') ||
+    workflow.includes("github.event.issue.user.login == 'aliaksei-chareshneu'"),
+    'Cloud intake must enforce either exact issue 245 or owner-created issue');
   assert.ok(workflow.includes('gh pr create --draft'));
   assert.doesNotMatch(workflow,/gh pr merge|git push origin main|\bdeploy --prod\b/);
 });
