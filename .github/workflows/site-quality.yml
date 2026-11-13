@@ -193,6 +193,8 @@ jobs:
         run: npx playwright test tests/czech-default-language.spec.cjs --workers=2
       - name: Verify single shared navigation, current About and multilingual paths
         run: npx playwright test tests/unified-shell.spec.cjs --workers=2
+      - name: Verify no old-page flash, anchored header and four-language A2 quiz theme
+        run: npx playwright test tests/imperion-finish-first-paint.spec.cjs --workers=2
       - run: npm test
       - uses: actions/upload-artifact@v4
         if: always()

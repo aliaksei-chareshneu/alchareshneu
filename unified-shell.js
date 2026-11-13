@@ -97,6 +97,12 @@
   document.body.insertBefore(skip,header);
   document.body.setAttribute('data-imp-nav-ready','yes');
   document.body.setAttribute('data-imp-active-section',active);
+  // Atomic first render: old navigation is retired before the page becomes visible.
+  document.documentElement.setAttribute('data-imp-shell-complete','yes');
+  // Wait for remaining deferred locale and goal scripts before the first paint.
+  var show=function(){document.documentElement.removeAttribute('data-imp-boot');};
+  if(document.readyState==='complete')show();
+  else document.addEventListener('DOMContentLoaded',show,{once:true});
   // Supplemental social feeds are still reachable, but do not form a second navigation row.
   if(path==='walkers/'||path==='walkers/index.html'){
     var extras=document.querySelector('.hero-ctas-secondary');

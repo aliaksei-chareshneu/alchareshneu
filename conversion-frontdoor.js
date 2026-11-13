@@ -500,6 +500,10 @@
   el('fdFooterInfo').href='about/?lang='+encodeURIComponent(lang);
   applyLanguage();
   document.documentElement.setAttribute('data-imperion-frontdoor','ready');
+  // Delay first paint until all deferred localisation scripts have completed.
+  var reveal=function(){document.documentElement.removeAttribute('data-imp-boot');};
+  if(document.readyState==='complete')reveal();
+  else document.addEventListener('DOMContentLoaded',reveal,{once:true});
   // Incoming links from Start/other pages can arrive with a fragment before
   // this JS-mounted calendar exists. Restore the intended landing position.
   if(location.hash==='#impr-calendar'){

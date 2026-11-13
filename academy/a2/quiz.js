@@ -10,7 +10,8 @@ if(typeof window!=="undefined")window.A2BANK=BANK;
 document.addEventListener("DOMContentLoaded",function(){
  const byId=function(id){return document.getElementById(id);};
  const langButtons=Array.from(document.querySelectorAll("[data-lang]"));
- let lang="cs",chosen=[],quiz=[],position=0,locked=false;
+ const requestedLanguage=new URLSearchParams(location.search).get("lang");
+ let lang=["cs","en","ru","uk"].includes(requestedLanguage)?requestedLanguage:"cs",chosen=[],quiz=[],position=0,locked=false;
  const tr=function(key){return COPY[lang][key]||COPY.cs[key]||key;};
  function renderTranslations(){
    document.documentElement.lang=lang;
