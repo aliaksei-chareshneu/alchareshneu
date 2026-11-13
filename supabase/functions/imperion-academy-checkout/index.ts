@@ -4,7 +4,7 @@
  * Neither a transfer screenshot nor a booking request verifies bank receipt.
  */
 import { createClient } from "npm:@supabase/supabase-js@2.112.3";
-import { isVerifiedAcademyBooking } from "../_shared/academy-confirmation.mjs";
+import { isVerifiedAcademyBankCredit, isVerifiedAcademyBooking } from "../_shared/academy-confirmation.mjs";
 const ORIGIN="https://aliaksei-chareshneu.github.io";
 const URL=Deno.env.get("SUPABASE_URL")||"";
 const SECRET=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")||"";
@@ -45,7 +45,7 @@ async function authorize(x:Record<string,unknown>){
  if(!DB||!UUID.test(id)||!emailValid(email)||!/^[-_A-Za-z0-9]{43}$/.test(code))return null;
  const h=await sha256(SECRET.slice(0,50)+"|checkout-continuation|"+code);
  const {data,error}=await DB.from("imperion_academy_inquiries")
-  .select("id,email,service_key,service_variant,requested_session_at,requested_duration_min,booking_status,confirmed_session_at,confirmed_session_end_at,quoted_amount_czk,quote_recipient,quote_account,quote_locked_at,quote_expires_at,payment_quote_status,payment_evidence_status,payment_proof_received_at,bank_verified_at,booking_confirmed_at,payment_token_hash,retention_until")
+  .select("id,email,service_key,service_variant,requested_session_at,requested_duration_min,booking_status,confirmed_session_at,confirmed_session_end_at,owner_calendar_checked_at,owner_calendar_check_note,quoted_amount_czk,quote_recipient,quote_account,quote_locked_at,quote_expires_at,payment_quote_status,payment_evidence_status,payment_proof_received_at,bank_verified_at,bank_verified_amount_czk,bank_verification_ref_hash,booking_confirmed_at,payment_token_hash,retention_until")
   .eq("id",id).eq("email",email).eq("payment_token_hash",h).limit(1).maybeSingle();
  return error?null:data;
 }
@@ -100,7 +100,7 @@ async function quote(raw:Record<string,unknown>,req:Request,origin:string|null){
  if(!item)return reply({error:"invalid_reference"},404,origin);
  const state=String(item.payment_evidence_status||"NOT_REQUIRED");
  const ok=approvedQuote(item);
- const bankVerified=state==="BANK_VERIFIED"&&Number.isFinite(Date.parse(String(item.bank_verified_at||"")));
+ const bankVerified=isVerifiedAcademyBankCredit(item);
  const confirmed=isVerifiedAcademyBooking(item);
  // No personal bank details until the organiser independently approves the exact offer.
  return reply({
