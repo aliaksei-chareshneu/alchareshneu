@@ -28,7 +28,7 @@
    <h1 data-about="title">Za projekty stojí člověk.</h1>
    <p class="imp-about-lead" data-about="lead">Jsem Aliaksei Chareshneu, PhD. Propojuji vědu a technologie s výukou, poznáváním Moravy a komunitními aktivitami. Vyberte si konkrétní spolupráci — každá má vlastní podmínky.</p>
    <div class="imp-about-actions">
-    <a id="about-academy" class="imp-about-primary" href="../academy/courses/?lang=cs" data-about="ctaAcademy">Prohlédnout výuku a služby →</a>
+    <a id="about-academy" class="imp-about-primary" href="../academy/?lang=cs" data-about="ctaAcademy">Prohlédnout výuku a služby →</a>
     <a id="about-business" class="imp-about-secondary" href="../corporate/request/?lang=cs&amp;src=about" data-about="ctaBusiness">Nezávazně poptat projekt →</a>
    </div>
   </div>
@@ -46,7 +46,7 @@
  <section class="imp-about-columns" aria-label="Projects">
   <div class="imp-about-card"><h3 data-about="c1Title">🎓 Akademie</h3>
    <p data-about="c1Body">Individuální výuka češtiny, angličtiny, přírodních věd, matematiky a programování. Nejdřív cíl, pak rozsah, cena a písemné potvrzení.</p>
-   <a id="about-course" href="../academy/courses/?lang=cs" data-about="c1Link">Kurzy a témata →</a></div>
+   <a id="about-course" href="../academy/?lang=cs" data-about="c1Link">Kurzy a témata →</a></div>
   <div class="imp-about-card"><h3 data-about="c2Title">🥾 BrnoWalkers</h3>
    <p data-about="c2Body">Společné výlety, procházky a poznávání regionu. Veřejné termíny a podmínky každé akce najdete v kalendáři.</p>
    <a id="about-walkers" href="../walkers/?lang=cs" data-about="c2Link">Poznat BrnoWalkers →</a></div>
@@ -70,8 +70,8 @@ uk:{eyebrow:'БРНО · НАУКА · НАВЧАННЯ · ЛЮДИ',title:'За
 const q=new URLSearchParams(location.search),lang=texts[q.get('lang')]?q.get('lang'):'cs';
 document.documentElement.lang=lang;
 document.querySelectorAll('[data-about]').forEach(function(el){const t=texts[lang][el.dataset.about];if(t)el.textContent=t;});
-[['about-academy','../academy/courses/'],['about-business','../corporate/request/'],['about-course','../academy/courses/'],['about-walkers','../walkers/'],['about-club','../druzina/'],['about-company','../corporate/']].forEach(function(p){
- const a=document.getElementById(p[0]);const u=new URL(p[1],location.href);u.searchParams.set('lang',lang==='uk'&&['about-course','about-academy'].includes(p[0])?'cs':lang);
+[['about-academy','../academy/'],['about-business','../corporate/request/'],['about-course','../academy/'],['about-walkers','../walkers/'],['about-club','../druzina/'],['about-company','../corporate/']].forEach(function(p){
+ const a=document.getElementById(p[0]);const u=new URL(p[1],location.href);u.searchParams.set('lang',lang);
  if(p[0]==='about-business')u.searchParams.set('src','about');
  a.href=u.href;
 });
