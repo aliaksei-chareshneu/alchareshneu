@@ -7,6 +7,8 @@ on:
       - 'tests/imperion-dev-cloud-issue.test.cjs'
       - 'scripts/imperion-dev-draft-tests.cjs'
       - 'scripts/imperion-dev-autonomous.cjs'
+      - 'scripts/imperion-dev-model-policy.cjs'
+      - 'tests/imperion-dev-model-policy.test.cjs'
       - 'tests/imperion-dev-autonomous.test.cjs'
       - 'tests/imperion-dev-draft-tests.test.cjs'
       - 'ops/imperion-dev-cloud-fixture/**'
@@ -22,6 +24,8 @@ concurrency:
   cancel-in-progress: false
 jobs:
   task-preflight:
+    env:
+      IMPERION_DEV_MODEL: ${{ vars.IMPERION_DEV_MODEL || 'qwen3:4b-instruct' }}
     # Preview runs ONLY from the known owner PR branch.
     # Later, on default branch, ONLY an exact owner comment on issue 245.
     if: >-
@@ -48,7 +52,9 @@ jobs:
         with:
           node-version: '22'
       - name: Validate owner, scope, model parser, patch gates and mock cases
-        run: node --test tests/imperion-dev-cloud-issue.test.cjs tests/imperion-dev-cloud-acceptance.test.cjs tests/imperion-dev-draft-tests.test.cjs tests/imperion-dev-autonomous.test.cjs
+        run: node --test tests/imperion-dev-cloud-issue.test.cjs tests/imperion-dev-cloud-acceptance.test.cjs tests/imperion-dev-draft-tests.test.cjs tests/imperion-dev-autonomous.test.cjs tests/imperion-dev-model-policy.test.cjs
+      - name: Reject unapproved CPU model before model startup
+        run: node scripts/imperion-dev-model-policy.cjs
       - name: Fail closed on bad legacy owner comment, sensitive path or absent trusted test
         if: github.event_name == 'issue_comment' && startsWith(github.event.comment.body, '/imperion-dev cloud')
         run: node scripts/imperion-dev-cloud-issue.cjs --check-event
@@ -57,6 +63,8 @@ jobs:
         run: node scripts/imperion-dev-autonomous.cjs --check-event
 
   cloud-qwen-coding:
+    env:
+      IMPERION_DEV_MODEL: ${{ vars.IMPERION_DEV_MODEL || 'qwen3:4b-instruct' }}
     needs: task-preflight
     runs-on: ubuntu-24.04
     timeout-minutes: 24
@@ -69,6 +77,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Check exact CPU model allowlist before downloading
+        run: node scripts/imperion-dev-model-policy.cjs
       - name: Restore existing Qwen model cache (no private keys)
         uses: actions/cache@v4
         with:
@@ -88,7 +98,7 @@ jobs:
             sleep 2
           done
           curl -fsS http://127.0.0.1:11434/api/version >/dev/null
-          docker exec imperion-cloud-issue-qwen ollama pull qwen3:4b-instruct > "$RUNNER_TEMP/imperion-cloud-ollama.log" 2>&1 || {
+          docker exec imperion-cloud-issue-qwen ollama pull "$IMPERION_DEV_MODEL" > "$RUNNER_TEMP/imperion-cloud-ollama.log" 2>&1 || {
             tail -n 15 "$RUNNER_TEMP/imperion-cloud-ollama.log"
             exit 1
           }
@@ -268,7 +278,8 @@ jobs:
         if: >-
           (github.event_name == 'issue_comment' && startsWith(github.event.comment.body, '/imperion-dev autonomous')) ||
           (github.event_name == 'pull_request' && (github.event.pull_request.head.ref == 'agent/imperion-dev-cloud-stage11-autonomous-20261113' ||
-            github.event.pull_request.head.ref == 'agent/imperion-dev-cloud-stage11-repair-20261113'))
+            github.event.pull_request.head.ref == 'agent/imperion-dev-cloud-stage11-repair-20261113' ||
+             github.event.pull_request.head.ref == 'agent/imperion-dev-cloud-stage12-quality-routing-20261113'))
         shell: bash
         run: |
           set -euo pipefail
@@ -282,7 +293,8 @@ jobs:
         if: >-
           (github.event_name == 'issue_comment' && startsWith(github.event.comment.body, '/imperion-dev autonomous')) ||
           (github.event_name == 'pull_request' && (github.event.pull_request.head.ref == 'agent/imperion-dev-cloud-stage11-autonomous-20261113' ||
-            github.event.pull_request.head.ref == 'agent/imperion-dev-cloud-stage11-repair-20261113'))
+            github.event.pull_request.head.ref == 'agent/imperion-dev-cloud-stage11-repair-20261113' ||
+             github.event.pull_request.head.ref == 'agent/imperion-dev-cloud-stage12-quality-routing-20261113'))
         shell: bash
         run: |
           set -euo pipefail
@@ -355,6 +367,8 @@ jobs:
           fi
 
   draft-review-pr:
+    env:
+      IMPERION_DEV_MODEL: ${{ vars.IMPERION_DEV_MODEL || 'qwen3:4b-instruct' }}
     needs: cloud-qwen-coding
     # Never write a branch for PR preview. The issue workflow itself must
     # first be reviewed and merged with owner's separate GO.
