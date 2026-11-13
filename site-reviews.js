@@ -19,6 +19,8 @@ var section=document.createElement('section');section.id='imp-home-reviews';sect
 section.innerHTML='<div class="fd-shell"><div class="imp-reviews-head"><p class="imp-reviews-eyebrow"></p><h2></h2><p class="imp-reviews-lead"></p></div><div class="imp-review-grid"></div><a class="imp-review-read-all" target="_blank" rel="noopener noreferrer"></a></div>';
 var grid=section.querySelector('.imp-review-grid');
 imgs.forEach(function(id,i){var a=document.createElement('a');a.href=href;a.target='_blank';a.rel='noopener noreferrer';a.className='imp-review-item';var img=document.createElement('img');img.src='images/reviews/review_'+id+'.png';img.loading='lazy';img.decoding='async';img.alt='';img.width=370;img.height=280;a.append(img);grid.append(a);});
+var partners=document.createElement('a');partners.id='imp-footer-partners';partners.href='partners/?lang=cs';
+var footer=mount.querySelector('.fd-footer-links');if(footer)footer.append(partners);
 var calendar=mount.querySelector('#impr-calendar');
 if(calendar)calendar.insertAdjacentElement('afterend',section);
 function update(){
@@ -28,6 +30,8 @@ function update(){
  section.querySelector('h2').textContent=d.title;
  section.querySelector('.imp-reviews-lead').textContent=d.lead;
  section.querySelector('.imp-review-read-all').href=href;section.querySelector('.imp-review-read-all').textContent=d.cta+' ↗';
+ partners.textContent=({cs:'Partneři',en:'Partners',ru:'Партнёры',uk:'Партнери'})[lang]||'Partneři';
+ partners.href='partners/?lang='+lang;
  section.querySelectorAll('img').forEach(function(img,i){img.alt=d.alt+' '+(i+1);});
 }
 new MutationObserver(update).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
