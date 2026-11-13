@@ -6,6 +6,9 @@ on:
       - 'scripts/imperion-dev-cloud-issue.cjs'
       - 'tests/imperion-dev-cloud-issue.test.cjs'
       - 'ops/imperion-dev-cloud-fixture/**'
+      - '.github/agents/imperion-dev.agent.md'
+      - 'docs/imperion-dev-android.md'
+      - 'tests/imperion-dev-cloud-acceptance.test.cjs'
   issue_comment:
     types: [created]
 permissions:
@@ -38,7 +41,7 @@ jobs:
         with:
           node-version: '22'
       - name: Validate owner, scope, model parser, patch gates and mock cases
-        run: node --test tests/imperion-dev-cloud-issue.test.cjs
+        run: node --test tests/imperion-dev-cloud-issue.test.cjs tests/imperion-dev-cloud-acceptance.test.cjs
       - name: Fail closed on bad owner comment, sensitive paths or absent trusted test
         if: github.event_name == 'issue_comment'
         run: node scripts/imperion-dev-cloud-issue.cjs --check-event
