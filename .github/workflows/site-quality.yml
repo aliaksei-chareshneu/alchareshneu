@@ -195,6 +195,8 @@ jobs:
         run: npx playwright test tests/unified-shell.spec.cjs --workers=2
       - name: Verify no old-page flash, anchored header and four-language A2 quiz theme
         run: npx playwright test tests/imperion-finish-first-paint.spec.cjs --workers=2
+      - name: Verify site clarity v4 recurring calendar, reviews, Academy picker and partners
+        run: npx playwright test tests/site-clarity-v4.spec.cjs --workers=2
       - run: npm test
       - uses: actions/upload-artifact@v4
         if: always()
