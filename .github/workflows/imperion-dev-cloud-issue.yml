@@ -430,3 +430,55 @@ jobs:
           node -e 'const a=require(process.argv[1]);
             if(a.length!==1 || a[0].isDraft!==true)process.exit(2)' "$RUNNER_TEMP/created-pr.json"
           echo "PROVIDER_VERIFIED_DRAFT_PR_OPENED_OWNER_REVIEW_REQUIRED" >> "$GITHUB_STEP_SUMMARY"
+      - name: Publish only verified autonomous code and advisory test as a bot Draft PR
+        if: startsWith(github.event.comment.body, '/imperion-dev autonomous')
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          AUTO_COMMENT_ID: ${{ github.event.comment.id }}
+          AUTO_ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          set -euo pipefail
+          node scripts/imperion-dev-autonomous.cjs --check-event
+          proof="$RUNNER_TEMP/imperion-dev-cloud-proof/imperion-dev-autonomous-proposal.json"
+          receipt="$RUNNER_TEMP/imperion-dev-cloud-proof/imperion-dev-autonomous-receipt.json"
+          test -s "$proof" && test -s "$receipt"
+          node -e 'const p=require(process.argv[1]),r=require(process.argv[2]);
+            if(p.status!=="AUTO_MODEL_PROPOSAL_ONLY"||
+               r.status!=="AUTO_ISOLATED_TRUSTED_AND_ADVISORY_PASS"||
+               p.task.issue!==Number(process.argv[3])||p.task.comment!==Number(process.argv[4])||
+               r.issue!==p.task.issue||r.comment!==p.task.comment||
+               r.independent_test!==p.task.test||r.advisory_test!==p.generated_file||
+               r.advisory_sha256!==p.generated_sha256||r.auto_merge!==false||
+               r.advisory_not_independent!==true||r.paid_api_czk!==0)
+              process.exit(9)' "$proof" "$receipt" "$AUTO_ISSUE_NUMBER" "$AUTO_COMMENT_ID"
+          branch="agent/imperion-dev-auto-$AUTO_ISSUE_NUMBER-$AUTO_COMMENT_ID"
+          if git ls-remote --exit-code --heads origin "$branch" >/dev/null 2>&1; then
+            gh pr list --head "$branch" --base main --state open \
+              --json number,isDraft --limit 3 > "$RUNNER_TEMP/autonomous-existing-pr.json"
+            node -e 'const a=require(process.argv[1]);if(a.length!==1||!a[0].isDraft)process.exit(9)' \
+              "$RUNNER_TEMP/autonomous-existing-pr.json"
+            echo "AUTO_DRAFT_PR_ALREADY_EXISTS_NO_DUPLICATE" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          node scripts/imperion-dev-autonomous.cjs --apply "$proof" "$GITHUB_WORKSPACE"
+          git diff --check
+          expected="$(node -e 'const p=require(process.argv[1]);console.log([...p.selected,p.generated_file].sort().join("\n"))' "$proof")"
+          actual="$(git diff --name-only && git ls-files --others --exclude-standard)"
+          test "$(printf '%s\n' "$actual" | LC_ALL=C sort)" = "$expected"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          git add -- $(node -e 'const p=require(process.argv[1]);process.stdout.write([...p.selected,p.generated_file].join(" "))' "$proof")
+          git diff --cached --check
+          test "$(git diff --cached --name-only | LC_ALL=C sort)" = "$expected"
+          git commit -m "feat(dev): autonomous public task issue $AUTO_ISSUE_NUMBER comment $AUTO_COMMENT_ID"
+          git push --set-upstream origin "$branch"
+          gh pr create --draft --base main --head "$branch" \
+            --title "DRAFT: autonomous cloud Qwen issue $AUTO_ISSUE_NUMBER comment $AUTO_COMMENT_ID" \
+            --body "Owner-scoped, GitHub-hosted Qwen coding. Qwen selected one or two public, test-referenced source files and proposed bounded SHA-checked patches. An EXISTING independent trusted test and a NEW DATA-ONLY advisory test passed in a no-network non-root read-only container. The generated test is NOT independent evidence, remains for owner code review, and no code was merged or deployed. No paid API, secrets or account changes. OWNER REVIEW REQUIRED."
+          gh pr list --head "$branch" --base main --state open \
+            --json number,isDraft --limit 3 > "$RUNNER_TEMP/autonomous-created-pr.json"
+          node -e 'const a=require(process.argv[1]);if(a.length!==1||!a[0].isDraft)process.exit(9)' \
+            "$RUNNER_TEMP/autonomous-created-pr.json"
+          echo "AUTO_GITHUB_BOT_DRAFT_PR_PROVIDER_VERIFIED_OWNER_REVIEW_REQUIRED" >> "$GITHUB_STEP_SUMMARY"
