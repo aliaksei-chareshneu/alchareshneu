@@ -6,7 +6,7 @@ const os=require('node:os');
 const path=require('node:path');
 const W=require('../scripts/imperion-dev-cloud-issue.cjs');
 const cmd='/imperion-dev cloud\nfile: scripts/imperion-public-example.cjs\ntest: tests/imperion-public-example.test.cjs\ngoal: Correct total price to include each item quantity';
-const event={action:'created',repository:{full_name:W.REPO},issue:{number:245,state:'open'},
+const event={action:'created',repository:{full_name:W.REPO},issue:{number:245,state:'open',user:{login:'aliaksei-chareshneu'}},
   sender:{login:'aliaksei-chareshneu'},
   comment:{id:1234,body:cmd,user:{login:'aliaksei-chareshneu'},author_association:'OWNER'}};
 const source="function total(items) { return items.reduce((sum, row) => sum + row.price, 0); }\nmodule.exports={total};\n";
@@ -26,7 +26,8 @@ test('only exact owner-authenticated public issue trigger',()=>{
   goal:'Correct total price to include each item quantity',issue:245,comment:1234,mode:'OWNER_ISSUE'});
  for (const tamper of [
   {sender:{login:'hacker'}},{comment:{...event.comment,author_association:'CONTRIBUTOR'}},
-  {issue:{number:244,state:'open'}},{issue:{number:245,state:'closed'}},
+  {issue:{...event.issue,number:0}},{issue:{...event.issue,state:'closed'}},
+   {issue:{...event.issue,user:{login:'different-account'}}},
   {repository:{full_name:'attacker/repo'}},{action:'edited'}
  ]) assert.throws(()=>W.taskFromEvent({...event,...tamper}),/UNTRUSTED_TRIGGER_REJECTED/);
  assert.throws(()=>W.taskFromEvent({...event,issue:{...event.issue,pull_request:{}}}),/UNTRUSTED_TRIGGER_REJECTED/);
@@ -114,7 +115,8 @@ test('GitHub Actions stays scoped to isolated cloud preview, not deployment',()=
  const y=fs.readFileSync(path.join(__dirname,'../.github/workflows/imperion-dev-cloud-issue.yml'),'utf8');
  assert.match(y,/issue_comment:\s*\n\s*types: \[created\]/);
  assert.match(y,/persist-credentials: false/);
- assert.match(y,/github\.event\.issue\.number == 245/);
+ assert.match(y,/github\.event\.issue\.user\.login == 'aliaksei-chareshneu'/);
+ assert.match(y,/OWNER_ISSUE_NUMBER/);
  assert.match(y,/--network none --read-only --cap-drop ALL/);
  assert.match(y,/gh pr create --draft/);
  assert.match(y,/permissions:\s*\n\s*contents: read/);
@@ -283,4 +285,130 @@ test('safe JS function declarations and comments are not confused with dynamic F
    'process.env.API_KEY',
    'require("child_process")'
  ]) assert.throws(()=>W.parseCandidate(JSON.stringify({old,new:injected})),/MODEL_PATCH_REJECTED/);
+});
+
+test('owner-created issues get distinct review branches, untrusted creators remain blocked',()=>{
+ const alt={...event,issue:{...event.issue,number:314}};
+ assert.equal(W.taskFromEvent(alt).issue,314);
+ assert.equal(W.reviewBranch(245,1234),'agent/imperion-dev-cloud-245-1234');
+ assert.equal(W.reviewBranch(314,1234),'agent/imperion-dev-cloud-314-1234');
+ assert.notEqual(W.reviewBranch(245,1234),W.reviewBranch(314,1234));
+ for(const n of [0,-1,1.2,Number.MAX_SAFE_INTEGER+1,'245',null])
+   assert.throws(()=>W.reviewBranch(n,1234),/REVIEW_BRANCH_IDS_REJECTED/);
+ for(const n of [0,-1,'1234',null])
+   assert.throws(()=>W.reviewBranch(245,n),/REVIEW_BRANCH_IDS_REJECTED/);
+ assert.throws(()=>W.taskFromEvent({...alt,issue:{...alt.issue,user:{login:'attacker'}}}),
+   /UNTRUSTED_TRIGGER_REJECTED/);
+});
+
+test('Python source and trusted unittest are strictly paired; two-file JS preserved',()=>{
+ const py='/imperion-dev cloud\nfile: scripts/public_example.py\ntest: tests/test_public_example.py\ngoal: Correct the pure arithmetic sum using quantities';
+ assert.equal(W.parseCommand(py).file,'scripts/public_example.py');
+ assert.equal(W.safeSourceFile('ops/public_math.py'),true);
+ assert.equal(W.safeSourceFile('docs/public_math.py'),false);
+ assert.equal(W.safeSourceFile('scripts/imperion-auth.py'),false);
+ assert.equal(W.safeTestFile('tests/test_public_math.py'),true);
+ assert.equal(W.safeTestFile('tests/private_secret.py'),false);
+ assert.throws(()=>W.parseCommand(py.replace('tests/test_public_example.py','tests/public.test.cjs')),
+   /TASK_PATH_REJECTED/);
+ assert.throws(()=>W.parseCommand(py.replace('file: scripts/public_example.py',
+   'file: scripts/public_example.cjs')),/TASK_PATH_REJECTED/);
+ assert.throws(()=>W.parseCommand(py.replace('test: tests/test_public_example.py',
+   'file2: scripts/public_second.py\ntest: tests/test_public_example.py')),/TASK_PATH_REJECTED/);
+ const y=fs.readFileSync(path.join(__dirname,'../.github/workflows/imperion-dev-cloud-issue.yml'),'utf8');
+ assert.match(y,/python:3\.12-alpine/);
+ assert.match(y,/NO_TRUSTED_TESTS/);
+ assert.match(y,/python3 -c 'import ast,sys,pathlib/);
+ assert.match(y,/--network none --read-only --cap-drop ALL/);
+ assert.match(y,/gh pr create --draft/);
+});
+
+test('Python model edits are bounded; safe SHA check, unsafe source actions blocked',()=>{
+ const root=fs.mkdtempSync(path.join(os.tmpdir(),'imperion-dev-py-review-'));
+ fs.mkdirSync(path.join(root,'scripts'),{recursive:true});
+ fs.mkdirSync(path.join(root,'tests'),{recursive:true});
+ const source='def total(rows):\n    return sum(row["price"] for row in rows)\n';
+ fs.writeFileSync(path.join(root,'scripts/public_example.py'),source);
+ fs.writeFileSync(path.join(root,'tests/test_public_example.py'),'import unittest\n');
+ const body='/imperion-dev cloud\nfile: scripts/public_example.py\ntest: tests/test_public_example.py\ngoal: Correct the pure arithmetic sum using quantities';
+ const evt={...event,comment:{...event.comment,body}};
+ const eventPath=path.join(root,'event.json');fs.writeFileSync(eventPath,JSON.stringify(evt));
+ const old=process.env.GITHUB_EVENT_PATH;process.env.GITHUB_EVENT_PATH=eventPath;
+ try{
+  const task=W.taskFromEvent(evt);
+  const proof={schema:'imperion-dev-cloud-task-v1',status:'MODEL_PROPOSAL_ONLY',
+    task,source_sha256:W.sha(source),model:W.MODEL,
+    patch:{old:'return sum(row["price"] for row in rows)',new:'return open("private.key").read()'}};
+  assert.throws(()=>W.verifiedApply(proof,root),/PYTHON_PATCH_CAPABILITY_REJECTED/);
+  assert.equal(fs.readFileSync(path.join(root,'scripts/public_example.py'),'utf8'),source);
+  const valid={...proof,patch:{old:'return sum(row["price"] for row in rows)',
+    new:'return sum(row["price"] * row["qty"] for row in rows)'}};
+  assert.equal(W.verifiedApply(valid,root).status,'PATCH_STAGED_PENDING_SANDBOX_TESTS');
+  assert.match(fs.readFileSync(path.join(root,'scripts/public_example.py'),'utf8'),/row\["qty"\]/);
+  assert.throws(()=>W.verifiedApply(valid,root),/BASELINE_SHA_CHANGED/);
+ }finally{
+   if(old===undefined) delete process.env.GITHUB_EVENT_PATH;
+   else process.env.GITHUB_EVENT_PATH=old;
+   fs.rmSync(root,{recursive:true,force:true});
+ }
+});
+
+test('Python cloud preview uses the same model, fixture and isolated trusted tests',async()=>{
+ const root=fs.mkdtempSync(path.join(os.tmpdir(),'imperion-py-preview-'));
+ for(const file of [W.PY_FIXTURE_FILE,W.PY_FIXTURE_TEST])
+   fs.mkdirSync(path.dirname(path.join(root,file)),{recursive:true});
+ fs.copyFileSync(path.join(__dirname,'../'+W.PY_FIXTURE_FILE),path.join(root,W.PY_FIXTURE_FILE));
+ fs.copyFileSync(path.join(__dirname,'../'+W.PY_FIXTURE_TEST),path.join(root,W.PY_FIXTURE_TEST));
+ const source=fs.readFileSync(path.join(root,W.PY_FIXTURE_FILE),'utf8');
+ try{
+  const task={file:W.PY_FIXTURE_FILE,test:W.PY_FIXTURE_TEST,
+    goal:'Correct total by multiplying price and qty',comment:0,mode:'FIXTURE_PY'};
+  let calls=0;
+  const proposal=await W.propose(task,root,async()=>({
+    ok:true,redirected:false,json:async()=>{
+      calls++;
+      return {done:true,model:W.MODEL,response:JSON.stringify({
+        old:'return sum(row["price"] for row in items)',
+        new:'return sum(row["price"] * row["qty"] for row in items)'})};
+    }
+  }));
+  assert.equal(calls,1);
+  assert.equal(proposal.status,'MODEL_PROPOSAL_ONLY');
+  assert.equal(fs.readFileSync(path.join(root,W.PY_FIXTURE_FILE),'utf8'),source);
+  assert.equal(W.verifiedApply(proposal,root).status,'PATCH_STAGED_PENDING_SANDBOX_TESTS');
+  assert.match(fs.readFileSync(path.join(root,W.PY_FIXTURE_FILE),'utf8'),/row\["qty"\]/);
+ }finally{fs.rmSync(root,{recursive:true,force:true});}
+ const y=fs.readFileSync(path.join(__dirname,'../.github/workflows/imperion-dev-cloud-issue.yml'),'utf8');
+ assert.match(y,/--python-fixture/);
+ assert.match(y,/PYTHON_QWEN_PATCH_ISOLATED_3_TESTS_PASS/);
+ assert.match(y,/grep -q 'FAIL: test_'/);
+ assert.match(y,/python:3\.12-alpine/);
+});
+
+test('Python Qwen sees read-only independent numeric expectations, not secrets',async()=>{
+ const root=fs.mkdtempSync(path.join(os.tmpdir(),'imperion-py-test-context-'));
+ try{
+  for(const file of [W.PY_FIXTURE_FILE,W.PY_FIXTURE_TEST])
+   fs.mkdirSync(path.dirname(path.join(root,file)),{recursive:true});
+  fs.copyFileSync(path.join(__dirname,'../'+W.PY_FIXTURE_FILE),path.join(root,W.PY_FIXTURE_FILE));
+  fs.copyFileSync(path.join(__dirname,'../'+W.PY_FIXTURE_TEST),path.join(root,W.PY_FIXTURE_TEST));
+  let requests=0;
+  const task={file:W.PY_FIXTURE_FILE,test:W.PY_FIXTURE_TEST,
+   goal:'Correct each total price using quantity',comment:0,mode:'FIXTURE_PY'};
+  const r=await W.propose(task,root,async(_u,opts)=>{
+   requests++;
+   const q=JSON.parse(opts.body);
+   assert.match(q.prompt,/trusted_test_excerpt/);
+   assert.match(q.prompt,/test_quantities/);
+   assert.match(q.prompt,/34/);
+   assert.match(q.prompt,/TRUSTED_TEST_EXCERPT.*read-only/);
+   assert.ok(!q.prompt.includes('GITHUB_TOKEN='));
+   return {ok:true,redirected:false,json:async()=>({done:true,model:W.MODEL,
+    response:JSON.stringify({old:'return sum(row["price"] for row in items)',
+       new:'return sum(row["price"] * row["qty"] for row in items)'})})};
+  });
+  assert.equal(requests,1);
+  assert.equal(r.status,'MODEL_PROPOSAL_ONLY');
+  assert.equal(r.paid_api_czk,0);
+ }finally{fs.rmSync(root,{recursive:true,force:true});}
 });
