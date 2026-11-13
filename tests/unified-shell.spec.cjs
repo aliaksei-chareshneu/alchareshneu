@@ -131,6 +131,19 @@ for(const code of ['cs','en','ru','uk']){
   }
  });
 }
+for(const code of ['cs','en','ru','uk']){
+ test('Alex z Brna uses shared navigation and a localized story in '+code,async({page})=>{
+  await page.goto('/brno-stories/?lang='+code);
+  await expect(page.locator('#imp-shell-top')).toBeVisible();
+  await expect(page.locator('#imp-shell-top [data-imp-lang="uk"]')).toHaveCount(1);
+  await expect(page.locator('#imp-shell-top nav.imp-shell-links a')).toHaveCount(6);
+  await expect(page.locator('html')).toHaveAttribute('lang',code);
+  await expect(page.locator('main [data-story="firstTitle"]')).not.toBeEmpty();
+  if(code==='uk')await expect(page.locator('main h1')).toContainText('У Брно більше історій');
+  if(code==='ru')await expect(page.locator('main h1')).toContainText('В Брно больше историй');
+  await expect(page.locator('header[data-imp-retired-nav="1"]:visible')).toHaveCount(0);
+ });
+}
 test('Walkers historic cancelled hike is a collapsed archival refund notice below hero',async({page})=>{
  await page.goto('/walkers/?lang=cs');
  const notice=page.locator('#bw-cancel-20261028');
