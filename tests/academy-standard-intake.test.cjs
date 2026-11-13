@@ -8,7 +8,7 @@ test('standard Academy offers are truthful and reuse existing private intake',()
   for(const old of ['UNI','MED','A2','CER','CAREER','DEFENSE','EXEC','LIFE'])assert.ok(api.includes('"'+old+'"'));
   for(const id of ['academy-request-day','academy-request-time','adult-confirm','privacy-confirm'])assert.ok(page.includes('id="'+id+'"'));
   assert.ok(page.includes('imperion-academy-intake'));assert.ok(page.includes('not a reservation'));
-  assert.ok(page.includes('1 000 Kč'));assert.ok(page.includes('250 Kč'));assert.ok(page.includes('180 days'));
+  assert.ok(page.includes('690 Kč'));assert.ok(page.includes('200 Kč'));assert.ok(page.includes('180 days'));
   assert.ok(api.includes('RECEIVED_UNCONFIRMED'));assert.ok(!page.includes('type="file"'));assert.ok(!api.includes('payment_verified:true'));
 });
 test('distinct date or goal changes server idempotency but duplicate retry stays safe',()=>{
