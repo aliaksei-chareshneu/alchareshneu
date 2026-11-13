@@ -57,7 +57,8 @@
    <p data-about="c3Body">Historický šerm, LARP, bezpečný vstup do klubu a komunitní akce. Účast na aktivitě není automaticky členstvím spolku.</p>
    <a id="about-club" href="../druzina/?lang=cs" data-about="c3Link">Poznat Družinu →</a></div>
  </section>
- <p class="imp-about-legal" data-about="legal">Právní rozlišení: osobní služby OSVČ Aliaksei Chareshneu a aktivity Družina Moravy, z. s. nejsou jeden právní subjekt. Pořadatel, příjemce platby a podmínky se ověřují u každé konkrétní služby nebo akce.</p>
+ <p class="imp-about-legal" id="about-partner-entry"><a href="../partners/?lang=cs" id="about-partner-link" style="color:#ffe0a5;text-decoration:underline;font-size:18px;font-weight:800">Partneři a spolupráce →</a></p>
+<p class="imp-about-legal" data-about="legal">Právní rozlišení: osobní služby OSVČ Aliaksei Chareshneu a aktivity Družina Moravy, z. s. nejsou jeden právní subjekt. Pořadatel, příjemce platby a podmínky se ověřují u každé konkrétní služby nebo akce.</p>
 </div>
 <footer class="imp-about-footer"><div class="imp-about-shell">Aliaksei Chareshneu · Brno · <a href="../corporate/?lang=cs" id="about-company" style="color:#f6cf83" data-about="footer">Firemní a odborné služby →</a></div></footer>
 </main>
@@ -80,5 +81,6 @@ document.querySelectorAll('[data-about]').forEach(function(el){const t=texts[lan
 });
 })();
 </script>
+<script>(function(){var l=document.documentElement.lang;var a=document.getElementById('about-partner-link');a.textContent=({cs:'Partneři a spolupráce →',en:'Partners and collaboration →',ru:'Партнёры и сотрудничество →',uk:'Партнери та співпраця →'})[l]||'Partneři a spolupráce →';a.href='../partners/?lang='+l})();</script>
 </body>
 </html>
