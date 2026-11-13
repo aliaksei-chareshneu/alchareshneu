@@ -1,6 +1,9 @@
 /* IMPERION unified navigation 2026-11-13.
    Opt-in post-mount: without JS the prior page navigation remains fully usable. */
 body[data-imp-nav-ready="yes"] [data-imp-retired-nav="1"]{display:none!important}
+/* Outrank the historical desktop site-design rule that forces .tabs-bar.site-nav-ready to display:block!important. */
+body[data-imp-nav-ready="yes"][data-imperion-scope="shared"] .tabs-bar.site-nav-ready[data-imp-retired-nav="1"],
+body[data-imp-nav-ready="yes"] > .tabs-bar[data-imp-retired-nav="1"]{display:none!important}
 body[data-imp-nav-ready="yes"]{--imp-unified-gold:#f6cf83;--imp-unified-ink:#f9f0e3;--imp-unified-deep:#071b20}
 body[data-imp-nav-ready="yes"] #imp-shell-top,
 body[data-imp-nav-ready="yes"] #imp-shell-top *{box-sizing:border-box}
