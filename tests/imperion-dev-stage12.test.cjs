@@ -82,3 +82,35 @@ test('witness runs only in Docker and cannot ignore a green original test',()=>{
  assert.match(yaml,/bash scripts\/imperion-dev-witness\.sh/);
  assert.match(yaml,/needs: cloud-qwen-coding/);
 });
+
+test('real new-behavior advisory FAILS on original and PASSES on isolated patched fixture',()=>{
+ const os=require('node:os');
+ const cp=require('node:child_process');
+ const sandbox=fs.mkdtempSync(path.join(os.tmpdir(),'imperion-stage12-behavior-'));
+ const src2='ops/imperion-dev-cloud-fixture/multi-shipping.cjs';
+ try{
+  for(const f of [source,src2,fixture.test]){
+   const dest=path.join(sandbox,f);fs.mkdirSync(path.dirname(dest),{recursive:true});
+   fs.copyFileSync(path.join(root,f),dest);
+  }
+  const p=proof('Correct negative quantity to return zero in netPrice',
+   {old:'return unitPrice * quantity;',new:'return quantity < 0 ? 0 : unitPrice * quantity;'});
+  p.test_draft={file:source,export:'netPrice',cases:[
+   {name:'negative_quantity_is_zero',args:[3,-2],expected:0}]};
+  p.generated_sha256=W.sha(A.renderTest(p.task,p.test_draft));
+  assert.equal(A.requiresBehaviorWitness(p,sandbox),true);
+  const target=path.join(sandbox,p.generated_file);
+  fs.mkdirSync(path.dirname(target),{recursive:true});
+  fs.writeFileSync(target,A.renderTest(p.task,p.test_draft),'utf8');
+  const original=cp.spawnSync(process.execPath,['--test',p.generated_file],
+   {cwd:sandbox,encoding:'utf8',timeout:10000});
+  assert.notEqual(original.status,0,original.stdout);
+  assert.match(original.stdout,/# fail 1/);
+  fs.unlinkSync(target);
+  assert.equal(A.apply(p,sandbox).status,'AUTO_STAGED_PENDING_INDEPENDENT_TESTS');
+  const fixed=cp.spawnSync(process.execPath,['--test',p.task.test,p.generated_file],
+   {cwd:sandbox,encoding:'utf8',timeout:10000});
+  assert.equal(fixed.status,0,fixed.stderr+'\n'+fixed.stdout);
+  assert.match(fixed.stdout,/# fail 0/);
+ }finally{fs.rmSync(sandbox,{recursive:true,force:true});}
+});
