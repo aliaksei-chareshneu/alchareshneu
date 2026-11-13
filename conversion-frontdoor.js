@@ -500,6 +500,7 @@
   el('fdFooterInfo').href='about/?lang='+encodeURIComponent(lang);
   applyLanguage();
   document.documentElement.setAttribute('data-imperion-frontdoor','ready');
+  document.documentElement.removeAttribute('data-imp-boot');
   // Incoming links from Start/other pages can arrive with a fragment before
   // this JS-mounted calendar exists. Restore the intended landing position.
   if(location.hash==='#impr-calendar'){
