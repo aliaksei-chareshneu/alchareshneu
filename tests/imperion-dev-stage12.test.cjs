@@ -132,3 +132,42 @@ test('aborted model request and wrong model identity do not produce a patch',asy
   ok:true,redirected:false,json:async()=>({done:true,model:'wrong-model',response:'{}'})
  })),/AUTO_MODEL_RESPONSE_REJECTED/);
 });
+
+test('one Qwen code repair stays on original selected file and original source SHA',async()=>{
+ const p=proof('Correct negative quantity to return zero in netPrice',
+  {old:'return unitPrice * quantity;',new:'return unitPrice + quantity;'});
+ let calls=0;
+ const fetchImpl=async(_url,req)=>{
+  calls++;const prompt=JSON.parse(req.body).prompt;
+  let response;
+  if(prompt.includes('You are a careful coding assistant editing ONE PUBLIC')){
+    assert.match(prompt,/PREVIOUS_ISOLATED_TEST_FAIL/);
+    response={old:'return unitPrice * quantity;',
+      new:'return quantity < 0 ? 0 : unitPrice * quantity;'};
+  }else if(prompt.includes('Suggest ONLY JSON data for a human-review advisory Node test')){
+    response={file:source,export:'netPrice',cases:[
+      {name:'negative_qty',args:[3,-2],expected:0}]};
+  }else throw Error('UNEXPECTED_REPAIR_PROMPT');
+  return {ok:true,redirected:false,json:async()=>({done:true,model:W.MODEL,
+    response:JSON.stringify(response)})};
+ };
+ const original=fs.readFileSync(path.join(root,source),'utf8');
+ const r=await A.retryCode(p,root,fetchImpl);
+ assert.equal(calls,2);
+ assert.equal(r.code_retry_done,true);
+ assert.deepEqual(r.selected,[source]);
+ assert.equal(r.sources[0].source_sha256,p.sources[0].source_sha256);
+ assert.match(A.renderTest(r.task,r.test_draft),/negative_qty/);
+ assert.equal(A.verifyManifest(r,root).updates.length,1);
+ await assert.rejects(()=>A.retryCode(r,root,fetchImpl),/AUTO_CODE_RETRY_LIMIT/);
+ assert.equal(fs.readFileSync(path.join(root,source),'utf8'),original);
+});
+test('repair shell retains no-network Docker and one retry only',()=>{
+ const sh=fs.readFileSync(path.join(root,'scripts/imperion-dev-repair.sh'),'utf8');
+ const yaml=fs.readFileSync(path.join(root,'.github/workflows/imperion-dev-cloud-issue.yml'),'utf8');
+ assert.match(sh,/--retry-code/);
+ assert.match(sh,/--network none --read-only --cap-drop ALL/);
+ assert.match(sh,/--security-opt no-new-privileges/);
+ assert.match(sh,/AUTO_CODE_REPAIR_ONE_ATTEMPT_PASS_REVIEW_ONLY/);
+ assert.match(yaml,/bash scripts\/imperion-dev-repair\.sh/);
+});
