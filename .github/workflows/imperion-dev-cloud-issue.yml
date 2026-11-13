@@ -9,6 +9,7 @@ on:
       - 'scripts/imperion-dev-autonomous.cjs'
       - 'scripts/imperion-dev-model-policy.cjs'
       - 'scripts/imperion-dev-witness.sh'
+      - 'tests/imperion-dev-stage12.test.cjs'
       - 'tests/imperion-dev-model-policy.test.cjs'
       - 'tests/imperion-dev-autonomous.test.cjs'
       - 'tests/imperion-dev-draft-tests.test.cjs'
@@ -53,7 +54,7 @@ jobs:
         with:
           node-version: '22'
       - name: Validate owner, scope, model parser, patch gates and mock cases
-        run: node --test tests/imperion-dev-cloud-issue.test.cjs tests/imperion-dev-cloud-acceptance.test.cjs tests/imperion-dev-draft-tests.test.cjs tests/imperion-dev-autonomous.test.cjs tests/imperion-dev-model-policy.test.cjs
+        run: node --test tests/imperion-dev-cloud-issue.test.cjs tests/imperion-dev-cloud-acceptance.test.cjs tests/imperion-dev-draft-tests.test.cjs tests/imperion-dev-autonomous.test.cjs tests/imperion-dev-model-policy.test.cjs tests/imperion-dev-stage12.test.cjs
       - name: Check advisory witness shell syntax
         run: bash -n scripts/imperion-dev-witness.sh
       - name: Reject unapproved CPU model before model startup
