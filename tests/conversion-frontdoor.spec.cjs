@@ -89,7 +89,7 @@ test('language and manual-contact actions are localized and nonbinding',async({p
   await expect(page.locator('#fdStatus')).toContainText('согласованию');
   await page.locator('#fdClose').click();
   await page.locator('[data-fd-language="cs"]').click();
-  await expect(page.locator('#fdHeroLabel')).toHaveText('Vybrat zážitek');
+  await expect(page.locator('#fdHeroLabel')).toHaveText('Vybrat akci');
 });
 test('unavailable catalog fails closed without imaginary booking',async({page})=>{
   await page.route(ENDPOINT,r=>r.abort());

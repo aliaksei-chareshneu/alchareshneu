@@ -6,7 +6,6 @@ on:
       - 'scripts/imperion-dev-cloud-issue.cjs'
       - 'tests/imperion-dev-cloud-issue.test.cjs'
       - 'ops/imperion-dev-cloud-fixture/**'
-      - 'docs/imperion-dev-cloud-issue.md'
   issue_comment:
     types: [created]
 permissions:
@@ -22,7 +21,8 @@ jobs:
       (github.event_name == 'pull_request' &&
        github.event.pull_request.head.repo.full_name == github.repository &&
        (startsWith(github.event.pull_request.head.ref, 'agent/imperion-dev-cloud-') ||
-        github.event.pull_request.head.ref == 'agent/imperion-dev-any-owner-issue-20261111')) ||
+        (github.event.pull_request.head.ref == 'agent/imperion-dev-stage8-20261111' ||
+         github.event.pull_request.head.ref == 'agent/imperion-dev-any-owner-issue-20261111'))) ||
       (github.event_name == 'issue_comment' &&
        github.repository == 'aliaksei-chareshneu/alchareshneu' &&
        github.actor == 'aliaksei-chareshneu' &&
@@ -98,6 +98,7 @@ jobs:
           manifest="$RUNNER_TEMP/imperion-dev-cloud-proposal.json"
           testfile="$(node -e 'process.stdout.write(require(process.argv[1]).task.test)' "$manifest")"
           target="$(node -e 'process.stdout.write(require(process.argv[1]).task.file)' "$manifest")"
+          target2="$(node -e 'process.stdout.write(require(process.argv[1]).task.file2 || "")' "$manifest")"
           mode="$(node -e 'process.stdout.write(require(process.argv[1]).task.mode)' "$manifest")"
           # Path is validated again by trusted JS before it is allowed into Docker.
           node -e 'const w=require("./scripts/imperion-dev-cloud-issue.cjs");
@@ -105,15 +106,20 @@ jobs:
             const fixture=mode==="FIXTURE"||w.isFixtureTask({file,test});
             if(!(w.safeTestFile(test,fixture) && w.safeSourceFile(file,fixture)))
               process.exit(9);' "$testfile" "$target" "$mode"
-          # Only existing trusted tests; language and paths are revalidated above.
+          if [ -n "$target2" ]; then
+            node -e 'const w=require("./scripts/imperion-dev-cloud-issue.cjs");
+              if(!w.safeSourceFile(process.argv[1]) || process.argv[1]===process.argv[2])process.exit(9);' "$target2" "$target"
+          fi
+          # Exact pre-existing trusted test, selected only by validated public paths.
           case "$testfile" in
             tests/test_*.py)
-              case "$target" in *.py) ;; *) echo "BLOCKED: Python test/source mismatch"; exit 9 ;; esac
+              case "$target" in *.py) ;; *) echo "BLOCKED: Python source/test mismatch"; exit 9 ;; esac
+              if [ -n "$target2" ]; then echo "BLOCKED: two-file Python not enabled"; exit 9; fi
               test_image='python:3.12-alpine'
               test_argv=(python3 -B -c 'import sys,unittest; s=unittest.defaultTestLoader.discover("tests",pattern=sys.argv[1]); n=s.countTestCases(); print("PYTHON_TRUSTED_TESTS="+str(n)); assert n>0, "NO_TRUSTED_TESTS"; r=unittest.TextTestRunner(verbosity=2).run(s); sys.exit(0 if r.wasSuccessful() else 1)' "${testfile##*/}")
               ;;
             *.test.cjs|ops/imperion-dev-cloud-fixture/check.cjs)
-              case "$target" in *.py) echo "BLOCKED: JS test/Python mismatch"; exit 9 ;; esac
+              case "$target" in *.py) echo "BLOCKED: JS source/Python mismatch"; exit 9 ;; esac
               test_image='node:22-alpine'
               test_argv=(node --test "$testfile")
               ;;
@@ -137,6 +143,11 @@ jobs:
               *.cjs|*.js) node --check "$target" ;;
               *.py) python3 -c 'import ast,sys,pathlib; ast.parse(pathlib.Path(sys.argv[1]).read_text(encoding="utf8"))' "$target" ;;
             esac
+            if [ -n "$target2" ]; then
+              case "$target2" in
+                *.cjs|*.js) node --check "$target2" ;;
+              esac
+            fi
           )
           docker run --rm --network none --read-only --cap-drop ALL \
             --security-opt no-new-privileges --pids-limit 64 --memory 512m \
@@ -206,9 +217,8 @@ jobs:
                r.status!=="ISOLATED_TRUSTED_TEST_PASS" || r.mode!=="OWNER_ISSUE") process.exit(8)' \
             "$proof" "$receipt" "$OWNER_COMMENT_ID" "$OWNER_ISSUE_NUMBER"
           file="$(node -e 'process.stdout.write(require(process.argv[1]).task.file)' "$proof")"
-          branch="$(node -e 'const w=require("./scripts/imperion-dev-cloud-issue.cjs");
-            process.stdout.write(w.reviewBranch(Number(process.argv[1]),Number(process.argv[2])))' \
-            "$OWNER_ISSUE_NUMBER" "$OWNER_COMMENT_ID")"
+          file2="$(node -e 'process.stdout.write(require(process.argv[1]).task.file2 || "")' "$proof")"
+          branch="$(node -e 'const w=require("./scripts/imperion-dev-cloud-issue.cjs"); process.stdout.write(w.reviewBranch(Number(process.argv[1]),Number(process.argv[2])))' "$OWNER_ISSUE_NUMBER" "$OWNER_COMMENT_ID")"
           if git ls-remote --exit-code --heads origin "$branch" >/dev/null 2>&1; then
             gh pr list --head "$branch" --base main --state open \
               --json number,isDraft,headRefName --limit 3 > "$RUNNER_TEMP/existing-pr.json"
@@ -221,16 +231,22 @@ jobs:
           fi
           node scripts/imperion-dev-cloud-issue.cjs --apply "$proof"
           git diff --check
-          test "$(git diff --name-only | tr -d '\n')" = "$file"
+          files=("$file")
+          if [ -n "$file2" ]; then files+=("$file2"); fi
+          actual="$(git diff --name-only | LC_ALL=C sort)"
+          expected="$(printf '%s\n' "${files[@]}" | LC_ALL=C sort)"
+          test "$actual" = "$expected"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git switch -c "$branch"
-          git add -- "$file"
+          git add -- "${files[@]}"
+          git diff --cached --check
+          test "$(git diff --cached --name-only | LC_ALL=C sort)" = "$expected"
           git commit -m "fix(dev): bounded public Qwen task from owner comment $OWNER_COMMENT_ID"
           git push --set-upstream origin "$branch"
           if ! gh pr create --draft --base main --head "$branch" \
             --title "DRAFT: cloud Qwen public coding issue $OWNER_ISSUE_NUMBER comment $OWNER_COMMENT_ID" \
-            --body "Owner-approved public issue $OWNER_ISSUE_NUMBER. Model: Qwen3:4b-instruct running in GitHub-hosted CPU. One bounded public file, source SHA validated, tests passed in a no-network read-only container. No model secrets, paid API, customer data, auto-merge, deploy or production changes. OWNER REVIEW REQUIRED."; then
+            --body "Owner-approved public issue $OWNER_ISSUE_NUMBER. Model: Qwen3:4b-instruct running in GitHub-hosted CPU. One or two bounded public files, source SHA validated, tests passed in a no-network read-only container. No model secrets, paid API, customer data, auto-merge, deploy or production changes. OWNER REVIEW REQUIRED."; then
             echo "BLOCKED: GitHub repository policy does not permit Actions to create PRs; branch is for human review." >> "$GITHUB_STEP_SUMMARY"
             exit 2
           fi

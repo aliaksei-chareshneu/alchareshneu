@@ -32,14 +32,33 @@ test('verified Academy-capable form passes, arbitrary external form fails closed
   const docs = Object.fromEntries(REQUIRED.map(file => [file, fs.readFileSync(path.join(root, file), 'utf8')]));
   assert.ok(!runAudit(docs).errors.some(x => x.id === 'academy:relevant-contact'));
   const known='https://docs.google.com/forms/d/e/1FAIpQLSfa3qOWpQBfoA877ip9eOTWwFweOrNTib2mq8_C1D9xr55dtQ/viewform';
-  docs['academy/index.html']=docs['academy/index.html'].replace('href="'+known+'"','href="https://docs.google.com/forms/d/e/unknown/viewform"');
+  docs['academy/index.html']=docs['academy/index.html'].replace(/(id="navBookBtn"[^>]*href=")[^"]*"/, '$1https://docs.google.com/forms/d/e/unknown/viewform"');
   assert.ok(runAudit(docs).errors.some(x => x.id === 'academy:relevant-contact'));
+});
+test('catalogue-first Academy is allowed only with verified course contacts', () => {
+  const root=path.resolve(__dirname,'..');
+  const docs=Object.fromEntries(REQUIRED.map(file=>[file,fs.readFileSync(path.join(root,file),'utf8')]));
+  assert.ok(!runAudit(docs).errors.some(x=>x.id==='academy:relevant-contact'));
+  const original=docs['academy/courses/index.html'];
+  docs['academy/courses/index.html']=original.replaceAll('https://wa.me/420702914842?text=','https://example.invalid/contact?text=');
+  assert.ok(runAudit(docs).errors.some(x=>x.id==='academy:relevant-contact'),'catalogue cannot lead to arbitrary/unverified contact');
+  docs['academy/courses/index.html']=original.replaceAll('https://docs.google.com/forms/d/e/1FAIpQLSfa3qOWpQBfoA877ip9eOTWwFweOrNTib2mq8_C1D9xr55dtQ/viewform','https://example.invalid/intake');
+  assert.ok(runAudit(docs).errors.some(x=>x.id==='academy:relevant-contact'),'catalogue must retain verified fallback form');
+  docs['academy/courses/index.html']=original;
+  docs['academy/index.html']=docs['academy/index.html'].replace('href="courses/?lang=cs"','href="https://example.invalid/"');
+  assert.ok(runAudit(docs).errors.some(x=>x.id==='academy:relevant-contact'),'external shortcut fails closed');
+});
+test('an Academy WhatsApp number other than the verified one is blocked', () => {
+  const root=path.resolve(__dirname,'..');
+  const docs=Object.fromEntries(REQUIRED.map(file=>[file,fs.readFileSync(path.join(root,file),'utf8')]));
+  docs['academy/index.html']=docs['academy/index.html'].replace(/(id="navBookBtn"[^>]*href=")[^"]*"/,'$1https://wa.me/000000000000?text=Academy%20enquiry"');
+  assert.ok(runAudit(docs).errors.some(x=>x.id==='academy:relevant-contact'));
 });
 test('an Academy-specific WhatsApp enquiry is an allowed alternative', () => {
   const root = path.resolve(__dirname, '..');
   const docs = Object.fromEntries(REQUIRED.map(file => [file, fs.readFileSync(path.join(root, file), 'utf8')]));
   const known='https://docs.google.com/forms/d/e/1FAIpQLSfa3qOWpQBfoA877ip9eOTWwFweOrNTib2mq8_C1D9xr55dtQ/viewform';
-  docs['academy/index.html']=docs['academy/index.html'].replace('href="'+known+'"','href="https://wa.me/420702914842?text=Academy%20enquiry"');
+  docs['academy/index.html']=docs['academy/index.html'].replace(/(id="navBookBtn"[^>]*href=")[^"]*"/, '$1https://wa.me/420702914842?text=Academy%20enquiry"');
   assert.ok(!runAudit(docs).errors.some(x => x.id === 'academy:relevant-contact'));
 });
 

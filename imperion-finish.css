@@ -1,0 +1,336 @@
+/* IMPERION finish system v2 · one chrome, one palette, no floating header.
+   Linked AFTER historical themes on every modern public route.
+   Scoped to opted-in public pages; no changes to booking data or logic. */
+:root { --imp-v2-deep:#071b20; --imp-v2-paper:#102c31; --imp-v2-paper-2:#16383b; --imp-v2-gold:#f5cf84; --imp-v2-cream:#fff2da; --imp-v2-muted:#d3dfd8; --imp-v2-outline:#977e55; }
+html { scroll-padding-top:15px; }
+body[data-imperion-design] {
+  background:radial-gradient(ellipse 80% 32% at 70% 0%,rgba(40,85,73,.36),transparent 82%),linear-gradient(180deg,#071b20 0%,#0a2328 54%,#071b20 100%);
+  background-color:var(--imp-v2-deep);
+  color:#f5efe6; color-scheme:dark;
+  font-family:"Source Sans 3",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:17px;line-height:1.62;
+  min-width:0;
+}
+body[data-imperion-design] :is(main,section,article,.wrap,.grid,.cards){min-width:0}
+body[data-imperion-design] :is(h1,h2,h3){color:var(--imp-v2-cream)}
+body[data-imperion-design] :is(.tag,.overline,.eyebrow,.eyebrow-sm){color:var(--imp-v2-gold)}
+body[data-imperion-design] a:focus-visible,
+body[data-imperion-design] button:focus-visible{outline:3px solid #ffe6ae;outline-offset:3px}
+body[data-imperion-design] main :is(section,article)[id]{scroll-margin-top:20px}
+/* Header is normal document content on EVERY page: neither sticky nor floating.
+   Both homes use the same dimensions, navigation, logo and language controls. */
+#imperion-frontdoor .fd-header,
+body[data-imp-nav-ready="yes"] #imp-shell-top {
+  position:relative !important; inset:auto !important;
+  top:auto !important; left:auto !important; right:auto !important;
+  height:auto !important; min-height:82px !important;
+  width:100%; max-width:none; margin:0; padding:0 !important;
+  border:0; border-bottom:1px solid #cfa96b73;
+  background:linear-gradient(110deg,#0a1b20,#10282a 70%,#0b1b20) !important;
+  box-shadow:0 4px 25px rgba(0,10,13,.55);
+  z-index:6;
+  backdrop-filter:none;
+  isolation:isolate;
+}
+#imperion-frontdoor .fd-header .fd-header-inner,
+body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-inner {
+  width:min(1320px,calc(100% - 48px)) !important;
+  max-width:none; margin:0 auto !important; padding:10px 0 !important;
+  min-height:82px !important;
+  display:grid !important;
+  grid-template-columns:max-content minmax(0,1fr) max-content !important;
+  grid-template-rows:auto !important;
+  grid-template-areas:"brand links lang" !important;
+  align-items:center; gap:clamp(13px,1.8vw,30px) !important;
+}
+#imperion-frontdoor .fd-logo,
+body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-logo {
+  grid-area:brand;
+  display:flex;align-items:center;gap:12px;
+  margin:0;white-space:nowrap;min-width:0;
+  color:var(--imp-v2-cream) !important;text-decoration:none !important;
+  font:650 16px/1.1 Georgia,"Times New Roman",serif;
+}
+#imperion-frontdoor .fd-logo-mark,
+body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-logo-mark {
+  display:grid;place-items:center;
+  flex:0 0 auto;width:42px;height:47px;
+  border:2px solid #ecc779;border-radius:7px 7px 18px 18px;
+  color:#ffe1a2;background:linear-gradient(150deg,#403425,#14272a);
+  font:25px/1 Georgia,serif;box-shadow:0 2px 10px #0006;
+  transform:none;letter-spacing:0;
+}
+#imperion-frontdoor .fd-logo-text,
+body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-logo-copy {display:flex;flex-direction:column;line-height:1.08;min-width:0}
+#imperion-frontdoor .fd-logo-text strong,
+body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-logo-copy strong {
+  color:#fff3dc;font:650 clamp(20px,2.1vw,30px)/1.08 Georgia,serif;
+  letter-spacing:.045em;
+}
+#imperion-frontdoor .fd-logo-text small,
+body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-logo-copy small {
+  color:#efd6a7;white-space:nowrap;margin-top:5px;
+  font:750 9px/1.15 system-ui,sans-serif;letter-spacing:.09em;
+}
+#imperion-frontdoor .fd-nav,
+body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-links {
+  grid-area:links;display:flex;align-items:center;justify-content:flex-end;
+  flex:1;min-width:0;max-width:100%;width:auto;
+  margin:0;padding:0;background:none;border:0;
+  flex-wrap:nowrap;overflow:visible;gap:clamp(11px,1.65vw,26px);
+}
+#imperion-frontdoor .fd-nav a,
+body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-links a {
+  display:inline-flex;align-items:center;justify-content:center;
+  flex:0 0 auto;white-space:nowrap;min-height:44px;
+  color:#eee6d8 !important;font:650 clamp(12px,1.02vw,15px)/1.25 system-ui,sans-serif;
+  text-decoration:none !important;background:none;
+  border:0;border-bottom:2px solid transparent;
+  text-shadow:none;padding:10px 1px;
+}
+#imperion-frontdoor .fd-nav a:hover,
+body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-links a:hover,
+body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-links a[aria-current="page"] {
+  color:#ffe0a0 !important;border-bottom-color:var(--imp-v2-gold);
+}
+#imperion-frontdoor .fd-languages,
+body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-lang {
+  grid-area:lang;display:flex;align-items:center;justify-content:center;flex:0 0 auto;
+  gap:2px;margin:0;padding:3px;background:#081b20 !important;
+  border:1px solid #bda070a6;border-radius:28px;
+}
+#imperion-frontdoor .fd-languages button,
+body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-lang a {
+  display:grid;place-items:center;min-width:32px;min-height:34px;
+  font:800 11px/1.2 system-ui,sans-serif;letter-spacing:0;
+  border:0;border-radius:22px;margin:0;padding:3px 5px;
+  color:#eee7db !important;background:transparent;text-decoration:none !important;
+  box-shadow:none;touch-action:manipulation;
+}
+#imperion-frontdoor .fd-languages button[aria-pressed="true"],
+body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-lang a[aria-current="true"] {
+  background:var(--imp-v2-gold) !important;color:#112a2a !important;
+}
+body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-skip:focus{z-index:8}
+#imperion-frontdoor .fd-hero{min-height:clamp(610px,90svh,790px);height:auto;padding-top:0}
+#imperion-frontdoor .fd-hero-inner{padding-top:100px}
+#imperion-frontdoor .fd-hero h1{font-family:Georgia,serif}
+#imperion-frontdoor .fd-modal-backdrop{z-index:100}
+#imperion-frontdoor .fd-detail-pane.fd-modal{z-index:101}
+/* Do not let old page navigation flash or reappear after shared shell mounts.
+   The boot gate makes the complete body visible only AFTER shared header exists. */
+body[data-imp-nav-ready="yes"] > :is(nav.nav,nav.top,nav.tabs-bar,.tabs-bar,header.topbar,header.masthead){display:none !important}
+body[data-imp-nav-ready="yes"] > main > nav.top{display:none!important}
+body[data-imperion-design] .hero:not(#imperion-frontdoor .fd-hero) {min-height:0}
+/* Consistent cinematic panels, useful on previously blue course/offer pages. */
+body[data-imperion-design="academy-course"] {
+  --bg:#081b20;--ink:#faf1e4;--muted:#d5e1d9;
+  --panel:#112e33;--card:#112e33;--border:#668579a8;--accent:#f5cf84;
+}
+body[data-imperion-design="academy-course"] :is(.course,.offer,.conditions,.terms,.fact) {
+  background:linear-gradient(142deg,#15353a,#0d262b) !important;
+  color:#f8f0e3;border:1px solid #a9956e90;
+  border-radius:17px;box-shadow:0 10px 27px #00111860;
+}
+body[data-imperion-design="academy-course"] :is(.course,.offer,.conditions,.terms,.fact) :is(h2,h3,h4){color:#ffebc1}
+body[data-imperion-design="academy-course"] :is(.course,.offer,.conditions,.terms,.fact) :is(p,li,span){color:#e2ebe2}
+body[data-imperion-design="academy-course"] :is(.course,.offer) :is(.code,.price){color:#ffda91}
+body[data-imperion-design="academy-course"] :is(.course .pill,.facts .fact){background:#123339;border-color:#b4a0748c}
+body[data-imperion-design="academy-course"] .filters button{
+  background:#15363b;color:#f5eeda;border:1px solid #7f9c8b;border-radius:12px;
+  min-height:44px;
+}
+body[data-imperion-design="academy-course"] .filters button[aria-pressed="true"] {
+  background:var(--imp-v2-gold);color:#102725;border-color:#ffe5ae;
+}
+body[data-imperion-design="academy-course"] .hero{background-color:#10282c}
+body[data-imperion-design="academy-course"] .enquiry,
+body[data-imperion-design="academy-course"] .official-window {
+  background:linear-gradient(135deg,#173a3d,#0d2a30) !important;
+  color:#f6eee3 !important;border:1px solid #ad96638c;border-radius:17px;
+}
+body[data-imperion-design="academy-course"] .enquiry :is(h2,p,label){color:#f7eedf}
+body[data-imperion-design="academy-course"] .enquiry :is(input,select,textarea) {
+  background:#092329 !important;color:#fff4dc !important;border:1px solid #7b9c8c;
+  border-radius:9px;min-height:44px;
+}
+body[data-imperion-design="academy-course"] .enquiry :is(input,textarea)::placeholder{color:#b2c7be}
+body[data-imperion-design="academy-course"] :is(.button.primary,.btn-primary){
+  background:var(--imp-v2-gold);color:#0d2b2c !important;border:1px solid #ffe2a3;
+  font-weight:800;
+}
+body[data-imperion-design="academy-course"] :is(.cta,.outline,.subtle) {
+  border-color:#e6bd78;color:#ffe1a4;
+}
+/* The free Czech A2 quiz previously contained a separate white/blue design.
+   Restyle every quiz state while retaining correct/incorrect feedback semantics. */
+body[data-imperion-design="academy-a2"] {
+  --navy:#102d33;--teal:#f5cf84;--light:#071b20;--cream:#102e33;
+  --line:#6b8d81;--ink:#f8efe3;--muted:#d2dfd7;
+  --green:#83e4ab;--red:#f3ada3;
+  background:linear-gradient(155deg,#071b20,#0d3032 62%,#081d22);
+}
+body[data-imperion-design="academy-a2"] :is(.surface,.skill,.stats,.offer,.error-card) {
+  background:linear-gradient(140deg,#17393b,#0e2930) !important;
+  border:1px solid #8c956fa6;color:#fff0db;
+  box-shadow:0 12px 30px #00121759;
+}
+body[data-imperion-design="academy-a2"] :is(.surface,.skill,.stats,.offer,.error-card) :is(h2,h3,b,strong){color:#fff1d6}
+body[data-imperion-design="academy-a2"] :is(.surface,.skill,.stats,.offer,.error-card) :is(p,small,span){color:#dce8de}
+body[data-imperion-design="academy-a2"] .pill {
+  background:#173d3a;color:#f5d897;border:1px solid #bb9f60;
+}
+body[data-imperion-design="academy-a2"] .ctx {
+  background:#0b2c31 !important;color:#f6eee5;border-left-color:var(--imp-v2-gold);
+}
+body[data-imperion-design="academy-a2"] .question {color:#fff1dc}
+body[data-imperion-design="academy-a2"] .choice{
+  background:#112e33 !important;color:#f5f0e5 !important;
+  border:1.5px solid #73978b;min-height:56px;
+}
+body[data-imperion-design="academy-a2"] .choice .letter{
+  background:#244b48;color:#ffe0a1;
+}
+body[data-imperion-design="academy-a2"] .choice:hover:not(:disabled){
+  background:#204846 !important;border-color:#f5cf84;
+}
+body[data-imperion-design="academy-a2"] .choice.correct{
+  background:#123a2e !important;border-color:#79dfaa;color:#d9ffed !important;
+}
+body[data-imperion-design="academy-a2"] .choice.wrong{
+  background:#492a2b !important;border-color:#f4a69e;color:#ffe5df !important;
+}
+body[data-imperion-design="academy-a2"] .feedback {
+  background:#163e34 !important;color:#e6faed;border-left-color:#75d8a5;
+}
+body[data-imperion-design="academy-a2"] .feedback.bad {
+  background:#452c2b !important;color:#ffebdf;border-left-color:#eda89a;
+}
+body[data-imperion-design="academy-a2"] :is(.bar,.progress-row .bar){background:#244a47}
+body[data-imperion-design="academy-a2"] .bar>div{background:var(--imp-v2-gold)}
+body[data-imperion-design="academy-a2"] .scoreline{color:var(--imp-v2-gold)}
+body[data-imperion-design="academy-a2"] .offer .price{color:var(--imp-v2-gold)}
+body[data-imperion-design="academy-a2"] :is(.fine,.section-note,.lede){color:#d7e4dc}
+body[data-imperion-design="academy-a2"] .btn {
+  background:var(--imp-v2-gold);color:#0b292b !important;
+  border:1px solid #ffe8ae;font-weight:800;
+}
+body[data-imperion-design="academy-a2"] .btn.alt{
+  background:#13383c;color:#ffe2a4 !important;border:1px solid #f3cf84;
+}
+body[data-imperion-design="academy-a2"] :is(.btn,.choice):focus-visible{outline:3px solid #ffe9ae;outline-offset:3px}
+/* The older direct price lists are kept; only the container palette changes. */
+body[data-imperion-design="academy"] :is(#academy-milestones,#service-choice-consultation,.price-cat,.price-cats,.price-global-note,#academy-pricing .wrap,.tbl-wrap) {
+  background-color:#102e32 !important;color:#f7efe1;border-color:#8c987d92;
+}
+body[data-imperion-design="academy"] #academy-pricing :is(table,th,td) {
+  background-color:#102c30;color:#f7ece0;border-color:#607d75;
+}
+body[data-imperion-design="academy"] #academy-pricing :is(th,strong){color:#ffdc94}
+body[data-imperion-design="academy"] #academy-pricing :is(input,select,textarea){background:#0b252a;color:#fff2df;border-color:#729286}
+body[data-imperion-design="academy"] :is(.price-cat-title,.price-jump-link){color:#f2d092}
+body[data-imperion-design="academy"] #academy-choose .goal-jump-action{color:#f8d390}
+/* Additional common blue-legacy containers, only when opt-in to cinematic site. */
+body[data-imperion-design] :is(.revenue-head,.revenue-foot,.revenue-sec,.pilot-offer,.note,.offer-section,.revenue-card,.price-card,.contact-card,.information-card) {
+  border-color:#9d8d64a6;
+}
+body[data-imperion-design="corporate"] .revenue-head,
+body[data-imperion-design="corporate-sub"] .revenue-head{
+  background:linear-gradient(110deg,rgba(9,29,33,.93),rgba(26,55,55,.82)),
+    url("images/imperion-hero-cinematic-20261112.webp") center/cover !important;
+}
+body[data-imperion-design="corporate"] :is(.pilot-offer,.revenue-card),
+body[data-imperion-design="corporate-sub"] :is(.pilot-offer,.revenue-card) {
+  background:linear-gradient(125deg,#183a3a,#10292e) !important;
+  border:1px solid #a58c6399;color:#f6efe3;
+}
+body[data-imperion-design="corporate"] .pilot-offer :is(h2,p,ul,li),
+body[data-imperion-design="corporate-sub"] .pilot-offer :is(h2,p,ul,li){color:#f7ede0}
+body[data-imperion-design="corporate"] .pilot-offer .btn.solid {
+  background:var(--imp-v2-gold);color:#0d2b2b;border-color:#ffe5a9;
+}
+body[data-imperion-design="hub"] .note {
+  background:#143438 !important;color:#efe8dc !important;border:1px solid #a18e6499;
+}
+body[data-imperion-design="hub"] .note :is(h2,p,small){color:#f6eee4}
+body[data-imperion-design="hub"] .card{background:#112d32 !important;color:#f5efe4;border:1px solid #927e5c98}
+body[data-imperion-design="hub"] .card :is(p,h2){color:#f1eae0}
+body[data-imperion-design="hub"] .primary{
+  background:var(--imp-v2-gold)!important;color:#0b2529!important;
+}
+body[data-imperion-design="druzina-rules"] section{
+  background:#142e32;border:1px solid #9d966e9c;color:#f7eede;
+}
+body[data-imperion-design="druzina-rules"] .notice{background:#163b39;color:#fff0dd}
+/* Legacy registration decision routes and receipt are public too. */
+body[data-imperion-design="druzina-join"] .choice-grid .choice,
+body[data-imperion-design="druzina-join"] .journey,
+body[data-imperion-design="druzina-join"] .notice{
+  background:linear-gradient(145deg,#143538,#102a30) !important;
+  border-color:#a48f69bd;color:#f7efdf;
+}
+body[data-imperion-design="druzina-join"] .choice :is(h2,p),
+body[data-imperion-design="druzina-join"] .journey :is(strong,span){color:#f7efdf}
+body[data-imperion-design="hub"] main .panel,
+body[data-imperion-design="hub"] main .section .panel{
+  background:linear-gradient(145deg,#153538,#10272f) !important;
+  color:#f8efe1;border:1px solid #a29569a8;
+}
+body[data-imperion-design="hub"] main .panel :is(h2,p,small){color:#f8efdf}
+body[data-imperion-design="academy"] #academy-choose .goal-detail{
+  scroll-margin-top:22px !important;
+}
+#imperion-frontdoor #impr-calendar{scroll-margin-top:15px}
+
+/* Keep the scroll behavior predictable instead of header-height dependent. */
+@media(max-width:1100px){
+  #imperion-frontdoor .fd-header .fd-header-inner,
+  body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-inner{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) max-content!important;
+    grid-template-rows:auto auto!important;
+    grid-template-areas:"brand lang" "links links"!important;
+    gap:4px 11px!important;min-height:106px!important;
+    padding:9px 0 6px!important;
+  }
+  #imperion-frontdoor .fd-header,
+  body[data-imp-nav-ready="yes"] #imp-shell-top{min-height:106px!important}
+  #imperion-frontdoor .fd-nav,
+  body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-links {
+    justify-content:flex-start;max-width:100%;width:100%;overflow-x:auto;
+    scrollbar-width:thin;scrollbar-color:#816f50 transparent;
+    overscroll-behavior-x:contain;gap:17px;padding-bottom:2px;
+  }
+}
+@media(max-width:600px){
+  #imperion-frontdoor .fd-header .fd-header-inner,
+  body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-inner {
+    width:calc(100% - 24px)!important;
+    min-height:101px!important;gap:4px 7px!important;
+  }
+  #imperion-frontdoor .fd-header,
+  body[data-imp-nav-ready="yes"] #imp-shell-top{min-height:101px!important}
+  #imperion-frontdoor .fd-logo,
+  body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-logo{gap:8px}
+  #imperion-frontdoor .fd-logo-mark,
+  body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-logo-mark{width:31px;height:35px;font-size:20px}
+  #imperion-frontdoor .fd-logo-text strong,
+  body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-logo-copy strong{font-size:19px}
+  #imperion-frontdoor .fd-logo-text small,
+  body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-logo-copy small{font-size:7px}
+  #imperion-frontdoor .fd-languages button,
+  body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-lang a{
+    min-width:26px;min-height:29px;font-size:10px;padding:3px;
+  }
+  #imperion-frontdoor .fd-nav a,
+  body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-links a{font-size:12px;min-height:33px;padding:6px 0}
+  #imperion-frontdoor .fd-hero-inner{padding-top:40px}
+}
+@media(max-width:350px){
+  #imperion-frontdoor .fd-logo-text small,
+  body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-logo-copy small{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+  #imperion-frontdoor .fd-nav a,
+  body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-links a{transition:none!important}
+}
+@media print{body[data-imperion-design]{background:#fff!important;color:#111!important}}

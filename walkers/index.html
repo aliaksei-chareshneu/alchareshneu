@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
+<link rel="stylesheet" href="../imperion-bootstrap.css?v=20261113b">
+<script src="../imperion-bootstrap.js?v=20261113b"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="referrer" content="strict-origin-when-cross-origin">
@@ -55,8 +57,13 @@
 <link rel="stylesheet" href="../brand-theme.css?v=20261025">
 <link rel="stylesheet" href="../site-design.css?v=20261027">
 <script src="../site-design.js?v=20261027" defer></script>
+<!-- IMPERION design checkpoint: visual styles only -->
+<link rel="stylesheet" href="../imperion-cinematic-site.css?v=20261112-ux1">
+<link rel="stylesheet" href="../unified-shell.css?v=20261113b">
+<link rel="stylesheet" href="../imperion-finish.css?v=20261113b">
+<script src="../unified-shell.js?v=20261113b" defer></script>
 </head>
-<body data-imperion-scope="shared">
+<body data-imperion-scope="shared" data-imperion-design="walkers">
 <a class="skip-link" href="#page-content" data-exp="skip">Skip to content</a>
 <nav class="nav">
   <div class="wrap">
@@ -115,11 +122,7 @@
 <div class="reg-actions"><a href="../register/">CZ · Přihláška</a><a href="../register/en/">EN · Register</a><a href="../register/ru/">RU · Запись</a><a href="../register/uk/">UA · Реєстрація</a></div>
 <p class="reg-note">Submitting the form does not confirm a place. These website forms replace the old event Google Forms as our primary intake route.</p></section>
 
-<aside id="bw-cancel-20261028" role="status" style="max-width:1120px;margin:16px auto;padding:17px 20px;border:2px solid #ffafa4;border-radius:12px;background:#44292b;color:#fff;line-height:1.55">
- <strong>❌ ZRUŠENO / CANCELLED / ОТМЕНЕНО / СКАСОВАНО — 28 October 2026, 12:00–15:00</strong>
- <p style="margin:6px 0">The paid BrnoWalkers walk <strong>Stránská skála → Bílá hora → Židenice</strong> will <strong>NOT take place</strong>. Do not travel to the meeting point or make payment. / Placená vycházka se <strong>NEKONÁ</strong>. Necestujte na sraz ani neplaťte.</p>
- <p style="margin:6px 0">Already paid? Contact <a style="color:#fff;text-decoration:underline" href="mailto:chereshnev.biochem@gmail.com?subject=BrnoWalkers%2028.10%20refund">the organiser</a> to verify your payment and arrange a refund. The free hike on 1 November is unaffected.</p>
-</aside>
+
 <section class="hero" id="walkers">
     <!-- CHARACTER HERO ART — "the Ranger" — kept in sync with the
          matching block on the main index.html walkers hero. -->
@@ -151,6 +154,11 @@
 
     </div>
   </section>
+<details id="bw-cancel-20261028" class="bw-archived-refund" style="max-width:1120px;margin:24px auto;padding:13px 19px;border:1px solid #dcb783;border-radius:12px;background:#173239;color:#fff;line-height:1.55">
+  <summary style="cursor:pointer;font-weight:750">Archiv · 28. 10. 2026: zrušená vycházka BrnoWalkers / cancelled walk · refunds</summary>
+  <p>Stránská skála → Bílá hora → Židenice on 28 October 2026 was cancelled and did not take place. Do not make payment for this past event.</p>
+  <p>Already paid? Please <a href="mailto:chereshnev.biochem@gmail.com?subject=BrnoWalkers%2028.10%20refund" style="color:#ffe0a2;text-decoration:underline">contact the organiser about a refund</a>; historical refund rights remain unaffected.</p>
+</details>
 <section id="event-types">
     <div class="wrap" data-i18n="eventTypes">
       <div class="eyebrow-sm">What we run</div>
@@ -1505,6 +1513,6 @@ function render(lang) {
 bindLangButtons();
 render(detectLang());
 </script>
-<script>if(Date.now()>Date.parse('2026-11-04T00:00:00+01:00')){const e=document.getElementById('bw-cancel-20261028');if(e)e.remove();}</script>
+<!-- Expired event cancellation is now a collapsed archival refund notice. -->
 </body>
 </html>

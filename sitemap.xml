@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://aliaksei-chareshneu.github.io/alchareshneu/about/</loc><lastmod>2026-11-13</lastmod><changefreq>monthly</changefreq><priority>0.82</priority></url>
   <url>
     <loc>https://aliaksei-chareshneu.github.io/alchareshneu/</loc>
     <lastmod>2026-09-28</lastmod>
@@ -164,7 +165,6 @@
     <priority>0.95</priority>
   </url>
   <url><loc>https://aliaksei-chareshneu.github.io/alchareshneu/autopilot/</loc><lastmod>2026-10-30</lastmod><changefreq>daily</changefreq><priority>0.85</priority></url>
-  <url><loc>https://aliaksei-chareshneu.github.io/alchareshneu/autopilot/campaigns.html</loc><lastmod>2026-10-30</lastmod><changefreq>daily</changefreq><priority>0.85</priority></url>
   <url>
     <loc>https://aliaksei-chareshneu.github.io/alchareshneu/dame-na-vas-2755/</loc>
     <lastmod>2026-11-01</lastmod>

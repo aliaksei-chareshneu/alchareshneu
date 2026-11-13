@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
+<link rel="stylesheet" href="../imperion-bootstrap.css?v=20261113b">
+<script src="../imperion-bootstrap.js?v=20261113b"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="referrer" content="strict-origin-when-cross-origin">
@@ -68,8 +70,15 @@ html:lang(en) #academy-milestones [lang=en],html:lang(cs) #academy-milestones [l
 html:lang(en) #service-choice-consultation .choice-copy[lang=en],html:lang(cs) #service-choice-consultation .choice-copy[lang=cs],html:lang(ru) #service-choice-consultation .choice-copy[lang=ru],html:lang(uk) #service-choice-consultation .choice-copy[lang=uk]{display:block}
 #service-choice-consultation .choice-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
 </style>
+<!-- IMPERION design checkpoint: visual styles only -->
+<link rel="stylesheet" href="../imperion-cinematic-site.css?v=20261112-ux1">
+<link rel="stylesheet" href="../unified-shell.css?v=20261113b">
+<link rel="stylesheet" href="../imperion-finish.css?v=20261113b">
+<script src="../unified-shell.js?v=20261113b" defer></script>
+<link rel="stylesheet" href="academy-goals.css?v=20261113a">
+<script src="academy-goals.js?v=20261113a" defer></script>
 </head>
-<body data-imperion-scope="shared">
+<body data-imperion-scope="shared" data-imperion-design="academy">
 <a class="skip-link" href="#page-content" data-exp="skip">Skip to content</a>
 <nav class="nav">
   <div class="wrap">
@@ -81,7 +90,7 @@ html:lang(en) #service-choice-consultation .choice-copy[lang=en],html:lang(cs) #
         <button data-lang="uk">UA</button>
         <button data-lang="en">EN</button>
       </div>
-      <a id="navBookBtn" class="btn solid plausible-event-name=Academy-Enquiry" data-i18n="nav.bookBtn" href="https://wa.me/420702914842?text=Academy%20enquiry%20%E2%80%94%20please%20confirm%20service%2C%20available%20dates%2C%20written%20scope%20and%20price.%20Source%3Dacademy_nav_20261105" target="_blank" rel="noopener">Register / Book</a>
+      <a id="navBookBtn" class="btn solid plausible-event-name=Academy-Enquiry" data-i18n="nav.bookBtn" href="courses/?lang=cs">Explore courses</a>
     </div>
   </div>
 </nav>
@@ -132,7 +141,7 @@ html:lang(en) #service-choice-consultation .choice-copy[lang=en],html:lang(cs) #
       <p class="tagline" data-i18n="academy.tagline">Choose your goal: Czech A2, CERMAT or university entrance preparation, science or IT skills. Agree on a practical study plan and clear prices in writing. Exam results are not guaranteed; other services are listed below.</p>
 
       <div class="hero-ctas">
-        <a class="btn solid plausible-event-name=Register-Academy" data-i18n="academy.ctaRegister" href="https://docs.google.com/forms/d/e/1FAIpQLSfa3qOWpQBfoA877ip9eOTWwFweOrNTib2mq8_C1D9xr55dtQ/viewform" target="_blank" rel="noopener">Describe your goal →</a>
+        <a class="btn solid plausible-event-name=Register-Academy" data-i18n="academy.ctaRegister" href="courses/?lang=cs">Explore courses →</a>
         <a class="btn plausible-event-name=Contact-Academy" data-i18n="academy.ctaContact" href="#academy-milestones">View programmes &amp; prices</a>
       </div>
       <a class="reviews-badge" href="https://maps.app.goo.gl/fEbnJHxiVoAx1v498" target="_blank" rel="noopener">Read Google reviews ↗</a>
@@ -371,7 +380,7 @@ html:lang(en) #service-choice-consultation .choice-copy[lang=en],html:lang(cs) #
 </main>
 
 <div class="mobile-cta" id="mobileCta" aria-hidden="true">
-  <a class="mobile-cta-btn" data-i18n="nav.bookBtn" href="https://wa.me/420702914842?text=Academy%20enquiry%20%E2%80%94%20please%20confirm%20service%2C%20available%20dates%2C%20written%20scope%20and%20price.%20Source%3Dacademy_nav_20261105" target="_blank" rel="noopener">Register / Book</a>
+  <a class="mobile-cta-btn" data-i18n="nav.bookBtn" href="courses/?lang=cs">Explore courses</a>
   <a class="mobile-cta-icon" href="https://wa.me/420702914842" target="_blank" rel="noopener" aria-label="WhatsApp">
     <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l1.3-4.1A8 8 0 1 1 9 18.6z"/><path d="M9.2 10.3c0 3 2.4 5.4 5.4 5.4"/></svg>
   </a>
@@ -452,13 +461,13 @@ html:lang(en) #service-choice-consultation .choice-copy[lang=en],html:lang(cs) #
 const T = {
 en: {
   miniGroupOffer: "<h2>Academy online group pilot</h2><p>Czech, English, biology or chemistry. 350 Kč per participant per 60 minutes until 31 Dec 2026; 400 Kč per participant per 60 minutes for newly confirmed lessons from 1 Jan 2027. Starts with at least 6 paid participants who have compatible goals, levels and schedules. Exact dates and terms agreed in writing. Enquiry is not a booking.</p><a class=\"btn solid\" href=\"https://docs.google.com/forms/d/e/1FAIpQLSfa3qOWpQBfoA877ip9eOTWwFweOrNTib2mq8_C1D9xr55dtQ/viewform\" target=\"_blank\" rel=\"noopener noreferrer\">Request a group place</a>",
-  nav: { brand: "Eternal Learning Academy", bookBtn: "Academy enquiry" },
+  nav: { brand: "Eternal Learning Academy", bookBtn: "Explore courses" },
   tabs: {main:'Home', walkers:'BrnoWalkers', academy:'Academy', druzina:'Družina Moravy', calendar:'Calendar', ambassador:'Become an Ambassador', contacts:'Contacts'},
   academy: {
     eyebrow: "PhD-Level Tutoring & Coaching",
     title2: "Prepare for exams, speak Czech with confidence and build practical skills",
     tagline: "Choose your goal: Czech A2, CERMAT or university entrance preparation, science or IT skills. Agree on a practical study plan and clear prices in writing. Exam results are not guaranteed; other services are listed below.",
-    ctaRegister: "Describe your goal →",
+    ctaRegister: "Explore Academy courses →",
     ctaContact: "View programmes & prices",
     priorityEyebrow: "Why regulars stick around"
   },
@@ -469,13 +478,13 @@ en: {
 },
 ru: {
   miniGroupOffer: "<h2>Групповой онлайн-пилот Academy</h2><p>Чешский, английский, биология или химия. 350 Kč с участника за 60 минут до 31.12.2026; с 01.01.2027 новые подтверждённые занятия — 400 Kč с человека за 60 минут. Старт при минимум 6 оплативших с совместимыми целями, уровнем и расписанием. Даты и условия согласуются письменно. Заявка не означает брони.</p><a class=\"btn solid\" href=\"https://docs.google.com/forms/d/e/1FAIpQLSfa3qOWpQBfoA877ip9eOTWwFweOrNTib2mq8_C1D9xr55dtQ/viewform\" target=\"_blank\" rel=\"noopener noreferrer\">Подать заявку в группу</a>",
-  nav: { brand: "Eternal Learning Academy", bookBtn: "Запросить Academy" },
+  nav: { brand: "Eternal Learning Academy", bookBtn: "Выбрать курс" },
   tabs: {main:'Home', walkers:'BrnoWalkers', academy:'Academy', druzina:'Družina Moravy', calendar:'Calendar', ambassador:'Become an Ambassador', contacts:'Contacts'},
   academy: {
     eyebrow: "Репетиторство PhD-уровня",
     title2: "Подготовьтесь к экзамену, увереннее говорите по-чешски и развивайте навыки",
     tagline: "Выберите цель: чешский A2 для ПМЖ, CERMAT, поступление в вуз или навыки в естественных науках и IT. Согласуйте практический план и цену письменно. Результат экзамена не гарантируется; другие услуги ниже.",
-    ctaRegister: "Описать свою цель →",
+    ctaRegister: "Выбрать курс в Академии →",
     ctaContact: "Программы и цены",
     priorityEyebrow: "Почему ученики остаются надолго"
   },
@@ -486,13 +495,13 @@ ru: {
 },
 cs: {
   miniGroupOffer: "<h2>Online skupinový pilot Academy</h2><p>Čeština, angličtina, biologie nebo chemie. Do 31. 12. 2026 platí 350 Kč za účastníka na 60 minut; od 1. 1. 2027 bude cena nově potvrzené lekce 400 Kč za osobu. Začíná při alespoň 6 platících s podobnou úrovní, cílem a časovými možnostmi. Termíny a podmínky se potvrdí písemně. Poptávka není rezervace.</p><a class=\"btn solid\" href=\"https://docs.google.com/forms/d/e/1FAIpQLSfa3qOWpQBfoA877ip9eOTWwFweOrNTib2mq8_C1D9xr55dtQ/viewform\" target=\"_blank\" rel=\"noopener noreferrer\">Poptat skupinu</a>",
-  nav: { brand: "Eternal Learning Academy", bookBtn: "Poptat Academy" },
+  nav: { brand: "Eternal Learning Academy", bookBtn: "Vybrat kurz" },
   tabs: {main:'Home', walkers:'BrnoWalkers', academy:'Academy', druzina:'Družina Moravy', calendar:'Calendar', ambassador:'Become an Ambassador', contacts:'Contacts'},
   academy: {
     eyebrow: "Doučování na úrovni PhD",
     title2: "Připravte se na zkoušky, domluvte se jistěji česky a získejte praktické dovednosti",
     tagline: "Zvolte cíl: čeština A2 pro trvalý pobyt, CERMAT, přijímací zkoušky na VŠ nebo dovednosti ve vědě a IT. Praktický plán a cenu si dohodneme písemně. Výsledek zkoušky není zaručen; další služby najdete níže.",
-    ctaRegister: "Popsat svůj cíl →",
+    ctaRegister: "Vybrat kurz v Akademii →",
     ctaContact: "Programy a ceny",
     priorityEyebrow: "Proč studenti zůstávají"
   },
@@ -503,13 +512,13 @@ cs: {
 },
 uk: {
   miniGroupOffer: "<h2>Онлайн-груповий пілот Academy</h2><p>Чеська, англійська, біологія або хімія. До 31.12.2026 — 350 Kč з учасника за 60 хвилин; з 01.01.2027 для нових підтверджених занять — 400 Kč за особу. Старт лише за наявності щонайменше 6 оплат і сумісних цілей, рівня й графіка. Дати й умови узгоджуються письмово. Заявка не є бронюванням.</p><a class=\"btn solid\" href=\"https://docs.google.com/forms/d/e/1FAIpQLSfa3qOWpQBfoA877ip9eOTWwFweOrNTib2mq8_C1D9xr55dtQ/viewform\" target=\"_blank\" rel=\"noopener noreferrer\">Подати заявку до групи</a>",
-  nav: { brand: "Eternal Learning Academy", bookBtn: "Запит до Academy" },
+  nav: { brand: "Eternal Learning Academy", bookBtn: "Обрати курс" },
   tabs: {main:'Home', walkers:'BrnoWalkers', academy:'Academy', druzina:'Družina Moravy', calendar:'Calendar', ambassador:'Become an Ambassador', contacts:'Contacts'},
   academy: {
     eyebrow: "Репетиторство PhD-рівня",
     title2: "Підготуйтеся до іспитів, впевненіше спілкуйтеся чеською та розвивайте навички",
     tagline: "Оберіть мету: чеська A2 для ПМП, CERMAT, вступ до університету або навички з природничих наук та IT. Практичний план і ціну узгодимо письмово. Результат іспиту не гарантовано; інші послуги нижче.",
-    ctaRegister: "Описати свою мету →",
+    ctaRegister: "Обрати курс в Академії →",
     ctaContact: "Програми та ціни",
     priorityEyebrow: "Чому учні залишаються надовго"
   },
@@ -574,6 +583,12 @@ function render(lang) {
     b.setAttribute('aria-pressed', b.dataset.lang === lang ? 'true' : 'false');
   });
   applyTranslations(lang);
+  // Keep the permanent website-first course choice in the visitor's selected language.
+  const courseLanguage = lang;
+  document.querySelectorAll('#navBookBtn, #mobileCta .mobile-cta-btn, .hero-ctas a[data-i18n="academy.ctaRegister"]').forEach(a => {
+    a.href='courses/?lang='+encodeURIComponent(courseLanguage);
+    a.removeAttribute('target');a.removeAttribute('rel');
+  });
 }
 
 bindLangButtons();

@@ -1,6 +1,8 @@
 <!doctype html>
 <html lang="cs">
 <head>
+<link rel="stylesheet" href="../imperion-bootstrap.css?v=20261113b">
+<script src="../imperion-bootstrap.js?v=20261113b"></script>
 <meta name="theme-color" content="#0b1729">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -41,9 +43,14 @@
 <link rel="stylesheet" href="../brand-theme.css?v=20261025">
 <link rel="stylesheet" href="../site-design.css?v=20261027">
 <script src="../site-design.js?v=20261027" defer></script>
+<!-- IMPERION design checkpoint: visual styles only -->
+<link rel="stylesheet" href="../imperion-cinematic-site.css?v=20261112-ux1">
+<link rel="stylesheet" href="../unified-shell.css?v=20261113b">
+<link rel="stylesheet" href="../imperion-finish.css?v=20261113b">
+<script src="../unified-shell.js?v=20261113b" defer></script>
 </head>
-<body class="site-corporate" data-imperion-scope="shared">
-<nav class="nav"><div class="wrap"><div class="brand"><a href="../" style="color:inherit;text-decoration:none">Aliaksei Chareshneu, PhD</a><small>Corporate & Expert Services</small></div><div class="nav-actions"><a class="btn" href="../academy/">Academy</a><a class="btn" href="../academy/courses/">31 Courses / Kurzy</a><a class="btn" href="../#contacts">Contact</a></div></div></nav>
+<body class="site-corporate" data-imperion-scope="shared" data-imperion-design="corporate">
+<nav class="nav"><div class="wrap"><div class="brand"><a id="corporateHomeLink" href="../?lang=cs" style="color:inherit;text-decoration:none">Aliaksei Chareshneu, PhD</a><small>Corporate & Expert Services</small></div><div class="nav-actions"><a class="btn" id="corporateAcademyLink" href="../academy/?lang=cs">Academy</a><a class="btn" id="corporateCoursesLink" href="../academy/courses/?lang=cs">31 Courses / Kurzy</a><a class="btn" id="corporateContactLink" href="request/?lang=cs&amp;src=corporate_nav">Contact</a></div></div></nav>
 <div class="revenue-lang"><button type="button" data-lang="cs" aria-pressed="true">CZ</button><button type="button" data-lang="en" aria-pressed="false">EN</button><button type="button" data-lang="ru" aria-pressed="false">RU</button><button type="button" data-lang="uk" aria-pressed="false">UA</button></div>
 <main>
 <section class="revenue-head"><div class="revenue-wrap">
@@ -221,6 +228,10 @@ var blocks=Array.from(document.querySelectorAll('[data-locale]'));
 function setLang(lang){if(['en','cs','ru','uk'].indexOf(lang)<0)lang='cs';document.documentElement.lang=lang;
 try{localStorage.setItem('dm_lang',lang);}catch(e){}
 var url=new URL(location.href);url.searchParams.set('lang',lang);history.replaceState(null,'',url);
+document.getElementById('corporateHomeLink').href='../?lang='+encodeURIComponent(lang);
+document.getElementById('corporateAcademyLink').href='../academy/?lang='+encodeURIComponent(lang);
+document.getElementById('corporateCoursesLink').href='../academy/courses/?lang='+encodeURIComponent(lang);
+document.getElementById('corporateContactLink').href='request/?lang='+encodeURIComponent(lang)+'&src=corporate_nav';
 buttons.forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.lang===lang));});
 blocks.forEach(function(el){var effective=lang;if(lang==='uk'&&el.dataset.locale==='en'&&!el.parentElement.querySelector(':scope > [data-locale="uk"]'))effective='en';el.hidden=el.dataset.locale!==effective;});
 }

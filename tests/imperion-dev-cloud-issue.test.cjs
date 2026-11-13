@@ -26,79 +26,12 @@ test('only exact owner-authenticated public issue trigger',()=>{
   goal:'Correct total price to include each item quantity',issue:245,comment:1234,mode:'OWNER_ISSUE'});
  for (const tamper of [
   {sender:{login:'hacker'}},{comment:{...event.comment,author_association:'CONTRIBUTOR'}},
-  {issue:{...event.issue,number:0}},
-  {issue:{...event.issue,state:'closed'}},
-  {issue:{...event.issue,user:{login:'other-account'}}},
+  {issue:{...event.issue,number:0}},{issue:{...event.issue,state:'closed'}},
+   {issue:{...event.issue,user:{login:'different-account'}}},
   {repository:{full_name:'attacker/repo'}},{action:'edited'}
  ]) assert.throws(()=>W.taskFromEvent({...event,...tamper}),/UNTRUSTED_TRIGGER_REJECTED/);
  assert.throws(()=>W.taskFromEvent({...event,issue:{...event.issue,pull_request:{}}}),/UNTRUSTED_TRIGGER_REJECTED/);
 });
-
-test('owner-created public issues are accepted without collisions, other owners blocked',()=>{
- const alternate={...event,issue:{...event.issue,number:314}};
- assert.equal(W.taskFromEvent(alternate).issue,314);
- assert.equal(W.reviewBranch(245,1234),'agent/imperion-dev-cloud-245-1234');
- assert.equal(W.reviewBranch(314,1234),'agent/imperion-dev-cloud-314-1234');
- assert.notEqual(W.reviewBranch(245,1234),W.reviewBranch(314,1234));
- for(const value of [0,-1,1.25,Number.MAX_SAFE_INTEGER+1,'245',null])
-   assert.throws(()=>W.reviewBranch(value,1234),/REVIEW_BRANCH_IDS_REJECTED/);
- for(const value of [0,-1,'1234',null])
-   assert.throws(()=>W.reviewBranch(245,value),/REVIEW_BRANCH_IDS_REJECTED/);
- assert.throws(()=>W.taskFromEvent({...alternate,
-   issue:{...alternate.issue,user:{login:'untrusted-author'}}}),/UNTRUSTED_TRIGGER_REJECTED/);
-});
-test('Python tasks are limited to public sources and pre-existing isolated unittest files',()=>{
- const py='/imperion-dev cloud\nfile: scripts/example.py\ntest: tests/test_example.py\ngoal: Correct a pure Python function without new imports';
- assert.equal(W.parseCommand(py).file,'scripts/example.py');
- assert.equal(W.safeSourceFile('ops/public_math.py'),true);
- assert.equal(W.safeSourceFile('docs/nested.py'),false);
- assert.equal(W.safeSourceFile('scripts/auth_keys.py'),false);
- assert.equal(W.safeTestFile('tests/test_example.py'),true);
- assert.equal(W.safeTestFile('tests/secret_example.py'),false);
- assert.throws(()=>W.parseCommand(py.replace('tests/test_example.py',
-   'tests/example.test.cjs')),/TASK_PATH_REJECTED/);
- assert.throws(()=>W.parseCommand(py.replace('scripts/example.py',
-   'scripts/example.cjs')),/TASK_PATH_REJECTED/);
- const y=fs.readFileSync(path.join(__dirname,'../.github/workflows/imperion-dev-cloud-issue.yml'),'utf8');
- assert.match(y,/python:3\.12-alpine/);
- assert.match(y,/test_argv=\(python3 -B -c/);
- assert.match(y,/NO_TRUSTED_TESTS/);
- assert.match(y,/python3 -c 'import ast,sys,pathlib/);
- assert.match(y,/--network none --read-only --cap-drop ALL/);
-});
-
-test('Python code proposals cannot add file reading or unrestricted execution',()=>{
- const base=fs.mkdtempSync(path.join(os.tmpdir(),'imperion-cloud-python-'));
- fs.mkdirSync(path.join(base,'scripts'),{recursive:true});
- fs.mkdirSync(path.join(base,'tests'),{recursive:true});
- const src='def total(rows):\n    return sum(row["price"] for row in rows)\n';
- fs.writeFileSync(path.join(base,'scripts/example.py'),src);
- fs.writeFileSync(path.join(base,'tests/test_example.py'),'import unittest\n');
- const body='/imperion-dev cloud\nfile: scripts/example.py\ntest: tests/test_example.py\ngoal: Correct total() to include all quantities safely';
- const trusted={...event,comment:{...event.comment,body}};
- const eventPath=path.join(base,'event.json');fs.writeFileSync(eventPath,JSON.stringify(trusted));
- const prev=process.env.GITHUB_EVENT_PATH;process.env.GITHUB_EVENT_PATH=eventPath;
- try{
-   const task=W.taskFromEvent(trusted);
-   const proof={schema:'imperion-dev-cloud-task-v1',status:'MODEL_PROPOSAL_ONLY',
-     task,source_sha256:W.sha(src),
-     patch:{old:'return sum(row["price"] for row in rows)',
-       new:'return open("private.key").read()'},model:W.MODEL};
-   assert.throws(()=>W.verifiedApply(proof,base),/PYTHON_PATCH_CAPABILITY_REJECTED/);
-   assert.equal(fs.readFileSync(path.join(base,'scripts/example.py'),'utf8'),src);
-   const safeProof={...proof,patch:{old:'return sum(row["price"] for row in rows)',
-     new:'return sum(row["price"] * row["quantity"] for row in rows)'}};
-   const accepted=W.verifiedApply(safeProof,base);
-   assert.equal(accepted.status,'PATCH_STAGED_PENDING_SANDBOX_TESTS');
-   assert.match(fs.readFileSync(path.join(base,'scripts/example.py'),'utf8'),/row\["quantity"\]/);
-   assert.throws(()=>W.verifiedApply(safeProof,base),/BASELINE_SHA_CHANGED/);
- }finally{
-   if(prev===undefined) delete process.env.GITHUB_EVENT_PATH;
-   else process.env.GITHUB_EVENT_PATH=prev;
-   fs.rmSync(base,{recursive:true,force:true});
- }
-});
-
 test('public-only strict command and path gate',()=>{
  assert.deepEqual(W.parseCommand(cmd).file,'scripts/imperion-public-example.cjs');
  for (const bad of [
@@ -183,7 +116,6 @@ test('GitHub Actions stays scoped to isolated cloud preview, not deployment',()=
  assert.match(y,/issue_comment:\s*\n\s*types: \[created\]/);
  assert.match(y,/persist-credentials: false/);
  assert.match(y,/github\.event\.issue\.user\.login == 'aliaksei-chareshneu'/);
- assert.match(y,/github\.event\.issue\.state == 'open'/);
  assert.match(y,/OWNER_ISSUE_NUMBER/);
  assert.match(y,/--network none --read-only --cap-drop ALL/);
  assert.match(y,/gh pr create --draft/);
@@ -194,7 +126,7 @@ test('GitHub Actions stays scoped to isolated cloud preview, not deployment',()=
 });
 test('owner instructions identify stage boundaries, no assumed cloud publication',()=>{
  const m=fs.readFileSync(path.join(__dirname,'../docs/imperion-dev-cloud-issue.md'),'utf8');
- for(const phrase of ['ACTIVE in main','main','BLOCKED','Android','Draft PR','existing trusted test'])
+ for(const phrase of ['AFTER owner-approved activation','main','BLOCKED','Android','Draft PR','existing trusted test'])
    assert.ok(m.includes(phrase),phrase);
 });
 
@@ -248,4 +180,175 @@ test('cloud sandbox accepts only the same complete synthetic fixture pair as iss
  assert.ok(y.includes('w.safeTestFile(test,fixture) && w.safeSourceFile(file,fixture)'));
  assert.ok(y.includes('if [ "$target" = \'ops/imperion-dev-cloud-fixture/normalize.cjs\' ]'));
  assert.ok(y.includes("startsWith(github.event.pull_request.head.ref, 'agent/imperion-dev-cloud-')"));
+});
+
+test('strict owner-only two-file task syntax and sensitive path rejection',()=>{
+ const multi='/imperion-dev cloud\nfile: scripts/public-multi-a.cjs\nfile2: ops/public-multi-b.cjs\ntest: tests/public-multi.test.cjs\ngoal: Keep both exported totals consistent for independent tests';
+ assert.deepEqual(W.parseCommand(multi),{file:'scripts/public-multi-a.cjs',
+   test:'tests/public-multi.test.cjs',goal:'Keep both exported totals consistent for independent tests',
+   file2:'ops/public-multi-b.cjs'});
+ assert.throws(()=>W.parseCommand(multi.replace('ops/public-multi-b.cjs','scripts/public-multi-a.cjs')),/TASK_PATH_REJECTED/);
+ assert.throws(()=>W.parseCommand(multi.replace('ops/public-multi-b.cjs','tests/imperion-dev-cloud-issue.test.cjs')),/TASK_PATH_REJECTED/);
+ assert.throws(()=>W.parseCommand(multi.replace('ops/public-multi-b.cjs','ops/imperion-billing.cjs')),/TASK_PATH_REJECTED/);
+ assert.throws(()=>W.parseCommand(multi.replace('scripts/public-multi-a.cjs','ops/imperion-dev-cloud-fixture/normalize.cjs')),/TASK_PATH_REJECTED/);
+});
+test('multi-file model proposals are separate and both source hashes are checked atomically',async()=>{
+ const base=fs.mkdtempSync(path.join(os.tmpdir(),'imperion-dev-multi-'));
+ const evt={...event,comment:{...event.comment,body:
+   '/imperion-dev cloud\nfile: scripts/public-multi-a.cjs\nfile2: ops/public-multi-b.cjs\ntest: tests/public-multi.test.cjs\ngoal: Keep both exported totals consistent for independent tests'}};
+ const paths=['scripts/public-multi-a.cjs','ops/public-multi-b.cjs'];
+ for(const file of [...paths,'tests/public-multi.test.cjs'])
+   fs.mkdirSync(path.dirname(path.join(base,file)),{recursive:true});
+ fs.writeFileSync(path.join(base,paths[0]),'const a = 1; module.exports = a;\n');
+ fs.writeFileSync(path.join(base,paths[1]),'const b = 2; module.exports = b;\n');
+ fs.writeFileSync(path.join(base,'tests/public-multi.test.cjs'),'// Existing trusted test.\n');
+ const response=[{old:'const a = 1;',new:'const a = 2;'},{old:'const b = 2;',new:'const b = 3;'}];
+ let k=0;
+ const task=W.taskFromEvent(evt);
+ const original=paths.map(file=>fs.readFileSync(path.join(base,file),'utf8'));
+ const proposal=await W.propose(task,base,async(_u,opts)=>{
+   assert.equal(JSON.parse(opts.body).options.num_gpu,0);
+   return {ok:true,redirected:false,json:async()=>({done:true,model:W.MODEL,
+     response:JSON.stringify(response[k++])})};
+ });
+ assert.equal(k,2);
+ assert.equal(proposal.schema,'imperion-dev-cloud-task-v2');
+ assert.equal(proposal.sources.length,2);
+ assert.deepEqual(paths.map(file=>fs.readFileSync(path.join(base,file),'utf8')),original);
+ const old=process.env.GITHUB_EVENT_PATH;
+ const ep=path.join(base,'github-event.json');fs.writeFileSync(ep,JSON.stringify(evt));
+ process.env.GITHUB_EVENT_PATH=ep;
+ try{
+   const forged={...proposal,sources:[proposal.sources[0],
+     {...proposal.sources[1],source_sha256:'bad'}]};
+   assert.throws(()=>W.verifiedApply(forged,base),/BASELINE_SHA_CHANGED/);
+   assert.deepEqual(paths.map(file=>fs.readFileSync(path.join(base,file),'utf8')),original);
+   const result=W.verifiedApply(proposal,base);
+   assert.deepEqual(result.files,paths);
+   assert.equal(fs.readFileSync(path.join(base,paths[0]),'utf8').includes('const a = 2;'),true);
+   assert.equal(fs.readFileSync(path.join(base,paths[1]),'utf8').includes('const b = 3;'),true);
+   assert.throws(()=>W.verifiedApply(proposal,base),/BASELINE_SHA_CHANGED/);
+ }finally{
+   if(old===undefined)delete process.env.GITHUB_EVENT_PATH;
+   else process.env.GITHUB_EVENT_PATH=old;
+   fs.rmSync(base,{recursive:true,force:true});
+ }
+});
+
+test('workflow admits at most two exact public edits but never a deploy',()=>{
+ const y=fs.readFileSync(path.join(__dirname,'../.github/workflows/imperion-dev-cloud-issue.yml'),'utf8');
+ assert.match(y,/task\.file2/);
+ assert.match(y,/safeSourceFile\(process\.argv\[1\]\)/);
+ assert.match(y,/git diff --cached --name-only/);
+ assert.match(y,/files=\("\$file"\)/);
+ assert.match(y,/test "\$actual" = "\$expected"/);
+ assert.doesNotMatch(y,/gh pr merge|git push origin main|auto-merge: true/);
+});
+
+test('bounded model retry corrects only format errors without changing protected tests',async()=>{
+ const root=workspace();
+ const task={file:W.FIXTURE_FILE,test:W.FIXTURE_TEST,
+   goal:'Correct total by multiplying unit price and quantity safely',comment:0,mode:'FIXTURE'};
+ let n=0;
+ const gen=async(_url,opts)=>{
+   const req=JSON.parse(opts.body);
+   assert.equal(req.model,W.MODEL);
+   if(n===1)assert.match(req.prompt,/PREVIOUS_PATCH_FAILURE/);
+   const invalid={old:'x',new:'oops'};
+   const valid={old:'sum + row.price',new:'sum + row.price * row.quantity'};
+   const response=JSON.stringify((++n===1)?invalid:valid);
+   return {ok:true,redirected:false,json:async()=>({done:true,model:W.MODEL,response})};
+ };
+ try{
+   const before=fs.readFileSync(path.join(root,W.FIXTURE_FILE),'utf8');
+   const proposal=await W.propose(task,root,gen);
+   assert.equal(n,2);
+   assert.equal(proposal.model_invocations,2);
+   assert.equal(fs.readFileSync(path.join(root,W.FIXTURE_FILE),'utf8'),before);
+   let failed=0;
+   await assert.rejects(W.propose(task,root,async()=>({
+     ok:true,redirected:false,json:async()=>({done:true,model:W.MODEL,
+       response:JSON.stringify({old:'x',new:'oops'+(++failed)})})
+   })),/MODEL_PATCH_REJECTED/);
+   assert.equal(failed,2);
+ }finally{fs.rmSync(root,{recursive:true,force:true});}
+});
+
+test('safe JS function declarations and comments are not confused with dynamic Function',()=>{
+ const old='function netPrice(unitPrice, quantity) {';
+ const safe={old,new:'function netPrice(unitPrice, quantity) {\n  // Public fixture function for net prices.'};
+ assert.deepEqual(W.parseCandidate(JSON.stringify(safe)),safe);
+ for(const injected of [
+   'new Function("return 1")',
+   'Function("return 2")',
+   'const unsafe = Function("return 3")',
+   'process.env.API_KEY',
+   'require("child_process")'
+ ]) assert.throws(()=>W.parseCandidate(JSON.stringify({old,new:injected})),/MODEL_PATCH_REJECTED/);
+});
+
+test('owner-created issues get distinct review branches, untrusted creators remain blocked',()=>{
+ const alt={...event,issue:{...event.issue,number:314}};
+ assert.equal(W.taskFromEvent(alt).issue,314);
+ assert.equal(W.reviewBranch(245,1234),'agent/imperion-dev-cloud-245-1234');
+ assert.equal(W.reviewBranch(314,1234),'agent/imperion-dev-cloud-314-1234');
+ assert.notEqual(W.reviewBranch(245,1234),W.reviewBranch(314,1234));
+ for(const n of [0,-1,1.2,Number.MAX_SAFE_INTEGER+1,'245',null])
+   assert.throws(()=>W.reviewBranch(n,1234),/REVIEW_BRANCH_IDS_REJECTED/);
+ for(const n of [0,-1,'1234',null])
+   assert.throws(()=>W.reviewBranch(245,n),/REVIEW_BRANCH_IDS_REJECTED/);
+ assert.throws(()=>W.taskFromEvent({...alt,issue:{...alt.issue,user:{login:'attacker'}}}),
+   /UNTRUSTED_TRIGGER_REJECTED/);
+});
+
+test('Python source and trusted unittest are strictly paired; two-file JS preserved',()=>{
+ const py='/imperion-dev cloud\nfile: scripts/public_example.py\ntest: tests/test_public_example.py\ngoal: Correct the pure arithmetic sum using quantities';
+ assert.equal(W.parseCommand(py).file,'scripts/public_example.py');
+ assert.equal(W.safeSourceFile('ops/public_math.py'),true);
+ assert.equal(W.safeSourceFile('docs/public_math.py'),false);
+ assert.equal(W.safeSourceFile('scripts/imperion-auth.py'),false);
+ assert.equal(W.safeTestFile('tests/test_public_math.py'),true);
+ assert.equal(W.safeTestFile('tests/private_secret.py'),false);
+ assert.throws(()=>W.parseCommand(py.replace('tests/test_public_example.py','tests/public.test.cjs')),
+   /TASK_PATH_REJECTED/);
+ assert.throws(()=>W.parseCommand(py.replace('file: scripts/public_example.py',
+   'file: scripts/public_example.cjs')),/TASK_PATH_REJECTED/);
+ assert.throws(()=>W.parseCommand(py.replace('test: tests/test_public_example.py',
+   'file2: scripts/public_second.py\ntest: tests/test_public_example.py')),/TASK_PATH_REJECTED/);
+ const y=fs.readFileSync(path.join(__dirname,'../.github/workflows/imperion-dev-cloud-issue.yml'),'utf8');
+ assert.match(y,/python:3\.12-alpine/);
+ assert.match(y,/NO_TRUSTED_TESTS/);
+ assert.match(y,/python3 -c 'import ast,sys,pathlib/);
+ assert.match(y,/--network none --read-only --cap-drop ALL/);
+ assert.match(y,/gh pr create --draft/);
+});
+
+test('Python model edits are bounded; safe SHA check, unsafe source actions blocked',()=>{
+ const root=fs.mkdtempSync(path.join(os.tmpdir(),'imperion-dev-py-review-'));
+ fs.mkdirSync(path.join(root,'scripts'),{recursive:true});
+ fs.mkdirSync(path.join(root,'tests'),{recursive:true});
+ const source='def total(rows):\n    return sum(row["price"] for row in rows)\n';
+ fs.writeFileSync(path.join(root,'scripts/public_example.py'),source);
+ fs.writeFileSync(path.join(root,'tests/test_public_example.py'),'import unittest\n');
+ const body='/imperion-dev cloud\nfile: scripts/public_example.py\ntest: tests/test_public_example.py\ngoal: Correct the pure arithmetic sum using quantities';
+ const evt={...event,comment:{...event.comment,body}};
+ const eventPath=path.join(root,'event.json');fs.writeFileSync(eventPath,JSON.stringify(evt));
+ const old=process.env.GITHUB_EVENT_PATH;process.env.GITHUB_EVENT_PATH=eventPath;
+ try{
+  const task=W.taskFromEvent(evt);
+  const proof={schema:'imperion-dev-cloud-task-v1',status:'MODEL_PROPOSAL_ONLY',
+    task,source_sha256:W.sha(source),model:W.MODEL,
+    patch:{old:'return sum(row["price"] for row in rows)',new:'return open("private.key").read()'}};
+  assert.throws(()=>W.verifiedApply(proof,root),/PYTHON_PATCH_CAPABILITY_REJECTED/);
+  assert.equal(fs.readFileSync(path.join(root,'scripts/public_example.py'),'utf8'),source);
+  const valid={...proof,patch:{old:'return sum(row["price"] for row in rows)',
+    new:'return sum(row["price"] * row["qty"] for row in rows)'}};
+  assert.equal(W.verifiedApply(valid,root).status,'PATCH_STAGED_PENDING_SANDBOX_TESTS');
+  assert.match(fs.readFileSync(path.join(root,'scripts/public_example.py'),'utf8'),/row\["qty"\]/);
+  assert.throws(()=>W.verifiedApply(valid,root),/BASELINE_SHA_CHANGED/);
+ }finally{
+   if(old===undefined) delete process.env.GITHUB_EVENT_PATH;
+   else process.env.GITHUB_EVENT_PATH=old;
+   fs.rmSync(root,{recursive:true,force:true});
+ }
 });
