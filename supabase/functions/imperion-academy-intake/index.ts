@@ -40,12 +40,12 @@ Deno.serve(async(req:Request):Promise<Response>=>{
  const email=field(body,"email",180).toLowerCase();
  const product_code=field(body,"programme",20);
  const goal=field(body,"goal",500);
- const deadline=field(body,"deadline",100);
+ const deadline=field(body,"deadline",400);
  const locale=field(body,"locale",8);
  const utm_source=tracking(field(body,"utmSource",64)),utm_medium=tracking(field(body,"utmMedium",64)),utm_campaign=tracking(field(body,"utmCampaign",64));
  if(first_name.length<2||first_name.length>110||email.length>180||
     !/^[^\s@]{1,80}@[^\s@]+\.[^\s@]{2,}$/.test(email)||!PRODS.has(product_code)||
-    goal.length>500||deadline.length>100||!LOCALES.has(locale)||
+    goal.length>500||deadline.length>400||!LOCALES.has(locale)||
     body.privacyAcknowledged!==true||body.adultOrGuardianConfirmed!==true)
     return reply({error:"please_check_required_fields"},400,origin);
  const ip=String(req.headers.get("cf-connecting-ip")||req.headers.get("x-forwarded-for")||"").split(",")[0].trim().slice(0,90);
