@@ -22,12 +22,14 @@
       .map(function(x){return x.getAttribute('data-lang')||x.getAttribute('data-switch');})
       .filter(function(x){return ['cs','en','ru','uk'].indexOf(x)>=0;})
   ));
-  if(section==='about')supported=['cs','en','ru','uk'];
+  var registerIndex=/^register\/(?:(?:en|ru|uk)\/)?(?:index\.html)?$/.test(path);
+  if(section==='about'||registerIndex)supported=['cs','en','ru','uk'];
   // Some informational pages have four dedicated language sections rather than buttons.
   if(!supported.length&&document.querySelector('[data-locale="cs"], [data-dm-hero-all-lang="cs"]'))
     supported=['cs','en','ru','uk'];
   var q=new URLSearchParams(location.search),request=q.get('lang');
-  var lang=copy[request]&&(!supported.length||supported.indexOf(request)>=0)?request:
+  var routeLang=registerIndex?(path.match(/^register\/(en|ru|uk)\//)||[])[1]:null;
+  var lang=copy[routeLang]?routeLang:copy[request]&&(!supported.length||supported.indexOf(request)>=0)?request:
            (copy[document.documentElement.lang]?document.documentElement.lang:'cs');
   if(supported.length&&supported.indexOf(lang)<0)lang=supported[0];
   var main=document.querySelector('main');
@@ -71,7 +73,12 @@
     links.walkers.href=urlFor('walkers/',code);
     links.about.href=urlFor('about/',code);
     Array.from(language.children).forEach(function(a){
-      var u=new URL(location.href);u.searchParams.set('lang',a.dataset.impLang);
+      var u=registerIndex?new URL('register/'+(a.dataset.impLang==='cs'?'':a.dataset.impLang+'/'),root):new URL(location.href);
+      // Keep a selected event and allowed source when changing registration language.
+      if(registerIndex){['event','src','utm_source','utm_medium','utm_campaign'].forEach(function(key){
+        var val=q.get(key);if(val&&val.length<150)u.searchParams.set(key,val);
+      });}
+      u.searchParams.set('lang',a.dataset.impLang);
       a.href=u.href;
     });
   }
