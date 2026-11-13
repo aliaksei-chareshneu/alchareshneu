@@ -108,6 +108,7 @@ function validateJSONValue(x,depth=0){
     typeof x==='number'&&Number.isFinite(x)&&Math.abs(x)<=1000000)return;
  if(Array.isArray(x)&&x.length<=8){for(const v of x)validateJSONValue(v,depth+1);return}
  if(x&&typeof x==='object'&&!Array.isArray(x)&&Object.keys(x).length<=8){
+  if(Object.getPrototypeOf(x)!==Object.prototype)reject('AUTO_TEST_VALUE_REJECTED');
   for(const [k,v] of Object.entries(x)){
    if(!/^[a-zA-Z][a-zA-Z0-9_]{0,30}$/.test(k)||/^(?:constructor|prototype|__proto__)$/i.test(k))
     reject('AUTO_TEST_VALUE_REJECTED');
