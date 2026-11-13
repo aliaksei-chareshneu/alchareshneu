@@ -84,3 +84,7 @@ body[data-imperion-design="academy"] .hero a[href^="a2/"]:is(:hover,:focus-visib
    wrapper in the DOM but out of the first screen; the actual 9 categories
    have been moved intact into an accessible <details>. */
 #academy-pricing:has(#academy-prices-brief) > .wrap {display:none !important}
+
+/* Specific service prices + native Order button. */
+#academy-selected-service .academy-option-price{display:block;color:#ffe4a4;font:760 clamp(18px,1.85vw,24px)/1.25 Georgia,serif;margin:0 0 13px;overflow-wrap:anywhere}
+#academy-selected-service .academy-service-option a{margin-top:auto}
