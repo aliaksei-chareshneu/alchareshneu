@@ -105,21 +105,26 @@ def main(argv=None) -> int:
     a.add_argument("--boards",default=str(base/"official_boards.json"))
     a.add_argument("--out",default="ops/hq-scout/output")
     a.add_argument("--max-total",type=int,default=16)
-    a.add_argument("--min-board-rows",type=int,default=1)
+    a.add_argument("--min-board-rows",type=int,default=0)
+    a.add_argument("--min-city-pages",type=int,default=0)
+    a.add_argument("--scan-archive",action="store_true")
     args=a.parse_args(argv)
-    if not 1 <= args.max_total <= 32 or not 0 <= args.min_board_rows <= 50:
+    if not 1 <= args.max_total <= 32 or not 0 <= args.min_board_rows <= 50 or not 0 <= args.min_city_pages <= 30:
         a.error("Invalid scan limits")
     source_cfg=json.loads(Path(args.sources).read_text(encoding="utf-8"))
     boards_cfg=json.loads(Path(args.boards).read_text(encoding="utf-8"))
     if any(not hq_scout.allowed(x["url"]) or not x["url"].startswith("https://edeska.brno.cz/") for x in boards_cfg["boards"]):
         a.error("Official board domain allowlist violated")
-    result=combined_scan(source_cfg,boards_cfg,max_total=args.max_total)
+    result=combined_scan(source_cfg,boards_cfg,max_total=args.max_total,scan_archive=args.scan_archive)
     save_report(result,Path(args.out))
     print(json.dumps({"status":result["status"],"source_pages_ok":result["pages_ok"],
                       "board_rows_seen":result["municipal_rows_seen"],
                       "notices":result["public_notices_count"],
+                      "city_object_pages":result["city_public_property_pages_count"],
+                      "unused_city_archive":result["unused_city_property_archive"]["status"],
                       "qualified_free_five_year_properties":0,"out":args.out},ensure_ascii=False))
-    return 0 if result["municipal_rows_seen"] >= args.min_board_rows else 2
+    return 0 if (result["municipal_rows_seen"] >= args.min_board_rows and
+                 result["city_public_property_pages_count"] >= args.min_city_pages) else 2
 
 if __name__ == "__main__":
     raise SystemExit(main())
