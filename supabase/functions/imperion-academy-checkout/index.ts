@@ -56,8 +56,8 @@ async function order(raw:Record<string,unknown>,req:Request,origin:string|null){
  const goal=field(raw,"goal",350),locale=field(raw,"locale",8);
  const when=field(raw,"requestedSession",45);
  const dt=when?Date.parse(when):NaN;
- const preferred=when?new Date(dt):null;
- const available=preferred&&Number.isFinite(dt)&&dt>Date.now()&&dt<Date.now()+90*86400000;
+ const preferred=new Date(dt);
+ const available=!!when&&Number.isFinite(dt)&&dt>Date.now()&&dt<Date.now()+90*86400000;
  if(!SERVICES.has(service)||!/^v[1-3]$/.test(variant)||first.length<2||first.length>110||!emailValid(email)||goal.length>350||
     !LOCALES.has(locale)||!available||
     raw.privacyAcknowledged!==true||raw.adultOrGuardianConfirmed!==true)
