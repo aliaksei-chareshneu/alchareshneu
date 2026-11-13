@@ -52,7 +52,7 @@ GitHub issue comments are public. Never include account details, tokens, custome
 
 **Owner command link and audit:** https://github.com/aliaksei-chareshneu/alchareshneu/issues/245 . Commands are accepted in this Issue **and in any open public issue created by the same repository owner**, provided the comment also originates from the authenticated owner. Each (issue number, comment ID) gets a unique review branch. The four-line syntax is used for one source, five lines for two JS/docs sources. Do not re-send accepted comments. GitHub runner minutes and cache quota are finite; no unlimited or billing-free guarantee.
 
-**The code does not autonomously author separate test files.** It requires an already tracked trusted test, either tests/*.test.cjs for JS/docs or tests/test_*.py for one Python source, and independently verifies it. Up to two JS/docs files can be edited, but unrestricted multi-file engineering and private tasks remain out of scope.
+**The code does not autonomously author separate test files.** It requires an existing trusted test, already tracked in the repository: tests/*.test.cjs for JS/docs or tests/test_*.py for one Python source, and independently verifies it. Up to two JS/docs files can be edited, but unrestricted multi-file engineering and private tasks remain out of scope.
 
 ## Preview acceptance before any main merge
 
