@@ -26,6 +26,13 @@ KEYWORDS = (
 )
 STOPWORDS = ("osobni udaje", "rodne cislo", "kontaktni osoba", "telefon")
 DIRECT_HOSTS = ("edeska.brno.cz", "mcslatina.cz", "www.mcslatina.cz")
+NOT_A_VENUE = (
+    "mov. majetku", "moviteho majetku", "movitem majetku",
+    "cnc", "frezka", "automobil", "vozidla", "stroje a zarizeni",
+    "presah stavby", "zrizeni vecneho bremene", "sluzebnosti",
+    "zemede lska technika", "vyroba stroje",
+)
+
 
 
 def item_title(item: dict) -> str:
@@ -52,7 +59,11 @@ def official_notice_url(url: str, feed_url: str) -> str | None:
     u = urlparse(url)
     if u.hostname not in DIRECT_HOSTS:
         return None
-    if u.username or u.password or u.port not in (None, 443):
+    try:
+        safe_port = u.port in (None, 443)
+    except ValueError:
+        return None
+    if u.username or u.password or not safe_port:
         return None
     # Accept only the municipal first-party board, no user-supplied offsite links.
     return hq_scout.canon(url)
@@ -63,7 +74,7 @@ def parse_ofn(doc: object, feed: dict, checked: date | None = None) -> dict:
     out = {"source": feed["id"], "source_url": feed["url"],
            "status": "INVALID_OFN_JSON_STRUCTURE", "feed_items": 0,
            "relevant_notices": [], "permission": "CC BY 4.0; attribution to publishing municipality",
-           "qualified_0kc_five_year_offers": 0}
+           "qualified_0kc_five_year_offers": 0, "non_venue_rejected": 0}
     if isinstance(doc, dict):
         items = doc.get("informace")
         if not isinstance(items, list):
@@ -86,6 +97,9 @@ def parse_ofn(doc: object, feed: dict, checked: date | None = None) -> dict:
         lower = normalize(title)
         if not title or not any(k in lower for k in KEYWORDS):
             continue
+        if any(x in lower for x in NOT_A_VENUE):
+            out["non_venue_rejected"] += 1
+            continue
         if any(x in lower for x in STOPWORDS) or re.search(r"[\w.+-]+@[\w.-]+\.\w+",title):
             # Avoid accidentally relaying title-level personal contact data.
             continue
@@ -105,7 +119,8 @@ def parse_ofn(doc: object, feed: dict, checked: date | None = None) -> dict:
             continue
         agenda = raw.get("agenda") or ""
         if isinstance(agenda,dict):
-            agenda = str(agenda.get("název",agenda.get("nazev","")))
+            value = agenda.get("název", agenda.get("nazev",""))
+            agenda = (value.get("cs") or value.get("sk") or "" if isinstance(value,dict) else str(value))
         if isinstance(agenda,list):
             agenda = " ".join(str(x.get("název", x)) if isinstance(x,dict) else str(x) for x in agenda[:3])
         agenda = str(agenda)[:160]
