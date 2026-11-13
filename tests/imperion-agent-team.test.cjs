@@ -289,3 +289,23 @@ test('forged paid, sent, provider or impossible counters fail closed',()=>{
     assert.equal(A.closedLoop(bad).paid_checkout_allowed,false);
   }
 });
+
+
+test('Sales4 model guard is wired into EXISTING Agent3 preview and fail-closed by default',async()=>{
+  const out=await A.runAll(sample());
+  assert.equal(out.sales_private_model_gate.state,'LOCAL_PRIVATE_MODEL_NOT_VERIFIED');
+  assert.equal(out.sales_private_model_gate.external_actions,0);
+  assert.equal(out.new_crm_records,0);
+  assert.equal(out.external_messages_sent,0);
+});
+test('independent verified 4B runtime may be previewed but never executes',async()=>{
+  const runtime={pc_online:true,ollama_loopback_healthy:true,
+    endpoint:'http://127.0.0.1:11434',local_private_processing_approved:true,
+    selected_model:'imperion-qwen35:4b',installed_models:['imperion-qwen35:4b'],
+    model_fixture_passed:true,model_hallucination_gate_passed:true};
+  const out=await A.runAll(sample(),{agent4ModelRuntime:runtime});
+  assert.equal(out.sales_private_model_gate.state,'LOCAL_MODEL_DRAFT_ELIGIBLE');
+  assert.equal(out.sales_private_model_gate.automatic_sends,false);
+  assert.equal(out.sales_private_model_gate.external_actions,0);
+  assert.equal(out.external_messages_sent,0);
+});

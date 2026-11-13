@@ -118,3 +118,58 @@ The staging CSV is **not** an authorization or uploaded video. No `Video_Drive_I
 **YouTube upload safety upgrade:** before any Drive video is read, the Apps Script OAuth identity must pass an official `channels.list?part=id&mine=true` readback and match the brand-specific private configuration `SOCIAL_YOUTUBE_CHANNEL_ID_OSVC`, `SOCIAL_YOUTUBE_CHANNEL_ID_DRUZINA`, or `SOCIAL_YOUTUBE_CHANNEL_ID_BRNOWALKERS`. Missing/ambiguous/wrong account or OAuth failure blocks uploads. This is not configured in production. Official API reference: https://developers.google.com/youtube/v3/docs/channels/list ; OAuth guide: https://developers.google.com/youtube/data/guides/authentication . Review/approve minimum sufficient read-only and upload OAuth scopes separately; do not auto-expand permissions.
 
 Exact draft head `38354d69cf03111c5abddbe89973f201bd7a53d5` checked on authorized zmrzlina: **19/19 Node tests passed**, including synthetic end-to-end source/owner-gates/provider-ACK simulation and wrong YouTube channel rejection. No social provider received a post. The local canonical ShortFactory exporter is independently covered in PR #67. After real owner approval a controlled private test is still necessary; no LIVE claim.
+
+
+## 13 Nov 2026 — Social & Sales Boss recovery / model routing source contract
+
+This source is the existing Growth #3 -> Sales #4 system, **NOT another bot**.
+The new pure `ops/imperion-social-sales-routing.cjs` has no imports that access
+Google Sheets/Meta/Ollama/Telegram/WhatsApp. It never calls providers or writes CRM.
+The existing `ops/imperion-agent-team.cjs` READ_ONLY_PREVIEW now emits
+`sales_private_model_gate`. Unless an authenticated owner-controlled operator
+injects a verified local runtime snapshot, this reports
+`LOCAL_PRIVATE_MODEL_NOT_VERIFIED`, never an invented running model.
+
+**Hardware/hosting**: OCI Always Free micro VM handles the existing sole
+`imperion-agent4-telegram.service` Telegram long-poll in `POLLING_DRAFT_ONLY`,
+per 13 Nov 19:05 Prague independent cutover receipt. Old Windows consumer was disabled,
+Windows `TelegramCloudMirror` syncs OCI to existing local SQLite each 5m *when
+the home PC is online*. OCI is **not** an Ollama LLM host. Existing Windows
+`zmrzlina` (Python panel, WhatsApp one-chat draft watcher, Ollama) handles
+private local inference. Historic active Agent4 Ollama selection was
+`imperion-qwen3-cpu:0.6b`, shown to make context errors; this model is
+**blocked for customer drafting** by the new policy. Existing installed
+`imperion-qwen35:4b` and `qwen3:4b` are *candidates*, NOT automatically
+switched or proven qualified customer responders.
+
+**Swapping models**: pass `selected_model`, exact Ollama installed model inventory,
+localhost `http://127.0.0.1:11434` health, authorized private-processing proof,
+and separate fixture/hallucination quality evidence from a trusted owner-local
+runtime adapter to `modelRoute`. The model choice changes without replacing
+Telegram bot/CRM/publisher. Public-only drafts must reuse
+`ops/imperion-free-model-router.cjs`, not send customer PII to Groq/OpenRouter.
+Existing subscription to interactive ChatGPT/Gemini/Claude does NOT imply free
+authorized API access for background private messages. No new paid model route.
+
+**Action protection**: one account-bound controller-specific source key and existing
+CRM table; owner self-tests are excluded; opt-outs and duplicates suppress output.
+A model proposal or spreadsheet status cannot authorize action. A PRIVATE owner
+adapter must attest exact account/effect/payload SHA/time-bounded GO; even with GO,
+`actionGate` remains a pure eligibility preview. Actual send still requires
+existing provider adapter and separate user approval. Provider ambiguous receipt
+cannot be auto-retried; Telegram API ACK is not recipient delivery; post ID is
+not public LIVE without permalink/first-comment readback.
+
+**Deployment status**: Source is in a *review branch* and CI synthetic tests only.
+No installed changes on owner PC / OCI / private bound Apps Script, no scheduled
+publishing timer, no new credentials, no CRM row, no external Telegram, Meta or
+WhatsApp sends made by this change. The existing Agent4 -> Google Sheets
+`Leads`/`Druzina_Enrollment_Pipeline` unattended bridge is not yet connected.
+Supabase `imperion-intake-bridge` v7 covers other source types, not Telegram
+Agent4; extending it requires narrow authenticated source/ACK and owner-approved
+private deployment. Do not treat existing registrations or source metadata as new buyers.
+
+**Owner-only release blockers**: technical deployment GO for changing protected
+Windows / OCI / bound Apps Script; separately approved test send/post; lawful Meta
+app permissions and quota (Metricool and Windsor limit errors remain), plus
+independent Google CRM writer readback and real buyer E2E. 0 Kč external spend.
