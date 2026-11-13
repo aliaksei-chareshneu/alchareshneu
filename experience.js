@@ -119,8 +119,9 @@
           // Keep its own four-language text from the page's quick.* translations.
           primary.href='../register/?lang='+encodeURIComponent(lang());
         }else{
-          primary.textContent=page==='academy'?t.browseCourses:page==='druzina'?t.trial:t.events;
-          primary.href=page==='academy'?'courses/?lang='+encodeURIComponent(lang()==='uk'?'cs':lang()):page==='walkers'?'../calendar/':registration;
+          primary.textContent=page==='academy'?({en:'Request a lesson',cs:'Požádat o lekci',ru:'Запросить урок',uk:'Запросити урок'}[lang()]||'Request a lesson'):page==='druzina'?t.trial:t.events;
+          primary.href=page==='academy'?'programmes/?lang='+encodeURIComponent(lang())+'&programme=LESSON#enquire':page==='walkers'?'../calendar/':registration;
+          if(page==='academy'){const academyNav=document.querySelector('#navBookBtn');if(academyNav)academyNav.href='programmes/?lang='+encodeURIComponent(lang())+'&programme=LESSON#enquire';}
           if(page==='walkers'||page==='academy'){primary.removeAttribute('target');primary.removeAttribute('rel');}
         }
       }
