@@ -378,6 +378,12 @@
   }
   function applyLanguage() {
     document.documentElement.lang=lang;
+    document.title=({
+      cs:'IMPERION · Zážitky, výuka a akce v Brně',
+      en:'IMPERION · Experiences, lessons and events in Brno',
+      ru:'IMPERION · События, занятия и приключения в Брно',
+      uk:'IMPERION · Події, заняття та пригоди в Брно'
+    })[lang]||'IMPERION · Brno';
     [['fdEyebrow','eyebrow'],['fdHero1','title'],['fdHero2','title2'],['fdLead','lead'],['fdUnder','under'],['fdDir1','dir1'],['fdDir2','dir2'],['fdDir3','dir3'],['fdCalEyebrow','calendarEyebrow'],['fdCalTitle','calendarTitle'],['fdCalIntro','calendarIntro'],['fdCalNote','calendarNote'],['fdNotice','notice'],['fdFooterCalendar','liveCalendar'],['fdFooterPrivacy','privacy'],['fdFooterInfo','back']].forEach(function(pair){label(pair[0],pair[1]);});
     [['fdHeroLabel','heroEvents'],['fdHeroSub','heroTypes'],['fdAcademyLabel','heroAcademy'],['fdAcademyNote','academyNote'],
       ['fdNavHome','home'],['fdNavEvents','events'],['fdNavAcademy','academyNav'],['fdNavClub','clubNav'],
