@@ -79,3 +79,8 @@ body[data-imperion-design="academy"] .hero a[href^="a2/"]:is(:hover,:focus-visib
  #academy-pricing .tbl-wrap td,#academy-pricing .tbl-wrap th{padding:10px!important;font-size:14px}
  #academy-service-picker .academy-combo{z-index:2}
 }
+
+/* Once the concise tariff overview is mounted, keep the old translation-source
+   wrapper in the DOM but out of the first screen; the actual 9 categories
+   have been moved intact into an accessible <details>. */
+#academy-pricing:has(#academy-prices-brief) > .wrap {display:none !important}

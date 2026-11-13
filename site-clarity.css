@@ -69,8 +69,6 @@ body[data-imperion-design="walkers"] #november-events-hub,
 body[data-imperion-design="walkers"] #bw-walktalk-nov-2026,
 body[data-imperion-design="walkers"] #new-website-registration{max-width:100%;box-sizing:border-box}
 body[data-imperion-design="walkers"] main .imp-secondary-info{order:90}
-body[data-imperion-design="walkers"] #boardgames{display:none!important}
-body[data-imperion-design="walkers"] #medals{display:none!important}
 /* Keep policy text available in disclosure, not occupying first screen. */
 body[data-imperion-design="walkers"] .imp-secondary-body #walkers-rules,
 body[data-imperion-design="walkers"] .imp-secondary-body #canoe-safety,

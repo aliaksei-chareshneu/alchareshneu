@@ -41,7 +41,7 @@ function nextMonday(){
  list=list.concat(policy.forMonth(next.getFullYear(),next.getMonth(),[]));
  return list[0]||null;
 }
-let current=null;
+let current=club&&Date.now()<Date.parse("2026-11-14T12:00:00+01:00")?{event_id:"PUB-OREL-20261114",title:({cs:"14. listopadu · bezplatný šerm",en:"14 November · free fencing workshop",ru:"14 ноября · бесплатный воркшоп",uk:"14 листопада · безкоштовний майстер-клас"})[lang()],begins_at:"2026-11-14T12:00:00+01:00"}:null;
 function render(){
  const d=t(),e=current||(!club?null:nextMonday());
  const free=e?.event_id==='PUB-OREL-20261114';
