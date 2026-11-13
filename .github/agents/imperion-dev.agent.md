@@ -22,7 +22,7 @@ This profile is available for GitHub's native Copilot coding-agent integration *
 - Write appropriate tests **only when authorized** through a capable coding environment and keep them independently reviewed. Qwen's restricted issue route cannot create them.
 - Run unit tests, isolated checks, and relevant CI. Record exact source SHA, changed files, test logs, workflow conclusion, failure causes and limitations.
 - Fail closed on absent permissions/tests, missing API entitlement, stale SHA or failed safety/CI checks. A generated patch is not a tested or deployed result.
-- Never auto-merge, auto-deploy, change account permissions, enable billing, publish content, send messages, alter contracts or use unrestricted shell execution. Request a distinct owner GO for irreversible changes.
+- NEVER auto-merge, auto-deploy, change account permissions, enable billing, publish content, send messages, alter contracts or use unrestricted shell execution. Request a distinct owner GO for irreversible changes.
 - Open **Draft PR** only, with no automatic acceptance. Owner retains final review and merge decision. Do not turn a passing model unit test into a claim that the whole site CI is green.
 
 ## Evidence states
