@@ -29,6 +29,9 @@ Deno.serve(async (req:Request):Promise<Response>=>{
   // Legacy bound Google Script still works but MUST NOT ACK evidence updates.
   // V2 opt-in is enabled only after the live importer's in-place update is deployed.
   const proofProtocolV2=req.headers.get("x-imperion-intake-protocol")==="payment-v2";
+  // Academy is strictly opt-in for the upgraded bound CRM importer.
+  // Older existing GAS stays byte-for-byte compatible without the header.
+  const academyProtocolV1=req.headers.get("x-imperion-intake-academy")==="v1";
   const verified=await api.rpc("verify_imperion_intake_bridge_token",{p_token:key});
   if(verified.error||verified.data!==true)return reply({error:"forbidden"},403);
 
@@ -53,9 +56,16 @@ Deno.serve(async (req:Request):Promise<Response>=>{
           .is("crm_synced_at",null).order("created_at",{ascending:true}).limit(40),
       ]);
       if(rsvp.error||enquiry.error||b2b.error)throw Error("pending read");
+      const academy=academyProtocolV1
+        ? await api.from("imperion_academy_inquiries")
+           .select("id,created_at,first_name,email,product_code,goal,deadline,locale,utm_source,utm_medium,utm_campaign,source,status,retention_until")
+           .is("crm_synced_at",null).order("created_at",{ascending:true}).limit(40)
+        : null;
+      if(academy?.error)throw Error("academy pending read");
       return reply({
         ok:true,protocol:"imperion-intake-bridge-v1",
         rsvps:rsvp.data||[],enquiries:enquiry.data||[],b2b:b2b.data||[],
+        ...(academyProtocolV1?{academy:academy?.data||[]}:{}),
         max_per_type:40,read_only:true
       });
     }
@@ -64,11 +74,15 @@ Deno.serve(async (req:Request):Promise<Response>=>{
     if(length>10000)return reply({error:"payload_too_large"},413);
     const payload=await req.json().catch(()=>null);
     const rsvps=validIds(payload?.rsvps),enquiries=validIds(payload?.enquiries),
-      b2b=validIds(payload?.b2b??[]); // Backwards-compatible ACK for older GAS clients.
-    if(payload?.action!=="ack"||rsvps===null||enquiries===null||b2b===null)
+      b2b=validIds(payload?.b2b??[]), // Backwards-compatible ACK for older GAS clients.
+      academy=academyProtocolV1?validIds(payload?.academy??[]):[];
+    // Do not allow a legacy importer to silently acknowledge Academy rows.
+    if(!academyProtocolV1&&Object.prototype.hasOwnProperty.call(payload||{},"academy"))
+      return reply({error:"academy_protocol_required"},400);
+    if(payload?.action!=="ack"||rsvps===null||enquiries===null||b2b===null||academy===null)
       return reply({error:"invalid_ack"},400);
     const now=new Date().toISOString();
-    let ra=0,ea=0,ba=0;
+    let ra=0,ea=0,ba=0,aa=0;
     if(rsvps.length){
       let q=api.from("imperion_rsvp_submissions").update({
         crm_synced_at:now,...(proofProtocolV2?{payment_crm_synced_at:now}:{})
@@ -91,7 +105,14 @@ Deno.serve(async (req:Request):Promise<Response>=>{
       if(out.error)throw Error("b2b ack");
       ba=out.data?.length||0;
     }
-    return reply({ok:true,acked:{rsvps:ra,enquiries:ea,b2b:ba},idempotent:true});
+    if(academy.length){
+      const out=await api.from("imperion_academy_inquiries")
+        .update({crm_synced_at:now}).in("id",academy).is("crm_synced_at",null).select("id");
+      if(out.error)throw Error("academy ack");
+      aa=out.data?.length||0;
+    }
+    return reply({ok:true,acked:{rsvps:ra,enquiries:ea,b2b:ba,
+      ...(academyProtocolV1?{academy:aa}:{})},idempotent:true});
   }catch(error){
     console.error("intake_bridge_error",error instanceof Error?error.message:"unknown");
     return reply({error:"intake_unavailable"},503);

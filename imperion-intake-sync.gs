@@ -20,7 +20,7 @@ function impPrivateConfig_(){
 }
 function impPrivateFetch_(config,payload){
   var opt={method:payload?'post':'get',
-    headers:{Authorization:'Bearer '+config.key,'x-imperion-intake-protocol':'payment-v2'},
+    headers:{Authorization:'Bearer '+config.key,'x-imperion-intake-protocol':'payment-v2','x-imperion-intake-academy':'v1'},
     contentType:'application/json',muteHttpExceptions:true,timeoutSeconds:25};
   if(payload)opt.payload=JSON.stringify(payload);
   var resp=UrlFetchApp.fetch(IMP_INTAKE_URL,opt),data={};
@@ -288,6 +288,55 @@ function impWriteB2B_(ss,items){
   return {ids:ids,added:added};
 }
 
+
+/** Private OSVC Academy leads -> same EXISTING Leads tab. No client mail/booking/paid claim. */
+function impWriteAcademy_(ss,items){
+  var sh=ss.getSheetByName('Leads');if(!sh)throw Error('Missing Leads for Academy');
+  var h=impHeader_(sh);
+  ['Lead_ID','Submission_ID','Stage','Source','Service','Owner','Action_Status'].forEach(function(k){
+    if(h.map[k]===undefined)throw Error('Missing Leads header: '+k);
+  });
+  var seen=impExisting_(sh,h.map.Submission_ID+1),ids=[],added=0;
+  var products={LESSON:'Online tutoring · 60 min',CONSULT:'Service choice · 10 min',
+    PACK5:'Online programme · 5 lessons',PACK10:'Online programme · 10 lessons',
+    PACK20:'Online programme · 20 lessons',
+    UNI:'Admissions support',MED:'Medical studies preparation',A2:'Czech A2',
+    CER:'CERMAT prep',CAREER:'Career consulting',DEFENSE:'Exam defense',
+    EXEC:'Executive learning',LIFE:'Living / study support'};
+  (items||[]).forEach(function(r){
+    var id=String(r.id||''),code=String(r.product_code||'');
+    if(!/^[0-9a-f-]{36}$/i.test(id)||!Object.prototype.hasOwnProperty.call(products,code))
+      throw Error('Invalid Academy identifier/product');
+    var key='OSVC-ACADEMY-'+id;
+    if(!seen[key]){
+      var created=impDate_(r.created_at),expire=impDate_(r.retention_until);
+      if(!created||!expire)throw Error('Invalid Academy retention or created time');
+      var lang=String(r.locale||'en');
+      if(!/^(cs|en|ru|uk)$/.test(lang))throw Error('Invalid Academy locale');
+      var notes='Individual OSVC Academy website enquiry, NOT booked, NOT paid, NOT invoiced. '+
+        'Program '+code+'; preferred times (Europe/Prague): '+String(r.deadline||'').slice(0,400)+
+        '; UTM: '+[r.utm_source,r.utm_medium,r.utm_campaign].map(function(v){return String(v||'').slice(0,64)}).join('/')+
+        '; Source: '+String(r.source||'academy_programmes').slice(0,85)+
+        '; Seller Aliaksei Chareshneu OSVC, not NGO. No marketing consent.';
+      impAppend_(sh,h,{
+        Lead_ID:'ACADEMY-'+id,Created_At:created,Full_Name:String(r.first_name||'').slice(0,110),
+        Email:String(r.email||'').slice(0,180),Source:'Website',
+        Service:'Tutoring',Subject_Goal:String(r.goal||'').slice(0,500),
+        Language:lang,Format:code==='CONSULT'?'Online consultation':'Online requested',
+        Stage:'New',Product_ID:code,Expected_Value_CZK:'',
+        Next_Action_At:new Date(Date.now()+86400000),Followup_Count:0,
+        Paid_CZK:0,Owner:'Aliaksei',Notes:notes,
+        Submission_ID:key,Retention_Until:expire,Last_Automation_At:new Date(),
+        Action_Status:'OSVC_ACADEMY_INBOUND_UNCONFIRMED_NO_BOOKING_NO_PAYMENT',
+        Priority:(code==='LESSON'||/^PACK/.test(code))?'P1':'P2',
+        Receipt_Status:'REVIEW_NO_EMAIL',Receipt_Attempts:0,Receipt_Locale:lang
+      });
+      seen[key]=true;added++;
+    }
+    ids.push(id);
+  });
+  return {ids:ids,added:added};
+}
 
 /** Transactional applicant receipts: no marketing, no booking or payment. */
 var IMP_RC_COLS=['Receipt_Status','Receipt_Attempts','Receipt_Sent_At','Receipt_Locale'];
@@ -704,32 +753,35 @@ var IMP_PRIVATE_NOTIFY_PENDING='IMPERION_INTAKE_NOTIFY_PENDING';
 var IMP_OWNER_DIGEST_SAMPLE_LIMIT=12;
 function impPendingDigest_(){
   var raw=PropertiesService.getScriptProperties().getProperty(IMP_PRIVATE_NOTIFY_PENDING);
-  if(!raw)return {rsvps:0,enquiries:0,b2b:0,items:[]};
+  if(!raw)return {rsvps:0,enquiries:0,b2b:0,academy:0,items:[]};
   var data;
   try{data=JSON.parse(raw)}catch(e){throw Error('Invalid pending digest state');}
   if(!data||!Number.isSafeInteger(data.rsvps)||!Number.isSafeInteger(data.enquiries)||
      data.rsvps<0||data.enquiries<0||
-     (data.b2b!==undefined&&(!Number.isSafeInteger(data.b2b)||data.b2b<0)))
+     (data.b2b!==undefined&&(!Number.isSafeInteger(data.b2b)||data.b2b<0))||
+     (data.academy!==undefined&&(!Number.isSafeInteger(data.academy)||data.academy<0)))
     throw Error('Invalid pending digest counters');
-  return {rsvps:data.rsvps,enquiries:data.enquiries,b2b:data.b2b||0,
+  return {rsvps:data.rsvps,enquiries:data.enquiries,b2b:data.b2b||0,academy:data.academy||0,
     items:Array.isArray(data.items)?data.items.slice(-IMP_OWNER_DIGEST_SAMPLE_LIMIT):[]};
 }
 /** Snapshot only the freshly appended rows, never old CRM contacts or test data.
  * Row numbers are pointers for the owner; counts remain authoritative if this
  * optional snapshot is unavailable.
  */
-function impDigestNewRows_(ss,rsvps,enquiries,b2b){
+function impDigestNewRows_(ss,rsvps,enquiries,b2b,academy){
+  academy=academy||0;
   if(!ss)return [];
   var samples=[];
   [
     {tab:'Registrations',kind:'RSVP',count:rsvps},
     {tab:'Druzina_Requests',kind:'TRAINING',count:enquiries},
-    {tab:'Leads',kind:'B2B',count:b2b}
+    {tab:'Leads',kind:'B2B',count:b2b,scan:b2b+academy},
+    {tab:'Leads',kind:'ACADEMY',count:academy,scan:b2b+academy}
   ].forEach(function(spec){
     if(!spec.count)return;
     var sh=ss.getSheetByName(spec.tab);
     if(!sh||sh.getLastRow()<=spec.count)return;
-    var take=Math.min(spec.count,IMP_OWNER_DIGEST_SAMPLE_LIMIT);
+    var take=Math.min(spec.scan||spec.count,IMP_OWNER_DIGEST_SAMPLE_LIMIT*2);
     var first=sh.getLastRow()-take+1;
     var m=impHeader_(sh).map;
     var rows=sh.getRange(first,1,take,sh.getLastColumn()).getDisplayValues();
@@ -745,26 +797,29 @@ function impDigestNewRows_(ss,rsvps,enquiries,b2b){
         if(!/^ENQ-[0-9a-f-]{36}$/i.test(v(row,'Request_ID')))return;
         samples.push({kind:'TRAINING',row:n,
           training:v(row,'Request_Type')==='RETURNING_TRAINING_ENQUIRY'?'RETURNING':'FIRST'});
-      }else{
+      }else if(spec.kind==='B2B'){
         if(!/^OSVC-B2B-[0-9a-f-]{36}$/i.test(v(row,'Submission_ID')))return;
         var budget=/;\s*Budget:\s*([A-Za-z0-9+_-]{1,24})\s*CZK(?:;|$)/.exec(v(row,'Notes'));
         samples.push({kind:'B2B',row:n,service:v(row,'Service').slice(0,45),
           priority:v(row,'Priority').slice(0,6),budget:budget?budget[1]:''});
+      }else if(spec.kind==='ACADEMY'){
+        if(!/^OSVC-ACADEMY-[0-9a-f-]{36}$/i.test(v(row,'Submission_ID')))return;
+        samples.push({kind:'ACADEMY',row:n,service:v(row,'Product_ID').slice(0,25)});
       }
     });
   });
   return samples;
 }
-function impQueueOwnerDigest_(rsvps,enquiries,b2b,ss){
-  b2b=b2b||0;
+function impQueueOwnerDigest_(rsvps,enquiries,b2b,ss,academy){
+  b2b=b2b||0;academy=academy||0;
   if(!Number.isSafeInteger(rsvps)||!Number.isSafeInteger(enquiries)||!Number.isSafeInteger(b2b)||
-     rsvps<0||enquiries<0||b2b<0)throw Error('Invalid new intake counts');
-  if(rsvps+enquiries+b2b===0)return;
+     !Number.isSafeInteger(academy)||rsvps<0||enquiries<0||b2b<0||academy<0)throw Error('Invalid new intake counts');
+  if(rsvps+enquiries+b2b+academy===0)return;
   var p=PropertiesService.getScriptProperties(),pending=impPendingDigest_(),fresh=[];
-  try{fresh=impDigestNewRows_(ss,rsvps,enquiries,b2b);}
+  try{fresh=impDigestNewRows_(ss,rsvps,enquiries,b2b,academy);}
   catch(e){console.error('Optional owner digest details unavailable; counts retained');}
   var state={
-    rsvps:pending.rsvps+rsvps,enquiries:pending.enquiries+enquiries,b2b:pending.b2b+b2b,
+    rsvps:pending.rsvps+rsvps,enquiries:pending.enquiries+enquiries,b2b:pending.b2b+b2b,academy:pending.academy+academy,
     items:pending.items.concat(fresh).slice(-IMP_OWNER_DIGEST_SAMPLE_LIMIT)
   };
   var serialized=JSON.stringify(state);
@@ -809,7 +864,7 @@ function impOwnerDigestRowUrl_(cfg,ss,tab,row){
   return sh?root+'#gid='+sh.getSheetId()+'&range=A'+row:root;
 }
 function impFlushOwnerDigest_(cfg,ss,events){
-  var pending=impPendingDigest_(),n=pending.rsvps+pending.enquiries+pending.b2b;
+  var pending=impPendingDigest_(),n=pending.rsvps+pending.enquiries+pending.b2b+pending.academy;
   if(n===0)return {sent:false,pending:false};
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cfg.email))throw Error('Missing owner digest address');
   var titleById={};
@@ -822,6 +877,7 @@ function impFlushOwnerDigest_(cfg,ss,events){
   var rsvp=list.filter(function(x){return x&&x.kind==='RSVP';});
   var training=list.filter(function(x){return x&&x.kind==='TRAINING';});
   var b2b=list.filter(function(x){return x&&x.kind==='B2B';});
+  var academy=list.filter(function(x){return x&&x.kind==='ACADEMY';});
   if(pending.rsvps){
     lines.push('','REGISTRACE NA AKCE — nové odpovědi: '+pending.rsvps);
     var grouped={};
@@ -867,7 +923,15 @@ function impFlushOwnerDigest_(cfg,ss,events){
     if(!b2b.length)lines.push('Podrobnosti jsou v listu Leads.');
     lines.push('Poptávka není objednávka, smlouva, faktura ani příjem.');
   }
-  if(rsvp.length+training.length+b2b.length<n)
+  if(pending.academy){
+    lines.push('','ACADEMY — nové nezávazné poptávky výuky: '+pending.academy);
+    academy.forEach(function(item){
+      lines.push('• '+(item.service||'lekce')+' | '+impOwnerDigestRowUrl_(cfg,ss,'Leads',item.row));
+    });
+    if(!academy.length)lines.push('Detaily v EXISTUJÍCÍM listu Leads.');
+    lines.push('Poptávka NEZNAMENÁ potvrzený volný termín, platbu ani dohodu.');
+  }
+  if(rsvp.length+training.length+b2b.length+academy.length<n)
     lines.push('','V e-mailu jsou jen poslední dostupné náhledy; úplné údaje jsou v CRM.');
   lines.push('','DALŠÍ KROK: zkontrolovat uvedené záznamy v CRM, ověřit dostupnost a odpovědět individuálně.',
     'CRM: https://docs.google.com/spreadsheets/d/'+cfg.sheetId+'/edit');
@@ -879,6 +943,8 @@ function impFlushOwnerDigest_(cfg,ss,events){
     subject='[Imperion] Nový zájem o trénink Družina';
   else if(n===1&&pending.b2b===1)
     subject='[Imperion] Nová firemní OSVČ poptávka';
+  else if(n===1&&pending.academy===1)
+    subject='[Imperion] Nová nezávazná poptávka Academy';
   try{
     MailApp.sendEmail(cfg.email,subject,lines.join('\n'));
     PropertiesService.getScriptProperties().deleteProperty(IMP_PRIVATE_NOTIFY_PENDING);
@@ -896,26 +962,27 @@ function imperionSyncPrivateIntake(){
   try{
     var cfg=impPrivateConfig_(),ss=SpreadsheetApp.openById(cfg.sheetId);
     ['Registrations','Druzina_Requests','Leads'].forEach(function(n){impEnsureReceiptCols_(ss.getSheetByName(n));});
-    var addedR=0,addedE=0,addedB=0,processed=0;
+    var addedR=0,addedE=0,addedB=0,addedA=0,processed=0;
     // One safe public price lookup; never infer paid status from a blank/unknown fee.
     var events=impReceiptCatalog_();
     for(var i=0;i<4;i++){
       var batch=impPrivateFetch_(cfg,null);
       if(batch.protocol!=='imperion-intake-bridge-v1'||
-         !Array.isArray(batch.rsvps)||!Array.isArray(batch.enquiries)||!Array.isArray(batch.b2b))
+         !Array.isArray(batch.rsvps)||!Array.isArray(batch.enquiries)||!Array.isArray(batch.b2b)||!Array.isArray(batch.academy))
         throw Error('Private intake response schema changed');
-      if(!batch.rsvps.length&&!batch.enquiries.length&&!batch.b2b.length)break;
+      if(!batch.rsvps.length&&!batch.enquiries.length&&!batch.b2b.length&&!batch.academy.length)break;
       var a=impWriteRsvps_(ss,batch.rsvps,events);
       var b=impWriteEnquiries_(ss,batch.enquiries);
       var c=impWriteB2B_(ss,batch.b2b);
+      var d=impWriteAcademy_(ss,batch.academy);
       // Persist the owner-notification receipt BEFORE acknowledging the source;
       // a mail outage or later crash must not silently discard new leads.
-      impQueueOwnerDigest_(a.added,b.added,c.added,ss);
+      impQueueOwnerDigest_(a.added,b.added,c.added,ss,d.added);
       // Acknowledge only AFTER CRM writes/readback and notification queuing succeed.
-      impPrivateFetch_(cfg,{action:'ack',rsvps:a.ids,enquiries:b.ids,b2b:c.ids});
-      addedR+=a.added;addedE+=b.added;addedB+=c.added;
-      processed+=a.ids.length+b.ids.length+c.ids.length;
-      if(a.ids.length<40&&b.ids.length<40&&c.ids.length<40)break;
+      impPrivateFetch_(cfg,{action:'ack',rsvps:a.ids,enquiries:b.ids,b2b:c.ids,academy:d.ids});
+      addedR+=a.added;addedE+=b.added;addedB+=c.added;addedA+=d.added;
+      processed+=a.ids.length+b.ids.length+c.ids.length+d.ids.length;
+      if(a.ids.length<40&&b.ids.length<40&&c.ids.length<40&&d.ids.length<40)break;
     }
     // Retry a previously failed digest even if this run has no new rows.
     impFlushOwnerDigest_(cfg,ss,events);
@@ -923,8 +990,8 @@ function imperionSyncPrivateIntake(){
     var followups=impSendAttendedFollowups_(ss,cfg);
     var chatInvites=impSendApprovedChatInvites_(ss,cfg);
     console.log('Private intake receipts: dispatched='+receipts.sent+', errors='+receipts.failed);
-    console.log('Private intake: new RSVP='+addedR+', enquiries='+addedE+', corporate OSVC='+addedB+', acked='+processed);
-    return {newRsvps:addedR,newEnquiries:addedE,newB2B:addedB,acked:processed,receipts:receipts,followups:followups,chatInvites:chatInvites};
+    console.log('Private intake: new RSVP='+addedR+', enquiries='+addedE+', corporate OSVC='+addedB+', Academy OSVC='+addedA+', acked='+processed);
+    return {newRsvps:addedR,newEnquiries:addedE,newB2B:addedB,newAcademy:addedA,acked:processed,receipts:receipts,followups:followups,chatInvites:chatInvites};
   }finally{lock.releaseLock();}
 }
 
@@ -1059,8 +1126,11 @@ function imperionCleanupPrivateIntake(){
     need.forEach(function(k){if(lm[k]===undefined)throw Error('Missing Leads header: '+k)});
     var lr=leads.getRange(2,1,leads.getLastRow()-1,leads.getLastColumn()).getValues();
     lr.forEach(function(x,i){
-      if(!String(x[lm.Submission_ID]||'').startsWith('OSVC-B2B-'))return;
-      if(String(x[lm.Action_Status])==='OSVC_B2B_EXPIRED_ANONYMIZED')return;
+      var sid=String(x[lm.Submission_ID]||'');
+      if(!/^OSVC-(?:B2B|ACADEMY)-/.test(sid))return;
+      var academyRow=sid.indexOf('OSVC-ACADEMY-')===0;
+      var purgeStatus=academyRow?'OSVC_ACADEMY_EXPIRED_ANONYMIZED':'OSVC_B2B_EXPIRED_ANONYMIZED';
+      if(String(x[lm.Action_Status])===purgeStatus)return;
       // A paid or legally meaningful contract must be reviewed, not auto-deleted.
       if(['New','Lost'].indexOf(String(x[lm.Stage]))<0)return;
       var date=x[lm.Retention_Until] instanceof Date?x[lm.Retention_Until]:new Date(x[lm.Retention_Until]);
@@ -1068,7 +1138,7 @@ function imperionCleanupPrivateIntake(){
       ['Full_Name','Email','Phone_Number','Subject_Goal','Notes'].forEach(function(name){
         if(lm[name]!==undefined)leads.getRange(i+2,lm[name]+1).clearContent();
       });
-      leads.getRange(i+2,lm.Action_Status+1).setValue('OSVC_B2B_EXPIRED_ANONYMIZED');
+      leads.getRange(i+2,lm.Action_Status+1).setValue(purgeStatus);
       cleared++;
     });
   }

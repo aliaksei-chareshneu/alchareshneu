@@ -108,6 +108,7 @@ jobs:
         run: |
           node --test tests/imperion-intake-bridge-source.test.cjs
           node --test tests/imperion-receipt-mailer.test.cjs
+          node --test tests/imperion-academy-crm-bridge.test.cjs
 
 
       - name: Check four-language information channels and gated chats
