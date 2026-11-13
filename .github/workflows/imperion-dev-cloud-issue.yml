@@ -24,11 +24,13 @@ jobs:
       (github.event_name == 'pull_request' &&
        github.event.pull_request.head.repo.full_name == github.repository &&
        (startsWith(github.event.pull_request.head.ref, 'agent/imperion-dev-cloud-') ||
-        github.event.pull_request.head.ref == 'agent/imperion-dev-stage8-20261111')) ||
+        (github.event.pull_request.head.ref == 'agent/imperion-dev-stage8-20261111' ||
+         github.event.pull_request.head.ref == 'agent/imperion-dev-any-owner-issue-20261111'))) ||
       (github.event_name == 'issue_comment' &&
        github.repository == 'aliaksei-chareshneu/alchareshneu' &&
        github.actor == 'aliaksei-chareshneu' &&
-       github.event.issue.number == 245 &&
+       github.event.issue.user.login == 'aliaksei-chareshneu' &&
+       github.event.issue.state == 'open' &&
        !github.event.issue.pull_request &&
        startsWith(github.event.comment.body, '/imperion-dev cloud'))
     runs-on: ubuntu-24.04
@@ -111,11 +113,26 @@ jobs:
             node -e 'const w=require("./scripts/imperion-dev-cloud-issue.cjs");
               if(!w.safeSourceFile(process.argv[1]) || process.argv[1]===process.argv[2])process.exit(9);' "$target2" "$target"
           fi
+          # Exact pre-existing trusted test, selected only by validated public paths.
+          case "$testfile" in
+            tests/test_*.py)
+              case "$target" in *.py) ;; *) echo "BLOCKED: Python source/test mismatch"; exit 9 ;; esac
+              if [ -n "$target2" ]; then echo "BLOCKED: two-file Python not enabled"; exit 9; fi
+              test_image='python:3.12-alpine'
+              test_argv=(python3 -B -c 'import sys,unittest; s=unittest.defaultTestLoader.discover("tests",pattern=sys.argv[1]); n=s.countTestCases(); print("PYTHON_TRUSTED_TESTS="+str(n)); assert n>0, "NO_TRUSTED_TESTS"; r=unittest.TextTestRunner(verbosity=2).run(s); sys.exit(0 if r.wasSuccessful() else 1)' "${testfile##*/}")
+              ;;
+            *.test.cjs|ops/imperion-dev-cloud-fixture/check.cjs)
+              case "$target" in *.py) echo "BLOCKED: JS source/Python mismatch"; exit 9 ;; esac
+              test_image='node:22-alpine'
+              test_argv=(node --test "$testfile")
+              ;;
+            *) echo "BLOCKED: unsupported trusted test format"; exit 9 ;;
+          esac
           docker run --rm --network none --read-only --cap-drop ALL \
             --security-opt no-new-privileges --pids-limit 64 --memory 512m \
             --cpus 1 --user 10001:10001 --tmpfs /tmp:rw,noexec,nosuid,size=64m \
-            -v "$GITHUB_WORKSPACE:/work:ro" -w /work node:22-alpine \
-            node --test "$testfile" > "$RUNNER_TEMP/imperion-dev-cloud-baseline.log" 2>&1 && baseline=PASS || baseline=FAIL
+            -v "$GITHUB_WORKSPACE:/work:ro" -w /work "$test_image" \
+            "${test_argv[@]}" > "$RUNNER_TEMP/imperion-dev-cloud-baseline.log" 2>&1 && baseline=PASS || baseline=FAIL
           if [ "$target" = 'ops/imperion-dev-cloud-fixture/normalize.cjs' ] && [ "$baseline" != 'FAIL' ]; then
             echo "BLOCKED: synthetic bug was not reproduced before AI patch"; exit 2
           fi
@@ -127,6 +144,7 @@ jobs:
             node "$GITHUB_WORKSPACE/scripts/imperion-dev-cloud-issue.cjs" --apply "$manifest"
             case "$target" in
               *.cjs|*.js) node --check "$target" ;;
+              *.py) python3 -c 'import ast,sys,pathlib; ast.parse(pathlib.Path(sys.argv[1]).read_text(encoding="utf8"))' "$target" ;;
             esac
             if [ -n "$target2" ]; then
               case "$target2" in
@@ -137,11 +155,50 @@ jobs:
           docker run --rm --network none --read-only --cap-drop ALL \
             --security-opt no-new-privileges --pids-limit 64 --memory 512m \
             --cpus 1 --user 10001:10001 --tmpfs /tmp:rw,noexec,nosuid,size=64m \
-            -v "$RUNNER_TEMP/imperion-dev-cloud-sandbox:/work:ro" -w /work node:22-alpine \
-            node --test "$testfile"
+            -v "$RUNNER_TEMP/imperion-dev-cloud-sandbox:/work:ro" -w /work "$test_image" \
+            "${test_argv[@]}"
           printf '{"status":"ISOLATED_TRUSTED_TEST_PASS","baseline":"%s","mode":"%s","cloud":"GITHUB_ACTIONS_CPU","paid_api_czk":0,"auto_merge":false}\n' \
             "$baseline" "$mode" > "$RUNNER_TEMP/imperion-dev-cloud-test-result.json"
           echo "MODEL_PATCH_ISOLATED_TEST_PASS" >> "$GITHUB_STEP_SUMMARY"
+      - name: Prove Python source edit by real cloud Qwen and independent isolated unittest (PR review only)
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/imperion-dev-cloud-issue.cjs --python-fixture
+          proof="$RUNNER_TEMP/imperion-dev-cloud-python-proposal.json"
+          test -s "$proof"
+          node -e 'const p=require(process.argv[1]),w=require("./scripts/imperion-dev-cloud-issue.cjs");
+            if(p.status!=="MODEL_PROPOSAL_ONLY" || p.task.mode!=="FIXTURE_PY" ||
+              p.task.file!==w.PY_FIXTURE_FILE || p.task.test!==w.PY_FIXTURE_TEST ||
+              p.schema!=="imperion-dev-cloud-task-v1")process.exit(9)' "$proof"
+          py_test='tests/test_imperion_dev_cloud_python_fixture.py'
+          py_source='ops/imperion-dev-cloud-fixture/normalize_py.py'
+          py_argv=(python3 -B -c 'import sys,unittest; s=unittest.defaultTestLoader.discover("tests",pattern=sys.argv[1]); n=s.countTestCases(); print("PYTHON_TRUSTED_TESTS="+str(n)); assert n==3, "BAD_FIXTURE_TEST_COUNT"; r=unittest.TextTestRunner(verbosity=2).run(s); sys.exit(0 if r.wasSuccessful() else 1)' "${py_test##*/}")
+          if docker run --rm --network none --read-only --cap-drop ALL \
+            --security-opt no-new-privileges --pids-limit 64 --memory 512m \
+            --cpus 1 --user 10001:10001 --tmpfs /tmp:rw,noexec,nosuid,size=64m \
+            -v "$GITHUB_WORKSPACE:/work:ro" -w /work python:3.12-alpine \
+            "${py_argv[@]}" > "$RUNNER_TEMP/imperion-dev-python-baseline.log" 2>&1; then
+            echo "BLOCKED: synthetic Python bug did not reproduce"; exit 2
+          fi
+          grep -q 'Ran 3 tests' "$RUNNER_TEMP/imperion-dev-python-baseline.log"
+          grep -q 'FAIL: test_' "$RUNNER_TEMP/imperion-dev-python-baseline.log"
+          mkdir -p "$RUNNER_TEMP/imperion-dev-python-review/ops/imperion-dev-cloud-fixture" \
+                   "$RUNNER_TEMP/imperion-dev-python-review/tests"
+          cp -- "$py_source" "$RUNNER_TEMP/imperion-dev-python-review/$py_source"
+          cp -- "$py_test" "$RUNNER_TEMP/imperion-dev-python-review/$py_test"
+          (
+            cd "$RUNNER_TEMP/imperion-dev-python-review"
+            node "$GITHUB_WORKSPACE/scripts/imperion-dev-cloud-issue.cjs" --apply "$proof"
+            python3 -c 'import ast,pathlib; ast.parse(pathlib.Path("ops/imperion-dev-cloud-fixture/normalize_py.py").read_text(encoding="utf8"))'
+          )
+          docker run --rm --network none --read-only --cap-drop ALL \
+            --security-opt no-new-privileges --pids-limit 64 --memory 512m \
+            --cpus 1 --user 10001:10001 --tmpfs /tmp:rw,noexec,nosuid,size=64m \
+            -v "$RUNNER_TEMP/imperion-dev-python-review:/work:ro" -w /work python:3.12-alpine \
+            "${py_argv[@]}"
+          echo "PYTHON_QWEN_PATCH_ISOLATED_3_TESTS_PASS" >> "$GITHUB_STEP_SUMMARY"
       - name: Retain bounded public review proof for 3 days (never deploy)
         if: always()
         uses: actions/upload-artifact@v4
@@ -150,6 +207,7 @@ jobs:
           path: |
             ${{ runner.temp }}/imperion-dev-cloud-proposal.json
             ${{ runner.temp }}/imperion-dev-cloud-test-result.json
+            ${{ runner.temp }}/imperion-dev-cloud-python-proposal.json
           if-no-files-found: warn
           retention-days: 3
       - name: Stop ephemeral cloud Ollama
@@ -190,6 +248,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           OWNER_COMMENT_ID: ${{ github.event.comment.id }}
+          OWNER_ISSUE_NUMBER: ${{ github.event.issue.number }}
         run: |
           set -euo pipefail
           node scripts/imperion-dev-cloud-issue.cjs --check-event
@@ -197,11 +256,12 @@ jobs:
           receipt="$RUNNER_TEMP/imperion-dev-cloud-proof/imperion-dev-cloud-test-result.json"
           node -e 'const p=require(process.argv[1]),r=require(process.argv[2]);
             if(p.task.mode!=="OWNER_ISSUE" || p.task.comment!==Number(process.argv[3]) ||
+               p.task.issue!==Number(process.argv[4]) ||
                r.status!=="ISOLATED_TRUSTED_TEST_PASS" || r.mode!=="OWNER_ISSUE") process.exit(8)' \
-            "$proof" "$receipt" "$OWNER_COMMENT_ID"
+            "$proof" "$receipt" "$OWNER_COMMENT_ID" "$OWNER_ISSUE_NUMBER"
           file="$(node -e 'process.stdout.write(require(process.argv[1]).task.file)' "$proof")"
           file2="$(node -e 'process.stdout.write(require(process.argv[1]).task.file2 || "")' "$proof")"
-          branch="agent/imperion-dev-cloud-245-$OWNER_COMMENT_ID"
+          branch="$(node -e 'const w=require("./scripts/imperion-dev-cloud-issue.cjs"); process.stdout.write(w.reviewBranch(Number(process.argv[1]),Number(process.argv[2])))' "$OWNER_ISSUE_NUMBER" "$OWNER_COMMENT_ID")"
           if git ls-remote --exit-code --heads origin "$branch" >/dev/null 2>&1; then
             gh pr list --head "$branch" --base main --state open \
               --json number,isDraft,headRefName --limit 3 > "$RUNNER_TEMP/existing-pr.json"
@@ -228,8 +288,8 @@ jobs:
           git commit -m "fix(dev): bounded public Qwen task from owner comment $OWNER_COMMENT_ID"
           git push --set-upstream origin "$branch"
           if ! gh pr create --draft --base main --head "$branch" \
-            --title "DRAFT: cloud Qwen public coding issue 245 comment $OWNER_COMMENT_ID" \
-            --body "Owner-approved public issue 245. Model: Qwen3:4b-instruct running in GitHub-hosted CPU. One or two bounded public files, source SHA validated, tests passed in a no-network read-only container. No model secrets, paid API, customer data, auto-merge, deploy or production changes. OWNER REVIEW REQUIRED."; then
+            --title "DRAFT: cloud Qwen public coding issue $OWNER_ISSUE_NUMBER comment $OWNER_COMMENT_ID" \
+            --body "Owner-approved public issue $OWNER_ISSUE_NUMBER. Model: Qwen3:4b-instruct running in GitHub-hosted CPU. One or two bounded public files, source SHA validated, tests passed in a no-network read-only container. No model secrets, paid API, customer data, auto-merge, deploy or production changes. OWNER REVIEW REQUIRED."; then
             echo "BLOCKED: GitHub repository policy does not permit Actions to create PRs; branch is for human review." >> "$GITHUB_STEP_SUMMARY"
             exit 2
           fi

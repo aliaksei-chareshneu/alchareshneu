@@ -9,12 +9,12 @@
 
 - This is an extension of existing IMPERION DEV work, not a separate public app, CRM, database, queue, or paid provider.
 - [Owner command channel #195](https://github.com/aliaksei-chareshneu/alchareshneu/issues/195) remains the **on-PC fallback**, polled by Windows Task Scheduler using local Qwen3.5 4B, only while zmrzlina is on.
-- [Cloud acceptance #245](https://github.com/aliaksei-chareshneu/alchareshneu/issues/245) is a **public owner-only issue** to request bounded coding from Android or desktop.
+- [Cloud acceptance #245](https://github.com/aliaksei-chareshneu/alchareshneu/issues/245) is the original proven public owner-only cloud command. **Stage 9 STAGED in PR #272:** after separate review and merge, exact owner-authored commands on *any open owner-created public issue* can use the same bounded workflow; comments on other authors' issues are rejected.
 - Existing [Draft PR #231](https://github.com/aliaksei-chareshneu/alchareshneu/pull/231) and [Draft PR #247](https://github.com/aliaksei-chareshneu/alchareshneu/pull/247) remain separate; do not merge old site versions or silently restore superseded tariffs.
 
 ## How to submit (active on main after owner approval)
 
-From the logged-in GitHub Mobile app or mobile browser, open the existing issue #245 and create a new public comment:
+From a logged-in GitHub Mobile app or mobile browser, the currently live workflow accepts commands in existing Issue #245. **Once Stage 9 is separately reviewed and merged**, any open issue created by the repository owner may receive the same exact command in an owner-authored comment. Do not publish private tasks in public issues.
 
     /imperion-dev cloud
     file: scripts/imperion-public-example.cjs
@@ -83,3 +83,15 @@ This second fixture uses two separate **public, synthetic** arithmetic helpers w
     goal: Add a concise explanatory comment to each helper function without changing outputs or exports.
 
 Acceptance is complete only when a new GitHub Actions issue_comment workflow independently verifies **two model proposals**, tests both changes in a no-network container, the publisher commits exactly those two source files, and GitHub reports a bot-created OPEN/DRAFT review PR. A model proposal or a green baseline alone is insufficient. Reject duplicate comments and do not merge these purely synthetic patches into the main branch.
+
+## Stage 9 — owner-created issues and bounded Python unittest support (review only)
+
+**STAGED in Draft PR #272 — NOT LIVE until separately authorized and merged.** Reuses exactly the existing GitHub Actions workflow and CPU Qwen model, preserving the current two-file JS mode and retries. No new agent, queue, CRM, paid API, secrets or repository permissions.
+
+- Source authentication checks repository, issuer, issue creator, author association, issue number/state and immutable comment ID; only the exact `/imperion-dev cloud` command is accepted. Every task uses a branch unique to `(issue_number, comment_id)` and produces only an OPEN Draft PR.
+- A single non-sensitive tracked `scripts/*.py` or `ops/*.py` file may be paired with a pre-existing tracked `tests/test_*.py`. Python + `file2` and mixed JS/Python tests are rejected. The selected Python unittest is run in Python 3.12 inside the no-network, read-only, non-root Docker sandbox; **zero discovered tests are BLOCKED**, not PASS. The original public source and its SHA are validated before any edit; Python output is syntax-checked before acceptance. No new packages or test-authoring capability is provided.
+- Existing one/two-file JS tasks, trusted tests, source SHA gates, short retries, exact diff and the review-only publisher remain unchanged. The owner must review the new PR and its CI before any merge. Live issue-triggered Python execution, real Android app submission and broader autonomous test writing are **NOT VERIFIED** and must not be claimed complete.
+
+### Stage 9 real cloud Python preview (review-only)
+
+PR #272 contains a synthetic, deliberately broken public Python arithmetic helper plus three independent unittest assertions. In its pull-request review job, the same hosted Qwen CPU model first proves the legacy JS fixture, then produces a separate Python patch. A trusted verifier must observe the Python baseline **FAIL**, check the model proof and source SHA, apply the patch only in a temporary copy, validate Python syntax, then obtain **3/3 PASS** from a no-network read-only unprivileged Python container. This preview does not write a Python PR or deploy. **The model-generated Python acceptance is NOT VERIFIED until GitHub Actions reports success on the exact branch commit.** Python owner-issue tasks are not LIVE before a separately authorized merge.
