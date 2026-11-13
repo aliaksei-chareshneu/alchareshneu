@@ -3108,7 +3108,8 @@ function render(lang){
   const t = T[lang];
   document.documentElement.lang = lang;
   queueMicrotask(() => document.dispatchEvent(new CustomEvent('site:language')));
-  document.title = t.meta.title;
+  // The cinematic frontdoor owns the live, language-specific browser title.
+  if(!document.getElementById('imperion-frontdoor'))document.title = t.meta.title;
   document.getElementById('navBrand').innerHTML = t.nav.brand + `<small>${t.nav.sub}</small>`;
 
   renderTabsNav(lang);
