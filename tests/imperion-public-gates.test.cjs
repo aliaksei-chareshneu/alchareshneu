@@ -48,6 +48,12 @@ test('catalogue-first Academy is allowed only with verified course contacts', ()
   docs['academy/index.html']=docs['academy/index.html'].replace('href="courses/?lang=cs"','href="https://example.invalid/"');
   assert.ok(runAudit(docs).errors.some(x=>x.id==='academy:relevant-contact'),'external shortcut fails closed');
 });
+test('an Academy WhatsApp number other than the verified one is blocked', () => {
+  const root=path.resolve(__dirname,'..');
+  const docs=Object.fromEntries(REQUIRED.map(file=>[file,fs.readFileSync(path.join(root,file),'utf8')]));
+  docs['academy/index.html']=docs['academy/index.html'].replace(/(id="navBookBtn"[^>]*href=")[^"]*"/,'$1https://wa.me/000000000000?text=Academy%20enquiry"');
+  assert.ok(runAudit(docs).errors.some(x=>x.id==='academy:relevant-contact'));
+});
 test('an Academy-specific WhatsApp enquiry is an allowed alternative', () => {
   const root = path.resolve(__dirname, '..');
   const docs = Object.fromEntries(REQUIRED.map(file => [file, fs.readFileSync(path.join(root, file), 'utf8')]));

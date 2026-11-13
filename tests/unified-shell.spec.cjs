@@ -101,3 +101,31 @@ for(const width of [320,390,768,1440]){
   await expect(page.locator('main .hero .hero-ctas > a:visible')).toHaveCount(2);
  });
 }
+for(const code of ['cs','ru','uk']){
+ test('Academy entrypoints are catalogue-first ('+code+')',async({page})=>{
+  await page.goto('/academy/?lang='+code);
+  const expected='courses/?lang='+(code==='uk'?'cs':code);
+  await expect(page.locator('.hero .hero-ctas a[data-i18n="academy.ctaRegister"]')).toHaveAttribute('href',expected);
+  await expect(page.locator('#navBookBtn')).toHaveAttribute('href',expected);
+  await expect(page.locator('#mobileCta .mobile-cta-btn')).toHaveAttribute('href',expected);
+  await expect(page.locator('.hero .hero-ctas a[data-i18n="academy.ctaRegister"]')).not.toHaveAttribute('target','_blank');
+  await page.locator('.hero .hero-ctas a[data-i18n="academy.ctaRegister"]').click();
+  await expect(page).toHaveURL(new RegExp('/academy/courses/\\?lang='+(code==='uk'?'cs':code)+'$'));
+  expect(await page.locator('article.course').count()).toBeGreaterThan(3);
+  await expect(page.locator('article.course a.cta[href^="https://wa.me/420702914842"]')).not.toHaveCount(0);
+ });
+}
+test('Walkers historic cancelled hike is a collapsed archival refund notice below hero',async({page})=>{
+ await page.goto('/walkers/?lang=cs');
+ const notice=page.locator('#bw-cancel-20261028');
+ await expect(notice).toBeVisible();
+ await expect(notice).toHaveJSProperty('open',false);
+ await expect(page.locator('#bw-cancel-20261028 > summary')).toContainText('28. 10. 2026');
+ const positioned=await page.evaluate(()=>{
+  const hero=document.querySelector('main .hero'),note=document.querySelector('#bw-cancel-20261028');
+  return hero&&note&&note.compareDocumentPosition(hero)&Node.DOCUMENT_POSITION_PRECEDING;
+ });
+ expect(Boolean(positioned)).toBe(true);
+ await notice.locator('summary').click();
+ await expect(notice.locator('a[href^="mailto:"]')).toBeVisible();
+});

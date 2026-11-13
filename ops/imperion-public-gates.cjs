@@ -120,7 +120,7 @@ function runAudit(pages) {
   // Approved 13 Nov conversion path: course catalogue first, only then a written
   // enquiry. Do not weaken the gate to accept an arbitrary local path.
   // A course-specific contact AND the previously verified form must survive.
-  const academyWhatsapp=academyUrl.startsWith('https://wa.me/') && /Academy/i.test(academyUrl);
+  const academyWhatsapp=/^https:\/\/wa\.me\/420702914842\?text=.*Academy/i.test(academyUrl);
   const catalogueFirst=
     academyUrl==='courses/?lang=cs' &&
     /data-i18n="academy.ctaRegister"[^>]*href="courses\/\?lang=cs"/.test(academy) &&
