@@ -1,9 +1,11 @@
 import io
 from pathlib import Path
+from unittest.mock import patch
+from subprocess import CompletedProcess
 import unittest
 from zipfile import ZipFile, ZIP_DEFLATED
 from office_archive import (
-    docx_text, xlsx_text, extract_text, inspect_official_zip, file_extension,
+    docx_text, xlsx_text, extract_text, inspect_official_zip, file_extension, pdf_text,
 )
 from city_assets import extract_property_strings
 
@@ -62,6 +64,60 @@ class ArchiveOfficeTests(unittest.TestCase):
     def test_no_unverified_legal_title(self):
         r=inspect_official_zip(zip_blob({"test.txt":b"Libusino udoli 152"}),location_extractor=extract_property_strings)
         self.assertFalse(r["free_five_years_legally_verified"])
+
+
+    def test_scanned_public_pdf_ocr_reads_only_bounded_page(self):
+        calls=[]
+        def fake(args,**kwargs):
+            calls.append(args[0])
+            if args[0]=="pdftotext":
+                return CompletedProcess(args,0,b"\f",b"")
+            if args[0]=="pdfinfo":
+                return CompletedProcess(args,0,b"Title: scan\nPages: 1\n",b"")
+            if args[0]=="pdftoppm":
+                self.assertIn("-singlefile",args)
+                return CompletedProcess(args,0,b"\x89PNG\r\n\x1a\nTEST",b"")
+            if args[0]=="tesseract":
+                self.assertIn("ces+eng",args)
+                return CompletedProcess(args,0,"Šeránkova 3".encode("utf-8"),b"")
+            raise AssertionError("unknown process "+args[0])
+        with patch("office_archive.subprocess.run",side_effect=fake):
+            txt,status=pdf_text(b"%PDF-test")
+        self.assertEqual(txt,"Šeránkova 3")
+        self.assertEqual(status,"PDF_OCR_ALL_PAGES_1")
+        self.assertEqual(calls,["pdftotext","pdfinfo","pdftoppm","tesseract"])
+
+    def test_more_than_five_pages_never_ocr(self):
+        calls=[]
+        def fake(args,**kwargs):
+            calls.append(args[0])
+            if args[0]=="pdftotext":return CompletedProcess(args,0,b"\f",b"")
+            if args[0]=="pdfinfo":return CompletedProcess(args,0,b"Pages: 6\n",b"")
+            raise AssertionError("Too many pages should not be rendered")
+        with patch("office_archive.subprocess.run",side_effect=fake):
+            text,status=pdf_text(b"%PDF-test")
+        self.assertEqual(text,"")
+        self.assertEqual(status,"PDF_OCR_PAGE_LIMIT_6")
+        self.assertEqual(calls,["pdftotext","pdfinfo"])
+
+    def test_ocr_without_command_fails_closed(self):
+        def fake(args,**kwargs):
+            if args[0]=="pdftotext":return CompletedProcess(args,0,b"\f",b"")
+            if args[0]=="pdfinfo":return CompletedProcess(args,0,b"Pages: 1\n",b"")
+            raise FileNotFoundError("tesseract unavailable")
+        with patch("office_archive.subprocess.run",side_effect=fake):
+            text,status=pdf_text(b"%PDF-test")
+        self.assertEqual(text,"")
+        self.assertEqual(status,"PDF_OCR_EXECUTION_UNAVAILABLE")
+
+    def test_plain_pdf_text_is_not_sent_to_ocr(self):
+        with patch("office_archive.subprocess.run",
+                   return_value=CompletedProcess(["pdftotext"],0,b"Stredni 20",b"")) as f:
+            text,status=pdf_text(b"%PDF-test")
+        self.assertEqual(text,"Stredni 20")
+        self.assertEqual(status,"PDF_TEXT_OK")
+        self.assertEqual(f.call_count,1)
+
 
 if __name__=="__main__":
     unittest.main()
