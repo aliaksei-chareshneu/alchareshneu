@@ -9,6 +9,7 @@ const REQUIRED = Object.freeze([
   'corporate/index.html',
   'corporate/request/index.html',
   'academy/index.html',
+  'academy/courses/index.html',
   'druzina/index.html',
   'walkers/index.html',
   'start/index.html',
@@ -44,6 +45,7 @@ function runAudit(pages) {
   const home = pages['index.html'] || '';
   const corporate = pages['corporate/index.html'] || '';
   const academy = pages['academy/index.html'] || '';
+  const academyCourses = pages['academy/courses/index.html'] || '';
   const druzina = pages['druzina/index.html'] || '';
   const walkers = pages['walkers/index.html'] || '';
 
@@ -115,14 +117,20 @@ function runAudit(pages) {
     'A direct corporate inquiry path must remain available');
   let academyUrl='';
   try { academyUrl=decodeURIComponent(linkWithId(academy,'navBookBtn')); } catch { /* fail closed */ }
-  // Verified 05 Nov 2026: the owner's common enquiry Google Form explicitly
-  // includes individual teaching; do not misclassify it as an unrelated form.
-  // Preserve an Academy-specific WhatsApp fallback while rejecting unknown forms.
-  // Reuse the verified Academy enquiry URL shared with the homepage gate.
+  // Approved 13 Nov conversion path: course catalogue first, only then a written
+  // enquiry. Do not weaken the gate to accept an arbitrary local path.
+  // A course-specific contact AND the previously verified form must survive.
   const academyWhatsapp=academyUrl.startsWith('https://wa.me/') && /Academy/i.test(academyUrl);
+  const catalogueFirst=
+    academyUrl==='courses/?lang=cs' &&
+    /data-i18n="academy.ctaRegister"[^>]*href="courses\/\?lang=cs"/.test(academy) &&
+    /<article class="course"/.test(academyCourses) &&
+    /id="PY01"/.test(academyCourses) &&
+    academyCourses.includes('https://wa.me/420702914842?text=') &&
+    academyCourses.includes(verifiedAcademyForm);
   verify('academy:relevant-contact',
-    academyUrl===verifiedAcademyForm || academyWhatsapp,
-    'Academy enquiry must reach the verified shared education form or Academy-specific WhatsApp');
+    academyUrl===verifiedAcademyForm || academyWhatsapp || catalogueFirst,
+    'Academy must reach its approved direct enquiry OR the verified course catalogue with working course-specific contact and approved fallback form');
   const dmForm = fs.readFileSync(path.join(__dirname,'../register/index.html'),'utf8');
   const dmLegacy = fs.readFileSync(path.join(__dirname,'../druzina/prihlaska/index.html'),'utf8');
   const dmApi = fs.readFileSync(path.join(__dirname,'../supabase/functions/imperion-register/index.ts'),'utf8');
