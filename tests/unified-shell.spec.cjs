@@ -120,6 +120,8 @@ for(const code of ['cs','en','ru','uk']){
   await expect(page.locator('#goal-languages .goal-option a')).toHaveCount(3);
   const link=await page.locator('#goal-languages .goal-option a').first().getAttribute('href');
   expect(link).toBe('#academy-service-picker');
+  await expect(page.locator('#academy-selected-service .academy-service-option')).toHaveCount(0);
+  await page.locator('#goal-languages .goal-option a').first().click();
   await expect(page.locator('#academy-selected-service .academy-service-option')).toHaveCount(3);
   await expect(page.locator('.hero-photo--scholar').first()).toHaveCount(1);
   await page.goto('/academy/courses/?lang='+code);
