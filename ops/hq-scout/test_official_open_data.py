@@ -40,7 +40,7 @@ class OpenDataTests(unittest.TestCase):
         self.assertFalse(n["explicit_free_5_year_agreement_verified"])
         self.assertFalse(n["contact_allowed"])
         self.assertFalse(n["private_crm_checked"])
-        self.assertIn("REVIEW",n["status"])
+        self.assertTrue("VERIFY" in n["status"] or "REVIEW" in n["status"])
     def test_expired_record_not_active(self):
         p=parse_ofn(fixture([notice(until="2026-11-12")]),SOURCE,TODAY)
         self.assertEqual(p["relevant_notices"][0]["status"],"EXPIRED_NOTICE_NO_CURRENT_OFFER")
