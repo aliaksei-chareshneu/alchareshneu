@@ -105,5 +105,20 @@ class OpenDataTests(unittest.TestCase):
         self.assertNotIn("Ignore previous",json.dumps(p,ensure_ascii=False))
         self.assertFalse(p["relevant_notices"][0]["contact_allowed"])
 
+    def test_real_world_slatina_non_venue_filtered(self):
+        titles = [
+            "Záměr statutárního města Brna – přesah stavby v k. ú. Ponava",
+            "Nabídka trvale nepotřebného mov.majetku MDB - CNC frézka"
+        ]
+        data=[notice(title=x,url="https://www.mcslatina.cz/uredni-deska/uredni-deska/"+str(i)) for i,x in enumerate(titles)]
+        p=parse_ofn(fixture(data),{"id":"BRNO_SLATINA_OFN","url":"https://www.mcslatina.cz/open-data/uredni-deska"},TODAY)
+        self.assertEqual(p["relevant_notices"],[])
+        self.assertEqual(p["non_venue_rejected"],2)
+    def test_nested_czech_category(self):
+        r=notice()
+        r["agenda"]={"název":{"cs":"Záměry obce"}}
+        p=parse_ofn(fixture([r]),SOURCE,TODAY)
+        self.assertEqual(p["relevant_notices"][0]["category"],"Záměry obce")
+
 if __name__=="__main__":
     unittest.main()
