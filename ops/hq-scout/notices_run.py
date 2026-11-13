@@ -134,6 +134,7 @@ def main(argv=None) -> int:
     a.add_argument("--min-board-rows",type=int,default=0)
     a.add_argument("--min-city-pages",type=int,default=0)
     a.add_argument("--scan-archive",action="store_true")
+    a.add_argument("--require-archive-text",action="store_true")
     args=a.parse_args(argv)
     if not 1 <= args.max_total <= 32 or not 0 <= args.min_board_rows <= 50 or not 0 <= args.min_city_pages <= 30:
         a.error("Invalid scan limits")
@@ -153,7 +154,10 @@ def main(argv=None) -> int:
                       "official_json_feed_notices":result["public_json_notices_count"],
                       "city_object_pages":result["city_public_property_pages_count"],
                       "unused_city_archive":result["unused_city_property_archive"]["status"],
+                      "city_archive_pdf_text_documents":result["unused_city_property_archive"].get("archive_text_documents_read",0),
                       "qualified_free_five_year_properties":0,"out":args.out},ensure_ascii=False))
+    if args.require_archive_text and result["unused_city_property_archive"].get("archive_text_documents_read",0) < 1:
+        return 3
     return 0 if (result["municipal_rows_seen"] >= args.min_board_rows and
                  result["city_public_property_pages_count"] >= args.min_city_pages) else 2
 
