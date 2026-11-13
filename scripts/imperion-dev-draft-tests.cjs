@@ -182,9 +182,17 @@ async function writePreview(proof,workspace,fetchImpl=globalThis.fetch) {
  const result=await askDraftVectors(patched,fetchImpl);
  const dest=path.join(root,DEST);
  fs.mkdirSync(path.dirname(dest),{recursive:true});
+ // A tracked repository symlink may not send the generated file outside
+ // the temporary review workspace, even when the filename itself is fixed.
+ const actualDir=fs.realpathSync(path.dirname(dest));
+ if(!actualDir.startsWith(root+path.sep))
+  reject('TEST_VECTOR_PATH_ESCAPE_REJECTED');
  if(fs.existsSync(dest))reject('TEST_VECTOR_DEST_EXISTS');
  const fileText=renderDraftTest(proof.task,result.data);
  fs.writeFileSync(dest,fileText,{encoding:'utf8',flag:'wx',mode:0o600});
+ // Data-only public cases may be read by sandbox UID 10001, distinct from
+ // the GitHub runner owner. Never put secrets in this synthetic artifact.
+ fs.chmodSync(dest,0o644);
  return {status:'UNTRUSTED_TEST_DRAFT_ONLY',file:DEST,
    model:W.MODEL,model_invocations:result.model_invocations,
    sha256:crypto.createHash('sha256').update(fileText).digest('hex'),

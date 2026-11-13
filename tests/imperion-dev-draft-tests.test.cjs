@@ -80,6 +80,8 @@ test('mocked Qwen creates temporary review test; trusted baseline is not rewritt
   assert.equal(fs.readFileSync(path.join(root,W.FIXTURE_FILE),'utf8'),before);
   const generated=fs.readFileSync(path.join(root,D.DEST),'utf8');
   assert.match(generated,/two_rows/);
+  assert.equal(fs.statSync(path.join(root,D.DEST)).mode & 0o004,0o004,
+    'Docker non-root user must be able to read public generated test cases');
   assert.throws(()=>fs.writeFileSync(path.join(root,D.DEST),'overwrite',{flag:'wx'}),/EEXIST/);
   // Node's parent test runner sets NODE_TEST_CONTEXT; inheriting it makes nested
   // --test child processes silently skip all tests and exit 0.
@@ -178,4 +180,21 @@ test('minimal model rows can pass one real-request-shaped inference mock',async(
  assert.equal(n,1);
  assert.equal(r.oracle_recomputed_cases,3);
  assert.deepEqual(r.data,good);
+});
+
+test('generated review tests never follow a malicious symlink outside the sandbox',async()=>{
+ if(process.platform==='win32')return; // portable Windows runners lack symlink privilege
+ const {root,proof}=fixture(),outside=fs.mkdtempSync(path.join(os.tmpdir(),'imperion-symlink-outside-'));
+ try{
+  fs.mkdirSync(path.join(root,'tests'),{recursive:true});
+  fs.symlinkSync(outside,path.join(root,'tests/generated'),'dir');
+  await assert.rejects(D.writePreview(proof,root,async()=>({
+   ok:true,redirected:false,json:async()=>({done:true,model:W.MODEL,
+     response:JSON.stringify({cases:good.cases.map(c=>({name:c.name,rows:c.args[0]}))})})
+  })),/TEST_VECTOR_PATH_ESCAPE_REJECTED/);
+  assert.deepEqual(fs.readdirSync(outside),[]);
+ }finally{
+  fs.rmSync(root,{recursive:true,force:true});
+  fs.rmSync(outside,{recursive:true,force:true});
+ }
 });
