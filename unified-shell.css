@@ -1,0 +1,144 @@
+/* IMPERION unified navigation 2026-11-13.
+   Opt-in post-mount: without JS the prior page navigation remains fully usable. */
+body[data-imp-nav-ready="yes"] [data-imp-retired-nav="1"]{display:none!important}
+body[data-imp-nav-ready="yes"]{--imp-unified-gold:#f6cf83;--imp-unified-ink:#f9f0e3;--imp-unified-deep:#071b20}
+body[data-imp-nav-ready="yes"] #imp-shell-top,
+body[data-imp-nav-ready="yes"] #imp-shell-top *{box-sizing:border-box}
+body[data-imp-nav-ready="yes"] #imp-shell-top{
+ display:block;position:sticky;top:0;z-index:180;
+ width:100%;margin:0;padding:0;isolation:isolate;
+ background:linear-gradient(110deg,#0c2327f7,#091c21f7 68%,#101c20f7);
+ border:0;border-bottom:1px solid #cfa96b67;
+ box-shadow:0 4px 26px #010d1380;backdrop-filter:blur(14px);
+ font:500 15px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;
+ color:var(--imp-unified-ink);
+}
+body[data-imp-nav-ready="yes"] .imp-shell-skip{
+ position:absolute;left:12px;top:-200px;z-index:250;
+ padding:10px 18px;border-radius:6px;background:#ffe1a1;color:#12292d;font-weight:700;
+}
+body[data-imp-nav-ready="yes"] .imp-shell-skip:focus{top:10px}
+#imp-shell-top .imp-shell-inner{
+ width:min(1450px,calc(100% - 48px));min-height:83px;margin:auto;
+ display:flex;align-items:center;justify-content:space-between;gap:clamp(12px,1.6vw,29px);
+}
+#imp-shell-top .imp-shell-logo{display:flex;align-items:center;gap:12px;flex:none;text-decoration:none!important;color:#fff2d7!important;min-width:0}
+#imp-shell-top .imp-shell-logo:hover{color:#fff!important}
+#imp-shell-top .imp-shell-logo-mark{
+ flex:none;display:grid;place-items:center;width:43px;height:47px;border:2px solid #f4cc84;
+ border-radius:7px 7px 18px 18px;background:linear-gradient(150deg,#3d3227d9,#14292ccf);
+ color:#fce3a3;font:26px/1 Georgia,serif;box-shadow:0 1px 13px #0006;
+}
+#imp-shell-top .imp-shell-logo-copy{display:flex;flex-direction:column;line-height:1.09}
+#imp-shell-top .imp-shell-logo-copy strong{font:650 clamp(20px,2.05vw,30px)/1.1 Georgia,'Times New Roman',serif;letter-spacing:.05em;color:#fff2da}
+#imp-shell-top .imp-shell-logo-copy small{margin-top:4px;color:#e9d7b3;font:700 9px/1.25 system-ui,sans-serif;letter-spacing:.10em;white-space:nowrap}
+#imp-shell-top .imp-shell-links{
+ flex:1;display:flex;align-items:center;justify-content:flex-end;gap:clamp(10px,1.9vw,28px);
+ min-width:0;margin:0;padding:0;background:none;border:0;white-space:nowrap;overflow:visible;
+}
+#imp-shell-top .imp-shell-links a{
+ flex:none;display:inline-flex;align-items:center;justify-content:center;
+ min-height:42px;padding:10px 1px;border:0;border-bottom:2px solid transparent;
+ background:none;color:#efe7da!important;text-decoration:none!important;
+ font:600 clamp(12px,1vw,15px)/1.25 system-ui,sans-serif;letter-spacing:0;
+}
+#imp-shell-top .imp-shell-links a:hover,#imp-shell-top .imp-shell-links a:focus-visible{color:#fff1c7!important;border-bottom-color:#eac985}
+#imp-shell-top .imp-shell-links a[aria-current="page"]{border-bottom-color:#f6cf83;color:#ffe2a8!important}
+#imp-shell-top .imp-shell-lang{display:flex;gap:3px;flex:none;align-items:center;justify-content:center;
+ padding:3px;border:1px solid #dcb77c8c;border-radius:28px;background:#08181de0;min-width:0}
+#imp-shell-top .imp-shell-lang a{
+ min-width:32px;min-height:32px;border-radius:22px;display:grid;place-items:center;
+ text-decoration:none!important;padding:3px 6px;color:#f8f1e7!important;background:none;
+ font:750 11px/1.2 system-ui,sans-serif;
+}
+#imp-shell-top .imp-shell-lang a:hover,#imp-shell-top .imp-shell-lang a:focus-visible{color:#f7ce86!important;background:#263337}
+#imp-shell-top .imp-shell-lang a[aria-current="true"]{background:#f5cf84;color:#132625!important}
+#imp-shell-top a:focus-visible{outline:3px solid #f5d58d;outline-offset:3px}
+body[data-imp-nav-ready="yes"] main{scroll-margin-top:96px}
+body[data-imp-nav-ready="yes"] main :target{scroll-margin-top:98px}
+body[data-imp-nav-ready="yes"] .imp-section-extras{
+ display:flex!important;gap:10px;flex-wrap:wrap;align-items:center;
+ margin:25px 0 14px;padding:14px 17px;border:1px solid #d6b36b55;border-radius:12px;
+ background:#122d319e;
+}
+body[data-imp-nav-ready="yes"] .imp-section-extras a{
+ display:inline-flex;align-items:center;min-height:43px;padding:9px 13px;
+ border:1px solid #d9b37566;border-radius:9px;background:#203b3e;
+ text-decoration:none;color:#ffe5b4;font-weight:650;
+}
+body[data-imp-nav-ready="yes"][data-imp-active-section="academy"] .hero .hero-ctas,
+body[data-imp-nav-ready="yes"][data-imp-active-section="club"] .hero .hero-ctas,
+body[data-imp-nav-ready="yes"][data-imp-active-section="walkers"] .hero .hero-ctas{
+ display:flex;align-items:stretch;flex-wrap:wrap;gap:12px;
+}
+body[data-imp-nav-ready="yes"][data-imp-active-section="academy"] .hero .hero-ctas > a,
+body[data-imp-nav-ready="yes"][data-imp-active-section="club"] .hero .hero-ctas > a,
+body[data-imp-nav-ready="yes"][data-imp-active-section="walkers"] .hero .hero-ctas > a{
+ min-height:54px;display:inline-flex;align-items:center;justify-content:center;text-align:center;
+ padding:12px 21px;border-radius:12px;font-weight:750;
+}
+@media(max-width:1050px){
+ #imp-shell-top .imp-shell-inner{width:calc(100% - 32px);display:grid;
+  grid-template-columns:minmax(0,1fr) auto;grid-template-areas:'brand lang' 'links links';
+  gap:2px 12px;padding:7px 0 4px;min-height:105px}
+ #imp-shell-top .imp-shell-logo{grid-area:brand}
+ #imp-shell-top .imp-shell-lang{grid-area:lang;justify-self:end}
+ #imp-shell-top .imp-shell-links{grid-area:links;display:flex;justify-content:flex-start;
+  width:100%;max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;
+  scrollbar-width:thin;scrollbar-color:#7e978e transparent;gap:18px;padding:0 0 4px}
+ #imp-shell-top .imp-shell-links a{font-size:12px;min-height:34px;padding:6px 1px}
+}
+@media(max-width:560px){
+ #imp-shell-top .imp-shell-inner{width:calc(100% - 25px);min-height:99px;gap:3px 7px}
+ #imp-shell-top .imp-shell-logo{gap:8px}
+ #imp-shell-top .imp-shell-logo-mark{width:31px;height:34px;font-size:20px}
+ #imp-shell-top .imp-shell-logo-copy strong{font-size:19px}
+ #imp-shell-top .imp-shell-logo-copy small{font-size:7px;letter-spacing:.055em}
+ #imp-shell-top .imp-shell-lang{padding:2px;gap:1px}
+ #imp-shell-top .imp-shell-lang a{min-width:27px;min-height:29px;padding:2px 3px;font-size:10px}
+ #imp-shell-top .imp-shell-links{gap:14px}
+ #imp-shell-top .imp-shell-links a{font-size:11.5px}
+ body[data-imp-nav-ready="yes"] .hero .hero-ctas > a{width:100%;max-width:100%}
+}
+@media(prefers-reduced-motion:reduce){#imp-shell-top a{transition:none!important}}
+
+/* Dedicated About page, same cinematic palette and two-step entry point. */
+body[data-imperion-design="about"]{margin:0;background:#081b20;color:#f7f0e5;
+ font:17px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}
+body[data-imperion-design="about"] :where(h1,h2,h3){line-height:1.14;letter-spacing:-.025em}
+body[data-imperion-design="about"] .imp-about-shell{width:min(1260px,calc(100% - 38px));margin:auto}
+body[data-imperion-design="about"] .imp-about-hero{position:relative;isolation:isolate;overflow:hidden;
+ background:linear-gradient(105deg,#082023e8,#102222b3),url('images/imperion-hero-cinematic-20261112.webp') center 32%/cover;
+ padding:clamp(60px,8vw,120px) 0 70px}
+body[data-imperion-design="about"] .imp-about-intro{max-width:750px}
+body[data-imperion-design="about"] .imp-about-eyebrow{font-size:12px;letter-spacing:.20em;color:#f2c779;font-weight:800}
+body[data-imperion-design="about"] .imp-about-hero h1{font:600 clamp(41px,7.6vw,86px)/1.05 Georgia,serif;max-width:750px;
+ color:#fff6e7;margin:18px 0}
+body[data-imperion-design="about"] .imp-about-lead{font-size:clamp(17px,1.6vw,21px);color:#e1e9df;max-width:680px}
+body[data-imperion-design="about"] .imp-about-actions{display:flex;gap:14px;flex-wrap:wrap;margin-top:28px}
+body[data-imperion-design="about"] .imp-about-actions a{display:inline-flex;align-items:center;justify-content:center;
+ min-height:59px;padding:13px 23px;border-radius:12px;text-align:center;text-decoration:none!important;font-weight:750}
+body[data-imperion-design="about"] .imp-about-primary{background:#f5cf84;color:#172723!important}
+body[data-imperion-design="about"] .imp-about-secondary{background:#122d32;color:#fff2d7!important;border:1px solid #d8b77a}
+body[data-imperion-design="about"] .imp-about-main{padding:55px 0 85px}
+body[data-imperion-design="about"] .imp-about-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(270px,.77fr);gap:34px;align-items:center}
+body[data-imperion-design="about"] .imp-about-photo{width:100%;max-height:470px;object-fit:cover;border-radius:20px;
+ box-shadow:0 18px 55px #0009;border:1px solid #d6ba875e}
+body[data-imperion-design="about"] .imp-about-panel{background:#143035;border:1px solid #d3ab6d66;border-radius:18px;padding:25px}
+body[data-imperion-design="about"] .imp-about-panel h2{font:600 clamp(26px,3vw,38px) Georgia,serif;color:#fbe1a6}
+body[data-imperion-design="about"] .imp-about-panel p{color:#e3e9e5}
+body[data-imperion-design="about"] .imp-about-columns{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:24px}
+body[data-imperion-design="about"] .imp-about-card{border:1px solid #b7a37366;border-radius:15px;padding:19px;background:#102a2f}
+body[data-imperion-design="about"] .imp-about-card h3{font-size:19px;color:#f5d592}
+body[data-imperion-design="about"] .imp-about-card p{color:#dfe7e2}
+body[data-imperion-design="about"] .imp-about-card a{color:#ffe2a1}
+body[data-imperion-design="about"] .imp-about-legal{margin-top:24px;font-size:13px;color:#c0ccc5}
+body[data-imperion-design="about"] .imp-about-footer{padding:24px 0;border-top:1px solid #a78d6059;color:#d4d9d0;font-size:13px;text-align:center}
+body[data-imperion-design="about"] [data-imp-about-lang][hidden]{display:none!important}
+@media(max-width:770px){
+ body[data-imperion-design="about"] .imp-about-grid{grid-template-columns:1fr}
+ body[data-imperion-design="about"] .imp-about-photo{max-height:300px}
+ body[data-imperion-design="about"] .imp-about-columns{grid-template-columns:1fr}
+ body[data-imperion-design="about"] .imp-about-hero{padding:60px 0}
+ body[data-imperion-design="about"] .imp-about-actions a{width:100%}
+}
