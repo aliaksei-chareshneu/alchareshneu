@@ -3,4 +3,8 @@
 function netPrice(unitPrice, quantity) {
   return unitPrice * quantity;
 }
-module.exports = {netPrice};
+function halfPrice(unitPrice, quantity) {
+  const netPrice = unitPrice * quantity;
+  return netPrice / 2;
+}
+module.exports = {netPrice, halfPrice};
