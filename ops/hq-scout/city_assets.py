@@ -113,8 +113,10 @@ def inspect_city_unused_archive(fetcher) -> dict:
         doc["archive_entries"]=inspection["attachment_count"]
         doc["archive_file_types"]=inspection["file_types"]
         doc["archive_document_diagnostics"]=inspection["document_checks"]
+        doc["archive_text_documents_read"]=sum(x["text_characters"]>20 for x in inspection["document_checks"])
+        doc["archive_text_characters"]=sum(x["text_characters"] for x in inspection["document_checks"])
         doc["property_address_mentions"]=inspection["location_hints"]
-        doc["status"]="OFFICIAL_HISTORIC_ATTACHMENT_REVIEW_ONLY"
+        doc["status"]=("OFFICIAL_HISTORIC_ATTACHMENT_REVIEW_ONLY" if doc["archive_text_documents_read"]>0 else "ARCHIVE_FILES_UNREADABLE_NO_EVIDENCE")
         doc["note"]="Published Brno municipal list from 2026-02, not proof of vacancy, rights, safety or free-use agreement in Nov 2026."
     except (OSError,TimeoutError,ValueError,BadZipFile):
         doc["status"]="ARCHIVE_DOWNLOAD_OR_PARSE_FAILED"
