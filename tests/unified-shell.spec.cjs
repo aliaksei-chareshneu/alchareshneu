@@ -126,8 +126,8 @@ for(const code of ['cs','en','ru','uk']){
   await expect(page.locator('#imp-shell-top [data-imp-lang="uk"]')).toHaveCount(1);
   await expect(page.locator('article.course')).toHaveCount(31);
   if(code==='uk'){
-   await expect(page.locator('article.course#CZ01 [data-locale="uk"]')).toContainText('Чеська');
-   await expect(page.locator('article.course#CZ01 [data-locale="ru"]:visible')).toHaveCount(0);
+   await expect(page.locator('article.course#CZ01 h3 [data-locale="uk"]')).toContainText('Чеська');
+   await expect(page.locator('article.course#CZ01 h3 [data-locale="ru"]:visible')).toHaveCount(0);
   }
  });
 }
