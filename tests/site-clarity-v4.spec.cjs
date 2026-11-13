@@ -102,7 +102,7 @@ test('BrnoWalkers ranger first, one filtered calendar CTA and old announcements 
  const first=await page.locator('main#page-content').evaluate(el=>el.firstElementChild?.id);
  expect(first).toBe('walkers');
  await expect(page.locator('#imp-walkers-essentials')).toBeVisible();
- await expect(page.locator('#imp-walkers-archives summary')).toBeVisible();
+ await expect(page.locator('#imp-walkers-archives > summary')).toBeVisible();
  await expect(page.locator('#imp-walkers-essentials a[href*="category=walkers"]')).toHaveCount(1);
  const visual=await page.locator('#walkers .hero-visuals').evaluate(el=>getComputedStyle(el).opacity);
  expect(Number(visual)).toBeGreaterThan(.9);
