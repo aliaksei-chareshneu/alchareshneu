@@ -261,6 +261,26 @@ body[data-imperion-design="druzina-rules"] section{
   background:#142e32;border:1px solid #9d966e9c;color:#f7eede;
 }
 body[data-imperion-design="druzina-rules"] .notice{background:#163b39;color:#fff0dd}
+/* Legacy registration decision routes and receipt are public too. */
+body[data-imperion-design="druzina-join"] .choice-grid .choice,
+body[data-imperion-design="druzina-join"] .journey,
+body[data-imperion-design="druzina-join"] .notice{
+  background:linear-gradient(145deg,#143538,#102a30) !important;
+  border-color:#a48f69bd;color:#f7efdf;
+}
+body[data-imperion-design="druzina-join"] .choice :is(h2,p),
+body[data-imperion-design="druzina-join"] .journey :is(strong,span){color:#f7efdf}
+body[data-imperion-design="hub"] main .panel,
+body[data-imperion-design="hub"] main .section .panel{
+  background:linear-gradient(145deg,#153538,#10272f) !important;
+  color:#f8efe1;border:1px solid #a29569a8;
+}
+body[data-imperion-design="hub"] main .panel :is(h2,p,small){color:#f8efdf}
+body[data-imperion-design="academy"] #academy-choose .goal-detail{
+  scroll-margin-top:22px !important;
+}
+#imperion-frontdoor #impr-calendar{scroll-margin-top:15px}
+
 /* Keep the scroll behavior predictable instead of header-height dependent. */
 @media(max-width:1100px){
   #imperion-frontdoor .fd-header .fd-header-inner,
