@@ -1,0 +1,36 @@
+name: Academy confirmed-slot safety (scoped)
+
+on:
+  pull_request:
+    paths:
+      - 'academy/order/**'
+      - 'supabase/functions/imperion-academy-checkout/**'
+      - 'supabase/functions/_shared/academy-confirmation.mjs'
+      - 'supabase/migrations/20261113_academy_confirmed_slot_integrity.sql'
+      - 'tests/academy-confirmed-slot*'
+      - '.github/workflows/academy-confirmed-slot.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# No secrets, private data, bank/API requests, paid provider calls or release actions.
+# This scoped pass does NOT replace the full sitewide quality gate.
+jobs:
+  academy-confirmation:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install pinned frontend test dependencies
+        run: npm ci --ignore-scripts
+      - name: Validate exact appointment, bank receipt and overlap assertions
+        run: node --test tests/academy-confirmed-slot-integrity.test.mjs tests/academy-standard-intake.test.cjs tests/imperion-public-gates.test.cjs
+      - name: Install pinned Chromium
+        run: timeout 240s npx playwright install chromium
+      - name: Test four-language status and unverified-receipt UX
+        run: npx playwright test tests/academy-confirmed-slot.spec.cjs --workers=2 --reporter=line
