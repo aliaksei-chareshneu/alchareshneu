@@ -7,7 +7,7 @@ body[data-imperion-design] {
   background:radial-gradient(ellipse 80% 32% at 70% 0%,rgba(40,85,73,.36),transparent 82%),linear-gradient(180deg,#071b20 0%,#0a2328 54%,#071b20 100%);
   background-color:var(--imp-v2-deep);
   color:#f5efe6; color-scheme:dark;
-  font:17px/1.62 system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-family:"Source Sans 3",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:17px;line-height:1.62;
   min-width:0;
 }
 body[data-imperion-design] :is(main,section,article,.wrap,.grid,.cards){min-width:0}
