@@ -8,6 +8,7 @@ on:
       - 'scripts/imperion-dev-draft-tests.cjs'
       - 'scripts/imperion-dev-autonomous.cjs'
       - 'scripts/imperion-dev-model-policy.cjs'
+      - 'scripts/imperion-dev-witness.sh'
       - 'tests/imperion-dev-model-policy.test.cjs'
       - 'tests/imperion-dev-autonomous.test.cjs'
       - 'tests/imperion-dev-draft-tests.test.cjs'
@@ -53,6 +54,8 @@ jobs:
           node-version: '22'
       - name: Validate owner, scope, model parser, patch gates and mock cases
         run: node --test tests/imperion-dev-cloud-issue.test.cjs tests/imperion-dev-cloud-acceptance.test.cjs tests/imperion-dev-draft-tests.test.cjs tests/imperion-dev-autonomous.test.cjs tests/imperion-dev-model-policy.test.cjs
+      - name: Check advisory witness shell syntax
+        run: bash -n scripts/imperion-dev-witness.sh
       - name: Reject unapproved CPU model before model startup
         run: node scripts/imperion-dev-model-policy.cjs
       - name: Fail closed on bad legacy owner comment, sensitive path or absent trusted test
@@ -310,6 +313,7 @@ jobs:
             --cpus 1 --user 10001:10001 --tmpfs /tmp:rw,noexec,nosuid,size=64m \
             -v "$GITHUB_WORKSPACE:/work:ro" -w /work node:22-alpine \
             node --test "$trusted" > "$RUNNER_TEMP/imperion-dev-auto-baseline.log" 2>&1 && baseline=PASS
+          bash scripts/imperion-dev-witness.sh "$proof"
           node scripts/imperion-dev-autonomous.cjs --apply "$proof" "$sandbox"
           node -e 'const p=require(process.argv[1]),W=require("./scripts/imperion-dev-cloud-issue.cjs");
             if(!Array.isArray(p.selected)||p.selected.length<1||p.selected.length>2||
