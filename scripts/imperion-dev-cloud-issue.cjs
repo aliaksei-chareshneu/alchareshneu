@@ -9,6 +9,8 @@ const ENDPOINT = 'http://127.0.0.1:11434/api/generate';
 const REPO = 'aliaksei-chareshneu/alchareshneu';
 const FIXTURE_FILE = 'ops/imperion-dev-cloud-fixture/normalize.cjs';
 const FIXTURE_TEST = 'ops/imperion-dev-cloud-fixture/check.cjs';
+const PY_FIXTURE_FILE = 'ops/imperion-dev-cloud-fixture/normalize_py.py';
+const PY_FIXTURE_TEST = 'tests/test_imperion_dev_cloud_python_fixture.py';
 const COMMAND = /^\/imperion-dev cloud\nfile: ([a-zA-Z0-9/_\-.]{1,110})\n(?:file2: ([a-zA-Z0-9/_\-.]{1,110})\n)?test: ([a-zA-Z0-9/_\-.]{1,110})\ngoal: ([^\r\n]{12,280})$/;
 const BLOCKED_PATH = /(secrets?|tokens?|credentials?|oauth|auth|billing|payment|stripe|supabase|mailer|deploy|workflow|permissions?|privacy|legal|grant|cash|register|receipt|intake|rsvp|\.env)/i;
 const BLOCKED_CODE = /\b(?:eval|child_process|execSync|spawnSync|process|require|import|fetch|globalThis|XMLHttpRequest|WebSocket|constructor|prototype)\b|__proto__/i;
@@ -177,7 +179,7 @@ function verifiedApply(proof, root) {
       proof.status !== 'MODEL_PROPOSAL_ONLY' || proof.model !== MODEL)
     throw Error('PROPOSAL_SCHEMA_INVALID');
   const task=proof.task;
-  if (!task || !['FIXTURE','OWNER_ISSUE'].includes(task.mode) ||
+  if (!task || !['FIXTURE','FIXTURE_PY','OWNER_ISSUE'].includes(task.mode) ||
       !Number.isSafeInteger(task.comment ?? 1)) throw Error('TASK_SCHEMA_INVALID');
   if(task.file2 && (!safeSourceFile(task.file2) || task.file2===task.file))
     throw Error('MULTI_SOURCE_PATH_REJECTED');
@@ -222,15 +224,20 @@ async function main() {
     if(task.file2) safeFileRead(root,task.file2,false);
     console.log(JSON.stringify({status:'TRUSTED_PUBLIC_TASK_ACCEPTED',issue:task.issue,
       comment:task.comment,file:task.file,test:task.test}));
-  } else if (mode==='--fixture' || mode==='--event') {
+  } else if (mode==='--fixture' || mode==='--event' || mode==='--python-fixture') {
     const task=mode==='--fixture'
       ?{file:FIXTURE_FILE,test:FIXTURE_TEST,
         goal:'Correct total(items): each price must be multiplied by quantity, using an empty-array-safe sum.',
         comment:0,mode:'FIXTURE'}
+      :mode==='--python-fixture'
+      ?{file:PY_FIXTURE_FILE,test:PY_FIXTURE_TEST,
+        goal:'Correct total(items) by multiplying unit price and quantity, keeping the empty-list sum safe.',
+        comment:0,mode:'FIXTURE_PY'}
       :taskFromEvent(JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH,'utf8')));
     const result=await propose(task,root);
     const out=process.env.RUNNER_TEMP || root;
-    fs.writeFileSync(path.join(out,'imperion-dev-cloud-proposal.json'),JSON.stringify(result,null,2)+'\n');
+    const manifest=mode==='--python-fixture'?'imperion-dev-cloud-python-proposal.json':'imperion-dev-cloud-proposal.json';
+    fs.writeFileSync(path.join(out,manifest),JSON.stringify(result,null,2)+'\n');
     console.log(JSON.stringify({status:result.status,mode:task.mode,file:task.file,file2:task.file2||null,model:result.model,
       source_sha256:result.source_sha256,paid_api_czk:0}));
   } else if (mode==='--apply' && process.argv.length===4) {
@@ -242,6 +249,6 @@ if (require.main===module) main().catch(e=>{
   console.error(/^[A-Z0-9_]+$/.test(e.message)?e.message:'CLOUD_WORKER_BLOCKED');
   process.exitCode=2;
 });
-module.exports={MODEL,REPO,FIXTURE_FILE,FIXTURE_TEST,COMMAND,
+module.exports={MODEL,REPO,FIXTURE_FILE,FIXTURE_TEST,PY_FIXTURE_FILE,PY_FIXTURE_TEST,COMMAND,
   safeSourceFile,safeTestFile,isFixtureTask,parseCommand,taskFromEvent,reviewBranch,safeFileRead,prompt,
   parseCandidate,applyCandidate,propose,verifiedApply,sha};

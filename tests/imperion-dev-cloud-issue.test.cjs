@@ -352,3 +352,35 @@ test('Python model edits are bounded; safe SHA check, unsafe source actions bloc
    fs.rmSync(root,{recursive:true,force:true});
  }
 });
+
+test('Python cloud preview uses the same model, fixture and isolated trusted tests',async()=>{
+ const root=fs.mkdtempSync(path.join(os.tmpdir(),'imperion-py-preview-'));
+ for(const file of [W.PY_FIXTURE_FILE,W.PY_FIXTURE_TEST])
+   fs.mkdirSync(path.dirname(path.join(root,file)),{recursive:true});
+ fs.copyFileSync(path.join(__dirname,'../'+W.PY_FIXTURE_FILE),path.join(root,W.PY_FIXTURE_FILE));
+ fs.copyFileSync(path.join(__dirname,'../'+W.PY_FIXTURE_TEST),path.join(root,W.PY_FIXTURE_TEST));
+ const source=fs.readFileSync(path.join(root,W.PY_FIXTURE_FILE),'utf8');
+ try{
+  const task={file:W.PY_FIXTURE_FILE,test:W.PY_FIXTURE_TEST,
+    goal:'Correct total by multiplying price and qty',comment:0,mode:'FIXTURE_PY'};
+  let calls=0;
+  const proposal=await W.propose(task,root,async()=>({
+    ok:true,redirected:false,json:async()=>{
+      calls++;
+      return {done:true,model:W.MODEL,response:JSON.stringify({
+        old:'return sum(row["price"] for row in items)',
+        new:'return sum(row["price"] * row["qty"] for row in items)'})};
+    }
+  }));
+  assert.equal(calls,1);
+  assert.equal(proposal.status,'MODEL_PROPOSAL_ONLY');
+  assert.equal(fs.readFileSync(path.join(root,W.PY_FIXTURE_FILE),'utf8'),source);
+  assert.equal(W.verifiedApply(proposal,root).status,'PATCH_STAGED_PENDING_SANDBOX_TESTS');
+  assert.match(fs.readFileSync(path.join(root,W.PY_FIXTURE_FILE),'utf8'),/row\["qty"\]/);
+ }finally{fs.rmSync(root,{recursive:true,force:true});}
+ const y=fs.readFileSync(path.join(__dirname,'../.github/workflows/imperion-dev-cloud-issue.yml'),'utf8');
+ assert.match(y,/--python-fixture/);
+ assert.match(y,/PYTHON_QWEN_PATCH_ISOLATED_3_TESTS_PASS/);
+ assert.match(y,/grep -q 'FAIL: test_'/);
+ assert.match(y,/python:3\.12-alpine/);
+});
