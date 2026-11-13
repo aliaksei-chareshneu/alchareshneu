@@ -58,6 +58,7 @@ class Rows(HTMLParser):
         self.depth = 0
         self.cell_depth = 0
         self.current = []
+        self.had_td = False
         self.parts = []
         self.href = None
         self.anchor = []
@@ -74,6 +75,7 @@ class Rows(HTMLParser):
         if tag == "tr":
             if self.depth == 0:
                 self.current = []
+                self.had_td = False
             self.depth += 1
         elif tag in ("td", "th") and self.depth:
             if self.cell_depth == 0:
@@ -99,6 +101,8 @@ class Rows(HTMLParser):
             self.links.append((self.href, normalize(" ".join(self.anchor))[:140]))
             self.href, self.anchor = None, []
         if tag in ("td", "th") and self.cell_depth:
+            if tag == "td":
+                self.had_td = True
             self.cell_depth -= 1
             if self.cell_depth == 0:
                 self.current.append({"text": re.sub(r"\s+", " ", " ".join(self.parts)).strip()[:900],
@@ -106,7 +110,7 @@ class Rows(HTMLParser):
                 self.parts, self.links = [], []
         if tag == "tr" and self.depth:
             self.depth -= 1
-            if self.depth == 0 and len(self.current) >= 4:
+            if self.depth == 0 and self.had_td and len(self.current) >= 4:
                 self.rows.append(self.current[:12])
                 self.current = []
 
@@ -122,7 +126,7 @@ def notice_status(title: str, category: str, deadline: date | None, today: date)
         return "PLOT_ONLY_NO_SAFE_BUILDING", 0
     if "vypujck" in t and any(x in t for x in ASSET_TOKENS):
         return "FREE_USE_INTENT_VERIFY_DOCUMENT_AND_DURATION", 75
-    if "pronajem" in t and any(x in t for x in ASSET_TOKENS):
+    if "pronajem" in t and (any(x in t for x in ASSET_TOKENS) or "nebytov" in cat):
         return "MARKET_RENT_INTENT_NOT_ZERO_RENT", 15
     if any(x in t for x in ASSET_TOKENS) and ("nebytov" in cat or "zamery" in cat):
         return "POSSIBLE_PREMISE_NOTICE_DOCUMENT_REVIEW", 40
