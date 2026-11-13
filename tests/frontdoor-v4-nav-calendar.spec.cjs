@@ -40,7 +40,7 @@ for(const width of [320,390,1440]){
   await expect(page.locator('#fdNavAcademy')).toHaveAttribute('href','academy/?lang=ru');
   await expect(page.locator('#fdNavClub')).toHaveAttribute('href','druzina/?lang=ru');
   await expect(page.locator('#fdNavWalkers')).toHaveAttribute('href','walkers/?lang=ru');
-  await expect(page.locator('#fdNavAbout')).toHaveAttribute('href','?lang=ru&view=details');
+  await expect(page.locator('#fdNavAbout')).toHaveAttribute('href','about/?lang=ru');
   await expect(page.locator('.fd-fighters')).toHaveCount(0);
   await expect(page.locator('.fd-photo-shadows span')).toHaveCount(0);
   await expect(page.locator('.fd-photo-shadows')).toHaveCSS('background-image',/imperion-hero-cinematic-20261112\.webp/);
@@ -74,7 +74,7 @@ for(const [lang,calendar,academy] of [
   await expect(page.locator('#fdNavEvents')).toHaveAttribute('href','#impr-calendar');
   await page.locator('[data-fd-language="en"]').click();
   await expect(page.locator('#fdAcademyCta')).toHaveAttribute('href','academy/courses/?lang=en');
-  await expect(page.locator('#fdNavAbout')).toHaveAttribute('href','?lang=en&view=details');
+  await expect(page.locator('#fdNavAbout')).toHaveAttribute('href','about/?lang=en');
  });
 }
 test('calendar shows a separate symbol and Prague local start time for each listed activity',async({page})=>{
