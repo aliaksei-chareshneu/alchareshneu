@@ -310,6 +310,417 @@ jobs:
             --cpus 1 --user 10001:10001 --tmpfs /tmp:rw,noexec,nosuid,size=64m \
             -v "$GITHUB_WORKSPACE:/work:ro" -w /work node:22-alpine \
             node --test "$trusted" > "$RUNNER_TEMP/imperion-dev-auto-baseline.log" 2>&1 && baseline=PASS
+          # Stage12: functional changes require an advisory test that fails BEFORE
+          # and passes AFTER the patch. The existing trusted tests remain mandatory.
+          if node -e 'const A=require("./scripts/imperion-dev-autonomous.cjs");const p=require(process.argv[1]);
+            process.exit(A.requiresBehaviorWitness(p,process.cwd())?0:1)' "$proof"; then
+            original="$RUNNER_TEMP/imperion-dev-auto-original"
+            mkdir -p "$original"
+            git ls-files -z | tar --null -T - -cf - | tar -C "$original" -xf -
+            mkdir -p "$original/$(dirname "$draft")"
+            node -e 'const fs=require("node:fs"),A=require("./scripts/imperion-dev-autonomous.cjs");
+              const p=require(process.argv[1]);fs.writeFileSync(process.argv[2],A.renderTest(p.task,p.test_draft),"utf8")' \
+              "$proof" "$original/$draft"
+            witness_log="$RUNNER_TEMP/imperion-dev-auto-witness-original.log"
+            if docker run --rm --network none --read-only --cap-drop ALL \
+              --security-opt no-new-privileges --pids-limit 64 --memory 512m \
+              --cpus 1 --user 10001:10001 --tmpfs /tmp:rw,noexec,nosuid,size=64m \
+              -v "$original:/work:ro" -w /work node:22-alpine \
+              node --test "$draft" > "$witness_log" 2>&1; then
+              node scripts/imperion-dev-autonomous.cjs --retry-advisory "$proof"
+              node -e 'const fs=require("node:fs"),A=require("./scripts/imperion-dev-autonomous.cjs");
+                const p=require(process.argv[1]);fs.writeFileSync(process.argv[2],A.renderTest(p.task,p.test_draft),"utf8")' \
+                "$proof" "$original/$draft"
+              witness_log="$RUNNER_TEMP/imperion-dev-auto-witness-retry.log"
+              if docker run --rm --network none --read-only --cap-drop ALL \
+                --security-opt no-new-privileges --pids-limit 64 --memory 512m \
+                --cpus 1 --user 10001:10001 --tmpfs /tmp:rw,noexec,nosuid,size=64m \
+                -v "$original:/work:ro" -w /work node:22-alpine \
+                node --test "$draft" > "$witness_log" 2>&1; then
+                echo "BLOCKED: ADVISORY_DID_NOT_DETECT_REQUESTED_BEHAVIOR" >> "$GITHUB_STEP_SUMMARY"
+                exit 9
+              fi
+            fi
+            grep -Eq '^# tests [1-9][0-9]*
+          node -e 'const p=require(process.argv[1]),W=require("./scripts/imperion-dev-cloud-issue.cjs");
+            if(!Array.isArray(p.selected)||p.selected.length<1||p.selected.length>2||
+               !p.selected.every(x=>W.safeSourceFile(x))||
+               !p.generated_file.startsWith("tests/generated/imperion-dev-auto"))process.exit(9)' "$proof"
+          for f in $(node -e 'process.stdout.write(require(process.argv[1]).selected.join(" "))' "$proof"); do
+            node --check "$sandbox/$f"
+          done
+          node --check "$sandbox/$draft"
+          docker run --rm --network none --read-only --cap-drop ALL \
+            --security-opt no-new-privileges --pids-limit 64 --memory 512m \
+            --cpus 1 --user 10001:10001 --tmpfs /tmp:rw,noexec,nosuid,size=64m \
+            -v "$sandbox:/work:ro" -w /work node:22-alpine \
+            node --test "$trusted" "$draft" > "$RUNNER_TEMP/imperion-dev-auto-tests.log" 2>&1 || {
+              tail -n 35 "$RUNNER_TEMP/imperion-dev-auto-tests.log"
+              exit 9
+            }
+          grep -Eq '^# tests [1-9][0-9]*$' "$RUNNER_TEMP/imperion-dev-auto-tests.log"
+          grep -Fxq '# fail 0' "$RUNNER_TEMP/imperion-dev-auto-tests.log"
+          node -e 'const fs=require("node:fs"),p=require(process.argv[1]);
+            if(p.status!=="AUTO_MODEL_PROPOSAL_ONLY"||p.auto_merge!==false)process.exit(9);
+            const r={status:"AUTO_ISOLATED_TRUSTED_AND_ADVISORY_PASS",
+              issue:p.task.issue,comment:p.task.comment,files:p.selected,
+              independent_test:p.task.test,advisory_test:p.generated_file,
+              advisory_sha256:p.generated_sha256,model:p.model,baseline:process.argv[3],
+              public_only:true,advisory_not_independent:true,paid_api_czk:0,
+              auto_merge:false,host:"GITHUB_ACTIONS_CPU"};
+            fs.writeFileSync(process.argv[2],JSON.stringify(r,null,2)+"\n",{flag:"wx"});' \
+            "$proof" "$RUNNER_TEMP/imperion-dev-autonomous-receipt.json" "$baseline"
+          echo "AUTO_TRUSTED_AND_ADVISORY_TESTS_PASS_OWNER_REVIEW_ONLY" >> "$GITHUB_STEP_SUMMARY"
+      - name: Retain bounded public review proof for 3 days (never deploy)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: imperion-dev-cloud-issue-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/imperion-dev-cloud-proposal.json
+            ${{ runner.temp }}/imperion-dev-cloud-test-result.json
+            ${{ runner.temp }}/imperion-dev-cloud-python-proposal.json
+            ${{ runner.temp }}/imperion-dev-test-vector-result.json
+            ${{ runner.temp }}/imperion-dev-advisory-mutation-result.json
+            ${{ runner.temp }}/imperion-dev-autonomous-proposal.json
+            ${{ runner.temp }}/imperion-dev-autonomous-receipt.json
+          if-no-files-found: warn
+          retention-days: 3
+      - name: Stop ephemeral cloud Ollama
+        if: always()
+        run: docker rm -f imperion-cloud-issue-qwen || true
+      - name: Restore public model cache ownership
+        if: always()
+        run: |
+          if [ -d .ollama-models/models ]; then
+            sudo chown -R "$(id -u):$(id -g)" .ollama-models/models
+            chmod -R u+rwX .ollama-models/models
+          fi
+
+  draft-review-pr:
+    env:
+      IMPERION_DEV_MODEL: ${{ vars.IMPERION_DEV_MODEL || 'qwen3:4b-instruct' }}
+    needs: cloud-qwen-coding
+    # Never write a branch for PR preview. The issue workflow itself must
+    # first be reviewed and merged with owner's separate GO.
+    if: github.event_name == 'issue_comment'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/download-artifact@v4
+        with:
+          name: imperion-dev-cloud-issue-${{ github.run_id }}
+          path: ${{ runner.temp }}/imperion-dev-cloud-proof
+      - name: Revalidate owner comment, source hash, exact one-file patch and PR idempotency
+        if: startsWith(github.event.comment.body, '/imperion-dev cloud')
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          OWNER_COMMENT_ID: ${{ github.event.comment.id }}
+          OWNER_ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          set -euo pipefail
+          node scripts/imperion-dev-cloud-issue.cjs --check-event
+          proof="$RUNNER_TEMP/imperion-dev-cloud-proof/imperion-dev-cloud-proposal.json"
+          receipt="$RUNNER_TEMP/imperion-dev-cloud-proof/imperion-dev-cloud-test-result.json"
+          node -e 'const p=require(process.argv[1]),r=require(process.argv[2]);
+            if(p.task.mode!=="OWNER_ISSUE" || p.task.comment!==Number(process.argv[3]) ||
+               p.task.issue!==Number(process.argv[4]) ||
+               r.status!=="ISOLATED_TRUSTED_TEST_PASS" || r.mode!=="OWNER_ISSUE") process.exit(8)' \
+            "$proof" "$receipt" "$OWNER_COMMENT_ID" "$OWNER_ISSUE_NUMBER"
+          file="$(node -e 'process.stdout.write(require(process.argv[1]).task.file)' "$proof")"
+          file2="$(node -e 'process.stdout.write(require(process.argv[1]).task.file2 || "")' "$proof")"
+          branch="$(node -e 'const w=require("./scripts/imperion-dev-cloud-issue.cjs"); process.stdout.write(w.reviewBranch(Number(process.argv[1]),Number(process.argv[2])))' "$OWNER_ISSUE_NUMBER" "$OWNER_COMMENT_ID")"
+          if git ls-remote --exit-code --heads origin "$branch" >/dev/null 2>&1; then
+            gh pr list --head "$branch" --base main --state open \
+              --json number,isDraft,headRefName --limit 3 > "$RUNNER_TEMP/existing-pr.json"
+            node -e 'const a=require(process.argv[1]);
+              if(a.length!==1 || a[0].isDraft!==true)process.exit(2)' "$RUNNER_TEMP/existing-pr.json" || {
+              echo "BLOCKED: remote branch exists but no unique Draft PR"; exit 2;
+            }
+            echo "EXISTING_DRAFT_PR_NO_DUPLICATE" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          node scripts/imperion-dev-cloud-issue.cjs --apply "$proof"
+          git diff --check
+          files=("$file")
+          if [ -n "$file2" ]; then files+=("$file2"); fi
+          actual="$(git diff --name-only | LC_ALL=C sort)"
+          expected="$(printf '%s\n' "${files[@]}" | LC_ALL=C sort)"
+          test "$actual" = "$expected"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          git add -- "${files[@]}"
+          git diff --cached --check
+          test "$(git diff --cached --name-only | LC_ALL=C sort)" = "$expected"
+          git commit -m "fix(dev): bounded public Qwen task from owner comment $OWNER_COMMENT_ID"
+          git push --set-upstream origin "$branch"
+          if ! gh pr create --draft --base main --head "$branch" \
+            --title "DRAFT: cloud Qwen public coding issue $OWNER_ISSUE_NUMBER comment $OWNER_COMMENT_ID" \
+            --body "Owner-approved public issue $OWNER_ISSUE_NUMBER. Model: Qwen3:4b-instruct running in GitHub-hosted CPU. One or two bounded public files, source SHA validated, tests passed in a no-network read-only container. No model secrets, paid API, customer data, auto-merge, deploy or production changes. OWNER REVIEW REQUIRED."; then
+            echo "BLOCKED: GitHub repository policy does not permit Actions to create PRs; branch is for human review." >> "$GITHUB_STEP_SUMMARY"
+            exit 2
+          fi
+          gh pr list --head "$branch" --base main --state open \
+            --json number,isDraft,headRefName --limit 3 > "$RUNNER_TEMP/created-pr.json"
+          node -e 'const a=require(process.argv[1]);
+            if(a.length!==1 || a[0].isDraft!==true)process.exit(2)' "$RUNNER_TEMP/created-pr.json"
+          echo "PROVIDER_VERIFIED_DRAFT_PR_OPENED_OWNER_REVIEW_REQUIRED" >> "$GITHUB_STEP_SUMMARY"
+      - name: Publish only verified autonomous code and advisory test as a bot Draft PR
+        if: startsWith(github.event.comment.body, '/imperion-dev autonomous')
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          AUTO_COMMENT_ID: ${{ github.event.comment.id }}
+          AUTO_ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          set -euo pipefail
+          node scripts/imperion-dev-autonomous.cjs --check-event
+          proof="$RUNNER_TEMP/imperion-dev-cloud-proof/imperion-dev-autonomous-proposal.json"
+          receipt="$RUNNER_TEMP/imperion-dev-cloud-proof/imperion-dev-autonomous-receipt.json"
+          test -s "$proof" && test -s "$receipt"
+          node -e 'const p=require(process.argv[1]),r=require(process.argv[2]);
+            if(p.status!=="AUTO_MODEL_PROPOSAL_ONLY"||
+               r.status!=="AUTO_ISOLATED_TRUSTED_AND_ADVISORY_PASS"||
+               p.task.issue!==Number(process.argv[3])||p.task.comment!==Number(process.argv[4])||
+               r.issue!==p.task.issue||r.comment!==p.task.comment||
+               r.independent_test!==p.task.test||r.advisory_test!==p.generated_file||
+               r.advisory_sha256!==p.generated_sha256||r.auto_merge!==false||
+               r.advisory_not_independent!==true||r.paid_api_czk!==0)
+              process.exit(9)' "$proof" "$receipt" "$AUTO_ISSUE_NUMBER" "$AUTO_COMMENT_ID"
+          branch="agent/imperion-dev-auto-$AUTO_ISSUE_NUMBER-$AUTO_COMMENT_ID"
+          if git ls-remote --exit-code --heads origin "$branch" >/dev/null 2>&1; then
+            gh pr list --head "$branch" --base main --state open \
+              --json number,isDraft --limit 3 > "$RUNNER_TEMP/autonomous-existing-pr.json"
+            node -e 'const a=require(process.argv[1]);if(a.length!==1||!a[0].isDraft)process.exit(9)' \
+              "$RUNNER_TEMP/autonomous-existing-pr.json"
+            echo "AUTO_DRAFT_PR_ALREADY_EXISTS_NO_DUPLICATE" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          node scripts/imperion-dev-autonomous.cjs --apply "$proof" "$GITHUB_WORKSPACE"
+          git diff --check
+          expected="$(node -e 'const p=require(process.argv[1]);console.log([...p.selected,p.generated_file].sort().join("\n"))' "$proof")"
+          actual="$(git diff --name-only && git ls-files --others --exclude-standard)"
+          test "$(printf '%s\n' "$actual" | LC_ALL=C sort)" = "$expected"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          git add -- $(node -e 'const p=require(process.argv[1]);process.stdout.write([...p.selected,p.generated_file].join(" "))' "$proof")
+          git diff --cached --check
+          test "$(git diff --cached --name-only | LC_ALL=C sort)" = "$expected"
+          git commit -m "feat(dev): autonomous public task issue $AUTO_ISSUE_NUMBER comment $AUTO_COMMENT_ID"
+          git push --set-upstream origin "$branch"
+          gh pr create --draft --base main --head "$branch" \
+            --title "DRAFT: autonomous cloud Qwen issue $AUTO_ISSUE_NUMBER comment $AUTO_COMMENT_ID" \
+            --body "Owner-scoped, GitHub-hosted Qwen coding. Qwen selected one or two public, test-referenced source files and proposed bounded SHA-checked patches. An EXISTING independent trusted test and a NEW DATA-ONLY advisory test passed in a no-network non-root read-only container. The generated test is NOT independent evidence, remains for owner code review, and no code was merged or deployed. No paid API, secrets or account changes. OWNER REVIEW REQUIRED."
+          gh pr list --head "$branch" --base main --state open \
+            --json number,isDraft --limit 3 > "$RUNNER_TEMP/autonomous-created-pr.json"
+          node -e 'const a=require(process.argv[1]);if(a.length!==1||!a[0].isDraft)process.exit(9)' \
+            "$RUNNER_TEMP/autonomous-created-pr.json"
+          echo "AUTO_GITHUB_BOT_DRAFT_PR_PROVIDER_VERIFIED_OWNER_REVIEW_REQUIRED" >> "$GITHUB_STEP_SUMMARY"
+ "$witness_log"
+            grep -Eq '^# fail [1-9][0-9]*
+          node -e 'const p=require(process.argv[1]),W=require("./scripts/imperion-dev-cloud-issue.cjs");
+            if(!Array.isArray(p.selected)||p.selected.length<1||p.selected.length>2||
+               !p.selected.every(x=>W.safeSourceFile(x))||
+               !p.generated_file.startsWith("tests/generated/imperion-dev-auto"))process.exit(9)' "$proof"
+          for f in $(node -e 'process.stdout.write(require(process.argv[1]).selected.join(" "))' "$proof"); do
+            node --check "$sandbox/$f"
+          done
+          node --check "$sandbox/$draft"
+          docker run --rm --network none --read-only --cap-drop ALL \
+            --security-opt no-new-privileges --pids-limit 64 --memory 512m \
+            --cpus 1 --user 10001:10001 --tmpfs /tmp:rw,noexec,nosuid,size=64m \
+            -v "$sandbox:/work:ro" -w /work node:22-alpine \
+            node --test "$trusted" "$draft" > "$RUNNER_TEMP/imperion-dev-auto-tests.log" 2>&1 || {
+              tail -n 35 "$RUNNER_TEMP/imperion-dev-auto-tests.log"
+              exit 9
+            }
+          grep -Eq '^# tests [1-9][0-9]*$' "$RUNNER_TEMP/imperion-dev-auto-tests.log"
+          grep -Fxq '# fail 0' "$RUNNER_TEMP/imperion-dev-auto-tests.log"
+          node -e 'const fs=require("node:fs"),p=require(process.argv[1]);
+            if(p.status!=="AUTO_MODEL_PROPOSAL_ONLY"||p.auto_merge!==false)process.exit(9);
+            const r={status:"AUTO_ISOLATED_TRUSTED_AND_ADVISORY_PASS",
+              issue:p.task.issue,comment:p.task.comment,files:p.selected,
+              independent_test:p.task.test,advisory_test:p.generated_file,
+              advisory_sha256:p.generated_sha256,model:p.model,baseline:process.argv[3],
+              public_only:true,advisory_not_independent:true,paid_api_czk:0,
+              auto_merge:false,host:"GITHUB_ACTIONS_CPU"};
+            fs.writeFileSync(process.argv[2],JSON.stringify(r,null,2)+"\n",{flag:"wx"});' \
+            "$proof" "$RUNNER_TEMP/imperion-dev-autonomous-receipt.json" "$baseline"
+          echo "AUTO_TRUSTED_AND_ADVISORY_TESTS_PASS_OWNER_REVIEW_ONLY" >> "$GITHUB_STEP_SUMMARY"
+      - name: Retain bounded public review proof for 3 days (never deploy)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: imperion-dev-cloud-issue-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/imperion-dev-cloud-proposal.json
+            ${{ runner.temp }}/imperion-dev-cloud-test-result.json
+            ${{ runner.temp }}/imperion-dev-cloud-python-proposal.json
+            ${{ runner.temp }}/imperion-dev-test-vector-result.json
+            ${{ runner.temp }}/imperion-dev-advisory-mutation-result.json
+            ${{ runner.temp }}/imperion-dev-autonomous-proposal.json
+            ${{ runner.temp }}/imperion-dev-autonomous-receipt.json
+          if-no-files-found: warn
+          retention-days: 3
+      - name: Stop ephemeral cloud Ollama
+        if: always()
+        run: docker rm -f imperion-cloud-issue-qwen || true
+      - name: Restore public model cache ownership
+        if: always()
+        run: |
+          if [ -d .ollama-models/models ]; then
+            sudo chown -R "$(id -u):$(id -g)" .ollama-models/models
+            chmod -R u+rwX .ollama-models/models
+          fi
+
+  draft-review-pr:
+    env:
+      IMPERION_DEV_MODEL: ${{ vars.IMPERION_DEV_MODEL || 'qwen3:4b-instruct' }}
+    needs: cloud-qwen-coding
+    # Never write a branch for PR preview. The issue workflow itself must
+    # first be reviewed and merged with owner's separate GO.
+    if: github.event_name == 'issue_comment'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/download-artifact@v4
+        with:
+          name: imperion-dev-cloud-issue-${{ github.run_id }}
+          path: ${{ runner.temp }}/imperion-dev-cloud-proof
+      - name: Revalidate owner comment, source hash, exact one-file patch and PR idempotency
+        if: startsWith(github.event.comment.body, '/imperion-dev cloud')
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          OWNER_COMMENT_ID: ${{ github.event.comment.id }}
+          OWNER_ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          set -euo pipefail
+          node scripts/imperion-dev-cloud-issue.cjs --check-event
+          proof="$RUNNER_TEMP/imperion-dev-cloud-proof/imperion-dev-cloud-proposal.json"
+          receipt="$RUNNER_TEMP/imperion-dev-cloud-proof/imperion-dev-cloud-test-result.json"
+          node -e 'const p=require(process.argv[1]),r=require(process.argv[2]);
+            if(p.task.mode!=="OWNER_ISSUE" || p.task.comment!==Number(process.argv[3]) ||
+               p.task.issue!==Number(process.argv[4]) ||
+               r.status!=="ISOLATED_TRUSTED_TEST_PASS" || r.mode!=="OWNER_ISSUE") process.exit(8)' \
+            "$proof" "$receipt" "$OWNER_COMMENT_ID" "$OWNER_ISSUE_NUMBER"
+          file="$(node -e 'process.stdout.write(require(process.argv[1]).task.file)' "$proof")"
+          file2="$(node -e 'process.stdout.write(require(process.argv[1]).task.file2 || "")' "$proof")"
+          branch="$(node -e 'const w=require("./scripts/imperion-dev-cloud-issue.cjs"); process.stdout.write(w.reviewBranch(Number(process.argv[1]),Number(process.argv[2])))' "$OWNER_ISSUE_NUMBER" "$OWNER_COMMENT_ID")"
+          if git ls-remote --exit-code --heads origin "$branch" >/dev/null 2>&1; then
+            gh pr list --head "$branch" --base main --state open \
+              --json number,isDraft,headRefName --limit 3 > "$RUNNER_TEMP/existing-pr.json"
+            node -e 'const a=require(process.argv[1]);
+              if(a.length!==1 || a[0].isDraft!==true)process.exit(2)' "$RUNNER_TEMP/existing-pr.json" || {
+              echo "BLOCKED: remote branch exists but no unique Draft PR"; exit 2;
+            }
+            echo "EXISTING_DRAFT_PR_NO_DUPLICATE" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          node scripts/imperion-dev-cloud-issue.cjs --apply "$proof"
+          git diff --check
+          files=("$file")
+          if [ -n "$file2" ]; then files+=("$file2"); fi
+          actual="$(git diff --name-only | LC_ALL=C sort)"
+          expected="$(printf '%s\n' "${files[@]}" | LC_ALL=C sort)"
+          test "$actual" = "$expected"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          git add -- "${files[@]}"
+          git diff --cached --check
+          test "$(git diff --cached --name-only | LC_ALL=C sort)" = "$expected"
+          git commit -m "fix(dev): bounded public Qwen task from owner comment $OWNER_COMMENT_ID"
+          git push --set-upstream origin "$branch"
+          if ! gh pr create --draft --base main --head "$branch" \
+            --title "DRAFT: cloud Qwen public coding issue $OWNER_ISSUE_NUMBER comment $OWNER_COMMENT_ID" \
+            --body "Owner-approved public issue $OWNER_ISSUE_NUMBER. Model: Qwen3:4b-instruct running in GitHub-hosted CPU. One or two bounded public files, source SHA validated, tests passed in a no-network read-only container. No model secrets, paid API, customer data, auto-merge, deploy or production changes. OWNER REVIEW REQUIRED."; then
+            echo "BLOCKED: GitHub repository policy does not permit Actions to create PRs; branch is for human review." >> "$GITHUB_STEP_SUMMARY"
+            exit 2
+          fi
+          gh pr list --head "$branch" --base main --state open \
+            --json number,isDraft,headRefName --limit 3 > "$RUNNER_TEMP/created-pr.json"
+          node -e 'const a=require(process.argv[1]);
+            if(a.length!==1 || a[0].isDraft!==true)process.exit(2)' "$RUNNER_TEMP/created-pr.json"
+          echo "PROVIDER_VERIFIED_DRAFT_PR_OPENED_OWNER_REVIEW_REQUIRED" >> "$GITHUB_STEP_SUMMARY"
+      - name: Publish only verified autonomous code and advisory test as a bot Draft PR
+        if: startsWith(github.event.comment.body, '/imperion-dev autonomous')
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          AUTO_COMMENT_ID: ${{ github.event.comment.id }}
+          AUTO_ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          set -euo pipefail
+          node scripts/imperion-dev-autonomous.cjs --check-event
+          proof="$RUNNER_TEMP/imperion-dev-cloud-proof/imperion-dev-autonomous-proposal.json"
+          receipt="$RUNNER_TEMP/imperion-dev-cloud-proof/imperion-dev-autonomous-receipt.json"
+          test -s "$proof" && test -s "$receipt"
+          node -e 'const p=require(process.argv[1]),r=require(process.argv[2]);
+            if(p.status!=="AUTO_MODEL_PROPOSAL_ONLY"||
+               r.status!=="AUTO_ISOLATED_TRUSTED_AND_ADVISORY_PASS"||
+               p.task.issue!==Number(process.argv[3])||p.task.comment!==Number(process.argv[4])||
+               r.issue!==p.task.issue||r.comment!==p.task.comment||
+               r.independent_test!==p.task.test||r.advisory_test!==p.generated_file||
+               r.advisory_sha256!==p.generated_sha256||r.auto_merge!==false||
+               r.advisory_not_independent!==true||r.paid_api_czk!==0)
+              process.exit(9)' "$proof" "$receipt" "$AUTO_ISSUE_NUMBER" "$AUTO_COMMENT_ID"
+          branch="agent/imperion-dev-auto-$AUTO_ISSUE_NUMBER-$AUTO_COMMENT_ID"
+          if git ls-remote --exit-code --heads origin "$branch" >/dev/null 2>&1; then
+            gh pr list --head "$branch" --base main --state open \
+              --json number,isDraft --limit 3 > "$RUNNER_TEMP/autonomous-existing-pr.json"
+            node -e 'const a=require(process.argv[1]);if(a.length!==1||!a[0].isDraft)process.exit(9)' \
+              "$RUNNER_TEMP/autonomous-existing-pr.json"
+            echo "AUTO_DRAFT_PR_ALREADY_EXISTS_NO_DUPLICATE" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          node scripts/imperion-dev-autonomous.cjs --apply "$proof" "$GITHUB_WORKSPACE"
+          git diff --check
+          expected="$(node -e 'const p=require(process.argv[1]);console.log([...p.selected,p.generated_file].sort().join("\n"))' "$proof")"
+          actual="$(git diff --name-only && git ls-files --others --exclude-standard)"
+          test "$(printf '%s\n' "$actual" | LC_ALL=C sort)" = "$expected"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          git add -- $(node -e 'const p=require(process.argv[1]);process.stdout.write([...p.selected,p.generated_file].join(" "))' "$proof")
+          git diff --cached --check
+          test "$(git diff --cached --name-only | LC_ALL=C sort)" = "$expected"
+          git commit -m "feat(dev): autonomous public task issue $AUTO_ISSUE_NUMBER comment $AUTO_COMMENT_ID"
+          git push --set-upstream origin "$branch"
+          gh pr create --draft --base main --head "$branch" \
+            --title "DRAFT: autonomous cloud Qwen issue $AUTO_ISSUE_NUMBER comment $AUTO_COMMENT_ID" \
+            --body "Owner-scoped, GitHub-hosted Qwen coding. Qwen selected one or two public, test-referenced source files and proposed bounded SHA-checked patches. An EXISTING independent trusted test and a NEW DATA-ONLY advisory test passed in a no-network non-root read-only container. The generated test is NOT independent evidence, remains for owner code review, and no code was merged or deployed. No paid API, secrets or account changes. OWNER REVIEW REQUIRED."
+          gh pr list --head "$branch" --base main --state open \
+            --json number,isDraft --limit 3 > "$RUNNER_TEMP/autonomous-created-pr.json"
+          node -e 'const a=require(process.argv[1]);if(a.length!==1||!a[0].isDraft)process.exit(9)' \
+            "$RUNNER_TEMP/autonomous-created-pr.json"
+          echo "AUTO_GITHUB_BOT_DRAFT_PR_PROVIDER_VERIFIED_OWNER_REVIEW_REQUIRED" >> "$GITHUB_STEP_SUMMARY"
+ "$witness_log"
+            echo "ADVISORY_BASELINE_BEHAVIOR_WITNESS_PASS" >> "$GITHUB_STEP_SUMMARY"
+          fi
           node scripts/imperion-dev-autonomous.cjs --apply "$proof" "$sandbox"
           node -e 'const p=require(process.argv[1]),W=require("./scripts/imperion-dev-cloud-issue.cjs");
             if(!Array.isArray(p.selected)||p.selected.length<1||p.selected.length>2||
