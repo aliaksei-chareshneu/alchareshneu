@@ -1,0 +1,61 @@
+/* Academy online order · OSVC only. CSS isolated to .ao- namespaces. */
+body[data-imperion-design="academy-order"]{margin:0;background:#06191d;color:#f0f2e9}
+body[data-imperion-design="academy-order"] #imp-page-content{min-height:100vh;background:radial-gradient(ellipse at 88% 9%,#31545055,transparent 56%),linear-gradient(160deg,#091b23,#091e25 52%,#081b20);padding:0 0 84px}
+body[data-imperion-design="academy-order"] .ao-container{width:min(1220px,calc(100% - 36px));margin:0 auto}
+.ao-intro{border-bottom:1px solid #c59c6455;padding:clamp(28px,5vw,66px) 0 30px}
+.ao-intro h1{font:600 clamp(33px,5.2vw,62px)/1.1 Georgia,serif;color:#fff0cc;max-width:1050px;letter-spacing:-.025em;margin:14px 0}
+.ao-intro p:not(.ao-eyebrow){font:500 clamp(16px,1.4vw,20px)/1.52 system-ui,sans-serif;color:#dce7dc;max-width:1030px;margin:0}
+.ao-eyebrow{font:780 12px/1.3 system-ui,sans-serif;letter-spacing:.15em;color:#f5c980;margin:0;text-transform:uppercase}
+.ao-lang{display:flex;gap:9px;margin:0 0 26px;justify-content:flex-end}
+.ao-lang a{display:grid;place-items:center;min-width:44px;height:42px;padding:4px 9px;border:1px solid #75958b;border-radius:9px;color:#e8ebdc!important;text-decoration:none!important;font-weight:800}
+.ao-lang a[aria-current=true],.ao-lang a:hover{border-color:#eacb89;background:#2e4944;color:#fff0cb!important}
+.ao-grid{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,.9fr);gap:18px;align-items:start;padding-top:22px}
+.ao-grid>*{min-width:0}
+.ao-card{border:1px solid #748e817c;background:linear-gradient(145deg,#123239,#0d252a);padding:clamp(17px,2.6vw,31px);border-radius:18px;box-shadow:0 14px 45px #00121775;margin:0 0 20px}
+.ao-card h2{font:650 clamp(23px,2.6vw,30px)/1.18 Georgia,serif;color:#ffe9b9;margin:7px 0 17px}
+.ao-card h3{font:700 19px/1.25 system-ui,sans-serif;color:#f6dc9e;margin:20px 0 12px}
+.ao-card p,.ao-card li{color:#dce9dd;line-height:1.52}
+.ao-number{font:800 11px/1.2 system-ui,sans-serif;letter-spacing:.16em;color:#e8bc7d}
+.ao-fields{display:grid;gap:14px;margin:13px 0}
+.ao-fields.ao-two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.ao-fields label, #aoProofForm label{display:flex;flex-direction:column;gap:7px;min-width:0;font:750 14px/1.35 system-ui,sans-serif;color:#f7e9d0}
+.ao-fields input,.ao-fields select,.ao-fields textarea,#aoProofForm input,#aoContinuationCode{
+ display:block;width:100%;min-height:47px;box-sizing:border-box;border:1px solid #97b4a3;
+ padding:10px 12px;background:#f6f1e8;color:#10292c!important;border-radius:10px;
+ font:630 15px/1.45 system-ui,sans-serif;outline-offset:3px;color-scheme:light
+}
+.ao-fields textarea{resize:vertical;min-height:100px}
+.ao-fields :is(input,select,textarea):focus-visible,#aoProofForm input:focus-visible{outline:3px solid #ffe0a1}
+.ao-price-panel{margin:17px 0;padding:19px 21px;border:1px solid #bfa26c;border-radius:14px;background:#0c272e;display:flex;flex-direction:column;gap:6px}
+.ao-price-panel span{font:700 12px/1.2 system-ui,sans-serif;color:#f3ce91;letter-spacing:.1em;text-transform:uppercase}
+.ao-price-panel strong{font:690 clamp(21px,2.5vw,32px)/1.2 Georgia,serif;color:#ffe5ab}
+.ao-price-panel small{color:#d4e6dc;font:500 12px/1.5 system-ui,sans-serif}
+.ao-schedule{border-top:1px solid #88a39570;margin:20px 0;padding-top:3px}
+.ao-schedule p{margin:3px 0 12px;font-size:14px}
+.ao-hint{font-size:12px!important;line-height:1.55!important;color:#c9d9cf!important}
+.ao-check{display:flex;gap:11px;align-items:flex-start;margin:15px 0;font:520 14px/1.55 system-ui,sans-serif;color:#e1e9de}
+.ao-check input{width:20px;height:20px;flex:none;accent-color:#d8b778;margin:2px 0 0}
+.ao-check a{color:#ffe0aa!important;text-underline-offset:4px}
+.ao-honeypot{position:absolute!important;left:-10000px!important;top:auto!important;height:1px!important;width:1px!important;overflow:hidden!important}
+.ao-primary,.ao-secondary{display:inline-flex;align-items:center;justify-content:center;width:auto;max-width:100%;min-height:50px;border-radius:11px;border:1px solid #ffe5aa;padding:12px 20px;background:#f2cf91!important;color:#10282b!important;cursor:pointer;font:850 15px/1.35 system-ui,sans-serif;text-align:center}
+.ao-secondary{background:#233f3e!important;color:#ffebc3!important;border-color:#cba875}
+.ao-primary:hover{background:#ffe8b7!important}.ao-secondary:hover{background:#35544f!important}
+.ao-primary:disabled,.ao-secondary:disabled{opacity:.56;cursor:wait}
+#aoResult{margin:17px 0 0;padding:15px 16px;border:1px solid #c9a975;background:#234039;border-radius:11px;color:#fff1d2;font-size:14px}
+#aoResult[hidden],#aoQuote[hidden],#aoProofForm[hidden]{display:none!important}
+#aoResult .ao-saved-code{display:block;background:#061b22;padding:12px;margin:8px 0 15px;border-radius:9px;overflow-wrap:anywhere;color:#f6dcad;user-select:all;font:700 13px/1.35 ui-monospace,monospace}
+#aoResult .ao-followup{display:block;width:100%;margin-top:11px}
+#aoQuote{border-top:1px solid #819986;margin-top:22px;padding-top:8px}
+#aoQuote dl{display:grid;grid-template-columns:100px minmax(0,1fr);gap:9px;padding:15px;background:#081f26;border-radius:13px}
+#aoQuote dt{font-weight:650;color:#e2d09f;font-size:12px}
+#aoQuote dd{margin:0;overflow-wrap:anywhere;color:#fff1d3;font-weight:690}
+#aoQuote #aoProofForm{margin-top:15px}
+#aoQuote #aoProofForm .ao-primary{margin-top:15px}
+.ao-warning{font-size:13px;background:#263d3c;border-left:3px solid #e7c481;padding:10px}
+.ao-status-result{padding:8px 0;min-height:24px;font-size:14px;color:#ffe8b7!important}
+.ao-steps ol,#aoSteps{padding-left:22px}
+.ao-steps li{padding:0 0 9px}
+.ao-return,.ao-custom{display:inline-flex;align-items:center;min-height:44px;padding:6px 0;margin:8px 18px 0 0;color:#ffe0a8!important;font-weight:760;text-underline-offset:4px}
+.ao-order{scroll-margin-top:20px}
+@media(max-width:960px){.ao-grid{grid-template-columns:1fr}.ao-aside{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start}.ao-card{margin-bottom:0}}
+@media(max-width:700px){.ao-aside{display:block}.ao-aside .ao-card{margin-bottom:20px}.ao-fields.ao-two{grid-template-columns:1fr}.ao-card{padding:20px}.ao-price-panel{padding:16px}.ao-intro{padding-top:25px}.ao-grid{padding-top:14px}}
