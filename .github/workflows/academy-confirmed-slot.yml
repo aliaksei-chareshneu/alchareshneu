@@ -34,3 +34,29 @@ jobs:
         run: timeout 240s npx playwright install chromium
       - name: Test four-language status and unverified-receipt UX
         run: npx playwright test tests/academy-confirmed-slot.spec.cjs --workers=2 --reporter=line
+
+  postgres-migration:
+    # Disposable local Postgres only. No Supabase keys, live bank accounts or clients.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    services:
+      postgres:
+        image: postgres:17.6-alpine
+        env:
+          POSTGRES_PASSWORD: synthetic-ci-only
+          POSTGRES_DB: academy_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 6
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install PostgreSQL client
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client
+      - name: Apply ACTUAL migration and test all bank/calendar/overlap guards
+        env:
+          PGPASSWORD: synthetic-ci-only
+        run: psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U postgres -d academy_ci -f tests/academy-confirmed-slot-postgres.sql
