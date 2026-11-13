@@ -50,7 +50,7 @@ for(const width of [320,390,1440]){
   const posts=await prepare(page);
   await page.goto('/');
   await expect(page.locator('#fdHeroCta')).toHaveAttribute('href','#impr-calendar');
-  await expect(page.locator('#fdAcademyCta')).toHaveAttribute('href','academy/courses/?lang=cs');
+  await expect(page.locator('#fdAcademyCta')).toHaveAttribute('href','academy/?lang=cs');
   await expect(page.locator('.fd-fighters')).toHaveCount(0);
   await expect(page.locator('.fd-photo-shadows span')).toHaveCount(0);
   await expect(page.locator('.fd-photo-shadows')).toHaveCSS('background-image',/imperion-hero-cinematic-20261112\.webp/);
@@ -110,7 +110,7 @@ test('empty or offline event feed shows honest status, keeps Academy lesson CTA'
  await page.goto('/');
  await expect(page.locator('#fdUpcoming')).toContainText('Žádné potvrzené veřejné termíny');
  await expect(page.locator('#fdUpcoming .fd-upcoming-event')).toHaveCount(0);
- await expect(page.locator('#fdAcademyCta')).toHaveAttribute('href','academy/courses/?lang=cs');
+ await expect(page.locator('#fdAcademyCta')).toHaveAttribute('href','academy/?lang=cs');
  await expect(page.locator('#fdFallback')).toBeVisible();
 });
 
