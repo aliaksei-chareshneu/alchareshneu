@@ -105,7 +105,7 @@ def xlsx_text(blob: bytes) -> tuple[str,str]:
                     if vals:
                         # Same row includes street, number, or cadastral
                         # identifiers in different cells; retain row boundary.
-                        text.append(" | ".join(vals))
+                        text.append(" ".join(vals))
                     if sum(map(len,text))>MAX_CHARACTERS:
                         break
                 if sum(map(len,text))>MAX_CHARACTERS:
