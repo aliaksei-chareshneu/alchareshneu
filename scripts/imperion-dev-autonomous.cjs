@@ -121,6 +121,7 @@ function validateJSONValue(x,depth=0){
 function validateTestDraft(x,selected){
  exactKeys(x,['file','export','cases']);
  if(!selected.includes(x.file)||!/^[a-zA-Z_$][\w$]{0,35}$/.test(x.export)||
+    /^(?:constructor|prototype|__proto__|eval|function|require|process|globalThis)$/i.test(x.export)||
     !Array.isArray(x.cases)||x.cases.length<1||x.cases.length>3)
   reject('AUTO_TEST_DRAFT_REJECTED');
  const names=new Set();
