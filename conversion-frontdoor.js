@@ -145,7 +145,7 @@
       '<a class="fd-logo" href="#imperion-frontdoor"><span class="fd-logo-mark" aria-hidden="true">⚔</span><span class="fd-logo-text"><strong>IMPERION</strong><small>HISTORIE · ZÁŽITKY · ROZVOJ</small></span></a>',
       '<nav class="fd-nav" id="fdNav" aria-label="Primary navigation">',
       '<a id="fdNavHome" href="#imperion-frontdoor"></a><a id="fdNavEvents" href="#impr-calendar"></a><a id="fdNavAcademy" href="academy/"></a>',
-      '<a id="fdNavClub" href="druzina/"></a><a id="fdNavWalkers" href="walkers/"></a><a id="fdNavAbout" href="?view=details"></a>',
+      '<a id="fdNavClub" href="druzina/"></a><a id="fdNavWalkers" href="walkers/"></a><a id="fdNavAbout" href="about/?lang=cs"></a>',
       '</nav>',
       '<div class="fd-languages" aria-label="Language">',
       '<button type="button" data-fd-language="cs">CZ</button><button type="button" data-fd-language="en">EN</button><button type="button" data-fd-language="ru">RU</button><button type="button" data-fd-language="uk">UA</button>',
@@ -365,10 +365,12 @@
     [['fdHeroLabel','heroEvents'],['fdHeroSub','heroTypes'],['fdAcademyLabel','heroAcademy'],['fdAcademyNote','academyNote'],
       ['fdNavHome','home'],['fdNavEvents','events'],['fdNavAcademy','academyNav'],['fdNavClub','clubNav'],
       ['fdNavWalkers','walkersNav'],['fdNavAbout','about'],['fdCityHeading','city']].forEach(function(pair){el(pair[0]).textContent=ft(pair[1]);});
+    // The last footer link now opens the dedicated About page, not the legacy details view.
+    el('fdFooterInfo').textContent=ft('about');
     // Catalogue has CS/EN/RU locales; its own safe default is Czech for UA visitors.
     el('fdAcademyCta').href='academy/courses/?lang='+encodeURIComponent(lang==='uk'?'cs':lang);
     [['fdNavAcademy','academy/'],['fdNavClub','druzina/'],['fdNavWalkers','walkers/']].forEach(function(pair){el(pair[0]).href=pair[1]+'?lang='+encodeURIComponent(lang);});
-    el('fdNavAbout').href='?lang='+encodeURIComponent(lang)+'&view=details';
+    el('fdNavAbout').href='about/?lang='+encodeURIComponent(lang);
     [['fdFacetTitle','facet'],['fdUpcomingTitle','upcoming'],['fdUpcomingIntro','upcomingIntro'],['fdAllTitle','allTitle'],['fdAllIntro','allIntro'],['fdReset','reset']].forEach(function(pair){el(pair[0]).textContent=ed(pair[1]);});
     parent.querySelectorAll('[data-fd-city]').forEach(function(btn){btn.textContent=ft('city'+btn.dataset.fdCity.charAt(0).toUpperCase()+btn.dataset.fdCity.slice(1));});
     parent.querySelectorAll('[data-fd-language]').forEach(function(btn){btn.setAttribute('aria-pressed',String(btn.dataset.fdLanguage===lang));});
@@ -485,7 +487,7 @@
     try{var url=new URL(location.href);url.searchParams.set('lang',lang);history.replaceState(null,'',url.pathname+url.search+url.hash);}catch(_){}
     // Keep existing site language/marketing state in sync for visits to deep information pages.
     var legacy=document.querySelector('#langSwitch button[data-lang="'+lang+'"]');if(legacy)legacy.click();
-    el('fdFooterInfo').href='?lang='+lang+'&view=details';
+    el('fdFooterInfo').href='about/?lang='+encodeURIComponent(lang);
     applyLanguage();
   });});
   parent.querySelectorAll('[data-fd-filter]').forEach(function(b){b.addEventListener('click',function(){closeEventModal(false);filter=b.dataset.fdFilter;chosenDay='';selectedId='';sendSignal('activity_filter','calendar');render();});});
@@ -495,7 +497,7 @@
   el('fdNavEvents').addEventListener('click',function(){sendSignal('calendar_open','navigation');});
   el('fdHeroCta').addEventListener('click',function(){sendSignal('calendar_open','hero');});
   el('fdBook').addEventListener('click',function(){sendSignal('event_cta_'+(this.dataset.status||'browse'),'calendar_detail');});
-  el('fdFooterInfo').href='?lang='+lang+'&view=details';
+  el('fdFooterInfo').href='about/?lang='+encodeURIComponent(lang);
   applyLanguage();
   document.documentElement.setAttribute('data-imperion-frontdoor','ready');
   // Incoming links from Start/other pages can arrive with a fragment before
