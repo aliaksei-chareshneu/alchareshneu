@@ -114,3 +114,20 @@ test('real new-behavior advisory FAILS on original and PASSES on isolated patche
   assert.match(fixed.stdout,/# fail 0/);
  }finally{fs.rmSync(sandbox,{recursive:true,force:true});}
 });
+
+test('429 quota, 503 outage and redirected model endpoints fail closed',async()=>{
+ for(const status of [429,503]){
+  await assert.rejects(()=>A.modelJSON('public synthetic test',async()=>({
+   ok:false,status,redirected:false})),/AUTO_MODEL_HTTP_REJECTED/);
+ }
+ await assert.rejects(()=>A.modelJSON('public synthetic test',async()=>({
+  ok:true,redirected:true})),/AUTO_MODEL_HTTP_REJECTED/);
+});
+test('aborted model request and wrong model identity do not produce a patch',async()=>{
+ await assert.rejects(()=>A.modelJSON('public synthetic test',async()=>{
+  const e=new Error('MODEL_STOPPED');e.name='AbortError';throw e;
+ }),/MODEL_STOPPED/);
+ await assert.rejects(()=>A.modelJSON('public synthetic test',async()=>({
+  ok:true,redirected:false,json:async()=>({done:true,model:'wrong-model',response:'{}'})
+ })),/AUTO_MODEL_RESPONSE_REJECTED/);
+});
