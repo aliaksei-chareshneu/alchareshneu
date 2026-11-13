@@ -32,19 +32,20 @@ jobs:
           persist-credentials: false
 
       - name: Test strict source and data protection gates
-        run: python3 -m unittest discover -s ops/hq-scout -p 'test_hq_scout.py' -v
+        run: python3 -m unittest discover -s ops/hq-scout -p 'test_*.py' -v
 
       - name: Read official public sources (no CRM, no credentials, no AI billing)
-        if: github.event_name != 'pull_request'
         run: |
-          python3 ops/hq-scout/hq_scout.py \
+          python3 ops/hq-scout/notices_run.py \
             --sources ops/hq-scout/sources.json \
             --out ops/hq-scout/output \
             --max-total 20 \
-            --min-fetched 1
+            --min-board-rows 0 \
+            --min-city-pages 1 \
+            --scan-archive
 
       - name: Preserve public-only run evidence
-        if: always() && github.event_name != 'pull_request'
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: imperion-hq-scout-public-research
@@ -53,7 +54,7 @@ jobs:
           retention-days: 7
 
       - name: State limits explicitly
-        if: github.event_name != 'pull_request'
         run: |
-          echo 'HQ Scout source screening performed; not a verified vacant building or free-use contract.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Public city property pages and optional Brno eDeska; robots.denied means NOTICE BOARD BLOCKED.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Private CRM and Gmail are intentionally not exported to a public workflow.' >> "$GITHUB_STEP_SUMMARY"
           echo '0 CRM writes, 0 customer messages, 0 paid AI API calls, 0 owner obligations.' >> "$GITHUB_STEP_SUMMARY"
