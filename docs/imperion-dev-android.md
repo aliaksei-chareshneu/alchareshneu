@@ -1,41 +1,52 @@
-# IMPERION DEV - Android and cloud access
+# IMPERION DEV — Android and cloud operation
 
-**Status on 9 November 2026:** GitHub Copilot cloud agent could not be
-assigned from the connected GitHub App (403) and an authenticated GraphQL
-suggestedActors probe did not offer Copilot for this account/repository.
-Consequently a **fully cloud-independent task run is NOT YET VERIFIED**.
-The owner should not pay, change plans, or add token scopes merely to use this.
+**Status (13 Nov 2026, Europe/Prague):** the GitHub Actions + CPU Qwen coding pipeline is **verified active** without `zmrzlina`; the GitHub Copilot Coding Agent entitlement is **NOT YET VERIFIED**. These are different systems. Public issue commands are visible to everyone; never post passwords, private customer files, bank information, schoolchildren's data or secrets.
 
-## GitHub cloud route (only when existing account entitlement allows it)
-1. From GitHub Mobile or an authenticated mobile browser, open a public,
-   correctly scoped repository issue, such as
-   https://github.com/aliaksei-chareshneu/alchareshneu/issues/245 .
-2. Use the issue's *Assignees* control to assign **Copilot** if available.
-   GitHub documents this supported action at
-   https://docs.github.com/en/copilot/how-tos/copilot-on-github/use-copilot-agents/kick-off-a-task
-3. Copilot Coding Agent runs in GitHub-hosted infrastructure independent of
-   the Windows PC and opens a PR for review, subject to account quotas.
-   Verify actual task/session, branch, commit, CI, Draft PR and changed files.
-4. The owner reviews. **Never merge, deploy or modify permissions automatically.**
+## Confirmed owner-only cloud route (no paid model API)
 
-If Copilot is not an available assignee, report **BLOCKED: ACCOUNT_ENTITLEMENT_OR_POLICY**.
-Do not claim that a public GitHub issue or an unassigned @copilot mention is execution.
+From Android, use the existing signed-in GitHub app **or** a mobile browser to open:
+https://github.com/aliaksei-chareshneu/alchareshneu/issues/245
 
-## Existing local fallback (NOT cloud / limited)
-At https://github.com/aliaksei-chareshneu/alchareshneu/issues/195
-the signed-in owner can comment exactly:
-- `/imperion-dev ping` - checks the local Ollama model
-- `/imperion-dev smoke` - synthetic Python patch plus tests
-- `/imperion-dev build roi-brand` - deduplicated public ROI review PR
-- `/imperion-dev build cloud-profile` - approved public agent-profile job
+Add **one new comment** in this exact form; replace the example filenames with actual, already tracked non-sensitive files:
 
-The user-level Windows scheduled job `IMPERION-DevAgent-OwnerCommands` polls
-every 10 minutes when `zmrzlina` is awake, signed in and online.
-It uses local Ollama Qwen3.5 4B and makes no paid model requests.
-Only issue comments from the authenticated owner matching these exact commands
-are accepted. Do not put secrets, customer records or private work in public issues.
+```text
+/imperion-dev cloud
+file: scripts/imperion-public-example.cjs
+test: tests/imperion-public-example.test.cjs
+goal: Correct total() to multiply each item price by its quantity
+```
 
-## Readback gates
-REQUESTED != ACCEPTED != TEST_PASS != PR_CREATED != CI_SUCCESS != MERGED != LIVE.
-Inspect PR status, branch, current SHA, CI status and changed files from GitHub.
-Github Pages / production changes require separate owner GO.
+For an approved two-file change add `file2:` between `file:` and `test:`:
+
+```text
+/imperion-dev cloud
+file: ops/imperion-dev-cloud-fixture/multi-price.cjs
+file2: ops/imperion-dev-cloud-fixture/multi-shipping.cjs
+test: tests/imperion-dev-cloud-multi-fixture.test.cjs
+goal: Clarify both synthetic helper comments while keeping behaviour and exports unchanged
+```
+
+The source files must already exist under `scripts/`, `docs/`, or `ops/` and pass the allowlist. The trusted independent test must already exist under `tests/`, ending in `.test.cjs`. Sensitive names, workflow/deploy files, test modification, test authoring and changes to `main` are blocked. The model cannot choose extra files. The second example is a **synthetic acceptance example**, not business price logic.
+
+After posting, check **Actions** for `IMPERION DEV cloud issue coding (review only)`. An accepted run must show `task-preflight`, `cloud-qwen-coding` and `draft-review-pr` as **SUCCESS**. Then open the automatically generated **Draft PR**. Inspect changed files, code, trusted tests, CI, credentials and the description. **Do not merge** until independently reviewed and authorized. A branch, green sandbox test or PR alone does not prove production deployment.
+
+The Android GitHub UI layout and exact tap labels can change. This route uses a standard issue comment, so the mobile browser is a fallback if the app does not show commenting or Actions. **Android-origin issuance specifically was NOT YET VERIFIED independently**; GitHub-side end-to-end issue→Draft PR works regardless of local Windows. Never claim a native Android test occurred if all evidence came from another device.
+
+**Provider evidence:** [owner issue comment](https://github.com/aliaksei-chareshneu/alchareshneu/issues/245#issuecomment-6806169605) → [GitHub-hosted Actions #43094143252](https://github.com/aliaksei-chareshneu/alchareshneu/actions/runs/43094143252) (3/3 PASS) → [bot-created Draft PR #279](https://github.com/aliaksei-chareshneu/alchareshneu/pull/279) (exactly two public files, subsequently closed unmerged). The model is Qwen3:4b-instruct in a temporary GitHub runner, **not** a separate paid inference provider. GitHub runner/cache usage has quotas and may be billed if someone later changes account settings; do not enable overages.
+
+## Optional Copilot Coding Agent — account dependent
+
+If GitHub's native **Copilot** coding agent is already included and available for this repo, an owner can open an issue and use its **Assignees** control (mobile browser if necessary), assign Copilot, and verify a real cloud session, changed code, newly written tests, CI and review PR. GitHub's official instructions:
+https://docs.github.com/en/copilot/how-tos/copilot-on-github/use-copilot-agents/kick-off-a-task
+
+The existing `.github/agents/imperion-dev.agent.md` is a custom agent profile, **not** proof of eligibility, deployment or autonomous sessions. An earlier authorized attempt returned HTTP 403 and Copilot was absent from the assignable actors. Until a fresh provider readback succeeds, treat this as `BLOCKED: COPILOT_ENTITLEMENT_OR_POLICY`. Do not subscribe, buy tokens, upgrade or change permissions on speculation.
+
+## Existing Windows fallback (not cloud)
+
+The existing PC-bound issue [#195](https://github.com/aliaksei-chareshneu/alchareshneu/issues/195) has owner commands `/imperion-dev ping`, `/imperion-dev smoke`, `/imperion-dev build roi-brand`, `/imperion-dev build cloud-profile` (the allowlist may change; inspect actual poller before reuse). The scheduled Windows job requires `zmrzlina` online and local Ollama. Do not mistake a Windows-local run for an independent cloud service.
+
+## Safety, cost and readback
+
+Only owner-issued, public, narrowly scoped commands. No customer data, credentials, NGO/OSVČ mixing, source publication, automated acceptance or merge. New independent tests and unrestricted project programming are **BLOCKED** in the current CPU Qwen route. Cost: 0 Kč additional external model API subscriptions were enabled in the confirmed tests; GitHub Actions runtime quota is finite, not an unlimited guarantee.
+
+**Proof statuses:** REQUESTED != ACCEPTED != TEST_PASS != PR_CREATED != CI_SUCCESS != MERGED != LIVE. Keep the case in the existing Issue #245 and do not duplicate the development agent or CRM.
