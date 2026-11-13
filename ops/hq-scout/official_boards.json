@@ -1,0 +1,29 @@
+{
+  "boards": [
+    {
+      "id": "BRNO_ALL_EBOARD",
+      "url": "https://edeska.brno.cz/eDeska/eDeskaAktualni.jsp",
+      "max_pages": 1
+    },
+    {
+      "id": "BRNO_STRED_EBOARD",
+      "url": "https://edeska.brno.cz/eDeska01/eDeskaAktualni.jsp",
+      "max_pages": 1
+    },
+    {
+      "id": "BRNO_EDESKA16",
+      "url": "https://edeska.brno.cz/eDeska16/eDeskaAktualni.jsp",
+      "max_pages": 1
+    },
+    {
+      "id": "BRNO_EDESKA17",
+      "url": "https://edeska.brno.cz/eDeska17/eDeskaAktualni.jsp",
+      "max_pages": 1
+    },
+    {
+      "id": "BRNO_EDESKA13",
+      "url": "https://edeska.brno.cz/eDeska13/eDeskaAktualni.jsp",
+      "max_pages": 1
+    }
+  ]
+}
