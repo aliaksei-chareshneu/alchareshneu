@@ -25,6 +25,7 @@ function safeSourceFile(file, fixture=false) {
     !file.includes('..') && !BLOCKED_PATH.test(file) &&
     !/(?:^|\/)\./.test(file) &&
     file !== 'scripts/imperion-dev-cloud-issue.cjs' &&
+    file !== 'scripts/imperion-dev-autonomous.cjs' &&
     file !== 'ops/imperion-dev-cloud-fixture/check.cjs';
 }
 function safeTestFile(file, fixture=false) {

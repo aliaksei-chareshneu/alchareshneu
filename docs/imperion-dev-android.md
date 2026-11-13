@@ -58,3 +58,23 @@ The existing PC-bound issue [#195](https://github.com/aliaksei-chareshneu/alchar
 Only commands in open public Issues created by the owner and posted by that same owner are accepted. No customer data, credentials, NGO/OSVČ mixing, production publication, automatic acceptance or merge. The CPU Qwen route can edit at most two selected JS/Markdown sources or one selected Python source, with an **existing** trusted test; authoring NEW independent tests and unrestricted project programming remain **BLOCKED**. Cost: 0 Kč additional external model API subscriptions were enabled in the confirmed tests; GitHub Actions runtime quota is finite, not an unlimited guarantee.
 
 **Proof statuses:** REQUESTED != ACCEPTED != TEST_PASS != PR_CREATED != CI_SUCCESS != MERGED != LIVE. Keep the case in the existing Issue #245 and do not duplicate the development agent or CRM.
+
+
+## Stage 11 — autonomous bounded coding from a goal (review-gated)
+
+Once the reviewed Stage 11 workflow is activated on `main`, the owner can start a complete cloud coding attempt **without naming individual source files**. Use one new comment on an **open PUBLIC issue created by that same owner**:
+
+```text
+/imperion-dev autonomous
+scope: ops/imperion-dev-cloud-fixture
+test: tests/imperion-dev-cloud-multi-fixture.test.cjs
+goal: Clarify the public pricing helper comment while preserving existing outputs.
+```
+
+The four-line command must be literal with exactly these labels and their own lines; replace `scope`, `test` and `goal` with an approved real public task. Do not repeatedly send the synthetic QA command above after acceptance. It consumes finite GitHub runner minutes, not a guaranteed free unlimited API.
+
+Qwen3:4b-instruct reads a **single specified public directory**, and from 1–8 already-tracked related JS/CJS candidates **explicitly referenced by the specified existing independent `.test.cjs`** selects up to two source files. It proposes their bounded anchored modifications, plus **model-suggested JSON-only test cases**. A trusted controller builds one new `tests/generated/imperion-dev-auto-ISSUE-COMMENT.test.cjs` advisory test, with no model-supplied executable test code. The pre-existing independent test and advisory test must both pass, in isolated no-network non-root read-only Docker, before a bot-created **Draft PR** can appear. You must review the PR before any merge. The new test is *not* independent evidence: its expected outputs came from the same model.
+
+**Fail-closed rules:** no trusted test, private or sensitive path, source not explicitly referenced by that test, >2 selected sources, Python/source language mixing, malformed JSON, model guessing wrong expected values, changed SHA, test failure, lost GitHub permission or duplicate review branch → BLOCKED, no merge or deploy. Stage 9 explicit-file command continues to support its existing bounded single-file Python route; Stage 11 self-selection is JS/CJS only.
+
+**Evidence boundary:** code and tests in a PR are not proof of LIVE. The feature becomes verified only after a real owner-authored Issue comment triggers GitHub Actions and GitHub confirms its own Draft PR with the expected changes and test logs. No automatic merges, deployments, paid APIs, secrets or changes to customer/NGO data. Native Android app-origin issuance and paid Copilot availability remain independently UNVERIFIED.
