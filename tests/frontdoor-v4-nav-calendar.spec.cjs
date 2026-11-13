@@ -34,10 +34,10 @@ for(const width of [320,390,1440]){
   await expect(page.locator('#fdHeroSub')).toContainText('BrnoWalkers');
   await expect(page.locator('#fdAcademyLabel')).toHaveText('Выбрать курс Академии');
   await expect(page.locator('#fdHeroCta')).toHaveAttribute('href','#impr-calendar');
-  await expect(page.locator('#fdAcademyCta')).toHaveAttribute('href','academy/courses/?lang=ru');
+  await expect(page.locator('#fdAcademyCta')).toHaveAttribute('href','academy/?lang=ru');
   await expect(page.locator('#fdAcademyCta')).not.toHaveAttribute('target','_blank');
   await expect(page.locator('#fdAcademyNote')).toContainText('программы');
-  await expect(page.locator('#fdNavAcademy')).toHaveAttribute('href','academy/courses/?lang=ru');
+  await expect(page.locator('#fdNavAcademy')).toHaveAttribute('href','academy/?lang=ru');
   await expect(page.locator('#fdNavClub')).toHaveAttribute('href','druzina/?lang=ru');
   await expect(page.locator('#fdNavWalkers')).toHaveAttribute('href','walkers/?lang=ru');
   await expect(page.locator('#fdNavAbout')).toHaveAttribute('href','about/?lang=ru');
@@ -69,11 +69,11 @@ for(const [lang,calendar,academy] of [
   await page.goto('/?lang='+lang);
   await expect(page.locator('#fdHeroLabel')).toHaveText(calendar);
   await expect(page.locator('#fdAcademyLabel')).toHaveText(academy);
-  await expect(page.locator('#fdNavAcademy')).toHaveAttribute('href','academy/courses/?lang='+(lang==='uk'?'cs':lang));
-  await expect(page.locator('#fdAcademyCta')).toHaveAttribute('href','academy/courses/?lang='+(lang==='uk'?'cs':lang));
+  await expect(page.locator('#fdNavAcademy')).toHaveAttribute('href','academy/?lang='+(lang==='uk'?'cs':lang));
+  await expect(page.locator('#fdAcademyCta')).toHaveAttribute('href','academy/?lang='+(lang==='uk'?'cs':lang));
   await expect(page.locator('#fdNavEvents')).toHaveAttribute('href','#impr-calendar');
   await page.locator('[data-fd-language="en"]').click();
-  await expect(page.locator('#fdAcademyCta')).toHaveAttribute('href','academy/courses/?lang=en');
+  await expect(page.locator('#fdAcademyCta')).toHaveAttribute('href','academy/?lang=en');
   await expect(page.locator('#fdNavAbout')).toHaveAttribute('href','about/?lang=en');
  });
 }
@@ -122,7 +122,7 @@ test('Academy hero CTA opens course directory in the same tab instead of WhatsAp
  await page.goto('/?lang=cs');
  await expect(page.locator('#fdAcademyLabel')).toHaveText('Vybrat kurz v Akademii');
  await page.locator('#fdAcademyCta').click();
- await expect(page).toHaveURL(/\/academy\/courses\/\?lang=cs$/);
+ await expect(page).toHaveURL(/\/academy\/\?lang=cs$/);
  await expect(page.locator('.hero h1 [data-locale="cs"]')).toBeVisible();
  await expect(page.locator('.hero h1')).toContainText('Naučte se něco, co opravdu využijete.');
  expect(mutations()).toBe(0);
