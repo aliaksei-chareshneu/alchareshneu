@@ -62,12 +62,14 @@ def extract_property_strings(text: str) -> list[str]:
         row=re.sub(r"\s+"," ",row).strip()
         if len(row)>220:
             continue
-        if not re.search(r"\b[A-Za-zÁ-ž][A-Za-zÁ-ž' -]{3,45}\s+\d{1,4}(?:/\d{1,4})?\b",row):
+        match=re.search(r"\b[A-Za-zÁ-ž][A-Za-zÁ-ž' -]{3,45}\s+\d{1,4}(?:/\d{1,4})?\b",row)
+        if not match:
             continue
         if re.search(r"(?:telefon|e-mail|identifikačn|číslo jednací|č\.\s*j\.)",row,re.I):
             continue
-        if row not in lines:
-            lines.append(row[:190])
+        address_hint=match.group(0).strip()[:90]
+        if address_hint not in lines:
+            lines.append(address_hint)
         if len(lines)>=40:
             break
     return lines
