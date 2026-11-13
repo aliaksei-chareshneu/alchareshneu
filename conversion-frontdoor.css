@@ -830,3 +830,10 @@ html[data-imperion-frontdoor="ready"] body { background:#071b20 !important; }
 @media(prefers-reduced-motion:reduce){
   #imperion-frontdoor .fd-all-event {transition:none;}
 }
+
+/* All first-level pages share one sticky header rhythm and palette. */
+#imperion-frontdoor .fd-header{position:sticky;top:0;z-index:180;min-height:83px;height:auto;background:linear-gradient(110deg,#0c2327f7,#091c21f7 68%,#101c20f7);border-bottom:1px solid #cfa96b67;box-shadow:0 4px 26px #010d1380;backdrop-filter:blur(14px)}
+#imperion-frontdoor .fd-header-inner{width:min(1320px,calc(100% - 48px))}
+#imperion-frontdoor .fd-hero{min-height:calc(100svh - 83px);height:auto}
+#imperion-frontdoor .fd-nav a:focus-visible,#imperion-frontdoor .fd-languages button:focus-visible{outline:3px solid #f5d58d;outline-offset:3px}
+@media(max-width:630px){#imperion-frontdoor .fd-header{min-height:99px}#imperion-frontdoor .fd-header-inner{width:calc(100% - 25px)}}
