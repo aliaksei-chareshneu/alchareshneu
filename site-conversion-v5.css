@@ -1,0 +1,41 @@
+/* IMPERION conversion v5 · no-overlay trust badge, next event and responsive layout. */
+#imperion-frontdoor .imp-review-strip{display:flex;align-items:center;justify-content:flex-end;min-height:68px;padding:9px max(20px,calc((100vw - 1320px)/2)) 9px 18px;background:#071b20;border-bottom:1px solid #b89c5b55;box-sizing:border-box}
+#imperion-frontdoor .imp-review-strip #imp-google-review-badge{
+ position:static !important;right:auto !important;left:auto !important;top:auto !important;bottom:auto!important;
+ z-index:auto;flex-direction:row;align-items:center;gap:11px;max-width:none;min-width:0;width:auto;margin:0!important;
+ padding:8px 15px;background:#193438;border:1px solid #caa76f;color:#fff1d8!important;border-radius:12px;
+ box-shadow:none;backdrop-filter:none;line-height:1.2;min-height:48px;
+}
+#imperion-frontdoor .imp-review-strip #imp-google-review-badge .imp-review-stars{font-size:25px;line-height:1}
+#imperion-frontdoor .imp-review-strip #imp-google-review-badge strong{color:#fff1d8;font:780 16px/1.2 system-ui,sans-serif}
+#imperion-frontdoor .imp-review-strip #imp-google-review-badge small{color:#d7e7df;font-size:11px}
+#imperion-frontdoor .imp-review-strip #imp-google-review-badge:hover{background:#23484b}
+#imperion-frontdoor .fd-nearest-event{
+ display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:20px;
+ padding:17px clamp(18px,2.9vw,29px);margin:0 0 20px;background:linear-gradient(110deg,#1e4141,#112b33);
+ border:1px solid #ba9562;border-radius:16px;box-shadow:0 11px 24px #010e164a;color:#f7efe1;
+}
+#imperion-frontdoor .fd-nearest-copy{display:flex;flex-direction:column;gap:5px;min-width:0}
+#imperion-frontdoor #fdNearestEyebrow{color:#f5cf89;font:820 11px/1.35 system-ui,sans-serif;letter-spacing:.14em}
+#imperion-frontdoor #fdNearestTitle{font:650 clamp(19px,2.1vw,26px)/1.25 Georgia,serif;color:#fff0d4;overflow-wrap:anywhere}
+#imperion-frontdoor #fdNearestWhen{font:600 13px/1.4 system-ui,sans-serif;color:#d9e6d9}
+#imperion-frontdoor .fd-nearest-actions{display:flex;gap:11px;flex-wrap:wrap}
+#imperion-frontdoor .fd-nearest-actions a,#imperion-frontdoor .fd-nearest-actions button{
+ display:inline-flex;align-items:center;justify-content:center;min-height:47px;padding:11px 17px;
+ background:#f5d08c;color:#0d2429!important;border:1px solid #ffe4ab;border-radius:11px;
+ font:820 15px/1.2 system-ui,sans-serif;text-decoration:none;white-space:normal;cursor:pointer
+}
+#imperion-frontdoor .fd-nearest-actions button{background:#12323a;color:#ffe4b0!important}
+#imperion-frontdoor .fd-nearest-actions a:hover{background:#ffe2a8}
+#imperion-frontdoor .fd-nearest-actions a[aria-disabled=true]{background:#294446;color:#e9dec4!important;pointer-events:none;cursor:not-allowed}
+#imperion-frontdoor .fd-nearest-actions [hidden]{display:none!important}
+#imperion-frontdoor .fd-all-section{scroll-margin-top:20px}
+#imperion-frontdoor .fd-hero h1{word-spacing:.09em}
+@media(max-width:760px){
+ #imperion-frontdoor .imp-review-strip{justify-content:center;padding:9px 16px}
+ #imperion-frontdoor .imp-review-strip #imp-google-review-badge{max-width:100%;width:100%;justify-content:center;flex-wrap:wrap;text-align:center}
+ #imperion-frontdoor .fd-nearest-event{grid-template-columns:minmax(0,1fr);gap:13px;padding:17px}
+ #imperion-frontdoor .fd-nearest-actions{width:100%}
+ #imperion-frontdoor .fd-nearest-actions>*{flex:1}
+}
+@media(prefers-reduced-motion:reduce){#imperion-frontdoor .imp-review-strip *,#imperion-frontdoor .fd-nearest-event *{transition:none!important}}
