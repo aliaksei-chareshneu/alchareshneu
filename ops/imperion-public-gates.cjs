@@ -9,8 +9,15 @@ const REQUIRED = Object.freeze([
   'corporate/index.html',
   'corporate/request/index.html',
   'academy/index.html',
+  'academy/courses/index.html',
   'druzina/index.html',
   'walkers/index.html',
+  'start/index.html',
+  'druzina/prihlaska/index.html',
+  'register/index.html',
+  'register/en/index.html',
+  'register/ru/index.html',
+  'register/uk/index.html',
 ]);
 
 function linkWithId(html, id) {
@@ -38,24 +45,37 @@ function runAudit(pages) {
   const home = pages['index.html'] || '';
   const corporate = pages['corporate/index.html'] || '';
   const academy = pages['academy/index.html'] || '';
+  const academyCourses = pages['academy/courses/index.html'] || '';
   const druzina = pages['druzina/index.html'] || '';
   const walkers = pages['walkers/index.html'] || '';
 
-  // The home hero may point to the service explanation OR straight to the
-  // guarded OSVC quote form, but never to an invented checkout.
-  const heroCorporateRoute=linkWithId(home,'heroCta').replace(/&amp;/g,'&');
-  const b2bQuote=pages['corporate/request/index.html']||'';
-  const b2bGuarded=/<form[^>]*id="request"/.test(b2bQuote)
-    && /id="privacyAck"[^>]*type="checkbox" required/.test(b2bQuote)
-    && /imperion-b2b-intake/.test(b2bQuote)
-    && /RECEIVED_UNCONFIRMED/.test(b2bQuote)
-    && /bookingConfirmed:false|Nezávazná|non-binding/i.test(b2bQuote);
-  verify('root:corporate-route',
-    heroCorporateRoute==='corporate/technical-answers/?lang=en'
-    || (heroCorporateRoute==='corporate/request/?lang=en&service=DATA_PILOT&src=home_hero'&&b2bGuarded),
-    'Corporate hero CTA must open an existing documented service or guarded non-binding quote form');
-  verify('root:audience-route', linkWithId(home, 'heroCorporateCta') === 'start/',
-    'Personal/community hero CTA must open the relevant choices');
+  // Intent-first public homepage: the main Academy CTA points to the
+  // verified tutoring enquiry; companies retain a separate portfolio link.
+  // Each service-specific route must exist and remain nonbinding (no
+  // checkout, invented availability, or paid training confirmation).
+  const verifiedAcademyForm='https://docs.google.com/forms/d/e/1FAIpQLSfa3qOWpQBfoA877ip9eOTWwFweOrNTib2mq8_C1D9xr55dtQ/viewform';
+  const academyHeroRoute=linkWithId(home,'heroCta').replace(/&amp;/g,'&');
+  verify('root:academy-route', academyHeroRoute===verifiedAcademyForm
+    && /id="goal-paths"/.test(home),
+    'Primary lesson CTA must reach the approved Academy enquiry, not an unverified checkout');
+  verify('root:druzina-route', linkWithId(home,'intentDruzinaCta')==='register/?lang=en'
+    && /id="safety" type="checkbox" required/.test(pages['register/index.html'] || '')
+    && /id="paymentProof"/.test(pages['register/index.html'] || ''),
+    'First-training CTA must use the existing guarded nonbinding Družina intake');
+  verify('root:walkers-route', linkWithId(home,'intentWalkersCta')==='register/en/'
+    && (pages['register/en/index.html'] || '').includes('imperion-register')
+    && (pages['register/index.html'] || '').includes('imperion-register'),
+    'Event CTA must use the existing RSVP route, never a direct checkout');
+  verify('root:corporate-route', linkWithId(home,'intentBusinessCta')==='corporate/'
+    && /mailto:/i.test(corporate)
+    && (pages['corporate/request/index.html'] || '').includes('RECEIVED_UNCONFIRMED'),
+    'Business portfolio CTA must reach the existing owner-owned inquiry, not an invented sale');
+  verify('root:audience-route', linkWithId(home,'heroCorporateCta')==='start/?lang=en'
+    && (pages['start/index.html'] || '').length>0,
+    'Further activities CTA must open the existing language-aware service picker');
+  verify('root:review-link', /<a[^>]*class="intent-google"[^>]*href="https:\/\/maps\.app\.goo\.gl\/fEbnJHxiVoAx1v498"/.test(home)
+    && !/<span[^>]*data-intent="reviews"[^>]*>\s*(?:50\+|5\.0)/.test(home),
+    'Customer proof must link to real public reviews without unverified counts');
   const clubCard = home.match(/<a\b[^>]*class=["'][^"']*\bventure-card\b[^"']*["'][^>]*href=["']druzina\/["'][^>]*>([\s\S]*?)<\/a>/i)?.[1] || '';
   verify('root:club-card', /(?:plan|confirm|date|term|dotaz)/i.test(clubCard)
     && !/3\s*[×x]\s*(?:a week|týdně|в неделю|на тиждень)/i.test(clubCard)
@@ -97,21 +117,31 @@ function runAudit(pages) {
     'A direct corporate inquiry path must remain available');
   let academyUrl='';
   try { academyUrl=decodeURIComponent(linkWithId(academy,'navBookBtn')); } catch { /* fail closed */ }
-  // Verified 05 Nov 2026: the owner's common enquiry Google Form explicitly
-  // includes individual teaching; do not misclassify it as an unrelated form.
-  // Preserve an Academy-specific WhatsApp fallback while rejecting unknown forms.
-  const verifiedAcademyForm='https://docs.google.com/forms/d/e/1FAIpQLSfa3qOWpQBfoA877ip9eOTWwFweOrNTib2mq8_C1D9xr55dtQ/viewform';
-  const academyWhatsapp=academyUrl.startsWith('https://wa.me/') && /Academy/i.test(academyUrl);
+  // Approved 13 Nov conversion path: course catalogue first, only then a written
+  // enquiry. Do not weaken the gate to accept an arbitrary local path.
+  // A course-specific contact AND the previously verified form must survive.
+  const academyWhatsapp=/^https:\/\/wa\.me\/420702914842\?text=.*Academy/i.test(academyUrl);
+  const catalogueFirst=
+    academyUrl==='courses/?lang=cs' &&
+    /data-i18n="academy.ctaRegister"[^>]*href="courses\/\?lang=cs"/.test(academy) &&
+    /<article class="course"/.test(academyCourses) &&
+    /id="PY01"/.test(academyCourses) &&
+    academyCourses.includes('https://wa.me/420702914842?text=') &&
+    academyCourses.includes(verifiedAcademyForm);
   verify('academy:relevant-contact',
-    academyUrl===verifiedAcademyForm || academyWhatsapp,
-    'Academy enquiry must reach the verified shared education form or Academy-specific WhatsApp');
-  const dmForm = fs.readFileSync(path.join(__dirname,'../druzina/prihlaska/index.html'),'utf8');
+    academyUrl===verifiedAcademyForm || academyWhatsapp || catalogueFirst,
+    'Academy must reach its approved direct enquiry OR the verified course catalogue with working course-specific contact and approved fallback form');
+  const dmForm = fs.readFileSync(path.join(__dirname,'../register/index.html'),'utf8');
+  const dmLegacy = fs.readFileSync(path.join(__dirname,'../druzina/prihlaska/index.html'),'utf8');
+  const dmApi = fs.readFileSync(path.join(__dirname,'../supabase/functions/imperion-register/index.ts'),'utf8');
   verify('druzina:enquiry-only',
-    /^prihlaska\/\?lang=(en|cs|ru|uk)$/.test(linkWithId(druzina,'navBookBtn')) &&
-    dmForm.includes("intent:'DRUZINA_ENQUIRY'") &&
+    /^\.\.\/register\/\?lang=(en|cs|ru|uk)$/.test(linkWithId(druzina,'navBookBtn')) &&
     dmForm.includes('id="safety" type="checkbox" required') &&
-    dmForm.includes('id="adult" type="checkbox" required') &&
-    dmForm.includes('out.confirmed!==false') &&
+    dmForm.includes('id="paymentResumeToken"') &&
+    dmForm.includes('id="paymentProof"') &&
+    dmApi.includes("return reply({ok:true,status:'RECEIVED',confirmed:false") &&
+    dmLegacy.includes('window.location.replace(target.href)') &&
+    !dmLegacy.includes('<form ') &&
     druzina.includes('New HEMA training applications are open; paid attendance is confirmed individually.') &&
     druzina.includes('Přihlášky na plánované tréninky HEMA jsou otevřené; placenou účast potvrzujeme jednotlivě.') &&
     druzina.includes('Заявки на тренировки HEMA открыты; платное участие подтверждается индивидуально.') &&

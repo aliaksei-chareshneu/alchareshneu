@@ -1,5 +1,7 @@
 <!doctype html>
-<html lang="en"><head>
+<html lang="cs"><head>
+<link rel="stylesheet" href="../imperion-bootstrap.css?v=20261113b">
+<script src="../imperion-bootstrap.js?v=20261113b"></script>
 <meta name="theme-color" content="#0b1729">
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="index,follow">
@@ -32,7 +34,12 @@ footer{border-top:1px solid var(--edge);padding:18px 0 35px;font-size:.85rem;col
 </style>
 <link rel="stylesheet" href="../brand-theme.css?v=20261025">
 <link rel="stylesheet" href="../site-design.css?v=20261027">
-</head><body data-imperion-scope="dark"><div class="wrap"><header class="top">
+<!-- IMPERION design checkpoint: visual styles only -->
+<link rel="stylesheet" href="../imperion-cinematic-site.css?v=20261112-ux1">
+<link rel="stylesheet" href="../unified-shell.css?v=20261113b">
+<link rel="stylesheet" href="../imperion-finish.css?v=20261113b">
+<script src="../unified-shell.js?v=20261113b" defer></script>
+</head><body data-imperion-scope="dark" data-imperion-design="praha-hema"><div class="wrap"><header class="top">
 <a class="logo" href="../druzina/">⚔ DRUŽINA MORAVY</a>
 <div class="lang" aria-label="Select language"><button data-lang="cs">CZ</button> <button data-lang="en">EN</button> <button data-lang="uk">UA</button> <button data-lang="ru">RU</button></div>
 </header>
@@ -142,7 +149,7 @@ const tr={
  ]
 };
 const ids=['kicker','headline','lead','status','wa','tg','privacy','proof','subhead','h3a','t3a','h3b','t3b','h3c','t3c','how','steps','wa2','footer'];
-const params=new URLSearchParams(location.search);const given=params.get('lang');const native=(navigator.language||'en').split('-')[0].toLowerCase();const lang=tr[given]?given:(tr[native]?native:'en');const s=tr[lang];ids.forEach((id,i)=>{const e=document.getElementById(id);if(e)e.textContent=s[i]});document.documentElement.lang=lang;
+const params=new URLSearchParams(location.search);const given=params.get('lang');const lang=tr[given]?given:'cs';const s=tr[lang];ids.forEach((id,i)=>{const e=document.getElementById(id);if(e)e.textContent=s[i]});document.documentElement.lang=lang;
 document.querySelectorAll('[data-lang]').forEach(b=>{b.setAttribute('aria-pressed',String(b.dataset.lang===lang));b.addEventListener('click',()=>{params.set('lang',b.dataset.lang);location.search=params.toString()})});
 const src=(params.get('src')||'organic').replace(/[^a-zA-Z0-9_-]/g,'').slice(0,40)||'organic';
 const msg='PRAHA 13 DEC | language='+lang.toUpperCase()+' | source='+src+' | interested in tentative Sun 13 Dec 2026, 12:00–15:00, Riegrovy sady, 600 CZK; please send confirmed booking details, venue/weather contingency and payment terms before deposit. Number of people: ';

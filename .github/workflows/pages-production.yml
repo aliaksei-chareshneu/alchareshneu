@@ -60,7 +60,7 @@ jobs:
               cp -a "$dir" "_pages/$dir"
             fi
           done
-          for file in index.html 404.html robots.txt sitemap.xml styles.css brand-theme.css site-design.css site-design.js experience.css experience.js quest-theme.css quest-audio.js site.webmanifest apple-touch-icon.png favicon.ico favicon-16.png favicon-32.png favicon-48.png icon-192.png icon-512.png revolut-payment-qr.png; do
+          for file in index.html 404.html robots.txt sitemap.xml styles.css brand-theme.css site-design.css intent-home.css conversion-frontdoor.css imperion-cinematic-site.css conversion-frontdoor.js unified-shell.js unified-shell.css imperion-bootstrap.js imperion-bootstrap.css imperion-finish.css site-design.js experience.css experience.js quest-theme.css quest-audio.js site.webmanifest apple-touch-icon.png favicon.ico favicon-16.png favicon-32.png favicon-48.png icon-192.png icon-512.png revolut-payment-qr.png; do
             if [ -f "$file" ]; then
               cp "$file" "_pages/$file"
             fi
@@ -72,6 +72,28 @@ jobs:
           fi
           touch _pages/.nojekyll
           test -s _pages/index.html
+          test -s _pages/intent-home.css
+          test -s _pages/conversion-frontdoor.css
+          test -s _pages/imperion-cinematic-site.css
+          grep -Fq 'data-imperion-design' _pages/academy/index.html
+          grep -Fq 'data-imperion-design' _pages/walkers/index.html
+          grep -Fq 'data-imperion-design' _pages/druzina/index.html
+          grep -Fq 'data-imperion-design' _pages/register/index.html
+          test -s _pages/conversion-frontdoor.js
+          test -s _pages/unified-shell.js
+          test -s _pages/unified-shell.css
+          test -s _pages/imperion-bootstrap.js
+          test -s _pages/imperion-bootstrap.css
+          test -s _pages/imperion-finish.css
+          grep -Fq 'imperion-bootstrap.js?v=20261113b' _pages/index.html
+          grep -Fq 'imperion-finish.css?v=20261113b' _pages/academy/a2/index.html
+          test -s _pages/academy/academy-goals.js
+          test -s _pages/academy/academy-goals.css
+          test -s _pages/images/frontdoor-fighter-shadows.svg
+          test -s _pages/images/imperion-hero-cinematic-20261112.webp
+          grep -Fq 'conversion-frontdoor.js?v=20261113' _pages/index.html
+          grep -Fq 'id="goal-paths"' _pages/index.html
+          grep -Fq 'id="intentDruzinaCta" href="register/?lang=en"' _pages/index.html
           test -s _pages/sitemap.xml
           test -s _pages/shop/index.html
           test -s _pages/shop/thanks/index.html
@@ -166,3 +188,177 @@ jobs:
           readback "shop/shop.js" "checkout_active"
           echo "All 8 storefront assets independently verified over public HTTPS; no payment sent." >> "$GITHUB_STEP_SUMMARY"
 
+
+
+      - name: Independently verify customer-first homepage and stylesheet over public HTTPS
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://aliaksei-chareshneu.github.io/alchareshneu"
+          page="$(mktemp)"
+          style="$(mktemp)"
+          trap 'rm -f "$page" "$style"' EXIT
+          ok=0
+          for attempt in 1 2 3 4 5 6 7 8; do
+            if curl -fsSL --max-time 25 "$base/" -o "$page" \
+              && curl -fsSL --max-time 25 "$base/intent-home.css?v=20261109" -o "$style" \
+              && grep -Fq 'id="goal-paths"' "$page" \
+              && grep -Fq 'id="intentDruzinaCta" href="register/?lang=en"' "$page" \
+              && grep -Fq 'class="intent-card intent-academy"' "$page" \
+              && grep -Fq '#main.intent-home .intent-grid' "$style"; then
+              ok=1
+              break
+            fi
+            sleep 4
+          done
+          if [ "$ok" != 1 ]; then
+            echo 'Public homepage or intent CSS failed exact HTTPS readback' >&2
+            exit 1
+          fi
+          echo 'VERIFIED LIVE: consumer homepage, 3 intent cards and responsive CSS are readable over public HTTPS.' >> "$GITHUB_STEP_SUMMARY"
+
+
+      - name: Verify live conversion-first homepage assets on GitHub Pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://aliaksei-chareshneu.github.io/alchareshneu"
+          page="$(mktemp)"; style="$(mktemp)"; logic="$(mktemp)"
+          trap 'rm -f "$page" "$style" "$logic"' EXIT
+          ok=0
+          for attempt in 1 2 3 4 5 6 7 8; do
+            if curl -fsSL --max-time 20 "$base/?v=$GITHUB_SHA" -o "$page" \
+              && curl -fsSL --max-time 20 "$base/conversion-frontdoor.css?v=$GITHUB_SHA" -o "$style" \
+              && curl -fsSL --max-time 20 "$base/conversion-frontdoor.js?v=$GITHUB_SHA" -o "$logic" \
+              && grep -Fq 'conversion-frontdoor.js?v=20261113' "$page" \
+              && grep -Fq 'imperion-frontdoor' "$style" \
+              && grep -Fq "imperion-register" "$logic"; then
+              ok=1; break
+            fi
+            sleep 4
+          done
+          if [ "$ok" != 1 ]; then
+            echo "Conversion front door unavailable over live HTTPS" >&2
+            exit 1
+          fi
+          echo "VERIFIED LIVE: conversion-first homepage CSS, JS and registration catalog reference" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Verify sitewide cinematic design loaded across public pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://aliaksei-chareshneu.github.io/alchareshneu"
+          theme="$(mktemp)"; page="$(mktemp)"
+          trap 'rm -f "$theme" "$page"' EXIT
+          curl -fsSL --max-time 25 "$base/imperion-cinematic-site.css?v=$GITHUB_SHA" -o "$theme"
+          grep -Fq 'IMPERION shared visual checkpoint' "$theme"
+          for route in academy/ druzina/ walkers/ calendar/ register/ events/november-2026.html druzina/start/ academy/courses/; do
+            curl -fsSL --max-time 25 "$base/$route?design_readback=$GITHUB_SHA" -o "$page"
+            grep -Fq 'imperion-cinematic-site.css?v=20261112-ux1' "$page"
+            grep -Fq 'data-imperion-design=' "$page"
+          done
+          echo "VERIFIED LIVE: shared cinematic CSS + theme markers on 8 public routes" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Verify live shared navigation and all four Academy languages
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://aliaksei-chareshneu.github.io/alchareshneu"
+          nav="$(mktemp)"; style="$(mktemp)"; goal="$(mktemp)"; courses="$(mktemp)"
+          trap 'rm -f "$nav" "$style" "$goal" "$courses"' EXIT
+          ok=0
+          for attempt in 1 2 3 4 5 6 7 8; do
+            if curl -fsSL --max-time 25 "$base/unified-shell.js?verify=$GITHUB_SHA" -o "$nav" &&
+               curl -fsSL --max-time 25 "$base/unified-shell.css?verify=$GITHUB_SHA" -o "$style" &&
+               curl -fsSL --max-time 25 "$base/academy/academy-goals.js?verify=$GITHUB_SHA" -o "$goal" &&
+               curl -fsSL --max-time 25 "$base/academy/courses/?lang=uk&verify=$GITHUB_SHA" -o "$courses" &&
+               grep -Fq "links.academy.href=urlFor('academy/',code)" "$nav" &&
+               grep -Fq '#imp-shell-top' "$style" &&
+               grep -Fq 'Яку проблему ми можемо допомогти вам вирішити?' "$goal" &&
+               grep -Fq 'data-locale="uk"' "$courses"; then
+              ok=1; break
+            fi
+            sleep 4
+          done
+          if [ "$ok" != 1 ]; then
+            echo "Shared nav or four-language Academy unavailable over public HTTPS" >&2
+            exit 1
+          fi
+          echo 'VERIFIED LIVE: shared navigation CSS/JS and full Ukrainian Academy catalogue served over public HTTPS' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Independently verify no-flash boot and finished theme across public HTTPS pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://aliaksei-chareshneu.github.io/alchareshneu"
+          boot="$(mktemp)"; finish="$(mktemp)"; home="$(mktemp)"; a2="$(mktemp)"; course="$(mktemp)"
+          trap 'rm -f "$boot" "$finish" "$home" "$a2" "$course"' EXIT
+          ok=0
+          for attempt in 1 2 3 4 5 6 7 8; do
+            if curl -fsSL --max-time 25 "$base/imperion-bootstrap.js?v=$GITHUB_SHA" -o "$boot" &&
+               curl -fsSL --max-time 25 "$base/imperion-finish.css?v=$GITHUB_SHA" -o "$finish" &&
+               curl -fsSL --max-time 25 "$base/?ux=$GITHUB_SHA" -o "$home" &&
+               curl -fsSL --max-time 25 "$base/academy/a2/?ux=$GITHUB_SHA" -o "$a2" &&
+               curl -fsSL --max-time 25 "$base/academy/courses/?ux=$GITHUB_SHA" -o "$course" &&
+               grep -Fq "data-imp-boot" "$boot" &&
+               grep -Fq 'position:relative !important' "$finish" &&
+               grep -Fq 'body[data-imperion-design="academy-a2"] .choice' "$finish" &&
+               grep -Fq 'imperion-bootstrap.js?v=20261113b' "$home" &&
+               grep -Fq 'imperion-finish.css?v=20261113b' "$a2" &&
+               grep -Fq 'imperion-finish.css?v=20261113b' "$course"; then
+              ok=1; break
+            fi
+            sleep 4
+          done
+          if [ "$ok" != 1 ]; then
+            echo "No-flash bootstrap or consistent theme missing on live pages" >&2
+            exit 1
+          fi
+          echo 'VERIFIED LIVE: first paint guard, common static header, A2 dark quiz theme, and Academy catalogue assets are served' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Verify current Academy and Start tariffs over independent public HTTPS
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://aliaksei-chareshneu.github.io/alchareshneu"
+          academy="$(mktemp)"
+          courses="$(mktemp)"
+          a2="$(mktemp)"
+          a2script="$(mktemp)"
+          start="$(mktemp)"
+          home="$(mktemp)"
+          trap 'rm -f "$academy" "$courses" "$a2" "$a2script" "$start" "$home"' EXIT
+          checked=0
+          for attempt in 1 2 3 4 5 6 7 8; do
+            checked=0
+            url_suffix="?price_readback=${GITHUB_SHA}-$attempt"
+            if curl -fsSL --max-time 25 "$base/academy/$url_suffix" -o "$academy" &&
+               curl -fsSL --max-time 25 "$base/academy/courses/$url_suffix" -o "$courses" &&
+               curl -fsSL --max-time 25 "$base/academy/a2/$url_suffix" -o "$a2" &&
+               curl -fsSL --max-time 25 "$base/academy/a2/quiz.js$url_suffix" -o "$a2script" &&
+               curl -fsSL --max-time 25 "$base/start/$url_suffix" -o "$start" &&
+               curl -fsSL --max-time 25 "$base/$url_suffix" -o "$home"; then
+              if grep -Fq 'Standard individual tutoring online (60 min)' "$academy" &&
+                 grep -Fq 'Price quoted in writing before booking' "$academy" &&
+                 grep -Fq 'Written quote' "$courses" &&
+                 grep -Fq 'Specializovaná 60min lekce se oceňuje individuálně' "$a2" &&
+                 grep -Fq '"terms":' "$a2script" &&
+                 grep -Fq 'Standard individual online tutoring is 690 Kč / 60 min' "$start" &&
+                 grep -Fq 'Starter 4' "$home" &&
+                 grep -Fq 'qualifications' "$home" &&
+                 ! grep -Fq 'first tutoring lesson is listed at 300 Kč' "$start" &&
+                 ! grep -Fq '300%20CZK' "$start" &&
+                 ! grep -Fq '455 Kč' "$home" &&
+                 ! grep -Fq '1 000 Kč' "$a2script" &&
+                 ! grep -Fq 'Specialist individual online session (60 min, scope agreed beforehand)' "$academy"; then
+                checked=1
+                break
+              fi
+            fi
+            sleep 4
+          done
+          if [ "$checked" != 1 ]; then
+            echo "Public Academy/Start qualification price HTTP readback failed for SHA $GITHUB_SHA" >&2
+            exit 1
+          fi
+          echo 'VERIFIED LIVE: Academy, Courses, A2 page+script, Start and homepage exact changed price text and no retired 300/455/1000 specialist claims over public HTTPS.' >> "$GITHUB_STEP_SUMMARY"

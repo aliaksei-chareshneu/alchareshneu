@@ -20,7 +20,7 @@ function impPrivateConfig_(){
 }
 function impPrivateFetch_(config,payload){
   var opt={method:payload?'post':'get',
-    headers:{Authorization:'Bearer '+config.key},
+    headers:{Authorization:'Bearer '+config.key,'x-imperion-intake-protocol':'payment-v2'},
     contentType:'application/json',muteHttpExceptions:true,timeoutSeconds:25};
   if(payload)opt.payload=JSON.stringify(payload);
   var resp=UrlFetchApp.fetch(IMP_INTAKE_URL,opt),data={};
@@ -103,10 +103,63 @@ function impAppendOrelSource_(ss,r){
   'NOT_REQUESTED','',r.event_id||'','Automatic source data, no seat approval'];
  sh.getRange(n+1,1,1,14).setValues([row]);
 }
+/** Add payment audit metadata to the SAME Registrations tab; no duplicate CRM.
+ * Never copy bank PDF files, original filenames, storage paths or hashes to Sheets.
+ */
+function impEnsureRsvpPaymentCols_(sh){
+ var h=impHeader_(sh);
+ var required=['Requested_Tier','Quoted_Tier','Personal_Approval_At','Quoted_Base_CZK','Late_Fee_CZK',
+  'Quoted_Total_CZK','Quoted_Group_Size','Late_48h','Payment_Evidence_Status','Payment_Proof_Received_At'];
+ var missing=required.filter(function(k){return h.map[k]===undefined;});
+ if(missing.length){
+  var last=sh.getLastColumn();
+  var space=sh.getMaxColumns()-last;
+  if(space<missing.length)sh.insertColumnsAfter(sh.getMaxColumns(),missing.length-space);
+  missing.forEach(function(key,i){sh.getRange(1,last+i+1).setValue(key);});
+ }
+ return impHeader_(sh);
+}
+/** Update only payment evidence on an already imported RSVP; never add duplicate.
+ * Do not overwrite earlier consents, identities or manually verified bank status.
+ */
+function impUpdateExistingRsvpProof_(sh,h,r){
+ if(r.payment_evidence_status!=='PROOF_RECEIVED')return;
+ var keys={
+  Requested_Tier:r.training_requested_tier||'',
+  Quoted_Tier:r.quoted_tier||'',
+  Personal_Approval_At:impDate_(r.training_authorized_at),
+  Quoted_Base_CZK:r.quoted_base_czk||'',
+  Late_Fee_CZK:r.quoted_late_fee_czk===0?0:(r.quoted_late_fee_czk||''),
+  Quoted_Total_CZK:r.quoted_total_czk||'',
+  Quoted_Group_Size:r.quoted_confirmed_count||'',
+  Late_48h:r.quoted_late_48h===true?'YES':'NO',
+  Payment_Evidence_Status:'PROOF_RECEIVED',
+  Payment_Proof_Received_At:impDate_(r.payment_evidence_received_at),
+ };
+ var col=h.map.Submission_ID+1,last=sh.getLastRow(),id=String(r.id||'');
+ if(last<2)return;
+ var entries=sh.getRange(2,col,last-1,1).getDisplayValues();
+ for(var i=0;i<entries.length;i++){
+  if(String(entries[i][0]||'').trim()!==id)continue;
+  var row=i+2;
+  Object.keys(keys).forEach(function(key){
+   if(h.map[key]===undefined)throw Error('Missing payment CRM column: '+key);
+   sh.getRange(row,h.map[key]+1).setValue(impText_(keys[key]));
+   if(keys[key] instanceof Date)sh.getRange(row,h.map[key]+1).setNumberFormat('dd.mm.yyyy hh:mm');
+  });
+  if(sh.getRange(row,h.map.Payment_Evidence_Status+1).getDisplayValue()!=='PROOF_RECEIVED')
+   throw Error('Payment proof CRM readback failed');
+  return;
+ }
+ throw Error('Existing RSVP row missing for proof sync');
+}
 function impWriteRsvps_(ss,items,events){
   var sh=ss.getSheetByName('Registrations');if(!sh)throw Error('Missing Registrations');
   var h=(items||[]).some(function(r){return r&&Object.prototype.hasOwnProperty.call(r,'discovery_source');})?
    impEnsureRsvpAttribution_(sh):impHeader_(sh);
+  if((items||[]).some(function(r){return r && (r.payment_evidence_status==='PROOF_RECEIVED' ||
+    /^PUB-HEMA-/.test(String(r.event_id||'')));}))
+   h=impEnsureRsvpPaymentCols_(sh);
   if(h.map.Submission_ID===undefined)throw Error('Missing Submission_ID');
   var existing=impExisting_(sh,h.map.Submission_ID+1),ids=[],added=0;
   items.forEach(function(r){
@@ -140,10 +193,22 @@ function impWriteRsvps_(ss,items,events){
         Data_Controller:r.data_controller||'',Registration_Locale:r.language||'',
         Discovery_Source:r.discovery_source||'',UTM_Source:r.utm_source||'',
         UTM_Medium:r.utm_medium||'',UTM_Campaign:r.utm_campaign||'',
+        Requested_Tier:r.training_requested_tier||'',
+        Quoted_Tier:r.quoted_tier||'',
+        Personal_Approval_At:impDate_(r.training_authorized_at),
+        Quoted_Base_CZK:r.quoted_base_czk||'',
+        Late_Fee_CZK:r.quoted_late_fee_czk===0?0:(r.quoted_late_fee_czk||''),
+        Quoted_Total_CZK:r.quoted_total_czk||'',
+        Quoted_Group_Size:r.quoted_confirmed_count||'',
+        Late_48h:r.quoted_late_48h===true?'YES':'NO',
+        Payment_Evidence_Status:r.payment_evidence_status||'NOT_REQUIRED',
+        Payment_Proof_Received_At:impDate_(r.payment_evidence_received_at),
         Receipt_Status:'PENDING',Receipt_Attempts:0,Receipt_Locale:r.language||'cs'
       });
       existing[id]=true;added++;
       try{impAppendOrelSource_(ss,r);}catch(e){console.error('Orel source mirror unavailable');}
+    }else if(r.payment_evidence_status==='PROOF_RECEIVED'){
+      impUpdateExistingRsvpProof_(sh,h,r);
     }
     ids.push(id);
   });
@@ -416,7 +481,11 @@ function impReceiptMessage_(kind,row,m,events){
    }
   }
   if(e&&e.venue)parts.push(w[5]+': '+String(e.venue).slice(0,200));
-  if(e&&e.price_verified===true&&Number.isInteger(e.price_czk))parts.push(w[6]+': '+e.price_czk+' Kč');
+  var paidQuote=Number(v('Quoted_Total_CZK'));
+  if(v('Payment_Evidence_Status')==='PROOF_RECEIVED'&&paidQuote>0)
+    parts.push(w[6]+': '+paidQuote+' Kč (PDF received for review; bank not verified)');
+  else if(e&&e.price_verified===true&&Number.isInteger(e.price_czk)&&
+       !e.trainingPayment)parts.push(w[6]+': '+e.price_czk+' Kč');
   var rulesUrl=e&&String(e.rules_url||'')||'';
   if(!/^https:\/\/aliaksei-chareshneu\.github\.io\/alchareshneu\//.test(rulesUrl))
    rulesUrl='https://aliaksei-chareshneu.github.io/alchareshneu/register/safety/';

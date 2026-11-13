@@ -10,12 +10,12 @@ for (const lang of ['en', 'cs', 'ru', 'uk']) {
       await expect(page.locator('html')).toHaveAttribute('lang', lang);
       await expect(page.locator('.locale:visible')).toHaveCount(1);
       await expect(page.locator('.locale:visible h1')).toHaveCount(1);
-      await expect(page.locator('.locale:visible .card')).toHaveCount(4);
-      await expect(page.locator('.locale:visible .primary')).toHaveCount(4);
+      await expect(page.locator('.locale:visible .card')).toHaveCount(5);
+      await expect(page.locator('.locale:visible .card .primary')).toHaveCount(5);
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);
-      for (const link of await page.locator('.locale:visible .primary').all()) {
+      for (const link of await page.locator('.locale:visible .card .primary').all()) {
         const href = await link.getAttribute('href');
-        expect(href).toMatch(/^(?:mailto:|https:\/\/(?:wa\.me|t\.me)\/|\.\.\/corporate\/request\/\?)/);
+        expect(href).toMatch(/^(?:mailto:|https:\/\/(?:wa\.me|t\.me)\/|\.\.\/corporate\/request\/\?|\.\.\/shop\/|\.\.\/register\/\?|\.\.\/\?lang=(?:en|cs|ru|uk)#impr-calendar)/);
         expect(href).not.toMatch(/^https:\/\/(?:revolut\.me|checkout\.)/i);
       }
       expect(errors).toEqual([]);
@@ -29,33 +29,31 @@ test('client start language chooser and accessible controls', async ({ page }) =
   await page.locator('[data-lang="ru"]').click();
   await expect(page.locator('html')).toHaveAttribute('lang', 'ru');
   await expect(page.locator('[data-lang="ru"]')).toHaveAttribute('aria-current', 'page');
-  await expect(page.locator('.locale:visible .card')).toHaveCount(4);
+  await expect(page.locator('.locale:visible .card')).toHaveCount(5);
   await expect(page.locator('.locale:visible footer a')).toHaveAttribute('href', '../');
 });
 
-test('home hero and sticky customer path keep active language', async ({ page }) => {
+test('visible homepage paths preserve language and open course catalogue', async ({ page }) => {
   const errors = [];
   page.on('pageerror', e => errors.push(e.message));
   await page.setViewportSize({ width: 390, height: 850 });
-  await page.route('https://script.google.com/**', route => {
-    const cb = new URL(route.request().url()).searchParams.get('callback');
-    return route.fulfill({ contentType: 'application/javascript', body: `${cb}({"events":[]})` });
-  });
+  await page.route('https://cmrknyhnnehyjpreehcf.supabase.co/functions/v1/imperion-register', r=>
+    r.fulfill({status:200,contentType:'application/json',headers:{'Access-Control-Allow-Origin':'*'},body:'{"events":[]}'}));
   await page.goto('/?lang=ru');
-  await expect(page.locator('#heroCorporateCta')).toHaveAttribute('href', 'start/?lang=ru');
-  await expect(page.locator('#navBookBtn')).toHaveAttribute('href', 'start/?lang=ru');
-  await expect(page.locator('#mobileCta .mobile-cta-btn')).toHaveAttribute('href', 'start/?lang=ru');
-  await page.locator('#heroCorporateCta').click();
-  await expect(page).toHaveURL(/\/start\/\?lang=ru$/);
-  await expect(page.locator('.locale:visible')).toHaveAttribute('lang', 'ru');
+  await expect(page.locator('html')).toHaveAttribute('data-imperion-frontdoor','ready');
+  await expect(page.locator('#fdHeroCta')).toHaveAttribute('href','#impr-calendar');
+  await expect(page.locator('#fdNavClub')).toHaveAttribute('href','druzina/?lang=ru');
+  await expect(page.locator('#fdAcademyCta')).toHaveAttribute('href','academy/?lang=ru');
+  await page.locator('#fdAcademyCta').click();
+  await expect(page).toHaveURL(/\/academy\/\?lang=ru$/);
+  await expect(page.locator('html')).toHaveAttribute('lang','ru');
   expect(errors).toEqual([]);
 });
-
 
 test('a direct free HEMA workshop route exists in all four languages', async ({ page }) => {
   for (const lang of ['en', 'cs', 'ru', 'uk']) {
     await page.goto('/start/?lang=' + lang);
-    const eventLink = page.locator('.locale:visible .card').nth(3).locator('a.secondary[href^="../druzina/start/"]');
+    const eventLink = page.locator('.locale:visible .card').nth(4).locator('a.secondary[href^="../druzina/start/"]');
     await expect(eventLink).toHaveCount(1);
     const href = new URL(await eventLink.getAttribute('href'), page.url());
     expect(href.pathname).toMatch(/\/druzina\/start\/$/);
@@ -77,7 +75,7 @@ test('source labels survive language switch and follow-up routes without a track
 
   await page.locator('.langs a[data-lang="cs"]').click();
   await expect(page.locator('html')).toHaveAttribute('lang', 'cs');
-  const czechEvent = new URL(await page.locator('.locale:visible .card').nth(3).locator('a.secondary[href^="../druzina/start/"]').getAttribute('href'), page.url());
+  const czechEvent = new URL(await page.locator('.locale:visible .card').nth(4).locator('a.secondary[href^="../druzina/start/"]').getAttribute('href'), page.url());
   expect(czechEvent.searchParams.get('utm_source')).toBe('instagram');
   expect(czechEvent.searchParams.get('src')).toBe('start_nov14');
 });

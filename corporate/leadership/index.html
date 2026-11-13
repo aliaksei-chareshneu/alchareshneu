@@ -1,6 +1,8 @@
 <!doctype html>
 <html lang="cs">
 <head>
+<link rel="stylesheet" href="../../imperion-bootstrap.css?v=20261113b">
+<script src="../../imperion-bootstrap.js?v=20261113b"></script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="referrer" content="strict-origin-when-cross-origin">
@@ -44,8 +46,13 @@ body.site-leadership{margin:0;background:var(--ls-paper);color:var(--ls-ink);fon
 @media(max-width:720px){.ls-header .ls-wrap{align-items:flex-start;padding-block:18px;gap:13px}.ls-header nav a{display:none}.ls-wrap{width:calc(100% - 32px)}.ls-hero{padding:44px 0 36px}.ls-hero-grid,.ls-grid,.ls-bio,.ls-contact-grid{grid-template-columns:1fr;gap:24px}.ls-hero h1{font-size:clamp(2.35rem,9.5vw,3.5rem)}.ls-result{padding:23px}.ls-section{padding:44px 0}.ls-card{padding:25px}.ls-package .ls-format{min-height:0}.ls-package .ls-price{font-size:2rem;margin:17px 0}.ls-contact form{padding:22px}.ls-fields{grid-template-columns:1fr;gap:18px}.ls-actions .ls-button{flex:1 1 auto}.ls-footer .ls-wrap{display:block}.ls-footer p+p{margin-top:12px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 </style>
+<!-- IMPERION design checkpoint: visual styles only -->
+<link rel="stylesheet" href="../../imperion-cinematic-site.css?v=20261112-ux1">
+<link rel="stylesheet" href="../../unified-shell.css?v=20261113b">
+<link rel="stylesheet" href="../../imperion-finish.css?v=20261113b">
+<script src="../../unified-shell.js?v=20261113b" defer></script>
 </head>
-<body class="site-leadership" data-imperion-scope="shared">
+<body class="site-leadership" data-imperion-scope="shared" data-imperion-design="corporate-sub">
 <a class="ls-skip" href="#main" data-t="skip">Přejít k obsahu</a>
 <header class="ls-header"><div class="ls-wrap"><a class="ls-brand" href="../../">Aliaksei (Alex) Chareshneu, Ph.D.<span data-t="brand">Leadership · Komunikace · Motivace</span></a><nav aria-label="Jazyk / Language"><a href="../" data-t="allServices">Firemní služby</a><button type="button" data-lang="cs" aria-pressed="true">CZ</button><button type="button" data-lang="en" aria-pressed="false">EN</button></nav></div></header>
 <main id="main">
@@ -130,7 +137,7 @@ copy.addEventListener('click',async function(){
 document.querySelectorAll('[data-lang]').forEach(el=>el.addEventListener('click',()=>setLang(el.dataset.lang)));
 document.querySelectorAll('[data-format]').forEach(el=>el.addEventListener('click',()=>{document.getElementById('format').value=el.dataset.format;}));
 const requested=new URLSearchParams(location.search).get('lang');
-setLang(texts[requested]?requested:((navigator.language||'cs').toLowerCase().startsWith('en')?'en':'cs'));
+setLang(texts[requested]?requested:'cs');
 form.hidden=false;
 })();
 </script>

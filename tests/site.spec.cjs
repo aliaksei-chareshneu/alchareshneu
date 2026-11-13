@@ -2,10 +2,24 @@ const {test,expect}=require('@playwright/test');
 const pages=['','academy/','druzina/','walkers/','calendar/'];
 const languages=['en','ru','cs','uk'];
 const widths=[360,390,430,768,1440];
-async function mockEvents(page, events=[]) {
- await page.route('https://script.google.com/**',route=>{const cb=new URL(route.request().url()).searchParams.get('callback');return route.fulfill({contentType:'application/javascript',body:`${cb}(${JSON.stringify({events})})`});});
- await page.route('https://calendar.google.com/**',r=>r.fulfill({contentType:'text/html',body:'Calendar embed test fixture'}));
+const CATALOG='https://cmrknyhnnehyjpreehcf.supabase.co/functions/v1/imperion-register';
+async function mockEvents(page,events=[]){
+ // Maintain the older layout fixtures, but expose ONLY the live public catalogue contract.
+ const publicEvents=events.map((e,i)=>e&&typeof e==='object'&&typeof e.title==='string'
+  ? {...e,event_id:e.event_id||('PUB-QA-CALENDAR-'+String(i).padStart(4,'0')),
+     begins_at:e.begins_at||e.startISO,venue:e.venue||e.locationName||'Brno',
+     public_note:e.public_note||e.description||'',price_czk:e.price_czk===undefined?e.priceCzk:e.price_czk,
+     price_verified:e.price_verified===undefined?(typeof e.priceCzk==='number'):e.price_verified,
+     end_time_verified:e.end_time_verified!==false,is_open:e.is_open!==false,
+     registration_mode:e.registration_mode||'FORM'}
+  : e);
+ await page.route(CATALOG,r=>r.fulfill({status:200,contentType:'application/json',
+  headers:{'Access-Control-Allow-Origin':'*'},body:JSON.stringify({events:publicEvents})}));
+ // Some other historical pages may still request the old Apps Script; it is NOT used for event cards.
+ await page.route('https://script.google.com/**',r=>r.fulfill({contentType:'application/javascript',body:'/* legacy read-only */'}));
+ await page.route('https://calendar.google.com/**',r=>r.fulfill({contentType:'text/html',body:'Calendar subscription fixture'}));
 }
+
 for(const path of pages)for(const language of languages)for(const width of widths) {
  test(`${path||'home'} ${language} ${width}`,async({page})=>{
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
@@ -34,8 +48,8 @@ for(const path of pages)for(const language of languages)for(const width of width
    await expect(page.locator('#registration-notice [data-notice-lang="'+language+'"]')).toBeVisible();
    await expect(page.locator('#tariff')).toBeHidden();
    await expect(page.locator('#druzina-payment')).toBeHidden();
-   await expect(page.locator('#navBookBtn')).toHaveAttribute('href', `prihlaska/?lang=${language}`);
-   await expect(page.locator('.dm-hero-register')).toHaveAttribute('href', `prihlaska/?lang=${language}`);
+   await expect(page.locator('#navBookBtn')).toHaveAttribute('href', `../register/?lang=${language}`);
+   await expect(page.locator('.dm-hero-register')).toHaveAttribute('href', `../register/?lang=${language}`);
    const message=await page.locator('#registration-notice [data-notice-lang="'+language+'"]').innerText();
    expect(message.length).toBeGreaterThan(80);
    await page.locator('#visit-details > summary').click();
@@ -73,21 +87,23 @@ test('language persistence, catalog anchors, keyboard and back navigation',async
 });
 test('event content is escaped, malformed entries ignored and failures actionable',async({page})=>{
  const valid={title:'<img src=x onerror=alert(1)>',description:'<script>bad()</script>',startISO:'2099-10-01T16:00:00Z',priceCzk:'<img>',registerUrl:'javascript:alert(1)',locationName:'Brno',category:'Hike',community:'Brnowalkers'};
- await mockEvents(page,[null,{},valid]);await page.goto('/calendar/?lang=en');await expect(page.locator('.eu-title')).toHaveText(valid.title);await expect(page.locator('.eu-title img')).toHaveCount(0);await expect(page.locator('.eu-ctas a').first()).toHaveAttribute('href',await page.locator('#navBookBtn').getAttribute('href'));await expect(page.locator('.eu-date')).toContainText('18:00');
- await page.unroute('https://script.google.com/**');await page.route('https://script.google.com/**',r=>r.abort());await page.reload();await expect(page.locator('#calEventsBody')).toHaveAttribute('data-event-status','error');await expect(page.locator('.events-empty-message')).toContainText('temporarily unavailable');await expect(page.locator('.events-empty-message a')).toHaveCount(3);
+ await mockEvents(page,[null,{},valid]);await page.goto('/calendar/?lang=en');await expect(page.locator('.eu-title')).toHaveText(valid.title);await expect(page.locator('.eu-title img')).toHaveCount(0);await expect(page.locator('.eu-ctas a').first()).toHaveAttribute('href','../walkers/');await expect(page.locator('.eu-date')).toContainText('18:00');
+ await page.unroute(CATALOG);await page.route(CATALOG,r=>r.abort());await page.reload();await expect(page.locator('#calEventsBody')).toHaveAttribute('data-event-status','error');await expect(page.locator('.events-empty-message')).toContainText('temporarily unavailable');await expect(page.locator('.events-empty-message a')).toHaveCount(3);
 });
 test('empty and cold-start timeout keep calendar and announcements available',async({page})=>{
  await mockEvents(page);await page.goto('/calendar/?lang=cs');await expect(page.locator('#calEventsBody')).toHaveAttribute('data-event-status','ready');await expect(page.locator('.events-empty-message')).toContainText('Naplánuj');
- await page.unroute('https://script.google.com/**');await page.route('https://script.google.com/**',()=>{});await page.reload({waitUntil:'commit'});await expect(page.locator('#calEventsBody')).toHaveAttribute('data-event-status','error',{timeout:16000});await expect(page.locator('.calendar-cta-btn')).toBeVisible();
+ await page.unroute(CATALOG);await page.route(CATALOG,()=>{});await page.reload({waitUntil:'commit'});await expect(page.locator('#calEventsBody')).toHaveAttribute('data-event-status','error',{timeout:16000});await expect(page.locator('.calendar-cta-btn')).toBeVisible();
 });
 
 test('portrait event photos stay bounded at the mobile breakpoint', async ({page})=>{
- const events=['portrait','landscape'].map(shape=>({title:'Layout fixture',description:'Short fixture description.',startISO:'2099-10-01T16:00:00Z',priceCzk:100,registerUrl:'https://docs.google.com/forms/',locationName:'Brno',category:'Hike',community:'Brnowalkers',imageOverride:'calendar-test-'+shape+'.svg'}));
+ const events=['portrait','landscape'].map((shape,i)=>({title:'Layout fixture '+i,
+  description:'Short fixture description.',startISO:'2099-10-01T16:00:00Z',
+  priceCzk:100,locationName:'Brno',category:shape==='portrait'?'Cave Tour':'City Walk',community:'Brnowalkers'}));
  await mockEvents(page,events);
- await page.route('**/images/calendar-test-*.svg',route=>{
-  const portrait=route.request().url().includes('portrait');
-  return route.fulfill({contentType:'image/svg+xml',body:`<svg xmlns="http://www.w3.org/2000/svg" width="${portrait?600:4000}" height="${portrait?3000:1200}"><rect width="100%" height="100%" fill="#456"/></svg>`});
- });
+ for(const [name,portrait] of [['portrait_cave.webp',true],['walkers_group.webp',false]]){
+  await page.route('**/images/'+name,route=>route.fulfill({contentType:'image/svg+xml',
+   body:'<svg xmlns="http://www.w3.org/2000/svg" width="'+(portrait?600:4000)+'" height="'+(portrait?3000:1200)+'"><rect width="100%" height="100%" fill="#456"/></svg>'}));
+ }
  for(const width of [360,560,561,768,1440]){
   await page.setViewportSize({width,height:900});
   await page.goto('/calendar/?lang=en');

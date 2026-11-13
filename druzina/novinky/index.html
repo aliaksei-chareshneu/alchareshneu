@@ -1,6 +1,8 @@
 <!doctype html>
 <html lang="cs">
 <head>
+<link rel="stylesheet" href="../../imperion-bootstrap.css?v=20261113b">
+<script src="../../imperion-bootstrap.js?v=20261113b"></script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="referrer" content="strict-origin-when-cross-origin">
@@ -76,8 +78,13 @@ button{font:inherit}.sr-only{position:absolute!important;width:1px!important;hei
 </style>
 <link rel="stylesheet" href="../../brand-theme.css?v=20261026b">
 <link rel="stylesheet" href="../../site-design.css?v=20261027">
+<!-- IMPERION design checkpoint: visual styles only -->
+<link rel="stylesheet" href="../../imperion-cinematic-site.css?v=20261112-ux1">
+<link rel="stylesheet" href="../../unified-shell.css?v=20261113b">
+<link rel="stylesheet" href="../../imperion-finish.css?v=20261113b">
+<script src="../../unified-shell.js?v=20261113b" defer></script>
 </head>
-<body data-imperion-scope="novinky">
+<body data-imperion-scope="novinky" data-imperion-design="druzina">
 <a class="skip-link" href="#main">Skip to content / Перейти к содержанию</a>
 <header class="site-header"><div class="container header-row"><a class="brand" href="../">Družina Moravy<small>HEMA · LARP · BRNO</small></a><nav class="language" aria-label="Select language / Выберите язык"><button type="button" data-lang="cs" aria-pressed="true" aria-label="Čeština">CZ</button><button type="button" data-lang="en" aria-pressed="false" aria-label="English">EN</button><button type="button" data-lang="ru" aria-pressed="false" aria-label="Русский">RU</button><button type="button" data-lang="uk" aria-pressed="false" aria-label="Українська">UA</button></nav></div></header>
 <main class="container page-main" id="main"><article class="locale" data-locale="cs" lang="cs"><p class="fine-print" role="note" style="margin:14px 0;padding:13px 16px;border-left:4px solid #f5ce94;background:#1d3041;color:#f3f6f8"><strong>AKTUALIZACE 9. 11. 2026: skupinový vzorec ze 7. listopadu je zrušen. Pro nové účastníky platí první návštěva 240 Kč, Starter 4 za 800 Kč, pro ověřený Senior tarif 120 Kč. Dřívější individuální závazky zůstávají zachovány.</strong> <a href="#cs-pricing">Ceny a nezávazný dotaz →</a></p>
@@ -204,8 +211,7 @@ function select(code,writeUrl){
 }
 buttons.forEach(function(btn){btn.addEventListener("click",function(){select(btn.dataset.lang,true);});});
 var requested=new URLSearchParams(location.search).get("lang");
-var browser=(navigator.language||"cs").slice(0,2).toLowerCase();
-select(supported.indexOf(requested)>=0?requested:(supported.indexOf(browser)>=0?browser:"cs"),false);
+select(supported.indexOf(requested)>=0?requested:"cs",false);
 })();
 </script>
 </body></html>

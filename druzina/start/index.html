@@ -1,6 +1,8 @@
 <!doctype html>
-<html lang="en">
+<html lang="cs">
 <head>
+<link rel="stylesheet" href="../../imperion-bootstrap.css?v=20261113b">
+<script src="../../imperion-bootstrap.js?v=20261113b"></script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="referrer" content="strict-origin-when-cross-origin">
@@ -46,14 +48,19 @@ h1{font:800 clamp(2.5rem,5.8vw,5.5rem)/1.04 Georgia,serif;letter-spacing:-.035em
 </style>
 <link rel="stylesheet" href="../../brand-theme.css?v=20261025">
 <link rel="stylesheet" href="../../site-design.css?v=20261027">
+<!-- IMPERION design checkpoint: visual styles only -->
+<link rel="stylesheet" href="../../imperion-cinematic-site.css?v=20261112-ux1">
+<link rel="stylesheet" href="../../unified-shell.css?v=20261113b">
+<link rel="stylesheet" href="../../imperion-finish.css?v=20261113b">
+<script src="../../unified-shell.js?v=20261113b" defer></script>
 </head>
-<body data-imperion-scope="dark">
+<body data-imperion-scope="dark" data-imperion-design="druzina-start">
 <a class="skip" href="#main" data-k="skip">Skip to content</a>
 <header><div class="wrap top">
 <a class="brand" href="../">Družina Moravy <span>Brno · Historical fencing · LARP</span></a>
 <div class="langs" role="group" aria-label="Language / Jazyk / Язык">
-<button type="button" data-lang="cs" aria-pressed="false">CZ</button>
-<button type="button" data-lang="en" aria-pressed="true">EN</button>
+<button type="button" data-lang="cs" aria-pressed="true">CZ</button>
+<button type="button" data-lang="en" aria-pressed="false">EN</button>
 <button type="button" data-lang="ru" aria-pressed="false">RU</button>
 <button type="button" data-lang="uk" aria-pressed="false">UA</button>
 </div></div></header>
@@ -115,7 +122,7 @@ const u=new URL(window.location.href);u.searchParams.set('lang',c);history.repla
 document.title=t.title+' | Družina Moravy';
 }
 for(const btn of document.querySelectorAll('button[data-lang]'))btn.addEventListener('click',()=>render(btn.dataset.lang));
-const params=new URLSearchParams(window.location.search);const explicit=params.get('lang');const auto=(navigator.language||'en').slice(0,2).toLowerCase();render(dict[explicit]?explicit:dict[auto]?auto:'en');
+const params=new URLSearchParams(window.location.search);const explicit=params.get('lang');render(dict[explicit]?explicit:'cs');
 })();
 </script>
 </body></html>

@@ -1,10 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="cs">
 <head>
+<link rel="stylesheet" href="../imperion-bootstrap.css?v=20261113b">
+<script src="../imperion-bootstrap.js?v=20261113b"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://script.google.com https://script.googleusercontent.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https:; media-src 'self'; frame-src https://www.youtube.com https://calendar.google.com; object-src 'none'; base-uri 'self'; form-action 'self' https://docs.google.com; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://cmrknyhnnehyjpreehcf.supabase.co; script-src 'self' 'unsafe-inline' https://script.google.com https://script.googleusercontent.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https:; media-src 'self'; frame-src https://www.youtube.com https://calendar.google.com; object-src 'none'; base-uri 'self'; form-action 'self' https://docs.google.com; upgrade-insecure-requests">
 <title>Calendar — Upcoming Hikes, Training &amp; Events in Brno | Aliaksei Chareshneu</title>
 <meta name="description" content="Every upcoming BrnoWalkers hike and Družina Moravy training session in one place — subscribe to the calendar or register directly for the next open event in Brno.">
 <link rel="canonical" href="https://aliaksei-chareshneu.github.io/alchareshneu/calendar/">
@@ -51,17 +53,22 @@
 <link rel="stylesheet" href="../brand-theme.css?v=20261025">
 <link rel="stylesheet" href="../site-design.css?v=20261027">
 <script src="../site-design.js?v=20261027" defer></script>
+<!-- IMPERION design checkpoint: visual styles only -->
+<link rel="stylesheet" href="../imperion-cinematic-site.css?v=20261112-ux1">
+<link rel="stylesheet" href="../unified-shell.css?v=20261113b">
+<link rel="stylesheet" href="../imperion-finish.css?v=20261113b">
+<script src="../unified-shell.js?v=20261113b" defer></script>
 </head>
-<body data-imperion-scope="shared">
+<body data-imperion-scope="shared" data-imperion-design="calendar">
 <a class="skip-link" href="#page-content" data-exp="skip">Skip to content</a>
 <nav class="nav">
   <div class="wrap">
     <div class="brand"><a href="../" style="color:var(--ink);text-decoration:none;">Aliaksei Chareshneu, PhD</a><small data-i18n="nav.brand">Calendar</small></div>
     <div class="nav-actions">
       <div class="langs" id="langSwitch" role="group" aria-label="Language">
+        <button data-lang="cs">CZ</button>
         <button data-lang="ru">RU</button>
         <button data-lang="uk">UA</button>
-        <button data-lang="cs">CZ</button>
         <button data-lang="en">EN</button>
       </div>
       <a id="navBookBtn" class="btn solid plausible-event-name=Register-Walkers" data-i18n="nav.bookBtn" href="../register/" target="_blank" rel="noopener">Register / Book</a>
@@ -99,11 +106,17 @@
 html[lang="en"] #dm-calendar-training-update-20261106 [data-cal-lang="en"],html[lang="cs"] #dm-calendar-training-update-20261106 [data-cal-lang="cs"],html[lang="ru"] #dm-calendar-training-update-20261106 [data-cal-lang="ru"],html[lang="uk"] #dm-calendar-training-update-20261106 [data-cal-lang="uk"]{display:block}
 </style>
 <aside id="dm-calendar-training-update-20261106" role="status" aria-label="Družina Moravy training status">
-<div lang="en" data-cal-lang="en"><strong>Družina Moravy · Saturday training SUSPENDED</strong><p>Regular Saturday HEMA training is suspended from 7 November 2026 until further notice. Do not travel to the usual Saturday venue. Monday 9 November, 18:00–20:00, is tentative and requires personal confirmation. The separate free HEMA workshop on 14 November at Orlovna Husovice is not cancelled. Club-cancelled prepaid sessions remain valid. <a href="../druzina/#dm-training-update-20261106">Club update</a>.</p></div>
-<div lang="cs" data-cal-lang="cs"><strong>Družina Moravy · Sobotní tréninky POZASTAVENY</strong><p>Pravidelné sobotní tréninky jsou od 7. listopadu 2026 až do odvolání pozastaveny. Na místo sobotního tréninku nejezděte. Pondělí 9. listopadu, 18:00–20:00, zůstává pouze předběžné a vyžaduje osobní potvrzení. Samostatná bezplatná HEMA dílna 14. listopadu v Orlovně Husovice se neruší. Klubem zrušené předplacené lekce zůstávají platné. <a href="../druzina/#dm-training-update-20261106">Aktualizace klubu</a>.</p></div>
-<div lang="ru" data-cal-lang="ru"><strong>Družina Moravy · Субботние тренировки ПРИОСТАНОВЛЕНЫ</strong><p>С 7 ноября 2026 года регулярные субботние тренировки приостановлены до отдельного объявления. По субботам на обычную площадку не приезжайте. Понедельник 9 ноября, 18:00–20:00, остаётся условным, необходимо личное подтверждение. Отдельный бесплатный мастер-класс HEMA 14 ноября в Orlovna Husovice не отменён. Оплаченные занятия, отменённые клубом, сохраняются. <a href="../druzina/#dm-training-update-20261106">Объявление клуба</a>.</p></div>
-<div lang="uk" data-cal-lang="uk"><strong>Družina Moravy · Суботні тренування ПРИЗУПИНЕНО</strong><p>З 7 листопада 2026 року регулярні суботні тренування призупинено до окремого оголошення. Не приїжджайте на звичайний майданчик щосуботи. Понеділок 9 листопада, 18:00–20:00, залишається попереднім і потребує особистого підтвердження. Окремий безплатний майстер-клас HEMA 14 листопада в Orlovna Husovice не скасовано. Передплачені заняття, скасовані клубом, зберігаються. <a href="../druzina/#dm-training-update-20261106">Оголошення клубу</a>.</p></div>
+<div lang="en" data-cal-lang="en"><strong>Družina Moravy · Saturday training SUSPENDED</strong><p>Regular Saturday HEMA training is suspended from 7 November 2026 until further notice. Do not travel to the usual Saturday venue. Monday 16, 23 and 30 November HEMA classes have organiser GO; safe meeting place and attendance require personal confirmation. The separate free HEMA workshop on 14 November at Orlovna Husovice is not cancelled. Club-cancelled prepaid sessions remain valid. <a href="../druzina/#dm-training-update-20261106">Club update</a>.</p></div>
+<div lang="cs" data-cal-lang="cs"><strong>Družina Moravy · Sobotní tréninky POZASTAVENY</strong><p>Pravidelné sobotní tréninky jsou od 7. listopadu 2026 až do odvolání pozastaveny. Na místo sobotního tréninku nejezděte. Pondělní HEMA lekce 16., 23. a 30. listopadu mají GO pořadatele, ale přesný bezpečný sraz a účast vyžadují osobní potvrzení. Samostatná bezplatná HEMA dílna 14. listopadu v Orlovně Husovice se neruší. Klubem zrušené předplacené lekce zůstávají platné. <a href="../druzina/#dm-training-update-20261106">Aktualizace klubu</a>.</p></div>
+<div lang="ru" data-cal-lang="ru"><strong>Družina Moravy · Субботние тренировки ПРИОСТАНОВЛЕНЫ</strong><p>С 7 ноября 2026 года регулярные субботние тренировки приостановлены до отдельного объявления. По субботам на обычную площадку не приезжайте. HEMA 16, 23 и 30 ноября организатор подтвердил, но точку сбора, безопасность и участие нужно уточнить лично. Отдельный бесплатный мастер-класс HEMA 14 ноября в Orlovna Husovice не отменён. Оплаченные занятия, отменённые клубом, сохраняются. <a href="../druzina/#dm-training-update-20261106">Объявление клуба</a>.</p></div>
+<div lang="uk" data-cal-lang="uk"><strong>Družina Moravy · Суботні тренування ПРИЗУПИНЕНО</strong><p>З 7 листопада 2026 року регулярні суботні тренування призупинено до окремого оголошення. Не приїжджайте на звичайний майданчик щосуботи. HEMA 16, 23 та 30 листопада погоджено організатором, але безпечне місце збору й участь потребують особистого підтвердження. Окремий безплатний майстер-клас HEMA 14 листопада в Orlovna Husovice не скасовано. Передплачені заняття, скасовані клубом, зберігаються. <a href="../druzina/#dm-training-update-20261106">Оголошення клубу</a>.</p></div>
 </aside>
+<section id="november-2026-verified-programme" style="max-width:1120px;margin:12px auto 20px;padding:18px 20px;background:#173936;color:#f1fff8;border:1px solid #94d7bf;border-radius:14px" aria-label="November 2026 owner approved public programme">
+<strong style="font-size:21px">📅 NOVEMBER 2026 · LISTOPAD · НОЯБРЬ · ЛИСТОПАД</strong>
+<p style="margin:8px 0 12px">✅ Free beginner HEMA 14 Nov · ⚔️ Paid Monday HEMA 16/23/30 Nov (240 Kč first lesson; eligible Senior 120 Kč; Starter 4 = 800 Kč) · 🟠 Conditional Brno After Dark 18 Nov (100 Kč, min. 12) · 🆓 FREE youth calisthenics 24 &amp; 26 Nov (organiser GO, exact safe meeting point by confirmation) · 🟠 25 Nov advanced HEMA and 27 Nov padded shields workshop: owner GO, safe indoor venue NOT SECURED · 🆓 28 Nov hike PLANNED · 🟠 29 Nov historic walk CONDITIONAL (450 Kč, min. 8 paid).</p>
+<p style="margin:0 0 12px">15 and 17 November are not open for registration or promotion. School HEMA 27 Nov is CLOSED to the public. Never pay or travel without a personal place/venue confirmation. Separate legal organisers and programme rules apply.</p>
+<a href="../events/november-2026.html" style="color:#0b2e24;background:#b4efda;padding:10px 15px;border-radius:8px;text-decoration:none;font-weight:800;display:inline-block">Full programme · EN / CZ / RU / UA</a>
+</section>
 
 <section class="reg-launch" id="new-website-registration" aria-label="Four language event registration">
 <p class="reg-eyebrow">PŘIHLÁŠKY PŘES WEB · EVENT REGISTRATION · РЕГИСТРАЦИЯ · РЕЄСТРАЦІЯ</p>
@@ -121,10 +134,10 @@ html[lang="en"] #dm-calendar-training-update-20261106 [data-cal-lang="en"],html[
     <div class="wrap">
       <p class="eyebrow" data-i18n="cal.eyebrow">Everything, One Place</p>
       <h1 data-i18n="cal.title2">Calendar — Upcoming Hikes, Training &amp; Events</h1>
-      <p class="tagline" data-i18n="cal.tagline">Every open BrnoWalkers hike and Družina Moravy training session, updated live. Subscribe once and never miss what's next.</p>
+      <p class="tagline" data-i18n="cal.tagline">Verified public event dates from the same catalogue as the homepage. Select an activity and request confirmation; a calendar subscription is not a booking.</p>
 
       <div class="hero-ctas">
-        <a class="btn solid plausible-event-name=Calendar-Subscribe" data-i18n="cal.ctaSubscribe" href="https://calendar.google.com/calendar/u/0/newembed?src=2b87a4e595671b05f82867969757d6c8500733a05a7ebcc77a3c6102b1644757@group.calendar.google.com&amp;ctz=Europe/Prague" target="_blank" rel="noopener">📅 Subscribe to the calendar</a>
+        <a class="btn solid plausible-event-name=Calendar-Verified-Events" data-i18n="cal.ctaEvents" href="../#impr-calendar">📅 Choose a verified event</a><a class="btn-quiet" href="https://calendar.google.com/calendar/u/0/newembed?src=2b87a4e595671b05f82867969757d6c8500733a05a7ebcc77a3c6102b1644757@group.calendar.google.com&amp;ctz=Europe/Prague" target="_blank" rel="noopener" aria-label="Optional Google Calendar reminders, not a verified booking">Google Calendar · reminders only ↗</a>
       </div>
       <div class="hero-ctas-secondary">
         <a class="btn-quiet" data-i18n="cal.linkWalkers" href="../walkers/">🥾 BrnoWalkers schedule →</a>
@@ -223,8 +236,8 @@ en: {
   nav: { brand: "Calendar", bookBtn: "Register / Book" },
   tabs: {main:'Home', walkers:'BrnoWalkers', academy:'Academy', druzina:'Družina Moravy', calendar:'Calendar', ambassador:'Become an Ambassador', contacts:'Contacts'},
   cal: {
-    eyebrow: "Everything, One Place", title2: "Calendar — Upcoming Hikes, Training &amp; Events", tagline: "Every open BrnoWalkers hike and Družina Moravy training session, updated live. Subscribe once and never miss what's next.",
-    ctaSubscribe: "📅 Subscribe to the calendar", linkWalkers: "🥾 BrnoWalkers schedule →", linkDruzina: "⚔️ Družina training days →",
+    eyebrow: "Everything, One Place", title2: "Calendar — Upcoming Hikes, Training &amp; Events", tagline: "Verified public event dates from the same catalogue as the homepage. Select an activity and request confirmation; a calendar subscription is not a booking.",
+    ctaEvents: "📅 Choose a verified event", linkWalkers: "🥾 BrnoWalkers schedule →", linkDruzina: "⚔️ Družina training days →",
     loading: "Loading upcoming events…"
   },
   footer: { title: "Want the full picture?", lead: "Tutoring, BrnoWalkers hikes, and Družina Moravy HEMA/LARP — the complete site lives at the main hub.", visitFull: "Visit the full site ➔" }
@@ -233,8 +246,8 @@ ru: {
   nav: { brand: "Календарь", bookBtn: "Записаться" },
   tabs: {main:'Home', walkers:'BrnoWalkers', academy:'Academy', druzina:'Družina Moravy', calendar:'Calendar', ambassador:'Become an Ambassador', contacts:'Contacts'},
   cal: {
-    eyebrow: "Всё в одном месте", title2: "Календарь — ближайшие походы, тренировки и события", tagline: "Все открытые походы BrnoWalkers и тренировки Дружины Моравии — обновляется вживую. Подпишись один раз и не пропускай ничего.",
-    ctaSubscribe: "📅 Подписаться на календарь", linkWalkers: "🥾 Расписание BrnoWalkers →", linkDruzina: "⚔️ Дни тренировок Дружины →",
+    eyebrow: "Всё в одном месте", title2: "Календарь — ближайшие походы, тренировки и события", tagline: "Подтверждённые публичные даты из того же каталога, что на главной. Выберите событие и запросите подтверждение; подписка не является записью.",
+    ctaEvents: "📅 Выбрать проверенное событие", linkWalkers: "🥾 Расписание BrnoWalkers →", linkDruzina: "⚔️ Дни тренировок Дружины →",
     loading: "Загружаем ближайшие события…"
   },
   footer: { title: "Хочешь увидеть всю картину?", lead: "Репетиторство, походы BrnoWalkers и Дружина Моравии (HEMA/LARP) — весь сайт целиком на главном хабе.", visitFull: "Перейти на весь сайт ➔" }
@@ -243,8 +256,8 @@ cs: {
   nav: { brand: "Kalendář", bookBtn: "Rezervovat" },
   tabs: {main:'Home', walkers:'BrnoWalkers', academy:'Academy', druzina:'Družina Moravy', calendar:'Calendar', ambassador:'Become an Ambassador', contacts:'Contacts'},
   cal: {
-    eyebrow: "Vše na jednom místě", title2: "Kalendář — nadcházející výlety, tréninky a akce", tagline: "Všechny otevřené výlety BrnoWalkers a tréninky Družiny Moravy — aktualizováno živě. Přihlas se k odběru jednou a nic ti neunikne.",
-    ctaSubscribe: "📅 Přihlásit se k odběru kalendáře", linkWalkers: "🥾 Rozvrh BrnoWalkers →", linkDruzina: "⚔️ Tréninkové dny Družiny →",
+    eyebrow: "Vše na jednom místě", title2: "Kalendář — nadcházející výlety, tréninky a akce", tagline: "Ověřené veřejné termíny ze stejného katalogu jako na úvodní stránce. Vyberte akci a požádejte o potvrzení; odběr kalendáře není rezervace.",
+    ctaEvents: "📅 Vybrat ověřenou akci", linkWalkers: "🥾 Rozvrh BrnoWalkers →", linkDruzina: "⚔️ Tréninkové dny Družiny →",
     loading: "Načítáme nejbližší akce…"
   },
   footer: { title: "Chceš vidět celý obrázek?", lead: "Doučování, výlety BrnoWalkers a Družina Moravy HEMA/LARP — celý web na hlavním hubu.", visitFull: "Přejít na celý web ➔" }
@@ -253,8 +266,8 @@ uk: {
   nav: { brand: "Календар", bookBtn: "Записатися" },
   tabs: {main:'Home', walkers:'BrnoWalkers', academy:'Academy', druzina:'Družina Moravy', calendar:'Calendar', ambassador:'Become an Ambassador', contacts:'Contacts'},
   cal: {
-    eyebrow: "Все в одному місці", title2: "Календар — найближчі походи, тренування та події", tagline: "Усі відкриті походи BrnoWalkers і тренування Дружини Моравії — оновлюється наживо. Підпишись один раз і нічого не пропустиш.",
-    ctaSubscribe: "📅 Підписатися на календар", linkWalkers: "🥾 Розклад BrnoWalkers →", linkDruzina: "⚔️ Дні тренувань Дружини →",
+    eyebrow: "Все в одному місці", title2: "Календар — найближчі походи, тренування та події", tagline: "Перевірені публічні дати з того самого каталогу, що й на головній. Оберіть подію та попросіть підтвердження; підписка не є бронюванням.",
+    ctaEvents: "📅 Обрати підтверджену подію", linkWalkers: "🥾 Розклад BrnoWalkers →", linkDruzina: "⚔️ Дні тренувань Дружини →",
     loading: "Завантажуємо найближчі події…"
   },
   footer: { title: "Хочеш побачити всю картину?", lead: "Репетиторство, походи BrnoWalkers і Дружина Моравії (HEMA/LARP) — весь сайт цілком на головному хабі.", visitFull: "Перейти на весь сайт ➔" }
@@ -296,11 +309,7 @@ function detectLang() {
     const saved = localStorage.getItem('dm_lang');
     if (saved && T[saved]) return saved;
   } catch (e) {}
-  const nav = (navigator.language || 'en').toLowerCase();
-  if (nav.startsWith('ru')) return 'ru';
-  if (nav.startsWith('uk')) return 'uk';
-  if (nav.startsWith('cs') || nav.startsWith('sk')) return 'cs';
-  return 'en';
+  return 'cs';
 }
 
 function bindLangButtons() {
@@ -324,13 +333,7 @@ function render(lang) {
   renderEvents(lang);
 }
 
-// --- Live events (ported from the main index.html's renderUpcomingEvents,
-//     09.09.2026 declutter version — two separate cards instead of one
-//     crammed block — plus the JSONP fetch from the same Apps Script
-//     endpoint; see PLAUSIBLE-SETUP.md-style note: EVENTS_API_URL is still
-//     a placeholder until that endpoint is actually deployed, see
-//     HANDOVER.md known limitations. Until then this always falls back to
-//     the subscribe-card + embedded calendar, same as on the main page. ---
+// Same verified public catalogue as the homepage; Google Calendar is optional for reminders only.
 const CALENDAR_SUBSCRIBE_LINK = 'https://calendar.google.com/calendar/u/0/newembed?src=2b87a4e595671b05f82867969757d6c8500733a05a7ebcc77a3c6102b1644757@group.calendar.google.com&ctz=Europe/Prague';
 let LIVE_EVENTS = null;
 let EVENT_STATUS = "loading";
@@ -395,14 +398,9 @@ function renderEvents(lang) {
       <div class="events-empty-stack">
         <div class="events-empty-message"><h2>${emptyCopy[0]}</h2><p role="status">${emptyCopy[EVENT_STATUS === 'error' ? 2 : 1]}</p><div class="events-empty-actions"><a class="btn" href="../druzina/#schedule">${emptyCopy[3]}</a><a class="btn" href="https://t.me/pochody_brno_news" target="_blank" rel="noopener">${emptyCopy[4]}</a><a class="btn" href="https://t.me/druzinamoravy_news" target="_blank" rel="noopener">${emptyCopy[5]}</a></div></div>
         <div class="calendar-cta-empty">
-          <a class="btn solid calendar-cta-btn" href="${CALENDAR_SUBSCRIBE_LINK}" target="_blank" rel="noopener">${t.cal.ctaSubscribe}</a>
+          <a class="btn solid calendar-cta-btn" href="../#impr-calendar">${t.cal.ctaEvents}</a>
         </div>
-        <div class="calendar-embed-card">
-          <iframe
-            src="https://calendar.google.com/calendar/embed?src=2b87a4e595671b05f82867969757d6c8500733a05a7ebcc77a3c6102b1644757%40group.calendar.google.com&amp;ctz=Europe%2FPrague&amp;mode=AGENDA&amp;showTitle=0&amp;showNav=1&amp;showDate=1&amp;showPrint=0&amp;showTabs=0&amp;showCalendars=0&amp;showTz=0&amp;wkst=2"
-            style="border:0" width="100%" height="480" frameborder="0" scrolling="no" loading="lazy"
-            title="Brnowalkers & Družina Moravy schedule"></iframe>
-        </div>
+
       </div>`;
   } else {
     const freeLabel = {ru:'🆓 Бесплатно', en:'🆓 Free entry', cs:'🆓 Vstup zdarma', uk:'🆓 Безкоштовно'}[lang];
@@ -414,15 +412,19 @@ function renderEvents(lang) {
       const description = escapeText(ev.description);
       const locationName = escapeText(ev.locationName);
       const nativeEvent = /^PUB-[A-Z0-9-]{4,90}$/.test(String(ev.id || ''));
-      const registerUrl = nativeEvent
+      const open=ev.registrationMode==='open',contact=ev.registrationMode==='contact';
+      const registerUrl=(open||contact)
         ? '../register/' + (lang === 'cs' ? '' : lang + '/') + '?event=' + encodeURIComponent(ev.id) + '&lang=' + encodeURIComponent(lang) + '&src=calendar'
-        : safeHttpsUrl(ev.registerUrl, document.querySelector('#navBookBtn').getAttribute('href'));
+        : (ev.community==='Družina Moravy'?'../druzina/':'../walkers/');
+      const eventButtonLabel=open?regLabel:contact
+        ? ({en:'Ask to confirm participation',ru:'Уточнить участие',cs:'Ověřit účast',uk:'Уточнити участь'}[lang])
+        : ({en:'Event information',ru:'Сведения о событии',cs:'Informace o akci',uk:'Інформація про подію'}[lang]);
       const tag = (Object.hasOwn(COMMUNITY_TAG, ev.community) ? COMMUNITY_TAG[ev.community] : COMMUNITY_TAG['Shared'])[lang];
       const dateStr = formatEventDate(ev.startISO, lang);
       const priceBlock = ev.category === 'Board Games'
         ? `<span class="eu-price donation">${donationLabel}${ev.priceCzk > 0 ? ' (~' + ev.priceCzk + ' Kč)' : ''}</span>`
         : ev.isFree ? `<span class="eu-price free">${freeLabel}</span>`
-        : `<span class="eu-price">${ev.priceCzk === null ? ({en:'Confirm price',ru:'Уточни цену',cs:'Ověř cenu',uk:'Уточни ціну'}[lang]) : ev.priceCzk + ' Kč'}</span>`;
+        : `<span class="eu-price">${ev.priceCzk === null ? ({en:'Confirm price',ru:'Уточни цену',cs:'Ověř cenu',uk:'Уточни ціну'}[lang]) : ev.priceCzk + ' Kč' + (ev.late ? ' (+25 %)' : '')}</span>`;
       return `
       <div class="event-upcoming-card">
         <div class="eu-img"><img src="${img}" alt="${title}" loading="lazy" decoding="async"></div>
@@ -436,7 +438,7 @@ function renderEvents(lang) {
             ${locationName ? `<a class="eu-price-note" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ev.locationName)}" target="_blank" rel="noopener">📍 ${locationName}</a>` : ''}
           </div>
           <div class="eu-ctas">
-            <a class="btn solid" href="${registerUrl}" target="_blank" rel="noopener">${regLabel}</a>
+            <a class="btn solid" href="${registerUrl}">${eventButtonLabel}</a>
             <a class="btn" href="../academy/">${otherServicesLabel}</a>
           </div>
         </div>
@@ -449,42 +451,35 @@ function renderEvents(lang) {
 bindLangButtons();
 render(detectLang());
 
-const EVENTS_API_URL = 'https://script.google.com/macros/s/AKfycbzKdIEwIF4gH9Cku3IQPC8uTrvR1CtHjMAOIzexrR3Mz9nDSLQ1znfT8Y2SS873jCtsLg/exec';
-(function loadEvents() {
-  var cbName = '_evCb_' + Date.now();
-  var script = document.createElement('script');
-  var fallbackTimer = setTimeout(function () {
-    EVENT_STATUS = 'error';
-    LIVE_EVENTS = [];
-    renderEvents(currentLang);
-  }, 12000);
-  var cleanupTimer = setTimeout(function () {
-    window[cbName] = function () {};
-    if (script.parentNode) script.parentNode.removeChild(script);
-  }, 60000);
-  window[cbName] = function (data) {
-    clearTimeout(fallbackTimer);
-    clearTimeout(cleanupTimer);
-    EVENT_STATUS = !data || data.error || !Array.isArray(data.events) ? 'error' : 'ready';
-    LIVE_EVENTS = (Array.isArray(data && data.events) ? data.events : [])
-      .filter(ev => ev && typeof ev === 'object' && typeof ev.title === 'string' && ev.title.trim() && Number.isFinite(Date.parse(ev.startISO)) && Date.parse(ev.startISO) >= Date.now())
-      .map(ev => ({...ev, title:ev.title.slice(0,200), description:String(ev.description || '').slice(0,3000), locationName:String(ev.locationName || '').slice(0,300), priceCzk:ev.priceCzk !== null && ev.priceCzk !== undefined && String(ev.priceCzk).trim() !== '' && Number.isFinite(Number(ev.priceCzk)) && Number(ev.priceCzk)>=0 ? Number(ev.priceCzk) : null, isFree:ev.isFree===true}))
-      .sort((a,b)=>Date.parse(a.startISO)-Date.parse(b.startISO)).slice(0,30);
-    renderEvents(currentLang);
-    window[cbName] = function () {};
-    if (script.parentNode) script.parentNode.removeChild(script);
-  };
-  script.src = EVENTS_API_URL + '?callback=' + encodeURIComponent(cbName);
-  script.onerror = function () {
-    clearTimeout(fallbackTimer);
-    clearTimeout(cleanupTimer);
-    EVENT_STATUS = 'error';
-    LIVE_EVENTS = [];
-    renderEvents(currentLang);
-    window[cbName] = function () {};
-    if (script.parentNode) script.parentNode.removeChild(script);
-  };
-  document.head.appendChild(script);
+const PUBLIC_EVENT_CATALOG_URL='https://cmrknyhnnehyjpreehcf.supabase.co/functions/v1/imperion-register';
+function catalogSuppressed(e){
+ const date=String(e.begins_at||'').slice(0,10),cat=String(e.category||''),club=/družin|druzin|hema/i.test([e.community,e.category].join(' '));
+ const sat=cat==='HEMA Training'&&club&&e.event_id!=='PUB-OREL-20261114'&&new Date(e.begins_at).getUTCDay()===6;
+ return sat||date==='2026-11-15'||date==='2026-11-17'||e.event_id==='BW-PAID-20261028'||e.event_id==='COM-HIKE-20261028';
+}
+function catalogEvent(e){
+ const good=e.price_verified===true&&e.price_czk!==null&&e.price_czk!==undefined&&String(e.price_czk).trim()!==''&&Number.isFinite(Number(e.price_czk))&&Number(e.price_czk)>=0;
+ const price=good?Number(e.price_czk):null,late=price!==null&&price>0&&Date.parse(e.begins_at)-Date.now()<172800000;
+ const mode=e.registration_mode==='CONTACT'?'contact':(e.registration_mode==='FORM'&&e.is_open===true&&e.price_verified===true&&e.end_time_verified===true?'open':'planned');
+ const club=/družin|druzin|hema|šerm|larp/i.test([e.community,e.category].join(' '));
+ const venue=e.category==='HEMA Training'&&club&&e.event_id!=='PUB-OREL-20261114'?'Brno · exact meeting place after confirmation':String(e.venue||'');
+ return {id:e.event_id,title:String(e.title||'').slice(0,200),description:String(e.public_note||'').slice(0,1200),
+  startISO:e.begins_at,priceCzk:price===null?null:(late?price+Math.ceil(price*.25):price),isFree:price===0,late,
+  category:String(e.category||''),community:club?'Družina Moravy':'Brnowalkers',locationName:venue,registrationMode:mode,
+  controller:String(e.data_controller||'').slice(0,150),imageOverride:''};
+}
+(function loadEvents(){
+ if(typeof fetch!=='function'){EVENT_STATUS='error';LIVE_EVENTS=[];renderEvents(currentLang);return;}
+ const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),10000);
+ fetch(PUBLIC_EVENT_CATALOG_URL,{method:'GET',cache:'no-store',signal:ctrl.signal}).then(r=>{
+  if(!r.ok)throw Error('catalog_unavailable');return r.json();
+ }).then(payload=>{
+  if(!payload||!Array.isArray(payload.events))throw Error('catalog_invalid');
+  LIVE_EVENTS=payload.events.filter(e=>e&&typeof e.event_id==='string'&&/^PUB-[A-Z0-9-]{4,90}$/.test(e.event_id)&&
+   typeof e.title==='string'&&e.title.trim()&&Number.isFinite(Date.parse(e.begins_at))&&Date.parse(e.begins_at)>=Date.now()&&!catalogSuppressed(e))
+   .map(catalogEvent).sort((a,b)=>Date.parse(a.startISO)-Date.parse(b.startISO)).slice(0,30);
+  EVENT_STATUS='ready';renderEvents(currentLang);
+ }).catch(()=>{EVENT_STATUS='error';LIVE_EVENTS=[];renderEvents(currentLang);}).finally(()=>clearTimeout(timer));
 })();
 </script>
 <script>if(Date.now()>Date.parse('2026-11-04T00:00:00+01:00')){const e=document.getElementById('bw-cancel-20261028');if(e)e.remove();}</script>

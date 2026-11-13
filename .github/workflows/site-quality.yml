@@ -27,6 +27,9 @@ jobs:
           test -f corporate/index.html
           test -f corporate/technical-answers/index.html
           test -f start/index.html
+          test -f about/index.html
+          test -f unified-shell.js
+          test -f unified-shell.css
           test -f register/index.html
           test -f register/privacy/index.html
           test -f register/safety/index.html
@@ -34,6 +37,12 @@ jobs:
           test -f register/ru/index.html
           test -f register/uk/index.html
           test -f supabase/functions/imperion-register/index.ts
+
+      - name: Verify price audit source and script syntax before unrelated CI gates
+        run: |
+          node --check academy/a2/quiz.js
+          node --check tests/qualified-pricing-source.test.cjs
+          node --test tests/qualified-pricing-source.test.cjs
 
       - name: Reject stale production placeholders
         shell: bash
@@ -70,12 +79,12 @@ jobs:
             # Active pricing page: never silently drop a publicly stated tariff.
             grep -q '120 Kč' "$page"
             grep -q '240 Kč' "$page"
-            grep -q '910 Kč' "$page"
-            grep -q '455 Kč' "$page"
-            grep -Eq '2[, ]870 Kč' "$page"
-            grep -Eq '1[, ]435 Kč' "$page"
-            grep -Eq '8[, ]235 Kč' "$page"
-            grep -Eq '4[, ]120 Kč' "$page"
+            grep -q '800 Kč' "$page"
+            grep -q '560 Kč' "$page"
+            if grep -Eq '(1[ ,]?000[[:space:]]*Kč[[:space:]]*\+[[:space:]]*160|910 Kč|455 Kč)' "$page"; then
+              echo 'Current Druzina page still advertises a withdrawn historical tariff' >&2
+              exit 1
+            fi
           fi
 
       - name: Verify private-to-public Druzina leaderboard isolation
@@ -88,6 +97,9 @@ jobs:
         run: |
           node tests/imperion-rsvp-source.test.cjs
           node --test tests/imperion-registration-window.test.cjs
+
+      - name: Verify individual Druzina prices, private quote, 48h surcharge and PDF receipts
+        run: node --test tests/druzina-unified-payment.test.cjs
 
       - name: Verify compliant Welcome Engine and safe Telegram webhook attach
         run: node --test tests/imperion-welcome-engine.test.mjs tests/imperion-welcome-telegram-attach.test.mjs
@@ -103,12 +115,15 @@ jobs:
       - name: Verify zero-credit Qwen cloud agent is public-only and cannot take actions
         run: node --test tests/imperion-zero-credit-cloud-review.test.cjs tests/imperion-zero-credit-cloud-workflow.test.cjs
 
-      - name: Verify free public-only AI router and fail-closed Pages proof
-        run: node --test tests/imperion-free-model-router.test.cjs tests/imperion-autopilot-workflow-gate.test.cjs
+      - name: Verify free public-only AI router, durable local quota and fail-closed Pages proof
+        run: node --test tests/imperion-free-model-router.test.cjs tests/imperion-free-local-quota.test.cjs tests/imperion-public-model-worker.test.cjs tests/imperion-public-result-journal.test.cjs tests/imperion-autopilot-workflow-gate.test.cjs
+
+      - name: Verify existing BrowserBridge public-only Qwen adapter (no shell, no sends)
+        run: python3 -m unittest discover -s ops/bridge-public-ai -p 'test_public_ai_draft.py' -v
 
       - name: Verify private five-agent safety and proof logic
         run: |
-          node --test tests/imperion-agent-snapshot.test.cjs tests/imperion-agent-team.test.cjs tests/imperion-closed-loop-audit.test.cjs tests/imperion-proof-auditor.test.cjs tests/imperion-agent-runtime.test.cjs
+          node --test tests/imperion-agent-snapshot.test.cjs tests/imperion-agent-team.test.cjs tests/imperion-growth-policy.test.cjs tests/imperion-closed-loop-audit.test.cjs tests/imperion-proof-auditor.test.cjs tests/imperion-agent-runtime.test.cjs
       - name: Parse owner Apps Script installer without invoking it
         shell: pwsh
         run: |
@@ -166,6 +181,20 @@ jobs:
         run: timeout 240s npx playwright install chromium
       - run: npm run test:security
       - run: npm run test:dom
+      - name: Test conversion-first event calendar, accessibility and two layouts
+        run: npx playwright test tests/conversion-frontdoor.spec.cjs --workers=2
+      - name: Test homepage v4 navigation, dual actions and city-aware timed event badges
+        run: npx playwright test tests/frontdoor-v4-nav-calendar.spec.cjs --workers=2
+      - name: Check cinematic Czech-default homepage, event rail and payment disclosure
+        run: npx playwright test tests/frontdoor-v5-cinematic-czech.spec.cjs --workers=2
+      - name: Check sitewide cinematic rollout, accessible gold CTA and desktop vs mobile dialogs
+        run: npx playwright test tests/cinematic-sitewide-ux.spec.cjs --workers=2
+      - name: Verify Czech default separately from existing unrelated full-suite failures
+        run: npx playwright test tests/czech-default-language.spec.cjs --workers=2
+      - name: Verify single shared navigation, current About and multilingual paths
+        run: npx playwright test tests/unified-shell.spec.cjs --workers=2
+      - name: Verify no old-page flash, anchored header and four-language A2 quiz theme
+        run: npx playwright test tests/imperion-finish-first-paint.spec.cjs --workers=2
       - run: npm test
       - uses: actions/upload-artifact@v4
         if: always()

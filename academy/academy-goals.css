@@ -1,0 +1,29 @@
+/* Academy outcome-first navigation, shared IMPERION cinematic design. */
+body[data-imperion-design="academy"] #academy-choose{width:min(1250px,calc(100% - 34px));margin:0 auto 26px;padding:46px 0 36px;color:#f7f1e6;font:17px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+#academy-choose *{box-sizing:border-box}
+#academy-choose .goal-kicker{color:#f3c881;font-size:12px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;margin:0 0 10px}
+#academy-choose h2{color:#fff1d8;font:600 clamp(28px,4.3vw,47px)/1.12 Georgia,serif;margin:0 0 12px}
+#academy-choose .goal-intro{max-width:850px;color:#d5e1dd;margin:0 0 25px;font-size:clamp(16px,1.5vw,19px)}
+#academy-choose .goal-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}
+#academy-choose .goal-jump{display:flex;flex-direction:column;gap:12px;padding:23px 24px;min-height:170px;text-decoration:none!important;color:#fff3dc!important;border:1px solid #a58c5e8f;border-radius:16px;background:linear-gradient(132deg,#16383cad,#0d252deb);box-shadow:0 7px 20px #010e1770;transition:transform .17s,border-color .17s}
+#academy-choose .goal-jump:hover,#academy-choose .goal-jump:focus-visible{transform:translateY(-3px);border-color:#ffe2a4}
+#academy-choose .goal-jump .goal-icon{font-size:30px;line-height:1}
+#academy-choose .goal-jump strong{font:650 clamp(20px,2.1vw,26px)/1.15 Georgia,serif;color:#ffe1a3}
+#academy-choose .goal-jump small{font-size:15px;line-height:1.45;color:#e2eeeb}
+#academy-choose .goal-jump .goal-jump-action{margin-top:auto;color:#f9d291;font-weight:800;font-size:14px}
+#academy-choose .goal-detail{padding:30px 0 14px;margin-top:28px;border-top:1px solid #d2ae7861;scroll-margin-top:115px}
+#academy-choose .goal-detail-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:18px;flex-wrap:wrap}
+#academy-choose h3{margin:0;color:#fff4e1;font:600 clamp(26px,3.2vw,36px)/1.15 Georgia,serif}
+#academy-choose .goal-detail-desc{color:#d8e4df;max-width:750px;margin:8px 0 0}
+#academy-choose .goal-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+#academy-choose .goal-option{display:flex;flex-direction:column;gap:12px;min-height:247px;padding:19px 20px;border:1px solid #a5baac63;border-radius:14px;background:#10292ee8}
+#academy-choose .goal-option h4{font:700 20px/1.28 system-ui,sans-serif;color:#ffdda1;margin:0}
+#academy-choose .goal-option p{margin:0;color:#e1e6e3;font-size:15px;flex:1}
+#academy-choose .goal-option a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;text-align:center;border:1px solid #edcb93;border-radius:10px;background:#edcb93;color:#10282b!important;font-weight:800;text-decoration:none!important;padding:10px 13px}
+#academy-choose .goal-option a:hover,#academy-choose .goal-option a:focus-visible{background:#ffe7b5}
+#academy-choose .goal-more{display:inline-flex;min-height:44px;align-items:center;color:#ffdaa3!important;font-weight:750;text-underline-offset:4px;margin-top:15px}
+#academy-choose .goal-note{margin:22px 0 0;padding:14px 18px;border-left:3px solid #f6d291;background:#0d272aa8;color:#e3e9df;font-size:14px}
+#academy-choose :is(a,button):focus-visible{outline:3px solid #fff0b9;outline-offset:4px}
+@media(max-width:850px){#academy-choose .goal-options{grid-template-columns:1fr 1fr}#academy-choose .goal-option{min-height:0}}
+@media(max-width:630px){#academy-choose .goal-choices,#academy-choose .goal-options{grid-template-columns:1fr}#academy-choose .goal-jump{min-height:0;padding:20px}#academy-choose .goal-option{padding:17px}#academy-choose .goal-detail{scroll-margin-top:155px}}
+@media(prefers-reduced-motion:reduce){#academy-choose .goal-jump{transition:none!important}html{scroll-behavior:auto!important}}

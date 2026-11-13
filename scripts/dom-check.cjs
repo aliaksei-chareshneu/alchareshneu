@@ -1,6 +1,7 @@
 const {JSDOM}=require('jsdom');const fs=require('fs');const assert=require('node:assert/strict');
-async function load(path,language){
+async function load(path,language,options={}){
  const html=fs.readFileSync(path,'utf8');const dom=new JSDOM(html,{url:'https://aliaksei-chareshneu.github.io/alchareshneu/'+path.replace('index.html','')+'?lang='+language,runScripts:'outside-only',pretendToBeVisual:true});const w=dom.window;
+ if(typeof options.fetch==='function')w.fetch=options.fetch;
  w.matchMedia=()=>({matches:true,addEventListener(){},removeEventListener(){}});w.IntersectionObserver=class{observe(){}disconnect(){}unobserve(){}};w.ResizeObserver=class{observe(){}disconnect(){}};w.scrollTo=()=>{};w.HTMLElement.prototype.scrollIntoView=()=>{};w.HTMLCanvasElement.prototype.getContext=()=>null;w.HTMLMediaElement.prototype.play=()=>Promise.resolve();w.HTMLMediaElement.prototype.pause=()=>{};
  const errors=[];w.addEventListener('error',e=>errors.push(e.message));
  for(const script of w.document.querySelectorAll('script:not([src])')){if(script.type==='application/ld+json'){JSON.parse(script.textContent);continue;}w.eval(script.textContent);}
@@ -56,8 +57,8 @@ if(require.main===module)(async()=>{let count=0;for(const path of ['index.html',
    assert.equal(d.querySelector('#tariff')?.getAttribute('aria-hidden'),'true','retired pricing anchor must be hidden');
    assert.equal(d.querySelector('#druzina-payment')?.getAttribute('aria-hidden'),'true','retired payment anchor must be hidden');
    const booking=d.querySelector('#navBookBtn')?.getAttribute('href')||'';
-   assert.ok(booking.startsWith('prihlaska/?lang='),path+' '+lang+' primary navigation must reach the safeguarded enquiry form');
-   assert.equal(new URL(d.querySelector('.dm-hero-register')?.href||'',d.location.href).pathname,'/alchareshneu/druzina/prihlaska/','hero CTA must lead to first-visit enquiry');
+   assert.ok(booking.startsWith('../register/?lang='),path+' '+lang+' primary navigation must reach the safeguarded enquiry form');
+   assert.equal(new URL(d.querySelector('.dm-hero-register')?.href||'',d.location.href).pathname,'/alchareshneu/register/','hero CTA must lead to first-visit enquiry');
    assert.equal(d.querySelector('.dm-v2-announcements')?.open,false,'long club updates must be collapsed by default');
    assert.ok(d.querySelector('.dm-v2-status')?.textContent.includes('7'),'cancelled session stays visible');
    assert.ok(d.querySelector('.dm-trust-line')?.textContent.length>20,'club participation and trust statement visible');
@@ -65,7 +66,7 @@ if(require.main===module)(async()=>{let count=0;for(const path of ['index.html',
    assert.equal(retired.length,0,'paused HEMA page must not link to retired payment/booking forms');
   } else {
    const text=d.body.textContent.replace(/[ ,]/g,'');
-   for(const price of ['120','240','910','455','2870','1435','8235','4120'])
+   for(const price of ['120','240','800','560'])
     assert.ok(text.includes(price+'Kč'),path+' missing active price '+price+' Kč');
   }
  }

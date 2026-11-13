@@ -1,6 +1,8 @@
 <!doctype html>
 <html lang="cs">
 <head>
+<link rel="stylesheet" href="../imperion-bootstrap.css?v=20261113b">
+<script src="../imperion-bootstrap.js?v=20261113b"></script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="index,follow,max-image-preview:large">
@@ -66,11 +68,16 @@ a{color:var(--mint)}button,input,select{font:inherit}button{cursor:pointer}.skip
 .extras{border:1px solid #435d67;border-radius:12px;padding:12px 14px;margin:18px 0}.extras summary{cursor:pointer;color:var(--muted);font-weight:650}.extras .check{margin:12px 0;padding:10px}
 
 </style>
-<link rel="stylesheet" href="/alchareshneu/register/event-calendar.css">
+<link rel="stylesheet" href="./event-calendar.css">
 <link rel="stylesheet" href="../brand-theme.css?v=20261025">
 <link rel="stylesheet" href="../site-design.css?v=20261027">
+<!-- IMPERION design checkpoint: visual styles only -->
+<link rel="stylesheet" href="../imperion-cinematic-site.css?v=20261112-ux1">
+<link rel="stylesheet" href="../unified-shell.css?v=20261113b">
+<link rel="stylesheet" href="../imperion-finish.css?v=20261113b">
+<script src="../unified-shell.js?v=20261113b" defer></script>
 </head>
-<body data-imperion-scope="register">
+<body data-imperion-scope="register" data-imperion-design="register">
 <a class="skip" href="#form" data-i18n="skip">Přeskočit na registraci</a>
 <div class="wrap">
   <header class="top">
@@ -104,6 +111,33 @@ a{color:var(--mint)}button,input,select{font:inherit}button{cursor:pointer}.skip
           <div class="field event-picker" id="eventPicker"><label class="required" for="eventSearch" data-i18n="event">Akce</label><input type="search" id="eventSearch" class="event-search" role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="eventMatches" autocomplete="off"><div id="eventMatches" class="event-matches" role="listbox" hidden></div><select id="eventId" required class="screenreader" aria-label="Selected event"><option value="">Vyberte akci…</option></select><p id="catalogSummary" class="catalog-summary" role="status" aria-live="polite"></p></div>
         </div>
         <div id="eventInfo" class="info" aria-live="polite" hidden></div><div id="rsvpDetails" hidden>
+        <section id="trainingPayment" class="info" aria-live="polite" hidden>
+          <h3 id="trainingPaymentHeading"></h3>
+          <p id="trainingPaymentNote"></p>
+          <div class="field">
+            <label id="trainingPlanLabel" for="trainingTier"></label>
+            <select id="trainingTier" name="trainingTier">
+              <option value="STANDARD">First / standard (240 Kč)</option>
+              <option value="SENIOR">Senior (120 Kč, approval required)</option>
+              <option value="STARTER4">Starter 4 (800 Kč)</option>
+            </select>
+          </div>
+          <p id="trainingPaymentAmount"></p>
+          <p id="trainingPaymentInstructions"></p>
+          <div id="paymentResumeField" class="field" hidden>
+            <label for="paymentResumeToken" id="paymentResumeLabel"></label>
+            <input id="paymentResumeToken" type="text" maxlength="43" minlength="43"
+              pattern="[A-Za-z0-9_-]{43}" autocomplete="off" spellcheck="false">
+            <p id="paymentResumeHelp" class="catalog-summary"></p>
+            <button id="paymentQuoteButton" class="retry" type="button" hidden></button>
+          </div>
+          <p id="trainingPaymentPrivate" class="event-state" aria-live="polite"></p>
+          <div id="paymentProofField" class="field" hidden>
+            <label for="paymentProof" id="paymentPdfLabel"></label>
+            <input id="paymentProof" name="paymentProof" type="file" accept=".pdf,application/pdf">
+            <p id="paymentProofHelp" class="catalog-summary"></p>
+          </div>
+        </section>
         <fieldset class="consent-choices" id="optionalConsents"><legend id="optionalConsentLabel">Dobrovolné volby</legend><p id="optionalConsentNote" class="consent-help"></p><div class="consent-toolbar"><button type="button" id="optInAll" class="consent-select-all" aria-pressed="false" aria-controls="photo future" aria-describedby="optionalConsentNote">Souhlasím s fotografiemi i pozvánkami</button><span id="optionalConsentCount" class="consent-count" role="status" aria-live="polite">0 ze 2 vybráno</span></div><div class="check"><label><input id="photo" type="checkbox"><span><strong data-i18n="photoHead">Volitelně povoluji své fotografie/video</strong> <span data-i18n="photoNote">pro zveřejnění na kanálech pořadatele. Bez souhlasu se můžete zúčastnit také. U nezletilých je potřebné zvláštní potvrzení rodiče.</span></span></label></div>
         <div class="check"><label><input id="future" type="checkbox"><span><strong data-i18n="updatesHead">Chci občasné pozvánky na další akce (volitelné).</strong> <span data-i18n="updatesNote">Nejde o spam. Pozvánky vyžadují samostatné potvrzení; odhlášení kdykoli.</span></span></label></div>
         </fieldset>
@@ -131,13 +165,14 @@ a{color:var(--mint)}button,input,select{font:inherit}button{cursor:pointer}.skip
         <button id="submit" class="button" type="submit" data-i18n="send">Odeslat přihlášku →</button></div>
       </form>
       <section id="result" class="state" role="status" aria-live="polite" tabindex="-1" hidden></section>
-      <div id="fallback" role="alert" hidden><p data-i18n="fallback">Formulář se nepodařilo načíst. Napište nám prosím; pokud se zobrazila chyba, pomůže snímek obrazovky se skrytými osobními údaji.</p><button type="button" id="retry" class="retry" data-i18n="retry">Zkusit načíst znovu</button><a class="button" id="trainingFallback" href="/alchareshneu/druzina/prihlaska/?lang=cs" style="display:block;text-align:center;text-decoration:none;margin:10px 0">HEMA: nezávazná přihláška / training enquiry</a><a class="button" id="contactLink" style="display:block;text-align:center;text-decoration:none" href="mailto:chereshnev.biochem@gmail.com?subject=Event%20registration%20question" data-i18n="contact">Kontaktovat pořadatele ↗</a><div class="contact-alternatives" id="fallbackChannels" aria-label="Telegram, WhatsApp, SMS"><a class="contact-option" href="https://t.me/Chareshneu" target="_blank" rel="noopener noreferrer">Telegram</a><a class="contact-option" href="https://wa.me/420702914842?text=Hello%2C%20I%20have%20a%20question%20about%20event%20registration." target="_blank" rel="noopener noreferrer">WhatsApp</a><a class="contact-option" href="sms:+420702914842?body=Hello%2C%20I%20have%20an%20event%20registration%20question.">SMS</a></div></div>
+      <div id="fallback" role="alert" hidden><p data-i18n="fallback">Formulář se nepodařilo načíst. Napište nám prosím; pokud se zobrazila chyba, pomůže snímek obrazovky se skrytými osobními údaji.</p><button type="button" id="retry" class="retry" data-i18n="retry">Zkusit načíst znovu</button><a class="button" id="contactLink" style="display:block;text-align:center;text-decoration:none" href="mailto:chereshnev.biochem@gmail.com?subject=Event%20registration%20question" data-i18n="contact">Kontaktovat pořadatele ↗</a><div class="contact-alternatives" id="fallbackChannels" aria-label="Telegram, WhatsApp, SMS"><a class="contact-option" href="https://t.me/Chareshneu" target="_blank" rel="noopener noreferrer">Telegram</a><a class="contact-option" href="https://wa.me/420702914842?text=Hello%2C%20I%20have%20a%20question%20about%20event%20registration." target="_blank" rel="noopener noreferrer">WhatsApp</a><a class="contact-option" href="sms:+420702914842?body=Hello%2C%20I%20have%20an%20event%20registration%20question.">SMS</a></div></div>
     </section>
   </main>
   <section class="explainer" aria-labelledby="about-registration"><h2 id="about-registration" data-i18n="explainerTitle">Jak funguje registrace na komunitní akce v Brně?</h2><p data-i18n="explainerText">Vyberte akci, vyplňte kontakt a odešlete přihlášku. Další podrobnosti najdete u konkrétní akce.</p><p class="explainer-links"><a href="../walkers/" data-i18n="walkersInfo">Výlety a vycházky BrnoWalkers</a><span aria-hidden="true">·</span><a href="../druzina/" data-i18n="druzinaInfo">O klubu Družina Moravy</a></p></section>
   <footer><span>© 2026 · Družina Moravy, z. s. / BrnoWalkers / Aliaksei Chareshneu OSVČ</span><nav class="bottom"><a href="./privacy/" data-i18n="privacyLink">Soukromí</a><a href="./safety/" data-i18n="safetyLink">Bezpečnost</a><a href="../calendar/" data-i18n="eventsLink">Kalendář</a><a href="../" data-i18n="homeLink">Zpět na web</a></nav></footer>
 </div>
-<script src="/alchareshneu/register/event-calendar.js"></script>
+<script src="./event-calendar.js"></script>
+<script src="./training-payment.js"></script>
 <script>
 'use strict';
 const ENDPOINT='https://cmrknyhnnehyjpreehcf.supabase.co/functions/v1/imperion-register';
@@ -271,9 +306,11 @@ function renderEvents(){
 function showEvent(){
  const e=events.find(v=>v.event_id===$('eventId').value),info=$('eventInfo'),mode=eventMode(e);
  info.replaceChildren();$('rsvpDetails').hidden=mode!=='FORM';$('submit').disabled=submitting||mode!=='FORM';
+ window.ImperionTrainingPayment?.render(e,lang,mode);
  if(!e){info.hidden=true;return}info.hidden=false;
  const top=document.createElement('p');const strong=document.createElement('strong');strong.textContent=e.title;top.append(strong);info.append(top);
- const meta=document.createElement('p');meta.textContent=eventDate(e)+' · '+e.venue+' · '+(e.price_verified===false?t('payment'):Number(e.price_czk)===0?t('free'):Number(e.price_czk)+' Kč');info.append(meta);
+ const meta=document.createElement('p');const groupPrice=window.ImperionTrainingPayment?.catalogPrice(e,lang);
+ meta.textContent=eventDate(e)+' · '+e.venue+' · '+(groupPrice||(e.price_verified===false?t('payment'):Number(e.price_czk)===0?t('free'):Number(e.price_czk)+' Kč'));info.append(meta);
  const status=document.createElement('p');status.className='event-state';status.textContent=statusLabel(e);info.append(status);
  const note=document.createElement('p');note.textContent=mode==='FORM'?t('unconfirmed'):ct(mode==='CONTACT'?'manualNote':'planNote');info.append(note);
  if((e.event_id==='PUB-WALK-TALK-20261115'||e.event_id==='PUB-WALK-TALK-20261118') && mode==='FORM'){
@@ -390,7 +427,7 @@ function showReceipt(eventData,body,payload){
  const dict=RECEIPT_TEXT[lang]||RECEIPT_TEXT.cs,el=$('result');el.replaceChildren();
  const records=[[dict.event,eventData?.title||body.eventId],[dict.email,body.email]];
  if(eventData){records.splice(1,0,[dict.date,eventDate(eventData)],[dict.place,eventData.venue||dict.pending],
-   [dict.price,eventData.price_verified===true?(eventData.price_czk===0?t('free'):String(eventData.price_czk)+' Kč'):t('payment')]);}
+   [dict.price,payload.quotedTotalCzk!==undefined?String(payload.quotedTotalCzk)+' Kč':(window.ImperionTrainingPayment?.catalogPrice(eventData,lang)||(eventData.price_verified===true?(eventData.price_czk===0?t('free'):String(eventData.price_czk)+' Kč'):t('payment')))]);}
  if(payload.reference)records.unshift([dict.reference,payload.reference]);
  const h=document.createElement('h3');h.textContent=dict.title;el.appendChild(h);
  const details=document.createElement('div');details.className='receipt-summary';
@@ -400,6 +437,21 @@ function showReceipt(eventData,body,payload){
  }
  el.appendChild(details);
  const note=document.createElement('p');note.textContent=dict.pending;el.appendChild(note);
+ if(payload.paymentEvidenceStatus==='PROOF_RECEIVED'){
+   const evidence=document.createElement('p');evidence.className='event-state';
+   evidence.textContent=window.ImperionTrainingPayment.receiptMessage(lang);el.appendChild(evidence);
+ }
+ if(payload.resumeToken){
+   const label=document.createElement('p');label.className='event-state';
+   label.textContent=window.ImperionTrainingPayment.resumeMessage(lang);el.appendChild(label);
+   const code=document.createElement('input');code.type='text';code.readOnly=true;code.value=payload.resumeToken;
+   code.setAttribute('aria-label','Registration code / Kód přihlášky');code.style.width='100%';
+   code.addEventListener('focus',()=>code.select());el.appendChild(code);
+   const copyToken=document.createElement('button');copyToken.type='button';copyToken.className='retry';
+   copyToken.textContent=({cs:'Kopírovat kód',en:'Copy code',ru:'Скопировать код',uk:'Скопіювати код'})[lang]||'Copy code';
+   copyToken.addEventListener('click',()=>navigator.clipboard?.writeText(code.value));
+   el.appendChild(copyToken);
+ }
  const mail=document.createElement('p');mail.textContent=dict.delivery;el.appendChild(mail);
  const safe=String(eventData?.rules_url||''),ruleUrl=/^https:\/\/aliaksei-chareshneu\.github\.io\/alchareshneu\//.test(safe)?safe:policyBase+'safety/';
  const link=document.createElement('a');link.href=ruleUrl;link.target='_blank';link.rel='noopener';link.textContent=dict.rules;el.appendChild(link);
@@ -428,11 +480,18 @@ $('rsvpForm').addEventListener('submit',async event=>{event.preventDefault();con
   body.utmSource=query.get('utm_source')||query.get('src')||'';
   body.utmMedium=query.get('utm_medium')||'';
   body.utmCampaign=query.get('utm_campaign')||'';
-  try {const response=await fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),cache:'no-store',signal:AbortSignal.timeout(12000)});
+  try {const currentEvent=events.find(e=>e.event_id===body.eventId);
+    const request=window.ImperionTrainingPayment?.requestOptions(currentEvent,body)
+      ||{headers:{'Content-Type':'application/json'},body:JSON.stringify(body)};
+    const response=await fetch(ENDPOINT,{method:'POST',...request,cache:'no-store',signal:AbortSignal.timeout(30000)});
+    if(response.status===409)throw Error('price_changed');
     if(!response.ok)throw Error('submission_failed');const payload=await response.json();if(!payload.ok)throw Error('submission_rejected');
     result.className='state success';showReceipt(events.find(e=>e.event_id===body.eventId),body,payload);
     form.reset();updateGuardian();form.querySelectorAll('[type=checkbox]').forEach(el=>el.checked=false);renderEvents();form.hidden=true;
-  }catch(error){result.className='state error';result.textContent=t('failure');result.hidden=false;}
+   }catch(error){result.className='state error';result.textContent=error?.message==='price_changed'
+    ?window.ImperionTrainingPayment.changedMessage(lang):t('failure');result.hidden=false;
+    if(error?.message==='price_changed')loadEvents();
+  }
   finally{submitting=false;form.removeAttribute('aria-busy');btn.disabled=eventMode(events.find(e=>e.event_id===$('eventId').value))!=='FORM';btn.textContent=t('send');result.focus({preventScroll:true});result.scrollIntoView({block:'nearest'});}
 });
 async function loadEvents(){
@@ -441,7 +500,7 @@ async function loadEvents(){
     const response=await fetch(ENDPOINT,{method:'GET',cache:'no-store',signal:AbortSignal.timeout(10000)});
     if(!response.ok)throw new Error('service_unavailable');
     const payload=await response.json();
-    events=(Array.isArray(payload.events)?payload.events:[]).filter(e=>e && !['BW-PAID-20261028','COM-HIKE-20261028'].includes(String(e.event_id||'')));
+    events=(Array.isArray(payload.events)?payload.events:[]).filter(e=>e && !['BW-PAID-20261028','COM-HIKE-20261028'].includes(String(e.event_id||'')) && !['2026-11-15','2026-11-17'].includes(String(e.begins_at||'').slice(0,10)) && !/202611(?:15|17)/.test(String(e.event_id||'')) && !(e.category==='HEMA Training' && e.event_id!=='PUB-OREL-20261114' && new Date(e.begins_at).getUTCDay()===6)); // Exclude owner HOLD and paused Saturday HEMA, preserve separate free 14 Nov workshop.
     if(!events.length)throw new Error('no_events');
     $('rsvpForm').hidden=false;renderEvents();
   }catch(error){
