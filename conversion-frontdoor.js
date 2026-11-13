@@ -322,7 +322,8 @@
     var pane=el('fdUpcoming');pane.replaceChildren();
     if(status==='loading'){var loading=document.createElement('p');loading.className='fd-upcoming-empty';loading.textContent=tr('loading');pane.appendChild(loading);return;}
     var m=month.getFullYear()+'-'+String(month.getMonth()+1).padStart(2,'0');
-    var candidates=displayData(month.getFullYear(),month.getMonth()).filter(function(e){return matches(e)&&dayKey(e.begins_at).slice(0,7)===m;}).sort(function(a,b){return Date.parse(a.begins_at)-Date.parse(b.begins_at);}).slice(0,5);
+    // Only verified catalogue entries appear in the upcoming EVENTS sidebar.
+    var candidates=data.filter(function(e){return matches(e)&&dayKey(e.begins_at).slice(0,7)===m;}).slice(0,5);
     if(!candidates.length){var none=document.createElement('p');none.className='fd-upcoming-empty';none.textContent=status==='error'?tr('offline'):ed('none');pane.appendChild(none);return;}
     candidates.forEach(function(e){
       var btn=document.createElement('button');btn.className='fd-upcoming-event';btn.type='button';
@@ -344,8 +345,8 @@
       notice.textContent=status==='loading'?tr('loading'):tr('offline');
       list.appendChild(notice);return;
     }
-    var next=new Date(month.getFullYear(),month.getMonth()+1,1);
-    var upcoming=displayData(month.getFullYear(),month.getMonth()).concat(window.ImperionCalendarPolicy?window.ImperionCalendarPolicy.forMonth(next.getFullYear(),next.getMonth(),data).slice(0,2):[]).filter(matches).sort(function(a,b){return Date.parse(a.begins_at)-Date.parse(b.begins_at);});
+    // The illustrated event list is a verified catalogue, not a feed of tentative recurring slots.
+    var upcoming=data.filter(matches);
     if(!upcoming.length){
       var none=document.createElement('p');none.className='fd-all-empty';none.textContent=ed('none');
       list.appendChild(none);return;
@@ -470,7 +471,8 @@
     if(!chosenDay||!eventsForDay(chosenDay).length)chosenDay=firstWithEvents||'';
     if(chosenDay)renderDetail(chosenDay);else setDetailEmpty(status==='error');
     var fallback=el('fdFallback');
-    fallback.hidden=!!chosenDay||status==='loading';
+    // A tentative Monday does not turn an otherwise empty event catalogue into a confirmed listing.
+    fallback.hidden=!!(chosenDay&&eventsForDay(chosenDay).some(function(e){return !e.provisional;}))||status==='loading';
     if(!fallback.hidden){
       var isAcademy=filter==='academy';
       el('fdFallbackHint').textContent=isAcademy?tr('learnDesc'):(status==='error'?tr('offline'):(city!=='all'?ft('cityEmpty'):tr('empty')));
