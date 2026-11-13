@@ -23,7 +23,7 @@ from urllib.robotparser import RobotFileParser
 
 ALLOWED_HOSTS = (
     "brno.cz", "czechinvest.gov.cz", "uzsvm.gov.cz",
-    "nabidkamajetku.gov.cz", "cuzk.gov.cz"
+    "nabidkamajetku.gov.cz", "cuzk.gov.cz", "mcslatina.cz"
 )
 USER_AGENT = "IMPERION-HQ-Scout/0.2 (bounded public property availability research)"
 PAGE_BYTES = 900_000
@@ -209,6 +209,48 @@ class PublicFetcher:
             return raw.decode("utf-8", errors="replace"), "HTTP_OK"
         except (OSError, URLError, HTTPError, TimeoutError, ValueError) as exc:
             return None, "FETCH_FAILED_" + type(exc).__name__
+
+
+    def fetch_json(self, url: str, max_bytes: int = 2_500_000) -> tuple[str | None, str]:
+        """Official public JSON-LD only; reuses robots and secure redirect policy.
+
+        No browser impersonation, no proxy bypass, no secret credentials. The
+        first fetch records robots policy; if it rejects a JSON MIME type that
+        is expected and this method uses the shared robot cache to fetch JSON.
+        """
+        if not allowed(url):
+            return None, "DENIED_HOST"
+        u = urlparse(url)
+        root = u.scheme + "://" + u.netloc
+        if root not in self.robots:
+            self.fetch(url)   # initializes per-host robots decision fail-closed
+        parser = self.robots.get(root)
+        if parser is None or parser is False or not parser.can_fetch(USER_AGENT, url):
+            return None, "ROBOTS_DENIED_OR_UNVERIFIED"
+        try:
+            req = Request(url, headers={
+                "User-Agent": USER_AGENT,
+                "Accept": "application/ld+json, application/json, text/plain;q=0.5",
+            })
+            with self.opener.open(req, timeout=15) as response:
+                if not allowed(response.geturl()):
+                    return None, "REDIRECT_DENIED"
+                mime = response.headers.get("Content-Type", "").lower()
+                if not any(x in mime for x in ("application/json", "application/ld+json", "text/plain")):
+                    return None, "NOT_PUBLIC_JSON"
+                raw = response.read(max_bytes + 1)
+            if len(raw) > max_bytes:
+                return None, "JSON_TOO_LARGE"
+            decoded = raw.decode("utf-8-sig", errors="strict")
+            # Explicit content validation: cannot turn HTML into false JSON.
+            if not decoded.lstrip().startswith(("{", "[")):
+                return None, "NOT_JSON_BODY"
+            return decoded, "HTTP_JSON_OK"
+        except UnicodeError:
+            return None, "INVALID_UTF8_JSON"
+        except (OSError, URLError, HTTPError, TimeoutError, ValueError) as exc:
+            return None, "JSON_FETCH_FAILED_" + type(exc).__name__
+
 
 
 def same_host_links(url: str, links: list[tuple[str, str]], limit: int) -> list[str]:
