@@ -30,6 +30,7 @@ ALTER TABLE public.imperion_academy_inquiries
   CHECK (
     confirmed_session_at IS NULL OR
     (confirmed_session_end_at > confirmed_session_at AND
+     requested_duration_min IS NOT NULL AND
      requested_duration_min BETWEEN 10 AND 240 AND
      confirmed_session_end_at - confirmed_session_at = make_interval(mins => requested_duration_min))
   );
@@ -39,6 +40,7 @@ ALTER TABLE public.imperion_academy_inquiries
     booking_status <> 'CONFIRMED' OR
     (booking_confirmed_at IS NOT NULL AND bank_verified_at IS NOT NULL AND
      payment_evidence_status = 'BANK_VERIFIED' AND
+     requested_duration_min IS NOT NULL AND
      confirmed_session_at IS NOT NULL AND confirmed_session_end_at IS NOT NULL)
   );
 -- PostgreSQL uses a GiST range exclusion constraint to serialize concurrent
