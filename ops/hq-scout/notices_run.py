@@ -13,9 +13,10 @@ from zoneinfo import ZoneInfo
 
 import hq_scout
 from official_notices import Rows, combine_boards, parse_board
+from city_assets import city_public_property_pages, inspect_city_unused_archive
 
 def combined_scan(source_cfg: dict, official_cfg: dict, max_total: int = 20,
-                  fetcher=None, delay: float = 0.4, today=None) -> dict:
+                  fetcher=None, delay: float = 0.4, today=None, scan_archive: bool = False) -> dict:
     worker = fetcher or hq_scout.PublicFetcher()
     old = hq_scout.run(source_cfg, [], max_total=max_total, fetcher=worker, delay=delay)
     found, diag, notices = [], [], []
@@ -37,8 +38,13 @@ def combined_scan(source_cfg: dict, official_cfg: dict, max_total: int = 20,
             import time
             time.sleep(delay)
     merged = combine_boards(notices)
+    city_pages = city_public_property_pages(old['results'])
+    city_archive = inspect_city_unused_archive(worker) if scan_archive else {'status': 'NOT_REQUESTED'}
     old["status"] = ("NOTICE_LEVEL_PUBLIC_SCAN_NOT_A_CONTRACT" if sum(x["rows_seen"] for x in diag)
                      else "GENERAL_ONLY_NO_MUNICIPAL_NOTICE_READBACK")
+    old['city_public_property_pages'] = city_pages
+    old['city_public_property_pages_count'] = len(city_pages)
+    old['unused_city_property_archive'] = city_archive
     old["official_boards"] = diag
     old["municipal_boards_read"] = len(found)
     old["municipal_rows_seen"] = sum(x["rows_seen"] for x in diag)
@@ -46,6 +52,8 @@ def combined_scan(source_cfg: dict, official_cfg: dict, max_total: int = 20,
     old["public_notices_count"] = len(merged)
     old["fully_qualified_0kc_5y_property_offers"] = 0
     old["private_crm_verified"] = False
+    if not found and city_pages:
+        old['status'] = 'INDIVIDUAL_CITY_PROPERTY_PAGES_REVIEW_ONLY_NO_FREE_USE_TITLE'
     old["pages_ok"] += len(found)
     old["pages_attempted"] += len(diag)
     old["source_coverage"] = "OFFICIAL_BOARD_AND_PUBLIC_SOURCE" if found else "PUBLIC_SOURCE_ONLY"
