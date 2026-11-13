@@ -34,12 +34,13 @@ jobs:
       - name: Test strict source and data protection gates
         run: python3 -m unittest discover -s ops/hq-scout -p 'test_*.py' -v
 
-      - name: Install PDF text reader for official municipal archive
+      - name: Install official PDF text and Czech OCR packages
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends poppler-utils
+          sudo apt-get install -y --no-install-recommends poppler-utils tesseract-ocr tesseract-ocr-ces tesseract-ocr-eng
           command -v pdftotext
           pdftotext -v
+          tesseract --list-langs 2>&1
 
       - name: Read official public sources (no CRM, no credentials, no AI billing)
         run: |
@@ -63,6 +64,6 @@ jobs:
 
       - name: State limits explicitly
         run: |
-          echo 'Public city property pages and optional Brno eDeska; robots.denied means NOTICE BOARD BLOCKED.' >> "$GITHUB_STEP_SUMMARY"
-          echo 'Private CRM and Gmail are intentionally not exported to a public workflow.' >> "$GITHUB_STEP_SUMMARY"
-          echo '0 CRM writes, 0 customer messages, 0 paid AI API calls, 0 owner obligations.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Official public pages only; current availability, 0 Kč and legal 5 years unverified.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Private CRM and Gmail are intentionally not transferred into public GitHub.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'No external emails, payments, property agreements or subscriptions made.' >> "$GITHUB_STEP_SUMMARY"

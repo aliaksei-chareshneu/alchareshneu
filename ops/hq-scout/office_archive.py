@@ -1,6 +1,6 @@
 """Bounded read-only public Office documents inside official city property ZIP.
 
-No OCR, no external network calls, no private uploads, no Office macros.
+Bounded local OCR for one scanned PDF; no external network calls, no private uploads, no Office macros.
 This reads only text in public PDF/DOCX/XLSX/OpenDocument attachments.
 Names, personal contacts and raw document text do NOT enter public artifacts.
 """
@@ -129,6 +129,60 @@ def ods_text(blob: bytes) -> tuple[str,str]:
         return "","ODS_UNREADABLE"
 
 
+MAX_OCR_PAGES = 5
+MAX_RENDERED_PAGE_BYTES = 8_000_000
+MAX_OCR_CHARS = 100_000
+
+
+def pdf_ocr_text(blob: bytes) -> tuple[str, str]:
+    """Last-resort bounded local OCR for a *public* scanned PDF.
+
+    Only an official allowlisted municipal attachment can reach this call.
+    No third-party OCR, external API, shell, saved images or persistent text.
+    Caller publishes only cautious property address hints, never OCR lines.
+    """
+    if not 0 < len(blob) <= MAX_FILE:
+        return "", "PDF_OCR_FILE_TOO_LARGE"
+    try:
+        info = subprocess.run(
+            ["pdfinfo", "-"], input=blob, capture_output=True,
+            timeout=10, check=False
+        )
+        if info.returncode:
+            return "", "PDF_OCR_INFO_FAILED"
+        match = re.search(rb"(?m)^Pages:\s+(\d+)\s*$", info.stdout)
+        if not match:
+            return "", "PDF_OCR_PAGE_COUNT_UNKNOWN"
+        pages = int(match.group(1))
+        if pages == 0 or pages > MAX_OCR_PAGES:
+            return "", "PDF_OCR_PAGE_LIMIT_" + str(pages)
+        texts = []
+        for page in range(1, pages + 1):
+            rendered = subprocess.run(
+                ["pdftoppm", "-f", str(page), "-l", str(page),
+                 "-singlefile", "-scale-to", "1850", "-png", "-"],
+                input=blob, capture_output=True, timeout=20, check=False
+            )
+            png = rendered.stdout
+            if (rendered.returncode or not png.startswith(b"\x89PNG\r\n\x1a\n")
+                    or len(png) > MAX_RENDERED_PAGE_BYTES):
+                return "", "PDF_OCR_RENDER_FAILED"
+            ocr = subprocess.run(
+                ["tesseract", "stdin", "stdout", "-l", "ces+eng",
+                 "--psm", "3"],
+                input=png, capture_output=True, timeout=30, check=False
+            )
+            if ocr.returncode or len(ocr.stdout) > MAX_OCR_CHARS:
+                return "", "PDF_OCR_ENGINE_FAILED"
+            texts.append(ocr.stdout.decode("utf-8", errors="replace"))
+        combined = "\n".join(texts).strip()
+        return (combined[:MAX_CHARACTERS],
+                "PDF_OCR_ALL_PAGES_" + str(pages) if combined
+                else "PDF_OCR_EMPTY_ALL_PAGES_" + str(pages))
+    except (FileNotFoundError, subprocess.TimeoutExpired, OSError):
+        return "", "PDF_OCR_EXECUTION_UNAVAILABLE"
+
+
 def pdf_text(blob: bytes) -> tuple[str,str]:
     # Fixed executable with stdin/stdout and timeout. No shell/no file writes.
     try:
@@ -137,7 +191,7 @@ def pdf_text(blob: bytes) -> tuple[str,str]:
         if result.returncode:
             return "","PDF_TEXT_UNREADABLE"
         text=result.stdout.decode("utf-8",errors="replace")[:MAX_CHARACTERS]
-        return text, "PDF_TEXT_OK" if text.strip() else "PDF_NO_SELECTABLE_TEXT"
+        return (text, "PDF_TEXT_OK") if text.strip() else pdf_ocr_text(blob)
     except (FileNotFoundError, subprocess.TimeoutExpired, OSError):
         return "","PDF_EXTRACTOR_UNAVAILABLE"
 

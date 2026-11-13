@@ -45,5 +45,23 @@ class CityAssetsTest(unittest.TestCase):
         self.assertIn("Kraví hora - objekt 30",r["street_or_object_hints"])
         self.assertNotIn("STARÉ BRNO 967",r["street_or_object_hints"])
 
+
+    def test_ocr_official_cover_letter_is_not_a_city_property(self):
+        text="\n".join([
+            "která byla doručena Magistrátu města Brna dne 9. února",
+            "byla přípisem Majetkového odboru MMB ze dne 16. února",
+            "Malinovského náměstí 3, 601 67 Brno",
+            "Karlova 63",
+            "Francouzská 36",
+        ])
+        a=extract_property_strings(text)
+        self.assertEqual(a,["Karlova 63","Francouzská 36"])
+        self.assertFalse(any("dne" in x.lower() for x in a))
+    def test_uppercase_cadastral_stare_brno_not_suppressed(self):
+        self.assertEqual(extract_property_strings("STARÉ BRNO 967"),["STARÉ BRNO 967"])
+
+    def test_single_municipal_office_header_excluded(self):
+        self.assertEqual(extract_property_strings("Malinovského náměstí 3"),[])
+
 if __name__=="__main__":
     unittest.main()

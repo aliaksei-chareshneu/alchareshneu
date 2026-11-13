@@ -66,9 +66,17 @@ def extract_property_strings(text: str) -> list[str]:
         match=re.search(r"\b[A-Za-zÁ-ž][A-Za-zÁ-ž' -]{3,45}\s+\d{1,4}(?:/\d{1,4})?\b",row)
         if not match:
             continue
-        if re.search(r"(?:telefon|e-mail|identifikačn|číslo jednací|č\.\s*j\.)",row,re.I):
+        # Official archive scanned letter contains dates and a city office
+        # mailing address, not necessarily offers of unused buildings.
+        if re.search(r"(?:telefon|e-mail|identifikačn|číslo jednací|č\.\s*j\.|přípisem|doručen|ze dne|magistrátu)",row,re.I):
             continue
         address_hint=match.group(0).strip()[:90]
+        terminal=address_hint.rsplit(" ",1)[0].split()[-1].lower()
+        if terminal in {"dne","brno","brna","roku","úřad","mmb"} and not address_hint.isupper():
+            continue
+        if re.search(r"\bmalinovského\s+náměstí\s+3\b",address_hint,re.I):
+            # Explicit municipality correspondence address, not a venue.
+            continue
         if address_hint not in lines:
             lines.append(address_hint)
         if len(lines)>=40:
