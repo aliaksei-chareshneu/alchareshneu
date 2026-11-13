@@ -161,3 +161,71 @@ test('tampered source, trusted test or GitHub event never applies',async()=>{
   fs.rmSync(root,{recursive:true,force:true});
  }
 });
+
+test('comment-only owner tasks fail closed on changed function or export bytes',()=>{
+ const original=fs.readFileSync(path.join(__dirname,'../'+shipping),'utf8');
+ const task={mode:'AUTO_OWNER_ISSUE',goal:'Clarify existing comments without changing exports'};
+ assert.equal(W.enforceCommentOnly(task,original,original.replace(
+  '// Public synthetic fixture, not an actual shipping offer.',
+  '// Public example of subtotal plus delivery costs.')).includes('totalWithDelivery'),true);
+ for(const changed of [
+  original.replace('module.exports = {totalWithDelivery};','module.exports = {};'),
+  original.replace('return subtotal + delivery;','return subtotal;'),
+  original.replace('function totalWithDelivery','function wrongFunction')
+ ])assert.throws(()=>W.enforceCommentOnly(task,original,changed),/AUTO_COMMENT_SCOPE_CODE_CHANGED/);
+ assert.equal(W.enforceCommentOnly({...task,goal:'Correct a functional calculation'},original,
+  original.replace('return subtotal + delivery;','return subtotal;')).includes('return subtotal;'),true);
+});
+
+test('model receives the trusted JS contract and retries only one destructive edit',async()=>{
+ const root=workspace(),task=A.taskFromEvent(event),f=path.join(root,'owner-event.json');
+ fs.writeFileSync(f,JSON.stringify(event));
+ const original=fs.readFileSync(path.join(root,price),'utf8');
+ let patches=0,modeled=0;
+ const fetchImpl=async(_u,opts)=>{
+  const x=JSON.parse(opts.body),prompt=x.prompt;modeled++;
+  let reply;
+  if(prompt.includes('Select one or two existing PUBLIC modules')){
+   reply=JSON.stringify({files:[price]});
+  }else if(prompt.includes('You are a careful coding assistant editing ONE PUBLIC')){
+   patches++;
+   assert.match(prompt,/trusted_test_excerpt/);
+   assert.match(prompt,/netPrice/);
+   assert.match(prompt,/Preserve all existing public function names/);
+   if(patches===1)reply=JSON.stringify({
+    old:'module.exports = {netPrice};',
+    new:'module.exports = {};'
+   });
+   else reply=JSON.stringify({
+    old:'// Public synthetic fixture, not application pricing logic.',
+    new:'// Public synthetic arithmetic helper, not actual pricing logic.'
+   });
+  }else if(prompt.includes('Suggest ONLY JSON data for a human-review advisory Node test')){
+   reply=JSON.stringify({file:price,export:'netPrice',cases:[
+    {name:'item_thirteen',args:[13,3],expected:39}
+   ]});
+  }else throw Error('UNEXPECTED_MODELED_PROMPT');
+  return {ok:true,redirected:false,json:async()=>({done:true,model:W.MODEL,response:reply})};
+ };
+ const before=process.env.GITHUB_EVENT_PATH;process.env.GITHUB_EVENT_PATH=f;
+ try{
+  const proof=await A.propose(task,root,fetchImpl);
+  assert.equal(patches,2);
+  assert.equal(modeled,4);
+  assert.equal(proof.status,'AUTO_MODEL_PROPOSAL_ONLY');
+  assert.equal(proof.sources.length,1);
+  assert.equal(fs.readFileSync(path.join(root,price),'utf8'),original,
+    'model proposal must never modify worktree');
+  const forged={...proof,sources:[{...proof.sources[0],patch:{
+   old:'module.exports = {netPrice};',new:'module.exports = {};'
+  }}]};
+  assert.throws(()=>A.verifyManifest(forged,root),/AUTO_COMMENT_SCOPE_CODE_CHANGED/);
+  assert.equal(fs.readFileSync(path.join(root,price),'utf8'),original);
+  assert.equal(A.verifyManifest(proof,root).test.file,
+    'tests/generated/imperion-dev-auto-293-123456.test.cjs');
+ }finally{
+  if(before===undefined)delete process.env.GITHUB_EVENT_PATH;
+  else process.env.GITHUB_EVENT_PATH=before;
+  fs.rmSync(root,{recursive:true,force:true});
+ }
+});
