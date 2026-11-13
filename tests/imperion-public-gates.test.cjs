@@ -45,7 +45,7 @@ test('catalogue-first Academy is allowed only with verified course contacts', ()
   docs['academy/courses/index.html']=original.replaceAll('https://docs.google.com/forms/d/e/1FAIpQLSfa3qOWpQBfoA877ip9eOTWwFweOrNTib2mq8_C1D9xr55dtQ/viewform','https://example.invalid/intake');
   assert.ok(runAudit(docs).errors.some(x=>x.id==='academy:relevant-contact'),'catalogue must retain verified fallback form');
   docs['academy/courses/index.html']=original;
-  docs['academy/index.html']=docs['academy/index.html'].replace('href="courses/?lang=cs"','href="https://example.invalid/"');
+  docs['academy/index.html']=docs['academy/index.html'].replace('href="programmes/?lang=cs&amp;programme=LESSON#enquire"','href="https://example.invalid/"');
   assert.ok(runAudit(docs).errors.some(x=>x.id==='academy:relevant-contact'),'external shortcut fails closed');
 });
 test('an Academy WhatsApp number other than the verified one is blocked', () => {
