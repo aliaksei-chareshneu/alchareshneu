@@ -50,3 +50,27 @@ test('independent acceptance runs in actual preflight; publisher cannot auto mer
   assert.ok(workflow.includes('gh pr create --draft'));
   assert.doesNotMatch(workflow,/gh pr merge|git push origin main|\bdeploy --prod\b/);
 });
+
+test('Stage 9 docs match real owner-created-issue and bounded Python controller',()=>{
+  const ops=fs.readFileSync(path.join(root,'docs/imperion-dev-cloud-issue.md'),'utf8');
+  for(const text of ['Stage 9 LIVE','Issue #293','#43422929579','Draft PR #294'])
+    assert.ok(ops.includes(text),'operating runbook lacks verified Stage9 evidence '+text);
+  assert.ok(mobile.includes('Stage 9 Python mode is now LIVE'));
+  assert.ok(profile.includes('tests/test_*.py'));
+  assert.ok(profile.includes('any open public Issue'));
+  assert.equal(worker.safeSourceFile('ops/imperion-dev-cloud-fixture/normalize_py.py'),true);
+  assert.equal(worker.safeTestFile('tests/test_imperion_dev_cloud_python_fixture.py'),true);
+  assert.equal(worker.safeSourceFile('docs/imperion-dev-android.md'),true);
+  assert.equal(worker.safeSourceFile('.github/workflows/imperion-dev-cloud-issue.yml'),false);
+  const e={action:'created',repository:{full_name:worker.REPO},
+    issue:{number:293,state:'open',user:{login:'aliaksei-chareshneu'}},
+    sender:{login:'aliaksei-chareshneu'},
+    comment:{id:6852467457,user:{login:'aliaksei-chareshneu'},
+      author_association:'OWNER',body:'/imperion-dev cloud\nfile: ops/imperion-dev-cloud-fixture/normalize_py.py\ntest: tests/test_imperion_dev_cloud_python_fixture.py\ngoal: Correct total(items) by multiplying price by qty without any imports'}};
+  const accepted=worker.taskFromEvent(e);
+  assert.equal(accepted.issue,293);
+  assert.equal(accepted.test,'tests/test_imperion_dev_cloud_python_fixture.py');
+  assert.equal(worker.reviewBranch(293,6852467457),'agent/imperion-dev-cloud-293-6852467457');
+  assert.throws(()=>worker.taskFromEvent({...e,issue:{...e.issue,user:{login:'somebody-else'}}}),/UNTRUSTED_TRIGGER_REJECTED/);
+  assert.throws(()=>worker.parseCommand(e.comment.body.replace('test_imperion_dev_cloud_python_fixture.py','wrong.test.cjs')),/TASK_PATH_REJECTED/);
+});
