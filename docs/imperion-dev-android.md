@@ -90,3 +90,5 @@ For functional changes in Stage 11, the new fixed-template advisory test must fa
 Current restrictions persist: no unattended arbitrary repo changes, private tasks, unknown providers, unapproved account settings, production merges, deploys, permission escalation, recurring costs or customer messages. A task passing the issue workflow is not automatically `pull_request`-head CI green; bot PR workflows can show `action_required` and require separate GitHub review.
 
 Stage 12 acceptance is limited to a Draft PR with real GitHub Actions readback. The owner must approve any future merge separately.
+
+**Stage 12 code-repair gate:** if the first isolated, independently maintained trusted tests fail, the existing Qwen controller may propose ONE replacement patch against the SAME original tracked source(s) and SHA, using a bounded read-only failure hint. The entire fixed-template advisory witness and independent Docker tests run again in a new temporary sandbox. A second failure blocks publication; no self-approved merge or broader permissions. Only this narrow one-retry route is implemented, NOT unrestricted automatic debug/refactor loops.
