@@ -132,6 +132,7 @@ test('Academy single lesson requests preferred Prague time without claiming a ca
  const later=new Date(Date.now()+10*86400000).toISOString().slice(0,10);
  await page.locator('#academy-request-day').fill(later);
  await page.locator('#academy-request-time').fill('10:30');
+ await page.locator('#academy-alt-times').fill('Tue 18:30, Sat 11:00');
  await page.locator('#first-name').fill('Quality Check');
  await page.locator('#contact-email').fill('qa-test@example.invalid');
  await page.locator('#adult-confirm').check();
@@ -142,4 +143,5 @@ test('Academy single lesson requests preferred Prague time without claiming a ca
  expect(sent).toHaveLength(1);
  expect(sent[0]).toMatchObject({programme:'LESSON',locale:'ru',privacyAcknowledged:true,adultOrGuardianConfirmed:true});
  expect(sent[0].deadline).toContain(later+' 10:30 Europe/Prague (not a reservation)');
+ expect(sent[0].deadline).toContain('Alternatives: Tue 18:30, Sat 11:00');
 });
