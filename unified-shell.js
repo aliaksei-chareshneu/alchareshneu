@@ -23,7 +23,7 @@
       .filter(function(x){return ['cs','en','ru','uk'].indexOf(x)>=0;})
   ));
   var registerIndex=/^register\/(?:(?:en|ru|uk)\/)?(?:index\.html)?$/.test(path);
-  if(section==='about'||registerIndex)supported=['cs','en','ru','uk'];
+  if(section==='about'||registerIndex||path==='druzina/cesty/'||path==='druzina/cesty/index.html')supported=['cs','en','ru','uk'];
   // Some informational pages have four dedicated language sections rather than buttons.
   if(!supported.length&&document.querySelector('[data-locale="cs"], [data-dm-hero-all-lang="cs"]'))
     supported=['cs','en','ru','uk'];

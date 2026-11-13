@@ -365,6 +365,8 @@
     [['fdHeroLabel','heroEvents'],['fdHeroSub','heroTypes'],['fdAcademyLabel','heroAcademy'],['fdAcademyNote','academyNote'],
       ['fdNavHome','home'],['fdNavEvents','events'],['fdNavAcademy','academyNav'],['fdNavClub','clubNav'],
       ['fdNavWalkers','walkersNav'],['fdNavAbout','about'],['fdCityHeading','city']].forEach(function(pair){el(pair[0]).textContent=ft(pair[1]);});
+    // The last footer link now opens the dedicated About page, not the legacy details view.
+    el('fdFooterInfo').textContent=ft('about');
     // Catalogue has CS/EN/RU locales; its own safe default is Czech for UA visitors.
     el('fdAcademyCta').href='academy/courses/?lang='+encodeURIComponent(lang==='uk'?'cs':lang);
     [['fdNavAcademy','academy/'],['fdNavClub','druzina/'],['fdNavWalkers','walkers/']].forEach(function(pair){el(pair[0]).href=pair[1]+'?lang='+encodeURIComponent(lang);});
