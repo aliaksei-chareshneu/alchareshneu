@@ -60,7 +60,7 @@ jobs:
               cp -a "$dir" "_pages/$dir"
             fi
           done
-          for file in index.html 404.html robots.txt sitemap.xml styles.css brand-theme.css site-design.css intent-home.css conversion-frontdoor.css imperion-cinematic-site.css conversion-frontdoor.js site-design.js experience.css experience.js quest-theme.css quest-audio.js site.webmanifest apple-touch-icon.png favicon.ico favicon-16.png favicon-32.png favicon-48.png icon-192.png icon-512.png revolut-payment-qr.png; do
+          for file in index.html 404.html robots.txt sitemap.xml styles.css brand-theme.css site-design.css intent-home.css conversion-frontdoor.css imperion-cinematic-site.css conversion-frontdoor.js unified-shell.js unified-shell.css site-design.js experience.css experience.js quest-theme.css quest-audio.js site.webmanifest apple-touch-icon.png favicon.ico favicon-16.png favicon-32.png favicon-48.png icon-192.png icon-512.png revolut-payment-qr.png; do
             if [ -f "$file" ]; then
               cp "$file" "_pages/$file"
             fi
@@ -80,6 +80,10 @@ jobs:
           grep -Fq 'data-imperion-design' _pages/druzina/index.html
           grep -Fq 'data-imperion-design' _pages/register/index.html
           test -s _pages/conversion-frontdoor.js
+          test -s _pages/unified-shell.js
+          test -s _pages/unified-shell.css
+          test -s _pages/academy/academy-goals.js
+          test -s _pages/academy/academy-goals.css
           test -s _pages/images/frontdoor-fighter-shadows.svg
           test -s _pages/images/imperion-hero-cinematic-20261112.webp
           grep -Fq 'conversion-frontdoor.js?v=20261112' _pages/index.html
