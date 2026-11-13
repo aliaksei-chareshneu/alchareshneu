@@ -100,7 +100,7 @@ jobs:
           test -s _pages/academy/academy-choice-v4.js
           test -s _pages/academy/academy-choice-v4.css
           test -s _pages/partners/index.html
-          grep -Fq 'site-reviews.js?v=20261113c' _pages/index.html
+          grep -Fq 'site-reviews.js?v=20261113e' _pages/index.html
           grep -Fq 'academy-choice-v4.js?v=20261113d' _pages/academy/index.html
           grep -Fq 'site-calendar-policy.js?v=20261113c' _pages/register/index.html
           grep -Fq 'imperion-bootstrap.js?v=20261113b' _pages/index.html
