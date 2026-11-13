@@ -384,3 +384,31 @@ test('Python cloud preview uses the same model, fixture and isolated trusted tes
  assert.match(y,/grep -q 'FAIL: test_'/);
  assert.match(y,/python:3\.12-alpine/);
 });
+
+test('Python Qwen sees read-only independent numeric expectations, not secrets',async()=>{
+ const root=fs.mkdtempSync(path.join(os.tmpdir(),'imperion-py-test-context-'));
+ try{
+  for(const file of [W.PY_FIXTURE_FILE,W.PY_FIXTURE_TEST])
+   fs.mkdirSync(path.dirname(path.join(root,file)),{recursive:true});
+  fs.copyFileSync(path.join(__dirname,'../'+W.PY_FIXTURE_FILE),path.join(root,W.PY_FIXTURE_FILE));
+  fs.copyFileSync(path.join(__dirname,'../'+W.PY_FIXTURE_TEST),path.join(root,W.PY_FIXTURE_TEST));
+  let requests=0;
+  const task={file:W.PY_FIXTURE_FILE,test:W.PY_FIXTURE_TEST,
+   goal:'Correct each total price using quantity',comment:0,mode:'FIXTURE_PY'};
+  const r=await W.propose(task,root,async(_u,opts)=>{
+   requests++;
+   const q=JSON.parse(opts.body);
+   assert.match(q.prompt,/trusted_test_excerpt/);
+   assert.match(q.prompt,/test_quantities/);
+   assert.match(q.prompt,/34/);
+   assert.match(q.prompt,/TRUSTED_TEST_EXCERPT.*read-only/);
+   assert.ok(!q.prompt.includes('GITHUB_TOKEN='));
+   return {ok:true,redirected:false,json:async()=>({done:true,model:W.MODEL,
+    response:JSON.stringify({old:'return sum(row["price"] for row in items)',
+       new:'return sum(row["price"] * row["qty"] for row in items)'})})};
+  });
+  assert.equal(requests,1);
+  assert.equal(r.status,'MODEL_PROPOSAL_ONLY');
+  assert.equal(r.paid_api_czk,0);
+ }finally{fs.rmSync(root,{recursive:true,force:true});}
+});
