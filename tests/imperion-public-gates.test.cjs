@@ -93,8 +93,9 @@ test('public home blocks redirect to arbitrary third-party sales or booking page
     assert.ok(runAudit(docs).errors.some(e=>e.id===check), id+' missing '+check);
   }
 });
-test('home review proof link cannot silently claim a hard-coded rating', () => {
+test('Google reviews dated proof must match the independently verified 13 Nov 2026 snapshot', () => {
   const docs=loadPages();
-  docs['index.html']=docs['index.html'].replace('data-intent="reviews">Read customer reviews on Google','data-intent="reviews">50+ Google reviews · 5.0');
-  assert.ok(runAudit(docs).errors.some(e=>e.id==='root:review-link'));
+  assert.ok(!runAudit(docs).errors.some(e=>e.id==='root:review-link'));
+  docs['index.html']=docs['index.html'].replace('data-intent="reviews">56 Google reviews · 5.0 ★ (13 Nov 2026)', 'data-intent="reviews">500 Google reviews · 5.0 ★ (13 Nov 2026)');
+  assert.ok(runAudit(docs).errors.some(e=>e.id==='root:review-link'),'fabricated count must fail');
 });
