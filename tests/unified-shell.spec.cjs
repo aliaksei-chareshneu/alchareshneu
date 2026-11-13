@@ -144,6 +144,27 @@ for(const code of ['cs','en','ru','uk']){
   await expect(page.locator('header[data-imp-retired-nav="1"]:visible')).toHaveCount(0);
  });
 }
+for(const code of ['cs','en','ru','uk']){
+ test('Digital shop preserves all four site languages and disabled checkout '+code,async({page})=>{
+  await page.route('**/imperion-digital-store/health',route=>route.fulfill({
+   status:200,contentType:'application/json',headers:{'Access-Control-Allow-Origin':'*'},
+   body:'{"products":[]}'
+  }));
+  await page.goto('/shop/?lang='+code);
+  await expect(page.locator('#imp-shell-top')).toBeVisible();
+  await expect(page.locator('#imp-shell-top [data-imp-lang="uk"]')).toHaveCount(1);
+  await expect(page.locator('html')).toHaveAttribute('lang',code);
+  await expect(page.locator('main article.card')).toHaveCount(2);
+  await expect(page.locator('main article.card .price').first()).toHaveText('490 Kč');
+  await expect(page.locator('main article.card .price').last()).toHaveText('690 Kč');
+  await expect(page.locator('[data-digital-product]:not([disabled])')).toHaveCount(0);
+  await expect(page.locator('#checkout-consent .check a[href="./legal/"]')).toHaveCount(1);
+  if(code==='uk'){
+   await expect(page.locator('.hero h1')).toContainText('Корисні інструменти');
+   await expect(page.locator('#shop-status')).toContainText('Оплату тимчасово закрито');
+  }
+ });
+}
 test('Walkers historic cancelled hike is a collapsed archival refund notice below hero',async({page})=>{
  await page.goto('/walkers/?lang=cs');
  const notice=page.locator('#bw-cancel-20261028');
