@@ -104,7 +104,7 @@
     uk:{home:'Головна',events:'Події',academyNav:'Академія',clubNav:'Дружина',walkersNav:'BrnoWalkers',about:'Про мене',heroEvents:'Обрати подію',heroTypes:'Дружина · BrnoWalkers',heroAcademy:'Обрати курс Академії',academyNote:'Переглянути програми та напрями',city:'Місто',cityAll:'Усі міста',cityBrno:'Брно',cityPrague:'Прага',cityOther:'Інші / уточнюється',cityEmpty:'Для обраного міста й місяця поки немає перевірених опублікованих подій.',moreDates:'ще',menu:'Навігація'}
   };
   function ft(k){return (FRONT_COPY[lang]||FRONT_COPY.cs)[k]||FRONT_COPY.en[k]||k;}
-  var paths = {club:'druzina/',walkers:'walkers/',academy:'academy/courses/'};
+  var paths = {club:'druzina/',walkers:'walkers/',academy:'academy/'};
   var query = new URLSearchParams(location.search);
   var requested = query.get('lang');
   // A bare homepage URL must always start in Czech. Explicit ?lang=XX still wins.
@@ -144,7 +144,7 @@
     '<header class="fd-header"><div class="fd-shell fd-header-inner">',
       '<a class="fd-logo" href="#imperion-frontdoor"><span class="fd-logo-mark" aria-hidden="true">⚔</span><span class="fd-logo-text"><strong>IMPERION</strong><small>HISTORIE · ZÁŽITKY · ROZVOJ</small></span></a>',
       '<nav class="fd-nav" id="fdNav" aria-label="Primary navigation">',
-      '<a id="fdNavHome" href="#imperion-frontdoor"></a><a id="fdNavEvents" href="#impr-calendar"></a><a id="fdNavAcademy" href="academy/courses/"></a>',
+      '<a id="fdNavHome" href="#imperion-frontdoor"></a><a id="fdNavEvents" href="#impr-calendar"></a><a id="fdNavAcademy" href="academy/"></a>',
       '<a id="fdNavClub" href="druzina/"></a><a id="fdNavWalkers" href="walkers/"></a><a id="fdNavAbout" href="about/?lang=cs"></a>',
       '</nav>',
       '<div class="fd-languages" aria-label="Language">',
@@ -159,7 +159,7 @@
           '<p class="fd-lede" id="fdLead"></p>',
           '<div class="fd-hero-actions">',
           '<a class="fd-hero-cta" id="fdHeroCta" href="#impr-calendar"><span aria-hidden="true">▦</span><span class="fd-hero-cta-copy"><strong id="fdHeroLabel"></strong><small id="fdHeroSub"></small></span></a>',
-          '<a class="fd-hero-academy" id="fdAcademyCta" href="academy/courses/?lang=cs"><span class="fd-academy-symbol" aria-hidden="true">🎓</span><span class="fd-academy-copy"><strong id="fdAcademyLabel"></strong><small id="fdAcademyNote"></small></span></a>',
+          '<a class="fd-hero-academy" id="fdAcademyCta" href="academy/?lang=cs"><span class="fd-academy-symbol" aria-hidden="true">🎓</span><span class="fd-academy-copy"><strong id="fdAcademyLabel"></strong><small id="fdAcademyNote"></small></span></a>',
           '</div>',
           '<div class="fd-hero-topics" aria-hidden="true"><span id="fdDir1"></span><span id="fdDir2"></span><span id="fdDir3"></span></div>',
         '</div>',
@@ -367,9 +367,9 @@
       ['fdNavWalkers','walkersNav'],['fdNavAbout','about'],['fdCityHeading','city']].forEach(function(pair){el(pair[0]).textContent=ft(pair[1]);});
     // The last footer link now opens the dedicated About page, not the legacy details view.
     el('fdFooterInfo').textContent=ft('about');
-    // Catalogue has CS/EN/RU locales; its own safe default is Czech for UA visitors.
-    el('fdAcademyCta').href='academy/courses/?lang='+encodeURIComponent(lang==='uk'?'cs':lang);
-    [['fdNavAcademy','academy/courses/'],['fdNavClub','druzina/'],['fdNavWalkers','walkers/']].forEach(function(pair){el(pair[0]).href=pair[1]+'?lang='+encodeURIComponent(pair[0]==='fdNavAcademy'&&lang==='uk'?'cs':lang);});
+    // The Academy landing page and catalogue both support CS/EN/RU/UK.
+    el('fdAcademyCta').href='academy/?lang='+encodeURIComponent(lang);
+    [['fdNavAcademy','academy/'],['fdNavClub','druzina/'],['fdNavWalkers','walkers/']].forEach(function(pair){el(pair[0]).href=pair[1]+'?lang='+encodeURIComponent(lang);});
     el('fdNavAbout').href='about/?lang='+encodeURIComponent(lang);
     [['fdFacetTitle','facet'],['fdUpcomingTitle','upcoming'],['fdUpcomingIntro','upcomingIntro'],['fdAllTitle','allTitle'],['fdAllIntro','allIntro'],['fdReset','reset']].forEach(function(pair){el(pair[0]).textContent=ed(pair[1]);});
     parent.querySelectorAll('[data-fd-city]').forEach(function(btn){btn.textContent=ft('city'+btn.dataset.fdCity.charAt(0).toUpperCase()+btn.dataset.fdCity.slice(1));});
