@@ -37,7 +37,7 @@ for(const width of [320,390,1440]){
   await expect(page.locator('#fdAcademyCta')).toHaveAttribute('href','academy/courses/?lang=ru');
   await expect(page.locator('#fdAcademyCta')).not.toHaveAttribute('target','_blank');
   await expect(page.locator('#fdAcademyNote')).toContainText('программы');
-  await expect(page.locator('#fdNavAcademy')).toHaveAttribute('href','academy/?lang=ru');
+  await expect(page.locator('#fdNavAcademy')).toHaveAttribute('href','academy/courses/?lang=ru');
   await expect(page.locator('#fdNavClub')).toHaveAttribute('href','druzina/?lang=ru');
   await expect(page.locator('#fdNavWalkers')).toHaveAttribute('href','walkers/?lang=ru');
   await expect(page.locator('#fdNavAbout')).toHaveAttribute('href','about/?lang=ru');
@@ -69,7 +69,7 @@ for(const [lang,calendar,academy] of [
   await page.goto('/?lang='+lang);
   await expect(page.locator('#fdHeroLabel')).toHaveText(calendar);
   await expect(page.locator('#fdAcademyLabel')).toHaveText(academy);
-  await expect(page.locator('#fdNavAcademy')).toHaveAttribute('href','academy/?lang='+lang);
+  await expect(page.locator('#fdNavAcademy')).toHaveAttribute('href','academy/courses/?lang='+(lang==='uk'?'cs':lang));
   await expect(page.locator('#fdAcademyCta')).toHaveAttribute('href','academy/courses/?lang='+(lang==='uk'?'cs':lang));
   await expect(page.locator('#fdNavEvents')).toHaveAttribute('href','#impr-calendar');
   await page.locator('[data-fd-language="en"]').click();

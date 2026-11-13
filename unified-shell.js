@@ -9,8 +9,7 @@
   if(!location.pathname.startsWith(root.pathname)||!path||path==='index.html')return;
   var section=path.split('/')[0];
   var active=({academy:'academy',druzina:'club','druzina-moravy':'club',
-    walkers:'walkers',calendar:'events',events:'events',about:'about',
-    'brno-stories':'walkers'})[section]||'home';
+    walkers:'walkers',calendar:'events',events:'events',about:'about'})[section]||'';
   var copy={
     cs:{home:'Úvod',events:'Akce',academy:'Akademie',club:'Družina',walkers:'BrnoWalkers',about:'O mně',skip:'Přejít k obsahu',nav:'Hlavní navigace'},
     en:{home:'Home',events:'Events',academy:'Academy',club:'Družina',walkers:'BrnoWalkers',about:'About',skip:'Skip to content',nav:'Main navigation'},
@@ -68,7 +67,7 @@
     brand.href=urlFor('',code);
     links.home.href=urlFor('',code);
     links.events.href=urlFor('',code)+'#impr-calendar';
-    links.academy.href=urlFor('academy/',code);
+    links.academy.href=urlFor('academy/courses/',code==='uk'?'cs':code);
     links.club.href=urlFor('druzina/',code);
     links.walkers.href=urlFor('walkers/',code);
     links.about.href=urlFor('about/',code);

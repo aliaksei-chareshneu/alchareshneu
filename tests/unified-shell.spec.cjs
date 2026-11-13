@@ -15,10 +15,10 @@ const sections=[
  {path:'/academy/programmes/?lang=ru',section:'academy'},
  {path:'/druzina/cesty/?lang=ru',section:'club'},
  {path:'/druzina/novinky/?lang=ru',section:'club'},
- {path:'/corporate/?lang=ru',section:'home'},
- {path:'/start/?lang=ru',section:'home'},
- {path:'/register/ru/?lang=ru',section:'home'},
- {path:'/shop/?lang=cs',section:'home'}
+ {path:'/corporate/?lang=ru',section:null},
+ {path:'/start/?lang=ru',section:null},
+ {path:'/register/ru/?lang=ru',section:null},
+ {path:'/shop/?lang=cs',section:null}
 ];
 for(const target of sections){
  test('one permanent site navigation: '+target.path,async({page})=>{
@@ -30,12 +30,12 @@ for(const target of sections){
   await expect(h).toBeVisible();
   await expect(page.locator('body')).toHaveAttribute('data-imp-nav-ready','yes');
   await expect(h.locator('nav.imp-shell-links a')).toHaveCount(6);
-  await expect(h.locator('nav.imp-shell-links a[aria-current="page"]')).toHaveCount(1);
-  await expect(h.locator('nav.imp-shell-links a[aria-current="page"]')).toHaveAttribute('data-imp-link',target.section);
+  await expect(h.locator('nav.imp-shell-links a[aria-current="page"]')).toHaveCount(target.section?1:0);
+  if(target.section)await expect(h.locator('nav.imp-shell-links a[aria-current="page"]')).toHaveAttribute('data-imp-link',target.section);
   await expect(page.locator('[data-imp-retired-nav="1"]:visible')).toHaveCount(0);
   for(const item of await h.locator('nav.imp-shell-links a').all()){
    const dest=await item.getAttribute('href');
-   expect(new URL(dest,page.url()).pathname).toMatch(/^(?:\/|\/(?:about|academy|druzina|walkers)\/)$/);
+   expect(new URL(dest,page.url()).pathname).toMatch(/^(?:\/|\/(?:about|academy\/courses|druzina|walkers)\/)$/);
   }
   if(target.hero)await expect(page.locator('main .hero .hero-ctas > a:visible')).toHaveCount(2);
   const wide=await h.evaluate(el=>el.getBoundingClientRect().width);
@@ -48,7 +48,7 @@ test('Main -> Academy -> Druzina -> BrnoWalkers -> About retains language and on
  await page.goto('/?lang=ru');
  await expect(page.locator('html')).toHaveAttribute('data-imperion-frontdoor','ready');
  await page.locator('#fdNavAcademy').click();
- await expect(page).toHaveURL(/\/academy\/\?lang=ru/);
+ await expect(page).toHaveURL(/\/academy\/courses\/\?lang=ru/);
  await expect(page.locator('#imp-shell-top')).toBeVisible();
  await page.locator('#imp-shell-links [data-imp-link="club"]').click();
  await expect(page).toHaveURL(/\/druzina\/\?lang=ru/);
@@ -67,7 +67,7 @@ test('About from frontdoor opens current page, never the hidden legacy home',asy
  await page.locator('#fdNavAbout').click();
  await expect(page).toHaveURL(/\/about\/\?lang=en$/);
  await expect(page.locator('main h1')).toContainText('One person');
- await expect(page.locator('a.imp-about-primary')).toHaveAttribute('href',/\/academy\/\?lang=en$/);
+ await expect(page.locator('a.imp-about-primary')).toHaveAttribute('href',/\/academy\/courses\/\?lang=en$/);
 });
 test('Language switching in localized form retains selected event and attribution',async({page})=>{
  await mockPublicEvents(page);
