@@ -1,0 +1,88 @@
+/* IMPERION public UX clarity v4 — shared: one calendar, visible hero art and trust. */
+#imp-google-review-badge{position:absolute;z-index:7;right:clamp(17px,3.8vw,62px);top:clamp(18px,3.4vw,49px);display:flex;align-items:flex-start;flex-direction:column;gap:4px;padding:14px 18px;min-width:172px;max-width:220px;border:1px solid #dfb978;border-radius:15px;background:#11272be9;color:#fff3d9!important;text-decoration:none!important;box-shadow:0 10px 30px #0009;backdrop-filter:blur(9px)}
+#imp-google-review-badge .imp-review-stars{font-size:19px;line-height:1;color:#ffda89;letter-spacing:.04em}
+#imp-google-review-badge strong{font:750 17px/1.2 Georgia,serif}
+#imp-google-review-badge small{font:600 12px/1.3 system-ui,sans-serif;color:#d9e4dc}
+#imp-google-review-badge:hover{border-color:#ffe3ab;background:#1c3a3b}
+#imp-home-reviews{background:radial-gradient(ellipse at 95% 0,#345d483b,transparent 50%),linear-gradient(175deg,#071a1f,#112e2f);padding:clamp(48px,6vw,75px) 0 84px;border-top:1px solid #a88e595d}
+#imp-home-reviews .imp-reviews-eyebrow{margin:0 0 12px;font-size:12px;letter-spacing:.17em;color:#f4ce84;font-weight:850}
+#imp-home-reviews h2{margin:0 0 14px;color:#fff0d5;font:600 clamp(30px,4vw,53px)/1.11 Georgia,serif}
+#imp-home-reviews .imp-reviews-lead{color:#d2e2d8;font-size:clamp(15px,1.3vw,18px);line-height:1.56;max-width:850px;margin-bottom:27px}
+#imp-home-reviews .imp-review-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}
+#imp-home-reviews .imp-review-item{min-width:0;min-height:160px;display:grid;place-items:center;padding:7px;background:#eee9e1;border:1px solid #bdac89;border-radius:15px;overflow:hidden;box-shadow:0 10px 22px #0007;transition:transform .16s ease}
+#imp-home-reviews .imp-review-item:hover{transform:translateY(-3px)}
+#imp-home-reviews .imp-review-item img{width:100%;height:230px;object-fit:contain;display:block;color:#222}
+#imp-home-reviews .imp-review-read-all{display:inline-flex;align-items:center;justify-content:center;margin-top:25px;min-height:50px;border-radius:12px;background:#f4ce86;color:#132527!important;padding:12px 22px;text-decoration:none!important;font-weight:850}
+#imp-home-reviews .imp-review-read-all:hover{background:#ffe9b4}
+#imperion-frontdoor .fd-day-recurring:not(.fd-today){outline:1px dashed #d5aa68;outline-offset:-2px;background:#1b3337}
+#imperion-frontdoor .fd-status[data-status="tentative"],#imperion-frontdoor #fdBook[data-status="tentative"]{border-color:#dbbb74}
+#imperion-frontdoor .fd-book[data-status="tentative"]{background:#f5cf84;color:#092527}
+/* The ranger and knight art must retain their original full colour and prominence. */
+body[data-imperion-design="walkers"] #walkers.hero>.hero-visuals,
+body[data-imperion-design="druzina"] #druzina.hero>.hero-visuals{
+ opacity:1!important;mix-blend-mode:normal!important;filter:none!important;display:block;
+}
+body[data-imperion-design="walkers"] #walkers.hero>.hero-visuals .hero-photo,
+body[data-imperion-design="druzina"] #druzina.hero>.hero-visuals .hero-photo{filter:none!important;opacity:1!important}
+body[data-imperion-design="walkers"] #walkers.hero>.hero-visuals .hero-scrim,
+body[data-imperion-design="druzina"] #druzina.hero>.hero-visuals .hero-scrim{background:linear-gradient(95deg,#06191fe8 0%,#071c22d5 29%,#11262a60 65%,#091b2288 100%)}
+body[data-imperion-design="walkers"] #walkers.hero,
+body[data-imperion-design="druzina"] #druzina.hero{background-image:none!important;background-color:#071a22!important;box-shadow:inset 0 -20px 60px #081e27bd}
+body[data-imperion-design="walkers"] #walkers.hero>.wrap,
+body[data-imperion-design="druzina"] #druzina.hero>.wrap{position:relative;z-index:2}
+body[data-imperion-design="walkers"] #walkers.hero h1,
+body[data-imperion-design="druzina"] #druzina.hero h1{max-width:850px}
+/* Compact next-activity cards and clear route to the ONE catalog/calendar. */
+.imp-next-card,.imp-essentials,.imp-walkers-next{width:min(1130px,calc(100% - 32px));margin:20px auto 25px;padding:clamp(19px,2.8vw,29px);border-radius:18px;border:1px solid #c8a16b;background:linear-gradient(125deg,#122f34,#163f3f);box-shadow:0 12px 30px #0007;color:#f8eedb}
+.imp-next-card{width:100%;margin:16px 0}
+.imp-next-card .imp-kicker,.imp-essentials .imp-kicker,.imp-walkers-next .imp-kicker{margin:0 0 8px;font:820 12px/1.3 system-ui,sans-serif;color:#f2c67c;letter-spacing:.17em}
+.imp-next-card h2,.imp-essentials h2,.imp-walkers-next h2{font:630 clamp(22px,3vw,33px)/1.2 Georgia,serif;color:#ffe9b8;margin:0 0 10px}
+.imp-next-card p,.imp-essentials p,.imp-walkers-next p{color:#ebebe0;margin:8px 0}
+.imp-quick-links{display:flex;flex-wrap:wrap;align-items:center;gap:11px;margin-top:16px}
+.imp-quick-links a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:9px 17px;border:1px solid #ebd3a0;border-radius:10px;background:#f5cf84;color:#09292b!important;text-decoration:none!important;font:790 15px/1.2 system-ui,sans-serif}
+.imp-quick-links a.secondary{background:#122d32;color:#ffdda6!important;border-color:#cda570}
+.imp-quick-links a:hover{filter:brightness(1.08)}
+#imp-club-essentials,#imp-walkers-essentials{scroll-margin-top:15px}
+.imp-essentials .imp-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;margin:12px 0}
+.imp-essentials .imp-facts>*{border:1px solid #9a977492;background:#102c31;padding:17px;border-radius:12px}
+.imp-essentials .imp-facts h3{color:#ffe2a8;font:770 17px/1.2 system-ui;margin:0 0 8px}
+.imp-essentials .imp-facts p{font-size:14px;line-height:1.45}
+.imp-secondary-info{max-width:1120px;width:calc(100% - 30px);margin:25px auto;padding:0;background:#112e31;border:1px solid #8e8a62;border-radius:16px;color:#f7eee0}
+.imp-secondary-info>summary{padding:18px 22px;cursor:pointer;color:#ffe2a6;font:750 19px/1.3 Georgia,serif;min-height:54px}
+.imp-secondary-info[open]>summary{border-bottom:1px solid #9c875b}
+.imp-secondary-body{padding:10px 15px 26px}
+.imp-secondary-body>section{max-width:100%;box-sizing:border-box;margin:14px 0!important}
+body[data-imperion-design="druzina"] #dm-hero-all-generations,
+body[data-imperion-design="druzina"] #druzina .dm-trust-line,
+body[data-imperion-design="druzina"] #druzina .free-note.dm-compact-legal,
+body[data-imperion-design="druzina"] #druzina .dm-hero-deck {display:none!important}
+body[data-imperion-design="druzina"] #druzina .dm-v2-facts{display:none!important}
+body[data-imperion-design="druzina"] #druzina .hero-ctas.dm-hero-ctas{margin:12px 0}
+body[data-imperion-design="druzina"] #druzina .hero-ctas.dm-hero-ctas .btn{background:#f5cf84!important;color:#0b2629!important;min-height:46px}
+body[data-imperion-design="druzina"] #druzina #dm-nov14-fast-rsvp{margin:16px 0;width:min(870px,100%)}
+body[data-imperion-design="druzina"] #club-updates>summary{padding:17px}
+body[data-imperion-design="walkers"] #walkers .hero-mission{display:none!important}
+body[data-imperion-design="walkers"] #walkers .hero-ctas-secondary{display:none!important}
+body[data-imperion-design="walkers"] #walkers .reviews-badge{margin-top:10px}
+/* No redundant historical registration buttons ahead of the imagery. */
+body[data-imperion-design="walkers"] #november-events-hub,
+body[data-imperion-design="walkers"] #bw-walktalk-nov-2026,
+body[data-imperion-design="walkers"] #new-website-registration{max-width:100%;box-sizing:border-box}
+body[data-imperion-design="walkers"] main .imp-secondary-info{order:90}
+body[data-imperion-design="walkers"] #boardgames{display:none!important}
+body[data-imperion-design="walkers"] #medals{display:none!important}
+/* Keep policy text available in disclosure, not occupying first screen. */
+body[data-imperion-design="walkers"] .imp-secondary-body #walkers-rules,
+body[data-imperion-design="walkers"] .imp-secondary-body #canoe-safety,
+body[data-imperion-design="walkers"] .imp-secondary-body #faq{margin:18px 0}
+@media(max-width:900px){
+ #imp-home-reviews .imp-review-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #imp-google-review-badge{position:relative;right:auto;top:auto;margin:8px 15px 22px;max-width:230px}
+ .imp-essentials .imp-facts{grid-template-columns:1fr}
+ body[data-imperion-design="walkers"] #walkers.hero>.hero-visuals,
+ body[data-imperion-design="druzina"] #druzina.hero>.hero-visuals{position:relative!important;inset:auto!important;width:100%;height:clamp(210px,58vw,330px)}
+ body[data-imperion-design="druzina"] #druzina.hero>.hero-visuals{height:clamp(170px,45vw,250px)}
+ body[data-imperion-design="walkers"] #walkers.hero>.hero-visuals .hero-scrim,
+ body[data-imperion-design="druzina"] #druzina.hero>.hero-visuals .hero-scrim{background:linear-gradient(180deg,transparent 60%,#071d23c8 100%)}
+}
+@media(max-width:650px){#imp-home-reviews .imp-review-grid{grid-template-columns:1fr}#imp-home-reviews .imp-review-item img{height:auto;max-height:420px}.imp-quick-links a{width:100%}}
