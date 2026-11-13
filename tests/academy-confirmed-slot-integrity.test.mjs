@@ -23,7 +23,7 @@ for(const [name,patch] of [
   ['no bank timestamp',{bank_verified_at:null}],
   ['client-only requested status',{booking_status:'REQUESTED'}],
   ['READY is not CONFIRMED',{booking_status:'READY_TO_SCHEDULE'}],
-  ['no owner's confirmation timestamp',{booking_confirmed_at:null}],
+  ['no owner confirmation timestamp',{booking_confirmed_at:null}],
   ['missing actual slot start',{confirmed_session_at:null}],
   ['missing actual slot end',{confirmed_session_end_at:null}],
   ['wrong session duration',{confirmed_session_end_at:'2026-11-16T18:15:00.000Z'}],
