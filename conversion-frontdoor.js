@@ -69,6 +69,7 @@
   function pc(k){return (PAYMENT_COPY[lang]||PAYMENT_COPY.cs)[k];}
   function isPaidActivity(e){return e&&Number.isFinite(Number(e.price_czk))&&Number(e.price_czk)>0;}
   function displayEventPrice(e){
+    if(e.provisional)return window.ImperionCalendarPolicy.langData(lang).price;
     if(e.price_verified!==true||e.price_czk===null||e.price_czk===undefined||e.price_czk==='')return tr('price');
     var base=Number(e.price_czk);
     if(!Number.isFinite(base)||base<0)return tr('price');
@@ -110,7 +111,7 @@
   // A bare homepage URL must always start in Czech. Explicit ?lang=XX still wins.
   // Do not infer page language from a stale saved preference on a previous visit.
   var lang = LANGS.indexOf(requested)>=0 ? requested : 'cs';
-  var data=[], status='loading', filter='all', city='all', selectedId='', chosenDay='', month=new Date(), pending=false;
+  var data=[], status='loading', filter=['club','walkers','academy'].includes(query.get('category'))?query.get('category'):'all', city='all', selectedId='', chosenDay='', month=new Date(), pending=false;
   var modalShown=false, modalDay='';
   var tzFormatter = new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Prague',year:'numeric',month:'2-digit',day:'2-digit'});
   function tr(k){return COPY[lang][k]||COPY.en[k]||k;}
@@ -227,7 +228,7 @@
     return p.year+'-'+p.month+'-'+p.day;
   }
   function mode(e) {
-    if (!e) return 'planned';
+    if (!e||e.provisional) return 'planned';
     if(e.registration_mode==='CONTACT')return 'contact';
     if(e.registration_mode==='FORM' && e.is_open===true && e.price_verified===true && e.end_time_verified===true && Date.parse(e.begins_at)>Date.now()) return 'open';
     return 'planned';
@@ -239,16 +240,19 @@
     return 'walkers';
   }
   function publicTitle(e){
+    if(e.provisional)return window.ImperionCalendarPolicy.langData(lang).title;
     if(e.event_id==='PUB-OREL-20261114')return ({cs:'Šerm pro začátečníky · bezplatný workshop',en:'Try historical fencing · free workshop',ru:'Попробуй фехтование · бесплатный воркшоп',uk:'Спробуйте фехтування · безплатний воркшоп'})[lang];
     if(e.category==='HEMA Training' && group(e)==='club')return ({cs:'Historický šerm · Družina Moravy',en:'Historical fencing · Družina Moravy',ru:'Историческое фехтование · Družina Moravy',uk:'Історичне фехтування · Družina Moravy'})[lang];
     return e.title;
   }
   function publicDescription(e){
+    if(e.provisional)return window.ImperionCalendarPolicy.langData(lang).detail;
     if(e.event_id==='PUB-OREL-20261114')return ({cs:'Úvodní workshop v Orlovně Husovice. Vstup zdarma, účast až po osobním potvrzení organizátorem.',en:'Introductory workshop at Orlovna Husovice. Free entry, attendance only after personal confirmation.',ru:'Вводный воркшоп в Orlovna Husovice. Бесплатно, участие только после личного подтверждения организатора.',uk:'Вступний воркшоп в Orlovna Husovice. Безплатно, участь лише після особистого підтвердження.'})[lang];
     if(e.category==='HEMA Training' && group(e)==='club')return ({cs:'Pohyb, historický šerm a společný trénink. Bezpečné místo a účast vždy potvrdí organizátor.',en:'Movement, historical fencing and group training. The organiser must confirm the safe venue and your place.',ru:'Движение, историческое фехтование и тренировка в группе. Место и участие организатор подтверждает лично.',uk:'Рух, історичне фехтування та групове тренування. Безпечне місце й участь організатор підтверджує особисто.'})[lang];
     return typeof e.public_note==='string'&&e.public_note.trim()?e.public_note.slice(0,330):tr('controller');
   }
   function publicVenue(e){
+    if(e.provisional)return 'Brno · '+window.ImperionCalendarPolicy.langData(lang).status;
     if(e.category==='HEMA Training' && group(e)==='club' && e.event_id!=='PUB-OREL-20261114')
       return ({cs:'Brno · přesný sraz až po potvrzení',en:'Brno · exact location after confirmation',ru:'Брно · место сообщим после подтверждения',uk:'Брно · місце після підтвердження'})[lang];
     return e.venue||tr('controller');
@@ -284,8 +288,15 @@
     var clubSaturday=e.category==='HEMA Training'&&group(e)==='club'&&e.event_id!=='PUB-OREL-20261114'&&new Date(e.begins_at).getUTCDay()===6;
     return clubSaturday||date==='2026-11-15'||date==='2026-11-17'||e.event_id==='BW-PAID-20261028'||e.event_id==='COM-HIKE-20261028';
   }
+  function displayData(y,m){
+    var policy=window.ImperionCalendarPolicy;
+    // Planned Mondays never enter public API catalogue and cannot be reserved online.
+    var previews=policy?policy.forMonth(y,m,data):[];
+    return data.concat(previews);
+  }
   function eventsForDay(key){
-    return data.filter(function(e){return dayKey(e.begins_at)===key&&matches(e);}).sort(function(a,b){return Date.parse(a.begins_at)-Date.parse(b.begins_at);});
+    var y=Number(key.slice(0,4)),m=Number(key.slice(5,7))-1;
+    return displayData(y,m).filter(function(e){return dayKey(e.begins_at)===key&&matches(e);}).sort(function(a,b){return Date.parse(a.begins_at)-Date.parse(b.begins_at);});
   }
   function locale(){return ({cs:'cs-CZ',en:'en-GB',ru:'ru-RU',uk:'uk-UA'})[lang]||'cs-CZ';}
   function timeOf(e){
@@ -309,7 +320,7 @@
     var pane=el('fdUpcoming');pane.replaceChildren();
     if(status==='loading'){var loading=document.createElement('p');loading.className='fd-upcoming-empty';loading.textContent=tr('loading');pane.appendChild(loading);return;}
     var m=month.getFullYear()+'-'+String(month.getMonth()+1).padStart(2,'0');
-    var candidates=data.filter(function(e){return matches(e)&&dayKey(e.begins_at).slice(0,7)===m;}).slice(0,5);
+    var candidates=displayData(month.getFullYear(),month.getMonth()).filter(function(e){return matches(e)&&dayKey(e.begins_at).slice(0,7)===m;}).sort(function(a,b){return Date.parse(a.begins_at)-Date.parse(b.begins_at);}).slice(0,5);
     if(!candidates.length){var none=document.createElement('p');none.className='fd-upcoming-empty';none.textContent=status==='error'?tr('offline'):ed('none');pane.appendChild(none);return;}
     candidates.forEach(function(e){
       var btn=document.createElement('button');btn.className='fd-upcoming-event';btn.type='button';
@@ -331,7 +342,8 @@
       notice.textContent=status==='loading'?tr('loading'):tr('offline');
       list.appendChild(notice);return;
     }
-    var upcoming=data.filter(matches);
+    var next=new Date(month.getFullYear(),month.getMonth()+1,1);
+    var upcoming=displayData(month.getFullYear(),month.getMonth()).concat(window.ImperionCalendarPolicy?window.ImperionCalendarPolicy.forMonth(next.getFullYear(),next.getMonth(),data).slice(0,2):[]).filter(matches).sort(function(a,b){return Date.parse(a.begins_at)-Date.parse(b.begins_at);});
     if(!upcoming.length){
       var none=document.createElement('p');none.className='fd-all-empty';none.textContent=ed('none');
       list.appendChild(none);return;
@@ -406,13 +418,14 @@
     [[tr('date'),timeOf(event)],[tr('place'),publicVenue(event)],[({cs:'Pořadatel',en:'Organiser',ru:'Организатор',uk:'Організатор'})[lang],event.data_controller||tr('controller')],[tr('priceLabel'),displayEventPrice(event)]].forEach(function(x){
       var line=document.createElement('span'),b=document.createElement('strong');b.textContent=x[0]+': ';line.appendChild(b);line.appendChild(document.createTextNode(x[1]));facts.appendChild(line);
     });
-    var st=el('fdStatus');st.hidden=false;st.className='fd-status '+(m==='open'?'open':'');st.textContent=tr(m);
+    var st=el('fdStatus');st.hidden=false;st.className='fd-status '+(m==='open'?'open':'');st.textContent=event.provisional?window.ImperionCalendarPolicy.langData(lang).status:tr(m);
     updatePaymentDetails(event);
     var book=el('fdBook');book.removeAttribute('aria-disabled');
-    if(m==='open'){book.href=hrefForEvent(event);book.textContent=tr('book');}
+    if(event.provisional){book.href=window.ImperionCalendarPolicy.enquire(lang,event.local_day);book.target='_blank';book.rel='noopener noreferrer';book.textContent=window.ImperionCalendarPolicy.langData(lang).ask;}
+    else if(m==='open'){book.removeAttribute('target');book.href=hrefForEvent(event);book.textContent=tr('book');}
     else if(m==='contact'){book.href=hrefForEvent(event);book.textContent=tr('ask');}
     else {book.href=g==='club'?'https://t.me/druzinamoravy_news':g==='walkers'?'https://t.me/pochody_brno_news':'academy/';book.textContent=tr('follow');}
-    book.dataset.status=m;book.dataset.category=g;
+    book.dataset.status=event.provisional?'tentative':m;book.dataset.category=g;
     var more=el('fdMore');more.textContent=tr('details');more.href=paths[g];
     var variants=el('fdVariants');variants.replaceChildren();variants.hidden=opts.length<2;
     if(opts.length>1)opts.forEach(function(option){
@@ -435,7 +448,7 @@
       var key=year+'-'+String(m+1).padStart(2,'0')+'-'+String(day).padStart(2,'0');
       var evs=eventsForDay(key);
       if(evs.length&&!firstWithEvents)firstWithEvents=key;
-      var item=document.createElement(evs.length?'button':'span');item.className='fd-day'+(key===today?' fd-today':'')+(key<today?' fd-past':'');
+      var item=document.createElement(evs.length?'button':'span');item.className='fd-day'+(key===today?' fd-today':'')+(key<today?' fd-past':'')+(evs.some(function(e){return e.provisional;})?' fd-day-recurring':'');
       if(evs.length){item.type='button';item.setAttribute('aria-label',key+' · '+evs.map(function(e){return e.title;}).join('; '));item.setAttribute('aria-pressed',String(key===chosenDay));item.addEventListener('click',function(k){return function(){chosenDay=k;selectedId='';sendSignal('calendar_day_select','calendar');render();openEventModal(k);};}(key));}
       var number=document.createElement('span');number.className='fd-daynum';number.textContent=day;item.appendChild(number);
       if(evs.length){
