@@ -1,5 +1,5 @@
 import unittest
-from city_assets import archive_link, city_public_property_pages, extract_property_strings, inspect_city_unused_archive
+from city_assets import archive_link, city_public_property_pages, extract_property_strings, inspect_city_unused_archive, partition_location_hints
 
 class CityAssetsTest(unittest.TestCase):
     def test_city_item_page_not_a_signed_agreement(self):
@@ -35,6 +35,15 @@ class CityAssetsTest(unittest.TestCase):
         value=extract_property_strings("Dukelská třída 157/44, osobní poznámka soukromá informace")
         self.assertNotIn("osobní",str(value))
         self.assertLessEqual(len(value),1)
+
+    def test_split_streets_vs_cadastral_locality_numbers(self):
+        hints=["Francouzská 36","Rumiště 3","Kraví hora - objekt 30",
+               "VEVEŘÍ 739/1","STARÉ BRNO 967","SADOVÁ 19/7"]
+        r=partition_location_hints(hints)
+        self.assertEqual(r["street_or_object_hints_count"],3)
+        self.assertEqual(r["possible_cadastral_plot_hints_count"],3)
+        self.assertIn("Kraví hora - objekt 30",r["street_or_object_hints"])
+        self.assertNotIn("STARÉ BRNO 967",r["street_or_object_hints"])
 
 if __name__=="__main__":
     unittest.main()
