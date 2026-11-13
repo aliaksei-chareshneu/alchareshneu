@@ -222,8 +222,8 @@ async function propose(task,root,fetchImpl=globalThis.fetch){
 function requiresBehaviorWitness(p,root){
  const verified=verifyManifest(p,root);
  const goal=p.task.goal||'';
- if(/\b(?:refactor|formatting|reformat|comment|documentation|clarif|explain)\b/i.test(goal) &&
-    /\b(?:preserv|without chang|unchanged|only)\b/i.test(goal))return false;
+ if(/\b(?:refactor|formatting|reformat|comments?|clarif(?:y|ied|ication)|documentation|explain)\b/i.test(goal) &&
+    /\b(?:preserv\w*|without chang\w*|unchanged|only)\b/i.test(goal))return false;
  const executable=s=>s.split(/\r?\n/).filter(l=>!/^(?:\s*\/\/|\s*$)/.test(l)).join('\n');
  return verified.updates.some(u=>executable(W.safeFileRead(root,u.file))!==executable(u.changed));
 }
