@@ -78,8 +78,12 @@ function runAudit(pages) {
     && (pages['start/index.html'] || '').length>0,
     'Further activities CTA must open the existing language-aware service picker');
   verify('root:review-link', /<a[^>]*class="intent-google"[^>]*href="https:\/\/maps\.app\.goo\.gl\/fEbnJHxiVoAx1v498"/.test(home)
-    && !/<span[^>]*data-intent="reviews"[^>]*>\s*(?:50\+|5\.0)/.test(home),
-    'Customer proof must link to real public reviews without unverified counts');
+    && /data-intent="reviews">56 Google reviews · 5\.0 ★ \(13 Nov 2026\)/.test(home)
+    && home.includes("reviews:'56 Google reviews · 5.0 ★ (13 Nov 2026)")
+    && home.includes("reviews:'56 recenzí na Googlu · 5,0 ★ (13. 11. 2026)")
+    && home.includes("reviews:'56 отзывов в Google · 5,0 ★ (13.11.2026)")
+    && home.includes("reviews:'56 відгуків у Google · 5,0 ★ (13.11.2026)"),
+    'Verified 13 Nov 2026 Google Maps profile: 56 public reviews and 5.0 rating; preserve source/date/four languages');
   const clubCard = home.match(/<a\b[^>]*class=["'][^"']*\bventure-card\b[^"']*["'][^>]*href=["']druzina\/["'][^>]*>([\s\S]*?)<\/a>/i)?.[1] || '';
   verify('root:club-card', /(?:plan|confirm|date|term|dotaz)/i.test(clubCard)
     && !/3\s*[×x]\s*(?:a week|týdně|в неделю|на тиждень)/i.test(clubCard)
