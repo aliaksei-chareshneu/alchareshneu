@@ -35,7 +35,7 @@ for(const target of sections){
   await expect(page.locator('[data-imp-retired-nav="1"]:visible')).toHaveCount(0);
   for(const item of await h.locator('nav.imp-shell-links a').all()){
    const dest=await item.getAttribute('href');
-   expect(new URL(dest,page.url()).pathname).toMatch(/^(?:\/|\/(?:about|academy\/courses|druzina|walkers)\/)$/);
+   expect(new URL(dest,page.url()).pathname).toMatch(/^(?:\/|\/(?:about|academy|druzina|walkers)\/)$/);
   }
   if(target.hero)await expect(page.locator('main .hero .hero-ctas > a:visible')).toHaveCount(2);
   const wide=await h.evaluate(el=>el.getBoundingClientRect().width);
@@ -48,7 +48,7 @@ test('Main -> Academy -> Druzina -> BrnoWalkers -> About retains language and on
  await page.goto('/?lang=ru');
  await expect(page.locator('html')).toHaveAttribute('data-imperion-frontdoor','ready');
  await page.locator('#fdNavAcademy').click();
- await expect(page).toHaveURL(/\/academy\/courses\/\?lang=ru/);
+ await expect(page).toHaveURL(/\/academy\/\?lang=ru/);
  await expect(page.locator('#imp-shell-top')).toBeVisible();
  await page.locator('#imp-shell-links [data-imp-link="club"]').click();
  await expect(page).toHaveURL(/\/druzina\/\?lang=ru/);
@@ -67,7 +67,7 @@ test('About from frontdoor opens current page, never the hidden legacy home',asy
  await page.locator('#fdNavAbout').click();
  await expect(page).toHaveURL(/\/about\/\?lang=en$/);
  await expect(page.locator('main h1')).toContainText('One person');
- await expect(page.locator('a.imp-about-primary')).toHaveAttribute('href',/\/academy\/courses\/\?lang=en$/);
+ await expect(page.locator('a.imp-about-primary')).toHaveAttribute('href',/\/academy\/\?lang=en$/);
 });
 test('Language switching in localized form retains selected event and attribution',async({page})=>{
  await mockPublicEvents(page);
@@ -101,23 +101,68 @@ for(const width of [320,390,768,1440]){
   await expect(page.locator('main .hero .hero-ctas > a:visible')).toHaveCount(2);
  });
 }
-for(const code of ['cs','ru','uk']){
- test('Academy entrypoints are catalogue-first ('+code+')',async({page})=>{
+for(const code of ['cs','en','ru','uk']){
+ test('Academy offers four problem-first directions in '+code,async({page})=>{
   await page.goto('/academy/?lang='+code);
-  const expected='courses/?lang='+(code==='uk'?'cs':code);
+  await expect(page.locator('html')).toHaveAttribute('lang',code);
+  await expect(page.locator('#academy-choose .goal-jump')).toHaveCount(4);
+  await expect(page.locator('#academy-choose .goal-detail')).toHaveCount(4);
+  await expect(page.locator('#academy-choose .goal-option')).toHaveCount(12);
+  const heading=await page.locator('#academy-choose h2').textContent();
+  expect(heading).toMatch(code==='ru'?/проблему/:code==='uk'?/проблему/:code==='en'?/problem/:/pomoci/);
   for(const selector of ['.hero .hero-ctas a[data-i18n="academy.ctaRegister"]','#navBookBtn','#mobileCta .mobile-cta-btn']){
-   const href=await page.locator(selector).getAttribute('href');
-   const url=new URL(href,page.url());
-   expect(url.pathname).toBe('/academy/courses/');
-   expect(url.searchParams.get('lang')).toBe(code==='uk'?'cs':code);
+   await expect(page.locator(selector)).toHaveAttribute('href','#academy-choose');
+   await expect(page.locator(selector)).not.toHaveAttribute('target','_blank');
   }
-  const label=await page.locator('.hero .hero-ctas a[data-i18n="academy.ctaRegister"]').textContent();
-  expect(label).toMatch(code==='ru'?/Выбрать курс/:code==='uk'?/Обрати курс/:/Vybrat kurz/);
-  await expect(page.locator('.hero .hero-ctas a[data-i18n="academy.ctaRegister"]')).not.toHaveAttribute('target','_blank');
-  await page.locator('.hero .hero-ctas a[data-i18n="academy.ctaRegister"]').click();
-  await expect(page).toHaveURL(new RegExp('/academy/courses/\\?lang='+(code==='uk'?'cs':code)+'$'));
-  expect(await page.locator('article.course').count()).toBeGreaterThan(3);
-  await expect(page.locator('article.course a.cta[href^="https://wa.me/420702914842"]')).not.toHaveCount(0);
+  await page.locator('#academy-choose .goal-jump').first().click();
+  await expect(page).toHaveURL(/#goal-languages$/);
+  await expect(page.locator('#goal-languages .goal-option')).toHaveCount(3);
+  await expect(page.locator('#goal-languages .goal-option a')).toHaveCount(3);
+  const link=await page.locator('#goal-languages .goal-option a').first().getAttribute('href');
+  expect(link).toMatch(/^https:\/\/wa\.me\/420702914842\?text=/);
+  await expect(page.locator('.hero-photo--scholar').first()).toHaveCount(1);
+  await page.goto('/academy/courses/?lang='+code);
+  await expect(page.locator('html')).toHaveAttribute('lang',code);
+  await expect(page.locator('#imp-shell-top [data-imp-lang="uk"]')).toHaveCount(1);
+  await expect(page.locator('article.course')).toHaveCount(31);
+  if(code==='uk'){
+   await expect(page.locator('article.course#CZ01 h3 [data-locale="uk"]')).toContainText('Чеська');
+   await expect(page.locator('article.course#CZ01 h3 [data-locale="ru"]:visible')).toHaveCount(0);
+  }
+ });
+}
+for(const code of ['cs','en','ru','uk']){
+ test('Alex z Brna uses shared navigation and a localized story in '+code,async({page})=>{
+  await page.goto('/brno-stories/?lang='+code);
+  await expect(page.locator('#imp-shell-top')).toBeVisible();
+  await expect(page.locator('#imp-shell-top [data-imp-lang="uk"]')).toHaveCount(1);
+  await expect(page.locator('#imp-shell-top nav.imp-shell-links a')).toHaveCount(6);
+  await expect(page.locator('html')).toHaveAttribute('lang',code);
+  await expect(page.locator('main [data-story="firstTitle"]')).not.toBeEmpty();
+  if(code==='uk')await expect(page.locator('main h1')).toContainText('У Брно більше історій');
+  if(code==='ru')await expect(page.locator('main h1')).toContainText('В Брно больше историй');
+  await expect(page.locator('header[data-imp-retired-nav="1"]:visible')).toHaveCount(0);
+ });
+}
+for(const code of ['cs','en','ru','uk']){
+ test('Digital shop preserves all four site languages and disabled checkout '+code,async({page})=>{
+  await page.route('**/imperion-digital-store/health',route=>route.fulfill({
+   status:200,contentType:'application/json',headers:{'Access-Control-Allow-Origin':'*'},
+   body:'{"products":[]}'
+  }));
+  await page.goto('/shop/?lang='+code);
+  await expect(page.locator('#imp-shell-top')).toBeVisible();
+  await expect(page.locator('#imp-shell-top [data-imp-lang="uk"]')).toHaveCount(1);
+  await expect(page.locator('html')).toHaveAttribute('lang',code);
+  await expect(page.locator('main article.card')).toHaveCount(2);
+  await expect(page.locator('main article.card .price').first()).toHaveText('490 Kč');
+  await expect(page.locator('main article.card .price').last()).toHaveText('690 Kč');
+  await expect(page.locator('[data-digital-product]:not([disabled])')).toHaveCount(0);
+  await expect(page.locator('#checkout-consent .check a[href="./legal/"]')).toHaveCount(1);
+  if(code==='uk'){
+   await expect(page.locator('.hero h1')).toContainText('Корисні інструменти');
+   await expect(page.locator('#shop-status')).toContainText('Оплату тимчасово закрито');
+  }
  });
 }
 test('Walkers historic cancelled hike is a collapsed archival refund notice below hero',async({page})=>{

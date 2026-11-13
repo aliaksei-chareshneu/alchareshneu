@@ -76,7 +76,7 @@ test('evergreen service entrypoints use current event catalogue and honest HEMA 
  expect(calendar).not.toContain('script.google.com/macros/s/');
  expect(calendar).toContain('connect-src');
  expect(calendar).not.toContain('calendar-embed-card');
- expect(home).toContain("academy/courses/?lang=");
+ expect(home).toContain("academy/?lang=");
  expect(safety).not.toContain('New paid HEMA bookings are paused');
  expect(paths).not.toContain('New paid HEMA bookings are not open yet');
 });

@@ -98,13 +98,13 @@
   }
   /* Small navigation and two focused customer paths (no extra tracking). */
   var FRONT_COPY = {
-    cs:{home:'Úvod',events:'Akce',academyNav:'Akademie',clubNav:'Družina',walkersNav:'BrnoWalkers',about:'O mně',heroEvents:'Vybrat akci',heroTypes:'Družina · BrnoWalkers',heroAcademy:'Vybrat kurz v Akademii',academyNote:'Prohlédněte si nabídku kurzů',city:'Město',cityAll:'Všechna místa',cityBrno:'Brno',cityPrague:'Praha',cityOther:'Ostatní / upřesníme',cityEmpty:'Pro zvolené místo a období zatím není zveřejněna potvrzená akce.',moreDates:'další',menu:'Navigace'},
-    en:{home:'Home',events:'Events',academyNav:'Academy',clubNav:'Družina',walkersNav:'BrnoWalkers',about:'About',heroEvents:'Choose an event',heroTypes:'Družina · BrnoWalkers',heroAcademy:'Explore Academy courses',academyNote:'Browse courses and topics',city:'City',cityAll:'All places',cityBrno:'Brno',cityPrague:'Prague',cityOther:'Other / to confirm',cityEmpty:'No verified published events for this place and month yet.',moreDates:'more',menu:'Navigation'},
-    ru:{home:'Главная',events:'События',academyNav:'Академия',clubNav:'Дружина',walkersNav:'BrnoWalkers',about:'Обо мне',heroEvents:'Выбрать событие',heroTypes:'Дружина · BrnoWalkers',heroAcademy:'Выбрать курс Академии',academyNote:'Посмотреть направления и программы',city:'Город',cityAll:'Все города',cityBrno:'Брно',cityPrague:'Прага',cityOther:'Другие / уточняется',cityEmpty:'В выбранном городе в этом месяце пока нет проверенных опубликованных мероприятий.',moreDates:'ещё',menu:'Навигация'},
-    uk:{home:'Головна',events:'Події',academyNav:'Академія',clubNav:'Дружина',walkersNav:'BrnoWalkers',about:'Про мене',heroEvents:'Обрати подію',heroTypes:'Дружина · BrnoWalkers',heroAcademy:'Обрати курс Академії',academyNote:'Переглянути програми та напрями',city:'Місто',cityAll:'Усі міста',cityBrno:'Брно',cityPrague:'Прага',cityOther:'Інші / уточнюється',cityEmpty:'Для обраного міста й місяця поки немає перевірених опублікованих подій.',moreDates:'ще',menu:'Навігація'}
+    cs:{home:'Úvod',events:'Akce',academyNav:'Akademie',clubNav:'Družina',walkersNav:'BrnoWalkers',about:'O mně',heroEvents:'Vybrat akci',heroTypes:'Družina · BrnoWalkers',heroAcademy:'Vybrat svůj cíl',academyNote:'Jazyky · pohyb · škola · život v Česku',city:'Město',cityAll:'Všechna místa',cityBrno:'Brno',cityPrague:'Praha',cityOther:'Ostatní / upřesníme',cityEmpty:'Pro zvolené místo a období zatím není zveřejněna potvrzená akce.',moreDates:'další',menu:'Navigace'},
+    en:{home:'Home',events:'Events',academyNav:'Academy',clubNav:'Družina',walkersNav:'BrnoWalkers',about:'About',heroEvents:'Choose an event',heroTypes:'Družina · BrnoWalkers',heroAcademy:'Choose your learning goal',academyNote:'Languages · movement · school · Czechia',city:'City',cityAll:'All places',cityBrno:'Brno',cityPrague:'Prague',cityOther:'Other / to confirm',cityEmpty:'No verified published events for this place and month yet.',moreDates:'more',menu:'Navigation'},
+    ru:{home:'Главная',events:'События',academyNav:'Академия',clubNav:'Дружина',walkersNav:'BrnoWalkers',about:'Обо мне',heroEvents:'Выбрать событие',heroTypes:'Дружина · BrnoWalkers',heroAcademy:'Найти решение своей задачи',academyNote:'Языки · движение · школа · жизнь в Чехии',city:'Город',cityAll:'Все города',cityBrno:'Брно',cityPrague:'Прага',cityOther:'Другие / уточняется',cityEmpty:'В выбранном городе в этом месяце пока нет проверенных опубликованных мероприятий.',moreDates:'ещё',menu:'Навигация'},
+    uk:{home:'Головна',events:'Події',academyNav:'Академія',clubNav:'Дружина',walkersNav:'BrnoWalkers',about:'Про мене',heroEvents:'Обрати подію',heroTypes:'Дружина · BrnoWalkers',heroAcademy:'Знайти рішення своєї задачі',academyNote:'Мови · рух · школа · життя в Чехії',city:'Місто',cityAll:'Усі міста',cityBrno:'Брно',cityPrague:'Прага',cityOther:'Інші / уточнюється',cityEmpty:'Для обраного міста й місяця поки немає перевірених опублікованих подій.',moreDates:'ще',menu:'Навігація'}
   };
   function ft(k){return (FRONT_COPY[lang]||FRONT_COPY.cs)[k]||FRONT_COPY.en[k]||k;}
-  var paths = {club:'druzina/',walkers:'walkers/',academy:'academy/courses/'};
+  var paths = {club:'druzina/',walkers:'walkers/',academy:'academy/'};
   var query = new URLSearchParams(location.search);
   var requested = query.get('lang');
   // A bare homepage URL must always start in Czech. Explicit ?lang=XX still wins.
@@ -144,7 +144,7 @@
     '<header class="fd-header"><div class="fd-shell fd-header-inner">',
       '<a class="fd-logo" href="#imperion-frontdoor"><span class="fd-logo-mark" aria-hidden="true">⚔</span><span class="fd-logo-text"><strong>IMPERION</strong><small>HISTORIE · ZÁŽITKY · ROZVOJ</small></span></a>',
       '<nav class="fd-nav" id="fdNav" aria-label="Primary navigation">',
-      '<a id="fdNavHome" href="#imperion-frontdoor"></a><a id="fdNavEvents" href="#impr-calendar"></a><a id="fdNavAcademy" href="academy/courses/"></a>',
+      '<a id="fdNavHome" href="#imperion-frontdoor"></a><a id="fdNavEvents" href="#impr-calendar"></a><a id="fdNavAcademy" href="academy/"></a>',
       '<a id="fdNavClub" href="druzina/"></a><a id="fdNavWalkers" href="walkers/"></a><a id="fdNavAbout" href="about/?lang=cs"></a>',
       '</nav>',
       '<div class="fd-languages" aria-label="Language">',
@@ -159,7 +159,7 @@
           '<p class="fd-lede" id="fdLead"></p>',
           '<div class="fd-hero-actions">',
           '<a class="fd-hero-cta" id="fdHeroCta" href="#impr-calendar"><span aria-hidden="true">▦</span><span class="fd-hero-cta-copy"><strong id="fdHeroLabel"></strong><small id="fdHeroSub"></small></span></a>',
-          '<a class="fd-hero-academy" id="fdAcademyCta" href="academy/courses/?lang=cs"><span class="fd-academy-symbol" aria-hidden="true">🎓</span><span class="fd-academy-copy"><strong id="fdAcademyLabel"></strong><small id="fdAcademyNote"></small></span></a>',
+          '<a class="fd-hero-academy" id="fdAcademyCta" href="academy/?lang=cs"><span class="fd-academy-symbol" aria-hidden="true">🎓</span><span class="fd-academy-copy"><strong id="fdAcademyLabel"></strong><small id="fdAcademyNote"></small></span></a>',
           '</div>',
           '<div class="fd-hero-topics" aria-hidden="true"><span id="fdDir1"></span><span id="fdDir2"></span><span id="fdDir3"></span></div>',
         '</div>',
@@ -367,9 +367,9 @@
       ['fdNavWalkers','walkersNav'],['fdNavAbout','about'],['fdCityHeading','city']].forEach(function(pair){el(pair[0]).textContent=ft(pair[1]);});
     // The last footer link now opens the dedicated About page, not the legacy details view.
     el('fdFooterInfo').textContent=ft('about');
-    // Catalogue has CS/EN/RU locales; its own safe default is Czech for UA visitors.
-    el('fdAcademyCta').href='academy/courses/?lang='+encodeURIComponent(lang==='uk'?'cs':lang);
-    [['fdNavAcademy','academy/courses/'],['fdNavClub','druzina/'],['fdNavWalkers','walkers/']].forEach(function(pair){el(pair[0]).href=pair[1]+'?lang='+encodeURIComponent(pair[0]==='fdNavAcademy'&&lang==='uk'?'cs':lang);});
+    // The Academy landing page and catalogue both support CS/EN/RU/UK.
+    el('fdAcademyCta').href='academy/?lang='+encodeURIComponent(lang);
+    [['fdNavAcademy','academy/'],['fdNavClub','druzina/'],['fdNavWalkers','walkers/']].forEach(function(pair){el(pair[0]).href=pair[1]+'?lang='+encodeURIComponent(lang);});
     el('fdNavAbout').href='about/?lang='+encodeURIComponent(lang);
     [['fdFacetTitle','facet'],['fdUpcomingTitle','upcoming'],['fdUpcomingIntro','upcomingIntro'],['fdAllTitle','allTitle'],['fdAllIntro','allIntro'],['fdReset','reset']].forEach(function(pair){el(pair[0]).textContent=ed(pair[1]);});
     parent.querySelectorAll('[data-fd-city]').forEach(function(btn){btn.textContent=ft('city'+btn.dataset.fdCity.charAt(0).toUpperCase()+btn.dataset.fdCity.slice(1));});

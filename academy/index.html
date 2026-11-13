@@ -72,6 +72,8 @@ html:lang(en) #service-choice-consultation .choice-copy[lang=en],html:lang(cs) #
 <link rel="stylesheet" href="../imperion-cinematic-site.css?v=20261112-ux1">
 <link rel="stylesheet" href="../unified-shell.css?v=20261113a">
 <script src="../unified-shell.js?v=20261113a" defer></script>
+<link rel="stylesheet" href="academy-goals.css?v=20261113a">
+<script src="academy-goals.js?v=20261113a" defer></script>
 </head>
 <body data-imperion-scope="shared" data-imperion-design="academy">
 <a class="skip-link" href="#page-content" data-exp="skip">Skip to content</a>
@@ -579,7 +581,7 @@ function render(lang) {
   });
   applyTranslations(lang);
   // Keep the permanent website-first course choice in the visitor's selected language.
-  const courseLanguage = lang==='uk'?'cs':lang;
+  const courseLanguage = lang;
   document.querySelectorAll('#navBookBtn, #mobileCta .mobile-cta-btn, .hero-ctas a[data-i18n="academy.ctaRegister"]').forEach(a => {
     a.href='courses/?lang='+encodeURIComponent(courseLanguage);
     a.removeAttribute('target');a.removeAttribute('rel');

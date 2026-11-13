@@ -151,3 +151,7 @@ body[data-imperion-design="about"] [data-imp-about-lang][hidden]{display:none!im
  #imp-shell-top .imp-shell-lang a{min-width:24px;min-height:28px;font-size:10px}
  #imp-shell-top .imp-shell-inner{width:calc(100% - 20px);gap:2px 5px}
 }
+
+/* Keep the sitewide header geometry identical to the frontdoor. */
+#imp-shell-top .imp-shell-inner{width:min(1320px,calc(100% - 48px))}
+@media(max-width:630px){#imp-shell-top .imp-shell-inner{width:calc(100% - 25px)}}

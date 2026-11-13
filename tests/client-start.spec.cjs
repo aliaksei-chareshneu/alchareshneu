@@ -43,9 +43,9 @@ test('visible homepage paths preserve language and open course catalogue', async
   await expect(page.locator('html')).toHaveAttribute('data-imperion-frontdoor','ready');
   await expect(page.locator('#fdHeroCta')).toHaveAttribute('href','#impr-calendar');
   await expect(page.locator('#fdNavClub')).toHaveAttribute('href','druzina/?lang=ru');
-  await expect(page.locator('#fdAcademyCta')).toHaveAttribute('href','academy/courses/?lang=ru');
+  await expect(page.locator('#fdAcademyCta')).toHaveAttribute('href','academy/?lang=ru');
   await page.locator('#fdAcademyCta').click();
-  await expect(page).toHaveURL(/\/academy\/courses\/\?lang=ru$/);
+  await expect(page).toHaveURL(/\/academy\/\?lang=ru$/);
   await expect(page.locator('html')).toHaveAttribute('lang','ru');
   expect(errors).toEqual([]);
 });

@@ -34,27 +34,35 @@ nav a,.tag{color:#a5f3d0}h1{font-size:clamp(36px,7vw,76px);line-height:1.08;lett
 .preview{aspect-ratio:9/13;background:linear-gradient(155deg,#405274,#182434 45%,#3c2133);display:flex;align-items:center;justify-content:center;text-align:center;border-radius:16px;font-size:60px}
 footer{border-top:1px solid #37435a;color:#c4cbd7}footer a{color:#a5f3d0}
 @media(max-width:640px){.card{grid-template-columns:1fr;padding:22px}.preview{aspect-ratio:16/9}h1{margin:40px 0 18px}}
+
+body[data-imperion-design="stories"]{background:#081b20;color:#f7f0e5}
+body[data-imperion-design="stories"] .tag,body[data-imperion-design="stories"] .accent{color:#f3cd8c}
+body[data-imperion-design="stories"] .card{background:linear-gradient(130deg,#102c31,#11242b);border-color:#ad90576c}
+body[data-imperion-design="stories"] .button{background:#f3cd8c;color:#0b2429}
+body[data-imperion-design="stories"] .button:hover{background:#ffe4ae}
+body[data-imperion-design="stories"] #imp-shell-top{max-width:none}
 </style>
 <!-- IMPERION design checkpoint: visual styles only -->
 <link rel="stylesheet" href="../imperion-cinematic-site.css?v=20261112-ux1">
 <link rel="stylesheet" href="../unified-shell.css?v=20261113a">
 <script src="../unified-shell.js?v=20261113a" defer></script>
+<script src="stories-i18n.js?v=20261113a" defer></script>
 </head>
 <body data-imperion-scope="shared" data-imperion-design="stories">
-<header><nav><strong>⚡ Alex z Brna</strong><a href="../">Hlavní web / Main site</a></nav></header>
-<main>
-<p class="tag">BRNO · SKUTEČNÉ PŘÍBĚHY · REAL STORIES</p>
-<h1>Brno má víc příběhů, <span class="accent">než si myslíš.</span></h1>
-<p class="lead">Jsem Alex. S kamerou objevuji nečekaná místa, lidi, akce a dobrodružství v Brně. Žádné vymyšlené zážitky — skutečné reportáže z vlastních výprav.</p>
+<header><nav><strong>⚡ Alex z Brna</strong><a href="../" data-story="main">Hlavní web / Main site</a></nav></header>
+<main data-locale="cs">
+<p class="tag" data-story="kicker">BRNO · SKUTEČNÉ PŘÍBĚHY · REAL STORIES</p>
+<h1><span data-story="title1">Brno má víc příběhů, </span><span class="accent" data-story="title2">než si myslíš.</span></h1>
+<p class="lead" data-story="lead">Jsem Alex. S kamerou objevuji nečekaná místa, lidi, akce a dobrodružství v Brně. Žádné vymyšlené zážitky — skutečné reportáže z vlastních výprav.</p>
 <section class="card" aria-labelledby="weekly-guide" style="border-color:#67bca2;background:linear-gradient(115deg,#1d3f46,#202b3e);min-height:0">
-<div><p class="tag">NOVINKA · ENGLISH EDITION · PILOT</p><h2 id="weekly-guide">Brno Weekly: useful things to know about life in Brno</h2><p>Anglický přehled užitečných zdrojů, místních akcí a původních reportáží z Brna. Pro firmy připravujeme transparentní, jasně označená reklamní partnerství. Žádný garantovaný dosah zatím neslibujeme.</p><a class="button" href="weekly/">Explore Brno Weekly / Pro firmy →</a></div>
+<div><p class="tag" data-story="weeklyKicker">NOVINKA · ENGLISH EDITION · PILOT</p><h2 id="weekly-guide" data-story="weeklyTitle">Brno Weekly: useful things to know about life in Brno</h2><p data-story="weeklyBody">Anglický přehled užitečných zdrojů, místních akcí a původních reportáží z Brna. Pro firmy připravujeme transparentní, jasně označená reklamní partnerství. Žádný garantovaný dosah zatím neslibujeme.</p><a class="button" href="weekly/" data-story="weeklyCta">Explore Brno Weekly / Pro firmy →</a></div>
 <div class="preview" role="img" aria-label="Editorial guide to Brno">🧭 <span style="font-size:25px">BRNO</span></div>
 </section>
 <section class="card" aria-labelledby="first-story">
-<div><p class="tag">DÍL 01 · 17. 10. 2026 · BRNO-KOHOUTOVICE</p><h2 id="first-story">Tohle není film. Tohle se stalo v Brně.</h2><p>Kohoutovice se na jeden den proměnily ve fantasy bojiště. Krátký reportážní sestřih z LARP bitvy <em>Tanec draků 2026</em>, kterou pořádali Marek Navrátil a jeho tým. Družina Moravy se zúčastnila jako hráči, nikoli organizátoři.</p><a class="button" href="tanec-draku-2026/">Přehrát reportáž (26 s)</a></div>
+<div><p class="tag" data-story="episode">DÍL 01 · 17. 10. 2026 · BRNO-KOHOUTOVICE</p><h2 id="first-story" data-story="firstTitle">Tohle není film. Tohle se stalo v Brně.</h2><p data-story="firstBody">Kohoutovice se na jeden den proměnily ve fantasy bojiště. Krátký reportážní sestřih z LARP bitvy <em>Tanec draků 2026</em>, kterou pořádali Marek Navrátil a jeho tým. Družina Moravy se zúčastnila jako hráči, nikoli organizátoři.</p><a class="button" href="tanec-draku-2026/" data-story="play">Přehrát reportáž (26 s)</a></div>
 <div class="preview" role="img" aria-label="Grafická upoutávka k reportáži z fantasy LARP bitvy">⚔️<span style="font-size:25px;padding:10px">🐉</span></div>
 </section>
-<p class="lead">Další témata: městská dobrodružství, výlety, kulturní akce, lidé z Brna a zážitky, které by ti jinak unikly.</p>
+<p class="lead" data-story="next">Další témata: městská dobrodružství, výlety, kulturní akce, lidé z Brna a zážitky, které by ti jinak unikly.</p>
 </main>
-<footer><p>Osobní autorský projekt Aliakseie Chareshneua. <a href="https://www.instagram.com/chareshneu/">Instagram @chareshneu</a> · <a href="https://www.youtube.com/channel/UCy4lZijHsjXuU6iUI5Ztyhw">YouTube</a>. Družina Moravy z. s. je samostatný spolek.</p></footer>
+<footer><p><span data-story="footer1">Osobní autorský projekt Aliakseie Chareshneua.</span> <a href="https://www.instagram.com/chareshneu/">Instagram @chareshneu</a> · <a href="https://www.youtube.com/channel/UCy4lZijHsjXuU6iUI5Ztyhw">YouTube</a>. <span data-story="footer2">Družina Moravy z. s. je samostatný spolek.</span></p></footer>
 </body></html>

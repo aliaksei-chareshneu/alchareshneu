@@ -60,7 +60,7 @@ jobs:
               cp -a "$dir" "_pages/$dir"
             fi
           done
-          for file in index.html 404.html robots.txt sitemap.xml styles.css brand-theme.css site-design.css intent-home.css conversion-frontdoor.css imperion-cinematic-site.css conversion-frontdoor.js site-design.js experience.css experience.js quest-theme.css quest-audio.js site.webmanifest apple-touch-icon.png favicon.ico favicon-16.png favicon-32.png favicon-48.png icon-192.png icon-512.png revolut-payment-qr.png; do
+          for file in index.html 404.html robots.txt sitemap.xml styles.css brand-theme.css site-design.css intent-home.css conversion-frontdoor.css imperion-cinematic-site.css conversion-frontdoor.js unified-shell.js unified-shell.css site-design.js experience.css experience.js quest-theme.css quest-audio.js site.webmanifest apple-touch-icon.png favicon.ico favicon-16.png favicon-32.png favicon-48.png icon-192.png icon-512.png revolut-payment-qr.png; do
             if [ -f "$file" ]; then
               cp "$file" "_pages/$file"
             fi
@@ -80,9 +80,13 @@ jobs:
           grep -Fq 'data-imperion-design' _pages/druzina/index.html
           grep -Fq 'data-imperion-design' _pages/register/index.html
           test -s _pages/conversion-frontdoor.js
+          test -s _pages/unified-shell.js
+          test -s _pages/unified-shell.css
+          test -s _pages/academy/academy-goals.js
+          test -s _pages/academy/academy-goals.css
           test -s _pages/images/frontdoor-fighter-shadows.svg
           test -s _pages/images/imperion-hero-cinematic-20261112.webp
-          grep -Fq 'conversion-frontdoor.js?v=20261112' _pages/index.html
+          grep -Fq 'conversion-frontdoor.js?v=20261113' _pages/index.html
           grep -Fq 'id="goal-paths"' _pages/index.html
           grep -Fq 'id="intentDruzinaCta" href="register/?lang=en"' _pages/index.html
           test -s _pages/sitemap.xml
@@ -221,7 +225,7 @@ jobs:
             if curl -fsSL --max-time 20 "$base/?v=$GITHUB_SHA" -o "$page" \
               && curl -fsSL --max-time 20 "$base/conversion-frontdoor.css?v=$GITHUB_SHA" -o "$style" \
               && curl -fsSL --max-time 20 "$base/conversion-frontdoor.js?v=$GITHUB_SHA" -o "$logic" \
-              && grep -Fq 'conversion-frontdoor.js?v=20261112' "$page" \
+              && grep -Fq 'conversion-frontdoor.js?v=20261113' "$page" \
               && grep -Fq 'imperion-frontdoor' "$style" \
               && grep -Fq "imperion-register" "$logic"; then
               ok=1; break
@@ -249,6 +253,33 @@ jobs:
             grep -Fq 'data-imperion-design=' "$page"
           done
           echo "VERIFIED LIVE: shared cinematic CSS + theme markers on 8 public routes" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Verify live shared navigation and all four Academy languages
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://aliaksei-chareshneu.github.io/alchareshneu"
+          nav="$(mktemp)"; style="$(mktemp)"; goal="$(mktemp)"; courses="$(mktemp)"
+          trap 'rm -f "$nav" "$style" "$goal" "$courses"' EXIT
+          ok=0
+          for attempt in 1 2 3 4 5 6 7 8; do
+            if curl -fsSL --max-time 25 "$base/unified-shell.js?verify=$GITHUB_SHA" -o "$nav" &&
+               curl -fsSL --max-time 25 "$base/unified-shell.css?verify=$GITHUB_SHA" -o "$style" &&
+               curl -fsSL --max-time 25 "$base/academy/academy-goals.js?verify=$GITHUB_SHA" -o "$goal" &&
+               curl -fsSL --max-time 25 "$base/academy/courses/?lang=uk&verify=$GITHUB_SHA" -o "$courses" &&
+               grep -Fq "links.academy.href=urlFor('academy/',code)" "$nav" &&
+               grep -Fq '#imp-shell-top' "$style" &&
+               grep -Fq 'Яку проблему ми можемо допомогти вам вирішити?' "$goal" &&
+               grep -Fq 'data-locale="uk"' "$courses"; then
+              ok=1; break
+            fi
+            sleep 4
+          done
+          if [ "$ok" != 1 ]; then
+            echo "Shared nav or four-language Academy unavailable over public HTTPS" >&2
+            exit 1
+          fi
+          echo 'VERIFIED LIVE: shared navigation CSS/JS and full Ukrainian Academy catalogue served over public HTTPS' >> "$GITHUB_STEP_SUMMARY"
 
       - name: Verify current Academy and Start tariffs over independent public HTTPS
         shell: bash

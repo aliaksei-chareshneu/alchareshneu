@@ -32,12 +32,12 @@ for(const width of [320,390,1440]){
   await expect(page.locator('html')).toHaveAttribute('data-imperion-frontdoor','ready');
   await expect(page.locator('#fdHeroLabel')).toHaveText('Выбрать событие');
   await expect(page.locator('#fdHeroSub')).toContainText('BrnoWalkers');
-  await expect(page.locator('#fdAcademyLabel')).toHaveText('Выбрать курс Академии');
+  await expect(page.locator('#fdAcademyLabel')).toHaveText('Найти решение своей задачи');
   await expect(page.locator('#fdHeroCta')).toHaveAttribute('href','#impr-calendar');
-  await expect(page.locator('#fdAcademyCta')).toHaveAttribute('href','academy/courses/?lang=ru');
+  await expect(page.locator('#fdAcademyCta')).toHaveAttribute('href','academy/?lang=ru');
   await expect(page.locator('#fdAcademyCta')).not.toHaveAttribute('target','_blank');
-  await expect(page.locator('#fdAcademyNote')).toContainText('программы');
-  await expect(page.locator('#fdNavAcademy')).toHaveAttribute('href','academy/courses/?lang=ru');
+  await expect(page.locator('#fdAcademyNote')).toContainText('Языки');
+  await expect(page.locator('#fdNavAcademy')).toHaveAttribute('href','academy/?lang=ru');
   await expect(page.locator('#fdNavClub')).toHaveAttribute('href','druzina/?lang=ru');
   await expect(page.locator('#fdNavWalkers')).toHaveAttribute('href','walkers/?lang=ru');
   await expect(page.locator('#fdNavAbout')).toHaveAttribute('href','about/?lang=ru');
@@ -59,21 +59,21 @@ for(const width of [320,390,1440]){
  });
 }
 for(const [lang,calendar,academy] of [
- ['cs','Vybrat akci','Vybrat kurz v Akademii'],
- ['en','Choose an event','Explore Academy courses'],
- ['ru','Выбрать событие','Выбрать курс Академии'],
- ['uk','Обрати подію','Обрати курс Академії']
+ ['cs','Vybrat akci','Vybrat svůj cíl'],
+ ['en','Choose an event','Choose your learning goal'],
+ ['ru','Выбрать событие','Найти решение своей задачи'],
+ ['uk','Обрати подію','Знайти рішення своєї задачі']
 ]){
  test('two CTAs and usable header links '+lang,async({page})=>{
   await prepare(page);
   await page.goto('/?lang='+lang);
   await expect(page.locator('#fdHeroLabel')).toHaveText(calendar);
   await expect(page.locator('#fdAcademyLabel')).toHaveText(academy);
-  await expect(page.locator('#fdNavAcademy')).toHaveAttribute('href','academy/courses/?lang='+(lang==='uk'?'cs':lang));
-  await expect(page.locator('#fdAcademyCta')).toHaveAttribute('href','academy/courses/?lang='+(lang==='uk'?'cs':lang));
+  await expect(page.locator('#fdNavAcademy')).toHaveAttribute('href','academy/?lang='+lang);
+  await expect(page.locator('#fdAcademyCta')).toHaveAttribute('href','academy/?lang='+lang);
   await expect(page.locator('#fdNavEvents')).toHaveAttribute('href','#impr-calendar');
   await page.locator('[data-fd-language="en"]').click();
-  await expect(page.locator('#fdAcademyCta')).toHaveAttribute('href','academy/courses/?lang=en');
+  await expect(page.locator('#fdAcademyCta')).toHaveAttribute('href','academy/?lang=en');
   await expect(page.locator('#fdNavAbout')).toHaveAttribute('href','about/?lang=en');
  });
 }
@@ -117,13 +117,13 @@ test('Prague filter remains honest when catalog contains only Brno events',async
  expect(mutations()).toBe(0);
 });
 
-test('Academy hero CTA opens course directory in the same tab instead of WhatsApp',async({page})=>{
+test('Academy hero CTA opens goal chooser in the same tab instead of WhatsApp',async({page})=>{
  const mutations=await prepare(page);
  await page.goto('/?lang=cs');
- await expect(page.locator('#fdAcademyLabel')).toHaveText('Vybrat kurz v Akademii');
+ await expect(page.locator('#fdAcademyLabel')).toHaveText('Vybrat svůj cíl');
  await page.locator('#fdAcademyCta').click();
- await expect(page).toHaveURL(/\/academy\/courses\/\?lang=cs$/);
- await expect(page.locator('.hero h1 [data-locale="cs"]')).toBeVisible();
- await expect(page.locator('.hero h1')).toContainText('Naučte se něco, co opravdu využijete.');
+ await expect(page).toHaveURL(/\/academy\/\?lang=cs$/);
+ await expect(page.locator('#academy-choose')).toBeVisible();
+ await expect(page.locator('#academy-choose h2')).toContainText('S čím vám můžeme pomoci?');
  expect(mutations()).toBe(0);
 });
