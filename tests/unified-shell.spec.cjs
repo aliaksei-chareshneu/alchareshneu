@@ -105,9 +105,14 @@ for(const code of ['cs','ru','uk']){
  test('Academy entrypoints are catalogue-first ('+code+')',async({page})=>{
   await page.goto('/academy/?lang='+code);
   const expected='courses/?lang='+(code==='uk'?'cs':code);
-  await expect(page.locator('.hero .hero-ctas a[data-i18n="academy.ctaRegister"]')).toHaveAttribute('href',expected);
-  await expect(page.locator('#navBookBtn')).toHaveAttribute('href',expected);
-  await expect(page.locator('#mobileCta .mobile-cta-btn')).toHaveAttribute('href',expected);
+  for(const selector of ['.hero .hero-ctas a[data-i18n="academy.ctaRegister"]','#navBookBtn','#mobileCta .mobile-cta-btn']){
+   const href=await page.locator(selector).getAttribute('href');
+   const url=new URL(href,page.url());
+   expect(url.pathname).toBe('/academy/courses/');
+   expect(url.searchParams.get('lang')).toBe(code==='uk'?'cs':code);
+  }
+  const label=await page.locator('.hero .hero-ctas a[data-i18n="academy.ctaRegister"]').textContent();
+  expect(label).toMatch(code==='ru'?/Выбрать курс/:code==='uk'?/Обрати курс/:/Vybrat kurz/);
   await expect(page.locator('.hero .hero-ctas a[data-i18n="academy.ctaRegister"]')).not.toHaveAttribute('target','_blank');
   await page.locator('.hero .hero-ctas a[data-i18n="academy.ctaRegister"]').click();
   await expect(page).toHaveURL(new RegExp('/academy/courses/\\?lang='+(code==='uk'?'cs':code)+'$'));
