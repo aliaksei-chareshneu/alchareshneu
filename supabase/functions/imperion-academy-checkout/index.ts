@@ -86,7 +86,7 @@ async function order(raw:Record<string,unknown>,req:Request,origin:string|null){
  return reply({ok:true,status:"RECEIVED_UNCONFIRMED",reference:data.id,continuationCode:code,bookingConfirmed:false,paymentCollected:false,bankVerified:false},200,origin);
 }
 function approvedQuote(x:Record<string,unknown>){
- if(x.payment_quote_status!=="APPROVED"||!x.quote_locked_at||
+ if(x.payment_quote_status!=="APPROVED"||!["AWAITING_PROOF","PROOF_RECEIVED","BANK_VERIFIED"].includes(String(x.payment_evidence_status))||!x.quote_locked_at||
     !(Number(x.quoted_amount_czk)>0)||!(typeof x.quote_recipient==="string"&&x.quote_recipient.length>=3)||
     !(typeof x.quote_account==="string"&&x.quote_account.length>=8))return false;
  if(x.quote_expires_at&&Date.parse(String(x.quote_expires_at))<Date.now())return false;
