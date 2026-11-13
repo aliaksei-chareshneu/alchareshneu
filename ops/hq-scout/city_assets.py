@@ -13,6 +13,7 @@ from urllib.request import Request
 from zipfile import ZipFile, BadZipFile
 
 from hq_scout import allowed, html_info
+from office_archive import inspect_official_zip
 
 ARTICLE="https://www.brno.cz/w/material-cezoi-10463"
 MAX_COMPRESSED=1_000_000
@@ -105,27 +106,16 @@ def inspect_city_unused_archive(fetcher) -> dict:
         if len(raw)>MAX_COMPRESSED:
             doc["status"]="ZIP_TOO_LARGE"
             return doc
-        with ZipFile(io.BytesIO(raw)) as z:
-            entries=[n for n in z.infolist() if not n.is_dir()]
-            if len(entries)>30 or sum(x.file_size for x in entries)>MAX_UNCOMPRESSED:
-                doc["status"]="ZIP_EXPANSION_BLOCKED"
-                return doc
-            doc["archive_entries"]=len(entries)
-            texts=[]
-            for info in entries[:25]:
-                if info.file_size>2_000_000:
-                    continue
-                if info.filename.lower().endswith(".pdf"):
-                    extracted,_=pdf_bytes_text(z.read(info))
-                    texts.append(extracted)
-                elif info.filename.lower().endswith((".txt",".csv")):
-                    texts.append(z.read(info).decode("utf-8",errors="replace")[:100_000])
-            addresses=[]
-            for text in texts:
-                addresses.extend(extract_property_strings(text))
-            doc["property_address_mentions"]=list(dict.fromkeys(addresses))[:40]
-            doc["status"]="OFFICIAL_HISTORIC_ATTACHMENT_REVIEW_ONLY"
-            doc["note"]="Official answer from 2026-02 is historical, not proof of 2026-11 vacancy, free use or safe occupancy."
+        inspection = inspect_official_zip(raw, location_extractor=extract_property_strings)
+        if inspection["status"]!="PUBLIC_ARCHIVE_ATTACHMENT_TYPES_CHECKED":
+            doc["status"]=inspection["status"]
+            return doc
+        doc["archive_entries"]=inspection["attachment_count"]
+        doc["archive_file_types"]=inspection["file_types"]
+        doc["archive_document_diagnostics"]=inspection["document_checks"]
+        doc["property_address_mentions"]=inspection["location_hints"]
+        doc["status"]="OFFICIAL_HISTORIC_ATTACHMENT_REVIEW_ONLY"
+        doc["note"]="Published Brno municipal list from 2026-02, not proof of vacancy, rights, safety or free-use agreement in Nov 2026."
     except (OSError,TimeoutError,ValueError,BadZipFile):
         doc["status"]="ARCHIVE_DOWNLOAD_OR_PARSE_FAILED"
     return doc
