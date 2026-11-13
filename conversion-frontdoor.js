@@ -289,6 +289,8 @@
     return clubSaturday||date==='2026-11-15'||date==='2026-11-17'||e.event_id==='BW-PAID-20261028'||e.event_id==='COM-HIKE-20261028';
   }
   function displayData(y,m){
+    // Fail closed while public catalogue is loading or unavailable; no synthetic events.
+    if(status!=='ready')return data;
     var policy=window.ImperionCalendarPolicy;
     // Planned Mondays never enter public API catalogue and cannot be reserved online.
     var previews=policy?policy.forMonth(y,m,data):[];
