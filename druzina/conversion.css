@@ -1,0 +1,161 @@
+/* DRUZINA FIRST VISIT CONVERSION v2: one headline + one enquiry button.
+ * The long legal/event detail remains available, but closed by default.
+ * Fixes old yellow/white banners and all gold CTA foreground contrast. */
+body.dm-ux-home[data-imperion-scope="shared"]{color:#f5f7fc;background:#0b1729}
+body.dm-ux-home #druzina{background:#0c1d31;color:#f5f7fc}
+body.dm-ux-home #druzina>.wrap{max-width:1180px;padding-top:clamp(38px,5vw,70px);padding-bottom:clamp(35px,5vw,64px)}
+body.dm-ux-home #druzina h1{max-width:15ch;font-size:clamp(2.7rem,6.1vw,5.9rem);color:#f5f7fc}
+body.dm-ux-home #druzina .dm-hero-deck{color:#e4ebf4;font-size:clamp(1.1rem,2vw,1.35rem);max-width:58ch}
+body.dm-ux-home #druzina .dm-trust-line{color:#c6d1e0;font-size:clamp(.98rem,1.25vw,1.08rem);max-width:60ch}
+body.dm-ux-home #druzina .dm-hero-ctas{display:flex;flex-wrap:wrap;gap:13px;align-items:center;margin:28px 0 10px}
+body.dm-ux-home #druzina .dm-v2-primary,
+body.dm-ux-home .nav #navBookBtn,
+body.dm-ux-home .mobile-cta-btn{
+ background:#e6bf80!important;color:#101b2d!important;
+ border:2px solid #e6bf80!important;box-shadow:0 4px 0 #8a673c;
+ text-decoration:none;min-height:58px;font-size:clamp(1rem,1.5vw,1.16rem);
+ font-weight:900;border-radius:12px;padding:14px 24px;
+}
+body.dm-ux-home #druzina .dm-v2-primary *,
+body.dm-ux-home .nav #navBookBtn *,
+body.dm-ux-home .mobile-cta-btn *{color:#101b2d!important}
+body.dm-ux-home #druzina .dm-v2-primary:hover,
+body.dm-ux-home .nav #navBookBtn:hover,
+body.dm-ux-home .mobile-cta-btn:hover{background:#f5d6a1!important;color:#101b2d!important}
+body.dm-ux-home .nav #navBookBtn{min-height:44px;padding:9px 17px;font-size:.88rem;box-shadow:none}
+body.dm-ux-home .mobile-cta-btn{min-height:46px;padding:10px 14px;font-size:.91rem;box-shadow:none}
+body.dm-ux-home #druzina .dm-v2-secondary{
+ display:inline-flex;align-items:center;justify-content:center;min-height:58px;
+ background:#1c344e;color:#eaf2fc;border:1px solid #8296ab;
+ padding:14px 22px;border-radius:12px;font-weight:800;font-size:1rem;
+ text-decoration:none;
+}
+body.dm-ux-home #druzina .dm-v2-secondary:hover{background:#2a4767;color:#fff}
+body.dm-ux-home #druzina .dm-compact-legal{
+ color:#bdcad9;background:transparent!important;border:0;
+ padding:0;margin:10px 0 0;font-size:.84rem;max-width:68ch
+}
+body.dm-ux-home #druzina .dm-v2-facts{margin:17px 0 0;max-width:1080px}
+body.dm-ux-home #druzina .dm-v2-facts>summary{
+ display:inline-flex;align-items:center;min-height:38px;
+ color:#e6bf80;font-size:.88rem;font-weight:760;cursor:pointer;
+ text-decoration:underline;text-underline-offset:4px;
+}
+body.dm-ux-home #druzina .dm-v2-facts .dm-hero-essentials{
+ margin:15px 0 5px;padding:0;gap:9px
+}
+body.dm-ux-home .dm-v2-status{
+ padding:14px max(18px,calc((100% - 1140px)/2));background:#24354b;
+ border-top:1px solid #475c73;border-bottom:1px solid #475c73;
+ color:#e4edf5;font-size:.9rem
+}
+body.dm-ux-home .dm-v2-status b{color:#ffd0c7}
+body.dm-ux-home [data-dm-v2-locale]{display:none}
+html[lang="cs"] body.dm-ux-home [data-dm-v2-locale="cs"],
+html[lang="en"] body.dm-ux-home [data-dm-v2-locale="en"],
+html[lang="ru"] body.dm-ux-home [data-dm-v2-locale="ru"],
+html[lang="uk"] body.dm-ux-home [data-dm-v2-locale="uk"]{display:block}
+body.dm-ux-home .dm-v2-announcements{
+ max-width:1140px;margin:15px auto 22px;
+ border:1px solid #445974;border-radius:13px;background:#11243a;color:#f5f7fc
+}
+body.dm-ux-home .dm-v2-announcements>summary{
+ min-height:48px;cursor:pointer;padding:13px 18px;
+ color:#e6bf80;font-size:.88rem;font-weight:800
+}
+body.dm-ux-home .dm-v2-announcements>summary:hover{background:#1e3550}
+body.dm-ux-home .dm-v2-announcements-body{
+ padding:6px 15px 17px;display:grid;gap:12px;min-width:0
+}
+body.dm-ux-home .dm-v2-announcements-body :where(aside,section){
+ max-width:100%;margin:0;min-width:0;
+}
+body.dm-ux-home #dm-nov26-update{
+ background:#1a324c!important;color:#f5f7fc!important;border-color:#657f97!important;
+}
+body.dm-ux-home #dm-nov26-update a{color:#e6bf80!important}
+body.dm-ux-home #dm-oct26-banner{
+ background:#1b324d!important;color:#f5f7fc!important;border-color:#e6bf80!important
+}
+body.dm-ux-home #dm-oct26-banner strong{color:#f5d6a1!important}
+body.dm-ux-home #dm-oct26-banner a{
+ background:#e6bf80!important;color:#101b2d!important;border-color:#e6bf80!important
+}
+body.dm-ux-home #dm-2026-11-07-cancellation-notice{
+ border:1px solid #be6c77!important;border-left:5px solid #ff9299!important;
+ background:#39273a!important;color:#fff5f5!important;
+ border-radius:10px!important;padding:16px 18px!important
+}
+body.dm-ux-home #dm-2026-11-07-cancellation-notice strong{color:#ffbcc2}
+body.dm-ux-home #dm-2026-11-07-cancellation-notice p{color:#f8dfe4}
+body.dm-ux-home #dm-orel14-rsvp{
+ background:#1b3446!important;color:#f5f7fc!important;border-color:#7999ad!important
+}
+body.dm-ux-home #dm-orel14-rsvp h2,
+body.dm-ux-home #dm-orel14-rsvp p{color:#f5f7fc!important}
+body.dm-ux-home #dm-orel14-rsvp a{color:#f5d6a1!important}
+body.dm-ux-home .dm-permanentky-offer{
+ background:#1b304b!important;color:#f5f7fc!important;border-color:#e6bf80!important;
+ padding:18px 21px;border-radius:12px
+}
+body.dm-ux-home .dm-permanentky-offer h2{color:#f5f7fc;font-size:1.26rem;margin:0 0 7px}
+body.dm-ux-home .dm-permanentky-offer p{color:#dce6f1;margin:0 0 9px}
+body.dm-ux-home .dm-permanentky-offer a{color:#e6bf80!important}
+body.dm-ux-home #dm-nov-rules{
+ background:#14283d!important;color:#f5f7fc!important;border-color:#627c96!important
+}
+body.dm-ux-home .dm-v2-announcements-body .dm-v2-alert{padding:16px 18px}
+body.dm-ux-home .dm-start h2,body.dm-ux-home .dm-faq h2{color:#f5f7fc}
+body.dm-ux-home :where(.dm-start-lead,.dm-faq-lead){color:#c6d1e0}
+body.dm-ux-home .dm-visit-card{background:#182b44;color:#f5f7fc;border-color:#526984}
+body.dm-ux-home .dm-visit-card h3{color:#f5f7fc}
+body.dm-ux-home .dm-visit-card p{color:#c6d1e0}
+body.dm-ux-home .dm-disclosure,body.dm-ux-home .dm-disclosure-body{background:#102238;color:#f5f7fc}
+@media(max-width:720px){
+ body.dm-ux-home #druzina>.wrap{padding:32px 18px 38px}
+ body.dm-ux-home #druzina h1{font-size:clamp(2.2rem,9vw,3.5rem)}
+ body.dm-ux-home #druzina .dm-hero-ctas{flex-direction:column;align-items:stretch}
+ body.dm-ux-home #druzina .dm-v2-primary,
+ body.dm-ux-home #druzina .dm-v2-secondary{width:100%;min-height:56px}
+ body.dm-ux-home .dm-v2-announcements{margin-inline:14px}
+ body.dm-ux-home .dm-v2-status{padding:13px 17px}
+}
+@media(prefers-reduced-motion:reduce){body.dm-ux-home #druzina *{transition:none!important}}
+
+
+/* Final legacy light-island audit — role cards and expanded details must never
+   inherit white text on cream/yellow panels from older Druzina UX sheets. */
+body.dm-ux-home[data-imperion-scope="shared"] .dm-role-card{
+ background:#182b44;color:#f5f7fc;border-color:#4d6580
+}
+body.dm-ux-home[data-imperion-scope="shared"] .dm-role-card :where(h3,strong){color:#f5f7fc}
+body.dm-ux-home[data-imperion-scope="shared"] .dm-role-card :where(p,small){color:#c6d1e0}
+body.dm-ux-home[data-imperion-scope="shared"] .dm-role-serial{
+ color:#e6bf80;background:#263d57
+}
+body.dm-ux-home[data-imperion-scope="shared"] .dm-disclosure{
+ background:#102238;color:#f5f7fc;border-color:#415a74
+}
+body.dm-ux-home[data-imperion-scope="shared"] .dm-disclosure>summary,
+body.dm-ux-home[data-imperion-scope="shared"] .dm-disclosure[open]>summary{
+ background:#1b324c;color:#f5f7fc
+}
+body.dm-ux-home[data-imperion-scope="shared"] .dm-disclosure>summary:hover{
+ background:#2a4260;color:#fff
+}
+body.dm-ux-home[data-imperion-scope="shared"] .dm-disclosure>summary:after{
+ background:#293e59;color:#e6bf80
+}
+body.dm-ux-home[data-imperion-scope="shared"] .dm-fact-icon{
+ background:#273e58;color:#e6bf80
+}
+body.dm-ux-home[data-imperion-scope="shared"] #dm-nov-rules :where(p,li,strong){
+ color:#eaf0f8!important
+}
+body.dm-ux-home[data-imperion-scope="shared"] #dm-safety-priority{
+ background:#172b43;color:#f5f7fc;border-color:#d6b47c
+}
+body.dm-ux-home[data-imperion-scope="shared"] #dm-safety-priority :where(h2,p){
+ color:#f5f7fc
+}
+body.dm-ux-home[data-imperion-scope="shared"] #dm-safety-priority a{color:#f5d6a1}

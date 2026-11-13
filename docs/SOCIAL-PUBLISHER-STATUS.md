@@ -1,6 +1,15 @@
 # IMPERION Social Publisher — staging guide
 
-**Status: staged in feature branch / draft pull request, NOT merged, NOT deployed, zero live social posts or connected credentials yet.**
+## Scope release hard gate — 13 November 2026
+
+**Code integration is not a live publisher.** The 13 Nov revision adds `spReleaseGate_` before any approved job can be CLAIMED or passed to `spSend_`. An `APPROVED` worksheet value alone never grants a send. No Apps Script deployment, API token, 15-minute trigger, or outside publication was performed by this code change. `spInstallTrigger` still requires the owner to open the authorized bound script and opt in after separate validation; do not create another CRM, queue, or scheduling system.
+
+The authorized owner must first explicitly set `SOCIAL_PUBLISHER_ENABLED=true`, `SOCIAL_PUBLISHER_KILL_SWITCH=false` in the existing bound Apps Script Properties (disabled/missing otherwise). For each individual `Job_ID`, set `SOCIAL_GO_<Job_ID>` to an owner-verified PRIVATE JSON release, never to a sheet cell/public repo: ACTIVE, `approval_ref` prefixed GO-, exact `job_id/channel/entity/account_id`, `valid_from/valid_until` no more than 31 days, fresh quota readback ≤3h, finite posting cap, independent previous-post dedup/CTA/grant and opt-out flags. Owner must also set `SOCIAL_ACCOUNT_ID_<normalized entity>_<channel>` exactly matching the actual verified account ID; do not infer from another brand or Metricool. For media include exact `media_binding` and `media_rights_verified:true`; never infer rights from previous posts. For Družina event promotions provide independent safe capacity, deduplicated confirmed/promise counts and zero pending requests. When any proof is absent, release fails closed; no API call and no automatic retry. Do NOT approve a scope with fabricated evidence to 'make tests pass'.
+
+This is a production-safety gate, not user-facing campaign functionality. All Facebook personal, WhatsApp group and TikTok posts remain manual; Instagram API only supported for rights-cleared IMAGE and brand-specific professional access; YouTube only the expected owner channel with OAuth. The 13 Nov B2B V/C videos in SocialPublishing rows 249-250 are `internal_video_review`, PRIVATE silent demos; they are not AUTO channels and MUST NOT be converted into public posts without media and account review. Third-party provider account-limit errors remain hard holds, not scheduling success. A future service installation requires actual Apps Script source readback, owner-scoped credentials, real provider permalink/first-comment readback, and opt-in CRM receive receipt to call LIVE.
+
+
+**Status: source and regression tests staged in PR #23; code merge status is determined from GitHub readback. NOT deployed in bound Apps Script and no live external posts or credentials verified by this PR.**
 **Owner review required before activating the timer or posting publicly.** Uses the existing Community Hub and its Events tab rather than a competing event CRM.
 
 ## Source & deliverables

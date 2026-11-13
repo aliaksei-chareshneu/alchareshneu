@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b1729">
+<link rel="stylesheet" href="../../brand-theme.css?v=20261025">
+<link rel="stylesheet" href="../../site-design.css?v=20261027">
+<meta name="robots" content="noindex,follow">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Družina Moravy — jednotná registrace / Unified registration</title>
+<meta http-equiv="refresh" content="0; url=../../register/">
+<link rel="canonical" href="https://aliaksei-chareshneu.github.io/alchareshneu/register/">
+<style>body{margin:0;background:#071b20;color:#f3f6fa;font:18px/1.6 system-ui,sans-serif}main{max-width:720px;margin:12vh auto;padding:28px;border:1px solid #6886a0;border-radius:14px;background:#102c31}h1{font-size:1.6rem}a{color:#e6bf80}a:focus-visible{outline:3px solid orange;outline-offset:4px}</style>
+</head>
+<body data-imperion-scope="dark">
+<main>
+<h1>Družina Moravy · Unified registration</h1>
+<p lang="cs">Registrace a doklady o platbě nyní přijímáme pouze přes jediný společný formulář. <a href="../../register/?lang=cs">Pokračovat k registraci</a>.</p>
+<p lang="en">Training requests and payment receipts now use the same registration form. <a href="../../register/en/?lang=en">Continue to registration</a>.</p>
+<p lang="ru">Заявки и PDF подтверждения платежа теперь принимаются только через единую форму. <a href="../../register/ru/?lang=ru">Открыть форму</a>.</p>
+<p lang="uk">Заявки та PDF підтвердження оплати тепер приймаємо лише через єдину форму. <a href="../../register/uk/?lang=uk">Відкрити форму</a>.</p>
+</main>
+<script>
+(function(){
+  'use strict';
+  var params=new URLSearchParams(window.location.search);
+  var lang=params.get('lang');
+  var section={cs:'',en:'en/',ru:'ru/',uk:'uk/'};
+  if(!Object.prototype.hasOwnProperty.call(section,lang))lang='cs';
+  var target=new URL('../../register/'+section[lang],window.location.href);
+  target.searchParams.set('lang',lang);
+  var eventId=params.get('event');
+  if(eventId&&/^PUB-[A-Z0-9-]{4,90}$/.test(eventId))target.searchParams.set('event',eventId);
+  window.location.replace(target.href);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,5 @@
+/* Prevent the legacy palette and menu from briefly painting before JS mounts.
+   With JS disabled this gate is not activated, preserving the old usable page. */
+html[data-imp-boot="pending"]{background:#071b20 !important}
+html[data-imp-boot="pending"] body{visibility:hidden !important}
+html[data-imp-boot="pending"] body *{transition:none !important}

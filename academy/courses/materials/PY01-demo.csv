@@ -1,0 +1,14 @@
+sample_id,group,measurement,unit,notes
+C01,control,2.11,AU,synthetic
+C02,control,2.34,AU,synthetic
+C03,control,2.08,AU,synthetic
+C04,control,2.27,AU,synthetic
+C05,control,,AU,missing reading
+C06,control,2.21,AU,synthetic
+T01,treatment,2.79,AU,synthetic
+T02,treatment,2.85,AU,synthetic
+T03,treatment,2.67,AU,synthetic
+T04,treatment,2.91,AU,synthetic
+T04,treatment,2.96,AU,duplicate ID to investigate
+T05,treatment,2750,mAU,unit mismatch to investigate
+T06,treatment,2.73,AU,synthetic

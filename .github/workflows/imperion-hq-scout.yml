@@ -1,0 +1,60 @@
+name: IMPERION HQ Scout — official public property sources
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 4 * * *'
+      timezone: Europe/Prague
+  push:
+    branches: [main]
+    paths:
+      - 'ops/hq-scout/**'
+      - '.github/workflows/imperion-hq-scout.yml'
+  pull_request:
+    paths:
+      - 'ops/hq-scout/**'
+      - '.github/workflows/imperion-hq-scout.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: imperion-hq-scout
+  cancel-in-progress: false
+
+jobs:
+  bounded-property-research:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Test strict source and data protection gates
+        run: python3 -m unittest discover -s ops/hq-scout -p 'test_*.py' -v
+
+      - name: Read official public sources (no CRM, no credentials, no AI billing)
+        run: |
+          python3 ops/hq-scout/notices_run.py \
+            --sources ops/hq-scout/sources.json \
+            --out ops/hq-scout/output \
+            --max-total 20 \
+            --min-board-rows 0 \
+            --min-city-pages 1 \
+            --scan-archive
+
+      - name: Preserve public-only run evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: imperion-hq-scout-public-research
+          path: ops/hq-scout/output/
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: State limits explicitly
+        run: |
+          echo 'Public city property pages and optional Brno eDeska; robots.denied means NOTICE BOARD BLOCKED.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Private CRM and Gmail are intentionally not exported to a public workflow.' >> "$GITHUB_STEP_SUMMARY"
+          echo '0 CRM writes, 0 customer messages, 0 paid AI API calls, 0 owner obligations.' >> "$GITHUB_STEP_SUMMARY"

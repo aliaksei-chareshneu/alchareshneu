@@ -1,0 +1,37 @@
+name: IMPERION public campaign source QA — no duplicate Pages publisher
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/imperion-autopilot.cjs'
+      - 'tests/imperion-autopilot.test.cjs'
+      - 'tests/imperion-live-readback.test.cjs'
+      - 'tests/imperion-autopilot-workflow-gate.test.cjs'
+      - 'autopilot/index.html'
+      - '.github/workflows/imperion-autopilot.yml'
+permissions:
+  contents: read
+concurrency:
+  group: imperion-public-source-qa
+  cancel-in-progress: true
+jobs:
+  verify-approved-public-source:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - name: Checkout canonical sources
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Reject unapproved public data, duplicate publishers and paid model fallback
+        run: node --test tests/imperion-autopilot.test.cjs tests/imperion-live-readback.test.cjs tests/imperion-free-model-router.test.cjs tests/imperion-autopilot-workflow-gate.test.cjs
+      - name: Validate public approved catalog without external publication
+        run: node scripts/imperion-autopilot.cjs
+      - name: Report validation only
+        run: |
+          echo 'Public feed validated. No Pages deploy, CRM export, social post, message or payment.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'The sole scheduled publisher is .github/workflows/pages-production.yml.' >> "$GITHUB_STEP_SUMMARY"

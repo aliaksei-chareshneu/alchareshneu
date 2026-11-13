@@ -31,7 +31,7 @@ var EVENTS_SHEET_NAME        = 'Events';
 var REGISTRATIONS_SHEET_NAME = 'Registrations';
 var SPREADSHEET_ID           = '1igxEHQ7wFFCoCA9lg4kzT2OoMrVLgbBogfqTxGeUftY'; // из URL таблицы
 
-var SITE_EVENTS_LIMIT         = 6; // сколько ближайших событий отдавать на сайт
+var SITE_EVENTS_LIMIT         = 80; // сколько ближайших событий отдавать на сайт
 var SITE_EVENTS_CACHE_SECONDS = 300; // кэш ответа doGet, чтобы не дёргать Sheets на каждого посетителя сайта
 
 // ====================== МЕНЮ ======================
@@ -460,6 +460,8 @@ function deleteFacebookPost(postId, community) {
 // fetch() из браузера. Загрузка через <script src="..."> (JSONP) в принципе не подчиняется
 // политике CORS — это не запасной вариант "на всякий случай", а основной маршрут.
 function doGet(e) {
+  // Universal registration; keep the existing JSON/JSONP API and legacy doPost intact.
+  if (e && e.parameter && e.parameter.view === 'register') return regpPage(e);
   var callback = (e && e.parameter && e.parameter.callback) ? String(e.parameter.callback) : '';
   // JSONP is executable JavaScript: only allow a simple global function identifier.
   if (callback && !/^[A-Za-z_$][0-9A-Za-z_$]{0,63}$/.test(callback)) callback = '';
@@ -506,8 +508,8 @@ function doGet(e) {
           description: row[headerMap['Description'] - 1] || '',
           startISO: startDate.toISOString(),
           locationName: row[headerMap['Location_Name'] - 1] || '',
-          priceCzk: row[headerMap['Price_CZK'] - 1] || 0,
-          isFree: Number(row[headerMap['Price_CZK'] - 1] || 0) === 0,
+          priceCzk: row[headerMap['Price_CZK'] - 1] === '' ? null : Number(row[headerMap['Price_CZK'] - 1]),
+          isFree: row[headerMap['Price_CZK'] - 1] !== '' && Number(row[headerMap['Price_CZK'] - 1]) === 0,
           registerUrl: registerUrl,
           imageOverride: headerMap['Image_Filename'] ? (row[headerMap['Image_Filename'] - 1] || '') : ''
         });
@@ -529,7 +531,7 @@ function doGet(e) {
 // ====================== СЦЕНАРИЙ 2: ПРИБМ РЕГИСТРАЦИЙ (Tally → Web App) ======================
 function doPost(e) {
   try {
-    if (e.parameter.secret !== TALLY_WEBHOOK_SECRET) {
+    if (!TALLY_WEBHOOK_SECRET || !e || !e.parameter || e.parameter.secret !== TALLY_WEBHOOK_SECRET) {
       return ContentService.createTextOutput('forbidden').setMimeType(ContentService.MimeType.TEXT);
     }
 
@@ -539,8 +541,10 @@ function doPost(e) {
         .setMimeType(ContentService.MimeType.JSON);
     }
     try {
+    if (!e.postData || typeof e.postData.contents !== 'string' || e.postData.contents.length > 1000000) throw new Error('Invalid webhook body');
     var data = JSON.parse(e.postData.contents);
     var submissionId = (data.data && data.data.submissionId) || '';
+    if (typeof submissionId !== 'string' || !submissionId || !Array.isArray(data.data.fields)) throw new Error('Missing submission identity or fields');
     var byLabel = {};
     (data.data && data.data.fields || []).forEach(function (f) { byLabel[f.label] = f.value; });
 
@@ -548,6 +552,7 @@ function doPost(e) {
     var sheet = ss.getSheetByName(REGISTRATIONS_SHEET_NAME);
     var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
     var submissionCol = headers.indexOf('Submission_ID');
+    if (submissionCol === -1) throw new Error('Submission_ID column is required for deduplication');
 
     // Tally повторяет доставку вебхука (через 5 мин/30мин/1ч/6ч/1день), если не получила
     // ответ 2xx за 10 секунд. Если первая попытка на самом деле уже сохранилась,
@@ -594,6 +599,10 @@ function doPost(e) {
         default: return '';
       }
     });
+    // Untrusted webhook text must never become a spreadsheet formula.
+    newRow = newRow.map(function (value) {
+      return typeof value === 'string' && /^[=+@-]/.test(value) ? "'" + value : value;
+    });
     sheet.appendRow(newRow);
 
     return ContentService.createTextOutput(JSON.stringify({ ok: true }))
@@ -603,7 +612,7 @@ function doPost(e) {
     }
   } catch (err) {
     console.error('doPost: ' + err);
-    return ContentService.createTextOutput(JSON.stringify({ ok: false, error: String(err) }))
+    return ContentService.createTextOutput(JSON.stringify({ ok: false, error: 'invalid_request' }))
       .setMimeType(ContentService.MimeType.JSON);
   }
 }
@@ -807,6 +816,9 @@ function cleanupOldRegistrations() {
   for (var i = 1; i < data.length; i++) {
     var retentionVal = data[i][headerMap['Retention_Until'] - 1];
     if (!retentionVal) continue;
+    // New portal records are anonymized by cleanupUniversalRegistrations, not this legacy job.
+    if (headerMap['Source_Channel'] && /^WEBSITE_RSVP(?:_|$)/.test(
+        String(data[i][headerMap['Source_Channel'] - 1]))) continue;
     if (new Date(retentionVal) < today) {
       sheet.getRange(i + 1, headerMap['Phone_Number']).setValue('—');
       sheet.getRange(i + 1, headerMap['Payment_Reference']).setValue('—');

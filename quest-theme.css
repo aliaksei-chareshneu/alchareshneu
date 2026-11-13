@@ -1,0 +1,58 @@
+/* Quest visual system extracted from Druzina /cesty/ 18 Oct 2026.
+   Scope to .quest-site: no changes to Academy/Walkers forms or pricing logic. */
+.quest-site {
+  --bg:#10151c;--bg-alt:#172330;--bg-card:#1b2735;
+  --ink:#f8f1e5;--ink-dim:#b8c2ce;--ink-faint:#8291a1;
+  --rule:rgba(179,195,218,.27);--r5:#e4ba76;
+  --font-d:Georgia,"Times New Roman",serif;
+  --font-b:system-ui,-apple-system,"Segoe UI",sans-serif;
+  --maxw:1020px;--nav-maxw:1180px;
+  background:#10151c;color:#f8f1e5;
+}
+.quest-site .nav{background:rgba(17,25,35,.96);border-bottom:1px solid rgba(179,195,218,.28);box-shadow:0 7px 23px rgba(0,0,0,.16);}
+.quest-site .nav .brand,.quest-site .nav .brand a{font-family:Georgia,"Times New Roman",serif;color:#fff3df!important}
+.quest-site .tabs-bar{background:#131c27;border-bottom:1px solid rgba(179,195,218,.27)}
+.quest-site .tab-btn{border-radius:8px;color:#c6d0dd}
+.quest-site .tab-btn.active{background:#334152;color:#ffdfac}
+.quest-site .tab-btn:hover{background:#283443;color:#fff1da}
+.quest-site #page-content>section:not(.hero){border-color:rgba(179,195,218,.19)}
+.quest-site .hero{position:relative;isolation:isolate;overflow:hidden;background:radial-gradient(ellipse at 50% 1%,#2b3951 0%,#151d2b 51%,#0e141e 100%);min-height:340px}
+.quest-site .hero:after{content:"";position:absolute;inset:0;background-image:url("images/quest-constellation.svg");background-position:center 12%;background-size:cover;background-repeat:no-repeat;pointer-events:none;opacity:.28;z-index:0}
+.quest-site .hero>.wrap{position:relative;z-index:3}
+.quest-site .hero h1{font-family:Georgia,"Times New Roman",serif;font-size:clamp(2.45rem,5.5vw,4.7rem);font-weight:700;line-height:1.07;color:#fff1dd;text-wrap:balance;max-width:16ch;text-shadow:0 7px 20px rgba(0,0,0,.45),0 1px 18px rgba(228,186,118,.15)}
+.quest-site .hero .tagline{color:#f1e7d8;font-size:clamp(1.03rem,1.65vw,1.21rem);max-width:61ch;text-shadow:0 1px 10px #111822}
+.quest-site .hero .hero-mission{color:#cdd6df;max-width:63ch}
+.quest-site .hero .eyebrow{font-family:var(--font-b);font-size:.79rem;letter-spacing:.17em;font-weight:760;color:#e4ba76}
+.quest-site .btn,.quest-site button.btn{border-radius:9px;min-height:43px;border:1px solid #e4ba76;font-family:var(--font-b);font-weight:680;transition:background .2s,border-color .2s,color .2s}
+.quest-site .btn.solid,.quest-site .btn.primary{background:#e4ba76;color:#151b25;border:1px solid #e4ba76}
+.quest-site .btn.solid:hover,.quest-site .btn.primary:hover{background:#ffe0ab;color:#151b25}
+.quest-site .btn:not(.solid){color:#ffe0ae;background:rgba(19,27,39,.67)}
+.quest-site .btn:not(.solid):hover{background:#2c3948;color:#fff7e8}
+.quest-site .card,.quest-site .offer-card,.quest-site .feature-card,.quest-site .stat-card,
+.quest-site .event-card,.quest-site .review-card,.quest-site .journey-card{
+  background:linear-gradient(156deg,#253244,#182330)!important;
+  border:1px solid rgba(179,195,218,.27)!important;
+  border-radius:14px!important;box-shadow:0 10px 28px rgba(0,0,0,.12)
+}
+.quest-site h1,.quest-site h2,.quest-site h3{letter-spacing:0}
+.quest-site h2,.quest-site .section-title,.quest-site .anchor-heading{font-family:Georgia,"Times New Roman",serif}
+.quest-site a:focus-visible,.quest-site button:focus-visible{outline:3px solid #ffdfac;outline-offset:3px}
+.quest-site .audio-toggle,.quest-site .quest-sound-control{display:inline-flex;align-items:center;justify-content:center;min-width:36px;min-height:36px;border:1px solid rgba(228,186,118,.58);border-radius:9px;background:#202d3c;color:#f3d7a6;cursor:pointer}
+.quest-site .audio-toggle:hover,.quest-site .quest-sound-control:hover{background:#34445a}
+.quest-site .audio-toggle[aria-pressed="true"],.quest-site .quest-sound-control[aria-pressed="true"]{background:#e4ba76;color:#161d27}
+.quest-site .nav .langs button[aria-pressed=true]{background:#e4ba76;color:#111923}
+.quest-site #dm-team-experience{background:radial-gradient(ellipse at 75% 20%,#293d52,#15212e 65%);border-top:1px solid #596678}
+.quest-site #dm-team-experience .dm-team-card{background:linear-gradient(135deg,#283549,#182330);border-color:#977952}
+.quest-site #dm-team-experience a.btn{background:#e4ba76;color:#161d27;border-radius:9px}
+.quest-site #dm-team-experience a.btn:hover{background:#ffe0ab}
+.quest-site footer{background:#10151c;border-top:1px solid rgba(179,195,218,.3)}
+.quest-site .free-note,.quest-site .note{color:#c9d4de}
+@media(max-width:680px){
+ .quest-site{--maxw:100%}
+ .quest-site .hero{min-height:0}
+ .quest-site .hero h1{font-size:clamp(2.1rem,8.3vw,3.15rem);max-width:17ch}
+ .quest-site .hero .tagline{font-size:1rem;max-width:95%}
+ .quest-site .hero:after{background-size:auto 85%;background-position:center top;opacity:.16}
+ .quest-site .btn.solid,.quest-site .hero-ctas .btn{box-shadow:none}
+}
+@media(prefers-reduced-motion:reduce){.quest-site .btn{transition:none}}

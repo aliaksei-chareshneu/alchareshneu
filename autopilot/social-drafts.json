@@ -1,0 +1,34 @@
+{
+  "schema": "imperion-social-drafts-v1",
+  "auto_posting": false,
+  "review_required": true,
+  "drafts": [
+    {
+      "event_id": "PUB-HIKE-20261101",
+      "status": "HOLD_FOR_MANUAL_APPROVAL",
+      "destination": "OWN_PROFILE_OR_EXPLICITLY_ALLOWED_COMMUNITY_ONLY",
+      "direct_public_links": false,
+      "posted": false,
+      "published_url": null,
+      "text_cs": "Chystá se BrnoWalkers / Morava v pohybu — Hády → Růženin lom → Obřany.\nKdy: 1. 11. 2026 12:45\nKde: Velká Klajdovka, Brno\nZdarma.\n\nChceš informace? Napiš mi soukromou zprávu s názvem akce. Přihláška je nezávazná; účast platí až po osobním potvrzení pořadatelem."
+    },
+    {
+      "event_id": "PUB-OREL-20261114",
+      "status": "HOLD_FOR_MANUAL_APPROVAL",
+      "destination": "OWN_PROFILE_OR_EXPLICITLY_ALLOWED_COMMUNITY_ONLY",
+      "direct_public_links": false,
+      "posted": false,
+      "published_url": null,
+      "text_cs": "Chystá se FREE Beginner HEMA Workshop — Orel Husovice | Morava v pohybu.\nKdy: 14. 11. 2026 12:00\nKde: Orlovna Husovice\nZdarma.\n\nChceš informace? Napiš mi soukromou zprávu s názvem akce. Přihláška je nezávazná; účast platí až po osobním potvrzení pořadatelem."
+    },
+    {
+      "event_id": "PUB-HIKE-20261128",
+      "status": "HOLD_FOR_MANUAL_APPROVAL",
+      "destination": "OWN_PROFILE_OR_EXPLICITLY_ALLOWED_COMMUNITY_ONLY",
+      "direct_public_links": false,
+      "posted": false,
+      "published_url": null,
+      "text_cs": "Chystá se BrnoWalkers — Obřany → Bílovice nad Svitavou | Free community hike.\nKdy: 28. 11. 2026 10:00\nKde: Brno hlavní nádraží — main entrance\nZdarma.\n\nChceš informace? Napiš mi soukromou zprávu s názvem akce. Přihláška je nezávazná; účast platí až po osobním potvrzení pořadatelem."
+    }
+  ]
+}
