@@ -11,6 +11,7 @@
   ['chemistry','school',{cs:'Chemie',en:'Chemistry',ru:'Химия',uk:'Хімія'}],
   ['biology','school',{cs:'Biologie',en:'Biology',ru:'Биология',uk:'Біологія'}],
   ['biochemistry','school',{cs:'Biochemie',en:'Biochemistry',ru:'Биохимия',uk:'Біохімія'}],
+  ['natural-sciences','school',{cs:'Přírodní vědy',en:'Natural Sciences',ru:'Естественные науки',uk:'Природничі науки'}],
   ['python','technical',{cs:'Programování · Python',en:'Programming · Python',ru:'Программирование · Python',uk:'Програмування · Python'}],
   ['data','technical',{cs:'Data · SQL · AI',en:'Data · SQL · AI',ru:'Данные · SQL · AI',uk:'Дані · SQL · AI'}],
   ['fitness','movement',{cs:'Osobní fitness',en:'Personal fitness',ru:'Индивидуальный фитнес',uk:'Особистий фітнес'}],
@@ -27,7 +28,7 @@
  ru:{find:'Найдите предмет или услугу',placeholder:'Например: химия, A2, фитнес, Python…',found:'Выберите вариант из списка',choose:'Выбрать этот вариант →',custom:'Не нашли подходящее? Описать свою задачу →',allPrices:'Все цены и направления деятельности',priceTitle:'Цены с первого взгляда',priceLead:'Публичные ставки для новых запросов. Состав, доступность и условия согласуются письменно.',priceStudy:'Индивидуальный урок онлайн',priceGroup:'Онлайн-минигруппа · от 6 оплативших',priceMove:'Фитнес онлайн / очно',priceConsult:'Помощь с выбором услуги',priceNotes:'Группа: 350 Kč/чел./60 мин до 31.12.2026; 400 Kč с 01.01.2027. Специализированные услуги — по письменному предложению. Старые договорённости действуют.',full:'Полный оригинальный прайс · 9 категорий',extras:'Дополнительные программы, пакеты и консультация',product:'Выберите конкретный формат',sub:'Три понятных решения под вашу цель. Запрос — ещё не запись.',school:['Школьная программа и контрольные','Вступительные экзамены и выпускные','Предмет в университете'],technical:['Начать с нуля','Практический проект и данные','Университет и продвинутый уровень'],languages:['Для жизни и работы','Для экзамена или сертификата','Для учёбы и профессии'],movement:['Первая индивидуальная тренировка','План регулярных занятий','Техника, координация и безопасность'],support:['Подготовить вопросы и документы','Перевод или сопровождение','Следующие организационные шаги'],safe:'Это не медицинская услуга. Фехтование и стрельба из лука — только после проверки места, снаряжения и безопасности.',legal:'Только языковая и организационная помощь, без медицинских и юридических консультаций.'},
  uk:{find:'Знайдіть предмет або послугу',placeholder:'Наприклад: хімія, A2, фітнес, Python…',found:'Оберіть варіант зі списку',choose:'Обрати цей варіант →',custom:'Не знайшли свого? Опишіть власну мету →',allPrices:'Усі ціни та напрями діяльності',priceTitle:'Ціни з першого погляду',priceLead:'Публічні ставки для нових звернень. Обсяг, доступність та умови погоджуються письмово.',priceStudy:'Індивідуальне заняття онлайн',priceGroup:'Онлайн-мінігрупа · від 6 оплативших',priceMove:'Фітнес онлайн / очно',priceConsult:'Допомога з вибором послуги',priceNotes:'Група: 350 Kč/особу/60 хв до 31.12.2026; 400 Kč з 01.01.2027. Спеціальні послуги за письмовою пропозицією. Раніше погоджені умови зберігаються.',full:'Повний оригінальний прайс · 9 категорій',extras:'Додаткові програми, пакети та консультація',product:'Оберіть конкретний формат',sub:'Три зрозумілі рішення для вашої мети. Звернення не дорівнює бронюванню.',school:['Шкільний курс і контрольні','Вступні та випускні іспити','Університетський предмет'],technical:['Почати з основ','Практичний проєкт і дані','Університет і поглиблений рівень'],languages:['Для життя й роботи','Для іспиту або сертифіката','Для навчання та професії'],movement:['Перше індивідуальне заняття','План регулярних тренувань','Техніка, координація та безпека'],support:['Підготувати запитання й документи','Переклад або супровід','Наступні організаційні кроки'],safe:'Це не медична допомога. Фехтування та стрільба з лука — після перевірки місця, спорядження і безпеки.',legal:'Лише мовна та організаційна допомога, без медичних чи юридичних консультацій.'}
  };
- var chosen='czech',initialized=false;
+ var chosen='',initialized=false;
  function lc(){var c=document.documentElement.lang;return dictionary[c]?c:'cs'}
  function t(){return dictionary[lc()]}
  function safeText(s){return String(s||'').replace(/[&<>"']/g,function(v){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','&#39;':'&#39;',"'":'&#39;'}[v]})}
@@ -67,7 +68,7 @@
    picker.querySelector('#academy-search-label').textContent=d.find;
    picker.querySelector('input').placeholder=d.placeholder;
    picker.querySelector('input').setAttribute('aria-label',d.find);
-   if(!picker.querySelector('input').matches(':focus'))picker.querySelector('input').value=sById(chosen)[2][lang];
+   if(!picker.querySelector('input').matches(':focus'))picker.querySelector('input').value=chosen?sById(chosen)[2][lang]:'';
    var arr=[['czech','czech','english'],['fitness','calisthenics','fencing'],['math','chemistry','python'],['medical','offices','legal']];
    root.querySelectorAll('.goal-detail').forEach(function(section,i){
       section.querySelectorAll('.goal-option a').forEach(function(a,j){
@@ -83,6 +84,7 @@
  }
  function draw(){
    var target=document.getElementById('academy-selected-service');if(!target)return;
+   if(!chosen){target.replaceChildren();return;}
    var lang=lc(),d=t(),sv=sById(chosen),name=sv[2][lang],options=d[sv[1]]||d.school;
    var html='<h3>'+safeText(name)+'</h3><p>'+safeText(d.sub)+'</p><div class="academy-service-three">';
    options.forEach(function(title){
