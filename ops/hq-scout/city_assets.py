@@ -72,7 +72,7 @@ def extract_property_strings(text: str) -> list[str]:
             continue
         address_hint=match.group(0).strip()[:90]
         terminal=address_hint.rsplit(" ",1)[0].split()[-1].lower()
-        if terminal in {"dne","brno","brna","roku","úřad","mmb"}:
+        if terminal in {"dne","brno","brna","roku","úřad","mmb"} and not address_hint.isupper():
             continue
         if re.search(r"\bmalinovského\s+náměstí\s+3\b",address_hint,re.I):
             # Explicit municipality correspondence address, not a venue.
