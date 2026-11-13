@@ -26,3 +26,9 @@
 .calendar-hint{color:var(--muted);font-size:11px;line-height:1.4;margin:10px 0 0}
 @media(max-width:480px){.calendar-weekdays,.calendar-grid{gap:2px}.calendar-day,.calendar-empty{min-height:48px}.calendar-day-icons{font-size:13px}}
 @media(max-width:380px){.event-calendar{padding:9px}.calendar-day,.calendar-empty{min-height:45px}}
+
+/* A recurring slot is informational only: never the same treatment as an open booking. */
+.calendar-day.has-recurring-preview:not(.has-open){border:1px dashed #c9a56d;color:#f3dcab;background:#202e30}
+.calendar-day.has-recurring-preview:not(.has-open):hover{background:#2b3d3b}
+.calendar-option-preview{border-style:dashed;border-color:#d7b578;background:#26362f;color:#ffe2ad;text-decoration:none;min-height:46px}
+.calendar-option-preview:hover{background:#3a4940}
