@@ -59,7 +59,7 @@ for(const lang of ['cs','en','ru','uk']){
   await expect(page.locator('#academy-selected-service .academy-service-option')).toHaveCount(3);
   await expect(page.locator('#academy-selected-service .academy-custom')).toHaveCount(1);
   for(const a of await page.locator('#academy-selected-service .academy-service-option a').all()){
-   expect(await a.getAttribute('href')).toMatch(/^https:\/\/wa\.me\/420702914842/);
+   expect(await a.getAttribute('href')).toMatch(/^order\/\?lang=/);
   }
   await expect(page.locator('#academy-prices-brief .academy-price-tile')).toHaveCount(4);
   await expect(page.locator('#academy-full-prices')).not.toHaveAttribute('open','');
