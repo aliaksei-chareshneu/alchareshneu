@@ -34,12 +34,39 @@ jobs:
       - name: Test strict source and data protection gates
         run: python3 -m unittest discover -s ops/hq-scout -p 'test_*.py' -v
 
-      - name: Install PDF text reader for official municipal archive
+      - name: Install PDF text reader and Czech OCR for bounded scanned archive
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends poppler-utils
+          sudo apt-get install -y --no-install-recommends poppler-utils tesseract-ocr tesseract-ocr-ces tesseract-ocr-eng
           command -v pdftotext
           pdftotext -v
+          tesseract --list-langs 2>&1 | grep -E '^(ces|eng)
+      - name: Read official public sources (no CRM, no credentials, no AI billing)
+        run: |
+          python3 ops/hq-scout/notices_run.py \
+            --sources ops/hq-scout/sources.json \
+            --out ops/hq-scout/output \
+            --max-total 20 \
+            --min-board-rows 0 \
+            --min-city-pages 1 \
+            --scan-archive \
+            --require-archive-text
+
+      - name: Preserve public-only run evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: imperion-hq-scout-public-research
+          path: ops/hq-scout/output/
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: State limits explicitly
+        run: |
+          echo 'Public city property pages and optional Brno eDeska; robots.denied means NOTICE BOARD BLOCKED.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Private CRM and Gmail are intentionally not exported to a public workflow.' >> "$GITHUB_STEP_SUMMARY"
+          echo '0 CRM writes, 0 customer messages, 0 paid AI API calls, 0 owner obligations.' >> "$GITHUB_STEP_SUMMARY"
+
 
       - name: Read official public sources (no CRM, no credentials, no AI billing)
         run: |
