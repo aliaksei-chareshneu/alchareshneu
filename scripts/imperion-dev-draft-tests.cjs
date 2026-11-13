@@ -53,6 +53,36 @@ function parseDraftVectors(raw) {
  if(!empty||!single||!multi)reject('TEST_VECTOR_COVERAGE_MISSING');
  return data;
 }
+// Model-generated test INPUTS are untrusted; in this fixture the deterministic
+// arithmetic oracle computes every expected value. No model-authored test code.
+function normalizeWithTrustedOracle(raw) {
+ if(typeof raw!=='string'||Buffer.byteLength(raw)>MAX_RESPONSE)
+  reject('TEST_VECTOR_OUTPUT_SIZE_REJECTED');
+ let data;try{data=JSON.parse(raw)}catch{reject('TEST_VECTOR_JSON_REJECTED')}
+ exactKeys(data,['export','cases']);
+ if(data.export!=='total'||!Array.isArray(data.cases)||data.cases.length!==3)
+  reject('TEST_VECTOR_SCHEMA_REJECTED');
+ let corrected=0;
+ for(const c of data.cases){
+  exactKeys(c,['name','args','expected']);
+  if(!Array.isArray(c.args)||c.args.length!==1||
+     !Array.isArray(c.args[0])||c.args[0].length>8||
+     !Number.isSafeInteger(c.expected)||c.expected<0||c.expected>100000000)
+    reject('TEST_VECTOR_ARGUMENTS_REJECTED');
+  let expected=0;
+  for(const r of c.args[0]){
+   exactKeys(r,['price','quantity']);
+   if(!Number.isSafeInteger(r.price)||!Number.isSafeInteger(r.quantity)||
+     r.price<0||r.price>10000||r.quantity<0||r.quantity>10000)
+     reject('TEST_VECTOR_ARGUMENTS_REJECTED');
+   expected+=r.price*r.quantity;
+  }
+  if(expected>100000000)reject('TEST_VECTOR_ARGUMENTS_REJECTED');
+  if(c.expected!==expected)corrected++;
+  c.expected=expected;
+ }
+ return {data:parseDraftVectors(JSON.stringify(data)),oracle_recomputed_cases:corrected};
+}
 function renderDraftTest(task,data) {
  if(task?.file!==W.FIXTURE_FILE||task.mode!=='FIXTURE')
    reject('DRAFT_TEST_SOURCE_SCOPE_REJECTED');
@@ -82,7 +112,8 @@ function draftPrompt(patchedSource,feedback='') {
   'Case names lowercase ASCII 3-36 chars. Each args is one array of 0 to 8 rows.',
   'Each row has exactly integer nonnegative price and quantity (0..10000). expected integer.',
   'Use ONE empty-list case, ONE single-row case and ONE case with >=2 rows.',
-  'Compute expected by multiplying price times quantity for every row. Avoid existing example 7*3.',
+  'Suggest diverse test INPUTS; the trusted controller will compute the expected values.',
+  'Expected numbers in your response are advisory only. Avoid existing example 7*3.',
   'JSON shape example (use your own numbers): '+TEST_SHAPE,
   feedback?'RETRY_REASON: '+feedback.slice(0,100):'',
   'PATCHED_PUBLIC_SOURCE: '+patchedSource.slice(0,9000)
@@ -104,8 +135,8 @@ async function askDraftVectors(patchedSource,fetchImpl=globalThis.fetch) {
   if(out?.done!==true||out?.model!==W.MODEL)
     reject('TEST_VECTOR_MODEL_UNVERIFIED');
   try{
-   const data=parseDraftVectors(out.response);
-   return {data,model_invocations:attempt+1};
+   const checked=normalizeWithTrustedOracle(out.response);
+   return {...checked,model_invocations:attempt+1};
   }catch(e){
    if(attempt===1)throw e;
    if(!/^(TEST_VECTOR_(SCHEMA|OUTPUT_SIZE|JSON|CASE_NAME|ARGUMENTS|ORACLE_MISMATCH|DUPLICATE_INPUTS|COVERAGE_MISSING)_REJECTED|TEST_VECTOR_ORACLE_MISMATCH)$/.test(e.message))
@@ -141,6 +172,8 @@ async function writePreview(proof,workspace,fetchImpl=globalThis.fetch) {
    model:W.MODEL,model_invocations:result.model_invocations,
    sha256:crypto.createHash('sha256').update(fileText).digest('hex'),
    draft_cases:result.data.cases,advisory_only:true,
+   expected_values_from_trusted_oracle:true,
+   oracle_recomputed_cases:result.oracle_recomputed_cases,
    paid_api_czk:0,merged:false};
 }
 async function cli(){
@@ -160,5 +193,5 @@ if(require.main===module)cli().catch(e=>{
  console.error(/^[A-Z0-9_]+$/.test(e.message)?e.message:'TEST_VECTOR_PREVIEW_BLOCKED');
  process.exitCode=2;
 });
-module.exports={DEST,parseDraftVectors,renderDraftTest,draftPrompt,askDraftVectors,
+module.exports={DEST,parseDraftVectors,normalizeWithTrustedOracle,renderDraftTest,draftPrompt,askDraftVectors,
   checkPreviewProof,writePreview};

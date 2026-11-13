@@ -122,3 +122,32 @@ test('workflow runs advisory draft only in pull-request preview, cannot auto-mer
  assert.match(y,/--network none --read-only --cap-drop ALL/);
  assert.doesNotMatch(y,/git push origin main|gh pr merge|auto-merge: true/);
 });
+
+test('independent arithmetic oracle corrects Qwen expected numbers without changing inputs',()=>{
+ const wrong={...good,cases:good.cases.map((c,i)=>i===1?{...c,expected:999}:c)};
+ assert.throws(()=>D.parseDraftVectors(JSON.stringify(wrong)),/TEST_VECTOR_ORACLE_MISMATCH/);
+ const normalized=D.normalizeWithTrustedOracle(JSON.stringify(wrong));
+ assert.equal(normalized.oracle_recomputed_cases,1);
+ assert.equal(normalized.data.cases[1].expected,24);
+ assert.deepEqual(normalized.data.cases[1].args,good.cases[1].args);
+ assert.equal(D.normalizeWithTrustedOracle(JSON.stringify(good)).oracle_recomputed_cases,0);
+ const malicious={...wrong,cases:[wrong.cases[0],
+  {...wrong.cases[1],args:[[{price:"8",quantity:3}]]},wrong.cases[2]]};
+ assert.throws(()=>D.normalizeWithTrustedOracle(JSON.stringify(malicious)),/TEST_VECTOR_ARGUMENTS_REJECTED/);
+ const over={...wrong,cases:[wrong.cases[0],
+  {...wrong.cases[1],args:[[{price:10000,quantity:10000},{price:10000,quantity:10000}]]},wrong.cases[2]]};
+ assert.throws(()=>D.normalizeWithTrustedOracle(JSON.stringify(over)),/TEST_VECTOR_ARGUMENTS_REJECTED/);
+});
+test('wrong Qwen expected values use the trusted oracle without repeat inference',async()=>{
+ let n=0;
+ const wrong={...good,cases:good.cases.map((c,i)=>i===2?{...c,expected:999}:c)};
+ const output=await D.askDraftVectors('public source',async()=>({
+  ok:true,redirected:false,json:async()=>{
+   n++;
+   return {done:true,model:W.MODEL,response:JSON.stringify(wrong)};
+  }
+ }));
+ assert.equal(n,1);
+ assert.equal(output.oracle_recomputed_cases,1);
+ assert.equal(output.data.cases[2].expected,15);
+});
