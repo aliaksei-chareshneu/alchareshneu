@@ -67,7 +67,7 @@
     brand.href=urlFor('',code);
     links.home.href=urlFor('',code);
     links.events.href=urlFor('',code)+'#impr-calendar';
-    links.academy.href=urlFor('academy/courses/',code==='uk'?'cs':code);
+    links.academy.href=urlFor('academy/',code);
     links.club.href=urlFor('druzina/',code);
     links.walkers.href=urlFor('walkers/',code);
     links.about.href=urlFor('about/',code);
