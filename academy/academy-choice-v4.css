@@ -1,0 +1,86 @@
+/* Academy v4 · short service discovery first, complete tariffs one click away. */
+body[data-imperion-design="academy"] .hero a[href^="a2/"],
+body[data-imperion-design="academy"] .hero a[href*="/a2/"] {
+  display:inline-flex !important;align-items:center;justify-content:center;
+  background:#f5cf84 !important;color:#091d21 !important;border:2px solid #ffe5a8 !important;
+  border-radius:12px !important;min-height:49px;padding:12px 18px !important;
+  font-weight:850 !important;text-shadow:none !important;box-shadow:0 8px 21px #0007;
+}
+body[data-imperion-design="academy"] .hero a[href^="a2/"]:is(:hover,:focus-visible){background:#ffebc0!important;color:#071b20!important}
+#academy-service-picker{position:relative;z-index:10;width:min(1120px,100%);margin:23px auto 16px;padding:18px;border:1px solid #cda972;border-radius:17px;background:#0d282ee9;box-shadow:0 12px 30px #0008}
+#academy-service-picker label{display:block;color:#ffe6b2;font-size:clamp(16px,1.5vw,19px);font-weight:800;margin-bottom:9px}
+#academy-service-search{display:block;width:100%;min-height:50px;background:#f9f0df !important;border:2px solid #e5c992!important;border-radius:11px;padding:10px 15px;color:#0c2427!important;font:700 16px/1.3 system-ui,sans-serif;box-sizing:border-box;outline-offset:3px}
+#academy-service-search::placeholder{color:#4e5e5b;opacity:1}
+.academy-combo{position:relative}
+#academy-service-options{position:absolute;top:calc(100% + 5px);left:0;right:0;max-height:290px;overflow-y:auto;z-index:100;background:#102f34;border:1px solid #f1cd8b;border-radius:13px;box-shadow:0 18px 32px #0009;padding:6px}
+#academy-service-options[hidden]{display:none!important}
+#academy-service-options [role="option"]{display:block;width:100%;text-align:left;padding:11px 13px;min-height:44px;border:0;border-radius:8px;background:transparent;color:#faf1e3;font:700 15px/1.3 system-ui,sans-serif;cursor:pointer}
+#academy-service-options [role="option"]:is(:hover,:focus-visible){background:#315454;color:#ffe9b6}
+#academy-selected-service{margin-top:16px}
+#academy-selected-service h3{font:600 clamp(23px,2.8vw,32px)/1.2 Georgia,serif;color:#ffe5ad;margin:0 0 6px}
+#academy-selected-service>p{color:#dae7e0;font-size:15px;margin:0 0 12px}
+.academy-service-three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}
+.academy-service-option{background:linear-gradient(130deg,#1a3f40,#122f34);border:1px solid #7f998890;border-radius:12px;padding:15px;min-height:197px;display:flex;flex-direction:column;min-width:0}
+.academy-service-option h4{color:#ffdc9e;font:760 clamp(16px,1.4vw,19px)/1.28 system-ui,sans-serif;margin:0 0 8px}
+.academy-service-option p{color:#d8e8e0;font-size:14px;line-height:1.45;margin:0 0 15px;flex:1}
+.academy-service-option a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;background:#f5cf84 !important;color:#0a2929 !important;border:1px solid #ffe6aa;border-radius:10px;padding:9px 12px;text-decoration:none!important;text-align:center;font:820 14px/1.25 system-ui,sans-serif}
+.academy-service-option a:hover{background:#ffebc1!important}
+#academy-choose .academy-custom{display:inline-flex;margin:13px 0 0;min-height:44px;align-items:center;gap:5px;color:#f5d598!important;font-weight:760;text-decoration:underline;text-underline-offset:4px}
+#academy-choose .goal-option{min-height:175px;padding:17px}
+#academy-choose .goal-option a{margin-top:auto;background:#f5cf84!important;color:#08272b!important}
+#academy-choose .goal-detail{margin:23px 0 0;padding:25px 0 0;scroll-margin-top:18px}
+#academy-choose .goal-more{margin:10px 0 0}
+#academy-choose .goal-note{border-radius:9px}
+#academy-prices-brief{width:min(1160px,calc(100% - 32px));margin:16px auto 34px;padding:clamp(21px,3vw,33px);background:linear-gradient(140deg,#183c3c,#102d32);border:1px solid #b89b62;border-radius:20px;box-shadow:0 15px 35px #00151a59;box-sizing:border-box}
+#academy-prices-brief h2{font:600 clamp(29px,4vw,46px)/1.13 Georgia,serif;color:#fff0d2;margin:9px 0}
+#academy-prices-brief p{color:#e0eae2;margin:8px 0 18px;max-width:850px}
+#academy-prices-brief .academy-price-four{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin:18px 0 16px}
+#academy-prices-brief .academy-price-tile{min-width:0;padding:18px 14px;display:flex;flex-direction:column;gap:9px;background:#0b252c;border:1px solid #ab977380;border-radius:14px}
+#academy-prices-brief .academy-price-tile span{color:#dce6dd;font:600 15px/1.35 system-ui,sans-serif}
+#academy-prices-brief .academy-price-tile strong{color:#ffe1a1;font:770 clamp(18px,1.9vw,27px)/1.2 Georgia,serif;white-space:normal}
+#academy-prices-brief .academy-price-explainer{color:#e2eadd;font-size:13px;max-width:100%}
+#academy-prices-brief .academy-prices-open{display:inline-flex;align-items:center;justify-content:center;min-height:46px;background:#f5cf84;color:#132923!important;border-radius:12px;text-decoration:none!important;padding:10px 17px;font-weight:820}
+#academy-full-prices{width:min(1160px,calc(100% - 32px));margin:15px auto 32px;background:#10292f;border:1px solid #ae9365;border-radius:17px;overflow:hidden}
+#academy-full-prices>summary{cursor:pointer;padding:18px 23px;font:770 19px/1.35 Georgia,serif;color:#ffe1aa;list-style:auto;min-height:52px}
+#academy-full-prices>summary:is(:hover,:focus-visible){background:#204044}
+#academy-full-prices-body{padding:8px clamp(12px,2.7vw,30px) 35px;min-width:0}
+#academy-pricing .price-jump-list{display:flex;gap:9px;flex-wrap:wrap;max-width:100%;margin:12px 0 23px;padding:0}
+#academy-pricing .price-jump-link{display:inline-flex;align-items:center;min-height:42px;border:1px solid #b29b71;border-radius:11px;padding:7px 12px;background:#173b3d;text-decoration:none;color:#ffe0a0!important;font-weight:720}
+#academy-pricing .price-cats{display:grid!important;grid-template-columns:1fr!important;gap:20px!important;width:100%;max-width:100%;min-width:0;margin:18px auto!important;padding:0!important}
+#academy-pricing .price-cat{display:block!important;width:100%;max-width:100%;box-sizing:border-box;margin:0!important;padding:clamp(16px,2.4vw,27px)!important;border:1px solid #917955!important;border-radius:16px;background:#112f34!important;color:#e5e9dd}
+#academy-pricing .price-cat-title{margin:0 0 10px!important;color:#ffdfa1;font-size:clamp(21px,2.3vw,29px)}
+#academy-pricing .price-cat-sub{margin:0 0 17px!important;color:#d5e4dd}
+#academy-pricing .tbl-wrap{display:block!important;max-width:100%;width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;margin:14px auto 19px!important;padding:0!important;border-radius:11px;border:1px solid #64837c}
+#academy-pricing .tbl-wrap table{width:100%;min-width:min(510px,100%);border-collapse:collapse!important;table-layout:auto}
+#academy-pricing .tbl-wrap td,#academy-pricing .tbl-wrap th{padding:12px 13px!important;min-width:0;word-break:normal;overflow-wrap:anywhere;border-bottom:1px solid #4a6865!important;color:#f0f0e6!important;background:#113036!important;vertical-align:top;text-align:left}
+#academy-pricing .tbl-wrap tr:nth-child(even) td{background:#18383b!important}
+#academy-pricing .tbl-wrap td a{color:#ffe0a0!important}
+#academy-pricing .subj-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(190px,100%),1fr));gap:10px;min-width:0}
+#academy-pricing .subj-card{min-width:0;background:#18383d;border:1px solid #8c977e82;border-radius:10px;padding:12px}
+#academy-pricing .subj-items{margin:8px 0;padding-left:19px}
+#academy-pricing .subj-group{margin:12px auto 23px;min-width:0}
+#academy-pricing .subj-group-title{font-size:18px;color:#ffdc98;font-weight:750;margin-bottom:10px}
+#academy-pricing > .wrap,#academy-pricing section.wrap{width:min(1160px,calc(100% - 32px));max-width:1160px;box-sizing:border-box;margin:20px auto}
+#academy-pricing > .wrap:nth-child(1) {display:none}
+#academy-pricing #online-mini-groups,#academy-pricing #qualified-price-guide{display:none}
+#academy-more-services{width:min(1160px,calc(100% - 32px));margin:24px auto 40px;padding:0;border-radius:16px;background:#102e31;border:1px solid #98865c;color:#f8f0dd}
+#academy-more-services>summary{padding:18px 23px;cursor:pointer;font:770 18px/1.3 Georgia,serif;color:#ffdea3}
+#academy-more-services-body{padding:8px 16px 25px}
+#academy-more-services #academy-milestones,#academy-more-services #service-choice-consultation{width:100%;max-width:100%;box-sizing:border-box;margin:15px 0;padding:20px}
+#academy-choose,#academy-pricing{overflow-wrap:anywhere}
+@media(max-width:900px){
+ #academy-prices-brief .academy-price-four{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #academy-selected-service .academy-service-three{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:620px){
+ #academy-service-picker{padding:14px;margin:13px 0}
+ #academy-selected-service .academy-service-three{grid-template-columns:1fr}
+ #academy-prices-brief .academy-price-four{grid-template-columns:1fr}
+ #academy-pricing .tbl-wrap td,#academy-pricing .tbl-wrap th{padding:10px!important;font-size:14px}
+ #academy-service-picker .academy-combo{z-index:2}
+}
+
+/* Once the concise tariff overview is mounted, keep the old translation-source
+   wrapper in the DOM but out of the first screen; the actual 9 categories
+   have been moved intact into an accessible <details>. */
+#academy-pricing:has(#academy-prices-brief) > .wrap {display:none !important}

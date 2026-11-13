@@ -39,10 +39,18 @@ function calendarRenderDayOptions(entries,dayKey){
  heading.textContent=CALENDAR_COPY[lang].onDay+' '+calendarDayLabel(calendarYear,calendarMonth,Number(dayKey.slice(-2)));
  panel.append(heading);
  for(const e of entries){
-   const button=document.createElement('button');button.type='button';button.className='calendar-option';
+   const draft=!!e.provisional;
+   const button=document.createElement(draft?'a':'button');
+   if(!draft)button.type='button';
+   button.className='calendar-option'+(draft?' calendar-option-preview':'');
    const icon=document.createElement('span');icon.textContent=calendarIcon(e);icon.setAttribute('aria-hidden','true');
-   const caption=document.createElement('span');caption.textContent=eventDate(e)+' · '+e.title+' — '+statusLabel(e);
-   button.append(icon,caption);button.addEventListener('click',()=>chooseEvent(e.event_id));panel.append(button);
+   const caption=document.createElement('span');
+   const t=window.ImperionCalendarPolicy?.langData(lang);
+   caption.textContent=draft?(e.local_day+' · 18:00 · '+t.title+' — '+t.status):(eventDate(e)+' · '+e.title+' — '+statusLabel(e));
+   button.append(icon,caption);
+   if(draft){button.href=window.ImperionCalendarPolicy.enquire(lang,e.local_day);button.target='_blank';button.rel='noopener noreferrer';}
+   else button.addEventListener('click',()=>chooseEvent(e.event_id));
+   panel.append(button);
  }
 }
 function renderCalendar(){
@@ -66,6 +74,9 @@ function renderCalendar(){
    if(!grouped.has(key))grouped.set(key,[]);
    grouped.get(key).push(e);
  }
+ // Add only visual Monday previews, never rows in the booking list or backend.
+ const previews=window.ImperionCalendarPolicy?.forMonth(calendarYear,calendarMonth,events)||[];
+ for(const preview of previews){const k=preview.local_day;if(!grouped.has(k))grouped.set(k,[]);grouped.get(k).push(preview);}
  for(const list of grouped.values())list.sort((a,b)=>Date.parse(a.begins_at)-Date.parse(b.begins_at));
  const grid=$('calendarGrid');grid.replaceChildren();
  const start=(new Date(Date.UTC(calendarYear,calendarMonth,1)).getUTCDay()+6)%7;
@@ -78,15 +89,15 @@ function renderCalendar(){
  for(let day=1;day<=days;day++){
    const key=prefix+String(day).padStart(2,'0'),entries=grouped.get(key)||[];
    const cell=document.createElement(entries.length?'button':'span');
-   cell.className='calendar-day'+(entries.length?' has-events':'')+(entries.some(e=>eventMode(e)==='FORM')?' has-open':'')+(key===selectedKey?' is-selected':'')+(key===todayKey?' is-today':'');
+   cell.className='calendar-day'+(entries.length?' has-events':'')+(entries.some(e=>e.provisional)?' has-recurring-preview':'')+(entries.some(e=>!e.provisional&&eventMode(e)==='FORM')?' has-open':'')+(key===selectedKey?' is-selected':'')+(key===todayKey?' is-today':'');
    if(entries.length){
      cell.type='button';
      const label=calendarDayLabel(calendarYear,calendarMonth,day);
-     cell.setAttribute('aria-label',label+': '+entries.map(e=>e.title+' ('+statusLabel(e)+')').join('; '));
+     cell.setAttribute('aria-label',label+': '+entries.map(e=>e.provisional?window.ImperionCalendarPolicy.langData(lang).title+' — '+window.ImperionCalendarPolicy.langData(lang).status:e.title+' ('+statusLabel(e)+')').join('; '));
      cell.setAttribute('aria-pressed',String(key===selectedKey));
-     cell.title=entries.map(e=>calendarIcon(e)+' '+eventDate(e)+' · '+e.title+' — '+statusLabel(e)).join('\n');
+     cell.title=entries.map(e=>e.provisional?('🛡️ '+e.local_day+' · 18:00 · '+window.ImperionCalendarPolicy.langData(lang).status):(calendarIcon(e)+' '+eventDate(e)+' · '+e.title+' — '+statusLabel(e))).join('\n');
      cell.addEventListener('click',()=>{
-       if(entries.length===1){chooseEvent(entries[0].event_id)}
+       if(entries.length===1&&!entries[0].provisional){chooseEvent(entries[0].event_id)}
        else{calendarExpandedDay=calendarExpandedDay===key?'':key;renderCalendar()}
      });
    }
