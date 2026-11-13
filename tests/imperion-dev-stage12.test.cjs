@@ -102,14 +102,15 @@ test('real new-behavior advisory FAILS on original and PASSES on isolated patche
   const target=path.join(sandbox,p.generated_file);
   fs.mkdirSync(path.dirname(target),{recursive:true});
   fs.writeFileSync(target,A.renderTest(p.task,p.test_draft),'utf8');
+  const childEnv={...process.env};delete childEnv.NODE_TEST_CONTEXT;
   const original=cp.spawnSync(process.execPath,['--test',p.generated_file],
-   {cwd:sandbox,encoding:'utf8',timeout:10000});
+   {cwd:sandbox,encoding:'utf8',timeout:10000,env:childEnv});
   assert.notEqual(original.status,0,original.stdout);
   assert.match(original.stdout,/# fail 1/);
   fs.unlinkSync(target);
   assert.equal(A.apply(p,sandbox).status,'AUTO_STAGED_PENDING_INDEPENDENT_TESTS');
   const fixed=cp.spawnSync(process.execPath,['--test',p.task.test,p.generated_file],
-   {cwd:sandbox,encoding:'utf8',timeout:10000});
+   {cwd:sandbox,encoding:'utf8',timeout:10000,env:childEnv});
   assert.equal(fixed.status,0,fixed.stderr+'\n'+fixed.stdout);
   assert.match(fixed.stdout,/# fail 0/);
  }finally{fs.rmSync(sandbox,{recursive:true,force:true});}
