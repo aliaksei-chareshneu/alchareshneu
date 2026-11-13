@@ -156,7 +156,7 @@
         '<div class="fd-mosaic fd-photo-shadows" aria-hidden="true"></div>',
         '<div class="fd-shell fd-hero-inner">',
           '<div class="fd-eyebrow" id="fdEyebrow"></div>',
-          '<h1><span id="fdHero1" style="color:#fffdf3"></span><span id="fdHero2"></span></h1>',
+          '<h1><span id="fdHero1" style="color:#fffdf3"></span> <span id="fdHero2"></span></h1>',
           '<p class="fd-lede" id="fdLead"></p>',
           '<div class="fd-hero-actions">',
           '<a class="fd-hero-cta" id="fdHeroCta" href="#impr-calendar"><span aria-hidden="true">▦</span><span class="fd-hero-cta-copy"><strong id="fdHeroLabel"></strong><small id="fdHeroSub"></small></span></a>',
@@ -169,6 +169,7 @@
       '<section class="fd-section" id="impr-calendar" tabindex="-1">',
         '<div class="fd-shell">',
           '<div class="fd-topline"><div><div class="fd-eyebrow" id="fdCalEyebrow"></div><h2 id="fdCalTitle"></h2></div><p id="fdCalIntro"></p></div>',
+          '<aside class="fd-nearest-event" id="fdNearestEvent" aria-live="polite" aria-label="Next verified public event"><div class="fd-nearest-copy"><span id="fdNearestEyebrow"></span><strong id="fdNearestTitle"></strong><span id="fdNearestWhen"></span></div><div class="fd-nearest-actions"><a id="fdNearestBook" href="#impr-calendar"></a><button type="button" id="fdNearestMore"></button></div></aside>',
           '<div class="fd-stage">',
           '<aside class="fd-facet-panel" aria-label="Event filters">',
           '<div class="fd-facet-head"><span aria-hidden="true">⚑</span><strong id="fdFacetTitle"></strong></div>',
@@ -346,7 +347,8 @@
       list.appendChild(notice);return;
     }
     // The illustrated event list is a verified catalogue, not a feed of tentative recurring slots.
-    var upcoming=data.filter(matches);
+    var limit=Date.now()+30*86400000;
+    var upcoming=data.filter(matches).filter(function(e){var at=Date.parse(e.begins_at);return Number.isFinite(at)&&at>=Date.now()&&at<=limit;});
     if(!upcoming.length){
       var none=document.createElement('p');none.className='fd-all-empty';none.textContent=ed('none');
       list.appendChild(none);return;
@@ -436,6 +438,39 @@
       b.addEventListener('click',function(){selectedId=option.event_id;renderDetail(key);});variants.appendChild(b);
     });
   }
+  var NEAREST_COPY={
+    cs:{label:'NEJBLIŽŠÍ OVĚŘENÁ AKCE',book:'Požádat o místo →',ask:'Ověřit účast →',details:'Podrobnosti',empty:'Zatím žádná ověřená akce v nabídce',when:'Vyberte datum nebo změňte filtr',planned:'Termín vyžaduje potvrzení',error:'Nelze ověřit dostupné akce'},
+    en:{label:'NEXT VERIFIED EVENT',book:'Request a place →',ask:'Check availability →',details:'Details',empty:'No verified event with this filter',when:'Choose a date or change filters',planned:'Attendance requires confirmation',error:'Event availability could not be checked'},
+    ru:{label:'БЛИЖАЙШЕЕ ПОДТВЕРЖДЁННОЕ СОБЫТИЕ',book:'Запросить место →',ask:'Уточнить участие →',details:'Подробнее',empty:'Нет проверенного мероприятия по фильтру',when:'Выберите дату или измените фильтр',planned:'Место требует подтверждения',error:'Не удалось проверить мероприятия'},
+    uk:{label:'НАЙБЛИЖЧА ПЕРЕВІРЕНА ПОДІЯ',book:'Запитати місце →',ask:'Уточнити участь →',details:'Детальніше',empty:'Немає перевіреної події за фільтром',when:'Оберіть дату чи змініть фільтр',planned:'Участь потребує підтвердження',error:'Не вдалося перевірити події'}
+  };
+  var nearestEvent=null;
+  function renderNearestEvent(){
+    var c=NEAREST_COPY[lang]||NEAREST_COPY.cs,chosen=data.filter(matches).slice().sort(function(a,b){return Date.parse(a.begins_at)-Date.parse(b.begins_at);})[0]||null;
+    nearestEvent=chosen;
+    var block=el('fdNearestEvent'),action=el('fdNearestBook'),details=el('fdNearestMore');
+    el('fdNearestEyebrow').textContent=c.label;
+    el('fdNearestTitle').textContent=chosen?publicTitle(chosen):(status==='error'?c.error:c.empty);
+    el('fdNearestWhen').textContent=chosen?timeOf(chosen)+' · '+displayEventPrice(chosen):c.when;
+    if(!chosen){
+      block.classList.add('fd-nearest-empty');action.hidden=true;details.hidden=true;
+      return;
+    }
+    block.classList.remove('fd-nearest-empty');action.hidden=false;details.hidden=false;
+    var m=mode(chosen);
+    if(m==='open'||m==='contact'){
+      action.href=hrefForEvent(chosen);
+      action.textContent=m==='open'?c.book:c.ask;
+      action.removeAttribute('aria-disabled');
+    }else{
+      // A planned event is informational only, not a verified booking.
+      action.href='#impr-calendar';action.textContent=c.planned;
+      action.setAttribute('aria-disabled','true');
+    }
+    details.textContent=c.details;
+  }
+  el('fdNearestMore').addEventListener('click',function(){if(nearestEvent)activateFromList(nearestEvent);});
+
   function render(){
     var weekday=new Intl.DateTimeFormat(locale(),{weekday:'short',timeZone:'UTC'});
     el('fdWeekdays').replaceChildren();
@@ -482,6 +517,7 @@
     parent.querySelectorAll('.fd-day[aria-pressed]').forEach(function(b){b.setAttribute('aria-pressed',String(b.getAttribute('aria-label').slice(0,10)===chosenDay));});
     renderUpcoming();
     renderAllEvents();
+    renderNearestEvent();
   }
   function monthShift(delta){closeEventModal(false);month=new Date(month.getFullYear(),month.getMonth()+delta,1);chosenDay='';selectedId='';render();}
   el('fdPrev').addEventListener('click',function(){monthShift(-1);});
