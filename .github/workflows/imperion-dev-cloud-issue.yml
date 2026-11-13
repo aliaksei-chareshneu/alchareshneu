@@ -267,7 +267,8 @@ jobs:
       - name: Stage 11 propose owner-scoped code and advisory generated test
         if: >-
           (github.event_name == 'issue_comment' && startsWith(github.event.comment.body, '/imperion-dev autonomous')) ||
-          (github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'agent/imperion-dev-cloud-stage11-autonomous-20261113')
+          (github.event_name == 'pull_request' && (github.event.pull_request.head.ref == 'agent/imperion-dev-cloud-stage11-autonomous-20261113' ||
+            github.event.pull_request.head.ref == 'agent/imperion-dev-cloud-stage11-repair-20261113'))
         shell: bash
         run: |
           set -euo pipefail
@@ -280,7 +281,8 @@ jobs:
       - name: Independently verify autonomous patch and advisory test in no-network Docker
         if: >-
           (github.event_name == 'issue_comment' && startsWith(github.event.comment.body, '/imperion-dev autonomous')) ||
-          (github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'agent/imperion-dev-cloud-stage11-autonomous-20261113')
+          (github.event_name == 'pull_request' && (github.event.pull_request.head.ref == 'agent/imperion-dev-cloud-stage11-autonomous-20261113' ||
+            github.event.pull_request.head.ref == 'agent/imperion-dev-cloud-stage11-repair-20261113'))
         shell: bash
         run: |
           set -euo pipefail
