@@ -57,7 +57,7 @@ test('Academy uses existing OSVC Leads, never claims bookings, money or email re
  const saved=Object.fromEntries(headers.map((k,i)=>[k,rows[0][i]]));
  assert.equal(saved.Submission_ID,'OSVC-ACADEMY-'+id);
  assert.equal(saved.Stage,'New');
- assert.equal(saved.Paid_CZK,0);
+ assert.equal(saved.Paid_CZK,'0'); // impText_ writes safe strings to Sheets
  assert.equal(saved.Expected_Value_CZK,'');
  assert.equal(saved.Receipt_Status,'REVIEW_NO_EMAIL');
  assert.match(saved.Action_Status,/NO_BOOKING_NO_PAYMENT/);
@@ -83,7 +83,7 @@ test('owner-only digest adds Academy counter but not private student name or ema
  const x=h.impFlushOwnerDigest_({email:'owner@example.invalid',sheetId:'sheet123'},ss,{});
  assert.deepEqual(x,{sent:true,pending:false});
  assert.match(mails[0][1],/Academy/);
- assert.match(mails[0][2],/Leads/);
+ assert.match(mails[0][2],/gid=945016744&range=A2/);
  assert.doesNotMatch(mails[0][2],/Private Student Name|private@example\.invalid|Private tuition/);
  assert.equal(kv.size,0);
 });
