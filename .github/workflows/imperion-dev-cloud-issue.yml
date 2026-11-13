@@ -216,6 +216,19 @@ jobs:
             if(p.status!=="UNTRUSTED_TEST_DRAFT_ONLY" || p.merged!==false ||
                p.paid_api_czk!==0 || p.file!=="tests/generated/imperion-dev-cloud-preview.test.cjs")
               process.exit(9)' "$RUNNER_TEMP/imperion-dev-test-vector-result.json"
+          # Cloud acceptance must prove the proposed test kills the deliberately
+          # broken ORIGINAL before it is allowed to pass after a reviewed patch.
+          if docker run --rm --network none --read-only --cap-drop ALL \
+            --security-opt no-new-privileges --pids-limit 64 --memory 512m \
+            --cpus 1 --user 10001:10001 --tmpfs /tmp:rw,noexec,nosuid,size=64m \
+            -v "$sandbox:/work:ro" -w /work node:22-alpine \
+            node --test tests/generated/imperion-dev-cloud-preview.test.cjs \
+              > "$RUNNER_TEMP/imperion-dev-advisory-baseline.log" 2>&1; then
+            echo "BASELINE_MUTATION_NOT_DETECTED"; exit 9
+          fi
+          grep -Fxq '# tests 3' "$RUNNER_TEMP/imperion-dev-advisory-baseline.log"
+          grep -Fxq '# pass 1' "$RUNNER_TEMP/imperion-dev-advisory-baseline.log"
+          grep -Fxq '# fail 2' "$RUNNER_TEMP/imperion-dev-advisory-baseline.log"
           (
             cd "$sandbox"
             node "$GITHUB_WORKSPACE/scripts/imperion-dev-cloud-issue.cjs" \
@@ -225,8 +238,24 @@ jobs:
             --security-opt no-new-privileges --pids-limit 64 --memory 512m \
             --cpus 1 --user 10001:10001 --tmpfs /tmp:rw,noexec,nosuid,size=64m \
             -v "$sandbox:/work:ro" -w /work node:22-alpine \
-            node --test tests/generated/imperion-dev-cloud-preview.test.cjs
-          echo "MODEL_DRAFT_TEST_VECTORS_SANDBOX_PASS_ADVISORY_NOT_TRUSTED" >> "$GITHUB_STEP_SUMMARY"
+            node --test tests/generated/imperion-dev-cloud-preview.test.cjs \
+              > "$RUNNER_TEMP/imperion-dev-advisory-patched.log" 2>&1
+          grep -Fxq '# tests 3' "$RUNNER_TEMP/imperion-dev-advisory-patched.log"
+          grep -Fxq '# pass 3' "$RUNNER_TEMP/imperion-dev-advisory-patched.log"
+          grep -Fxq '# fail 0' "$RUNNER_TEMP/imperion-dev-advisory-patched.log"
+          node -e 'const fs=require("node:fs"),p=require(process.argv[1]);
+            if(p.status!=="UNTRUSTED_TEST_DRAFT_ONLY"||p.advisory_only!==true||
+               p.expected_values_from_trusted_oracle!==true||p.draft_cases?.length!==3)
+              process.exit(9);
+            const readback={status:"ADVISORY_MUTATION_VERIFIED",mode:"FIXTURE_REVIEW_ONLY",
+              model:p.model,model_invocations:p.model_invocations,
+              generated_sha256:p.sha256,baseline_failures:2,patched_passes:3,
+              expected_from_trusted_oracle:true,merged:false,auto_deployed:false,
+              paid_api_czk:0};
+            fs.writeFileSync(process.argv[2],JSON.stringify(readback,null,2)+"\n")' \
+            "$RUNNER_TEMP/imperion-dev-test-vector-result.json" \
+            "$RUNNER_TEMP/imperion-dev-advisory-mutation-result.json"
+          echo "ADVISORY_MUTATION_VERIFIED_BASELINE_2_FAIL_FIXED_3_PASS_REVIEW_ONLY" >> "$GITHUB_STEP_SUMMARY"
       - name: Retain bounded public review proof for 3 days (never deploy)
         if: always()
         uses: actions/upload-artifact@v4
@@ -237,6 +266,7 @@ jobs:
             ${{ runner.temp }}/imperion-dev-cloud-test-result.json
             ${{ runner.temp }}/imperion-dev-cloud-python-proposal.json
             ${{ runner.temp }}/imperion-dev-test-vector-result.json
+            ${{ runner.temp }}/imperion-dev-advisory-mutation-result.json
           if-no-files-found: warn
           retention-days: 3
       - name: Stop ephemeral cloud Ollama

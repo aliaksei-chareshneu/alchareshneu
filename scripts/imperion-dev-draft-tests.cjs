@@ -43,6 +43,11 @@ function parseDraftVectors(raw) {
    expected+=r.price*r.quantity;
   }
   if(expected!==c.expected)reject('TEST_VECTOR_ORACLE_MISMATCH');
+  // A new test is useful only if it distinguishes the known public bug
+  // (sum of raw prices) from the independently specified correct result.
+  // Empty rows are a harmless control; both nonempty variants MUST kill it.
+  if(rows.length>0 && rows.reduce((sum,r)=>sum+r.price,0)===expected)
+    reject('TEST_VECTOR_MUTATION_NOT_DETECTED');
   const key=JSON.stringify(rows);
   if(inputs.has(key))reject('TEST_VECTOR_DUPLICATE_INPUTS');
   inputs.add(key);
@@ -129,6 +134,7 @@ function draftPrompt(patchedSource,feedback='') {
   'Each rows is an array of objects containing exactly price and quantity.',
   'price and quantity are integers from 0 to 10000.',
   'The three cases must cover empty rows, exactly one row, and two or more rows.',
+  'For BOTH nonempty cases use values proving sum(price*quantity) differs from sum(price).',
   'A trusted independent oracle calculates all expected results; do not calculate.',
   'EXAMPLE FORMAT (choose different simple numbers):',
   '{"cases":[{"name":"empty_rows","rows":[]},{"name":"one_row","rows":[{"price":2,"quantity":3}]},{"name":"two_rows","rows":[{"price":3,"quantity":4},{"price":5,"quantity":2}]}]}',

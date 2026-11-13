@@ -198,3 +198,28 @@ test('generated review tests never follow a malicious symlink outside the sandbo
   fs.rmSync(outside,{recursive:true,force:true});
  }
 });
+
+test('both nonempty generated vectors must distinguish original bug from correct logic',()=>{
+ const noSingle={...good,cases:good.cases.map((c,i)=>i===1?
+  {name:c.name,args:[[{price:9,quantity:1}]],expected:9}:c)};
+ assert.throws(()=>D.parseDraftVectors(JSON.stringify(noSingle)),/TEST_VECTOR_MUTATION_NOT_DETECTED/);
+ assert.throws(()=>D.normalizeWithTrustedOracle(JSON.stringify({
+  cases:noSingle.cases.map(c=>({name:c.name,rows:c.args[0]}))
+ })),/TEST_VECTOR_MUTATION_NOT_DETECTED/);
+ const noMulti={...good,cases:good.cases.map((c,i)=>i===2?
+  {name:c.name,args:[[{price:2,quantity:1},{price:3,quantity:1}]],expected:5}:c)};
+ assert.throws(()=>D.parseDraftVectors(JSON.stringify(noMulti)),/TEST_VECTOR_MUTATION_NOT_DETECTED/);
+ const allZero={...good,cases:good.cases.map((c,i)=>i===2?
+  {name:c.name,args:[[{price:0,quantity:4},{price:0,quantity:9}]],expected:0}:c)};
+ assert.throws(()=>D.parseDraftVectors(JSON.stringify(allZero)),/TEST_VECTOR_MUTATION_NOT_DETECTED/);
+});
+test('cloud workflow requires baseline mutation failure and fixed-source passing tests',()=>{
+ const y=fs.readFileSync(path.join(__dirname,'../.github/workflows/imperion-dev-cloud-issue.yml'),'utf8');
+ assert.match(y,/imperion-dev-advisory-baseline\.log/);
+ assert.match(y,/imperion-dev-advisory-patched\.log/);
+ assert.match(y,/BASELINE_MUTATION_NOT_DETECTED/);
+ assert.match(y,/ADVISORY_MUTATION_VERIFIED/);
+ assert.match(y,/# fail 2/);
+ assert.match(y,/# pass 3/);
+ assert.match(y,/--user 10001:10001/);
+});
