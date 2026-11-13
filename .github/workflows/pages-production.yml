@@ -377,9 +377,12 @@ jobs:
             done
             if [ ! -s /tmp/imperion-public-readback ]; then echo "Empty live $url" >&2; exit 1; fi
           done
-          curl -fsSL --max-time 35 "$base/academy/?verify=$GITHUB_SHA" | grep -Fq 'academy-choice-v4.js?v=20261113d'
-          curl -fsSL --max-time 35 "$base/?verify=$GITHUB_SHA" | grep -Fq 'site-conversion-v5.css?v=20261113d'
-          curl -fsSL --max-time 35 "$base/academy/order/order.js?verify=$GITHUB_SHA" | grep -Fq 'proofReceived'
+          curl -fsSL --max-time 35 "$base/academy/?verify=$GITHUB_SHA" -o "$RUNNER_TEMP/imperion-academy-live.html"
+          grep -Fq 'academy-choice-v4.js?v=20261113d' "$RUNNER_TEMP/imperion-academy-live.html"
+          curl -fsSL --max-time 35 "$base/?verify=$GITHUB_SHA" -o "$RUNNER_TEMP/imperion-home-live.html"
+          grep -Fq 'site-conversion-v5.css?v=20261113d' "$RUNNER_TEMP/imperion-home-live.html"
+          curl -fsSL --max-time 35 "$base/academy/order/order.js?verify=$GITHUB_SHA" -o "$RUNNER_TEMP/imperion-order-live.js"
+          grep -Fq 'proofReceived' "$RUNNER_TEMP/imperion-order-live.js"
           echo 'VERIFIED LIVE: first-party Academy checkout, privacy, price catalog, 55-review styling and About/Partners assets.' >> "$GITHUB_STEP_SUMMARY"
       - name: Verify current Academy and Start tariffs over independent public HTTPS
         shell: bash
