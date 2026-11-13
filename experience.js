@@ -99,8 +99,11 @@
     // Localize metadata using the same actual heading and offer as the visible page.
     const title=document.querySelector('h1')?.textContent.trim();
     const description=document.querySelector('.hero .tagline')?.textContent.trim();
-    if(title) {document.title=title+(page==='main'?' | Aliaksei Chareshneu, PhD · Brno':' | Brno');for(const key of ['og:title','twitter:title'])document.querySelector(`meta[property="${key}"],meta[name="${key}"]`)?.setAttribute('content',document.title);}
-    if(description)for(const key of ['description','og:description','twitter:description'])document.querySelector(`meta[property="${key}"],meta[name="${key}"]`)?.setAttribute('content',description);
+    // The new first-party homepage owns its title/meta. Legacy enhancement may
+    // continue to localize content without replacing the new visible page's SEO.
+    const frontdoorOwnsMeta=page==='main'&&!!document.getElementById('imperion-frontdoor');
+    if(title&&!frontdoorOwnsMeta){document.title=title+(page==='main'?' | Aliaksei Chareshneu, PhD · Brno':' | Brno');for(const key of ['og:title','twitter:title'])document.querySelector(`meta[property="${key}"],meta[name="${key}"]`)?.setAttribute('content',document.title);}
+    if(description&&!frontdoorOwnsMeta)for(const key of ['description','og:description','twitter:description'])document.querySelector(`meta[property="${key}"],meta[name="${key}"]`)?.setAttribute('content',description);
     document.querySelector('meta[property="og:locale"]')?.setAttribute('content',{en:'en_US',ru:'ru_RU',cs:'cs_CZ',uk:'uk_UA'}[lang()]);
     document.querySelector('#langSwitch')?.setAttribute('aria-label',{en:'Language',ru:'Язык',cs:'Jazyk',uk:'Мова'}[lang()]);
     document.querySelectorAll('#langSwitch button').forEach(n=>n.setAttribute('aria-label',{ru:'Русский',en:'English',cs:'Čeština',uk:'Українська'}[n.dataset.lang]));

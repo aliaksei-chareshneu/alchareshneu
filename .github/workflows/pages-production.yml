@@ -60,7 +60,7 @@ jobs:
               cp -a "$dir" "_pages/$dir"
             fi
           done
-          for file in index.html 404.html robots.txt sitemap.xml styles.css brand-theme.css site-design.css intent-home.css conversion-frontdoor.css imperion-cinematic-site.css conversion-frontdoor.js site-calendar-policy.js site-reviews.js site-clarity-pages.js site-clarity.css unified-shell.js unified-shell.css imperion-bootstrap.js imperion-bootstrap.css imperion-finish.css site-design.js experience.css experience.js quest-theme.css quest-audio.js site.webmanifest apple-touch-icon.png favicon.ico favicon-16.png favicon-32.png favicon-48.png icon-192.png icon-512.png revolut-payment-qr.png; do
+          for file in index.html 404.html robots.txt sitemap.xml styles.css brand-theme.css site-design.css intent-home.css conversion-frontdoor.css imperion-cinematic-site.css conversion-frontdoor.js site-calendar-policy.js site-reviews.js site-clarity-pages.js site-clarity.css site-conversion-v5.css unified-shell.js unified-shell.css imperion-bootstrap.js imperion-bootstrap.css imperion-finish.css site-design.js experience.css experience.js quest-theme.css quest-audio.js site.webmanifest apple-touch-icon.png favicon.ico favicon-16.png favicon-32.png favicon-48.png icon-192.png icon-512.png revolut-payment-qr.png; do
             if [ -f "$file" ]; then
               cp "$file" "_pages/$file"
             fi
@@ -89,11 +89,19 @@ jobs:
           test -s _pages/site-reviews.js
           test -s _pages/site-clarity-pages.js
           test -s _pages/site-clarity.css
+          test -s _pages/site-conversion-v5.css
+          test -s _pages/academy/academy-service-catalog.js
+          test -s _pages/academy/order/index.html
+          test -s _pages/academy/order/order.js
+          test -s _pages/academy/order/order.css
+          test -s _pages/academy/order/privacy.html
+          test -s _pages/about/about-v5.js
+          test -s _pages/about/about-v5.css
           test -s _pages/academy/academy-choice-v4.js
           test -s _pages/academy/academy-choice-v4.css
           test -s _pages/partners/index.html
           grep -Fq 'site-reviews.js?v=20261113c' _pages/index.html
-          grep -Fq 'academy-choice-v4.js?v=20261113c' _pages/academy/index.html
+          grep -Fq 'academy-choice-v4.js?v=20261113d' _pages/academy/index.html
           grep -Fq 'site-calendar-policy.js?v=20261113c' _pages/register/index.html
           grep -Fq 'imperion-bootstrap.js?v=20261113b' _pages/index.html
           grep -Fq 'imperion-finish.css?v=20261113b' _pages/academy/a2/index.html
@@ -341,7 +349,7 @@ jobs:
                curl -fsSL --max-time 25 "$base/academy/academy-choice-v4.js?verify=$GITHUB_SHA" -o "$picker" &&
                curl -fsSL --max-time 25 "$base/site-calendar-policy.js?verify=$GITHUB_SHA" -o "$policy" &&
                grep -Fq 'site-reviews.js?v=20261113c' "$home" &&
-               grep -Fq 'academy-choice-v4.js?v=20261113c' "$academ" &&
+               grep -Fq 'academy-choice-v4.js?v=20261113d' "$academ" &&
                grep -Fq 'Rodičovské vouchery' "$partner" &&
                grep -Fq 'academy-service-picker' "$picker" &&
                grep -Fq 'PREVIEW-ONLY-' "$policy"; then
@@ -354,6 +362,25 @@ jobs:
             exit 1
           fi
           echo 'VERIFIED LIVE: public homepage reviews, Academy searchable services, tentative recurring Monday policy, partner page' >> "$GITHUB_STEP_SUMMARY"
+      - name: Verify live native Academy orders, 55 review badge and owner biography
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://aliaksei-chareshneu.github.io/alchareshneu"
+          files=( "$base/academy/order/" "$base/academy/order/order.js" "$base/academy/order/privacy.html" "$base/academy/academy-service-catalog.js" "$base/site-conversion-v5.css" "$base/about/" "$base/partners/" )
+          for url in "${files[@]}"; do
+            attempt=0
+            while ! curl -fsSL --max-time 35 "$url?readback=$GITHUB_SHA" -o /tmp/imperion-public-readback; do
+              attempt=$((attempt+1))
+              if [ "$attempt" -ge 8 ]; then echo "Could not read live $url" >&2; exit 1; fi
+              sleep 4
+            done
+            if [ ! -s /tmp/imperion-public-readback ]; then echo "Empty live $url" >&2; exit 1; fi
+          done
+          curl -fsSL --max-time 35 "$base/academy/?verify=$GITHUB_SHA" | grep -Fq 'academy-choice-v4.js?v=20261113d'
+          curl -fsSL --max-time 35 "$base/?verify=$GITHUB_SHA" | grep -Fq 'site-conversion-v5.css?v=20261113d'
+          curl -fsSL --max-time 35 "$base/academy/order/order.js?verify=$GITHUB_SHA" | grep -Fq 'proofReceived'
+          echo 'VERIFIED LIVE: first-party Academy checkout, privacy, price catalog, 55-review styling and About/Partners assets.' >> "$GITHUB_STEP_SUMMARY"
       - name: Verify current Academy and Start tariffs over independent public HTTPS
         shell: bash
         run: |

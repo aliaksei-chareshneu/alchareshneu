@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<link rel="stylesheet" href="../../imperion-bootstrap.css?v=20261113b">
+<script src="../../imperion-bootstrap.js?v=20261113b"></script>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#071b20">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://cmrknyhnnehyjpreehcf.supabase.co; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="description" content="Choose your Academy subject and lesson format, request a suitable time and send a private proof of payment only after an approved written quote. A request does not reserve a lesson.">
+<link rel="canonical" href="https://aliaksei-chareshneu.github.io/alchareshneu/academy/order/">
+<title>Academy · Choose and request a service | IMPERION</title>
+<link rel="stylesheet" href="../../brand-theme.css?v=20261025">
+<link rel="stylesheet" href="../../site-design.css?v=20261027">
+<link rel="stylesheet" href="../../imperion-cinematic-site.css?v=20261112-ux1">
+<link rel="stylesheet" href="../../unified-shell.css?v=20261113b">
+<link rel="stylesheet" href="../../imperion-finish.css?v=20261113b">
+<link rel="stylesheet" href="order.css?v=20261113d">
+<script src="../../unified-shell.js?v=20261113e" defer></script>
+<script src="../academy-service-catalog.js?v=20261113d" defer></script>
+<script src="order.js?v=20261113d" defer></script>
+</head>
+<body data-imperion-scope="shared" data-imperion-design="academy-order">
+<main id="imp-page-content">
+<section class="ao-intro">
+ <div class="ao-container">
+  <div class="ao-lang" role="group" aria-label="Language">
+   <a href="?lang=cs" data-lang="cs">CZ</a><a href="?lang=en" data-lang="en">EN</a><a href="?lang=ru" data-lang="ru">RU</a><a href="?lang=uk" data-lang="uk">UA</a>
+  </div>
+  <p class="ao-eyebrow">ETERNAL LEARNING ACADEMY · ALIAKSEI CHARESHNEU OSVČ</p>
+  <h1 id="aoHeading">Vyberte službu a požádejte o termín</h1>
+  <p id="aoLead">Vyberte konkrétní nabídku, napište svůj cíl a požádejte o termín. Žádost není rezervace. Částka a bankovní údaje jsou dostupné pouze po písemném schválení nabídky.</p>
+ </div>
+</section>
+<div class="ao-container ao-grid">
+ <section class="ao-card ao-order" aria-labelledby="aoServiceHeading">
+  <div class="ao-number">01 · ACADEMY</div>
+  <h2 id="aoServiceHeading"></h2>
+  <form id="aoOrder" novalidate>
+   <div class="ao-fields ao-two">
+    <label><span id="aoServiceLabel"></span><select id="aoService" name="service" required></select></label>
+    <label><span id="aoVariantLabel"></span><select id="aoVariant" name="variant" required></select></label>
+   </div>
+   <div class="ao-price-panel"><span id="aoPriceLabel"></span><strong id="aoPrice"></strong><small id="aoPriceNote"></small></div>
+   <div class="ao-schedule">
+    <h3 id="aoScheduleHeading"></h3>
+    <p id="aoScheduleNote"></p>
+    <div class="ao-fields ao-two">
+     <label><span id="aoDateLabel"></span><input id="aoDate" type="date" required></label>
+     <label><span id="aoTimeLabel"></span><select id="aoTime" required></select></label>
+    </div>
+    <p class="ao-hint" id="aoZone">Europe/Prague</p>
+   </div>
+   <h3 id="aoDetailsHeading"></h3>
+   <div class="ao-fields ao-two">
+    <label><span id="aoNameLabel"></span><input id="aoName" type="text" autocomplete="name" maxlength="110" required></label>
+    <label><span id="aoEmailLabel"></span><input id="aoEmail" type="email" autocomplete="email" maxlength="180" required></label>
+   </div>
+   <div class="ao-fields">
+    <label><span id="aoGoalLabel"></span><textarea id="aoGoal" rows="3" maxlength="350" required></textarea></label>
+   </div>
+   <label class="ao-check"><input type="checkbox" id="aoAdult" required><span id="aoAdultLabel"></span></label>
+   <label class="ao-check"><input type="checkbox" id="aoPrivacy" required><span><span id="aoPrivacyLabel"></span> <a id="aoPrivacyLink" href="privacy.html?lang=cs" target="_blank" rel="noopener noreferrer"></a></span></label>
+   <label class="ao-honeypot"><span>Website</span><input id="aoWebsite" tabindex="-1" autocomplete="off"></label>
+   <button class="ao-primary" id="aoSubmit" type="submit"></button>
+   <p class="ao-hint" id="aoLegalNote"></p>
+   <div id="aoResult" role="status" aria-live="polite" hidden></div>
+  </form>
+ </section>
+ <aside class="ao-aside">
+  <section class="ao-card" aria-labelledby="aoStatusHeading">
+   <div class="ao-number">02 · STATUS &amp; PAYMENT PROOF</div>
+   <h2 id="aoStatusHeading"></h2>
+   <p id="aoStatusLead"></p>
+   <form id="aoStatusForm" novalidate>
+    <div class="ao-fields">
+     <label><span id="aoRefLabel"></span><input type="text" id="aoReference" autocomplete="off" maxlength="40" spellcheck="false"></label>
+     <label><span id="aoEmailStatusLabel"></span><input type="email" id="aoEmailStatus" autocomplete="email" maxlength="180"></label>
+     <label><span id="aoTokenLabel"></span><input type="text" id="aoContinuationCode" autocomplete="off" maxlength="128" spellcheck="false"></label>
+    </div>
+    <button class="ao-secondary" id="aoStatusButton" type="submit"></button>
+   </form>
+   <div id="aoQuote" aria-live="polite" hidden>
+    <h3 id="aoQuoteHeading"></h3>
+    <dl><dt id="aoAmountLabel"></dt><dd id="aoAmount"></dd><dt id="aoPayeeLabel"></dt><dd id="aoPayee"></dd><dt id="aoAccountLabel"></dt><dd id="aoAccount"></dd><dt id="aoMessageLabel"></dt><dd id="aoPaymentMessage"></dd></dl>
+    <p class="ao-warning" id="aoQuoteWarning"></p>
+    <form id="aoProofForm" hidden>
+     <label><span id="aoProofLabel"></span><input type="file" id="aoProof" accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg" required></label>
+     <p class="ao-hint" id="aoProofNote"></p>
+     <button class="ao-primary" id="aoProofButton" type="submit"></button>
+    </form>
+   </div>
+   <p id="aoStatusResult" class="ao-status-result" role="status" aria-live="polite"></p>
+  </section>
+  <section class="ao-card ao-steps" aria-labelledby="aoStepsHeading">
+   <h2 id="aoStepsHeading"></h2>
+   <ol id="aoSteps"></ol>
+   <a class="ao-return" id="aoBack" href="../?lang=cs"></a>
+   <a class="ao-custom" id="aoCustom" href="https://wa.me/420702914842" target="_blank" rel="noopener noreferrer"></a>
+  </section>
+ </aside>
+</div>
+</main>
+</body></html>

@@ -190,6 +190,8 @@ jobs:
       - run: npm run test:dom
       - name: Verify site clarity v4 recurring calendar, reviews, Academy picker and partners
         run: npx playwright test tests/site-clarity-v4.spec.cjs --workers=2
+      - name: Verify native Academy order, 55 reviews, About and 30-day calendar
+        run: npx playwright test tests/site-conversion-v5.spec.cjs --workers=2
       - name: Test conversion-first event calendar, accessibility and two layouts
         run: npx playwright test tests/conversion-frontdoor.spec.cjs --workers=2
       - name: Test homepage v4 navigation, dual actions and city-aware timed event badges

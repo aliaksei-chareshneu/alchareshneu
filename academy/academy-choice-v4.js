@@ -87,9 +87,13 @@
    if(!chosen){target.replaceChildren();return;}
    var lang=lc(),d=t(),sv=sById(chosen),name=sv[2][lang],options=d[sv[1]]||d.school;
    var html='<h3>'+safeText(name)+'</h3><p>'+safeText(d.sub)+'</p><div class="academy-service-three">';
-   options.forEach(function(title){
+   options.forEach(function(title,i){
      var spec=sv[0]==='fencing'||sv[0]==='archery'?d.safe:sv[0]==='legal'||sv[0]==='medical'?d.legal:'';
-     html+='<article class="academy-service-option"><h4>'+safeText(title)+'</h4><p>'+safeText(name)+' · '+safeText(title)+(spec?'. '+safeText(spec):'')+'</p><a href="'+msg(name,title)+'" target="_blank" rel="noopener noreferrer">'+safeText(d.choose)+'</a></article>';
+     var product=window.ImperionAcademyCatalog&&window.ImperionAcademyCatalog.info(sv[0],'v'+(i+1),lang);
+     var price=product&&product.label||({cs:'Cena dle nabídky',en:'Quoted price',ru:'Цена по запросу',uk:'Ціна за пропозицією'})[lang];
+     var destination='order/?lang='+encodeURIComponent(lang)+'&service='+encodeURIComponent(sv[0])+'&variant=v'+(i+1);
+     var orderText=({cs:'Objednat →',en:'Order →',ru:'Заказать →',uk:'Замовити →'})[lang];
+     html+='<article class="academy-service-option"><h4>'+safeText(title)+'</h4><p>'+safeText(name)+' · '+safeText(title)+(spec?'. '+safeText(spec):'')+'</p><strong class="academy-option-price">'+safeText(price)+'</strong><a href="'+destination+'">'+safeText(orderText)+'</a></article>';
    });
    target.innerHTML=html+'</div><a class="academy-custom" target="_blank" rel="noopener noreferrer" href="'+msg(name,d.custom)+'">'+safeText(d.custom)+'</a>';
  }

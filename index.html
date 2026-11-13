@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://cmrknyhnnehyjpreehcf.supabase.co; script-src 'self' 'unsafe-inline' https://script.google.com https://script.googleusercontent.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https:; media-src 'self'; frame-src https://www.youtube.com https://calendar.google.com; object-src 'none'; base-uri 'self'; form-action 'self' https://docs.google.com; upgrade-insecure-requests">
-<title>Czech Tutoring, Historical Fencing &amp; Hikes in Brno | Aliaksei Chareshneu</title>
+<title>IMPERION · Zážitky, výuka a akce v Brně | Aliaksei Chareshneu</title>
 <meta name="description" content="Want to learn Czech or pass an exam, try historical fencing, or join hikes and meet friends in Brno? Choose a lesson, training enquiry or upcoming event. Corporate AI/data services also available.">
 <link rel="canonical" href="https://aliaksei-chareshneu.github.io/alchareshneu/">
 
@@ -89,7 +89,7 @@
 
 <link rel="stylesheet" href="experience.css">
 <link rel="stylesheet" href="quest-theme.css">
-<script src="experience.js" defer></script>
+<script src="experience.js?v=20261113e" defer></script>
 <link rel="stylesheet" href="brand-theme.css?v=20261025">
 <link rel="stylesheet" href="site-design.css?v=20261027">
 <link rel="stylesheet" href="intent-home.css?v=20261109">
@@ -98,9 +98,10 @@
 <link rel="stylesheet" href="conversion-frontdoor.css?v=20261113b">
 <link rel="stylesheet" href="imperion-finish.css?v=20261113b">
 <link rel="stylesheet" href="site-clarity.css?v=20261113c">
+<link rel="stylesheet" href="site-conversion-v5.css?v=20261113d">
 <script src="site-calendar-policy.js?v=20261113c" defer></script>
-<script src="conversion-frontdoor.js?v=20261113b" defer></script>
-<script src="site-reviews.js?v=20261113c" defer></script>
+<script src="conversion-frontdoor.js?v=20261113e" defer></script>
+<script src="site-reviews.js?v=20261113e" defer></script>
 </head>
 <body class="quest-site" data-imperion-scope="shared">
 <a class="skip-link" href="#page-content" data-exp="skip">Skip to content</a>
@@ -177,7 +178,7 @@
           </article>
         </div>
         <div class="intent-trust">
-          <a class="intent-google" href="https://maps.app.goo.gl/fEbnJHxiVoAx1v498" target="_blank" rel="noopener noreferrer"><span aria-hidden="true">★</span> <span data-intent="reviews">56 Google reviews · 5.0 ★ (13 Nov 2026) ↗</span></a>
+          <a class="intent-google" href="https://maps.app.goo.gl/fEbnJHxiVoAx1v498" target="_blank" rel="noopener noreferrer"><span aria-hidden="true">★</span> <span data-intent="reviews">55 Google reviews · owner-reported (13 Nov 2026) ↗</span></a>
           <span class="intent-credential" data-intent="credentials">PhD · Masaryk University · Brno &amp; online</span>
         </div>
         <div class="intent-more">
@@ -2066,13 +2067,13 @@ function renderGlobalRulesText(lang) {
 
 // Единственное место для обновления счётчика отзывов (раз в 1-2 месяца, вручную).
 // Меняешь только эту цифру — она подтянется во все места на сайте, где упоминается счётчик.
-const GOOGLE_REVIEW_COUNT = 50;
+const GOOGLE_REVIEW_COUNT = 55;
 
 const REVIEWS_BADGE_TEXT = {
-  ru:`${GOOGLE_REVIEW_COUNT}+ отзывов на Google · 5.0`,
-  en:`${GOOGLE_REVIEW_COUNT}+ Google reviews · 5.0`,
-  cs:`${GOOGLE_REVIEW_COUNT}+ recenzí na Google · 5.0`,
-  uk:`${GOOGLE_REVIEW_COUNT}+ відгуків на Google · 5.0`
+  ru:`${GOOGLE_REVIEW_COUNT} отзывов на Google · 13.11.2026`,
+  en:`${GOOGLE_REVIEW_COUNT} Google reviews · 13.11.2026`,
+  cs:`${GOOGLE_REVIEW_COUNT} recenzí na Google · 13.11.2026`,
+  uk:`${GOOGLE_REVIEW_COUNT} відгуків на Google · 13.11.2026`
 };
 
 function renderMainTab(lang, t) {
@@ -2700,10 +2701,10 @@ const REVIEWS = {
   eyebrow: {ru:'Отзывы', en:'Reviews', cs:'Recenze', uk:'Відгуки'},
   title:   {ru:'Что говорят участники', en:'What participants say', cs:'Co říkají účastníci', uk:'Що кажуть учасники'},
   ratingNote: {
-    ru:`${GOOGLE_REVIEW_COUNT}+ отзывов на Google Картах · 5.0 ★`,
-    en:`${GOOGLE_REVIEW_COUNT}+ reviews on Google Maps · 5.0 ★`,
-    cs:`${GOOGLE_REVIEW_COUNT}+ recenzí na Google Mapách · 5.0 ★`,
-    uk:`${GOOGLE_REVIEW_COUNT}+ відгуків на Google Картах · 5.0 ★`
+    ru:`${GOOGLE_REVIEW_COUNT} отзывов на Google Картах · 13.11.2026`,
+    en:`${GOOGLE_REVIEW_COUNT} reviews on Google Maps · 13.11.2026`,
+    cs:`${GOOGLE_REVIEW_COUNT} recenzí na Google Mapách · 13.11.2026`,
+    uk:`${GOOGLE_REVIEW_COUNT} відгуків на Google Картах · 13.11.2026`
   },
   seeAll: {ru:'Все отзывы на Google →', en:'All reviews on Google →', cs:'Všechny recenze na Google →', uk:'Усі відгуки на Google →'},
   items: [
@@ -3080,7 +3081,7 @@ function applyTranslations(lang) {
 // links, NOT payment links or promises of available/confirmed slots.
 // Academy's self-service slot calendar remains a separate unmerged draft.
 const INTENT_COPY = {
-  en:{eyebrow:'BRNO · LEARN · MOVE · EXPLORE',goalLabel:'Choose your goal',academyTitle:'Want to speak Czech or pass an exam?',academyText:'Practical Czech lessons, conversation and exam preparation — or help with other school subjects.',academyAction:'Request a lesson →',academyDetails:'Subjects & prices',druzinaTitle:'Need movement, friends and adventure?',druzinaText:'Try historical fencing and discover HEMA, LARP, archery and living history in Brno.',druzinaAction:'Ask for your first training →',druzinaDetails:'Training details',walkersTitle:'Bored of the same weekends?',walkersText:'Explore Moravia, go hiking, join city tours or board games, and meet new people with BrnoWalkers.',walkersAction:'Choose an upcoming event →',walkersDetails:'See activities',reviews:'56 Google reviews · 5.0 ★ (13 Nov 2026) ↗',credentials:'PhD · Masaryk University · Brno & online',more:'Discover more activities →',business:'For companies: expertise, projects & enquiries →',notice:'A request is not a confirmed reservation. Dates, prices and payment conditions are confirmed individually.',consultPrompt:'Send questions about services in writing; no free introductory calls.',consultCta:'10-minute service-choice call · 200 Kč →'},
+  en:{eyebrow:'BRNO · LEARN · MOVE · EXPLORE',goalLabel:'Choose your goal',academyTitle:'Want to speak Czech or pass an exam?',academyText:'Practical Czech lessons, conversation and exam preparation — or help with other school subjects.',academyAction:'Request a lesson →',academyDetails:'Subjects & prices',druzinaTitle:'Need movement, friends and adventure?',druzinaText:'Try historical fencing and discover HEMA, LARP, archery and living history in Brno.',druzinaAction:'Ask for your first training →',druzinaDetails:'Training details',walkersTitle:'Bored of the same weekends?',walkersText:'Explore Moravia, go hiking, join city tours or board games, and meet new people with BrnoWalkers.',walkersAction:'Choose an upcoming event →',walkersDetails:'See activities',reviews:'56 Google reviews · 13.11.2026 (13 Nov 2026) ↗',credentials:'PhD · Masaryk University · Brno & online',more:'Discover more activities →',business:'For companies: expertise, projects & enquiries →',notice:'A request is not a confirmed reservation. Dates, prices and payment conditions are confirmed individually.',consultPrompt:'Send questions about services in writing; no free introductory calls.',consultCta:'10-minute service-choice call · 200 Kč →'},
   cs:{eyebrow:'BRNO · UČENÍ · POHYB · ZÁŽITKY',goalLabel:'Vyberte si svůj cíl',academyTitle:'Chcete mluvit česky nebo složit zkoušku?',academyText:'Praktická čeština, konverzace, příprava na zkoušky i doučování dalších předmětů.',academyAction:'Požádat o lekci →',academyDetails:'Předměty a ceny',druzinaTitle:'Chybí vám pohyb, přátelé a dobrodružství?',druzinaText:'Vyzkoušejte historický šerm a objevte HEMA, LARP, lukostřelbu a živou historii v Brně.',druzinaAction:'Zeptat se na první trénink →',druzinaDetails:'Podrobnosti tréninku',walkersTitle:'Už vás nebaví stejné víkendy?',walkersText:'Výlety po Moravě, pěší túry, prohlídky města, deskovky a noví známí s BrnoWalkers.',walkersAction:'Vybrat nadcházející akci →',walkersDetails:'Aktivity a výlety',reviews:'56 recenzí na Googlu · 5,0 ★ (13. 11. 2026) ↗',credentials:'PhD · Masarykova univerzita · Brno a online',more:'Prozkoumat další aktivity →',business:'Pro firmy: zkušenosti, projekty a poptávka →',notice:'Odeslání žádosti neznamená potvrzenou rezervaci. Termín, cenu a platební podmínky potvrzujeme individuálně.',consultPrompt:'Dotazy k výběru služby pošlete písemně; úvodní telefonáty zdarma nenabízím.',consultCta:'10minutová konzultace k výběru služby · 200 Kč →'},
   ru:{eyebrow:'БРНО · УЧЁБА · ДВИЖЕНИЕ · ПРИКЛЮЧЕНИЯ',goalLabel:'Выбери свою цель',academyTitle:'Хочешь говорить по-чешски или сдать экзамен?',academyText:'Разговорный чешский, подготовка к экзаменам и помощь с другими школьными предметами.',academyAction:'Запросить урок →',academyDetails:'Предметы и цены',druzinaTitle:'Не хватает движения, друзей и приключений?',druzinaText:'Попробуй историческое фехтование, открой для себя HEMA, LARP, стрельбу из лука и реконструкцию в Брно.',druzinaAction:'Запросить первую тренировку →',druzinaDetails:'О тренировках',walkersTitle:'Надоели одинаковые выходные?',walkersText:'Походы, экскурсии по Брно и Моравии, настольные игры и новые знакомства с BrnoWalkers.',walkersAction:'Выбрать ближайшее событие →',walkersDetails:'Все активности',reviews:'56 отзывов в Google · 5,0 ★ (13.11.2026) ↗',credentials:'PhD · Университет Масарика · Брно и онлайн',more:'Посмотреть остальные активности →',business:'Компаниям: опыт, проекты и запрос услуги →',notice:'Заявка — ещё не подтверждённая запись. Время, цена и условия оплаты согласуются отдельно.',consultPrompt:'Вопросы о выборе услуги — письменно; бесплатных ознакомительных звонков нет.',consultCta:'10 минут консультации по выбору услуги · 200 Kč →'},
   uk:{eyebrow:'БРНО · НАВЧАННЯ · РУХ · ПРИГОДИ',goalLabel:'Обери свою мету',academyTitle:'Хочеш говорити чеською чи скласти іспит?',academyText:'Розмовна чеська, підготовка до іспитів і допомога з іншими шкільними предметами.',academyAction:'Запросити урок →',academyDetails:'Предмети й ціни',druzinaTitle:'Бракує руху, друзів і пригод?',druzinaText:'Спробуй історичне фехтування, відкрий HEMA, LARP, стрільбу з лука й реконструкцію у Брно.',druzinaAction:'Запитати про перше тренування →',druzinaDetails:'Про тренування',walkersTitle:'Набридли однакові вихідні?',walkersText:'Походи, екскурсії Брно й Моравією, настільні ігри та нові знайомства з BrnoWalkers.',walkersAction:'Обрати найближчу подію →',walkersDetails:'Усі активності',reviews:'56 відгуків у Google · 5,0 ★ (13.11.2026) ↗',credentials:'PhD · Університет Масарика · Брно та онлайн',more:'Переглянути інші активності →',business:'Для компаній: досвід, проєкти та запит послуги →',notice:'Заявка ще не означає підтверджений запис. Час, ціну та умови оплати узгоджуємо окремо.',consultPrompt:'Питання щодо вибору послуги — письмово; безкоштовних ознайомчих дзвінків немає.',consultCta:'10 хвилин консультації з вибору послуги · 200 Kč →'}
@@ -3107,7 +3108,8 @@ function render(lang){
   const t = T[lang];
   document.documentElement.lang = lang;
   queueMicrotask(() => document.dispatchEvent(new CustomEvent('site:language')));
-  document.title = t.meta.title;
+  // The cinematic frontdoor owns the live, language-specific browser title.
+  if(!document.getElementById('imperion-frontdoor'))document.title = t.meta.title;
   document.getElementById('navBrand').innerHTML = t.nav.brand + `<small>${t.nav.sub}</small>`;
 
   renderTabsNav(lang);

@@ -1,0 +1,12 @@
+/* First-party About profile: meaningful facts, same cinematic design. */
+.imp-about-profile{padding:40px 0 52px}
+.imp-about-profile-tag{font:820 12px/1.2 system-ui,sans-serif;letter-spacing:.17em;color:#efc681;margin:0 0 11px}
+.imp-about-profile h2{font:600 clamp(26px,3.5vw,42px)/1.15 Georgia,serif;color:#ffebc5;margin:7px 0 17px}
+.imp-about-profile-lead{font:500 clamp(16px,1.5vw,19px)/1.55 system-ui,sans-serif;max-width:1070px;color:#dde7dd}
+.imp-about-profile-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px;margin:27px 0}
+.imp-about-profile-grid article{padding:22px;border:1px solid #9c906a7f;border-radius:15px;background:linear-gradient(125deg,#16363a,#0d292d)}
+.imp-about-profile-grid h3,.imp-about-method h3{font:680 21px/1.3 Georgia,serif;color:#ffe1ac;margin:0 0 9px}
+.imp-about-profile-grid p,.imp-about-method p{color:#d9e6dd;margin:0;line-height:1.54}
+.imp-about-method{border-left:3px solid #e4b86b;background:#1b3537;padding:16px 22px;border-radius:0 12px 12px 0}
+.imp-about-partners-cta{background:#254240!important;border:1px solid #c5a469!important;color:#ffe0a9!important}
+@media(max-width:650px){.imp-about-profile-grid{grid-template-columns:1fr}.imp-about-profile{padding:27px 0}.imp-about-profile-grid article{padding:18px}}

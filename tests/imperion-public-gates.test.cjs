@@ -93,9 +93,9 @@ test('public home blocks redirect to arbitrary third-party sales or booking page
     assert.ok(runAudit(docs).errors.some(e=>e.id===check), id+' missing '+check);
   }
 });
-test('Google reviews dated proof must match the independently verified 13 Nov 2026 snapshot', () => {
+test('Google reviews dated owner count must not be fabricated', () => {
   const docs=loadPages();
   assert.ok(!runAudit(docs).errors.some(e=>e.id==='root:review-link'));
-  docs['index.html']=docs['index.html'].replace('data-intent="reviews">56 Google reviews · 5.0 ★ (13 Nov 2026)', 'data-intent="reviews">500 Google reviews · 5.0 ★ (13 Nov 2026)');
+  docs['index.html']=docs['index.html'].replace('data-intent="reviews">55 Google reviews · owner-reported (13 Nov 2026)', 'data-intent="reviews">500 Google reviews · owner-reported (13 Nov 2026)');
   assert.ok(runAudit(docs).errors.some(e=>e.id==='root:review-link'),'fabricated count must fail');
 });

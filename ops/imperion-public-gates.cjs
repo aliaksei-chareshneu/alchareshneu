@@ -77,13 +77,15 @@ function runAudit(pages) {
   verify('root:audience-route', linkWithId(home,'heroCorporateCta')==='start/?lang=en'
     && (pages['start/index.html'] || '').length>0,
     'Further activities CTA must open the existing language-aware service picker');
-  verify('root:review-link', /<a[^>]*class="intent-google"[^>]*href="https:\/\/maps\.app\.goo\.gl\/fEbnJHxiVoAx1v498"/.test(home)
-    && /data-intent="reviews">56 Google reviews · 5\.0 ★ \(13 Nov 2026\)/.test(home)
-    && home.includes("reviews:'56 Google reviews · 5.0 ★ (13 Nov 2026)")
-    && home.includes("reviews:'56 recenzí na Googlu · 5,0 ★ (13. 11. 2026)")
-    && home.includes("reviews:'56 отзывов в Google · 5,0 ★ (13.11.2026)")
-    && home.includes("reviews:'56 відгуків у Google · 5,0 ★ (13.11.2026)"),
-    'Verified 13 Nov 2026 Google Maps profile: 56 public reviews and 5.0 rating; preserve source/date/four languages');
+  // 55 on 13 Nov is explicitly the owner's dated report, not a live Google API rating.
+  verify('root:review-link', home.includes('<a class="intent-google" href="https://maps.app.goo.gl/fEbnJHxiVoAx1v498"')
+    && home.includes('data-intent="reviews">55 Google reviews · owner-reported (13 Nov 2026)')
+    && home.includes('const GOOGLE_REVIEW_COUNT = 55;')
+    && home.includes('отзывов на Google · 13.11.2026')
+    && home.includes('Google reviews · 13.11.2026')
+    && home.includes('recenzí na Google · 13.11.2026')
+    && home.includes('відгуків на Google · 13.11.2026'),
+    'Owner-reported 55 Google reviews on 13 November 2026 must be dated, linked, and not presented as an independently verified rating');
   const clubCard = home.match(/<a\b[^>]*class=["'][^"']*\bventure-card\b[^"']*["'][^>]*href=["']druzina\/["'][^>]*>([\s\S]*?)<\/a>/i)?.[1] || '';
   verify('root:club-card', /(?:plan|confirm|date|term|dotaz)/i.test(clubCard)
     && !/3\s*[×x]\s*(?:a week|týdně|в неделю|на тиждень)/i.test(clubCard)
