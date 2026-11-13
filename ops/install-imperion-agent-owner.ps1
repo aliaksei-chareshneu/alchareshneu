@@ -1,4 +1,4 @@
-# IMPERION five-agent owner-only source installer, Windows PowerShell 5+.
+# IMPERION existing agent + Social Publisher owner-only source installer, PowerShell 5+.
 # Dry-run unless -Apply. NO new Google Apps Script project, web deploy, payment,
 # outgoing message, data export, timer, or existing-source replacement.
 param(
@@ -8,7 +8,7 @@ param(
 $ErrorActionPreference='Stop'
 if($AuthorizedScriptId -notmatch '^[A-Za-z0-9_-]{30,100}$'){throw 'INVALID_SCRIPT_ID'}
 $repo=(Resolve-Path (Join-Path $PSScriptRoot '..')).Path
-$names=@('ImperionAgentSnapshot','ImperionClosedLoopAudit','ImperionAgentRuntime')
+$names=@('ImperionAgentSnapshot','ImperionClosedLoopAudit','ImperionAgentRuntime','SocialPublisher','SocialPublisherAdapters','SocialPublisherCommunity','SocialPublisherManual')
 foreach($n in $names){
   if(-not (Test-Path (Join-Path $repo ($n+'.gs')))){throw ('MISSING_SOURCE:'+ $n)}
 }
@@ -83,4 +83,4 @@ foreach($entry in $before.GetEnumerator()){
   }
 }
 Write-Output ('SOURCE_INSTALLED_READBACK_VERIFIED original_preserved='+$before.Count+' modules='+$names.Count)
-Write-Output 'RUNTIME/TRIGGER NOT VERIFIED. Authorized owner must execute imperionAgentRunAndRecord and imperionAgentInstallTrigger in private Apps Script. Verify receipt + trigger independently before reporting LIVE.'
+Write-Output 'SOURCE ONLY: no SocialPublisher timer, credentials or owner GO enabled. Authorised owner may run existing agent and SocialPublisher manually; independently verify installed code and provider before claiming LIVE.'

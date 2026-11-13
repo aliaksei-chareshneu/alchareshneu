@@ -154,3 +154,15 @@ test('scoped release requires independently configured account, timely quota and
  settings['SOCIAL_GO_'+j.Job_ID]=JSON.stringify(approval);
  assert.throws(()=>s.spReleaseGate_(e,j),/PROVIDER_QUOTA/);
 });
+
+test('owner installer includes SocialPublisher only as dry-run-safe source',()=>{
+ const content=fs.readFileSync(path.join(root,'ops','install-imperion-agent-owner.ps1'),'utf8');
+ for(const name of ['ImperionAgentSnapshot','ImperionClosedLoopAudit','ImperionAgentRuntime',
+    'SocialPublisher','SocialPublisherAdapters','SocialPublisherCommunity','SocialPublisherManual'])
+   assert.ok(content.includes("'"+name+"'"),'Installer missing '+name);
+ assert.match(content,/\[switch\]\$Apply/);
+ assert.match(content,/if\(-not \$Apply\)/);
+ assert.match(content,/DRY_RUN_DONE/);
+ assert.match(content,/SOURCE_INSTALLED_READBACK_VERIFIED/);
+ assert.doesNotMatch(content,/newTrigger\(/);
+});
