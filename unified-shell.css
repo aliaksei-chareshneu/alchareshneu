@@ -155,3 +155,22 @@ body[data-imperion-design="about"] [data-imp-about-lang][hidden]{display:none!im
 /* Keep the sitewide header geometry identical to the frontdoor. */
 #imp-shell-top .imp-shell-inner{width:min(1320px,calc(100% - 48px))}
 @media(max-width:630px){#imp-shell-top .imp-shell-inner{width:calc(100% - 25px)}}
+
+
+/* VALUE FIRST — editorial problem -> non-invented cost -> credible outcome -> terms */
+body .imp-value-story{background:linear-gradient(140deg,#102c30,#10252e 68%,#152b34);color:#f9f3e5;padding:clamp(27px,5vw,62px) clamp(16px,3vw,30px);border-block:1px solid #d8b67877;scroll-margin-top:100px}
+body .imp-value-story,body .imp-value-story *{box-sizing:border-box}
+body .imp-value-story .imp-value-wrap{width:min(1140px,100%);margin:0 auto}
+body .imp-value-story .imp-value-kicker{color:#f5ce89;font:850 12px/1.4 system-ui,sans-serif;letter-spacing:.13em;margin:0 0 12px}
+body .imp-value-story .imp-value-headline{color:#fff3db;font:600 clamp(26px,3.65vw,44px)/1.14 Georgia,serif;margin:0 0 13px;max-width:990px}
+body .imp-value-story .imp-value-intro{font:500 clamp(16px,1.65vw,19px)/1.6 system-ui,sans-serif;color:#e3eeeb;max-width:980px;margin:0 0 23px}
+body .imp-value-story .imp-value-steps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+body .imp-value-story .imp-value-steps article{background:#09212a96;border:1px solid #92b2af67;border-radius:15px;padding:clamp(17px,2vw,24px);min-width:0}
+body .imp-value-story h3{font:700 clamp(17px,1.8vw,21px)/1.3 system-ui,sans-serif;color:#ffdfaa;margin:0 0 9px}
+body .imp-value-story .imp-value-steps p{color:#e0eae5;font:400 16px/1.58 system-ui,sans-serif;margin:0}
+body .imp-value-story .imp-value-offer{display:flex;align-items:center;justify-content:space-between;gap:22px;margin-top:16px;background:#20443e;border:1px solid #d5b076;border-radius:14px;padding:clamp(16px,2.3vw,24px)}
+body .imp-value-story .imp-value-offer p{margin:0;color:#e7f0e6;line-height:1.55;font-size:15px;max-width:780px}
+body .imp-value-story .imp-value-cta{flex:none;display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:12px 20px;border:1px solid #ffe5b1;border-radius:10px;background:#f7d18e;color:#152b2b!important;font:850 15px/1.3 system-ui,sans-serif;text-decoration:none!important;text-align:center;max-width:320px}
+body .imp-value-story .imp-value-cta:hover{background:#ffe6b3}
+body .imp-value-story .imp-value-cta:focus-visible{outline:3px solid #fff;outline-offset:4px}
+@media(max-width:740px){body .imp-value-story .imp-value-steps{grid-template-columns:1fr}body .imp-value-story .imp-value-offer{flex-direction:column;align-items:stretch}body .imp-value-story .imp-value-cta{max-width:none;width:100%}}
