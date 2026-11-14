@@ -185,3 +185,15 @@ Owner GO authorized PC model migration and application development, NOT client s
 - No new CRM/bot, no paid model, no remote customer data transfer. Local source and personal data backup remain private Windows AppData.
 - GitHub pure modelRoute source now requires separate CPU runtime readback and quality acceptance. CI PR merge is NOT deployment to bound Apps Script and does not trigger sends.
 - Remaining verified blockers: authenticated Agent4 -> Google CRM real source ACK and spreadsheet readback, bound Apps Script installation, API quotas/permissions (Meta/Metricool/Windsor), owner-approved external send/post test. No bank cash inferred.
+
+## 14 Nov 2026 — additive GAS source installation verified
+
+After owner GO on 14 Nov 2026, existing bound Community Hub Apps Script source was updated **additively only**, not a new script/project/CRM.
+
+- A direct cloud source preflight found `ImperionAgentSnapshot.js` and `ImperionAgentRuntime.js` differed from GitHub; the strict legacy installer correctly aborted without modifying cloud code.
+- A private bounded add-only installer cloned the existing authorized script twice before deployment, verified 20 original files plus script manifest unchanged, checked no global `spRunDue`/release gate collisions, and verified exactly four missing SocialPublisher modules.
+- The four missing modules (`SocialPublisher`, `SocialPublisherAdapters`, `SocialPublisherCommunity`, `SocialPublisherManual`) were copied from reviewed existing repo sources; `clasp push` succeeded. An **independent fresh cloud clone** verified SHA-256 hashes for all 20 original files unchanged and all four new modules matched, exit code 0.
+- No SocialPublisher timer, standing GO, user rights, API credentials, billing, public posts or customer messages were activated; `spReleaseGate_` denies by default unless exact owner-private properties and per-job proof are supplied.
+- On the owner's Windows PC the existing Agent4 selected model is `imperion-qwen35:4b` under local Ollama CPU (`num_gpu:0`), after CUDA failure diagnosis and SQLite backup. Existing worker synthetic demo job #5 progressed queued -> draft, no sends. Windows local Python suite 112/112 PASS; dedicated offline WhatsApp browser test PASS.
+- The Growth3/Sales4 safe routing source was merged in PR #314, squash `d1d6cb571511708d1dbd0fde7349653e5a4940fb`. The legacy Google Sheet CRM remains the only business ledger. Execution receipts in `IMPERION_Execution_Receipts` rows 616, 617, 619; source-divergence exception row 61 marked `RESOLVED_SOURCE_ONLY_PUBLISH_DISABLED`.
+- **NOT COMPLETED/LIVE:** external API authorization, Meta/Metricool/Windsor quotas, truly verified SocialPublisher post/first-comment readback, always-on private inference without PC, actual Agent4 customer input -> authenticated Google Sheets buyer row -> ACK, bank-verified money. External sends/posts still require separate owner GO.
