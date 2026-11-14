@@ -122,7 +122,8 @@ test('GitHub Actions stays scoped to isolated cloud preview, not deployment',()=
  assert.match(y,/permissions:\s*\n\s*contents: read/);
  assert.match(y,/if: github\.event_name == 'issue_comment'/);
  assert.doesNotMatch(y,/gh pr merge|auto-merge: true|git push origin main/);
- assert.doesNotMatch(y,/OPENAI_API_KEY|ANTHROPIC_API_KEY|secrets\./);
+ assert.doesNotMatch(y,/OPENAI_API_KEY|ANTHROPIC_API_KEY/);
+ assert.deepEqual(y.match(/secrets\.[A-Z_]+/g),['secrets.GROQ_API_KEY']);
 });
 test('owner instructions identify stage boundaries, no assumed cloud publication',()=>{
  const m=fs.readFileSync(path.join(__dirname,'../docs/imperion-dev-cloud-issue.md'),'utf8');
