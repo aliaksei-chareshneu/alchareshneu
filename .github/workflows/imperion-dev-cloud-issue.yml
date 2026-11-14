@@ -8,6 +8,9 @@ on:
       - 'scripts/imperion-dev-draft-tests.cjs'
       - 'scripts/imperion-dev-autonomous.cjs'
       - 'scripts/imperion-dev-model-policy.cjs'
+      - 'scripts/imperion-dev-provider.cjs'
+      - 'scripts/imperion-dev-groq-quota.cjs'
+      - 'tests/imperion-dev-groq-provider.test.cjs'
       - 'scripts/imperion-dev-witness.sh'
       - 'scripts/imperion-dev-repair.sh'
       - 'tests/imperion-dev-stage12.test.cjs'
@@ -28,7 +31,8 @@ concurrency:
 jobs:
   task-preflight:
     env:
-      IMPERION_DEV_MODEL: ${{ vars.IMPERION_DEV_MODEL || 'qwen3:4b-instruct' }}
+      IMPERION_DEV_PROVIDER: ${{ vars.IMPERION_DEV_PROVIDER || 'groq' }}
+      IMPERION_DEV_MODEL: ${{ vars.IMPERION_DEV_MODEL || '' }}
     # Preview runs ONLY from the known owner PR branch.
     # Later, on default branch, ONLY an exact owner comment on issue 245.
     if: >-
@@ -55,7 +59,7 @@ jobs:
         with:
           node-version: '22'
       - name: Validate owner, scope, model parser, patch gates and mock cases
-        run: node --test tests/imperion-dev-cloud-issue.test.cjs tests/imperion-dev-cloud-acceptance.test.cjs tests/imperion-dev-draft-tests.test.cjs tests/imperion-dev-autonomous.test.cjs tests/imperion-dev-model-policy.test.cjs tests/imperion-dev-stage12.test.cjs
+        run: node --test tests/imperion-dev-cloud-issue.test.cjs tests/imperion-dev-cloud-acceptance.test.cjs tests/imperion-dev-draft-tests.test.cjs tests/imperion-dev-autonomous.test.cjs tests/imperion-dev-model-policy.test.cjs tests/imperion-dev-stage12.test.cjs tests/imperion-dev-groq-provider.test.cjs
       - name: Check advisory witness shell syntax
         run: bash -n scripts/imperion-dev-witness.sh && bash -n scripts/imperion-dev-repair.sh
       - name: Reject unapproved CPU model before model startup
@@ -68,13 +72,19 @@ jobs:
         run: node scripts/imperion-dev-autonomous.cjs --check-event
 
   cloud-qwen-coding:
+    name: cloud-model-coding (Groq Free primary; Ollama reserve)
     env:
-      IMPERION_DEV_MODEL: ${{ vars.IMPERION_DEV_MODEL || 'qwen3:4b-instruct' }}
+      IMPERION_DEV_PROVIDER: ${{ vars.IMPERION_DEV_PROVIDER || 'groq' }}
+      IMPERION_DEV_MODEL: ${{ vars.IMPERION_DEV_MODEL || '' }}
+      GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+      GROQ_VERIFIED_FREE_PLAN: 'true'
+      IMPERION_DEV_FREE_ONLY: 'FREE-ONLY'
     needs: task-preflight
     runs-on: ubuntu-24.04
     timeout-minutes: 24
     permissions:
       contents: read
+      actions: read
     steps:
       - uses: actions/checkout@v4
         with:
@@ -82,14 +92,23 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Check CPU model allowlist
+      - name: Verify allowlisted model transport before credentials are read
         run: node scripts/imperion-dev-model-policy.cjs
+      - name: Require Free-only Groq key and provider quota (no paid fallback)
+        if: env.IMPERION_DEV_PROVIDER == 'groq'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          node scripts/imperion-dev-model-policy.cjs --runtime
+          node scripts/imperion-dev-groq-quota.cjs
       - name: Restore existing Qwen model cache (no private keys)
+        if: env.IMPERION_DEV_PROVIDER == 'ollama'
         uses: actions/cache@v4
         with:
           path: .ollama-models/models
           key: imperion-apache2-qwen3-4b-instruct-20261103-v2
       - name: Start ephemeral Ollama CPU using existing verified image digest
+        if: env.IMPERION_DEV_PROVIDER == 'ollama'
         shell: bash
         run: |
           set -euo pipefail
@@ -103,7 +122,8 @@ jobs:
             sleep 2
           done
           curl -fsS http://127.0.0.1:11434/api/version >/dev/null
-          docker exec imperion-cloud-issue-qwen ollama pull "$IMPERION_DEV_MODEL" > "$RUNNER_TEMP/imperion-cloud-ollama.log" 2>&1 || {
+          selected_model="$(node -e 'process.stdout.write(require("./scripts/imperion-dev-model-policy.cjs").selectedModel())')"
+          docker exec imperion-cloud-issue-qwen ollama pull "$selected_model" > "$RUNNER_TEMP/imperion-cloud-ollama.log" 2>&1 || {
             tail -n 15 "$RUNNER_TEMP/imperion-cloud-ollama.log"
             exit 1
           }
@@ -366,10 +386,10 @@ jobs:
           if-no-files-found: warn
           retention-days: 3
       - name: Stop ephemeral cloud Ollama
-        if: always()
+        if: always() && env.IMPERION_DEV_PROVIDER == 'ollama'
         run: docker rm -f imperion-cloud-issue-qwen || true
       - name: Restore public model cache ownership
-        if: always()
+        if: always() && env.IMPERION_DEV_PROVIDER == 'ollama'
         run: |
           if [ -d .ollama-models/models ]; then
             sudo chown -R "$(id -u):$(id -g)" .ollama-models/models
@@ -378,7 +398,8 @@ jobs:
 
   draft-review-pr:
     env:
-      IMPERION_DEV_MODEL: ${{ vars.IMPERION_DEV_MODEL || 'qwen3:4b-instruct' }}
+      IMPERION_DEV_PROVIDER: ${{ vars.IMPERION_DEV_PROVIDER || 'groq' }}
+      IMPERION_DEV_MODEL: ${{ vars.IMPERION_DEV_MODEL || '' }}
     needs: cloud-qwen-coding
     # Never write a branch for PR preview. The issue workflow itself must
     # first be reviewed and merged with owner's separate GO.
