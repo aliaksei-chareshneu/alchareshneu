@@ -35,6 +35,6 @@ test('pilot does not implement booking, card details or seller impersonation',as
  await expect(page.locator('form')).toHaveCount(0);
  await expect(page.locator('input')).toHaveCount(0);
  await expect(page.locator('a[href*="checkout"]')).toHaveCount(0);
- await expect(page.locator('a[href^="https://"]').not('a[href^="https://aliaksei-chareshneu.github.io"]')).toHaveCount(0);
+ await expect(page.locator('a[href^="https://"]')).toHaveCount(0);
  await expect(page.locator('.tile .seller')).toHaveCount(4);
 });
