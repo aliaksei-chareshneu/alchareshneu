@@ -173,3 +173,15 @@ private deployment. Do not treat existing registrations or source metadata as ne
 Windows / OCI / bound Apps Script; separately approved test send/post; lawful Meta
 app permissions and quota (Metricool and Windsor limit errors remain), plus
 independent Google CRM writer readback and real buyer E2E. 0 Kč external spend.
+
+## 14 Nov 2026 — verified Windows Agent4 model cutover (owner-authorized)
+
+Owner GO authorized PC model migration and application development, NOT client sends or social publishing.
+
+- Existing zmrzlina Windows Agent4 local SQLite selected model switched from imperion-qwen3-cpu:0.6b to imperion-qwen35:4b after online private SQLite/code backup and PRAGMA quick_check=ok.
+- Ollama 0.40.16, 16 GB RAM, 6 GB RTX 3060 laptop. The source of three GPU failures was CUDA device kernel image is invalid. CPU-only num_gpu=0 synthetic inference succeeded 17.8s. Existing panel.py/net.py now require CPU-only for private drafts and remove 0.6B from the selector.
+- After local edits, 66/66 Python unit tests passed; independent existing worker synthetic demo job #5 progressed queued -> draft, 182-character context-safe response, no payments/price claims, no provider sends.
+- Scheduled Windows DraftPanel was restarted; localhost API /api/state returned model imperion-qwen35:4b, inference_backend OLLAMA_CPU_ONLY, worker operational, Telegram CLOUD_OCI_POLLING_DRAFT_ONLY operational, WhatsApp watcher operational.
+- No new CRM/bot, no paid model, no remote customer data transfer. Local source and personal data backup remain private Windows AppData.
+- GitHub pure modelRoute source now requires separate CPU runtime readback and quality acceptance. CI PR merge is NOT deployment to bound Apps Script and does not trigger sends.
+- Remaining verified blockers: authenticated Agent4 -> Google CRM real source ACK and spreadsheet readback, bound Apps Script installation, API quotas/permissions (Meta/Metricool/Windsor), owner-approved external send/post test. No bank cash inferred.
