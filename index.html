@@ -91,7 +91,7 @@
 <link rel="stylesheet" href="quest-theme.css">
 <script src="experience.js?v=20261113e" defer></script>
 <link rel="stylesheet" href="brand-theme.css?v=20261025">
-<link rel="stylesheet" href="site-design.css?v=20261027">
+<link rel="stylesheet" href="site-design.css?v=20261114-czech">
 <link rel="stylesheet" href="intent-home.css?v=20261109">
 <script src="site-design.js?v=20261027" defer></script>
 <!-- Conversion-first frontend (legacy site retained below for safe rollback). -->
@@ -108,7 +108,7 @@
 <audio id="bgAudio" loop preload="none" src="media/druzina-quest-ambient.mp3"></audio>
 <nav class="nav">
   <div class="wrap">
-    <div class="brand" id="navBrand">Aliaksei Chareshneu, PhD | Алексей Черешнев, доктор наук<small id="navSub">Экосистема проектов в Брно</small></div>
+    <div class="brand" id="navBrand">Aliaksei Chareshneu, PhD<small id="navSub">Učení · pohyb · zážitky v Brně</small></div>
     <div class="nav-actions">
       <button id="audioToggle" class="audio-toggle" aria-label="Toggle background music" aria-pressed="false">🔇</button>
       <div class="langs" id="langSwitch" role="group" aria-label="Language">
@@ -303,10 +303,10 @@
     </div>
   </section>
 <section class="reg-launch" id="new-website-registration" aria-label="Website registration">
-<p class="reg-eyebrow">NOVÉ PŘIHLÁŠKY NA WEBU · ONLINE REGISTRATION · НОВАЯ ЗАПИСЬ · НОВА РЕЄСТРАЦІЯ</p>
+<p class="reg-eyebrow"><span lang="cs" data-site-language="cs">NOVÉ PŘIHLÁŠKY NA WEBU</span><span lang="en" data-site-language="en">ONLINE REGISTRATION</span><span lang="ru" data-site-language="ru">НОВАЯ ОНЛАЙН-ЗАПИСЬ</span><span lang="uk" data-site-language="uk">НОВА ОНЛАЙН-РЕЄСТРАЦІЯ</span></p>
 <h2>Vyberte aktivitu a odešlete přihlášku přímo přes náš web.</h2>
 <p>Open BrnoWalkers event RSVPs, with four languages and no account. We personally confirm availability; submitting a form is not a booking.</p>
-<div class="reg-actions"><a href="register/">CZ · Akce</a><a href="register/en/">EN · Events</a><a href="register/ru/">RU · События</a><a href="register/uk/">UA · Події</a></div>
+<div class="reg-actions"><a href="register/?lang=cs" lang="cs" data-site-language="cs">Přihlásit se na akci →</a><a href="register/en/" lang="en" data-site-language="en">Register for an event →</a><a href="register/ru/" lang="ru" data-site-language="ru">Записаться на событие →</a><a href="register/uk/" lang="uk" data-site-language="uk">Зареєструватися на подію →</a></div>
 <p class="reg-note">Separate enquiries: <a href="register/?lang=cs">Družina Moravy training</a> · <a href="corporate/request/?lang=cs">OSVČ corporate services</a>. Paid HEMA booking remains paused; neither enquiry is a payment or confirmed reservation.</p></section>
 
 
@@ -1774,7 +1774,7 @@ function communityLinks(lang, group) {
         channel: tg ? DRUZINA_TG_CHANNEL : DRUZINA_WA_CHANNEL };
 }
 
-let currentLang = 'ru';
+let currentLang = 'cs';
 let currentTab = 'main';
 let LIVE_EVENTS = null; // null = ещё грузится, [] = загружено и пусто, [...] = есть события
 
