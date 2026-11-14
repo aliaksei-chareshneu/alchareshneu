@@ -9,6 +9,7 @@ const evidence={providerReceiptVerified:true,ownerAccountBound:true,
   legalControllerVerified:true,identityVerified:true,historyReviewed:true,
   lawfulContactContext:true,duplicateSourceKeys:new Set()};
 const local={pc_online:true,ollama_loopback_healthy:true,
+  inference_backend:'OLLAMA_CPU_ONLY',cpu_inference_verified:true,
   endpoint:'http://127.0.0.1:11434',local_private_processing_approved:true,
   selected_model:'imperion-qwen35:4b',installed_models:['imperion-qwen35:4b','qwen3:4b'],
   model_fixture_passed:true,model_hallucination_gate_passed:true};
@@ -191,4 +192,9 @@ test('source exceptions cannot be turned into fake bank cash claims',()=>{
   const r=R.intake({...event,text:'I already paid 1 000 CZK'},evidence);
   assert.equal(r.customer_record_verified,false);
   assert.equal(r.crm_written,false);
+});
+
+test('CUDA crash blocks any Sales4 claim without verified CPU-only inference',()=>{
+  assert.equal(R.modelRoute(task,{...local,cpu_inference_verified:false}).state,'CPU_ONLY_RUNTIME_PROOF_REQUIRED');
+  assert.equal(R.modelRoute(task,{...local,inference_backend:'CUDA'}).state,'CPU_ONLY_RUNTIME_PROOF_REQUIRED');
 });
