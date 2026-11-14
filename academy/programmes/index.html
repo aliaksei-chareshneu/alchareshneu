@@ -101,7 +101,7 @@ function message(){
  const goal=document.getElementById("goal").value.trim(),deadline=[preferredTime(),document.getElementById("deadline").value.trim()].filter(Boolean).join(" | ").slice(0,400);
  const contact=document.getElementById("first-name").value.trim(),email=document.getElementById("contact-email").value.trim();
  const tracking=["utm_source","utm_medium","utm_campaign"].map(key=>{const v=source(key);return v?key+"="+v:"";}).filter(Boolean).join("; ");
- return "Academy programme enquiry (not a booking)\nPackage: "+name+"\nName: "+(contact||"to be discussed")+"\nEmail: "+(email||"to be discussed")+"\nLanguage: "+lang+"\nGoal: "+(goal||"to be discussed")+"\nDeadline: "+(deadline||"to be discussed")+"\nSource: academy_programmes_20261105"+(tracking?" ; "+tracking:"")+"\nPlease confirm scope, available dates and written terms before any payment.";
+ return "Academy programme enquiry (not a booking)\nPackage: "+name+"\nName: "+(contact||"to be discussed")+"\nEmail: "+(email||"to be discussed")+"\nLanguage: "+lang+"\nGoal: "+(goal||"to be discussed")+"\nDeadline: "+(deadline||"to be discussed")+"\nSource: academy_programmes_20261105"+(source("src")?" ; entry="+source("src"):"")+(tracking?" ; "+tracking:"")+"\nPlease confirm scope, available dates and written terms before any payment.";
 }
 document.getElementById("whatsapp-compose").addEventListener("click",()=>{location.assign("https://wa.me/420702914842?text="+encodeURIComponent(message()));});
 document.getElementById("email-compose").addEventListener("click",()=>{location.href="mailto:chereshnev.biochem@gmail.com?subject="+encodeURIComponent("Academy programme enquiry: "+sel.value)+"&body="+encodeURIComponent(message());});
@@ -111,7 +111,7 @@ form.addEventListener("submit",async ev=>{
  send.disabled=true;notice(copy[lang].sending);
  const payload={firstName:document.getElementById("first-name").value.trim(),email:document.getElementById("contact-email").value.trim(),
  programme:sel.value,goal:document.getElementById("goal").value.trim(),deadline:[preferredTime(),document.getElementById("deadline").value.trim()].filter(Boolean).join(" | ").slice(0,400),
- locale:lang,utmSource:source("utm_source"),utmMedium:source("utm_medium"),utmCampaign:source("utm_campaign"),
+ locale:lang,utmSource:source("utm_source")||source("src"),utmMedium:source("utm_medium"),utmCampaign:source("utm_campaign"),
  website:document.getElementById("academy-webfield").value,privacyAcknowledged:document.getElementById("privacy-confirm").checked,
  adultOrGuardianConfirmed:document.getElementById("adult-confirm").checked};
  try{
