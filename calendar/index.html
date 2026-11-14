@@ -58,6 +58,7 @@
 <link rel="stylesheet" href="../unified-shell.css?v=20261113b">
 <link rel="stylesheet" href="../imperion-finish.css?v=20261113b">
 <script src="../unified-shell.js?v=20261113b" defer></script>
+<script src="../register/event-i18n.js?v=20261114-l10n2"></script>
 </head>
 <body data-imperion-scope="shared" data-imperion-design="calendar">
 <a class="skip-link" href="#page-content" data-exp="skip">Skip to content</a>
@@ -408,9 +409,12 @@ function renderEvents(lang) {
     const cards = LIVE_EVENTS.map(ev => {
       const imageOverride = safeImageFile(ev.imageOverride);
       const img = imageOverride ? `../images/${imageOverride}` : (Object.hasOwn(CATEGORY_IMAGE, ev.category) ? CATEGORY_IMAGE[ev.category] : DEFAULT_EVENT_IMAGE);
-      const title = escapeText(ev.title);
-      const description = escapeText(ev.description);
-      const locationName = escapeText(ev.locationName);
+      const source = ev._catalogSource;
+      const localize = window.ImperionEventI18n;
+      const title = escapeText(source && localize ? localize.title(source,lang) : ev.title);
+      const description = escapeText(source && localize ? localize.note(source,lang) : ev.description);
+      const displayVenue = source && localize ? localize.venue(source,lang) : ev.locationName;
+      const locationName = escapeText(displayVenue);
       const nativeEvent = /^PUB-[A-Z0-9-]{4,90}$/.test(String(ev.id || ''));
       const open=ev.registrationMode==='open',contact=ev.registrationMode==='contact';
       const registerUrl=(open||contact)
@@ -435,7 +439,7 @@ function renderEvents(lang) {
           <p class="eu-desc">${description}</p>
           <div class="eu-price-row">
             ${priceBlock}
-            ${locationName ? `<a class="eu-price-note" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ev.locationName)}" target="_blank" rel="noopener">📍 ${locationName}</a>` : ''}
+            ${locationName ? (ev.category === "HEMA Training" ? `<span class="eu-price-note">📍 ${locationName}</span>` : `<a class="eu-price-note" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(displayVenue)}" target="_blank" rel="noopener">📍 ${locationName}</a>`) : ""}
           </div>
           <div class="eu-ctas">
             <a class="btn solid" href="${registerUrl}">${eventButtonLabel}</a>
@@ -466,7 +470,7 @@ function catalogEvent(e){
  return {id:e.event_id,title:String(e.title||'').slice(0,200),description:String(e.public_note||'').slice(0,1200),
   startISO:e.begins_at,priceCzk:price===null?null:(late?price+Math.ceil(price*.25):price),isFree:price===0,late,
   category:String(e.category||''),community:club?'Družina Moravy':'Brnowalkers',locationName:venue,registrationMode:mode,
-  controller:String(e.data_controller||'').slice(0,150),imageOverride:''};
+  controller:String(e.data_controller||'').slice(0,150),imageOverride:'',_catalogSource:e};
 }
 (function loadEvents(){
  if(typeof fetch!=='function'){EVENT_STATUS='error';LIVE_EVENTS=[];renderEvents(currentLang);return;}
