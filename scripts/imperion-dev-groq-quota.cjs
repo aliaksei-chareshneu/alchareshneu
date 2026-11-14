@@ -44,9 +44,32 @@ async function admit(env=process.env,fetcher=globalThis.fetch,now=Date.now()){
    Date.parse(x.created_at)>=cutoff&&
    (Date.parse(x.created_at)<started||
     (Date.parse(x.created_at)===started&&x.id<runId)));
- if(prior.length>=MAX_GROQ_WORKFLOW_RUNS_24H)
-  reject('GROQ_FREE_DAILY_RUN_LIMIT_REACHED');
- return {status:'GROQ_FREE_GITHUB_QUOTA_ADMITTED',prior:prior.length,
+ // ONLY workflows that passed the Groq quota gate actually reserved a paid-provider
+ // opportunity. Old CPU-Qwen previews and blocked/failed preflight MUST NOT count.
+ // We inspect GitHub provider-owned job receipts, not model-provided text.
+ if(prior.length>35)reject('GROQ_QUOTA_HISTORY_TOO_MANY_RUNS');
+ let admitted=0;
+ for(const previous of prior){
+  const jobsUrl='https://api.github.com/repos/'+REPO+'/actions/runs/'+previous.id+'/jobs?per_page=100';
+  let jobsResponse;
+  try{jobsResponse=await fetcher(jobsUrl,{method:'GET',redirect:'error',credentials:'omit',
+   headers:{authorization:'Bearer '+env.GITHUB_TOKEN,accept:'application/vnd.github+json',
+    'x-github-api-version':'2022-11-28'},signal:AbortSignal.timeout(12000)})}
+  catch{reject('GROQ_QUOTA_JOBS_HISTORY_UNAVAILABLE')}
+  if(!jobsResponse?.ok||jobsResponse.redirected)reject('GROQ_QUOTA_JOBS_HTTP_REJECTED');
+  let jobs;
+  try{jobs=await jobsResponse.json()}catch{reject('GROQ_QUOTA_JOBS_INVALID')}
+  if(!Array.isArray(jobs?.jobs)||jobs.jobs.length>=100)
+   reject('GROQ_QUOTA_JOBS_INCOMPLETE');
+  if(jobs.jobs.some(job=>Array.isArray(job.steps)&&job.steps.some(step=>
+     step.name==='Require Free-only Groq key and provider quota (no paid fallback)'&&
+     step.conclusion==='success'))){
+   admitted++;
+   if(admitted>=MAX_GROQ_WORKFLOW_RUNS_24H)
+    reject('GROQ_FREE_DAILY_RUN_LIMIT_REACHED');
+  }
+ }
+ return {status:'GROQ_FREE_GITHUB_QUOTA_ADMITTED',prior:admitted,
   max_runs:MAX_GROQ_WORKFLOW_RUNS_24H,
   run_id:runId,model:policy.selectedModel(env),billing_proof:'NOT_VERIFIED'};
 }
