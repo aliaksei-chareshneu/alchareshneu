@@ -341,8 +341,20 @@ html[lang="uk"] #dm-all-generations [data-dm-all-lang="uk"]{display:block}
 <p class="reg-eyebrow">DRUŽINA MORAVY · WEBOVÁ PŘIHLÁŠKA · TRAINING ENQUIRY</p>
 <h2>Chcete vyzkoušet historický šerm v Brně? Poptávku vyplňte na webu.</h2>
 <p>🇨🇿 Zájem o trénink · 🇬🇧 Ask about a first session · 🇷🇺 Заявка на тренировку · 🇺🇦 Заявка на тренування</p>
-<div class="reg-actions"><a href="../register/?lang=cs">CZ</a><a href="../register/?lang=en">EN</a><a href="../register/?lang=ru">RU</a><a href="../register/?lang=uk">UA</a></div>
-<p class="reg-note">Applications for planned sessions are open; the organiser confirms the venue, safety and any paid terms individually in writing. No online payment.</p></section>
+<style>
+.dm-book-actions [data-book-lang]{display:none}
+html[lang="cs"] .dm-book-actions [data-book-lang="cs"],
+html[lang="en"] .dm-book-actions [data-book-lang="en"],
+html[lang="ru"] .dm-book-actions [data-book-lang="ru"],
+html[lang="uk"] .dm-book-actions [data-book-lang="uk"]{display:inline-flex}
+</style>
+<div class="reg-actions dm-book-actions">
+<a data-book-lang="cs" href="../register/?lang=cs">Přihlásit se / Book training →</a>
+<a data-book-lang="en" href="../register/?lang=en">Book training / Přihlásit se →</a>
+<a data-book-lang="ru" href="../register/?lang=ru">Записаться на тренировку →</a>
+<a data-book-lang="uk" href="../register/?lang=uk">Записатися на тренування →</a>
+</div>
+<p class="reg-note">Applications for planned sessions are open; the organiser confirms the venue, safety and any paid terms individually in writing. Bank details appear only after individual approval. Do not transfer funds before confirmation.</p></section>
 
 <div class="dm-v2-status" role="note">
   <span data-dm-v2-locale="cs"><b>Termíny jen po potvrzení.</b> Čtvrtky skončily. <b>2. i 7. listopadu zrušeno.</b></span>
