@@ -39,6 +39,8 @@ test('OSVC and association have distinct stable structured-data identities', () 
   assert.equal(corporate['@id'], root + 'corporate/#service');
   assert.equal(technical['@id'], root + 'corporate/technical-answers/#service');
   assert.ok(!JSON.stringify(technical).includes('Družina Moravy'));
+  const calendar = graph('calendar/index.html').find(item => item['@type'] === 'CollectionPage');
+  assert.deepEqual(calendar.about.map(item => item['@id']), [root + '#osvc', root + 'druzina/#organization']);
 });
 
 test('B2B answer-first section is visible in source with 4 localized Q&As', () => {
@@ -71,7 +73,7 @@ test('B2B answer-first section is visible in source with 4 localized Q&As', () =
 
 test('Updated crawlable landing pages stay in sitemap', () => {
   const map = read('sitemap.xml');
-  for (const uri of ['', 'academy/', 'walkers/', 'druzina/', 'corporate/', 'corporate/technical-answers/']) {
+  for (const uri of ['', 'academy/', 'walkers/', 'druzina/', 'calendar/', 'corporate/', 'corporate/technical-answers/']) {
     const marker = '<loc>' + root + uri + '</loc>';
     const at = map.indexOf(marker);
     assert.ok(at >= 0, 'Missing sitemap entry for ' + uri);
