@@ -35,7 +35,7 @@ for (const path of ['/walkers/', '/calendar/']) {
     await expect(page.locator('.reg-launch .reg-actions a[data-site-language="ru"]')).toBeHidden();
 
     for (const language of ['ru', 'uk', 'cs']) {
-      await page.locator('#langSwitch button[data-lang="' + language + '"]').click();
+      await page.locator('#imp-shell-top [data-imp-lang="' + language + '"]').click();
       await expect(page.locator('html')).toHaveAttribute('lang', language);
       await expect(page.locator('.reg-launch .reg-actions a[data-site-language="' + language + '"]')).toBeVisible();
       await expect(actions.filter({ visible: true })).toHaveCount(1);
