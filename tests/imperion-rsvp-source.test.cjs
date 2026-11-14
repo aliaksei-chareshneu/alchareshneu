@@ -30,11 +30,11 @@ for (const phrase of [
  'no second entry was created',
  'новая запись не создаётся',
  'нового запису не буде',
- 'Další zprávu posílat nemusíte',
- 'no extra message is needed',
- 'писать дополнительно не нужно',
- 'додатково писати не потрібно',
-]) assert.ok(front.includes(phrase), 'privacy-safe duplicate acknowledgement missing: '+phrase);
+ 'Řiďte se pokyny v potvrzovacím e-mailu',
+ 'Follow the attendance instructions in your event receipt email',
+ 'Следуйте инструкции из письма о регистрации',
+ 'Дотримуйтесь інструкції з листа про реєстрацію',
+]) assert.ok(front.includes(phrase), 'privacy-safe no-resubmission and event-specific instructions missing: '+phrase);
 for (const stale of [
  'please send the organiser a short message',
  'pošlete prosím pořadateli krátkou zprávu',
