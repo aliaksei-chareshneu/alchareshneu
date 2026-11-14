@@ -132,6 +132,13 @@ a{color:var(--mint)}button,input,select{font:inherit}button{cursor:pointer}.skip
             <button id="paymentQuoteButton" class="retry" type="button" hidden></button>
           </div>
           <p id="trainingPaymentPrivate" class="event-state" aria-live="polite"></p>
+          <div id="paymentQrArea" class="field" hidden>
+            <p id="paymentQrLabel"></p>
+            <div id="paymentQrCode" aria-label="Czech QR bank transfer" style="display:inline-block;padding:10px;background:#fff;border-radius:8px;max-width:100%"></div>
+            <p id="paymentReference" class="catalog-summary"></p>
+            <p id="paymentQrCaution" class="catalog-summary"></p>
+            <button id="paymentCopyButton" class="retry" type="button"></button>
+          </div>
           <div id="paymentProofField" class="field" hidden>
             <label for="paymentProof" id="paymentPdfLabel"></label>
             <input id="paymentProof" name="paymentProof" type="file" accept=".pdf,application/pdf">
@@ -174,6 +181,7 @@ a{color:var(--mint)}button,input,select{font:inherit}button{cursor:pointer}.skip
 <script src="../../site-calendar-policy.js?v=20261113c"></script>
 <script src="../event-calendar.js"></script>
 <script src="../calendar-standalone.js"></script>
+<script src="../vendor/qrcode.min.js"></script>
 <script src="../training-payment.js"></script>
 <script>
 'use strict';
