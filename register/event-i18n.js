@@ -155,8 +155,68 @@
     }
     return original;
   }
+  const NOTES = {
+    'PUB-WALK-20261117': {
+      check: 'Ранние места 390 Kč / стандарт 490 Kč',
+      cs: 'Placená vycházka 18+. Zvýhodněná místa za 390 Kč, běžná cena 490 Kč; nejvýše 18 účastníků. Koná se od 8 skutečně platících osob. Zájem vyjádřený e-mailem není rezervace; organizace a platba se domlouvají zvlášť.',
+      en: 'Paid guided walk, ages 18+. Early places CZK 390; standard price CZK 490, maximum 18 participants. Runs with at least 8 paying participants. Email interest does not reserve a place; payment and arrangements are agreed separately.',
+      ru: 'Коммерческий маршрут 18+. Ранние места 390 Kč / стандарт 490 Kč, максимум 18, проведение от 8 оплаченных. Интерес по email не гарантирует место; оплата и организация отдельно.',
+      uk: 'Платна прогулянка 18+. Перші місця за 390 Kč, звичайна ціна 490 Kč, максимум 18 осіб. Проводиться від 8 учасників, які оплатили. Зацікавленість електронною поштою не є бронюванням; оплату й організацію узгоджують окремо.'
+    },
+    'PUB-WALK-20261129': {
+      check: 'Экскурсия 450 Kč с человека',
+      cs: 'Historická prohlídka za 450 Kč na osobu. Koná se od 8 skutečně platících účastníků. E-mailový zájem není rezervace; místo srazu, právní podmínky a platba budou upřesněny před převodem peněz.',
+      en: 'Historical city tour: CZK 450 per person. Runs with at least 8 paying participants. Email interest is not a booking. Meeting point, legal terms and payment are confirmed before any transfer.',
+      ru: 'Экскурсия 450 Kč с человека. Проводится от 8 реально оплативших. Выражение интереса по email не является бронью. Точка сбора, легальные условия и оплата уточняются до получения денег.',
+      uk: 'Історична екскурсія: 450 Kč з особи. Проводиться від 8 учасників, які оплатили. Зацікавленість електронною поштою не є бронюванням; місце збору, юридичні умови й оплату уточнюють до переказу коштів.'
+    },
+    'PUB-ADV-HEMA-20261125-A': {
+      check: 'HOLD: зал недоступен',
+      cs: 'POZASTAVENO: sál není dostupný, workshop není potvrzen. Datum je orientační, registrace zatím není povolena.',
+      en: 'ON HOLD: the venue is unavailable and the workshop is not confirmed. Date is tentative; registration is not currently permitted.',
+      ru: 'ПРИОСТАНОВЛЕНО: зал недоступен, воркшоп не подтверждён. Дата ориентировочная; регистрация пока закрыта.',
+      uk: 'ПРИЗУПИНЕНО: зал недоступний, воркшоп не підтверджено. Дата орієнтовна; реєстрація наразі закрита.'
+    },
+    'PUB-ADV-HEMA-20261125-B': {
+      check: 'HOLD: независимое второе занятие',
+      cs: 'POZASTAVENO: druhý samostatný workshop je možný až po potvrzení místa a programu. Registrace zatím není otevřena.',
+      en: 'ON HOLD: a second independent workshop is possible only after the venue and programme are confirmed. Registration is not open.',
+      ru: 'ПРИОСТАНОВЛЕНО: второй самостоятельный воркшоп возможен только после подтверждения площадки и программы. Регистрации пока нет.',
+      uk: 'ПРИЗУПИНЕНО: другий окремий воркшоп можливий лише після підтвердження місця й програми. Реєстрацію не відкрито.'
+    }
+  };
+  const HEMA_NOTE = {
+    cs: 'Přijímáme pouze nezávazné žádosti o trénink. Odeslání není rezervace, závazek k platbě ani potvrzení konání. Termín, místo, bezpečnost a cenu musí pořadatel před účastí individuálně písemně potvrdit. Do té doby neplaťte ani necestujte.',
+    en: 'Training enquiries only: submitting is not a reservation, payment obligation or confirmation that the session will take place. The organiser must individually confirm date, place, safety and price in writing. Do not pay or travel before confirmation.',
+    ru: 'Принимаются только предварительные заявки на тренировку. Заявка не означает бронирование, оплату или подтверждение проведения. Дата, место, безопасность и цена подтверждаются организатором письменно. До подтверждения не платите и не приезжайте.',
+    uk: 'Приймаємо лише попередні запити на тренування. Запит не означає бронювання, оплату або підтвердження проведення. Дату, місце, безпеку та ціну організатор підтверджує письмово. До підтвердження не платіть і не приїжджайте.'
+  };
+  const HIKE_NOTE = {
+    cs: 'Bezplatný komunitní výlet s průvodcem. Přihláška je předběžná, dokud pořadatel osobně nepotvrdí místo.',
+    en: 'Free guided community hike. Your registration is provisional until the organiser personally confirms a place.',
+    ru: 'Бесплатный групповой поход с ведущим. Заявка предварительная до личного подтверждения организатором.',
+    uk: 'Безкоштовний спільний похід із супроводом. Заявка попередня до особистого підтвердження організатором.'
+  };
+  function note(event,locale) {
+    if (!event) return '';
+    const lang = Object.prototype.hasOwnProperty.call(UNKNOWN,locale) ? locale : 'cs';
+    const raw = String(event.public_note || '').trim();
+    const special = NOTES[event.event_id];
+    if (special && raw.includes(special.check)) return special[lang];
+    if (event.category === 'HEMA Training' && raw.startsWith('Přijímáme NEZÁVAZNÉ přihlášky')) return HEMA_NOTE[lang];
+    if (event.event_id === 'PUB-HIKE-20261128' && raw.startsWith('Free guided community hike.')) return HIKE_NOTE[lang];
+    if (lang !== 'ru' && /[\u0400-\u052f]/u.test(raw)) {
+      return ({
+        cs:'Účast a případnou platbu předem písemně ověřte u pořadatele.',
+        en:'Confirm attendance and any payment terms in writing with the organiser first.',
+        uk:'Спочатку письмово уточніть участь і будь-які умови оплати в організатора.'
+      })[lang];
+    }
+    return raw;
+  }
   root.ImperionEventI18n = Object.freeze({
     title: (event,lang) => localized(event,lang,'title'),
-    venue: (event,lang) => localized(event,lang,'venue')
+    venue: (event,lang) => localized(event,lang,'venue'),
+    note: (event,lang) => note(event,lang)
   });
 })(window);
