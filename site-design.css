@@ -349,3 +349,27 @@ body[data-imperion-scope='shared'] .reg-launch .reg-note { color:#d5e4ed; font-s
   body[data-imperion-scope='shared'] .reg-launch { margin:14px 14px 24px; border-radius:15px; }
   body[data-imperion-scope='shared'] .reg-launch .reg-actions a { flex:1 1 120px; }
 }
+
+/* LANGUAGE-ISOLATION-20261114: show only the visitor's selected locale.
+   Static registration banners and quick-training links previously displayed
+   Russian/Ukrainian copy in CZ mode. Keep all four translations in the DOM. */
+body[data-imperion-scope='shared'] [data-site-language],
+body[data-imperion-scope='shared'] .dm-root-fast-entry [data-quick-lang] {
+  display: none !important;
+}
+html[lang='cs'] body[data-imperion-scope='shared'] [data-site-language='cs'],
+html[lang='en'] body[data-imperion-scope='shared'] [data-site-language='en'],
+html[lang='ru'] body[data-imperion-scope='shared'] [data-site-language='ru'],
+html[lang='uk'] body[data-imperion-scope='shared'] [data-site-language='uk'] {
+  display: inline !important;
+}
+html[lang='cs'] body[data-imperion-scope='shared'] .reg-actions a[data-site-language='cs'],
+html[lang='en'] body[data-imperion-scope='shared'] .reg-actions a[data-site-language='en'],
+html[lang='ru'] body[data-imperion-scope='shared'] .reg-actions a[data-site-language='ru'],
+html[lang='uk'] body[data-imperion-scope='shared'] .reg-actions a[data-site-language='uk'],
+html[lang='cs'] body[data-imperion-scope='shared'] .dm-root-fast-entry [data-quick-lang='cs'],
+html[lang='en'] body[data-imperion-scope='shared'] .dm-root-fast-entry [data-quick-lang='en'],
+html[lang='ru'] body[data-imperion-scope='shared'] .dm-root-fast-entry [data-quick-lang='ru'],
+html[lang='uk'] body[data-imperion-scope='shared'] .dm-root-fast-entry [data-quick-lang='uk'] {
+  display: inline-flex !important;
+}
