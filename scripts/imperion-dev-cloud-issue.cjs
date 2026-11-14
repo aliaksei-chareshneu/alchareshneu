@@ -1,6 +1,7 @@
 'use strict';
 // IMPERION DEV: a bounded public-source issue -> cloud Qwen -> review-only patch.
 // Model never receives a GitHub token and cannot run shell commands or choose paths.
+const PROVIDER=require('./imperion-dev-provider.cjs');
 const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
@@ -141,7 +142,7 @@ function applyCandidate(source, patch) {
   if (Buffer.byteLength(changed) > 18000) throw Error('PATCH_TOO_LARGE');
   return changed;
 }
-async function propose(task, root, fetchImpl=globalThis.fetch) {
+async function propose(task, root, fetchImpl=PROVIDER.fetchModel) {
   const fixture=task.mode==='FIXTURE' || isFixtureTask(task);
   const files=task.file2?[task.file,task.file2]:[task.file];
   if (task.file2 && (!safeSourceFile(task.file2) || task.file2===task.file))
