@@ -234,7 +234,16 @@
   var parent=el('imperion-frontdoor');
   function label(id,key){el(id).textContent=tr(key);}
   function hrefForEvent(e) {
-    return 'register/?lang='+encodeURIComponent(lang)+'&event='+encodeURIComponent(e.event_id)+'&src=frontdoor_calendar';
+    // Attribute visitors who intentionally selected the quick BrnoWalkers route;
+    // never accept an arbitrary source value from the URL.
+    var source = query.get('src') === 'frontdoor_fast_walkers' && filter === 'walkers'
+      ? 'frontdoor_fast_walkers' : 'frontdoor_calendar';
+    var params = new URLSearchParams({lang:lang,event:e.event_id,src:source});
+    ['utm_source','utm_medium','utm_campaign'].forEach(function(key) {
+      var value = query.get(key);
+      if (value && /^[a-zA-Z0-9][a-zA-Z0-9._-]{0,63}$/.test(value)) params.set(key, value);
+    });
+    return 'register/?' + params.toString();
   }
   function dayKey(iso){
     var d=new Date(iso);

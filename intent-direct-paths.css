@@ -1,0 +1,61 @@
+/* Direct goal routes without replacing the approved cinematic homepage/calendar. */
+#imperion-frontdoor .fd-business-shortcut{
+  margin:14px 0 0;padding:8px 13px;border:1px solid #afbbad77;border-radius:10px;
+  background:#061b24b8;color:#ecf4e8;font:620 clamp(13px,1.2vw,16px)/1.45 system-ui,sans-serif;
+  max-width:min(880px,100%);text-align:center
+}
+#imperion-frontdoor .fd-business-shortcut a{color:#ffdf9b;text-decoration:underline;text-underline-offset:4px;font-weight:800}
+#imperion-frontdoor .fd-business-shortcut a:hover{color:#fff0c5}
+#imperion-frontdoor .fd-goal-paths{
+  background:linear-gradient(160deg,#102f35 0%,#0c1e2a 65%,#0b2029 100%);
+  padding:55px 0 63px;scroll-margin-top:96px;border-top:1px solid #68877855;border-bottom:1px solid #68877855
+}
+#imperion-frontdoor .fd-goal-paths h2{
+  font:500 clamp(33px,3.5vw,54px)/1.15 Georgia,serif;color:#fff1d4;
+  letter-spacing:-.025em;margin:0 0 12px
+}
+#imperion-frontdoor .fd-goal-intro{
+  color:#d8e6dd;max-width:850px;font:510 clamp(15px,1.3vw,18px)/1.5 system-ui,sans-serif;
+  margin:0 0 25px
+}
+#imperion-frontdoor .fd-goal-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px}
+#imperion-frontdoor .fd-goal-card{
+  display:flex;flex-direction:column;min-width:0;padding:24px 20px;
+  border:1px solid #557a7d;border-radius:17px;
+  background:linear-gradient(145deg,#1b3a44,#142b36);box-shadow:0 12px 30px #03141e66
+}
+#imperion-frontdoor .fd-goal-tag{
+  margin:0 0 12px;color:#f1d295;font:800 12px/1.3 system-ui,sans-serif;
+  letter-spacing:.045em;text-transform:uppercase
+}
+#imperion-frontdoor .fd-goal-card h3{
+  font:600 clamp(20px,1.7vw,25px)/1.22 Georgia,serif;
+  color:#fff5e4;margin:0 0 13px;overflow-wrap:anywhere
+}
+#imperion-frontdoor .fd-goal-result{
+  color:#deebe5;font:510 15px/1.53 system-ui,sans-serif;margin:0 0 15px
+}
+#imperion-frontdoor .fd-goal-terms{
+  margin:auto 0 17px;color:#c8d9d3;font:650 13px/1.5 system-ui,sans-serif
+}
+#imperion-frontdoor .fd-goal-action{
+  display:flex;align-items:center;justify-content:center;text-align:center;min-height:52px;
+  background:#f2cf87;border:1px solid #ffebbf;border-radius:10px;
+  color:#15242b;font:850 15px/1.25 system-ui,sans-serif;
+  text-decoration:none;padding:12px 13px
+}
+#imperion-frontdoor .fd-goal-action:hover{background:#ffe4aa}
+#imperion-frontdoor .fd-goal-action:focus-visible,
+#imperion-frontdoor .fd-business-shortcut a:focus-visible{outline:3px solid #fff1b7;outline-offset:3px}
+#imperion-frontdoor .fd-goal-note{margin:18px 0 0;font:480 13px/1.5 system-ui,sans-serif;color:#bdd4d3}
+@media(max-width:1100px){
+  #imperion-frontdoor .fd-goal-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:640px){
+  #imperion-frontdoor .fd-goal-paths{padding:38px 0 48px;scroll-margin-top:111px}
+  #imperion-frontdoor .fd-goal-grid{grid-template-columns:minmax(0,1fr);gap:11px}
+  #imperion-frontdoor .fd-goal-card{padding:20px 18px}
+  #imperion-frontdoor .fd-goal-card h3{font-size:23px}
+  #imperion-frontdoor .fd-business-shortcut{font-size:14px}
+}
+@media(prefers-reduced-motion:reduce){#imperion-frontdoor .fd-goal-action{transition:none!important}}
