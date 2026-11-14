@@ -67,9 +67,17 @@
   function catalogPrice(event,lang){
     const q=event?.trainingPayment;
     if(!q)return null;
-    const values=(q.tiers||[]).map(p=>p.totalCzk).join(' / ');
-    const prefix=lang==='cs'?'Orientačně':lang==='ru'?'Предварительно':lang==='uk'?'Орієнтовно':'Indicative';
-    return values?prefix+': '+values+' Kč (standard / Senior / Starter 4; incl. applicable 25% fee)':null;
+    const tiers=Array.isArray(q.tiers)?q.tiers:[];
+    const values=tiers.map(p=>p.totalCzk).join(' / ');
+    if(!values)return null;
+    const late=tiers.some(p=>Number(p.surchargeCzk)>0);
+    const copy={
+      cs:['Orientačně','standardní / ověřený Senior / Starter 4','včetně 25% příplatku za přihlášení méně než 48 hodin předem','bez příplatku'],
+      en:['Indicative','standard / verified Senior / Starter 4','including the 25% surcharge for booking less than 48 hours ahead','without a surcharge'],
+      ru:['Ориентировочно','обычный / подтверждённый Senior / Starter 4','включая надбавку 25% при записи менее чем за 48 часов','без надбавки'],
+      uk:['Орієнтовно','звичайний / підтверджений Senior / Starter 4','із доплатою 25% за запис менш ніж за 48 годин','без доплати']
+    }[lang]||['Indicative','standard / verified Senior / Starter 4','including the 25% short-notice surcharge','without a surcharge'];
+    return copy[0]+': '+values+' Kč ('+copy[1]+'; '+(late?copy[2]:copy[3])+')';
   }
   function requestOptions(event,body){
     if(!event?.trainingPayment)return {headers:{'Content-Type':'application/json'},body:JSON.stringify(body)};
