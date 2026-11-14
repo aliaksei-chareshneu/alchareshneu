@@ -453,11 +453,11 @@ function impCommunityRoute_(community,lang){
  return {community:key,platform:platform,news:route.news,chatProperty:route.chatProperty};
 }
 
-/** Transactional RSVP receipt: record the form answer, never request a second RSVP.
+/** Transactional RSVP receipt: never duplicate a form record; for free HEMA workshops ask exactly one reply to the receipt email.
  * A form submission is not organiser-approved attendance. Optional troubleshooting
  * screenshots must have personal information hidden.
  */
-function impRsvpReceiptCopy_(lang,status){
+function impRsvpReceiptCopy_(lang,status,requireAttendanceReply){
  var messages={
   cs:{
    pending:'Přihláška přijata – místo zatím nepotvrzeno',
@@ -465,6 +465,7 @@ function impRsvpReceiptCopy_(lang,status){
    declinedSubject:'Vaše odpověď byla zaznamenána',
    intro:'Děkujeme, Vaši odpověď z registračního formuláře jsme přijali. Toto je potvrzení přijetí, nikoli rezervace místa.',
    yes:'Zaznamenali jsme, že chcete přijít (ANO). Nemusíte vyplňovat formulář znovu ani potvrzovat svou účast dalším e-mailem. Organizátor Vám po kontrole kapacity samostatně potvrdí místo nebo oznámí další postup.',
+   yesReply:"Zvolili jste ANO. U bezplatného HEMA workshopu prosím ještě JEDNOU odpovězte na tento e-mail textem „ANO, přijdu“; tím potvrdíte svůj skutečný záměr dorazit. Formulář znovu neposílejte. Vaše odpověď není schválením místa: pořadatel Vám je musí potvrdit samostatně po kontrole bezpečné kapacity.",
    maybe:'Zaznamenali jsme odpověď MOŽNÁ. Místo zatím není rezervováno. Jakmile budete vědět, zda přijdete, stačí odpovědět na tento e-mail; formulář nevyplňujte znovu.',
    no:'Zaznamenali jsme odpověď NE. S Vaší účastí nepočítáme. Pokud šlo o omyl, stačí odpovědět na tento e-mail; formulář nevyplňujte znovu.',
    unknown:'Vaši žádost evidujeme, ale místo zatím potvrzené není. Po kontrole kapacity Vám organizátor samostatně oznámí další postup. Formulář není potřeba vyplňovat znovu.',
@@ -476,6 +477,7 @@ function impRsvpReceiptCopy_(lang,status){
    declinedSubject:'Your response has been recorded',
    intro:'Thank you. We have received your form response. This acknowledges your submission; it is not a confirmed booking.',
    yes:'You selected YES and we have saved it. You do not need to submit the form again or send another email to confirm your interest. After checking capacity, the organiser will separately confirm your place or explain the next step.',
+   yesReply:"You selected YES. For a free HEMA workshop, please reply ONCE to this email with “YES, I will attend” to confirm you actually plan to come. Do not register again. Your reply is not a confirmed place: the organiser must approve your place separately after checking safe capacity.",
    maybe:'You selected MAYBE. No place is reserved yet. Once you know whether you can attend, just reply to this email; please do not submit the form again.',
    no:'You selected NO. We are not expecting you to attend. If this was a mistake, reply to this email rather than submitting the form again.',
    unknown:'We have recorded your request, but no place is confirmed yet. The organiser will tell you the next step after checking capacity. You do not need to re-submit the form.',
@@ -487,6 +489,7 @@ function impRsvpReceiptCopy_(lang,status){
    declinedSubject:'Ваш ответ зарегистрирован',
    intro:'Спасибо! Мы получили ответ из регистрационной формы. Это подтверждение получения заявки, но не бронирование места.',
    yes:'Вы выбрали ДА, и мы сохранили ваш ответ. Повторно заполнять форму или подтверждать интерес отдельным письмом не нужно. После проверки вместимости организатор отдельно подтвердит место или сообщит о дальнейших действиях.',
+   yesReply:"Вы выбрали ДА. Для бесплатного HEMA-воркшопа один раз ответьте на ЭТО письмо «ДА, приду», чтобы подтвердить намерение прийти. Не регистрируйтесь заново. Сам ответ не означает бронирования места: его отдельно подтверждает организатор после проверки вместимости.",
    maybe:'Вы выбрали ВОЗМОЖНО. Место пока не забронировано. Когда решите, сможете ли прийти, просто ответьте на это письмо; форму повторно заполнять не нужно.',
    no:'Вы выбрали НЕТ. Мы не рассчитываем на ваше участие. Если это ошибка, просто ответьте на это письмо вместо повторной регистрации.',
    unknown:'Ваша заявка сохранена, но место ещё не подтверждено. После проверки вместимости организатор сообщит о дальнейших действиях; повторная регистрация не требуется.',
@@ -498,6 +501,7 @@ function impRsvpReceiptCopy_(lang,status){
    declinedSubject:'Вашу відповідь збережено',
    intro:'Дякуємо! Ми отримали вашу відповідь із реєстраційної форми. Це підтвердження отримання, а не бронювання місця.',
    yes:'Ви обрали ТАК, і ми зберегли вашу відповідь. Повторно заповнювати форму або підтверджувати намір окремим листом не потрібно. Після перевірки місткості організатор окремо підтвердить місце або повідомить про наступні дії.',
+   yesReply:"Ви обрали ТАК. Для безкоштовного HEMA-воркшопу один раз дайте відповідь на ЦЕЙ лист «ТАК, прийду», щоб підтвердити намір. Не реєструйтеся повторно. Така відповідь ще не підтверджує місце: його окремо погоджує організатор після перевірки безпечної місткості.",
    maybe:'Ви обрали МОЖЛИВО. Місце поки не заброньоване. Коли вирішите, чи прийдете, просто дайте відповідь на цей лист; повторно заповнювати форму не потрібно.',
    no:'Ви обрали НІ. Ми не розраховуємо на вашу участь. Якщо це помилка, просто дайте відповідь на цей лист, а не реєструйтеся повторно.',
    unknown:'Вашу заявку збережено, але місце ще не підтверджене. Після перевірки місткості організатор повідомить про наступні дії; повторна реєстрація не потрібна.',
@@ -506,14 +510,18 @@ function impRsvpReceiptCopy_(lang,status){
  };
  var w=messages[lang]||messages.cs;
  var selected=status==='DECLINED'?'no':status==='MAYBE'?'maybe':status==='REGISTERED'?'yes':'unknown';
- return {intro:w.intro,next:w[selected],troubleshooting:w.troubleshooting,
+ return {intro:w.intro,next:(selected==='yes'&&requireAttendanceReply)?w.yesReply:w[selected],troubleshooting:w.troubleshooting,
   subject:selected==='no'?w.declinedSubject:selected==='maybe'?w.maybeSubject:w.pending};
 }
 
 function impReceiptMessage_(kind,row,m,events){
  function v(n){return m[n]===undefined?'':String(row[m[n]]||'').trim().slice(0,300);}
  var id='',email=v('Email'),label='',lang=v('Receipt_Locale')||'cs',w=impReceiptWords_(lang);
- var receiptCopy=kind==='RSVP'?impRsvpReceiptCopy_(lang,v('RSVP_Status')):null;
+ var receiptEvent=kind==='RSVP'&&events?events[v('Event_ID')]:null;
+ var requireAttendanceReply=!!(receiptEvent&&receiptEvent.price_verified===true&&
+  Number(receiptEvent.price_czk)===0&&
+  /hema|fenc|šerm|sword|combat/i.test(String(receiptEvent.category||'')+' '+String(receiptEvent.title||'')));
+ var receiptCopy=kind==='RSVP'?impRsvpReceiptCopy_(lang,v('RSVP_Status'),requireAttendanceReply):null;
  var parts=[receiptCopy?receiptCopy.intro:w[1]],sender='Družina Moravy';
  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email))return null;
  if(kind==='RSVP'){
