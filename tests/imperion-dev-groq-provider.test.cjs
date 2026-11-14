@@ -86,17 +86,25 @@ test('local CPU model remains a separate exact-ID route (never misidentified as 
  assert.equal((await tx(T.OLLAMA_ENDPOINT,body)).ok,true);
  assert.equal(n,1);
 });
-test('durable GitHub run history admits only three Groq executions per rolling day',async()=>{
+test('durable GitHub run history counts only actually admitted Groq calls, not old Qwen/failed preflight',async()=>{
  const tmp=fs.mkdtempSync(path.join(os.tmpdir(),'dev-groq-'));
  try{
   const now=Date.parse('2026-11-15T12:00:00Z');
   const self={id:1234567890,event:'issue_comment',created_at:'2026-11-15T11:59:00Z'};
   const earlier=i=>({id:2000+i,event:'issue_comment',created_at:'2026-11-15T10:00:00Z'});
-  const fake=(others=[])=>async()=>({ok:true,redirected:false,json:async()=>({
-   total_count:1+others.length,workflow_runs:[self,...others]})});
   const e=env(tmp);
-  assert.equal((await Q.admit(e,fake([earlier(1),earlier(2)]),now)).status,'GROQ_FREE_GITHUB_QUOTA_ADMITTED');
-  await assert.rejects(()=>Q.admit(e,fake([earlier(1),earlier(2),earlier(3)]),now),/GROQ_FREE_DAILY_RUN_LIMIT_REACHED/);
+  const accepted=new Set([2001,2002]);
+  const fake=(others=[],acceptedIds=accepted)=>async(url)=>{
+   const jobsId=/\/actions\/runs\/(\d+)\/jobs/.exec(url);
+   const payload=jobsId
+    ?{jobs:[{steps:[{name:'Require Free-only Groq key and provider quota (no paid fallback)',
+       conclusion:acceptedIds.has(Number(jobsId[1]))?'success':'failure'}]}]}
+    :{total_count:1+others.length,workflow_runs:[self,...others]};
+   return {ok:true,redirected:false,json:async()=>payload};
+  };
+  assert.equal((await Q.admit(e,fake([earlier(1),earlier(2),earlier(3)]),now)).prior,2);
+  await assert.rejects(()=>Q.admit(e,fake([earlier(1),earlier(2),earlier(3)],new Set([2001,2002,2003])),now),/GROQ_FREE_DAILY_RUN_LIMIT_REACHED/);
+  assert.equal((await Q.admit(e,fake(Array.from({length:7},(_,i)=>earlier(i+20)),new Set()),now)).prior,0);
   await assert.rejects(()=>Q.admit({...e,GITHUB_RUN_ATTEMPT:'2'},fake([]),now),/GROQ_QUOTA_GITHUB_CONTEXT_REQUIRED/);
   await assert.rejects(()=>Q.admit(e,async()=>({ok:false,status:403,redirected:false}),now),/GROQ_QUOTA_GITHUB_HTTP_REJECTED/);
  }finally{fs.rmSync(tmp,{recursive:true,force:true})}
