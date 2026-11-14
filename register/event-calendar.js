@@ -1,4 +1,12 @@
 /* Shared CZ/EN/RU/UA calendar over the same verified RSVP event catalog. */
+/* Display-only translations. Keep the original event_id for server requests. */
+function eventTitle(e) {
+  return window.ImperionEventI18n?.title(e,lang) || String(e?.title || '');
+}
+function eventVenue(e) {
+  return window.ImperionEventI18n?.venue(e,lang) || String(e?.venue || '');
+}
+
 const CALENDAR_COPY={
  cs:{heading:'Kalendář akcí',prev:'Předchozí měsíc',next:'Další měsíc',hint:'Klikněte na den s ikonou. Dostupnost přihlášek se zobrazí u vybrané akce.',onDay:'Akce dne'},
  en:{heading:'Event calendar',prev:'Previous month',next:'Next month',hint:'Select a day with an icon. Registration availability appears beside the selected event.',onDay:'Events on'},
@@ -46,7 +54,7 @@ function calendarRenderDayOptions(entries,dayKey){
    const icon=document.createElement('span');icon.textContent=calendarIcon(e);icon.setAttribute('aria-hidden','true');
    const caption=document.createElement('span');
    const t=window.ImperionCalendarPolicy?.langData(lang);
-   caption.textContent=draft?(e.local_day+' · 18:00 · '+t.title+' — '+t.status):(eventDate(e)+' · '+e.title+' — '+statusLabel(e));
+   caption.textContent=draft?(e.local_day+' · 18:00 · '+t.title+' — '+t.status):(eventDate(e)+' · '+eventTitle(e)+' — '+statusLabel(e));
    button.append(icon,caption);
    if(draft){button.href=window.ImperionCalendarPolicy.enquire(lang,e.local_day);button.target='_blank';button.rel='noopener noreferrer';}
    else button.addEventListener('click',()=>chooseEvent(e.event_id));
@@ -93,9 +101,9 @@ function renderCalendar(){
    if(entries.length){
      cell.type='button';
      const label=calendarDayLabel(calendarYear,calendarMonth,day);
-     cell.setAttribute('aria-label',label+': '+entries.map(e=>e.provisional?window.ImperionCalendarPolicy.langData(lang).title+' — '+window.ImperionCalendarPolicy.langData(lang).status:e.title+' ('+statusLabel(e)+')').join('; '));
+     cell.setAttribute('aria-label',label+': '+entries.map(e=>e.provisional?window.ImperionCalendarPolicy.langData(lang).title+' — '+window.ImperionCalendarPolicy.langData(lang).status:eventTitle(e)+' ('+statusLabel(e)+')').join('; '));
      cell.setAttribute('aria-pressed',String(key===selectedKey));
-     cell.title=entries.map(e=>e.provisional?('🛡️ '+e.local_day+' · 18:00 · '+window.ImperionCalendarPolicy.langData(lang).status):(calendarIcon(e)+' '+eventDate(e)+' · '+e.title+' — '+statusLabel(e))).join('\n');
+     cell.title=entries.map(e=>e.provisional?('🛡️ '+e.local_day+' · 18:00 · '+window.ImperionCalendarPolicy.langData(lang).status):(calendarIcon(e)+' '+eventDate(e)+' · '+eventTitle(e)+' — '+statusLabel(e))).join('\n');
      cell.addEventListener('click',()=>{
        if(entries.length===1&&!entries[0].provisional){chooseEvent(entries[0].event_id)}
        else{calendarExpandedDay=calendarExpandedDay===key?'':key;renderCalendar()}
