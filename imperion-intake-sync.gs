@@ -1090,6 +1090,33 @@ function impSendApprovedChatInvites_(ss,cfg){
  return {sent:sent,failed:failed};
 }
 
+/** SpreadsheetApp.getValues() can return Google Sheets date serial numbers in
+ * unformatted imported rows. new Date(number) means UNIX milliseconds (1970),
+ * NOT the civil Sheets date. Convert the serial safely before retention cleanup.
+ */
+function impRetentionDate_(value,timezone){
+ if(value instanceof Date)return isFinite(value.getTime())?value:null;
+ var serial=null;
+ if(typeof value==='number')serial=value;
+ else if(typeof value==='string'&&/^[0-9]{5,6}(?:[.,][0-9]+)?$/.test(value.trim()))
+   serial=Number(value.trim().replace(',','.'));
+ if(serial!==null){
+  if(!isFinite(serial)||serial<20000||serial>200000)return null;
+  var wallMs=Date.UTC(1899,11,30)+Math.round(serial*86400000);
+  var utcOffset=Utilities.formatDate(new Date(wallMs),timezone||'Europe/Prague','Z');
+  if(!/^[+-][0-9]{4}$/.test(utcOffset))return null;
+  var sign=utcOffset[0]==='-'?-1:1;
+  var mins=sign*(Number(utcOffset.slice(1,3))*60+Number(utcOffset.slice(3,5)));
+  var date=new Date(wallMs-mins*60000);
+  return isFinite(date.getTime())?date:null;
+ }
+ if(typeof value==='string'&&/^[0-9]{4}-[0-9]{2}-[0-9]{2}(?:[T ][0-9]{2}:[0-9]{2})?/.test(value.trim())){
+  var iso=new Date(value.trim());
+  return isFinite(iso.getTime())?iso:null;
+ }
+ return null;
+}
+
 function imperionCleanupPrivateIntake(){
   var cfg=impPrivateConfig_(),ss=SpreadsheetApp.openById(cfg.sheetId),now=new Date(),cleared=0;
   var r=ss.getSheetByName('Registrations');
@@ -1103,8 +1130,8 @@ function imperionCleanupPrivateIntake(){
     rows.forEach(function(x,i){
       var source=String(x[m.Source_Channel]||'');
       if(!/^WEBSITE_RSVP_SUPABASE_/.test(source)||source.endsWith('_PURGED'))return;
-      var date=x[m.Retention_Until] instanceof Date?x[m.Retention_Until]:new Date(x[m.Retention_Until]);
-      if(!isFinite(date.getTime())||date>now)return;
+      var date=impRetentionDate_(x[m.Retention_Until],ss.getSpreadsheetTimeZone());
+      if(!date||date>now)return;
       privateCols.forEach(function(n){if(m[n]!==undefined)r.getRange(i+2,m[n]+1).clearContent()});
       r.getRange(i+2,m.Source_Channel+1).setValue('WEBSITE_RSVP_SUPABASE_PURGED');
       cleared++;
