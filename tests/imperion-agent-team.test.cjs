@@ -300,6 +300,7 @@ test('Sales4 model guard is wired into EXISTING Agent3 preview and fail-closed b
 });
 test('independent verified 4B runtime may be previewed but never executes',async()=>{
   const runtime={pc_online:true,ollama_loopback_healthy:true,
+    inference_backend:'OLLAMA_CPU_ONLY',cpu_inference_verified:true,
     endpoint:'http://127.0.0.1:11434',local_private_processing_approved:true,
     selected_model:'imperion-qwen35:4b',installed_models:['imperion-qwen35:4b'],
     model_fixture_passed:true,model_hallucination_gate_passed:true};
