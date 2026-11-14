@@ -259,19 +259,20 @@
     if(e.provisional)return window.ImperionCalendarPolicy.langData(lang).title;
     if(e.event_id==='PUB-OREL-20261114')return ({cs:'Šerm pro začátečníky · bezplatný workshop',en:'Try historical fencing · free workshop',ru:'Попробуй фехтование · бесплатный воркшоп',uk:'Спробуйте фехтування · безплатний воркшоп'})[lang];
     if(e.category==='HEMA Training' && group(e)==='club')return ({cs:'Historický šerm · Družina Moravy',en:'Historical fencing · Družina Moravy',ru:'Историческое фехтование · Družina Moravy',uk:'Історичне фехтування · Družina Moravy'})[lang];
-    return e.title;
+    return window.ImperionEventI18n?.title(e,lang) || e.title;
   }
   function publicDescription(e){
     if(e.provisional)return window.ImperionCalendarPolicy.langData(lang).detail;
     if(e.event_id==='PUB-OREL-20261114')return ({cs:'Úvodní workshop v Orlovně Husovice. Vstup zdarma, účast až po osobním potvrzení organizátorem.',en:'Introductory workshop at Orlovna Husovice. Free entry, attendance only after personal confirmation.',ru:'Вводный воркшоп в Orlovna Husovice. Бесплатно, участие только после личного подтверждения организатора.',uk:'Вступний воркшоп в Orlovna Husovice. Безплатно, участь лише після особистого підтвердження.'})[lang];
     if(e.category==='HEMA Training' && group(e)==='club')return ({cs:'Pohyb, historický šerm a společný trénink. Bezpečné místo a účast vždy potvrdí organizátor.',en:'Movement, historical fencing and group training. The organiser must confirm the safe venue and your place.',ru:'Движение, историческое фехтование и тренировка в группе. Место и участие организатор подтверждает лично.',uk:'Рух, історичне фехтування та групове тренування. Безпечне місце й участь організатор підтверджує особисто.'})[lang];
-    return typeof e.public_note==='string'&&e.public_note.trim()?e.public_note.slice(0,330):tr('controller');
+    var note=window.ImperionEventI18n?.note(e,lang) || e.public_note;
+    return typeof note==='string'&&note.trim()?note.slice(0,330):tr('controller');
   }
   function publicVenue(e){
     if(e.provisional)return 'Brno · '+window.ImperionCalendarPolicy.langData(lang).status;
     if(e.category==='HEMA Training' && group(e)==='club' && e.event_id!=='PUB-OREL-20261114')
       return ({cs:'Brno · přesný sraz až po potvrzení',en:'Brno · exact location after confirmation',ru:'Брно · место сообщим после подтверждения',uk:'Брно · місце після підтвердження'})[lang];
-    return e.venue||tr('controller');
+    return window.ImperionEventI18n?.venue(e,lang) || e.venue || tr('controller');
   }
   function icon(e){
     var s=[e.category,e.title].join(' ').toLowerCase();
@@ -457,7 +458,7 @@
     var more=el('fdMore');more.textContent=tr('details');more.href=paths[g];
     var variants=el('fdVariants');variants.replaceChildren();variants.hidden=opts.length<2;
     if(opts.length>1)opts.forEach(function(option){
-      var b=document.createElement('button');b.type='button';b.setAttribute('aria-pressed',String(option.event_id===event.event_id));b.textContent=icon(option)+' '+timeOf(option)+' · '+option.title;
+      var b=document.createElement('button');b.type='button';b.setAttribute('aria-pressed',String(option.event_id===event.event_id));b.textContent=icon(option)+' '+timeOf(option)+' · '+publicTitle(option);
       b.addEventListener('click',function(){selectedId=option.event_id;renderDetail(key);});variants.appendChild(b);
     });
   }
@@ -510,7 +511,7 @@
       var evs=eventsForDay(key);
       if(evs.length&&!firstWithEvents)firstWithEvents=key;
       var item=document.createElement(evs.length?'button':'span');item.className='fd-day'+(key===today?' fd-today':'')+(key<today?' fd-past':'')+(evs.some(function(e){return e.provisional;})?' fd-day-recurring':'');
-      if(evs.length){item.type='button';item.setAttribute('aria-label',key+' · '+evs.map(function(e){return e.title;}).join('; '));item.setAttribute('aria-pressed',String(key===chosenDay));item.addEventListener('click',function(k){return function(){chosenDay=k;selectedId='';sendSignal('calendar_day_select','calendar');render();openEventModal(k);};}(key));}
+      if(evs.length){item.type='button';item.setAttribute('aria-label',key+' · '+evs.map(function(e){return publicTitle(e);}).join('; '));item.setAttribute('aria-pressed',String(key===chosenDay));item.addEventListener('click',function(k){return function(){chosenDay=k;selectedId='';sendSignal('calendar_day_select','calendar');render();openEventModal(k);};}(key));}
       var number=document.createElement('span');number.className='fd-daynum';number.textContent=day;item.appendChild(number);
       if(evs.length){
         var icons=document.createElement('span');icons.className='fd-dayicons';
