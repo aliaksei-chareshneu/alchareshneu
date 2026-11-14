@@ -194,6 +194,10 @@ jobs:
         run: npx playwright test tests/site-conversion-v5.spec.cjs --workers=2
       - name: Test conversion-first event calendar, accessibility and two layouts
         run: npx playwright test tests/conversion-frontdoor.spec.cjs --workers=2
+      - name: Verify direct B2B, lesson, walks and HEMA routes in four languages
+        run: |
+          node --check intent-direct-paths.js
+          npx playwright test tests/direct-intent-paths.spec.cjs --workers=2
       - name: Test homepage v4 navigation, dual actions and city-aware timed event badges
         run: npx playwright test tests/frontdoor-v4-nav-calendar.spec.cjs --workers=2
       - name: Check cinematic Czech-default homepage, event rail and payment disclosure

@@ -51,6 +51,8 @@ test('visible homepage paths preserve language and open course catalogue', async
 });
 
 test('a direct free HEMA workshop route exists in all four languages', async ({ page }) => {
+  // This fixture tests the announced free event while it is still in progress.
+  await page.clock.install({time:new Date('2026-11-14T07:30:00+01:00')});
   for (const lang of ['en', 'cs', 'ru', 'uk']) {
     await page.goto('/start/?lang=' + lang);
     const eventLink = page.locator('.locale:visible .card').nth(4).locator('a.secondary[href^="../druzina/start/"]');
@@ -63,6 +65,8 @@ test('a direct free HEMA workshop route exists in all four languages', async ({ 
 });
 
 test('source labels survive language switch and follow-up routes without a tracking pixel', async ({ page }) => {
+  // This fixture tests the announced free event while it is still in progress.
+  await page.clock.install({time:new Date('2026-11-14T07:30:00+01:00')});
   await page.goto('/start/?lang=en&utm_source=instagram&utm_medium=profile&utm_campaign=nov2026');
   const corporate = new URL(await page.locator('.locale:visible .card').first().locator('a.primary').getAttribute('href'), page.url());
   expect(corporate.searchParams.get('src')).toBe('start_company');
