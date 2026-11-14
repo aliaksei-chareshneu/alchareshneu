@@ -48,3 +48,27 @@ test('Transactional receipt requests one reply only for eligible free HEMA event
  assert.match(s,/Number\(receiptEvent\.price_czk\)===0/);
  assert.match(s,/impRsvpReceiptCopy_\(lang,v\('RSVP_Status'\),requireAttendanceReply\)/);
 });
+
+test('Unformatted Google Sheets serial dates never trigger 1970 premature privacy cleanup',()=>{
+ const gs=fs.readFileSync(path.join(root,'imperion-intake-sync.gs'),'utf8');
+ const start=gs.indexOf('function impRetentionDate_(');
+ const end=gs.indexOf('function imperionCleanupPrivateIntake(',start);
+ assert.ok(start>=0&&end>start,'isolated retention parser');
+ const vm=require('node:vm');
+ const ctx=vm.createContext({Utilities:{formatDate:(d,tz,pattern)=>{
+  assert.equal(tz,'Europe/Prague');
+  assert.equal(pattern,'Z');
+  return '+0100';
+ }}});
+ vm.runInContext(gs.slice(start,end),ctx,{timeout:1000});
+ const asIso=expr=>vm.runInContext(expr,ctx,{timeout:1000});
+ assert.equal(asIso('impRetentionDate_(46430.60416666667,"Europe/Prague").toISOString()'),
+  '2027-02-12T13:30:00.000Z');
+ assert.equal(asIso('impRetentionDate_("46430,60416666667","Europe/Prague").toISOString()'),
+  '2027-02-12T13:30:00.000Z');
+ assert.equal(asIso('impRetentionDate_(new Date("2027-02-12T13:30:00.000Z"),"Europe/Prague").toISOString()'),
+  '2027-02-12T13:30:00.000Z');
+ assert.equal(asIso('impRetentionDate_(0,"Europe/Prague")'),null);
+ assert.equal(asIso('impRetentionDate_("not-a-date","Europe/Prague")'),null);
+ assert.match(gs,/if\(!date\|\|date>now\)return;/);
+});
