@@ -74,6 +74,10 @@ function modelRoute(request={}, runtime={}) {
       runtime.endpoint!=='http://127.0.0.1:11434'||
       runtime.local_private_processing_approved!==true)
     return fail('LOCAL_PRIVATE_MODEL_NOT_VERIFIED');
+  // Owner PC CUDA kernel image invalid: only CPU-only local inference
+  // passed an actual synthetic queued -> draft smoke test.
+  if(runtime.inference_backend!=='OLLAMA_CPU_ONLY'||runtime.cpu_inference_verified!==true)
+    return fail('CPU_ONLY_RUNTIME_PROOF_REQUIRED');
   const model=str(runtime.selected_model);
   if(WEAK_LOCAL.has(model))return fail('WEAK_0_6B_REJECTED_FOR_CUSTOMER_DRAFT');
   if(!GOOD_LOCAL.has(model))return fail('MODEL_NOT_IN_REVIEWED_ALLOWLIST');
