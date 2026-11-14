@@ -172,7 +172,8 @@ a{color:var(--mint)}button,input,select{font:inherit}button{cursor:pointer}.skip
   <footer><span>© 2026 · Družina Moravy, z. s. / BrnoWalkers / Aliaksei Chareshneu OSVČ</span><nav class="bottom"><a href="../privacy/" data-i18n="privacyLink">Приватність</a><a href="../safety/" data-i18n="safetyLink">Безпека</a><a href="../../calendar/" data-i18n="eventsLink">Календар</a><a href="../../" data-i18n="homeLink">На головну</a></nav></footer>
 </div>
 <script src="../../site-calendar-policy.js?v=20261113c"></script>
-<script src="../event-calendar.js"></script>
+<script src="../event-i18n.js?v=20261114-l10n1"></script>
+<script src="../event-calendar.js?v=20261114-l10n1"></script>
 <script src="../calendar-standalone.js"></script>
 <script src="../training-payment.js"></script>
 <script>
@@ -219,12 +220,12 @@ const CONTACT_COPY={
 };
 function contactChannels(event){
  const tr=CONTACT_COPY[lang]||CONTACT_COPY.cs;
- const msg=event?tr.request+' «'+event.title+'» ('+eventDate(event)+').':tr.fallback;
+ const msg=event?tr.request+' «'+eventTitle(event)+'» ('+eventDate(event)+').':tr.fallback;
  return [
   {name:'WhatsApp',url:'https://wa.me/420702914842?text='+encodeURIComponent(msg)},
   {name:'Telegram',url:'https://t.me/Chareshneu'},
   {name:'SMS',url:'sms:+420702914842?body='+encodeURIComponent(msg)},
-  {name:'E-mail',url:'mailto:chereshnev.biochem@gmail.com?subject='+encodeURIComponent(event?'Event: '+event.title:'Event registration')+'&body='+encodeURIComponent(msg)}
+  {name:'E-mail',url:'mailto:chereshnev.biochem@gmail.com?subject='+encodeURIComponent(event?'Event: '+eventTitle(event):'Event registration')+'&body='+encodeURIComponent(msg)}
  ];
 }
 function renderEventContacts(info,event,action){
@@ -251,14 +252,14 @@ uk:{search:"Знайти подію, місце або дату…",total:"По�
 function ct(k){return catalogText[lang]?.[k]||catalogText.en[k]||k}
 function eventMode(e){if(!e)return null;if(e.registration_mode==='CONTACT')return 'CONTACT';const starts=Date.parse(e.begins_at);if(e.registration_mode!=='FORM'||e.is_open!==true||e.price_verified!==true||e.end_time_verified!==true||!Number.isFinite(starts)||starts<=Date.now())return 'PLANNED';return 'FORM'}
 function eventDate(e){return new Intl.DateTimeFormat(lang==='uk'?'uk-UA':lang==='ru'?'ru-RU':lang==='cs'?'cs-CZ':'en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',timeZone:'Europe/Prague'}).format(new Date(e.begins_at))}
-function eventLabel(e){return eventDate(e)+' · '+e.title}
+function eventLabel(e){return eventDate(e)+' · '+eventTitle(e)}
 function statusLabel(e){return ct(eventMode(e)==='FORM'?'open':eventMode(e)==='CONTACT'?'manual':'planned')}
 function closeMatches(){$('eventMatches').hidden=true;$('eventSearch').setAttribute('aria-expanded','false')}
 function chooseEvent(id){const e=events.find(v=>v.event_id===id);if(!e)return;$('eventId').value=id;$('eventSearch').value=eventLabel(e);closeMatches();showEvent();if(typeof renderCalendar==='function'){calendarJumpTo(calendarDayKey(e));calendarExpandedDay='';renderCalendar()}}
 function renderMatches(){
  const list=$('eventMatches'),val=$('eventSearch').value.trim().toLocaleLowerCase(),selected=events.find(v=>v.event_id===$('eventId').value);
  const q=selected&&val===eventLabel(selected).toLocaleLowerCase()?'':val;list.replaceChildren();
- const hits=events.filter(e=>(e.title+' '+e.category+' '+e.community+' '+e.venue+' '+eventDate(e)+' '+statusLabel(e)).toLocaleLowerCase().includes(q));
+ const hits=events.filter(e=>(eventTitle(e)+' '+e.category+' '+e.community+' '+eventVenue(e)+' '+eventDate(e)+' '+statusLabel(e)).toLocaleLowerCase().includes(q));
  if(!hits.length){const empty=document.createElement('p');empty.className='match-empty';empty.textContent=ct('empty');list.append(empty)}
  for(const e of hits){
    const item=document.createElement('button');item.type='button';item.setAttribute('role','option');item.className='match-option';
@@ -310,9 +311,9 @@ function showEvent(){
  info.replaceChildren();$('rsvpDetails').hidden=mode!=='FORM';$('submit').disabled=submitting||mode!=='FORM';
  window.ImperionTrainingPayment?.render(e,lang,mode);
  if(!e){info.hidden=true;return}info.hidden=false;
- const top=document.createElement('p');const strong=document.createElement('strong');strong.textContent=e.title;top.append(strong);info.append(top);
+ const top=document.createElement('p');const strong=document.createElement('strong');strong.textContent=eventTitle(e);top.append(strong);info.append(top);
  const meta=document.createElement('p');const groupPrice=window.ImperionTrainingPayment?.catalogPrice(e,lang);
- meta.textContent=eventDate(e)+' · '+e.venue+' · '+(groupPrice||(e.price_verified===false?t('payment'):Number(e.price_czk)===0?t('free'):Number(e.price_czk)+' Kč'));info.append(meta);
+ meta.textContent=eventDate(e)+' · '+eventVenue(e)+' · '+(groupPrice||(e.price_verified===false?t('payment'):Number(e.price_czk)===0?t('free'):Number(e.price_czk)+' Kč'));info.append(meta);
  const status=document.createElement('p');status.className='event-state';status.textContent=statusLabel(e);info.append(status);
  const note=document.createElement('p');note.textContent=mode==='FORM'?t('unconfirmed'):ct(mode==='CONTACT'?'manualNote':'planNote');info.append(note);
  if((e.event_id==='PUB-WALK-TALK-20261115'||e.event_id==='PUB-WALK-TALK-20261118') && mode==='FORM'){
@@ -367,13 +368,13 @@ const RECEIPT_CONTACT={
 };
 function receiptContacts(el,eventData,body,payload){
  const d=RECEIPT_CONTACT[lang]||RECEIPT_CONTACT.cs;
- const message=[d.intro,eventData?.title||body.eventId,eventData?eventDate(eventData):'',body.rsvp==='YES'?d.yes:body.rsvp==='MAYBE'?d.maybe:d.no].filter(Boolean).join('\n');
+ const message=[d.intro,eventData?eventTitle(eventData):body.eventId,eventData?eventDate(eventData):'',body.rsvp==='YES'?d.yes:body.rsvp==='MAYBE'?d.maybe:d.no].filter(Boolean).join('\n');
  const prompt=document.createElement('p');prompt.textContent=d.prompt;el.append(prompt);
  const actions=document.createElement('div');actions.className='receipt-actions';
  const links=[
   ['Telegram','https://t.me/Chareshneu'],
   ['WhatsApp','https://wa.me/420702914842?text='+encodeURIComponent(message)],
-  ['Email','mailto:chereshnev.biochem@gmail.com?subject='+encodeURIComponent(d.subject+' · '+(eventData?.title||body.eventId))+'&body='+encodeURIComponent(message)]
+  ['Email','mailto:chereshnev.biochem@gmail.com?subject='+encodeURIComponent(d.subject+' · '+(eventData?eventTitle(eventData):body.eventId))+'&body='+encodeURIComponent(message)]
  ];
  for(const [label,url] of links){
   const a=document.createElement('a');a.href=url;a.textContent=label;
@@ -427,8 +428,8 @@ function receiptContacts(el,eventData,body,payload){
 }
 function showReceipt(eventData,body,payload){
  const dict=RECEIPT_TEXT[lang]||RECEIPT_TEXT.cs,el=$('result');el.replaceChildren();
- const records=[[dict.event,eventData?.title||body.eventId],[dict.email,body.email]];
- if(eventData){records.splice(1,0,[dict.date,eventDate(eventData)],[dict.place,eventData.venue||dict.pending],
+ const records=[[dict.event,eventData?eventTitle(eventData):body.eventId],[dict.email,body.email]];
+ if(eventData){records.splice(1,0,[dict.date,eventDate(eventData)],[dict.place,eventVenue(eventData)||dict.pending],
    [dict.price,payload.quotedTotalCzk!==undefined?String(payload.quotedTotalCzk)+' Kč':(window.ImperionTrainingPayment?.catalogPrice(eventData,lang)||(eventData.price_verified===true?(eventData.price_czk===0?t('free'):String(eventData.price_czk)+' Kč'):t('payment')))]);}
  if(payload.reference)records.unshift([dict.reference,payload.reference]);
  const h=document.createElement('h3');h.textContent=dict.title;el.appendChild(h);
