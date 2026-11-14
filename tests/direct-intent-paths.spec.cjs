@@ -71,7 +71,7 @@ test('selected walk preserves allowlisted source to the existing registration fo
   expect(u.searchParams.get('src')).toBe('frontdoor_fast_walkers');
   expect(u.searchParams.get('utm_source')).toBe('telegram');
 });
-test('free 14 Nov HEMA workshop remains listed before completion and expires afterward',async({page})=>{
+test('free 14 Nov HEMA workshop remains listed before start and closes at start',async({page})=>{
   await page.clock.install({time:new Date('2026-11-14T07:30:00+01:00')});
   await page.goto('/start/?lang=cs');
   const old=page.locator('.locale:visible a[data-event-expires]');
