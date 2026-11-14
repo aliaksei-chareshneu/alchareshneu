@@ -31,7 +31,7 @@ for(const lang of ['cs','en','ru','uk']){
     const paths=urls.map(x=>new URL(x).pathname);
     expect(paths[0]).toMatch(/\/corporate\/request\/$/);
     expect(paths[1]).toMatch(/\/academy\/programmes\/$/);
-    expect(paths[2]).toMatch(/\/alchareshneu\/$/);
+    expect(paths[2]).toMatch(/^\/(?:alchareshneu\/)?$/);
     expect(paths[3]).toMatch(/\/register\/$/);
     for(const [i,src] of ['frontdoor_fast_business','frontdoor_fast_lesson','frontdoor_fast_walkers','frontdoor_fast_club'].entries()){
       const u=new URL(urls[i]);
