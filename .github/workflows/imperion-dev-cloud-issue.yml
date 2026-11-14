@@ -38,6 +38,7 @@ jobs:
     if: >-
       (github.event_name == 'pull_request' &&
        github.event.pull_request.head.repo.full_name == github.repository &&
+       github.event.pull_request.user.login == 'aliaksei-chareshneu' &&
        (startsWith(github.event.pull_request.head.ref, 'agent/imperion-dev-cloud-') ||
         (github.event.pull_request.head.ref == 'agent/imperion-dev-stage8-20261111' ||
          github.event.pull_request.head.ref == 'agent/imperion-dev-any-owner-issue-20261111'))) ||
