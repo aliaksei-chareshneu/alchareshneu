@@ -9,7 +9,8 @@ const MODELS=Object.freeze({
 });
 const ALLOWED_MODELS=Object.freeze([...MODELS.groq,...MODELS.ollama]);
 function selectedProvider(env=process.env){
- const provider=env.IMPERION_DEV_PROVIDER||DEFAULT_PROVIDER;
+ const value=env.IMPERION_DEV_PROVIDER;
+ const provider=value===undefined||value===''?DEFAULT_PROVIDER:value;
  if(!Object.hasOwn(MODELS,provider))throw Error('IMPERION_DEV_PROVIDER_NOT_ALLOWED');
  return provider;
 }
