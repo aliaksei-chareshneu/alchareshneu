@@ -76,7 +76,7 @@ test('free 14 Nov HEMA workshop remains listed before completion and expires aft
   await page.goto('/start/?lang=cs');
   const old=page.locator('.locale:visible a[data-event-expires]');
   await expect(old).toBeVisible();
-  await page.clock.setFixedTime(new Date('2026-11-14T15:00:00+01:00'));
+  await page.clock.setFixedTime(new Date('2026-11-14T12:05:00+01:00'));
   await page.reload();
   await expect(page.locator('.locale:visible a[data-event-expires]')).toBeHidden();
   await expect(page.locator('.locale:visible .card').nth(4).locator('a.primary')).toBeVisible();
