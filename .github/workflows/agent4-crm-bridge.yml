@@ -6,6 +6,16 @@ on:
       - 'ops/imperion-agent4-crm-sync.py'
       - 'tests/imperion-agent4-crm-bridge.test.cjs'
       - 'tests/test_agent4_crm_sync.py'
+      - 'tests/test_agent4_supabase_sync.py'
+      - 'tests/imperion-agent4-crm-pull.test.cjs'
+      - 'ImperionAgent4CrmPull.gs'
+      - 'supabase/functions/imperion-agent4-transport/**'
+      - 'supabase/migrations/*agent4*'
+      - 'tests/test_agent4_supabase_sync.py'
+      - 'tests/imperion-agent4-crm-pull.test.cjs'
+      - 'ImperionAgent4CrmPull.gs'
+      - 'supabase/functions/imperion-agent4-transport/**'
+      - 'supabase/migrations/*agent4*'
       - '.github/workflows/agent4-crm-bridge.yml'
   push:
     paths:
@@ -30,6 +40,6 @@ jobs:
         with:
           python-version: '3.11'
       - name: Prove legal-controller, owner-OAuth and CRM idempotency (NO providers)
-        run: node --test tests/imperion-agent4-crm-bridge.test.cjs
+        run: node --test tests/imperion-agent4-crm-bridge.test.cjs tests/imperion-agent4-crm-pull.test.cjs
       - name: Prove local source provenance, opt-out and double readback (NO providers)
-        run: python -m unittest discover -s tests -p 'test_agent4_crm_sync.py' -q
+        run: python -m unittest discover -s tests -p 'test_agent4_*sync.py' -q
