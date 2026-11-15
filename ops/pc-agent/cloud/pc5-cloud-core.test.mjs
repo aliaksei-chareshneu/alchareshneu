@@ -161,3 +161,21 @@ test('strongest paid model is not authorized; newest vision is synthetic-only',(
     'nvidia/nemotron-3.5-super-vl:free');
   assert.equal(PC5_MODEL_POLICY.free_vision_on_private_windows_screen_allowed,false);
 });
+
+test('provider helpers never receive Supabase secrets or unrelated environment fields',()=>{
+  const exposed={...env,OPENROUTER_API_KEY:'FAKE_OPENROUTER',
+    IMPERION_OPENROUTER_FREE_VERIFIED:'1',
+    OPENROUTER_FREE_MODEL:'nvidia/nemotron-3-ultra-550b-a55b:free',
+    SUPABASE_SERVICE_ROLE_KEY:'sensitive_server_credential_example',
+    PRIVATE_CLIENT_DATA:'do_not_pass',PAYMENT_KEY:'do_not_pass'};
+  for(const params of [exposed,{...exposed,OPENROUTER_API_KEY:''}]){
+    const pick=selectFreeProvider(params);
+    assert.ok(pick);
+    assert.deepEqual(Object.keys(pick.env).sort(),[
+      'GROQ_API_KEY','IMPERION_GROQ_FREE_VERIFIED',
+      'IMPERION_OPENROUTER_FREE_VERIFIED','OPENROUTER_API_KEY',
+      'OPENROUTER_FREE_MODEL'].sort());
+    assert.equal(JSON.stringify(pick.env).includes('sensitive_server_credential_example'),false);
+    assert.equal(JSON.stringify(pick.env).includes('do_not_pass'),false);
+  }
+});
