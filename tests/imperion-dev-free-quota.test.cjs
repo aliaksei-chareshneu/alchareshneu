@@ -81,7 +81,7 @@ test('resumed project repository_dispatch consumes same eight-run Free admission
  const dispatch=i=>({id:35000+i,event:'repository_dispatch',
   created_at:'2026-11-15T12:45:00Z'});
  const runs=[{...self,event:'repository_dispatch'},...Array.from({length:7},(_,i)=>dispatch(i+1))];
- const synthetic={...env(),GITHUB_EVENT_NAME:'repository_dispatch'};
+ const synthetic={...env(),GITHUB_EVENT_NAME:'repository_dispatch',GITHUB_ACTOR:'github-actions[bot]'};
  const ids=Array.from({length:7},(_,i)=>35000+i+1);
  const result=await Q.admit(synthetic,history(runs,{confirmedIds:ids}).fn,now);
  assert.equal(result.prior,7);
