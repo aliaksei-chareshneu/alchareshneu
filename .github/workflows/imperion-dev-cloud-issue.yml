@@ -547,6 +547,16 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GITHUB_TOKEN: ${{ github.token }}
         run: bash scripts/imperion-dev-project-publish.sh
+      - name: Preserve exact-head SHA as provider-owned Actions verification receipt
+        if: env.IMPERION_DEV_PROJECT_STAGE_ARTIFACT_NAME != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.IMPERION_DEV_PROJECT_STAGE_ARTIFACT_NAME }}
+          path: |
+            ${{ runner.temp }}/imperion-dev-project-publish-target.json
+            ${{ runner.temp }}/imperion-dev-project-created.json
+          if-no-files-found: error
+          retention-days: 10
       - name: Revalidate owner comment, source hash, exact one-file patch and PR idempotency
         if: startsWith(github.event.comment.body, '/imperion-dev cloud')
         shell: bash
