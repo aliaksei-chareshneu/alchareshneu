@@ -128,7 +128,7 @@ const bwPage=fs.readFileSync('walkers/index.html','utf8');
 assert.ok(bwPage.includes('id="bw-community-first"'),'community entry missing');
 assert.ok(bwPage.includes('data-i18n="communityIntro.heading"'),'community value promise missing');
 assert.ok(bwPage.includes('src=BW_COMMUNITY'),'community CTA must identify its source');
-assert.equal((bwPage.match(/communityIntro: \{/g)||[]).length,0,'dictionary uses JSON-literal translations, not guessed object shapes');
+assert.equal((bwPage.match(/communityIntro: \{/g)||[]).length,4,'community entries are present as four literal locale objects');
 assert.equal((bwPage.match(/communityIntro:/g)||[]).length,4,'community value must exist in all four languages');
 const bwStart=bwPage.indexOf('function localizeRegisterLinks(lang) {');
 const bwEnd=bwPage.indexOf('\nfunction render(lang) {',bwStart);
