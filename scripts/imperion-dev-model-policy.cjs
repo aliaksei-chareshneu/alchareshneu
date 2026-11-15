@@ -29,7 +29,9 @@ function assertRuntimeAccess(env=process.env){
   throw Error('GROQ_FREE_ACCESS_NOT_VERIFIED');
  if(provider==='groq'&&
     (!env.GITHUB_REPOSITORY||env.GITHUB_REPOSITORY!=='aliaksei-chareshneu/alchareshneu'||
-     !['pull_request','issue_comment'].includes(env.GITHUB_EVENT_NAME)))
+     !(['pull_request','issue_comment'].includes(env.GITHUB_EVENT_NAME) ||
+       (env.GITHUB_EVENT_NAME==='repository_dispatch' &&
+        env.GITHUB_ACTOR==='github-actions[bot]'))))
   throw Error('GROQ_TRUSTED_GITHUB_EVENT_REQUIRED');
  return {provider,model};
 }

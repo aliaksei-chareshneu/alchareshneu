@@ -132,6 +132,8 @@ function safeWriteProof(result,env){
     stop('RUNNER_CANNOT_RESUME_REJECTED');
   const name=path.resolve(env.RUNNER_TEMP,'imperion-dev-project-stage-proof.json');
   fs.writeFileSync(name,JSON.stringify(result.proof,null,2)+'\n',{flag:'wx',mode:0o600});
+  fs.writeFileSync(path.resolve(env.RUNNER_TEMP,'imperion-dev-project-plan.json'),
+    JSON.stringify(result.plan,null,2)+'\n',{flag:'wx',mode:0o600});
   fs.appendFileSync(env.GITHUB_ENV,
     'IMPERION_DEV_PROJECT_STAGE_PROOF='+name+'\n'+
     'IMPERION_DEV_PROJECT_BASE_SHA='+result.base_sha+'\n'+

@@ -59,7 +59,7 @@ async function admit(env=process.env,fetcher=globalThis.fetch,now=Date.now()){
  const started=Date.parse(self.created_at);
  if(started<cutoff)reject('GROQ_QUOTA_STALE_RUN_REJECTED');
  const prior=runs.filter(x=>x.id!==runId&&
-   (x.event==='issue_comment'||
+   (x.event==='issue_comment'||x.event==='repository_dispatch'||
     (x.event==='pull_request'&&
      Date.parse(x.created_at)<Date.parse(PREVIEW_NO_MODEL_AFTER)))&&
    Number.isFinite(Date.parse(x.created_at))&&
