@@ -1,0 +1,35 @@
+name: P0 Agent4 CRM source bridge safety
+on:
+  pull_request:
+    paths:
+      - 'ImperionAgent4CrmBridge.gs'
+      - 'ops/imperion-agent4-crm-sync.py'
+      - 'tests/imperion-agent4-crm-bridge.test.cjs'
+      - 'tests/test_agent4_crm_sync.py'
+      - '.github/workflows/agent4-crm-bridge.yml'
+  push:
+    paths:
+      - 'ImperionAgent4CrmBridge.gs'
+      - 'ops/imperion-agent4-crm-sync.py'
+      - 'tests/imperion-agent4-crm-bridge.test.cjs'
+      - 'tests/test_agent4_crm_sync.py'
+      - '.github/workflows/agent4-crm-bridge.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  offline-safety:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Prove legal-controller, owner-OAuth and CRM idempotency (NO providers)
+        run: node --test tests/imperion-agent4-crm-bridge.test.cjs
+      - name: Prove local source provenance, opt-out and double readback (NO providers)
+        run: python -m unittest discover -s tests -p 'test_agent4_crm_sync.py' -q
