@@ -14,6 +14,11 @@ on:
       - 'tests/imperion-dev-project-auth.test.cjs'
       - 'scripts/imperion-dev-project-runner.cjs'
       - 'tests/imperion-dev-project-runner.test.cjs'
+      - 'scripts/imperion-dev-project-publish.cjs'
+      - 'scripts/imperion-dev-project-publish.sh'
+      - 'tests/imperion-dev-project-publish.test.cjs'
+      - 'scripts/imperion-dev-project-watch.cjs'
+      - 'tests/imperion-dev-project-watch.test.cjs'
       - 'docs/imperion-dev-multistage.md'
       - 'scripts/imperion-dev-bootstrap.cjs'
       - 'scripts/imperion-dev-bootstrap-qa.sh'
@@ -40,6 +45,10 @@ on:
       - 'tests/imperion-dev-cloud-acceptance.test.cjs'
   issue_comment:
     types: [created]
+  repository_dispatch:
+    types: [imperion-dev-project-resume]
+  schedule:
+    - cron: '17 */4 * * *'
 permissions:
   contents: read
 concurrency:
@@ -55,7 +64,7 @@ jobs:
     if: >-
       (github.event_name == 'pull_request' &&
        github.event.pull_request.head.repo.full_name == github.repository &&
-       github.event.pull_request.user.login == 'aliaksei-chareshneu' &&
+       ((github.event.pull_request.user.login == 'aliaksei-chareshneu' &&
        (startsWith(github.event.pull_request.head.ref, 'agent/imperion-dev-cloud-') ||
         (github.event.pull_request.head.ref == 'agent/imperion-dev-stage18-department-control-20261115' ||
          github.event.pull_request.head.ref == 'agent/imperion-dev-stage17-free-quota-20261115' ||
@@ -63,6 +72,8 @@ jobs:
          github.event.pull_request.head.ref == 'agent/imperion-dev-stage15-multifile-repair-20261115' ||
         github.event.pull_request.head.ref == 'agent/imperion-dev-stage8-20261111' ||
          github.event.pull_request.head.ref == 'agent/imperion-dev-any-owner-issue-20261111'))) ||
+        (github.event.pull_request.user.login == 'github-actions[bot]' &&
+         startsWith(github.event.pull_request.head.ref, 'agent/imperion-dev-project-')))) ||
       (github.event_name == 'issue_comment' &&
        github.repository == 'aliaksei-chareshneu/alchareshneu' &&
        github.actor == 'aliaksei-chareshneu' &&
@@ -72,7 +83,12 @@ jobs:
        (startsWith(github.event.comment.body, '/imperion-dev cloud') ||
         startsWith(github.event.comment.body, '/imperion-dev autonomous') ||
         startsWith(github.event.comment.body, '/imperion-dev bootstrap') ||
-        startsWith(github.event.comment.body, '/imperion-dev department')))
+        startsWith(github.event.comment.body, '/imperion-dev department') ||
+        startsWith(github.event.comment.body, '/imperion-dev project'))) ||
+      (github.event_name == 'repository_dispatch' &&
+       github.repository == 'aliaksei-chareshneu/alchareshneu' &&
+       github.event.action == 'imperion-dev-project-resume' &&
+       github.actor == 'github-actions[bot]')
     runs-on: ubuntu-24.04
     timeout-minutes: 3
     steps:
@@ -83,9 +99,9 @@ jobs:
         with:
           node-version: '22'
       - name: Validate owner, scope, model parser, patch gates and mock cases
-        run: node --test tests/imperion-dev-cloud-issue.test.cjs tests/imperion-dev-cloud-acceptance.test.cjs tests/imperion-dev-draft-tests.test.cjs tests/imperion-dev-autonomous.test.cjs tests/imperion-dev-model-policy.test.cjs tests/imperion-dev-stage12.test.cjs tests/imperion-dev-threefile.test.cjs tests/imperion-dev-failure-feedback.test.cjs tests/imperion-dev-bootstrap.test.cjs tests/imperion-dev-groq-provider.test.cjs tests/imperion-dev-free-quota.test.cjs tests/imperion-dev-department.test.cjs tests/imperion-dev-project-control.test.cjs tests/imperion-dev-project-auth.test.cjs tests/imperion-dev-project-runner.test.cjs
+        run: node --test tests/imperion-dev-cloud-issue.test.cjs tests/imperion-dev-cloud-acceptance.test.cjs tests/imperion-dev-draft-tests.test.cjs tests/imperion-dev-autonomous.test.cjs tests/imperion-dev-model-policy.test.cjs tests/imperion-dev-stage12.test.cjs tests/imperion-dev-threefile.test.cjs tests/imperion-dev-failure-feedback.test.cjs tests/imperion-dev-bootstrap.test.cjs tests/imperion-dev-groq-provider.test.cjs tests/imperion-dev-free-quota.test.cjs tests/imperion-dev-department.test.cjs tests/imperion-dev-project-control.test.cjs tests/imperion-dev-project-auth.test.cjs tests/imperion-dev-project-runner.test.cjs tests/imperion-dev-project-publish.test.cjs tests/imperion-dev-project-watch.test.cjs
       - name: Check advisory witness shell syntax
-        run: bash -n scripts/imperion-dev-witness.sh && bash -n scripts/imperion-dev-repair.sh
+        run: bash -n scripts/imperion-dev-witness.sh && bash -n scripts/imperion-dev-repair.sh && bash -n scripts/imperion-dev-project-publish.sh
       - name: Reject unapproved CPU model before model startup
         run: node scripts/imperion-dev-model-policy.cjs
       - name: Fail closed on bad legacy owner comment, sensitive path or absent trusted test
@@ -97,6 +113,14 @@ jobs:
       - name: Validate owner department scope and independent test without model
         if: github.event_name == 'issue_comment' && startsWith(github.event.comment.body, '/imperion-dev department')
         run: node scripts/imperion-dev-department.cjs --check-event
+      - name: Validate new owner project and existing trusted public test before model
+        if: github.event_name == 'issue_comment' && startsWith(github.event.comment.body, '/imperion-dev project')
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/imperion-dev-project-runner.cjs --check-owner
+      - name: Reject untrusted resume event without a model call
+        if: github.event_name == 'repository_dispatch'
+        run: node -e 'require("./scripts/imperion-dev-project-runner.cjs").verifyDispatch(require(process.env.GITHUB_EVENT_PATH))'
       - name: Reject unapproved new-file request or missing independent test BEFORE model
         if: github.event_name == 'issue_comment' && startsWith(github.event.comment.body, '/imperion-dev bootstrap')
         run: node scripts/imperion-dev-bootstrap.cjs --check-event
@@ -105,7 +129,7 @@ jobs:
     name: cloud-model-coding (Groq Free primary; Ollama reserve)
     # PR previews test deterministic gates only; NEVER consume model Free quota.
     # All permitted owner-issue calls serialize, so GitHub run history cannot race.
-    if: github.event_name == 'issue_comment'
+    if: github.event_name == 'issue_comment' || github.event_name == 'repository_dispatch'
     concurrency:
       group: imperion-dev-single-model-inference-${{ github.repository }}
       cancel-in-progress: false
@@ -131,6 +155,11 @@ jobs:
           node-version: '22'
       - name: Verify allowlisted model transport before credentials are read
         run: node scripts/imperion-dev-model-policy.cjs
+      - name: Recover original owner and exact GitHub CI BEFORE quota or inference
+        if: github.event_name == 'repository_dispatch'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/imperion-dev-project-runner.cjs --resolve
       - name: Require Free-only Groq key and provider quota (no paid fallback)
         if: env.IMPERION_DEV_PROVIDER == 'groq'
         env:
@@ -336,8 +365,25 @@ jobs:
             "$RUNNER_TEMP/imperion-dev-test-vector-result.json" \
             "$RUNNER_TEMP/imperion-dev-advisory-mutation-result.json"
           echo "ADVISORY_MUTATION_VERIFIED_BASELINE_2_FAIL_FIXED_3_PASS_REVIEW_ONLY" >> "$GITHUB_STEP_SUMMARY"
+      - name: Verify predecessor branch exact SHA in existing source checkout
+        if: github.event_name == 'repository_dispatch'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=1 origin "refs/heads/$IMPERION_DEV_PROJECT_BASE_BRANCH"
+          test "$(git rev-parse FETCH_HEAD)" = "$IMPERION_DEV_PROJECT_BASE_SHA"
+          git switch --detach "$IMPERION_DEV_PROJECT_BASE_SHA"
+      - name: Architect first project plan using existing Free-gated model
+        if: github.event_name == 'issue_comment' && startsWith(github.event.comment.body, '/imperion-dev project')
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/imperion-dev-project-runner.cjs --begin
       - name: Department planner and bounded code team, no new files or permissions
-        if: github.event_name == 'issue_comment' && startsWith(github.event.comment.body, '/imperion-dev department')
+        if: >-
+          (github.event_name == 'issue_comment' &&
+           (startsWith(github.event.comment.body, '/imperion-dev department') ||
+            startsWith(github.event.comment.body, '/imperion-dev project'))) ||
+          github.event_name == 'repository_dispatch'
         run: node scripts/imperion-dev-department.cjs --stage
       - name: Stage 11 propose owner-scoped code and advisory generated test
         if: >-
@@ -358,6 +404,8 @@ jobs:
         if: >-
           (github.event_name == 'issue_comment' && startsWith(github.event.comment.body, '/imperion-dev autonomous')) ||
           (github.event_name == 'issue_comment' && startsWith(github.event.comment.body, '/imperion-dev department')) ||
+          (github.event_name == 'issue_comment' && startsWith(github.event.comment.body, '/imperion-dev project')) ||
+          (github.event_name == 'repository_dispatch') ||
           (github.event_name == 'pull_request' && (github.event.pull_request.head.ref == 'agent/imperion-dev-cloud-stage11-autonomous-20261113' ||
             github.event.pull_request.head.ref == 'agent/imperion-dev-cloud-stage11-repair-20261113' ||
              github.event.pull_request.head.ref == 'agent/imperion-dev-cloud-stage12-quality-routing-20261113'))
@@ -381,7 +429,8 @@ jobs:
           node -e 'const p=require(process.argv[1]),W=require("./scripts/imperion-dev-cloud-issue.cjs");
             if(!Array.isArray(p.selected)||p.selected.length<1||p.selected.length>3||
                !p.selected.every(x=>W.safeSourceFile(x))||
-               !p.generated_file.startsWith("tests/generated/imperion-dev-auto"))process.exit(9)' "$proof"
+               !(p.generated_file.startsWith("tests/generated/imperion-dev-auto") ||
+                p.generated_file.startsWith("tests/generated/imperion-dev-project-")))process.exit(9)' "$proof"
           for f in $(node -e 'process.stdout.write(require(process.argv[1]).selected.join(" "))' "$proof"); do
             node --check "$sandbox/$f"
           done
@@ -412,7 +461,11 @@ jobs:
             "$proof" "$RUNNER_TEMP/imperion-dev-autonomous-receipt.json" "$baseline"
           echo "AUTO_TRUSTED_AND_ADVISORY_TESTS_PASS_OWNER_REVIEW_ONLY" >> "$GITHUB_STEP_SUMMARY"
       - name: Second-pass model reviewer (same provider; not independent) after trusted QA
-        if: github.event_name == 'issue_comment' && startsWith(github.event.comment.body, '/imperion-dev department')
+        if: >-
+          (github.event_name == 'issue_comment' &&
+           (startsWith(github.event.comment.body, '/imperion-dev department') ||
+            startsWith(github.event.comment.body, '/imperion-dev project'))) ||
+          github.event_name == 'repository_dispatch'
         run: node scripts/imperion-dev-department.cjs --review
       - name: Independent test-first new module red-green Docker acceptance
         if: github.event_name == 'issue_comment' && startsWith(github.event.comment.body, '/imperion-dev bootstrap')
@@ -433,6 +486,8 @@ jobs:
             ${{ runner.temp }}/imperion-dev-autonomous-receipt.json
             ${{ runner.temp }}/imperion-dev-department-plan.json
             ${{ runner.temp }}/imperion-dev-department-review.json
+            ${{ runner.temp }}/imperion-dev-project-plan.json
+            ${{ runner.temp }}/imperion-dev-project-stage-proof.json
             ${{ runner.temp }}/imperion-dev-bootstrap-proposal.json
             ${{ runner.temp }}/imperion-dev-bootstrap-receipt.json
           if-no-files-found: warn
@@ -455,7 +510,11 @@ jobs:
     needs: cloud-qwen-coding
     # Never write a branch for PR preview. The issue workflow itself must
     # first be reviewed and merged with owner's separate GO.
-    if: github.event_name == 'issue_comment'
+    if: >-
+      always() && (github.event_name == 'schedule' ||
+       (needs.cloud-qwen-coding.result == 'success' &&
+        (github.event_name == 'issue_comment' ||
+         github.event_name == 'repository_dispatch')))
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     permissions:
@@ -470,9 +529,24 @@ jobs:
         with:
           node-version: '22'
       - uses: actions/download-artifact@v4
+        if: github.event_name != 'schedule'
         with:
           name: imperion-dev-cloud-issue-${{ github.run_id }}
           path: ${{ runner.temp }}/imperion-dev-cloud-proof
+      - name: Safely request one scheduled project stage resume, never merge
+        if: github.event_name == 'schedule'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/imperion-dev-project-watch.cjs --watch
+      - name: Publish independently verified project stage as stacked Draft PR
+        if: >-
+          (github.event_name == 'issue_comment' &&
+           startsWith(github.event.comment.body, '/imperion-dev project')) ||
+          github.event_name == 'repository_dispatch'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: bash scripts/imperion-dev-project-publish.sh
       - name: Revalidate owner comment, source hash, exact one-file patch and PR idempotency
         if: startsWith(github.event.comment.body, '/imperion-dev cloud')
         shell: bash
