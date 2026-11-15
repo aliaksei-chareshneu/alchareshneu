@@ -64,7 +64,7 @@ function impSheetStoredDate_(v){
     var s=v.trim();
     // Only unambiguous ISO timestamps. A locale-formatted or empty value
     // requires owner review; it must never cause premature erasure.
-    if(!/^\\d{4}-\\d{2}-\\d{2}(?:T\\d{2}:\\d{2}(?::\\d{2}(?:\\.\\d{1,3})?)?(?:Z|[+-]\\d{2}:\\d{2}))?$/.test(s))return null;
+    if(!/^\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}(?::\d{2}(?:\.\d{1,3})?)?(?:Z|[+-]\d{2}:\d{2}))?$/.test(s))return null;
     var parsed=new Date(s);
     return isFinite(parsed.getTime())?parsed:null;
   }
