@@ -200,6 +200,7 @@ function readback(plan,records,quota='AVAILABLE'){
 // GITHUB_TOKEN suppressing bot pull_request workflows; it does NOT bypass a
 // negative PR-level CI result or independent QA.
 const WORKFLOW_NAME='IMPERION DEV cloud issue coding (review only)';
+const WORKFLOW_ID=412528588; // Exact GitHub provider workflow ID; fail closed if replaced.
 function stageArtifactName(plan,stage,sha){
  if(plan?.schema!==SCHEMA||!/^[a-f0-9]{40}$/.test(sha||'')||
     !Number.isInteger(stage)||stage<1||stage>plan.milestones.length||
@@ -220,8 +221,12 @@ async function providerStageReceipt(pr,plan,stage,get){
  if(!Number.isSafeInteger(runId)||runId<1)block('PROJECT_RECEIPT_RUN_ID_REJECTED');
  const base='https://api.github.com/repos/'+W.REPO+'/actions/runs/'+runId;
  const run=await get(base);
- if(run.id!==runId||run.name!==WORKFLOW_NAME||run.repository?.full_name!==W.REPO||
-    !['issue_comment','repository_dispatch'].includes(run.event)||
+ const expectedRunName=run.event==='repository_dispatch'?
+  'IMPERION DEV project '+plan.project_id+' stage '+stage:WORKFLOW_NAME;
+ if(run.id!==runId||run.workflow_id!==WORKFLOW_ID||
+    run.name!==expectedRunName||run.repository?.full_name!==W.REPO||
+    ((stage===1&&run.event!=='issue_comment')||
+     (stage>1&&run.event!=='repository_dispatch'))||
     run.head_branch!=='main'||run.run_attempt!==1||
     (run.event==='issue_comment'&&run.actor?.login!==OWNER)||
     (run.event==='repository_dispatch'&&run.actor?.login!=='github-actions[bot]'))
@@ -356,7 +361,8 @@ function authorizeStage(proof,live,root){
   }else if(live.action==='imperion-dev-project-resume'&&
     (live.sender?.login==='github-actions[bot]'||live.sender?.login===OWNER)&&
     live.client_payload?.issue===t.issue&&
-    live.client_payload?.comment===t.comment){
+    live.client_payload?.comment===t.comment&&
+    live.client_payload?.stage===stage){
     // The workflow must first fetch the original owner comment and
     // exact-SHA PR/CI readback from GitHub before writing this sealed proof.
     // The dispatcher payload alone NEVER grants the authority to code.

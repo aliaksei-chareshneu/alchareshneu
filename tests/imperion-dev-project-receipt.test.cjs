@@ -26,7 +26,7 @@ const pr={number:801,head:{ref:spec.head,sha},base:{ref:spec.base},
  user:{login:'github-actions[bot]'},draft:true,state:'open',merged_at:null,
  body:spec.marker+'\nPlanned stages: 2\n'+marker};
 function gh(override={}){
- const run={id:runId,name:'IMPERION DEV cloud issue coding (review only)',
+ const run={id:runId,workflow_id:412528588,name:'IMPERION DEV cloud issue coding (review only)',
    event:'issue_comment',head_branch:'main',run_attempt:1,
    repository:{full_name:W.REPO},actor:{login:'aliaksei-chareshneu'},
    status:'completed',conclusion:'success',...override.run};
@@ -97,4 +97,27 @@ test('actual GH REST workflow receipt replaces absent bot PR check, enabling Sta
  assert.equal(records[0].ci_evidence,'ORIGIN_ACTIONS_ARTIFACT');
  assert.equal(P.readback(plan,records).status,'NEXT_DRAFT_STAGE');
  assert.equal(P.readback(plan,records).stage,2);
+});
+
+test('exact provider workflow ID, run title and stage-specific trigger prevent false acceptance',async()=>{
+ await assert.rejects(()=>P.providerStageReceipt(pr,plan,1,
+  gh({run:{workflow_id:1}}).get),/PROJECT_RECEIPT_RUN_PROVENANCE_REJECTED/);
+ await assert.rejects(()=>P.providerStageReceipt(pr,plan,1,
+  gh({run:{event:'repository_dispatch',name:'IMPERION DEV project '+
+    plan.project_id+' stage 1',actor:{login:'github-actions[bot]'}}}).get),
+  /PROJECT_RECEIPT_RUN_PROVENANCE_REJECTED/);
+ const secondSha='5'.repeat(40),second=P.stageSpec(plan,2);
+ const otherPr={...pr,head:{ref:second.head,sha:secondSha},
+  base:{ref:second.base},
+  body:second.marker+'\nGitHub workflow receipt: run='+runId+
+   ' stage=2 sha='+secondSha+' plan='+plan.plan_sha256};
+ const g=gh({run:{event:'repository_dispatch',
+   name:'IMPERION DEV project '+plan.project_id+' stage 2',
+   actor:{login:'github-actions[bot]'}},
+  artifacts:{artifacts:[{name:P.stageArtifactName(plan,2,secondSha),
+    expired:false,size_in_bytes:256,workflow_run:{id:runId}}]}});
+ assert.equal(await P.providerStageReceipt(otherPr,plan,2,g.get),'SUCCESS');
+ await assert.rejects(()=>P.providerStageReceipt(otherPr,plan,2,
+  gh({run:{event:'repository_dispatch',actor:{login:'github-actions[bot]'}}}).get),
+  /PROJECT_RECEIPT_RUN_PROVENANCE_REJECTED/);
 });

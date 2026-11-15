@@ -35,7 +35,7 @@ function mock(p,options={}){
   const seen=[];
   const dispatch={action:'imperion-dev-project-resume',repository:{full_name:REPO},
     sender:{login:'github-actions[bot]'},
-    client_payload:{issue:task.issue,comment:task.comment}};
+    client_payload:{issue:task.issue,comment:task.comment,stage:2}};
   const response=(value,code=200)=>({ok:code===200,redirected:false,
     text:async()=>JSON.stringify(value)});
   const fetcher=async(url,init)=>{
@@ -168,4 +168,26 @@ test('failed owner provenance, wrong plan and untrusted external endpoint stop',
     /RUNNER_ENDPOINT_REJECTED/);
   await assert.rejects(()=>R.getJson(BASE+'/issues/1','bad',m.fetcher),
     /RUNNER_TOKEN_CONTEXT_REJECTED/);
+});
+
+test('repository_dispatch must include exactly one stage; stale stage or injected field blocks',async()=>{
+  const p=plan(),m=mock(p),payload=m.dispatch.client_payload;
+  assert.deepEqual(R.verifyDispatch(m.dispatch),{issue:task.issue,comment:task.comment,stage:2});
+  for(const changed of [
+    {...payload,stage:1},
+    {...payload,stage:5},
+    {issue:payload.issue,comment:payload.comment},
+    {...payload,token:'untrusted'},
+    {...payload,stage:'2'}
+  ]){
+    assert.throws(()=>R.verifyDispatch({...m.dispatch,client_payload:changed}),
+      /RUNNER_DISPATCH_REJECTED/);
+  }
+  const stale={...m.dispatch,client_payload:{...payload,stage:3}};
+  const result=await R.resolveResume(stale,'mock-free-only-token',m.fetcher);
+  assert.equal(result.blocked,true);
+  assert.equal(result.status,'NEXT_DRAFT_STAGE');
+  assert.throws(()=>P.authorizeStage(
+    {owner_event:origin,plan:p,stage:2,readback:[]},stale,process.cwd()),
+    /PROJECT_AUTH_DISPATCH_REJECTED|PROJECT_AUTH_STAGE_NOT_READY/);
 });

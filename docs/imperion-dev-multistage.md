@@ -1,6 +1,6 @@
 # IMPERION Developer #1 — Stage 19 multi-stage control (review-only)
 
-Status: **STAGE 19–23 DRAFT STACK, NOT LIVE ON main**. Stage 22 wires the stage runner to existing Actions, but this code is not active until independently reviewed and merged with explicit owner GO. GitHub Issues, Actions, existing GPT-OSS 120B/Groq Free execution, independent Docker tests and Draft PR publisher remain the only execution infrastructure. No new agent, paid service, database, permission, cron or deployment is introduced here.
+Status: **STAGE 19–24 DRAFT STACK, NOT LIVE ON main**. Stage 22 wires the stage runner to existing Actions, but this code is not active until independently reviewed and merged with explicit owner GO. GitHub Issues, Actions, existing GPT-OSS 120B/Groq Free execution, independent Docker tests and Draft PR publisher remain the only execution infrastructure. No new agent, paid service, database, permission, cron or deployment is introduced here.
 
 ## Problem and boundary
 
@@ -52,3 +52,15 @@ Case: IMP-DEV-PROJECT-STAGE19-20261115; owner OSVČ; new external cost authorize
 ### Acceptance evidence statuses
 
 `PR preview TEST PASS` is not the same as `issue/dispatch model job SUCCESS` and not the same as `provider artifact receipt SUCCESS`. At least one complete owner Issue → model → trusted Docker test → independent-role review → Draft PR → provider Actions receipt → auto-scheduled next Draft PR is still required on the merged exact code before declaring Stage 23 LIVE. Preserve review-only and budget gates throughout.
+
+
+## Stage 24: bounded self-recovery and duplicate suppression
+
+The existing 4-hour scheduler must not spend Free model opportunities forever on a failing stage. A fresh schedule execution performs a GitHub-provider readback of the existing workflow's repository_dispatch run history. Dispatch runs expose a deterministic, provider-owned title naming project ID and stage, and resume payloads MUST exactly match that stage.
+
+- **Maximum 2 attempts for any project stage** across the visible complete GitHub Actions history. A second failure blocks automatic retry; owner review is required.
+- After a failed first attempt, **24-hour cooldown**, allowing a transient Free quota error to reset. A running first attempt pauses dispatch. A previous successful run without the expected bot Draft PR blocks as an integrity anomaly.
+- If history is incomplete (more than 200 runs, inconsistent pages, duplicate IDs, unexpected provenance), fail closed. No guessing from incomplete activity.
+- Each project stage dispatch contains exact \`issue\`, \`comment\`, and \`stage\`; resolver independently computes the true next stage and rejects stale or injected payloads. This is not an approval for autonomous merge or production deployment.
+
+This is a conservative two-attempt safety cap, not evidence that all transient provider failures are recoverable. Any stage with exhausted attempts needs owner inspection. No current production task is modified by the draft.
