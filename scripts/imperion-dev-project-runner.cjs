@@ -97,9 +97,12 @@ function verifyDispatch(live){
      ![OWNER,'github-actions[bot]'].includes(live.sender?.login)||
      !Number.isSafeInteger(live.client_payload?.issue)||live.client_payload.issue<1||
      !Number.isSafeInteger(live.client_payload?.comment)||live.client_payload.comment<1||
-     Object.keys(live.client_payload).sort().join('|')!=='comment|issue')
+     !Number.isInteger(live.client_payload?.stage)||live.client_payload.stage<2||
+     live.client_payload.stage>4||
+     Object.keys(live.client_payload).sort().join('|')!=='comment|issue|stage')
     stop('RUNNER_DISPATCH_REJECTED');
-  return {issue:live.client_payload.issue,comment:live.client_payload.comment};
+  return {issue:live.client_payload.issue,comment:live.client_payload.comment,
+    stage:live.client_payload.stage};
 }
 async function resolveResume(live,token,fetcher=globalThis.fetch){
   const ids=verifyDispatch(live);
@@ -116,7 +119,7 @@ async function resolveResume(live,token,fetcher=globalThis.fetch){
   const plan=await fetchPlan(task,first[0].head?.sha,token,fetcher);
   const records=await P.githubReadback(plan,fetcher,token);
   const status=P.readback(plan,records);
-  if(status.status!=='NEXT_DRAFT_STAGE'||status.stage<2)
+  if(status.status!=='NEXT_DRAFT_STAGE'||status.stage<2||status.stage!==ids.stage)
     return {status:status.status,stage:status.stage||null,task,plan,records,
       blocked:true,reason:'NO_VERIFIED_NEXT_STAGE'};
   const prior=records.find(x=>x.stage===status.stage-1);
