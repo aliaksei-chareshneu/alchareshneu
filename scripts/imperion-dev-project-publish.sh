@@ -23,6 +23,7 @@ head="$(node -e 'const p=require(process.argv[1]),c=require("./scripts/imperion-
 project_id="$(node -e 'const p=require(process.argv[1]);process.stdout.write(p.plan.project_id)' "$stage_proof")"
 marker="$(node -e 'const p=require(process.argv[1]),c=require("./scripts/imperion-dev-project-control.cjs");process.stdout.write(c.stageSpec(p.plan,p.stage).marker)' "$stage_proof")"
 model="$(node -e 'const p=require(process.argv[1]);process.stdout.write(p.plan.model)' "$stage_proof")"
+stage_count="$(node -e 'const p=require(process.argv[1]);process.stdout.write(String(p.plan.milestones.length))' "$stage_proof")"
 if [ "$stage" -gt 1 ]; then
   predecessor_sha="$(node -e 'const p=require(process.argv[1]);process.stdout.write(p.readback.at(-1).sha)' "$stage_proof")"
   predecessor_branch="$(node -e 'const p=require(process.argv[1]),c=require("./scripts/imperion-dev-project-control.cjs");process.stdout.write(c.stageSpec(p.plan,p.stage-1).head)' "$stage_proof")"
@@ -71,7 +72,7 @@ git commit -m "feat(dev): project $project_id milestone $stage review-only"
 git push --set-upstream origin "$head"
 summary="$(node scripts/imperion-dev-department.cjs --summary "$proof_dir")"
 body="$(printf '%s\n\n%s\n\n%s\n\n%s\n' \
-  "$marker" \
+  "$marker"$'\n'"Planned stages: $stage_count" \
   "Developer #1: verified project $project_id milestone $stage. Provider Groq Free model $model. Existing trusted tests and isolated no-network Docker QA: PASS. Same-provider independent-role reviewer: PASS, not independent correctness proof. Generated advisory: NOT independent. Human review required." \
   "$summary" \
   "No auto-merge, deployment, paid fallback, customer data, private source or repo settings changes. FOLLOW-UP STAGES REQUIRE EXACT PREDECESSOR CI EVIDENCE.")"
