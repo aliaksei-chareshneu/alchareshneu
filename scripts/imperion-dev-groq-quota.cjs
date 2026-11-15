@@ -6,7 +6,12 @@ const policy=require('./imperion-dev-model-policy.cjs');
 const REPO='aliaksei-chareshneu/alchareshneu';
 const WORKFLOW='imperion-dev-cloud-issue.yml';
 const ACTIVATED_UTC='2026-11-14T18:00:00Z';
-const MAX_GROQ_WORKFLOW_RUNS_24H=3;
+// Eight controlled review-only runs at <=20k estimated tokens each give a
+// software ceiling of <=160k reserved tokens/24h, below Groq's published
+// 200k TPD reference for GPT-OSS120B; provider/account limits may be lower.
+const MAX_GROQ_WORKFLOW_RUNS_24H=8;
+const PREVIEW_NO_MODEL_AFTER='2026-11-15T06:54:27Z';
+const MAX_HISTORY_PAGES=3;
 function reject(s){throw Error(s)}
 function gateEnv(env){
  if(env.IMPERION_DEV_PROVIDER==='ollama')return false;
@@ -20,26 +25,43 @@ async function admit(env=process.env,fetcher=globalThis.fetch,now=Date.now()){
  if(!gateEnv(env))return {status:'LOCAL_OLLAMA_NO_GROQ_QUOTA'};
  const cutoff=Math.max(now-86400000,Date.parse(ACTIVATED_UTC));
  const since=new Date(cutoff).toISOString().slice(0,10);
- const url='https://api.github.com/repos/'+REPO+'/actions/workflows/'+WORKFLOW+
-  '/runs?per_page=100&created='+encodeURIComponent('>='+since);
- let r;
- try{r=await fetcher(url,{method:'GET',redirect:'error',credentials:'omit',
-  headers:{authorization:'Bearer '+env.GITHUB_TOKEN,
-   accept:'application/vnd.github+json','x-github-api-version':'2022-11-28'},
-  signal:AbortSignal.timeout(12000)})}
- catch{reject('GROQ_QUOTA_HISTORY_UNAVAILABLE')}
- if(!r?.ok||r.redirected)reject('GROQ_QUOTA_GITHUB_HTTP_REJECTED');
- let json;
- try{json=await r.json()}catch{reject('GROQ_QUOTA_GITHUB_INVALID')}
- if(!Array.isArray(json?.workflow_runs)||!Number.isSafeInteger(json.total_count)||
-   json.total_count>=100)reject('GROQ_QUOTA_GITHUB_INCOMPLETE');
- const runId=Number(env.GITHUB_RUN_ID),self=json.workflow_runs.find(x=>x.id===runId);
+ const runs=[];
+ let total=null;
+ for(let page=1;page<=MAX_HISTORY_PAGES;page++){
+  const url='https://api.github.com/repos/'+REPO+'/actions/workflows/'+WORKFLOW+
+   '/runs?per_page=100&created='+encodeURIComponent('>='+since)+'&page='+page;
+  let response;
+  try{response=await fetcher(url,{method:'GET',redirect:'error',credentials:'omit',
+   headers:{authorization:'Bearer '+env.GITHUB_TOKEN,
+    accept:'application/vnd.github+json','x-github-api-version':'2022-11-28'},
+   signal:AbortSignal.timeout(12000)})}
+  catch{reject('GROQ_QUOTA_HISTORY_UNAVAILABLE')}
+  if(!response?.ok||response.redirected)reject('GROQ_QUOTA_GITHUB_HTTP_REJECTED');
+  let payload;
+  try{payload=await response.json()}catch{reject('GROQ_QUOTA_GITHUB_INVALID')}
+  if(!Array.isArray(payload?.workflow_runs)||!Number.isSafeInteger(payload.total_count)||
+     payload.total_count<0||payload.workflow_runs.length>100)
+   reject('GROQ_QUOTA_GITHUB_INCOMPLETE');
+  if(total===null)total=payload.total_count;
+  // Counts may grow when other public PR previews start; never use an
+  // inconsistent pagination snapshot to admit paid-provider opportunities.
+  if(payload.total_count!==total)reject('GROQ_QUOTA_HISTORY_CHANGED');
+  runs.push(...payload.workflow_runs);
+  if(runs.length>=total)break;
+  if(payload.workflow_runs.length!==100)reject('GROQ_QUOTA_HISTORY_INCOMPLETE');
+ }
+ if(total>MAX_HISTORY_PAGES*100||runs.length!==total||
+    new Set(runs.map(x=>x.id)).size!==runs.length)
+  reject('GROQ_QUOTA_GITHUB_INCOMPLETE');
+ const runId=Number(env.GITHUB_RUN_ID),self=runs.find(x=>x.id===runId);
  if(!self||self.event!==env.GITHUB_EVENT_NAME||
     !Number.isFinite(Date.parse(self.created_at)))reject('GROQ_QUOTA_SELF_NOT_VERIFIED');
  const started=Date.parse(self.created_at);
  if(started<cutoff)reject('GROQ_QUOTA_STALE_RUN_REJECTED');
- const prior=json.workflow_runs.filter(x=>x.id!==runId&&
-   ['issue_comment','pull_request'].includes(x.event)&&
+ const prior=runs.filter(x=>x.id!==runId&&
+   (x.event==='issue_comment'||
+    (x.event==='pull_request'&&
+     Date.parse(x.created_at)<Date.parse(PREVIEW_NO_MODEL_AFTER)))&&
    Number.isFinite(Date.parse(x.created_at))&&
    Date.parse(x.created_at)>=cutoff&&
    (Date.parse(x.created_at)<started||
@@ -47,7 +69,7 @@ async function admit(env=process.env,fetcher=globalThis.fetch,now=Date.now()){
  // ONLY workflows that passed the Groq quota gate actually reserved a paid-provider
  // opportunity. Old CPU-Qwen previews and blocked/failed preflight MUST NOT count.
  // We inspect GitHub provider-owned job receipts, not model-provided text.
- if(prior.length>35)reject('GROQ_QUOTA_HISTORY_TOO_MANY_RUNS');
+ if(prior.length>80)reject('GROQ_QUOTA_HISTORY_TOO_MANY_RUNS');
  let admitted=0;
  for(const previous of prior){
   const jobsUrl='https://api.github.com/repos/'+REPO+'/actions/runs/'+previous.id+'/jobs?per_page=100';
@@ -86,4 +108,4 @@ if(require.main===module)main().catch(e=>{
  console.error(/^[A-Z0-9_]+$/.test(e.message)?e.message:'GROQ_GATE_BLOCKED');
  process.exitCode=9;
 });
-module.exports={REPO,WORKFLOW,ACTIVATED_UTC,MAX_GROQ_WORKFLOW_RUNS_24H,admit,gateEnv};
+module.exports={REPO,WORKFLOW,ACTIVATED_UTC,PREVIEW_NO_MODEL_AFTER,MAX_HISTORY_PAGES,MAX_GROQ_WORKFLOW_RUNS_24H,admit,gateEnv};

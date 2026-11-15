@@ -8,7 +8,9 @@ const policy=require('./imperion-dev-model-policy.cjs');
 const OLLAMA_ENDPOINT='http://127.0.0.1:11434/api/generate';
 const GROQ_ENDPOINT='https://api.groq.com/openai/v1/chat/completions';
 const MAX_CALLS_PER_RUN=10;
-const MAX_RESERVATION_TOKENS=50000;
+// 8 owner runs/day x 20k conservative prompt+completion reservation <=160k
+// estimated tokens, below Groq's published 200k daily token reference.
+const MAX_RESERVATION_TOKENS=20000;
 function reject(reason){throw Error(reason)}
 function parseInput(url,options,model){
  if(url!==OLLAMA_ENDPOINT||options?.method!=='POST'||

@@ -103,7 +103,8 @@ test('durable GitHub run history counts only actually admitted Groq calls, not o
    return {ok:true,redirected:false,json:async()=>payload};
   };
   assert.equal((await Q.admit(e,fake([earlier(1),earlier(2),earlier(3)]),now)).prior,2);
-  await assert.rejects(()=>Q.admit(e,fake([earlier(1),earlier(2),earlier(3)],new Set([2001,2002,2003])),now),/GROQ_FREE_DAILY_RUN_LIMIT_REACHED/);
+  const eight=Array.from({length:Q.MAX_GROQ_WORKFLOW_RUNS_24H},(_,i)=>earlier(i+1));
+  await assert.rejects(()=>Q.admit(e,fake(eight,new Set(eight.map(x=>x.id))),now),/GROQ_FREE_DAILY_RUN_LIMIT_REACHED/);
   assert.equal((await Q.admit(e,fake(Array.from({length:7},(_,i)=>earlier(i+20)),new Set()),now)).prior,0);
   await assert.rejects(()=>Q.admit({...e,GITHUB_RUN_ATTEMPT:'2'},fake([]),now),/GROQ_QUOTA_GITHUB_CONTEXT_REQUIRED/);
   await assert.rejects(()=>Q.admit(e,async()=>({ok:false,status:403,redirected:false}),now),/GROQ_QUOTA_GITHUB_HTTP_REJECTED/);

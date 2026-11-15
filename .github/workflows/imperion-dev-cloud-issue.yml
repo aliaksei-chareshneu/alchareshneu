@@ -16,6 +16,7 @@ on:
       - 'scripts/imperion-dev-provider.cjs'
       - 'scripts/imperion-dev-groq-quota.cjs'
       - 'tests/imperion-dev-groq-provider.test.cjs'
+      - 'tests/imperion-dev-free-quota.test.cjs'
       - 'scripts/imperion-dev-witness.sh'
       - 'scripts/imperion-dev-repair.sh'
       - 'scripts/imperion-dev-failure-feedback.cjs'
@@ -48,7 +49,8 @@ jobs:
        github.event.pull_request.head.repo.full_name == github.repository &&
        github.event.pull_request.user.login == 'aliaksei-chareshneu' &&
        (startsWith(github.event.pull_request.head.ref, 'agent/imperion-dev-cloud-') ||
-        (github.event.pull_request.head.ref == 'agent/imperion-dev-stage16-bootstrap-20261115' ||
+        (github.event.pull_request.head.ref == 'agent/imperion-dev-stage17-free-quota-20261115' ||
+         github.event.pull_request.head.ref == 'agent/imperion-dev-stage16-bootstrap-20261115' ||
          github.event.pull_request.head.ref == 'agent/imperion-dev-stage15-multifile-repair-20261115' ||
         github.event.pull_request.head.ref == 'agent/imperion-dev-stage8-20261111' ||
          github.event.pull_request.head.ref == 'agent/imperion-dev-any-owner-issue-20261111'))) ||
@@ -71,7 +73,7 @@ jobs:
         with:
           node-version: '22'
       - name: Validate owner, scope, model parser, patch gates and mock cases
-        run: node --test tests/imperion-dev-cloud-issue.test.cjs tests/imperion-dev-cloud-acceptance.test.cjs tests/imperion-dev-draft-tests.test.cjs tests/imperion-dev-autonomous.test.cjs tests/imperion-dev-model-policy.test.cjs tests/imperion-dev-stage12.test.cjs tests/imperion-dev-threefile.test.cjs tests/imperion-dev-failure-feedback.test.cjs tests/imperion-dev-bootstrap.test.cjs tests/imperion-dev-groq-provider.test.cjs
+        run: node --test tests/imperion-dev-cloud-issue.test.cjs tests/imperion-dev-cloud-acceptance.test.cjs tests/imperion-dev-draft-tests.test.cjs tests/imperion-dev-autonomous.test.cjs tests/imperion-dev-model-policy.test.cjs tests/imperion-dev-stage12.test.cjs tests/imperion-dev-threefile.test.cjs tests/imperion-dev-failure-feedback.test.cjs tests/imperion-dev-bootstrap.test.cjs tests/imperion-dev-groq-provider.test.cjs tests/imperion-dev-free-quota.test.cjs
       - name: Check advisory witness shell syntax
         run: bash -n scripts/imperion-dev-witness.sh && bash -n scripts/imperion-dev-repair.sh
       - name: Reject unapproved CPU model before model startup
