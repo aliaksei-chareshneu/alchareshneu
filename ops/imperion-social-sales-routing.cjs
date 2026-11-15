@@ -18,6 +18,10 @@ const MANUAL=new Set(['facebook_group','facebook_profile','whatsapp_group',
 const PRIVACY=new Set(['PRIVATE_CUSTOMER','PRIVATE_MEMBER','PRIVATE_EMAIL']);
 const GOOD_LOCAL=new Set(['imperion-qwen35:4b','qwen3:4b']);
 const WEAK_LOCAL=new Set(['imperion-qwen3-cpu:0.6b','qwen3:0.6b']);
+// Best verified ZERO-NEW-SPEND hosted candidate in Projects 00/80:
+// GitHub Actions Groq Free public-only path, NOT a personal Telegram backend.
+const STRONG_PUBLIC_MODEL='openai/gpt-oss-120b';
+const STRONG_PROVIDER='groq';
 const iso = v => typeof v==='string'&&/^\d{4}-\d\d-\d\dT\d\d:\d\d/.test(v)&&Number.isFinite(Date.parse(v))? Date.parse(v):null;
 const str = v => typeof v==='string'?v.trim():'';
 const fail = code => ({state:code,external_actions:0,crm_written:false,provider_receipt:null});
@@ -61,13 +65,35 @@ function modelRoute(request={}, runtime={}) {
     if(request.data_classification!=='PUBLIC_APPROVED'||
        request.source_approved!==true||request.external_ai_approved!==true)
       return fail('PUBLIC_SOURCE_OR_EXTERNAL_AI_NOT_APPROVED');
+    // This existing router accepts only pre-approved first-party public URLS.
+    // A private Telegram message cannot become public by caller assertion.
+    if(request.source_kind==='PERSONAL_TELEGRAM'||request.source_kind==='PRIVATE_CHAT'||
+       request.raw_private_message!==undefined||request.personal_chat_id!==undefined)
+      return fail('PERSONAL_CONVERSATION_NEVER_PUBLIC_SOURCE');
+    if(request.preferred_model&&request.preferred_model!==STRONG_PUBLIC_MODEL)
+      return fail('PUBLIC_MODEL_NOT_VERIFIED_BY_PROJECT');
     return {...fail('DELEGATE_EXISTING_PUBLIC_MODEL_ROUTER'),
-      module:'ops/imperion-free-model-router.cjs',model:null,
-      owner_review_required:true};
+      module:'ops/imperion-free-model-router.cjs',
+      provider:STRONG_PROVIDER,model:STRONG_PUBLIC_MODEL,
+      compute_location:'GROQ_CLOUD_WITH_GITHUB_ACTIONS_OWNER_SECRET',
+      data_classification:'PUBLIC_APPROVED_ONLY',
+      quota_proof_required:true,source_allowlist_required:true,
+      third_party_private_data_allowed:false,
+      provider_readback:false,owner_review_required:true,
+      automatic_sends:false};
   }
   if(!['SALES_PRIVATE_DRAFT','SALES_PRIVATE_CLASSIFY'].includes(request.purpose)||
       !PRIVACY.has(request.data_classification))
     return fail('UNSUPPORTED_PRIVATE_MODEL_PURPOSE');
+  // Never promote the public Groq gateway to an unauthorized personal
+  // Telegram model. Neither Project 00, 80 nor 10 has a live approved
+  // private-cloud credential+ZDR+lawful-basis+per-chat gate as of 15 Nov.
+  if(request.preferred_model===STRONG_PUBLIC_MODEL||
+     runtime.request_external_ai===true||
+     runtime.cloud_private_approved===true||
+     (typeof request.preferred_model==='string'&&
+       /^(?:groq:|gpt-oss|qwen\/qwen3\.8)/i.test(request.preferred_model)))
+    return fail('PRIVATE_CLOUD_MODEL_NOT_AUTHORIZED');
   if(runtime.oci_relay_only===true&&runtime.pc_online!==true)
     return fail('OCI_RELAY_NOT_A_PRIVATE_LLM');
   if(runtime.pc_online!==true||runtime.ollama_loopback_healthy!==true||
@@ -148,5 +174,5 @@ function reconcile(ack={},readback={},type='post') {
   return {...fail('POST_LIVE_VERIFIED'),provider_id:providerId,
     permalink:readback.permalink,live_verified:true};
 }
-module.exports={CRM,CHANNELS,MANUAL,GOOD_LOCAL,WEAK_LOCAL,keyOf,optOut,intake,
+module.exports={CRM,CHANNELS,MANUAL,GOOD_LOCAL,WEAK_LOCAL,STRONG_PUBLIC_MODEL,STRONG_PROVIDER,keyOf,optOut,intake,
   modelRoute,actionGate,reconcile};
