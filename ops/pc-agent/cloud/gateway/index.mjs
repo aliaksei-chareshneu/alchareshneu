@@ -1,7 +1,7 @@
 // Cloud adapter only; existing Hub, n8n, Supabase tables and 5-agent operator stay canonical.
 // No scheduler, new CRM, browser, payment, email or publishing capability.
 import {generateFreeDraft} from "./free-core.mjs";
-import {runCloudPC,readCloudPCReceipt} from "./pc5-cloud-core.mjs";
+import {runAndVerifyCloudPC,readCloudPCReceipt} from "./pc5-cloud-core.mjs";
 const json=(status,data)=>new Response(JSON.stringify(data),{status,
   headers:{"content-type":"application/json; charset=utf-8","cache-control":"no-store",
     "x-content-type-options":"nosniff"}});
@@ -41,12 +41,12 @@ Deno.serve(async request=>{
       result.status==="PENDING"?202:423,result);
   }
   if(input?.kind==="pc5_synthetic_readonly"){
-    const result=await runCloudPC(input,{
+    const result=await runAndVerifyCloudPC(input,{
       ...env,
       SUPABASE_URL:Deno.env.get("SUPABASE_URL")||"",
       SUPABASE_SERVICE_ROLE_KEY:serverKey
     },{generateFreeDraft});
-    return json(result.status==="QUEUED_NOT_EXECUTED"?202:423,result);
+    return json(result.status==="VERIFIED_DONE"?200:\n      result.status==="QUEUED_PENDING"?202:423,result);
   }
   if(input?.task==="pc5_route")
     return json(423,{status:"BLOCKED",reason:"INTERNAL_MODEL_TASK_ONLY"});
