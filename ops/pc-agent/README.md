@@ -1,9 +1,34 @@
 # IMPERION PC Automation Agent #5 — safe Windows runtime
 
 Owner: existing IMPERION project. Canonical Job_ID: JOB-IMP-PC-AUTOMATION-20261108-05.
-Status: LIVE restricted PC operator v4 via existing Browser Bridge: import,
-plan, execute, fetch, fixed app status, memory readiness and diagnostics.
-No new paid service. Not unrestricted Windows or autonomous business operations.
+Status (2026-11-15): LIVE restricted file/CSV operator v4; M5 GUI, M6 Windows
+audit and M7 recovery-policy sources STAGED on zmrzlina, CI PASS. The current
+long-running BrowserBridge has NOT reloaded its adapter; cloud M6/M7 requests
+still return MODE_NOT_ALLOWED. No new worker, new fees, secrets or credentials.
+
+Readbacks: local Windows 'audit_light' DONE (coarse RAM, disk, process counts);
+local M6 remediation preview DRY_RUN_ONLY (changes=0); local M7 continuity DONE;
+existing cloud model_capabilities DONE. Full audit denied by 1024 MB RAM gate.
+GUI Notepad E2E not yet verified; owner-local physical consent still required.
+Model imperion-qwen35:4b selected, but NO real inference verified on zmrzlina.
+
+Only the restricted scratch file/CSV jobs are confirmed live today.
+No arbitrary app GUI, auto-cleanup, service restart, Defender modifications,
+browser-account access or autonomous external communication is authorized.
+
+Recommended check without effects:
+  python -B pc5_m5_preflight.py --status
+  python -B pc5_m5_preflight.py --selftest
+After safe worker restart and local owner consent only:
+  python -B pc5_gui_owner_finish.py --run
+Independent receipt verification:
+  python -B pc5_gui_readback.py --task-id A5-GUI-20261115-M4-001
+
+Cloud acceptance gate: runtime_probe MUST report generation M7-20261115,
+audit_light MUST return DONE, and old model_capabilities MUST remain DONE.
+Always inspect nested result.status, not only browser_jobs.state='done'.
+Do not restart shared BrowserBridge unless queue is idle, GUI user idle,
+RAM headroom exists, and other agent work is not disrupted.
 
 ## Existing infrastructure reused
 
