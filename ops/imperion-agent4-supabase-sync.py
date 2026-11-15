@@ -22,9 +22,9 @@ HOST='https://cmrknyhnnehyjpreehcf.supabase.co/functions/v1/imperion-agent4-tran
 KEY_PATTERN=re.compile(r'^IMP4-TG-[0-9a-f]{24}$')
 CASE_OS=re.compile(r'^LEAD-AG4-[0-9a-f]{24}$')
 CASE_NGO=re.compile(r'^DM-[0-9]{3,6}$')
-TOKEN_PATH=Path(os.environ.get('AGENT4_TRANSPORT_TOKEN_FILE',str(Path(
-    os.environ.get('LOCALAPPDATA',str(Path.home()/'AppData'/'Local')))) /
-    'ImperionAgents'/'private'/'agent4_transport_token.txt'))
+LOCAL_ROOT=Path(os.environ.get('LOCALAPPDATA',str(Path.home()/'AppData'/'Local')))
+TOKEN_PATH=Path(os.environ.get('AGENT4_TRANSPORT_TOKEN_FILE',
+    str(LOCAL_ROOT/'ImperionAgents'/'private'/'agent4_transport_token.txt')))
 
 class BridgeHeld(RuntimeError):pass
 
