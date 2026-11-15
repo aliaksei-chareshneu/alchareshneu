@@ -142,8 +142,7 @@ test('quota, CI pending/failure, retarget, merge and changed SHA fail closed',()
   for(const tamper of [{base:'main-wrong'},{draft:false},{merged:true},{sha:'bad'},
     {state:'closed'},{marker:'fake'}]){
     const result=()=>P.readback(p,[record(p,1,'SUCCESS',tamper)]);
-    if(tamper.sha)assert.throws(result,/PROJECT_|/);
-    else assert.equal(result().status,'BLOCKED_PR_INTEGRITY');
+    assert.equal(result().status,'BLOCKED_PR_INTEGRITY');
   }
   assert.throws(()=>P.readback(p,[record(p,1,'UNVERIFIED')]),/PROJECT_CI_EVIDENCE_REJECTED/);
   assert.equal(P.ciFromRuns('1'.repeat(40),workflowRuns('1'.repeat(40))),'SUCCESS');
