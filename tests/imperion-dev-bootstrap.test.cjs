@@ -129,10 +129,10 @@ test('rejects malicious generated code, side effects, privileged code and missin
 test('bootstrap artifact/publisher remains PR review-only and uses verified model/provider',()=>{
  const y=fs.readFileSync(path.join(__dirname,'../.github/workflows/imperion-dev-cloud-issue.yml'),'utf8');
  assert.match(y,/imperion-dev-bootstrap\.cjs --check-event/);
- assert.match(y,/imperion-dev-bootstrap\.cjs --event/);
+ const qa=fs.readFileSync(path.join(__dirname,'../scripts/imperion-dev-bootstrap-qa.sh'),'utf8');
+ assert.match(qa,/imperion-dev-bootstrap\.cjs --event/);
  assert.match(y,/imperion-dev-bootstrap-qa\.sh/);
  assert.match(y,/imperion-dev-bootstrap-publish\.sh/);
- const qa=fs.readFileSync(path.join(__dirname,'../scripts/imperion-dev-bootstrap-qa.sh'),'utf8');
  const publish=fs.readFileSync(path.join(__dirname,'../scripts/imperion-dev-bootstrap-publish.sh'),'utf8');
  assert.match(qa,/BOOTSTRAP_TRUSTED_AND_ADVISORY_TESTS_PASS/);
  assert.match(qa,/IMPERION_DEV_BOOTSTRAP_ACCEPTANCE=1/);
