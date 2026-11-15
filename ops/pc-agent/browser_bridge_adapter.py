@@ -34,6 +34,27 @@ def dispatch(action, payload=None):
             from pc5_gui_pilot import operate as scoped_gui
             return {"agent": "IMPERION_AGENT5_RESTRICTED",
                     "requested": "pc_operator", "result": scoped_gui(payload)}
+        # M6: existing fixed PowerShell audit with SHA receipt; remediation is dry-run only.
+        if payload.get("mode") in ("audit_pc", "remediate_pc"):
+            from pc5_maintenance import operate as maintenance_review
+            return {"agent": "IMPERION_AGENT5_RESTRICTED",
+                    "requested": "pc_operator", "result": maintenance_review(payload)}
+        # M7: no shell, no restart, no model authority; audit-backed advice only.
+        if payload.get("mode") in ("continuity_status", "maintenance_plan"):
+            from pc5_policy_v7 import operate as continuity_policy
+            return {"agent": "IMPERION_AGENT5_RESTRICTED",
+                    "requested": "pc_operator", "result": continuity_policy(payload)}
+        # Static generation probe for safe readback of adapter reload through the live queue.
+        if payload.get("mode") == "runtime_probe":
+            return {"agent": "IMPERION_AGENT5_RESTRICTED", "requested": "pc_operator",
+                    "result": ({"status": "DONE", "mode": "runtime_probe",
+                                "generation": "M7-20261115",
+                                "supported": ["audit_pc", "remediate_pc", "continuity_status",
+                                              "maintenance_plan", "gui_pilot", "model_plan"],
+                                "remote_approval_is_authority": False,
+                                "source_loaded": True}
+                               if set(payload) == {"mode"}
+                               else {"status":"BLOCKED","reason":"FIELDS_NOT_ALLOWED"})}
         # Fixed Windows read-only program inspection v4; never start/kill apps.
         if payload.get("mode") in ("app_status", "machine_readiness"):
             from pc_desktop_v4 import operate as inspect_windows
