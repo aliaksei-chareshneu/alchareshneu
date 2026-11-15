@@ -241,7 +241,7 @@ function summaryMarkdown(plan,review){
  lines.push('Separate model reviewer: PASS, checks:');
  for(const check of review.checks){cleanText(check,8,160);lines.push('- '+check)}
  lines.push('Human review REQUIRED; no deployment, auto-merge or paid fallback.');
- const result=lines.join('\\n');
+ const result=lines.join('\n');
  if(result.length>1400)reject('DEPT_SUMMARY_TOO_LONG');
  return result;
 }
