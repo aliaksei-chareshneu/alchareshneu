@@ -48,6 +48,28 @@ function impDate_(v){
   if(!v)return '';
   var d=new Date(v);return isFinite(d.getTime())?d:'';
 }
+/** Convert Google Sheets getValues() dates without treating sheet serial days as Unix ms.
+ * Numeric serials use the Sheets epoch 1899-12-30. Since a local sheet time has
+ * no timezone, UTC interpretation is conservative for Europe/Prague expiry
+ * (it can purge one/two hours late, never earlier). Unknown inputs fail closed.
+ */
+function impSheetStoredDate_(v){
+  if(v instanceof Date)return isFinite(v.getTime())?v:null;
+  if(typeof v==='number'){
+    if(!isFinite(v)||v<36526||v>73050)return null; // 2000-01-01 ... 2100-01-01
+    var fromSerial=new Date(Date.UTC(1899,11,30)+Math.round(v*86400000));
+    return isFinite(fromSerial.getTime())?fromSerial:null;
+  }
+  if(typeof v==='string'){
+    var s=v.trim();
+    // Only unambiguous ISO timestamps. A locale-formatted or empty value
+    // requires owner review; it must never cause premature erasure.
+    if(!/^\\d{4}-\\d{2}-\\d{2}(?:T\\d{2}:\\d{2}(?::\\d{2}(?:\\.\\d{1,3})?)?(?:Z|[+-]\\d{2}:\\d{2}))?$/.test(s))return null;
+    var parsed=new Date(s);
+    return isFinite(parsed.getTime())?parsed:null;
+  }
+  return null;
+}
 function impExisting_(sheet,col){
   var n=sheet.getLastRow(),seen={};
   if(n>1)sheet.getRange(2,col,n-1,1).getDisplayValues().forEach(function(r){
@@ -1095,8 +1117,8 @@ function imperionCleanupPrivateIntake(){
     rows.forEach(function(x,i){
       var source=String(x[m.Source_Channel]||'');
       if(!/^WEBSITE_RSVP_SUPABASE_/.test(source)||source.endsWith('_PURGED'))return;
-      var date=x[m.Retention_Until] instanceof Date?x[m.Retention_Until]:new Date(x[m.Retention_Until]);
-      if(!isFinite(date.getTime())||date>now)return;
+      var date=impSheetStoredDate_(x[m.Retention_Until]);
+      if(!date||date>now)return;
       privateCols.forEach(function(n){if(m[n]!==undefined)r.getRange(i+2,m[n]+1).clearContent()});
       r.getRange(i+2,m.Source_Channel+1).setValue('WEBSITE_RSVP_SUPABASE_PURGED');
       cleared++;
@@ -1110,8 +1132,8 @@ function imperionCleanupPrivateIntake(){
     lines.forEach(function(x,i){
       if(!String(x[em.Request_ID]||'').startsWith('ENQ-')||
          String(x[em.Processing_Status])==='EXPIRED_ANONYMIZED')return;
-      var date=x[em.Timestamp] instanceof Date?x[em.Timestamp]:new Date(x[em.Timestamp]);
-      if(!isFinite(date.getTime())||date.getTime()+90*86400000>now.getTime())return;
+      var date=impSheetStoredDate_(x[em.Timestamp]);
+      if(!date||date.getTime()+90*86400000>now.getTime())return;
       cols.forEach(function(n){if(em[n]!==undefined)e.getRange(i+2,em[n]+1).clearContent()});
       e.getRange(i+2,em.Processing_Status+1).setValue('EXPIRED_ANONYMIZED');
       cleared++;
@@ -1133,8 +1155,8 @@ function imperionCleanupPrivateIntake(){
       if(String(x[lm.Action_Status])===purgeStatus)return;
       // A paid or legally meaningful contract must be reviewed, not auto-deleted.
       if(['New','Lost'].indexOf(String(x[lm.Stage]))<0)return;
-      var date=x[lm.Retention_Until] instanceof Date?x[lm.Retention_Until]:new Date(x[lm.Retention_Until]);
-      if(!isFinite(date.getTime())||date>now)return;
+      var date=impSheetStoredDate_(x[lm.Retention_Until]);
+      if(!date||date>now)return;
       ['Full_Name','Email','Phone_Number','Subject_Goal','Notes'].forEach(function(name){
         if(lm[name]!==undefined)leads.getRange(i+2,lm[name]+1).clearContent();
       });
