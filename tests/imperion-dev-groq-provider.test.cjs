@@ -109,3 +109,31 @@ test('durable GitHub run history counts only actually admitted Groq calls, not o
   await assert.rejects(()=>Q.admit(e,async()=>({ok:false,status:403,redirected:false}),now),/GROQ_QUOTA_GITHUB_HTTP_REJECTED/);
  }finally{fs.rmSync(tmp,{recursive:true,force:true})}
 });
+
+test('GitHub PR preview cannot spend Groq quota; all owner issue model jobs serialize',()=>{
+ const y=fs.readFileSync(path.join(__dirname,'../.github/workflows/imperion-dev-cloud-issue.yml'),'utf8');
+ const cloud=y.split('  cloud-qwen-coding:\n')[1]?.split('  draft-review-pr:\n')[0];
+ assert.ok(cloud);
+ assert.match(cloud,/if: github\.event_name == 'issue_comment'/);
+ assert.match(cloud,/group: imperion-dev-single-model-inference-\$\{\{ github\.repository \}\}/);
+ assert.match(cloud,/cancel-in-progress: false/);
+ assert.match(cloud,/queue: max/);
+ assert.match(cloud,/imperion-dev-groq-quota\.cjs/);
+ assert.match(cloud,/secrets\.GROQ_API_KEY/);
+ assert.match(y,/node --test tests\/imperion-dev-cloud-issue\.test\.cjs/);
+ const preview=y.split('  cloud-qwen-coding:\n')[0];
+ const publishing=y.split('  draft-review-pr:\n')[1];
+ assert.doesNotMatch(preview,/secrets\.GROQ_API_KEY/);
+ assert.doesNotMatch(publishing,/secrets\.GROQ_API_KEY/);
+});
+test('GitHub bot PR records checked exact provider and model, never stale Qwen claim',()=>{
+ const y=fs.readFileSync(path.join(__dirname,'../.github/workflows/imperion-dev-cloud-issue.yml'),'utf8');
+ const pub=y.split('  draft-review-pr:\n')[1];
+ assert.ok(pub);
+ assert.match(pub,/p\.model!==policy\.selectedModel\(\)/);
+ assert.match(pub,/Actual provider: \$provider; model: \$model/);
+ assert.match(pub,/VERIFIED provider: \$provider and model: \$model/);
+ assert.match(pub,/Provider billing NOT independently verified/);
+ assert.doesNotMatch(pub,/--title "DRAFT: (?:cloud|autonomous) Qwen/);
+ assert.doesNotMatch(pub,/gh pr merge|auto-merge: true/);
+});
