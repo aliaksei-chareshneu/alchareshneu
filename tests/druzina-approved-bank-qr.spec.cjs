@@ -4,6 +4,8 @@ const ENDPOINT='https://cmrknyhnnehyjpreehcf.supabase.co/functions/v1/imperion-r
 const UUID='11111111-1111-4111-8111-111111111111';
 const IBAN='CZ6508000000192000145399';
 const SPD='SPD*1.0*ACC:'+IBAN+'*AM:240.00*CC:CZK*MSG:DM '+UUID.replace(/-/g,'').toUpperCase();
+
+const event={event_id:'PUB-HEMA-20261116',title:'Synthetic Monday training',community:'Družina Moravy',category:'HEMA Training',price_czk:240,begins_at:'2026-11-16T17:00:00Z',ends_at:'2026-11-16T19:00:00Z',venue:'Brno synthetic',rules_url:'https://example.invalid/terms',is_open:true,source_active:true,price_verified:true,end_time_verified:true,registration_mode:'FORM',trainingPayment:{sessionPaymentOpen:true,tiers:[{tier:'STANDARD',baseCzk:240,surchargeCzk:0,totalCzk:240}]}};
 const approved={ok:true,confirmed:false,trainingPayment:{tier:'STANDARD',baseCzk:240,
  surchargeCzk:0,totalCzk:240,late48h:false,quoteLockedAt:'2026-11-14T09:00:00Z',
  recipient:'Synthetic Test Association',account:'19-2000145399/0800',iban:IBAN,
@@ -19,23 +21,39 @@ for(const [lang,uri] of [['cs','/register/'],['en','/register/en/'],['ru','/regi
      headers:{'access-control-allow-origin':'*'},body:JSON.stringify(approved)});
    }
    return route.fulfill({status:200,contentType:'application/json',
-    headers:{'access-control-allow-origin':'*'},body:JSON.stringify({events:[]})});
+    headers:{'access-control-allow-origin':'*'},body:JSON.stringify({events:[event]})});
   });
   await page.goto(uri,{waitUntil:'domcontentloaded'});
-  await page.evaluate(language=>{
+  await expect(page.locator('#rsvpForm')).toBeVisible({timeout:12000});
+  await page.evaluate(()=>{
    const $=id=>document.getElementById(id),f=$('rsvpForm');
-   f.hidden=false;f.checkValidity=()=>true;
+   $('eventId').value='PUB-HEMA-20261116';
+   $('eventId').dispatchEvent(new Event('change',{bubbles:true}));
+   f.checkValidity=()=>true;
    $('firstName').value='Test';$('lastName').value='Sample';
    $('email').value='example@example.invalid';$('phone').value='+420 777 888 999';
    $('paymentResumeToken').value='A'.repeat(43);
    $('safety').checked=true;
-   document.querySelector('input[name=rsvp][value=YES]').checked=true;
-   window.ImperionTrainingPayment.render({event_id:'PUB-HEMA-20261116',trainingPayment:{
-    sessionPaymentOpen:true,tiers:[{tier:'STANDARD',baseCzk:240,surchargeCzk:0,totalCzk:240}]
-   }},language,'FORM');
-  },lang);
+   const yes=document.querySelector('input[name=rsvp][value=YES]');
+   yes.checked=true;yes.dispatchEvent(new Event('change',{bubbles:true}));
+   $('paymentResumeToken').dispatchEvent(new Event('input',{bubbles:true}));
+  });
+  await expect(page.locator('#trainingPayment')).toBeVisible();
+  await expect(page.locator('#paymentQuoteButton')).toBeVisible();
   await expect(page.locator('#paymentQrArea')).toBeHidden();
   await page.locator('#paymentQuoteButton').evaluate(el=>el.click());
+  await expect.poll(()=>quotes).toBe(1);
+  await expect.poll(()=>page.locator('#paymentQuoteButton').isEnabled()).toBe(true);
+  if(await page.locator('#paymentQrArea').isHidden()){
+   const diagnostic=await page.evaluate(()=>({
+    privateText:document.getElementById('trainingPaymentPrivate')?.textContent,
+    qrLibrary:typeof window.QRCode,
+    qrHidden:document.getElementById('paymentQrArea')?.hidden,
+    formHidden:document.getElementById('rsvpForm')?.hidden,
+    paymentHidden:document.getElementById('trainingPayment')?.hidden
+   }));
+   throw Error('Private QR not rendered: '+JSON.stringify(diagnostic));
+  }
   await expect(page.locator('#paymentQrArea')).toBeVisible();
   await expect(page.locator('#paymentQrCode canvas')).toHaveCount(1);
   await expect(page.locator('#paymentReference')).toContainText(UUID);
