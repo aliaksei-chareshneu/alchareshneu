@@ -4,7 +4,10 @@ param([switch]$Apply)
 $ErrorActionPreference='Stop'
 $root=Join-Path $env:LOCALAPPDATA 'ImperionAgents'
 $source=Join-Path $root 'agent4-crm-bridge-github-20261115\ops\imperion-agent4-supabase-sync.py'
-$agent=Join-Path $env:USERPROFILE 'OneDrive - MUNI\Dokumenty\ChatGPT\10 Imperion — Business & Career\agent-network'
+$parent=Join-Path $env:USERPROFILE 'OneDrive - MUNI\Dokumenty\ChatGPT'
+$matches=@(Get-ChildItem -LiteralPath $parent -Directory -ErrorAction Stop | Where-Object {$_.Name -like '10 Imperion*'})
+if($matches.Count -ne 1){throw 'AGENT4_WORKSPACE_PATH_AMBIGUOUS'}
+$agent=Join-Path $matches[0].FullName 'agent-network'
 $target=Join-Path $agent 'agent4_supabase_sync.py'
 $python=Join-Path $agent '.venv\Scripts\python.exe'
 $token=Join-Path $root 'private\agent4_transport_token.txt'
