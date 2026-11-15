@@ -104,7 +104,13 @@ def case_ok(source,entity,case):
 
 def reconcile_once(db,token=None):
     pending=crm.pending(db,limit=8)
-    if not pending:return {'status':'IDLE_NO_PENDING','pending':0,'staged':0,'acked':0,'held':0}
+    if not pending:
+        with db:
+            db.execute("INSERT OR REPLACE INTO settings(key,value) VALUES('agent4_crm_transport_status',?)",
+                       ('IDLE_NO_PENDING',))
+            db.execute("INSERT OR REPLACE INTO settings(key,value) VALUES('agent4_crm_transport_heartbeat',?)",
+                       (str(int(time.time())),))
+        return {'status':'IDLE_NO_PENDING','pending':0,'staged':0,'acked':0,'held':0}
     token=token or token_from_private_file()
     staged=0; acked=0; held=0
     for entry in pending:
