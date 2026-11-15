@@ -250,3 +250,12 @@ test('HEMA receipts use fixed meeting point and never misprice Starter4 or order
  assert.doesNotMatch(msg.body,/Uvedená cena: 240 Kč/);
  assert.match(msg.body,/Nemusíte vyplňovat formulář znovu/);
 });
+
+test('active Community Hub readiness diagnostic retained and integrations gated',()=>{
+ assert.match(gs,/function imperionPrivateIntakeReadiness\(\)/);
+ assert.match(gs,/getProjectTriggers\(\)/);
+ assert.match(gs,/bridgeReadOnlyOk/);
+ assert.match(gs,/'x-imperion-intake-academy':'v1'/);
+ assert.match(gs,/IMPERION_CHAT_INVITES_LIVE/);
+ assert.match(gs,/function impSendApprovedChatInvites_/);
+});
