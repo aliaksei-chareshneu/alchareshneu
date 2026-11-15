@@ -46,7 +46,8 @@ Deno.serve(async request=>{
       SUPABASE_URL:Deno.env.get("SUPABASE_URL")||"",
       SUPABASE_SERVICE_ROLE_KEY:serverKey
     },{generateFreeDraft});
-    return json(result.status==="VERIFIED_DONE"?200:\n      result.status==="QUEUED_PENDING"?202:423,result);
+    return json(result.status==="VERIFIED_DONE"?200:
+      result.status==="QUEUED_PENDING"?202:423,result);
   }
   if(input?.task==="pc5_route")
     return json(423,{status:"BLOCKED",reason:"INTERNAL_MODEL_TASK_ONLY"});
