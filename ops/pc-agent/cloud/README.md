@@ -1,3 +1,13 @@
+## M10 — source v6 deployed and zero-spend account probe (15 Nov 2026)
+
+- **Deployed:** existing Supabase `imperion-free-inference` version **6**, ACTIVE, JWT verification and service-role auth preserved, v5 original code backed up under `gateway/rollback-v5/`.
+- **New capability:** `runAndVerifyCloudPC()` wraps the restricted external model route, one existing queue job, then at most five bounded read-only receipt polls. Only an independent nested `status=DONE` for the exact allowlisted mode and one attempt yields `VERIFIED_DONE`. A slow Windows worker yields `QUEUED_PENDING` with the same job ID, no automatic retries. Offline CI on candidate v6 SUCCESS https://github.com/aliaksei-chareshneu/alchareshneu/actions/runs/43742201396, latest staging CI also SUCCESS https://github.com/aliaksei-chareshneu/alchareshneu/actions/runs/43742255362.
+- **Postdeploy Windows regression:** existing queue case `08ffa19e-d995-4a34-8a73-c20eae680e95` machine_readiness `state=done`, `attempts=1`, nested `DONE`, `agent=IMPERION_AGENT5_RESTRICTED`, snapshot free RAM 542 MB. This is **ChatGPT-cloud -> PC**, not external model -> PC.
+- **Verified API access (one-time isolated no-billable-inference GitHub job):** Groq existing `GROQ_API_KEY` authenticated at `GET /openai/v1/models`, `openai/gpt-oss-120b` available. OpenRouter GitHub secret **NOT CONFIGURED**; Supabase service-role GitHub secret **NOT CONFIGURED**, so the separate GitHub client cannot invoke the private v6 HTTP receipt API. Groq account-specific **Free vs Developer billing not proven**: rate-limit model-list GET did not report usable plan evidence. No token-generating provider call made. One-time probe jobs removed from CI after recording outcomes; secrets never printed.
+- **Unverified:** server-side provider secrets/free entitlement on Supabase, real headless Nemotron/Groq model call, private JWT HTTP receipt invocation, Windows live GUI Notepad and reboot recovery. The running Windows Bridge still has a stale adapter and Remote Desktop Commander was quota-blocked. Zero new billed model inference was authorized or performed.
+
+**Important:** model API key authenticated != billing tier Free. Do not change the free-only flags or trigger model inference on a possibly paid account before verifying the organization's tier through the provider's Billing UI/primary source. NVIDIA `:free` endpoints cannot receive private Windows data. New M10 code remains strict SYNTHETIC_ONLY and only two read-only PC intents.
+
 # Agent #5 — cloud-first, no-new-spend control plane (15 Nov 2026)
 
 **Canonical worker:** existing Windows `zmrzlina` / BrowserBridge / Supabase `public.browser_jobs`. Do not start a second Windows agent or expose a listening desktop port.
