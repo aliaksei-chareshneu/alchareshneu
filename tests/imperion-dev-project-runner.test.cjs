@@ -35,7 +35,7 @@ function mock(p,options={}){
   const seen=[];
   const dispatch={action:'imperion-dev-project-resume',repository:{full_name:REPO},
     sender:{login:'github-actions[bot]'},
-    client_payload:{issue:task.issue,comment:task.comment}};
+    client_payload:{issue:task.issue,comment:task.comment,stage:2}};
   const response=(value,code=200)=>({ok:code===200,redirected:false,
     text:async()=>JSON.stringify(value)});
   const fetcher=async(url,init)=>{
