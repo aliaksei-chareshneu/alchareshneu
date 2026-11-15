@@ -63,7 +63,7 @@ class Tests(unittest.TestCase):
         self.assertEqual(self.h.connect(owner=OWNER+1)["status"],"BLOCKED_BUSINESS_OWNER_UNVERIFIED")
     def test_connection_is_owner_bound(self):
         self.assertEqual(self.h.connect()["status"],"BUSINESS_CONNECTION_RECORDED")
-        self.assertNotIn("Pasha",self.h.get(self.h.db,key("connection",CID)))
+        self.assertNotIn("Is Czech practice",self.h.get(self.h.db,key("connection",CID)))
     def test_unconsented_chat_is_not_saved(self):
         self.h.connect(); self.assertEqual(self.h.inbound()["status"],"BLOCKED_CHAT_SCOPE_OR_CONSENT")
         self.assertEqual(self.h.db.execute("SELECT count(*) FROM jobs").fetchone()[0],0)
