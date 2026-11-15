@@ -246,6 +246,85 @@ async function githubReadback(plan,fetcher,token){
   }
   return records;
 }
+
+// Stage execution authorization derives from a REAL owner /project comment plus
+// a sealed plan. No forged /department GitHub event is accepted.
+function verifyResumePlan(plan,task,candidates){
+  if(plan?.schema!==SCHEMA||plan.project_id!==task.project_id||
+     plan.source_issue!==task.issue||plan.source_comment!==task.comment||
+     plan.owner!==OWNER||plan.scope!==task.scope||plan.test!==task.test||
+     plan.goal!==task.goal||plan.model!==W.MODEL||
+     plan.mode!=='PUBLIC_REVIEW_ONLY'||plan.auto_merge!==false||
+     plan.production_deploy!==false||plan.paid_api_czk!==0||
+     plan.trusted_test_sha256!==W.sha(candidates.trusted))
+    block('PROJECT_RESUME_PLAN_REJECTED');
+  const {plan_sha256,...fields}=plan;
+  if(typeof plan_sha256!=='string'||!/^[a-f0-9]{64}$/.test(plan_sha256)||
+     digest(JSON.stringify(fields))!==plan_sha256)
+    block('PROJECT_RESUME_DIGEST_REJECTED');
+  if(!Array.isArray(plan.source_sha256)||plan.source_sha256.length<1||
+     plan.source_sha256.length>8||
+     !plan.source_sha256.every(x=>x&&typeof x.file==='string'&&
+       /^[a-f0-9]{64}$/.test(x.sha256||'')))
+    block('PROJECT_ORIGINAL_SOURCE_PROOF_REJECTED');
+  const valid=validateMilestones(
+    {milestones:plan.milestones.map(m=>({
+      goal:m.goal,acceptance:m.acceptance,files:m.files
+    }))},candidates,task);
+  if(JSON.stringify(valid)!==JSON.stringify(plan.milestones)||
+     JSON.stringify(plan.source_sha256.map(x=>x.file))!==
+     JSON.stringify(candidates.files.map(x=>x.file)))
+    block('PROJECT_RESUME_SCOPE_CHANGED');
+  return plan;
+}
+function authorizeStage(proof,live,root){
+  exact(proof,['owner_event','plan','stage','readback']);
+  const t=taskFromEvent(proof.owner_event),stage=proof.stage;
+  const c=A.candidateSources({...t,mode:'AUTO_OWNER_ISSUE',department:true},root);
+  if(stage===1)verifyPlan(proof.plan,t,c);
+  else verifyResumePlan(proof.plan,t,c);
+  if(!Number.isInteger(stage)||stage<1||stage>proof.plan.milestones.length)
+    block('PROJECT_AUTH_STAGE_REJECTED');
+  if(!live||live.repository?.full_name!==W.REPO)
+    block('PROJECT_AUTH_EVENT_REJECTED');
+  if(stage===1){
+    // First run must be an actual owner-authored issue_comment on the same issue.
+    const fresh=taskFromEvent(live);
+    if(fresh.project_id!==t.project_id||fresh.goal!==t.goal||
+       fresh.scope!==t.scope||fresh.test!==t.test)
+      block('PROJECT_AUTH_ORIGIN_CHANGED');
+  }else if(live.action==='imperion-dev-project-resume'&&
+    (live.sender?.login==='github-actions[bot]'||live.sender?.login===OWNER)&&
+    live.client_payload?.issue===t.issue&&
+    live.client_payload?.comment===t.comment){
+    // The workflow must first fetch the original owner comment and
+    // exact-SHA PR/CI readback from GitHub before writing this sealed proof.
+    // The dispatcher payload alone NEVER grants the authority to code.
+  }else block('PROJECT_AUTH_DISPATCH_REJECTED');
+  const next=readback(proof.plan,proof.readback);
+  if(next.status!=='NEXT_DRAFT_STAGE'||next.stage!==stage)
+    block('PROJECT_AUTH_STAGE_NOT_READY');
+  const m=proof.plan.milestones[stage-1];
+  return {scope:t.scope,test:t.test,goal:m.goal,issue:t.issue,comment:t.comment,
+    mode:'AUTO_OWNER_ISSUE',department:true,project_id:t.project_id,
+    project_stage:stage,project_files:m.files.slice()};
+}
+function authorizedTaskFromEnvironment(root){
+  const fs=require('node:fs');
+  const proofPath=process.env.IMPERION_DEV_PROJECT_STAGE_PROOF;
+  const eventPath=process.env.GITHUB_EVENT_PATH;
+  const path=require('node:path');
+  if(!proofPath||!eventPath||!process.env.RUNNER_TEMP||
+     path.resolve(proofPath)!==path.resolve(process.env.RUNNER_TEMP,'imperion-dev-project-stage-proof.json'))
+    block('PROJECT_PROOF_CONTEXT_REJECTED');
+  const f=fs.lstatSync(proofPath),e=fs.lstatSync(eventPath);
+  if(!f.isFile()||f.isSymbolicLink()||f.size>35000||
+     !e.isFile()||e.isSymbolicLink()||e.size>35000)
+    block('PROJECT_PROOF_FILE_REJECTED');
+  return authorizeStage(JSON.parse(fs.readFileSync(proofPath,'utf8')),
+    JSON.parse(fs.readFileSync(eventPath,'utf8')),root);
+}
+
 module.exports={SCHEMA,MAX_STAGES,projectId,projectCommand,taskFromEvent,
   safeSentence,validateMilestones,sealPlan,verifyPlan,makePlan,branchName,
-  stageSpec,readback,ciFromRuns,githubReadback};
+  stageSpec,readback,ciFromRuns,githubReadback,verifyResumePlan,authorizeStage,authorizedTaskFromEnvironment};
