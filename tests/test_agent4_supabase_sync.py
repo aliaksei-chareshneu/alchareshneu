@@ -50,6 +50,8 @@ class TestTransport(unittest.TestCase):
   with patch.object(m,'transport') as api:
    self.assertEqual(m.reconcile_once(db)['status'],'IDLE_NO_PENDING')
    api.assert_not_called()
+   self.assertEqual(db.settings['agent4_crm_transport_status'],'IDLE_NO_PENDING')
+   self.assertTrue(int(db.settings['agent4_crm_transport_heartbeat'])>0)
  def test_private_source_never_contains_personal_data(self):
   db=DB();p=m.private_source(db,db.pending[0])
   self.assertEqual(p['privacy'],'NO_MESSAGE_TEXT_NO_PHONE_NO_NAME')
