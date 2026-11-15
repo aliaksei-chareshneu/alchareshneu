@@ -371,6 +371,9 @@ Deno.serve(async (req:Request):Promise<Response>=>{
     const approved=!!lookup.data.training_authorized_at &&
       (savedTier==='STANDARD'||lookup.data.training_authorized_tier===savedTier);
     if(!approved)return reply({error:'personal_confirmation_pending'},409,origin);
+    // Starter4 requires a verified four-session package ledger and seat gates.
+    // An approved single-event RSVP cannot sell four attendances.
+    if(savedTier==='STARTER4')return reply({error:'package_checkout_requires_plan_authorization'},409,origin);
     // Late fee belongs to the original registration timestamp, not to a later PDF upload.
     const registrationMs=Date.parse(lookup.data.created_at||'');
     if(!Number.isFinite(registrationMs)||registrationMs>Date.now())

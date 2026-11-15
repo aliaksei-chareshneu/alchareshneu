@@ -110,6 +110,9 @@ test('private receipt cleanup is controlled, not public file listing',()=>{
  assert.ok(!source.includes('getPublicUrl('));
 });
 
+test('Starter4 cannot be charged through a one-event RSVP without a package ledger',()=>{
+ assert.ok(edge.includes("if(savedTier==='STARTER4')return reply({error:'package_checkout_requires_plan_authorization'}"));
+});
 test('QR Platba instruction is unique, amount-locked, and cannot substitute bank readback',async()=>{
  const path=require('node:path'),{pathToFileURL}=require('node:url');
  const qr=await import(pathToFileURL(path.resolve('supabase/functions/imperion-register/training-qr.mjs')).href);
