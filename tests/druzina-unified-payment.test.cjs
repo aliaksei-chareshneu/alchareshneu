@@ -109,3 +109,38 @@ test('private receipt cleanup is controlled, not public file listing',()=>{
  assert.ok(source.includes('.storage.from(item.name).remove(')&&source.includes('imperion-academy-payment-proofs'));
  assert.ok(!source.includes('getPublicUrl('));
 });
+
+test('Starter4 cannot be charged through a one-event RSVP without a package ledger',()=>{
+ assert.ok(edge.includes("if(savedTier==='STARTER4')return reply({error:'package_checkout_requires_plan_authorization'}"));
+});
+test('QR Platba instruction is unique, amount-locked, and cannot substitute bank readback',async()=>{
+ const path=require('node:path'),{pathToFileURL}=require('node:url');
+ const qr=await import(pathToFileURL(path.resolve('supabase/functions/imperion-register/training-qr.mjs')).href);
+ const domestic='19-2000145399/0800',iban='CZ6508000000192000145399';
+ assert.equal(qr.domesticIban(domestic),iban);
+ assert.equal(qr.domesticIban(iban),iban);
+ assert.equal(qr.domesticIban('CZ0008000000192000145399'),null);
+ assert.equal(qr.verifiedBankIban(domestic,'Fixture Association',iban,'Fixture Association'),iban);
+ assert.equal(qr.verifiedBankIban(domestic,'Wrong Merchant',iban,'Fixture Association'),null);
+ assert.equal(qr.verifiedBankIban(domestic,'Fixture Association',null,'Fixture Association'),null);
+ assert.equal(qr.verifiedBankIban(domestic,'Fixture Association',iban,null),null);
+ const one='11111111-1111-4111-8111-111111111111';
+ const two='22222222-2222-4222-8222-222222222222';
+ const spd=qr.createTrainingSpd(iban,240,one);
+ assert.match(spd,/^SPD\*1\.0\*ACC:CZ6508000000192000145399\*AM:240\.00\*CC:CZK\*MSG:DM /);
+ assert.ok(spd.includes(one.replace(/-/g,'').toUpperCase()));
+ assert.notEqual(spd,qr.createTrainingSpd(iban,240,two));
+ assert.equal(qr.createTrainingSpd(iban,0,one),null);
+ assert.equal(qr.createTrainingSpd(iban,240,'not-a-uuid'),null);
+ for(const check of ["Deno.env.get('DRUZINA_APPROVED_IBAN')","Deno.env.get('DRUZINA_APPROVED_PAYEE')",
+  "if(!spd)return reply({error:'approved_bank_not_configured'}","paymentReference:lookup.data.id,spd"])assert.ok(edge.includes(check),check);
+ assert.ok(!edge.includes('2703598853/2010'),'verified real bank account must not be hardcoded in public code');
+ for(const page of pages){
+  const html=fs.readFileSync(page,'utf8');
+  assert.ok(html.includes('id="paymentQrArea"')&&html.includes('vendor/qrcode.min.js'),page);
+ }
+ assert.ok(ui.includes('renderApprovedQr')&&ui.includes('window.QRCode'));
+ const vendor=fs.readFileSync('register/vendor/qrcode.min.js','utf8');
+ const license=fs.readFileSync('register/vendor/LICENSE-qrcodejs.txt','utf8');
+ assert.ok(vendor.includes('QRCode')&&license.includes('MIT License'));
+});

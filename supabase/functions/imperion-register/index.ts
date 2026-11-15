@@ -4,6 +4,7 @@
  * POST is request-for-contact, NOT an approved booking or sports waiver.
  */
 import { createClient } from 'npm:@supabase/supabase-js@2.112.3';
+import { verifiedBankIban, createTrainingSpd } from './training-qr.mjs';
 
 const ALLOWED_ORIGIN = 'https://aliaksei-chareshneu.github.io';
 const SERVICE_URL = Deno.env.get('SUPABASE_URL') || '';
@@ -370,6 +371,9 @@ Deno.serve(async (req:Request):Promise<Response>=>{
     const approved=!!lookup.data.training_authorized_at &&
       (savedTier==='STANDARD'||lookup.data.training_authorized_tier===savedTier);
     if(!approved)return reply({error:'personal_confirmation_pending'},409,origin);
+    // Starter4 requires a verified four-session package ledger and seat gates.
+    // An approved single-event RSVP cannot sell four attendances.
+    if(savedTier==='STARTER4')return reply({error:'package_checkout_requires_plan_authorization'},409,origin);
     // Late fee belongs to the original registration timestamp, not to a later PDF upload.
     const registrationMs=Date.parse(lookup.data.created_at||'');
     if(!Number.isFinite(registrationMs)||registrationMs>Date.now())
@@ -377,6 +381,11 @@ Deno.serve(async (req:Request):Promise<Response>=>{
     verifiedQuote=trainingQuote(event,savedTier,registrationMs,true);
     if(!verifiedQuote||!verifiedQuote.sessionPaymentOpen||!verifiedQuote.account)
       return reply({error:'payment_not_open'},409,origin);
+    // Check legal payee against protected Edge Function configuration; never accept a browser-supplied account.
+    const approvedIban=verifiedBankIban(verifiedQuote.account,verifiedQuote.recipient,
+      Deno.env.get('DRUZINA_APPROVED_IBAN'),Deno.env.get('DRUZINA_APPROVED_PAYEE'));
+    const spd=approvedIban ? createTrainingSpd(approvedIban,verifiedQuote.totalCzk,lookup.data.id) : null;
+    if(!spd)return reply({error:'approved_bank_not_configured'},409,origin);
     if(action==='quote'){
       if(proof)return reply({error:'invalid_request'},400,origin);
       return reply({ok:true,confirmed:false,trainingPayment:{
@@ -384,6 +393,7 @@ Deno.serve(async (req:Request):Promise<Response>=>{
         surchargeCzk:verifiedQuote.surchargeCzk,totalCzk:verifiedQuote.totalCzk,
         late48h:verifiedQuote.late48h,quoteLockedAt:verifiedQuote.quoteLockedAt,
         recipient:verifiedQuote.recipient,account:verifiedQuote.account,
+        iban:approvedIban,paymentReference:lookup.data.id,spd,
         proofRequired:true,bankVerified:false}},200,origin);
     }
     if(!proof)return reply({error:'payment_pdf_required'},400,origin);

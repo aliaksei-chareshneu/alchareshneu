@@ -12,7 +12,26 @@
     ru:{heading:'Цена тренировки и PDF подтверждения оплаты',choose:'Запрашиваемый тариф',intro:'За 2 часа: первое занятие 240 Kč, подтверждённый Senior 120 Kč; Starter 4 — 800 Kč за четыре занятия в течение 30 дней. После первого оплаченного и посещённого занятия можно в течение 48 часов перейти на Starter 4, доплатив 560 Kč после проверки.',late:'Для новой записи менее чем за 48 часов до занятия действует доплата 25%.',notReady:'Оплата закрыта. Отправьте предварительную заявку. Не переводите деньги и не приезжайте без личного письменного подтверждения.',ready:'Получатель и банковский счёт доступны только после персонального подтверждения и проверки кода.',codeLabel:'Личный код предыдущей заявки (для повторного входа)',codeHelp:'Если записываетесь впервые, оставьте код пустым и отправьте заявку, затем сохраните полученный одноразовый код.',check:'Проверить утверждённую сумму и банковский счёт',checking:'Проверяем…',checkFirst:'Сначала проверьте лично подтверждённую стоимость и реквизиты.',approved:'Подтверждённый тариф: {tier}. База {base} Kč + доплата {fee} Kč = ИТОГО {total} Kč. Получатель: {recipient}. Счёт: {account}. Переводить только после письменного подтверждения организатора.',pdf:'PDF подтверждения банковского перевода (макс. 2 МБ) *',pdfHelp:'Скройте сведения о посторонних операциях. PDF отправляется на проверку, но не доказывает поступление средств.',pending:'По этому коду ещё нет персонально утверждённой суммы или занятие не открыто. Требуется подтверждение организатора.',changed:'Сумма или 48-часовая граница изменились. Проверьте расчёт заново.',receipt:'PDF получен на проверку. Деньги и участие пока не подтверждены.',codeReceipt:'Сохраните этот личный одноразовый код. После письменного подтверждения организатора вернитесь в ту же форму, введите код и проверьте сумму. Код не является бронированием.'},
     uk:{heading:'Вартість тренування та PDF підтвердження оплати',choose:'Бажаний тариф',intro:'За 2 години: перше заняття 240 Kč, підтверджений Senior 120 Kč; Starter 4 — 800 Kč за чотири заняття протягом 30 днів. Після першого оплаченого та відвіданого заняття можна протягом 48 годин перейти на Starter 4, доплативши 560 Kč після перевірки.',late:'Для нової заявки менш ніж за 48 годин до тренування діє доплата 25%.',notReady:'Оплата закрита. Надішліть попередню заявку. Не сплачуйте і не приїжджайте без особистого письмового підтвердження.',ready:'Одержувач і рахунок доступні лише після персонального погодження та перевірки коду.',codeLabel:'Особистий код попередньої заявки (для повторного входу)',codeHelp:'Якщо записуєтеся вперше, залиште поле порожнім, надішліть заявку і збережіть одноразовий код.',check:'Перевірити погоджену суму й банківський рахунок',checking:'Перевіряємо…',checkFirst:'Спочатку перевірте персонально підтверджену суму та реквізити.',approved:'Підтверджений тариф: {tier}. База {base} Kč + доплата {fee} Kč = РАЗОМ {total} Kč. Одержувач: {recipient}. Рахунок: {account}. Переказуйте лише після письмового підтвердження організатора.',pdf:'PDF підтвердження банківського переказу (до 2 МБ) *',pdfHelp:'Приховайте дані про сторонні операції. PDF призначено для перевірки, він не доводить надходження коштів.',pending:'Для цього коду ще немає персонально погодженої суми або тренування не відкрите. Потрібне підтвердження організатора.',changed:'Сума або 48-годинна межа змінились. Перевірте розрахунок знову.',receipt:'PDF отримано на перевірку. Кошти та участь ще не підтверджені.',codeReceipt:'Збережіть цей особистий одноразовий код. Після письмового підтвердження організатора поверніться до тієї самої форми, введіть код і перевірте суму. Код не є бронюванням.'}
   };
+  const QR_TEXT={
+    cs:{title:'QR platba pro schválenou žádost',reference:'Jedinečný identifikátor (zpráva pro příjemce): ',copy:'Kopírovat platební údaje',copied:'Údaje zkopírovány',failed:'Kopírování není dostupné',note:'QR pouze předvyplní převod; zpráva není variabilní symbol (VS). Připsání se ověřuje zvlášť.'},
+    en:{title:'QR transfer for this approved request',reference:'Unique reference (payment message): ',copy:'Copy transfer details',copied:'Details copied',failed:'Clipboard unavailable',note:'QR pre-fills a transfer; this message is not a numeric VS. Cleared funds require separate bank verification.'},
+    ru:{title:'QR для перевода по одобренной заявке',reference:'Уникальный идентификатор (сообщение получателю): ',copy:'Скопировать реквизиты',copied:'Скопировано',failed:'Копирование недоступно',note:'QR только заполняет перевод; сообщение не является вариабильным символом (VS). Поступление денег проверяется отдельно.'},
+    uk:{title:'QR для переказу за погодженою заявкою',reference:'Унікальний ідентифікатор (повідомлення одержувачу): ',copy:'Копіювати реквізити',copied:'Скопійовано',failed:'Копіювання недоступне',note:'QR лише заповнює переказ; повідомлення не є варіабільним символом (VS). Надходження коштів перевіряється окремо.'}
+  };
   const $=id=>document.getElementById(id);
+  function renderApprovedQr(p){
+    const area=$('paymentQrArea'),canvas=$('paymentQrCode'),ref=$('paymentReference');
+    if(!area||!canvas||!ref)return;
+    canvas.replaceChildren();area.hidden=true;
+    if(!p?.spd||!p?.paymentReference||!p?.iban||!window.QRCode)return;
+    const t=QR_TEXT[latestLang]||QR_TEXT.cs;
+    $('paymentQrLabel').textContent=t.title;
+    ref.textContent=t.reference+p.paymentReference;
+    $('paymentQrCaution').textContent=t.note;
+    $('paymentCopyButton').textContent=t.copy;
+    try{new window.QRCode(canvas,{text:p.spd,width:192,height:192,colorDark:'#000',colorLight:'#fff',correctLevel:window.QRCode.CorrectLevel.M});area.hidden=false;}
+    catch{canvas.replaceChildren();}
+  }
   let latestEvent=null,latestLang='cs',latestMode='PLANNED',privateQuote=null;
   const copy=()=>T[latestLang]||T.cs;
   const fill=(s,d)=>s.replace(/\{(\w+)\}/g,(_,key)=>String(d[key]??''));
@@ -22,6 +41,7 @@
     privateQuote=null;
     const file=$('paymentProof');if(file){file.required=false;file.value='';}
     const state=$('trainingPaymentPrivate');if(state)state.textContent='';
+    renderApprovedQr(null);
   }
   function render(event,lang,mode){
     const changed=latestEvent?.event_id!==event?.event_id||latestMode!==mode;
@@ -31,7 +51,7 @@
     const q=event?.trainingPayment;
     box.hidden=!q||mode!=='FORM';
     if(changed)clearPrivateQuote();
-    if(box.hidden){proof.required=false;proof.value='';$('trainingPaymentPrivate').textContent='';return;}
+    if(box.hidden){proof.required=false;proof.value='';$('trainingPaymentPrivate').textContent='';renderApprovedQr(null);return;}
     const t=copy();
     $('trainingPaymentHeading').textContent=t.heading;
     $('trainingPlanLabel').textContent=t.choose;
@@ -57,6 +77,7 @@
     $('paymentProofField').hidden=!good;
     proof.required=good;
     if(!good)proof.value='';
+    renderApprovedQr(good?privateQuote.payload:null);
     if(good){
       const p=privateQuote.payload,tname=PRICE_NAMES[p.tier]?.[lang]||p.tier;
       $('trainingPaymentPrivate').textContent=fill(t.approved,{
@@ -129,6 +150,17 @@
     $(id)?.addEventListener('input',()=>{clearPrivateQuote();render(latestEvent,latestLang,latestMode);});
   });
   $('paymentQuoteButton')?.addEventListener('click',checkQuote);
+  $('paymentCopyButton')?.addEventListener('click',async()=>{
+    const p=privateQuote?.payload;
+    if(!p?.spd||!p?.paymentReference||!p?.iban)return;
+    const t=QR_TEXT[latestLang]||QR_TEXT.cs;
+    const details=[p.recipient,p.iban,p.account,p.totalCzk+' CZK',
+      'DM '+p.paymentReference.replace(/-/g,'').toUpperCase()].join('\n');
+    try{
+      if(!navigator.clipboard?.writeText)throw Error('unsupported');
+      await navigator.clipboard.writeText(details);$('paymentCopyButton').textContent=t.copied;
+    }catch{$('paymentCopyButton').textContent=t.failed;}
+  });
   window.ImperionTrainingPayment={render,catalogPrice,requestOptions,changedMessage,
     receiptMessage,resumeMessage,clearPrivateQuote};
 })();
