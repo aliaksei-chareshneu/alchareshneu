@@ -1,6 +1,7 @@
 """Offline tests for private Agent4 transport; no external network or personal data."""
 import importlib.util
 import json
+import hashlib
 from pathlib import Path
 import sys
 import types
@@ -27,10 +28,11 @@ class DB:
   self.settings={'agent4_tg_controller:123':'OSVC'}
   self.pending=[dict(source_key=KEY,local_job_id=7,legal_entity='OSVC',
      inbound_at='2026-11-15 07:30:00',provider_send_status='NO_CONFIRMED_SEND')]
+  self.source_external_id='321'
   self.owner_selftest=False;self.acknowledged=[]
  def execute(self,sql,args=()):
   if sql.startswith('SELECT source,peer'):
-   return Result(dict(source='telegram-agent4',peer='123',external_id='321'))
+   return Result(dict(source='telegram-agent4',peer='123',external_id=self.source_external_id))
   if sql.startswith('SELECT value FROM settings'):
    value=self.settings.get(args[0]);return Result((value,) if value is not None else None)
   if sql.startswith('SELECT 1 FROM events'):
@@ -44,7 +46,51 @@ class DB:
  def ack(self,j,c,k):
   self.acknowledged.append((j,c,k));return 'ACKNOWLEDGED_AFTER_EXTERNAL_READBACK'
 
+def prepare_business(db):
+ cid='conn_Pasha_local_only_123'
+ prefix=hashlib.sha256(cid.encode()).hexdigest()[:32]
+ db.source_external_id='biz:'+prefix+':321'
+ db.settings={'agent4_biz_connection:'+prefix:json.dumps({
+   'id':cid,'owner_id':86001,'enabled':True,'can_reply':True}),
+   'agent4_owner_test_peer_sha256':hashlib.sha256(b'86001').hexdigest(),
+   'agent4_biz_controller:'+prefix+':123':'OSVC',
+   'agent4_biz_consent:'+prefix+':123':'AFFIRMATIVE',
+   'agent4_biz_optout:'+prefix+':123':'0'}
+ return prefix
+
 class TestTransport(unittest.TestCase):
+ def test_business_source_requires_owner_and_specific_chat_consent(self):
+  db=DB();prepare_business(db)
+  row=m.private_source(db,db.pending[0])
+  self.assertEqual(row['source_key'],KEY)
+  self.assertEqual(row['privacy'],'NO_MESSAGE_TEXT_NO_PHONE_NO_NAME')
+  self.assertNotIn('peer',row)
+ def test_business_missing_consent_is_held_before_network(self):
+  db=DB();prefix=prepare_business(db)
+  db.settings.pop('agent4_biz_consent:'+prefix+':123')
+  with patch.object(m,'transport') as api:
+   r=m.reconcile_once(db,token='b'*64)
+   self.assertEqual(r['held'],1);api.assert_not_called()
+ def test_business_wrong_owner_hash_is_rejected(self):
+  db=DB();prepare_business(db)
+  db.settings['agent4_owner_test_peer_sha256']='f'*64
+  with self.assertRaisesRegex(m.BridgeHeld,'BUSINESS_OWNER_NOT_VERIFIED'):
+   m.private_source(db,db.pending[0])
+ def test_business_chat_optout_is_rejected(self):
+  db=DB();prefix=prepare_business(db)
+  db.settings['agent4_biz_optout:'+prefix+':123']='1'
+  with self.assertRaisesRegex(m.BridgeHeld,'BUSINESS_CHAT_OPTED_OUT'):
+   m.private_source(db,db.pending[0])
+ def test_business_disabled_connection_is_rejected(self):
+  db=DB();prefix=prepare_business(db)
+  db.settings['agent4_biz_connection:'+prefix]=db.settings['agent4_biz_connection:'+prefix].replace('"enabled": true','"enabled": false')
+  with self.assertRaisesRegex(m.BridgeHeld,'BUSINESS_CONNECTION_NOT_ENABLED'):
+   m.private_source(db,db.pending[0])
+ def test_business_owner_selftest_cannot_become_buyer(self):
+  db=DB();prepare_business(db);db.owner_selftest=True
+  with patch.object(m,'transport') as api:
+   r=m.reconcile_once(db,token='b'*64)
+   self.assertEqual(r['held'],1);api.assert_not_called()
  def test_no_pending_is_idle_and_never_opens_network(self):
   db=DB();db.pending=[]
   with patch.object(m,'transport') as api:
