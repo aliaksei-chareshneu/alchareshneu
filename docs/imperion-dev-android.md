@@ -174,3 +174,29 @@ The official Groq Rate Limits documentation currently publishes a reference GPT-
 The quota gate now queries up to three pages of authenticated GitHub Actions workflow history (300 runs) to avoid locking out the agent merely because many GitHub PR previews were created. Since Stage14 merge on 15 Nov 2026 06:54:27 UTC, PR previews have **no model job** and never count toward the model allotment. Older preview runs before that cutoff remain counted if their provider admission step actually succeeded. All admitted issue jobs run in a single serialized Actions queue, with GitHub-run-history readback and fail-closed incomplete/changed pagination, suspicious history, missing owner run, or quota violations. This is not an unmetered always-on model.
 
 Current Stage16 test-first source creation, Stage15 three-source editing and legacy public Python one-file gate all reuse these same Groq/owner/Docker/Draft-PR controls. Use a unique owner command to test a new task; GitHub CI on a PR preview uses mocks and spends **zero** Groq tokens. Without a post-merge real new task and bot Draft PR, classify a new capability as CODE_MERGED_AND_TESTED, not LIVE_E2E_VERIFIED.
+
+
+## Stage 18 — owner-triggered development department control loop (15 Nov 2026)
+
+The existing Developer Agent #1 gains a **single-workflow mini-department**: planner, bounded implementation, independently maintained Docker tests, separate AI code review, immutable review receipt, and Draft PR. This is a new control path inside the existing GitHub Actions automation; **not** a second agent, CRM, queue, paid API, cloud project or website deployment.
+
+### Owner command
+
+    /imperion-dev department
+    scope: ops/imperion-dev-cloud-fixture
+    test: tests/imperion-dev-cloud-three-fixture.test.cjs
+    goal: Clarify selected full-line public source comments without changing exports or arithmetic results.
+
+The command is accepted **only** as a NEW owner-authored comment in the existing GitHub Issue #245, from the real user with OWNER association. Other GitHub users, edited comments, PR-trigger comments or malformed scopes fail before a model call. The same Groq Personal Free GPT-OSS120B quota admission and single serialized owner job queue are reused; PR previews run unit/mocked QA with zero model calls.
+
+### Five-gate execution
+
+1. **Planner** proposes exact 1–3 previously tracked public source files and one micro-milestone per file, each with an explicit scope/risk. Files must be named in a previously maintained independent trusted test. Plan cannot choose private data or create new paths; source/test SHA and GitHub comment identity are recorded.
+2. **Coder** runs through the EXISTING autonomous patch engine. Its model-selected file set is replaced by the planner's exact allowlisted set. Source SHA, comment-only constraints and existing tests are enforced. One bounded repair after trusted-test failure is unchanged.
+3. **Independent QA** runs source checks, model-generated *advisory* behavior-witness checks and pre-existing trusted tests inside no-network, read-only, non-root Docker; it records only an immutable pass/fail receipt.
+4. **Reviewer** receives only public read-only planned changes and a short independent test excerpt. It must output strictly bounded JSON PASS/BLOCK with explicit checks and any blocker. BLOCK stops publication. This is a SECOND review pass using the **same model provider** — therefore *not independent evidence* and not a replacement for trusted tests or human review. The reviewer has no tool, GitHub or credential permissions.
+5. **Publisher** verifies the review, QA, plan, GitHub owner event, exact file list and hashes again before an idempotent **bot Draft PR**. Generated source remains untrusted. No auto-merge, production deploy, billing change, user messages, API-key exposure or role escalation.
+
+The department is **not a 24/7 general autonomous engineering organization**: a single owner command is still bounded to up to three existing independently tested public JS/CJS files. It does not create full applications, generate independent oracles as a substitute for human requirements, hire agents, make arbitrary GitHub changes, access private data or autonomously deploy production. It is a verifiable *department-style coding workflow* with structured scope, separation of stages and a review log; progress toward a broader engineering department requires real multi-step acceptance beyond this implementation.
+
+Acceptance states must stay separate: CODE_STAGED -> PR_CI_PASS -> MERGED_TO_MAIN -> OWNER_ISSUE_E2E_PASS -> DRAFT_PR_CREATED; do not conflate planner/reviewer JSON with independently tested correctness. All owner commands use the current existing Free run/token quotas.
