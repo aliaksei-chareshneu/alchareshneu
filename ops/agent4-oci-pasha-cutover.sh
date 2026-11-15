@@ -94,7 +94,13 @@ if ! systemctl is-active --quiet "$UNIT"; then
   exit 2
 fi
 if ! grep -Fq '"business_message"' "$TARGET"; then
-  echo "ERROR: listener source does not contain business_message" >&2
+  echo "ERROR: listener source missing business updates; restoring source" >&2
+  if [[ -n "$BACKUP" && -f "$BACKUP" ]]; then
+    systemctl stop "$UNIT" || true
+    cp -p "$BACKUP" "$TARGET"
+    rm -f "$ROOT/agent4_business_connection.py"
+    systemctl start "$UNIT" || true
+  fi
   exit 2
 fi
 echo "OCI_SOURCE_INSTALLED_AND_SERVICE_ACTIVE"
