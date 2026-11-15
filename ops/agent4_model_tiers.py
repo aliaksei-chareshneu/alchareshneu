@@ -51,7 +51,7 @@ def choose_model(request, runtime):
         if (runtime.get("local_backend") != "OLLAMA_CPU_ONLY" or
                 runtime.get("host") != "http://127.0.0.1:11434"):
             return deny("LOCAL_PRIVATE_BACKEND_UNVERIFIED")
-        model = request.get("model") or runtime.get("selected_private_model")
+        model = request["model"] if "model" in request else runtime.get("selected_private_model")
         installed = runtime.get("installed_local_models", ())
         if (not isinstance(model, str) or
                 not isinstance(installed, (list, tuple, set, frozenset)) or
