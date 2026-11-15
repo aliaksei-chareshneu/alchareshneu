@@ -1,3 +1,11 @@
+
+## M11 — hosted Windows CI and real four-step workspace readback
+
+- GitHub run [43743623443](https://github.com/aliaksei-chareshneu/alchareshneu/actions/runs/43743623443) SUCCESS on both Linux `safe-executor` and `windows-native-synthetic` (`windows-2025`). Free standard hosted runner on existing public GitHub repo; NO zmrzlina desktop action.
+- Fresh real BrowserBridge queue test completed **four** different synthetic `pc_operator` requests in sequence, each `state=done`, `attempts=1` and correct nested result: import `70366bf9-96cb-424a-b7ef-9f36d252f508`; plan `d9badec2-84c3-4cf6-a126-e9ed6cab7a5f`; execute `aedac05a-c32a-42c7-ac79-8ddb2f73dbe7`; fetch `c2d74efd-8e59-47dc-97f6-621ddb6cfebc`. Initial CSV SHA256 `0e1aaafac19936fe95ce623e37360b3f2c048b6a3ec95039070a688b1aad4326`. Generated Markdown report 273 bytes, SHA256 `9c0ffe1d731c6c22b77ca64addab4b476c5aba7e5b4747fcfb9fc58ed813eec4`, independently read back from the actual Windows outbox via `fetch`.
+- Scope remains **non-sensitive scratch workspace only**. This test does not prove model-led autonomous planning, personal document reading, or GUI input. Resident Windows worker still needs safe reload for M7 runtime probes. No new paid inference.
+- Execution record logged readback at existing 03 IMPERION_Execution_Receipts row 883, `REC-IMP-PC5-M11-20261115-CLOUDCSV-WINDOWS-CI`.
+
 ## M10 — source v6 deployed and zero-spend account probe (15 Nov 2026)
 
 - **Deployed:** existing Supabase `imperion-free-inference` version **6**, ACTIVE, JWT verification and service-role auth preserved, v5 original code backed up under `gateway/rollback-v5/`.
