@@ -69,6 +69,42 @@ def transport(body=None,source_key=None,token=None):
         raise BridgeHeld('TRANSPORT_RESPONSE_NOT_VERIFIED') from None
     return result
 
+def business_source_scope(db, peer, external_id, entity, read):
+    """Additional verifiable permission checks for Chat Automation jobs.
+
+    Reuse the existing CRM source identity and transport; no second CRM.
+    Only post-verified, non-test, consented business-origin messages qualify.
+    """
+    match=re.fullmatch(r'biz:([0-9a-f]{32}):([1-9][0-9]*)',str(external_id))
+    if not match:raise BridgeHeld('INVALID_BUSINESS_SOURCE_ID')
+    prefix=match.group(1)
+    raw=read('agent4_biz_connection:'+prefix)
+    try:
+        c=json.loads(raw[0]) if raw else None
+    except (ValueError,TypeError):
+        c=None
+    if not isinstance(c,dict) or not isinstance(c.get('id'),str):
+        raise BridgeHeld('BUSINESS_CONNECTION_NOT_VERIFIED')
+    if hashlib.sha256(c['id'].encode('utf-8')).hexdigest()[:32]!=prefix:
+        raise BridgeHeld('BUSINESS_CONNECTION_SHA_MISMATCH')
+    if c.get('enabled') is not True or c.get('can_reply') is not True:
+        raise BridgeHeld('BUSINESS_CONNECTION_NOT_ENABLED')
+    owner=read('agent4_owner_test_peer_sha256')
+    if not (owner and isinstance(c.get('owner_id'),int)
+            and hashlib.sha256(str(c['owner_id']).encode()).hexdigest()==owner[0]):
+        raise BridgeHeld('BUSINESS_OWNER_NOT_VERIFIED')
+    key=prefix+':'+str(peer)
+    scope=read('agent4_biz_controller:'+key)
+    consent=read('agent4_biz_consent:'+key)
+    opted=read('agent4_biz_optout:'+key)
+    if not scope or scope[0]!=entity:
+        raise BridgeHeld('BUSINESS_SCOPE_NOT_VERIFIED')
+    if not consent or consent[0]!='AFFIRMATIVE':
+        raise BridgeHeld('BUSINESS_COUNTERPARTY_CONSENT_MISSING')
+    if opted and opted[0]=='1':
+        raise BridgeHeld('BUSINESS_CHAT_OPTED_OUT')
+    return entity
+
 def private_source(db,entry):
     """Existing owner-specific scope and opt-out are always revalidated."""
     source_key=entry['source_key']; entity=entry['legal_entity']; job_id=entry['local_job_id']
@@ -79,12 +115,15 @@ def private_source(db,entry):
     if not job or job['source']!='telegram-agent4':raise BridgeHeld('NOT_PROVIDER_TELEGRAM')
     peer=job['peer']
     read=lambda key:db.execute("SELECT value FROM settings WHERE key=?",(key,)).fetchone()
-    scope=read('agent4_tg_controller:'+peer)
-    stopped=read('agent4_tg_stopped:'+peer)
-    opted=read('agent4_tg_optout:'+peer)
-    if not scope or scope[0]!=entity:raise BridgeHeld('EXPLICIT_SCOPE_NOT_VERIFIED')
-    if (stopped and stopped[0]=='1') or (opted and opted[0]=='1'):
-        raise BridgeHeld('OPT_OUT_SUPPRESSES_SOURCE')
+    if str(job['external_id']).startswith('biz:'):
+        business_source_scope(db,peer,job['external_id'],entity,read)
+    else:
+        scope=read('agent4_tg_controller:'+peer)
+        stopped=read('agent4_tg_stopped:'+peer)
+        opted=read('agent4_tg_optout:'+peer)
+        if not scope or scope[0]!=entity:raise BridgeHeld('EXPLICIT_SCOPE_NOT_VERIFIED')
+        if (stopped and stopped[0]=='1') or (opted and opted[0]=='1'):
+            raise BridgeHeld('OPT_OUT_SUPPRESSES_SOURCE')
     if db.execute("SELECT 1 FROM events WHERE job=? AND state='OWNER_SELFTEST_ONLY'",(job_id,)).fetchone():
         raise BridgeHeld('OWNER_TEST_NOT_BUYER')
     expected=crm.receipt_key(job['source'],str(peer),str(job['external_id']),entity)
