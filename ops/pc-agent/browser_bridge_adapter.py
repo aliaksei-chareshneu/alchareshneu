@@ -34,6 +34,11 @@ def dispatch(action, payload=None):
             from pc5_gui_pilot import operate as scoped_gui
             return {"agent": "IMPERION_AGENT5_RESTRICTED",
                     "requested": "pc_operator", "result": scoped_gui(payload)}
+        # Lightweight Windows readback: safe even when 1 GB full-audit gate fails.
+        if payload.get("mode") == "audit_light":
+            from pc5_low_ram_audit import operate as light_audit
+            return {"agent": "IMPERION_AGENT5_RESTRICTED",
+                    "requested": "pc_operator", "result": light_audit(payload)}
         # M6: existing fixed PowerShell audit with SHA receipt; remediation is dry-run only.
         if payload.get("mode") in ("audit_pc", "remediate_pc"):
             from pc5_maintenance import operate as maintenance_review
@@ -49,7 +54,7 @@ def dispatch(action, payload=None):
             return {"agent": "IMPERION_AGENT5_RESTRICTED", "requested": "pc_operator",
                     "result": ({"status": "DONE", "mode": "runtime_probe",
                                 "generation": "M7-20261115",
-                                "supported": ["audit_pc", "remediate_pc", "continuity_status",
+                                "supported": ["audit_light", "audit_pc", "remediate_pc", "continuity_status",
                                               "maintenance_plan", "gui_pilot", "model_plan"],
                                 "remote_approval_is_authority": False,
                                 "source_loaded": True}
