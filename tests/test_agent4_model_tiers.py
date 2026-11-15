@@ -97,4 +97,15 @@ class T(unittest.TestCase):
   secret="a private message from my Telegram chat"
   x=mod.choose_model({**PRIVATE,"message":secret},LOCAL)
   self.assertNotIn(secret,str(x))
+ def test_malformed_unhashable_model_metadata_fails_closed(self):
+  for cls in [[], {}, 2]:
+   self.assertEqual(mod.choose_model({**PRIVATE,"classification":cls},LOCAL)["status"],"BLOCKED")
+  for model in [[], {}, 23]:
+   self.assertEqual(mod.choose_model({**PRIVATE,"model":model},LOCAL)["status"],"BLOCKED")
+  for url in [[], {}, 24]:
+   self.assertEqual(mod.choose_model({**PUBLIC,"source_url":url},GROQ)["status"],"BLOCKED")
+  for purpose in [[], {}]:
+   self.assertEqual(mod.choose_model({**PUBLIC,"purpose":purpose},GROQ)["status"],"BLOCKED")
+
+
 if __name__=="__main__":unittest.main()
