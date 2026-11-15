@@ -405,7 +405,7 @@ jobs:
             fs.writeFileSync(process.argv[2],JSON.stringify(r,null,2)+"\n",{flag:"wx"});' \
             "$proof" "$RUNNER_TEMP/imperion-dev-autonomous-receipt.json" "$baseline"
           echo "AUTO_TRUSTED_AND_ADVISORY_TESTS_PASS_OWNER_REVIEW_ONLY" >> "$GITHUB_STEP_SUMMARY"
-      - name: Independent-from-coder advisory reviewer after trusted QA
+      - name: Second-pass model reviewer (same provider; not independent) after trusted QA
         if: github.event_name == 'issue_comment' && startsWith(github.event.comment.body, '/imperion-dev department')
         run: node scripts/imperion-dev-department.cjs --review
       - name: Independent test-first new module red-green Docker acceptance
@@ -539,10 +539,12 @@ jobs:
           proof="$RUNNER_TEMP/imperion-dev-cloud-proof/imperion-dev-autonomous-proposal.json"
           receipt="$RUNNER_TEMP/imperion-dev-cloud-proof/imperion-dev-autonomous-receipt.json"
           test -s "$proof" && test -s "$receipt"
+          dept_summary=""
           if [[ "$GITHUB_EVENT_NAME" == "issue_comment" && "$GITHUB_EVENT_PATH" != "" ]]; then
             node -e 'const e=require(process.env.GITHUB_EVENT_PATH);if(e.comment?.body?.startsWith("/imperion-dev department"))process.exit(42)' && is_dept=0 || is_dept=$?
             if [[ "${is_dept:-0}" -eq 42 ]]; then
               node scripts/imperion-dev-department.cjs --verify-review "$RUNNER_TEMP/imperion-dev-cloud-proof"
+              dept_summary="$(node scripts/imperion-dev-department.cjs --summary "$RUNNER_TEMP/imperion-dev-cloud-proof")"
               echo "DEPARTMENT_REVIEW_SIGNED_AND_VERIFIED" >> "$GITHUB_STEP_SUMMARY"
             elif [[ "${is_dept:-0}" -ne 0 ]]; then exit 9; fi
           fi
@@ -582,7 +584,7 @@ jobs:
           git push --set-upstream origin "$branch"
           gh pr create --draft --base main --head "$branch" \
             --title "DRAFT: $model autonomous issue $AUTO_ISSUE_NUMBER comment $AUTO_COMMENT_ID" \
-            --body "Owner-scoped, GitHub-hosted coding with VERIFIED provider: $provider and model: $model. The model selected one to three public test-referenced files and proposed SHA-checked patches. EXISTING independent trusted tests and a NEW data-only advisory behavior witness passed in no-network non-root read-only Docker. The advisory is NOT independent and needs owner review. No new paid API account, private source, auto-merge or deploy. Provider billing NOT independently verified. OWNER REVIEW REQUIRED."
+            --body "Owner-scoped, GitHub-hosted coding with VERIFIED provider: $provider and model: $model. The model selected one to three public test-referenced files and proposed SHA-checked patches. EXISTING independent trusted tests and a NEW data-only advisory behavior witness passed in no-network non-root read-only Docker. The advisory is NOT independent and needs owner review. No new paid API account, private source, auto-merge or deploy. Provider billing NOT independently verified. OWNER REVIEW REQUIRED.\n\n$dept_summary"
           gh pr list --head "$branch" --base main --state open \
             --json number,isDraft --limit 3 > "$RUNNER_TEMP/autonomous-created-pr.json"
           node -e 'const a=require(process.argv[1]);if(a.length!==1||!a[0].isDraft)process.exit(9)' \
