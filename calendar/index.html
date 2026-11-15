@@ -58,6 +58,7 @@
 <link rel="stylesheet" href="../unified-shell.css?v=20261113b">
 <link rel="stylesheet" href="../imperion-finish.css?v=20261113b">
 <script src="../unified-shell.js?v=20261113b" defer></script>
+<script src="../register/event-i18n.js?v=20261114-l10n2"></script>
 </head>
 <body data-imperion-scope="shared" data-imperion-design="calendar">
 <a class="skip-link" href="#page-content" data-exp="skip">Skip to content</a>
@@ -95,6 +96,12 @@
 </div>
 
 <main id="page-content">
+<!-- DEC-2026: proposed options, no booking/charge, shared calendar events are transparent. -->
+<aside id="bw-december-calendar-notice" role="note" style="max-width:1130px;margin:12px auto 16px;padding:15px 20px;border:1px solid #7bb5a6;background:#123b36;color:#f0fff9;border-radius:13px;font-size:16px">
+<strong style="font-size:19px;color:#d6ffe9">🥾 December / Prosinec — new nature walk proposals</strong>
+<p style="margin:7px 0 11px">13 Dec Holedná <b>free 0 Kč</b> · 20 Dec Mariánské údolí <b>guided pilot 290 Kč</b>. Both are INTEREST ONLY, not confirmed events. The 28 Nov hike is CANCELLED. Do not travel or pay without personal confirmation.</p>
+<a href="../walkers/hikes-december-2026.html?src=calendar" style="font-weight:850;color:#c5ffe4;text-decoration:underline">Dates, routes &amp; interest →</a>
+</aside>
 
 <!-- DM-20261106-CAL-UPDATE: club training notice, not an invitation or booking. -->
 <style>
@@ -113,7 +120,7 @@ html[lang="en"] #dm-calendar-training-update-20261106 [data-cal-lang="en"],html[
 </aside>
 <section id="november-2026-verified-programme" style="max-width:1120px;margin:12px auto 20px;padding:18px 20px;background:#173936;color:#f1fff8;border:1px solid #94d7bf;border-radius:14px" aria-label="November 2026 owner approved public programme">
 <strong style="font-size:21px"><span lang="cs" data-site-language="cs">📅 LISTOPAD 2026</span><span lang="en" data-site-language="en">📅 NOVEMBER 2026</span><span lang="ru" data-site-language="ru">📅 НОЯБРЬ 2026</span><span lang="uk" data-site-language="uk">📅 ЛИСТОПАД 2026</span></strong>
-<p style="margin:8px 0 12px">✅ Free beginner HEMA 14 Nov · ⚔️ Paid Monday HEMA 16/23/30 Nov (240 Kč first lesson; eligible Senior 120 Kč; Starter 4 = 800 Kč) · 🟠 Conditional Brno After Dark 18 Nov (100 Kč, min. 12) · 🆓 FREE youth calisthenics 24 &amp; 26 Nov (organiser GO, exact safe meeting point by confirmation) · 🟠 25 Nov advanced HEMA and 27 Nov padded shields workshop: owner GO, safe indoor venue NOT SECURED · 🆓 28 Nov hike PLANNED · 🟠 29 Nov historic walk CONDITIONAL (450 Kč, min. 8 paid).</p>
+<p style="margin:8px 0 12px">✅ Free beginner HEMA 14 Nov · ⚔️ Paid Monday HEMA 16/23/30 Nov (240 Kč first lesson; eligible Senior 120 Kč; Starter 4 = 800 Kč) · 🟠 Conditional Brno After Dark 18 Nov (100 Kč, min. 12) · 🆓 FREE youth calisthenics 24 &amp; 26 Nov (organiser GO, exact safe meeting point by confirmation) · 🟠 25 Nov advanced HEMA and 27 Nov padded shields workshop: owner GO, safe indoor venue NOT SECURED · ❌ 28 Nov Obřany→Bílovice hike CANCELLED · 🟡 13 &amp; 20 Dec nature hikes PROPOSED (interest only) · 🟠 29 Nov historic walk CONDITIONAL (450 Kč, min. 8 paid).</p>
 <p style="margin:0 0 12px">15 and 17 November are not open for registration or promotion. School HEMA 27 Nov is CLOSED to the public. Never pay or travel without a personal place/venue confirmation. Separate legal organisers and programme rules apply.</p>
 <a href="../events/november-2026.html" style="color:#0b2e24;background:#b4efda;padding:10px 15px;border-radius:8px;text-decoration:none;font-weight:800;display:inline-block">Full programme · EN / CZ / RU / UA</a>
 </section>
@@ -408,9 +415,12 @@ function renderEvents(lang) {
     const cards = LIVE_EVENTS.map(ev => {
       const imageOverride = safeImageFile(ev.imageOverride);
       const img = imageOverride ? `../images/${imageOverride}` : (Object.hasOwn(CATEGORY_IMAGE, ev.category) ? CATEGORY_IMAGE[ev.category] : DEFAULT_EVENT_IMAGE);
-      const title = escapeText(ev.title);
-      const description = escapeText(ev.description);
-      const locationName = escapeText(ev.locationName);
+      const source = ev._catalogSource;
+      const localize = window.ImperionEventI18n;
+      const title = escapeText(source && localize ? localize.title(source,lang) : ev.title);
+      const description = escapeText(source && localize ? localize.note(source,lang) : ev.description);
+      const displayVenue = source && localize ? localize.venue(source,lang) : ev.locationName;
+      const locationName = escapeText(displayVenue);
       const nativeEvent = /^PUB-[A-Z0-9-]{4,90}$/.test(String(ev.id || ''));
       const open=ev.registrationMode==='open',contact=ev.registrationMode==='contact';
       const registerUrl=(open||contact)
@@ -435,7 +445,7 @@ function renderEvents(lang) {
           <p class="eu-desc">${description}</p>
           <div class="eu-price-row">
             ${priceBlock}
-            ${locationName ? `<a class="eu-price-note" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ev.locationName)}" target="_blank" rel="noopener">📍 ${locationName}</a>` : ''}
+            ${locationName ? (ev.category === "HEMA Training" ? `<span class="eu-price-note">📍 ${locationName}</span>` : `<a class="eu-price-note" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(displayVenue)}" target="_blank" rel="noopener">📍 ${locationName}</a>`) : ""}
           </div>
           <div class="eu-ctas">
             <a class="btn solid" href="${registerUrl}">${eventButtonLabel}</a>
@@ -466,7 +476,7 @@ function catalogEvent(e){
  return {id:e.event_id,title:String(e.title||'').slice(0,200),description:String(e.public_note||'').slice(0,1200),
   startISO:e.begins_at,priceCzk:price===null?null:(late?price+Math.ceil(price*.25):price),isFree:price===0,late,
   category:String(e.category||''),community:club?'Družina Moravy':'Brnowalkers',locationName:venue,registrationMode:mode,
-  controller:String(e.data_controller||'').slice(0,150),imageOverride:''};
+  controller:String(e.data_controller||'').slice(0,150),imageOverride:'',_catalogSource:e};
 }
 (function loadEvents(){
  if(typeof fetch!=='function'){EVENT_STATUS='error';LIVE_EVENTS=[];renderEvents(currentLang);return;}

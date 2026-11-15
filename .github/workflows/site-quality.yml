@@ -125,6 +125,9 @@ jobs:
       - name: Verify private five-agent safety and proof logic
         run: |
           node --test tests/imperion-agent-snapshot.test.cjs tests/imperion-agent-team.test.cjs tests/imperion-growth-policy.test.cjs tests/imperion-closed-loop-audit.test.cjs tests/imperion-proof-auditor.test.cjs tests/imperion-agent-runtime.test.cjs
+      - name: Verify Social & Sales model switching, lawful CRM routing and receipts (NO provider calls)
+        run: node --test tests/imperion-social-sales-routing.test.cjs
+
       - name: Verify scoped SocialPublisher and ShortFactory adapters (NO provider calls)
         run: node --test tests/social-publisher.test.cjs tests/social-community.test.cjs
 
@@ -206,7 +209,11 @@ jobs:
         run: npx playwright test tests/unified-shell.spec.cjs --workers=2
       - name: Verify no old-page flash, anchored header and four-language A2 quiz theme
         run: npx playwright test tests/imperion-finish-first-paint.spec.cjs --workers=2
-      - run: npm test
+      # The nine independent site suites above already run with scoped reports.
+      # A second full `npm test` repeated them and hit the job timeout; run
+      # the specific four-language QR/private-bank regression instead.
+      - name: Verify gated QR transfer in all four languages (synthetic only)
+        run: npx playwright test tests/druzina-approved-bank-qr.spec.cjs --workers=2
       - uses: actions/upload-artifact@v4
         if: always()
         with:

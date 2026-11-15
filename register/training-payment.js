@@ -13,10 +13,10 @@
     uk:{heading:'Вартість тренування та PDF підтвердження оплати',choose:'Бажаний тариф',intro:'За 2 години: перше заняття 240 Kč, підтверджений Senior 120 Kč; Starter 4 — 800 Kč за чотири заняття протягом 30 днів. Після першого оплаченого та відвіданого заняття можна протягом 48 годин перейти на Starter 4, доплативши 560 Kč після перевірки.',late:'Для нової заявки менш ніж за 48 годин до тренування діє доплата 25%.',notReady:'Оплата закрита. Надішліть попередню заявку. Не сплачуйте і не приїжджайте без особистого письмового підтвердження.',ready:'Одержувач і рахунок доступні лише після персонального погодження та перевірки коду.',codeLabel:'Особистий код попередньої заявки (для повторного входу)',codeHelp:'Якщо записуєтеся вперше, залиште поле порожнім, надішліть заявку і збережіть одноразовий код.',check:'Перевірити погоджену суму й банківський рахунок',checking:'Перевіряємо…',checkFirst:'Спочатку перевірте персонально підтверджену суму та реквізити.',approved:'Підтверджений тариф: {tier}. База {base} Kč + доплата {fee} Kč = РАЗОМ {total} Kč. Одержувач: {recipient}. Рахунок: {account}. Переказуйте лише після письмового підтвердження організатора.',pdf:'PDF підтвердження банківського переказу (до 2 МБ) *',pdfHelp:'Приховайте дані про сторонні операції. PDF призначено для перевірки, він не доводить надходження коштів.',pending:'Для цього коду ще немає персонально погодженої суми або тренування не відкрите. Потрібне підтвердження організатора.',changed:'Сума або 48-годинна межа змінились. Перевірте розрахунок знову.',receipt:'PDF отримано на перевірку. Кошти та участь ще не підтверджені.',codeReceipt:'Збережіть цей особистий одноразовий код. Після письмового підтвердження організатора поверніться до тієї самої форми, введіть код і перевірте суму. Код не є бронюванням.'}
   };
   const QR_TEXT={
-    cs:{title:'QR platba pro schválenou žádost',reference:'Jedinečný identifikátor (zpráva pro příjemce): ',copy:'Kopírovat platební údaje',copied:'Údaje zkopírovány',failed:'Kopírování není dostupné',note:'QR jen předvyplní převod. Připsání peněz se ověřuje zvlášť.'},
-    en:{title:'QR transfer for this approved request',reference:'Unique reference (payment message): ',copy:'Copy transfer details',copied:'Details copied',failed:'Clipboard unavailable',note:'QR only pre-fills a transfer. Cleared funds are verified separately.'},
-    ru:{title:'QR для перевода по одобренной заявке',reference:'Уникальный идентификатор (сообщение получателю): ',copy:'Скопировать реквизиты',copied:'Скопировано',failed:'Копирование недоступно',note:'QR только заполняет перевод. Получение денег проверяется отдельно.'},
-    uk:{title:'QR для переказу за погодженою заявкою',reference:'Унікальний ідентифікатор (повідомлення одержувачу): ',copy:'Копіювати реквізити',copied:'Скопійовано',failed:'Копіювання недоступне',note:'QR лише заповнює переказ. Надходження коштів перевіряється окремо.'}
+    cs:{title:'QR platba pro schválenou žádost',reference:'Jedinečný identifikátor (zpráva pro příjemce): ',copy:'Kopírovat platební údaje',copied:'Údaje zkopírovány',failed:'Kopírování není dostupné',note:'QR pouze předvyplní převod; zpráva není variabilní symbol (VS). Připsání se ověřuje zvlášť.'},
+    en:{title:'QR transfer for this approved request',reference:'Unique reference (payment message): ',copy:'Copy transfer details',copied:'Details copied',failed:'Clipboard unavailable',note:'QR pre-fills a transfer; this message is not a numeric VS. Cleared funds require separate bank verification.'},
+    ru:{title:'QR для перевода по одобренной заявке',reference:'Уникальный идентификатор (сообщение получателю): ',copy:'Скопировать реквизиты',copied:'Скопировано',failed:'Копирование недоступно',note:'QR только заполняет перевод; сообщение не является вариабильным символом (VS). Поступление денег проверяется отдельно.'},
+    uk:{title:'QR для переказу за погодженою заявкою',reference:'Унікальний ідентифікатор (повідомлення одержувачу): ',copy:'Копіювати реквізити',copied:'Скопійовано',failed:'Копіювання недоступне',note:'QR лише заповнює переказ; повідомлення не є варіабільним символом (VS). Надходження коштів перевіряється окремо.'}
   };
   const $=id=>document.getElementById(id);
   function renderApprovedQr(p){
@@ -41,6 +41,7 @@
     privateQuote=null;
     const file=$('paymentProof');if(file){file.required=false;file.value='';}
     const state=$('trainingPaymentPrivate');if(state)state.textContent='';
+    renderApprovedQr(null);
   }
   function render(event,lang,mode){
     const changed=latestEvent?.event_id!==event?.event_id||latestMode!==mode;
@@ -87,9 +88,17 @@
   function catalogPrice(event,lang){
     const q=event?.trainingPayment;
     if(!q)return null;
-    const values=(q.tiers||[]).map(p=>p.totalCzk).join(' / ');
-    const prefix=lang==='cs'?'Orientačně':lang==='ru'?'Предварительно':lang==='uk'?'Орієнтовно':'Indicative';
-    return values?prefix+': '+values+' Kč (standard / Senior / Starter 4; incl. applicable 25% fee)':null;
+    const tiers=Array.isArray(q.tiers)?q.tiers:[];
+    const values=tiers.map(p=>p.totalCzk).join(' / ');
+    if(!values)return null;
+    const late=tiers.some(p=>Number(p.surchargeCzk)>0);
+    const copy={
+      cs:['Orientačně','standardní / ověřený Senior / Starter 4','včetně 25% příplatku za přihlášení méně než 48 hodin předem','bez příplatku'],
+      en:['Indicative','standard / verified Senior / Starter 4','including the 25% surcharge for booking less than 48 hours ahead','without a surcharge'],
+      ru:['Ориентировочно','обычный / подтверждённый Senior / Starter 4','включая надбавку 25% при записи менее чем за 48 часов','без надбавки'],
+      uk:['Орієнтовно','звичайний / підтверджений Senior / Starter 4','із доплатою 25% за запис менш ніж за 48 годин','без доплати']
+    }[lang]||['Indicative','standard / verified Senior / Starter 4','including the 25% short-notice surcharge','without a surcharge'];
+    return copy[0]+': '+values+' Kč ('+copy[1]+'; '+(late?copy[2]:copy[3])+')';
   }
   function requestOptions(event,body){
     if(!event?.trainingPayment)return {headers:{'Content-Type':'application/json'},body:JSON.stringify(body)};
