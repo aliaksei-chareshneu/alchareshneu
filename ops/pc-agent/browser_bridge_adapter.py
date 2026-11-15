@@ -24,6 +24,16 @@ def dispatch(action, payload=None):
     if action == "pc_operator":
         if not isinstance(payload, dict):
             return {"status": "BLOCKED", "reason": "PAYLOAD_NOT_OBJECT"}
+        # Synthetic planner does not grant or execute Windows actions.
+        if payload.get("mode") in ("model_capabilities", "model_plan"):
+            from pc5_model_router import operate as model_advisory
+            return {"agent": "IMPERION_AGENT5_RESTRICTED",
+                    "requested": "pc_operator", "result": model_advisory(payload)}
+        # GUI pilot is fixed Notepad-only and requires physical local consent.
+        if payload.get("mode") == "gui_pilot":
+            from pc5_gui_pilot import operate as scoped_gui
+            return {"agent": "IMPERION_AGENT5_RESTRICTED",
+                    "requested": "pc_operator", "result": scoped_gui(payload)}
         # Fixed Windows read-only program inspection v4; never start/kill apps.
         if payload.get("mode") in ("app_status", "machine_readiness"):
             from pc_desktop_v4 import operate as inspect_windows
