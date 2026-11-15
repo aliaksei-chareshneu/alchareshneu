@@ -146,6 +146,10 @@ test('planner, coder, trusted tests, reviewer and immutable signed plan complete
    assert.equal(out.auto_merge,false);
    fs.writeFileSync(path.join(root,D.REVIEW_FILE),JSON.stringify(out));
    assert.equal(D.verifyDirectory(root,root).issue,245);
+   const persisted=D.summaryMarkdown(plan,out);
+   assert.match(persisted,/Planned changes:/);
+   assert.match(persisted,/same-model reviewer, NOT independent/);
+   assert.match(persisted,/Human review REQUIRED/);
    assert.throws(()=>D.verifyReview(plan,proposal,qa,{...out,plan_sha256:'bad'},root),
     /DEPT_REVIEW_PROOF_REJECTED/);
    assert.throws(()=>D.verifyReview(plan,proposal,qa,{...out,verdict:'BLOCK'},root),
@@ -182,7 +186,7 @@ test('untrusted planning, changed source and reviewer block fail closed',async()
 test('department workflow requires independent Docker, reviewed receipt, draft-only publisher',()=>{
  const yaml=fs.readFileSync(path.join(__dirname,'../.github/workflows/imperion-dev-cloud-issue.yml'),'utf8');
  const qa=yaml.indexOf('Independently verify autonomous patch and advisory test in no-network Docker');
- const review=yaml.indexOf('Independent-from-coder advisory reviewer after trusted QA');
+ const review=yaml.indexOf('Second-pass model reviewer (same provider; not independent) after trusted QA');
  const upload=yaml.indexOf('Retain bounded public review proof for 3 days');
  const publish=yaml.indexOf('Publish only verified autonomous code and advisory test as a bot Draft PR');
  assert.ok(qa>=0&&qa<review&&review<upload&&upload<publish);
@@ -190,6 +194,7 @@ test('department workflow requires independent Docker, reviewed receipt, draft-o
  assert.match(yaml,/imperion-dev-department\.cjs --stage/);
  assert.match(yaml,/imperion-dev-department\.cjs --review/);
  assert.match(yaml,/imperion-dev-department\.cjs --verify-review/);
+ assert.match(yaml,/imperion-dev-department\.cjs --summary/);
  assert.match(yaml,/imperion-dev-department-review\.json/);
  assert.match(yaml,/--network none --read-only --cap-drop ALL/);
  assert.match(yaml,/gh pr create --draft/);
