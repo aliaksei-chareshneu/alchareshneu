@@ -4,7 +4,7 @@ Owner: Družina Moravy z. s. for its club events; verify the actual legal organi
 New spending authorised: 0 Kč.
 
 ## Purpose and scope
-Protect the owner's premises, third-party property, and club gear without purporting to remove rights from attendees or third parties. These rules are prospective, not retroactive; nothing here establishes who caused the alleged damage on 14 November 2026 at Orel Husovice.
+Protect the owner's premises, third-party property, and club gear without purporting to remove rights from attendees or third parties. These rules apply prospectively only, without establishing the circumstances or cause of any past incident.
 
 ## Before booking
 1. The existing shared `/register/` form has **two separate unchecked required controls**: safety guidance and property care. The property control links to `/register/property/` with full versions in Czech, English, Russian and Ukrainian. The photography and invitation choices remain optional and independent.
