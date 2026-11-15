@@ -170,7 +170,7 @@ test('repair shell retains no-network Docker and one retry only',()=>{
  const sh=fs.readFileSync(path.join(root,'scripts/imperion-dev-repair.sh'),'utf8');
  const yaml=fs.readFileSync(path.join(root,'.github/workflows/imperion-dev-cloud-issue.yml'),'utf8');
  assert.match(sh,/--retry-code/);
- assert.match(sh,/imperion-dev-auto-tests\\.log/);
+ assert.match(sh,/imperion-dev-auto-tests\.log/);
  assert.match(sh,/--network none --read-only --cap-drop ALL/);
  assert.match(sh,/--security-opt no-new-privileges/);
  assert.match(sh,/AUTO_CODE_REPAIR_ONE_ATTEMPT_PASS_REVIEW_ONLY/);
