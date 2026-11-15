@@ -219,6 +219,49 @@ export async function readCloudPCReceipt(raw,env,options={}){
   };
 }
 
+/**
+ * M10: one bounded cloud request performs approved model routing and checks
+ * real nested Windows execution before reporting DONE. No background worker.
+ * With a slow machine this returns QUEUED_PENDING, never a fabricated success.
+ */
+export async function runAndVerifyCloudPC(raw,env,options={}){
+  const submitted=await runCloudPC(raw,env,options);
+  if(submitted.status!=='QUEUED_NOT_EXECUTED')return submitted;
+  const sleep=options.sleep||((ms)=>new Promise(resolve=>setTimeout(resolve,ms)));
+  const receiptQuery={kind:'pc5_receipt',classification:'SYNTHETIC',case_id:submitted.case_id};
+  for(let i=0;i<5;i++){
+    try{await sleep(350);}catch{
+      return {status:'QUEUED_PENDING',queued:true,verified:false,
+              job_id:submitted.job_id,case_id:submitted.case_id,
+              reason:'RECEIPT_POLL_DEFERRED',model:submitted.model};
+    }
+    const checked=await readCloudPCReceipt(receiptQuery,env,options);
+    if(checked.status==='VERIFIED_DONE'){
+      if(checked.job_id!==submitted.job_id||checked.mode!==submitted.mode||
+         checked.attempts!==1||checked.verified!==true)
+        return {status:'BLOCKED',reason:'CLOSED_LOOP_RECEIPT_MISMATCH',
+                queued:false,verified:false,job_id:submitted.job_id};
+      return {status:'VERIFIED_DONE',queued:false,verified:true,
+              case_id:submitted.case_id,job_id:submitted.job_id,
+              mode:checked.mode,nested_status:'DONE',attempts:1,
+              model:submitted.model,provider:submitted.provider,
+              private_data_sent:false,model_authority:false,
+              inferred_free_account_billing:'UNVERIFIED',
+              note:'BOTH_MODEL_ROUTE_AND_WINDOWS_RESULT_VERIFIED'};
+    }
+    if(checked.status!=='PENDING')
+      return {status:'BLOCKED',reason:'CLOSED_LOOP_'+
+         (checked.reason||checked.status||'READBACK_INVALID'),
+         queued:false,verified:false,case_id:submitted.case_id,
+         job_id:submitted.job_id};
+  }
+  return {status:'QUEUED_PENDING',queued:true,verified:false,
+          case_id:submitted.case_id,job_id:submitted.job_id,
+          mode:submitted.mode,provider:submitted.provider,model:submitted.model,
+          reason:'WINDOWS_RESULT_NOT_YET_READ_BACK',
+          receipt_endpoint:'pc5_receipt',automatic_retry:false};
+}
+
 export const PC5_MODEL_POLICY=Object.freeze({
   strongest_known_optional_paid:'gpt-6-astra',
   paid_api_allowed:false,
