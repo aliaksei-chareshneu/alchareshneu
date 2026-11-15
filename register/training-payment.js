@@ -127,6 +127,7 @@
       ageGroup:document.querySelector('input[name=age]:checked')?.value||'adult',
       guardianName:$('guardianName').value,guardianPhone:$('guardianPhone').value,
       photo:'NO',futureUpdates:false,rsvp:'YES',safety:$('safety').checked,
+      propertyCare:$('propertyCare').checked,propertyRulesVersion:'2026-11-15-property-v1',
       language:latestLang,paymentResumeToken:token(),trainingTier:tier()};
     try{
       const reply=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},
