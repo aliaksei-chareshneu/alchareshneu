@@ -117,6 +117,7 @@ test('GitHub PR preview cannot spend Groq quota; all owner issue model jobs seri
  assert.match(cloud,/if: github\.event_name == 'issue_comment'/);
  assert.match(cloud,/group: imperion-dev-single-model-inference-\$\{\{ github\.repository \}\}/);
  assert.match(cloud,/cancel-in-progress: false/);
+ assert.match(cloud,/queue: max/);
  assert.match(cloud,/imperion-dev-groq-quota\.cjs/);
  assert.match(cloud,/secrets\.GROQ_API_KEY/);
  assert.match(y,/node --test tests\/imperion-dev-cloud-issue\.test\.cjs/);
