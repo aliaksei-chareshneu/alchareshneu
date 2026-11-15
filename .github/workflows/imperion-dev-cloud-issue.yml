@@ -74,6 +74,12 @@ jobs:
 
   cloud-qwen-coding:
     name: cloud-model-coding (Groq Free primary; Ollama reserve)
+    # PR previews test deterministic gates only; NEVER consume model Free quota.
+    # All permitted owner-issue calls serialize, so GitHub run history cannot race.
+    if: github.event_name == 'issue_comment'
+    concurrency:
+      group: imperion-dev-single-model-inference-${{ github.repository }}
+      cancel-in-progress: false
     env:
       IMPERION_DEV_PROVIDER: ${{ vars.IMPERION_DEV_PROVIDER || 'groq' }}
       IMPERION_DEV_MODEL: ${{ vars.IMPERION_DEV_MODEL || '' }}
@@ -128,7 +134,7 @@ jobs:
             tail -n 15 "$RUNNER_TEMP/imperion-cloud-ollama.log"
             exit 1
           }
-      - name: Generate one bounded public-source replacement with cloud Qwen
+      - name: Generate one bounded public-source replacement with selected model
         if: github.event_name == 'pull_request' || startsWith(github.event.comment.body, '/imperion-dev cloud')
         shell: bash
         run: |
@@ -206,7 +212,7 @@ jobs:
           printf '{"status":"ISOLATED_TRUSTED_TEST_PASS","baseline":"%s","mode":"%s","cloud":"GITHUB_ACTIONS_CPU","paid_api_czk":0,"auto_merge":false}\n' \
             "$baseline" "$mode" > "$RUNNER_TEMP/imperion-dev-cloud-test-result.json"
           echo "MODEL_PATCH_ISOLATED_TEST_PASS" >> "$GITHUB_STEP_SUMMARY"
-      - name: Prove Python source edit by real cloud Qwen and independent isolated unittest (PR review only)
+      - name: Prove Python source edit by selected model in isolated unittest (legacy preview)
         if: github.event_name == 'pull_request'
         shell: bash
         run: |
@@ -245,7 +251,7 @@ jobs:
             -v "$RUNNER_TEMP/imperion-dev-python-review:/work:ro" -w /work python:3.12-alpine \
             "${py_argv[@]}"
           echo "PYTHON_QWEN_PATCH_ISOLATED_3_TESTS_PASS" >> "$GITHUB_STEP_SUMMARY"
-      - name: Generate advisory Qwen test vectors on public synthetic PR preview
+      - name: Generate advisory test vectors on public synthetic PR preview (legacy)
         if: github.event_name == 'pull_request'
         shell: bash
         run: |
