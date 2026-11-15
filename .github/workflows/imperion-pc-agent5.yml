@@ -111,3 +111,44 @@ jobs:
           await probe('openrouter',o,'https://openrouter.ai/api/v1/key');
           console.log('PC5_PROBE billing=NOT_PROVEN api_model_inference=NOT_EXECUTED gui=UNTOUCHED');
           NODE
+
+  # Read-only HTTP acceptance of existing v5 Edge Function.
+  # This job NEVER checks out PR code. It never sends a model prompt or creates
+  # a PC job. It reads a known synthetic case and logs status fields ONLY.
+  trusted-gateway-readback:
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.number == 237 &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.head.ref == 'agent5-pc-safe-runtime-20261108' &&
+      github.repository == 'aliaksei-chareshneu/alchareshneu'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    permissions: {}
+    steps:
+      - name: Read existing synthetic receipt via trusted JWT gateway (no inference)
+        env:
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          node --input-type=module <<'NODE'
+          const key=process.env.SUPABASE_SERVICE_ROLE_KEY||'';
+          if(!key){console.log('PC5_GATEWAY_TEST auth=NOT_CONFIGURED action=NONE');process.exit(0);}
+          const url='https://cmrknyhnnehyjpreehcf.supabase.co/functions/v1/imperion-free-inference';
+          try {
+            const response=await fetch(url,{method:'POST',redirect:'error',
+              headers:{Authorization:'Bearer '+key,'Content-Type':'application/json'},
+              body:JSON.stringify({kind:'pc5_receipt',classification:'SYNTHETIC',
+                case_id:'A5-CLOUD-20261115-002'}),
+              signal:AbortSignal.timeout(9000)});
+            const data=await response.json();
+            const status=['VERIFIED_DONE','BLOCKED','PENDING'].includes(data?.status)
+              ?data.status:'UNEXPECTED';
+            const reason=typeof data?.reason==='string'&&/^[A-Z0-9_]{4,64}$/.test(data.reason)
+              ?data.reason:'NONE';
+            const verified=data?.verified===true;
+            console.log('PC5_GATEWAY_TEST http='+response.status+' status='+status+
+              ' verified='+verified+' reason='+reason+' model_calls=0');
+          }catch {
+            console.log('PC5_GATEWAY_TEST status=UNVERIFIED reason=NETWORK_OR_PARSE');
+          }
+          NODE
