@@ -61,3 +61,16 @@ MODEL_PLAN != PERMISSION. QUEUED != EXECUTED. state=done != application DONE. CI
 - **Live device regression after gateway upgrade:** queue job `08ffa19e-d995-4a34-8a73-c20eae680e95`, mode `machine_readiness`, `state=done`, `attempts=1`, nested `status=DONE`, trusted Agent5 identity, 542MB RAM free. This confirms the existing worker was NOT broken by cloud gateway deployment; it still does not load new GUI routes.
 - **Model-driven complete Windows E2E:** NOT VERIFIED. Owner physical local GUI consent NOT performed. Startup recovery NOT VERIFIED; Desktop Commander monthly quota remains exhausted. No new spending, payment, private screen exposure, app termination, or unauthorized restart.
 - **Code and safety readback:** https://github.com/aliaksei-chareshneu/alchareshneu/actions/runs/43742201396 (SUCCESS); rollback v5 pinned at `ops/pc-agent/cloud/gateway/rollback-v5/`; outstanding PR remains DRAFT.
+
+## M11 Windows-native and live CSV acceptance — 15 Nov 2026
+
+- **Real Windows-hosted CI PASS:** GitHub Actions run [43743623443](https://github.com/aliaksei-chareshneu/alchareshneu/actions/runs/43743623443), both `safe-executor` and `windows-native-synthetic` finished SUCCESS. Windows 2025 hosted runner tested local owner confirmation policy, GUI denial paths, memory gates, offline M6 maintenance and M7 recovery mocks; there was NO actual Notepad GUI interaction and this runner is **not** zmrzlina.
+- **Real zmrzlina import → plan → execute → fetch LIVE**, inside existing restricted sandbox, no secrets, public uploads or model inference:
+  1. `70366bf9-96cb-424a-b7ef-9f36d252f508` `import` `DONE`, one attempt, filename `pc5_m11_demo.csv`, 24 B, SHA256 `0e1aaafac19936fe95ce623e37360b3f2c048b6a3ec95039070a688b1aad4326`.
+  2. `d9badec2-84c3-4cf6-a126-e9ed6cab7a5f` `plan` `READY`, exact source hash, preapproved steps `csv_stats` and `write_report`, no action executed.
+  3. `aedac05a-c32a-42c7-ac79-8ddb2f73dbe7` `execute` `DONE`, one attempt, exactly two steps, 2 columns and 2 data rows, output SHA256 `9c0ffe1d731c6c22b77ca64addab4b476c5aba7e5b4747fcfb9fc58ed813eec4`.
+  4. `c2d74efd-8e59-47dc-97f6-621ddb6cfebc` `fetch` `DONE`, one attempt, 273-byte report SHA256 identical to execute receipt.
+- **Independent receipt:** existing IMPERION_Execution_Receipts sheet row **883**, `REC-IMP-PC5-M11-20261115-CLOUDCSV-WINDOWS-CI`, readback 18/18 cells. No new cash costs.
+- **Remaining barriers unchanged:** existing Windows BrowserBridge long-lived worker still has old adapter; Desktop Commander usage paused; local physical YES for fixed Notepad GUI E2E, then separately allowlisted other GUI apps and reboot-readback. Cloud Groq API key/model availability verified but account Free billing entitlement and headless inference still unverified. Public repository GitHub-hosted standard Windows CI is free; it is not a permanent PC-hosted agent.
+
+**Truthfulness:** Synthetic CSV workflow is LIVE through the current cloud-to-Windows queue. Full arbitrary Windows GUI, private documents, browser accounts, paid model orchestration and unattended reboot recovery are **NOT VERIFIED**. Do not merge the draft PR as complete merely because Linux/hosted Windows CI passes.
