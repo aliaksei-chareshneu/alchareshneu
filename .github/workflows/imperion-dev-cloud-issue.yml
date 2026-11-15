@@ -80,6 +80,7 @@ jobs:
     concurrency:
       group: imperion-dev-single-model-inference-${{ github.repository }}
       cancel-in-progress: false
+      queue: max
     env:
       IMPERION_DEV_PROVIDER: ${{ vars.IMPERION_DEV_PROVIDER || 'groq' }}
       IMPERION_DEV_MODEL: ${{ vars.IMPERION_DEV_MODEL || '' }}
