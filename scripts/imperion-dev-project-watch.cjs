@@ -56,7 +56,8 @@ function gateAttempts(candidate,runs,now){
  if(!Array.isArray(runs)||!Number.isFinite(now))
   block('PROJECT_WATCH_HISTORY_INVALID');
  const relevant=runs.filter(x=>x &&
-  x.name==='IMPERION DEV cloud issue coding (review only)' &&
+  x.workflow_id===412528588 &&
+  x.name===runTitle(candidate) &&
   x.display_title===runTitle(candidate) &&
   x.event==='repository_dispatch' &&
   x.actor?.login==='github-actions[bot]' &&
