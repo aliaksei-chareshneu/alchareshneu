@@ -1,6 +1,6 @@
 ## Cloud-first M8 status — 15.11.2026
 
-The existing Supabase `imperion-free-inference` gateway is now ACTIVE v3 with a strictly synthetic free-provider model-to-PC queue path; the older draft API still works. See [cloud/README.md](cloud/README.md) for verified queue IDs, no-cost routing gates, exact source rollback, and blockers. Two read-only PC jobs were completed from this GPT-6 cloud conversation via the existing Supabase queue. The headless provider has **not** yet been demonstrated to return a model answer from v3, and the original BrowserBridge still needs safe refresh. Do not count source deployment as GUI-LIVE.
+The existing Supabase `imperion-free-inference` gateway is now ACTIVE v5 with a strictly synthetic free-provider model-to-PC queue path and authenticated readback; the older draft API still works. See [cloud/README.md](cloud/README.md) for verified queue IDs, no-cost routing gates, exact source rollback, and blockers. Three read-only PC jobs were completed from this GPT-6 cloud conversation via the existing Supabase queue; each has an independently queried nested Windows DONE. The dedicated v5 HTTP receipt route itself has not yet been called from an authorized server. The headless provider has **not** yet been demonstrated to return a model answer from v3, and the original BrowserBridge still needs safe refresh. Do not count source deployment as GUI-LIVE.
 
 # IMPERION PC Automation Agent #5 — safe Windows runtime
 
