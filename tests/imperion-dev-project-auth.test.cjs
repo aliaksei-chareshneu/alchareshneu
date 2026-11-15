@@ -42,7 +42,7 @@ function record(plan,stage){
 function bot(){
   return {action:'imperion-dev-project-resume',repository:{full_name:W.REPO},
     sender:{login:'github-actions[bot]'},
-    client_payload:{issue:e.issue.number,comment:e.comment.id}};
+    client_payload:{issue:e.issue.number,comment:e.comment.id,stage:2}};
 }
 function withProof(proof,live,fn){
   const root=fs.mkdtempSync(path.join(os.tmpdir(),'project-auth-'));
