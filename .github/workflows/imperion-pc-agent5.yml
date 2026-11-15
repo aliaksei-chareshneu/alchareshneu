@@ -93,7 +93,12 @@ jobs:
               if(name==='groq'){
                 const rows=Array.isArray(body?.data)?body.data:[];
                 const model=rows.some(x=>x?.id==='openai/gpt-oss-120b'&&x?.active!==false);
-                console.log('PC5_PROBE groq key=AUTHENTICATED gpt_oss_120b='+ (model?'AVAILABLE':'NOT_LISTED'));
+                const rawLimit=resp.headers.get('x-ratelimit-limit-requests');
+                const rpd=(rawLimit!==null&&/^[0-9]{1,8}$/.test(rawLimit))?Number(rawLimit):null;
+                console.log('PC5_PROBE groq key=AUTHENTICATED gpt_oss_120b='+
+                  (model?'AVAILABLE':'NOT_LISTED')+' daily_request_limit='+
+                  (rpd===null?'UNAVAILABLE':rpd));
+                console.log('PC5_PROBE groq account_plan=NOT_PROVEN_BY_MODEL_LIST');
               }else {
                 console.log('PC5_PROBE openrouter key=AUTHENTICATED free_tier='+
                   (body?.data?.is_free_tier===true?'YES':body?.data?.is_free_tier===false?'NO':'UNKNOWN'));
