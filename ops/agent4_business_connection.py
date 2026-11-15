@@ -224,6 +224,17 @@ def approved_send(db, job_id, exact_go, get, api, existing_sender, now=None):
                   (job_id,)).fetchone() and get(db, "agent4_selftest_send_go", "") != "EXPLICIT_TEST_GO":
         raise ValueError("Test send requires separate GO")
 
+    # The cached connection update may be stale after rights were revoked.
+    # Check the current official Telegram connection just before provider egress.
+    live = api("getBusinessConnection", {"business_connection_id": cid})
+    rights = live.get("rights") if isinstance(live, dict) else None
+    live_user = live.get("user") if isinstance(live, dict) else None
+    if (not isinstance(live, dict) or live.get("id") != cid
+            or not isinstance(live_user, dict) or live_user.get("id") != c["owner_id"]
+            or live.get("is_enabled") is not True or not isinstance(rights, dict)
+            or rights.get("can_reply") is not True):
+        raise ValueError("Telegram business rights no longer valid")
+
     def send(method, payload):
         if method != "sendMessage" or "business_connection_id" in payload:
             raise ValueError("Provider call unsafe")
