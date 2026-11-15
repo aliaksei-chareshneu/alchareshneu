@@ -13,7 +13,8 @@ const TEST_FLAG='IMPERION_DEV_BOOTSTRAP_ACCEPTANCE';
 const FIXTURE_FILE='ops/imperion-dev-cloud-fixture/multi-bonus.cjs';
 const FIXTURE_TEST='tests/imperion-dev-bootstrap-fixture.test.cjs';
 const FIXTURE_GOAL='Implement a pure public bonusPoints(base,extra) function with correct addition and no side effects.';
-const BAD_SOURCE=/\b(?:require|import|eval|process|globalThis|fetch|XMLHttpRequest|WebSocket|child_process|spawn|exec|Function|constructor|prototype|__proto__|Reflect|Proxy|setTimeout|setInterval|setImmediate|while|for|do|new|this|with|async|await|throw|try|catch|fs|http|https|net|socket|Buffer|module\.constructor)\b/i;
+const BAD_SOURCE=/\b(?:require|import|eval|process|globalThis|fetch|XMLHttpRequest|WebSocket|child_process|spawn|exec|constructor|prototype|__proto__|Reflect|Proxy|setTimeout|setInterval|setImmediate|while|for|do|new|this|with|async|await|throw|try|catch|fs|http|https|net|socket|Buffer|module\.constructor)\b/i;
+const BAD_DYNAMIC_FUNCTION=/\bFunction\b/;
 const BAD_CONTROL=/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/;
 function reject(reason){throw Error(reason)}
 function sha(value){return crypto.createHash('sha256').update(value).digest('hex')}
@@ -71,7 +72,7 @@ function validateSource(obj){
  if(Buffer.byteLength(s)>3500||s.length<70||
     !(s.startsWith("'use strict';\n")||s.startsWith('"use strict";\n'))||
     !/\bmodule\.exports\s*=\s*\{/.test(s)||
-    BAD_CONTROL.test(s)||BAD_SOURCE.test(s)||/\/\*|\*\/|\$\{|\x60|<\/?[A-Za-z]{2,16}>/.test(s)||
+    BAD_CONTROL.test(s)||BAD_SOURCE.test(s)||BAD_DYNAMIC_FUNCTION.test(s)||/\/\*|\*\/|\$\{|\x60|<\/?[A-Za-z]{2,16}>/.test(s)||
     /\b(?:module\s*\[|exports\s*\[|exports\s*\.|Object\s*\.)/.test(s))
   reject('BOOTSTRAP_UNSAFE_SOURCE_REJECTED');
  return s;
