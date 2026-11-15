@@ -120,3 +120,42 @@ for(const loc of ['cs','en','ru','uk']){
  assert.ok(source.includes('eventInvite'),'event invitation gate missing '+loc);
  assert.ok(!source.includes('ECVnqiJJUuI8MJvDLXkS6s'),'event invitation leaked to public JS '+loc);
 }
+
+
+/* 15 Nov: the BrnoWalkers community front door must never erase event/source query
+   fields when localizing the existing register links. No synthetic production RSVP. */
+const bwPage=fs.readFileSync('walkers/index.html','utf8');
+assert.ok(bwPage.includes('id="bw-community-first"'),'community entry missing');
+assert.ok(bwPage.includes('data-i18n="communityIntro.heading"'),'community value promise missing');
+assert.ok(bwPage.includes('src=BW_COMMUNITY'),'community CTA must identify its source');
+assert.equal((bwPage.match(/communityIntro: \{/g)||[]).length,0,'dictionary uses JSON-literal translations, not guessed object shapes');
+assert.equal((bwPage.match(/communityIntro:/g)||[]).length,4,'community value must exist in all four languages');
+const bwStart=bwPage.indexOf('function localizeRegisterLinks(lang) {');
+const bwEnd=bwPage.indexOf('\nfunction render(lang) {',bwStart);
+assert.ok(bwStart>=0&&bwEnd>bwStart,'lossless link localization helper missing');
+const bwFn=bwPage.slice(bwStart,bwEnd);
+const bwLoc='https://aliaksei-chareshneu.github.io/alchareshneu/walkers/';
+function mockAnchor(path){
+  return {
+    attr:path,
+    getAttribute(name){assert.equal(name,'href');return this.attr;},
+    setAttribute(name,value){assert.equal(name,'href');this.attr=value;}
+  };
+}
+const bwAnchors=[
+ mockAnchor('../register/?event=PUB-WALK-TALK-20261118&lang=en&src=BW_HEADER_CITY&utm_medium=post'),
+ mockAnchor('../register/?src=BW_COMMUNITY'),
+ mockAnchor('../register/')
+];
+for(const language of ['ru','cs','en','uk']){
+ vm.runInNewContext(bwFn+';localizeRegisterLinks("'+language+'");',{
+  URL,location:{href:bwLoc},document:{querySelectorAll:()=>bwAnchors}
+ });
+ const target=new URL(bwAnchors[0].attr,bwLoc);
+ assert.equal(target.searchParams.get('event'),'PUB-WALK-TALK-20261118');
+ assert.equal(target.searchParams.get('src'),'BW_HEADER_CITY');
+ assert.equal(target.searchParams.get('utm_medium'),'post');
+ assert.equal(target.searchParams.get('lang'),language);
+ assert.equal(new URL(bwAnchors[1].attr,bwLoc).searchParams.get('src'),'BW_COMMUNITY');
+ assert.equal(new URL(bwAnchors[2].attr,bwLoc).pathname.endsWith('/register/'+(language==='cs'?'':language+'/')),true);
+}
