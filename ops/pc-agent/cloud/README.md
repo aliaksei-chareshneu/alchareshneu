@@ -41,3 +41,17 @@ No arbitrary terminal or shell, GUI clicks, process termination, payment, publis
 The last working v2 gateway is preserved at `gateway/rollback-v2/{index.mjs,free-core.mjs}`. To rollback, use an authorized Supabase deployment of **those exact two files** with `verify_jwt=true`, followed by `get_edge_function` source/version readback. No second service.
 
 **Next acceptance:** verify provider free flags through an authorized server-side test and its usage/charge receipt; restart existing BrowserBridge only after idle-queue, RAM and owner work checks; run one user-confirmed synthetic GUI E2E and read back the exact file hash independently. Until then: cloud v3 DEPLOYED, fixed cloud->PC command LIVE, standalone headless inference and Windows GUI NOT YET VERIFIED.
+
+
+## M9 gateway v5 hardening and verification
+
+- **DEPLOYED and independently fetched:** Supabase `imperion-free-inference` ACTIVE **v5**, JWT required, existing server-role authorization preserved; old public/synthetic drafting still in place.
+- **Closed-loop receipt API:** trusted server-side caller may POST `{"kind":"pc5_receipt","classification":"SYNTHETIC","case_id":"A5-CLOUD-20261115-002"}`; response is status-only. It checks exact case ID, queue action, allowed mode, one attempt, expected agent, nested application `DONE`; it never returns file contents, Windows process paths or arbitrary text. Gateway code and mock tests PASS, but direct HTTP invocation from a trusted caller is NOT YET VERIFIED.
+- **Provider-key isolation:** v5 no longer passes `SUPABASE_SERVICE_ROLE_KEY` or unrelated server secrets to the model-provider helper. New CI regression test enforces an exact five-key provider-only environment. **No evidence of a previous leak**.
+- **Additional live Windows job** `79745ec2-54e4-4f0d-9af7-00728b7e9590`: `machine_readiness`, queue done, exactly 1 attempt, nested DONE, worker identity verified, 1710 MB RAM snapshot. This proves GPT-6-in-chat -> Supabase -> Windows. It does NOT prove the headless external model ran.
+- **Stale worker proof:** job `41e3eb3c-fb87-4b18-9e01-9620e5f11aa6` returned queue done, nested `BLOCKED MODE_NOT_ALLOWED` for `runtime_probe`. New Windows adapter still not loaded into the running worker.
+- Previous **v4** and **v3/v2** deployed server files are stored under `gateway/rollback-v4/`, `rollback-v3/`, `rollback-v2/`, with `verify_jwt=true` required on rollback.
+- Latest free visual model candidate `nvidia/nemotron-3.5-super-vl:free` was published 15 Oct 2026. Never send a user's actual Windows screen, private files, face, messages, credentials or personal data to NVIDIA's free endpoint.
+- No paid API, GUI input, app termination, unsafe process restart or automatic publication performed.
+
+**Remaining gates:** live provider invocation with exact account-specific free entitlement and external zero-charge proof; authenticated server call of the v5 receipt API; existing BrowserBridge safe reload; physical owner consent + actual Notepad GUI + independent disk receipt; more app-scoped drivers only after that. Full original specification remains PARTIAL.
