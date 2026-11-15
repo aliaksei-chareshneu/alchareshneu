@@ -106,7 +106,7 @@ class TestTransport(unittest.TestCase):
    r=m.reconcile_once(db,token='b'*64)
   self.assertEqual(r['held'],1);self.assertEqual(db.acknowledged,[])
  def test_missing_token_rejected_without_url_printing(self):
-  with patch.object(m.TOKEN_PATH,'read_text',side_effect=FileNotFoundError):
+  with patch.object(m,'TOKEN_PATH',Path('/nonexistent/imperion-agent4-transport-token-qa')):
    with self.assertRaisesRegex(m.BridgeHeld,'PRIVATE_BEARER_TOKEN_MISSING'):
     m.token_from_private_file()
  def test_raw_bearer_never_in_public_exception(self):
