@@ -139,3 +139,25 @@ Sample for later unique owner task (do not duplicate previous owner acceptance c
     goal: Clarify only the existing helper comments while preserving all outputs.
 
 **Cost:** existing Groq Personal Free plan and shown November projected $0.01 were verified by user screenshots; $0.01 was explicitly non-billable without upgrading. Do not change tariff, payment card, permissions or add any new model API. Strict existing per-run/24h Groq gates remain enforced.
+
+
+## Stage 16 — test-first new public module creation (15 Nov 2026)
+
+The owner asked to finish remaining developer features without buying extra model quota. Stage 16 extends the **existing** Developer Agent #1 GitHub workflow (no duplicate agent, queue, credentials, CRM, Supabase, Windows, or user billing).
+
+New owner-only Issue comment (existing issue, unique new comment):
+
+    /imperion-dev bootstrap
+    file: ops/public-example/new-module.cjs
+    test: tests/independent-new-module.test.cjs
+    goal: Create a pure named exported function satisfying that already committed independent test.
+
+Requirements: the target must be a NEW public CommonJS .cjs file in an existing scripts/ or ops/ directory; it must be an allowlisted path, absent on main, and its filename must be explicitly imported from an existing independently maintained test in tests/*.test.cjs. The trusted test must contain the literal opt-in environment marker IMPERION_DEV_BOOTSTRAP_ACCEPTANCE. This marker makes normal website CI skip the new-feature test before its implementation; the bootstrap workflow turns it on for the isolated proof. No source, test, folder or permission is created if this preflight fails.
+
+The free allowlisted Groq GPT-OSS 120B route (or explicitly selected Ollama reserve) proposes a single <=3500 byte pure CommonJS source. Unsafe imports, requires, process, network, reflection, timers, loops, async, native code execution and marked-up unbounded outputs are rejected. It also proposes up to three JSON-only advisory examples rendered by a trusted template. Model does not write to the repo or run commands. It can retry invalid JSON once. Existing provider and 24-hour quota limits stay intact.
+
+Acceptance: independent baseline must **FAIL for a missing new module** in no-network, non-root, read-only Docker; after exact source+test SHA verification and static source check, that SAME independent trusted test plus the generated non-independent advisory must PASS with the model-created module. The only output is a bot-created DRAFT PR with exact proposed file and advisory, original trusted test left untouched, GitHub issuer/comment anchored, and branch idempotency checks. No merge, deployment, client messaging, payment or private data. Preview PRs run mock tests only and consume zero Groq calls.
+
+**Limitations:** this is a constrained test-first public source feature, NOT universal new application generation, unrestricted npm installs, full web app deployment, production-level security review, private repo access, or automatic acceptance of arbitrary model-generated tests. Tasks that require multiple brand-new files, creating independent tests from scratch, changing auth, payments, CI/permissions or live systems require separate safe development/review workflows and owner GO. All generated code is untrusted until human review, even after Docker PASS.
+
+Receipt states: PREVIEW_TESTS_PASS != BOOTSTRAP_E2E_LIVE; Merged source != owner Issue->Draft PR validated. No inference calls are needed for the PR preview; real model acceptance uses the established Groq Free run quota only when explicitly triggered by an owner comment.
