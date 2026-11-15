@@ -44,8 +44,12 @@ jobs:
         run: python -B -m unittest discover -s ops/pc-agent -p 'test_pc5_maintenance.py' -v
       - name: M7 audit-backed recovery planning and no-action safety tests
         run: python -B -m unittest discover -s ops/pc-agent -p 'test_pc5_policy_v7.py' -v
-      - name: Cloud-only model-to-PC queue synthetic security tests
-        run: node --test ops/pc-agent/cloud/pc5-cloud-core.test.mjs
+      - name: Cloud-only model-to-PC queue synthetic security tests and gateway syntax
+        run: |
+          node --check ops/pc-agent/cloud/gateway/index.mjs
+          node --check ops/pc-agent/cloud/gateway/free-core.mjs
+          node --check ops/pc-agent/cloud/pc5-cloud-core.mjs
+          node --test ops/pc-agent/cloud/pc5-cloud-core.test.mjs
       - name: Read-only capability report
         run: python -B ops/pc-agent/restricted_executor.py --status
       - name: Confirm no hosted model or external effect
