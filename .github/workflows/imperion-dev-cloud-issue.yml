@@ -43,7 +43,8 @@ jobs:
        github.event.pull_request.head.repo.full_name == github.repository &&
        github.event.pull_request.user.login == 'aliaksei-chareshneu' &&
        (startsWith(github.event.pull_request.head.ref, 'agent/imperion-dev-cloud-') ||
-        (github.event.pull_request.head.ref == 'agent/imperion-dev-stage8-20261111' ||
+        (github.event.pull_request.head.ref == 'agent/imperion-dev-stage15-multifile-repair-20261115' ||
+        github.event.pull_request.head.ref == 'agent/imperion-dev-stage8-20261111' ||
          github.event.pull_request.head.ref == 'agent/imperion-dev-any-owner-issue-20261111'))) ||
       (github.event_name == 'issue_comment' &&
        github.repository == 'aliaksei-chareshneu/alchareshneu' &&
