@@ -42,56 +42,56 @@ class GUIBoundaries(unittest.TestCase):
               "expires_at":(self.clock+timedelta(minutes=5)).isoformat(),
               "approval_ref":"GO-CI-20261115-0001"}
         (self.approvals/(self.task_id+".json")).write_text(json.dumps(body),encoding="utf-8")
-    def run(self,step="execute",driver=None,free=2048,**extras):
+    def invoke(self,step="execute",driver=None,free=2048,**extras):
         return gui.operate(self.payload(step,**extras),root=self.root,approvals=self.approvals,
                            driver=self.driver if driver is None else driver,clock=self.clock,
                            platform="win32",free_ram_mb=free)
     def test_capabilities_without_windows(self):
         self.assertEqual(dispatch("pc_operator",{"mode":"gui_pilot","step":"capabilities"})["result"]["status"],"DONE")
     def test_remote_go_never_grants(self):
-        self.assertEqual(self.run(go=True)["reason"],"FIELDS_NOT_ALLOWED")
+        self.assertEqual(self.invoke(go=True)["reason"],"FIELDS_NOT_ALLOWED")
         self.assertEqual(self.driver.actions,0)
     def test_foreign_app_rejected(self):
         self.assertEqual(gui.operate(dict(mode="gui_pilot",step="plan",task_id=self.task_id,app="calculator"),root=self.root,approvals=self.approvals)["reason"],"APP_NOT_ALLOWLISTED")
     def test_no_approval_denied(self):
-        self.assertEqual(self.run()["status"],"BLOCKED")
+        self.assertEqual(self.invoke()["status"],"BLOCKED")
         self.assertEqual(self.driver.actions,0)
     def test_plan_without_write(self):
-        self.assertEqual(self.run("plan")["status"],"READY")
+        self.assertEqual(self.invoke("plan")["status"],"READY")
         self.assertFalse((self.root/"gui_work").exists())
     def test_memory_guard_before_claim(self):
         self.approve()
-        self.assertEqual(self.run(free=10)["reason"],"GUI_LOW_MEMORY_NO_EXECUTION")
+        self.assertEqual(self.invoke(free=10)["reason"],"GUI_LOW_MEMORY_NO_EXECUTION")
         self.assertFalse((self.approvals/(self.task_id+".claimed")).exists())
     def test_synthetic_complete_and_independent_check(self):
         self.approve()
-        result=self.run()
+        result=self.invoke()
         self.assertEqual(result["status"],"DONE")
         evidence=independent.verify_task(self.task_id,root=self.root,approvals=self.approvals)
         self.assertEqual(evidence["status"],"DONE")
         self.assertEqual(result["output_sha256"],evidence["output_sha256"])
     def test_duplicate_is_replay_not_retype(self):
         self.approve()
-        self.assertEqual(self.run()["status"],"DONE")
-        second=self.run()
+        self.assertEqual(self.invoke()["status"],"DONE")
+        second=self.invoke()
         self.assertEqual(second["status"],"DONE")
         self.assertTrue(second["replay"])
         self.assertEqual(self.driver.actions,1)
     def test_tampered_output_rejected(self):
         self.approve()
-        self.assertEqual(self.run()["status"],"DONE")
+        self.assertEqual(self.invoke()["status"],"DONE")
         (self.root/"gui_work"/(self.task_id+".txt")).write_bytes(b"tampered")
         self.assertEqual(independent.verify_task(self.task_id,root=self.root,approvals=self.approvals)["status"],"BLOCKED")
     def test_interrupted_gui_requires_human_review(self):
         self.approve()
         bad=FakeNotepad(fail=True)
-        result=self.run(driver=bad)
+        result=self.invoke(driver=bad)
         self.assertEqual(result["reason"],"FOCUS_LOST_BEFORE_ACTION")
-        self.assertEqual(self.run("status")["reason"],"INCOMPLETE_ATTEMPT_MANUAL_REVIEW")
-        self.assertEqual(self.run()["reason"],"APPROVAL_ALREADY_CONSUMED")
+        self.assertEqual(self.invoke("status")["reason"],"INCOMPLETE_ATTEMPT_MANUAL_REVIEW")
+        self.assertEqual(self.invoke()["reason"],"APPROVAL_ALREADY_CONSUMED")
     def test_shell_and_path_denied(self):
-        self.assertEqual(self.run(command="whoami")["reason"],"FIELDS_NOT_ALLOWED")
-        self.assertEqual(self.run(path="C:/private")["reason"],"FIELDS_NOT_ALLOWED")
+        self.assertEqual(self.invoke(command="whoami")["reason"],"FIELDS_NOT_ALLOWED")
+        self.assertEqual(self.invoke(path="C:/private")["reason"],"FIELDS_NOT_ALLOWED")
     def test_cloud_adapter_no_self_approval(self):
         self.assertEqual(dispatch("pc_operator",{"mode":"gui_pilot","step":"execute",
           "task_id":self.task_id,"app":"notepad","approved":True})["result"]["reason"],"FIELDS_NOT_ALLOWED")
