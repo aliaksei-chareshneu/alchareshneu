@@ -25,12 +25,15 @@ function transport(pulls,history=[],postStatus=204){
  const fn=async(url,init)=>{
   calls.push({url,init});
   if(init.method==='GET'){
-   if(url.includes('/pulls?'))return {
-    ok:true,redirected:false,text:async()=>JSON.stringify(pulls)};
+   if(url.includes('/pulls?')){
+    const u=new URL(url),page=Number(u.searchParams.get('page'));
+    return {ok:true,redirected:false,
+      text:async()=>JSON.stringify(pulls.slice((page-1)*4,page*4))};
+   }
    if(url.includes('/actions/workflows/')){
     const u=new URL(url),page=Number(u.searchParams.get('page'));
     const response={total_count:history.length,
-      workflow_runs:history.slice((page-1)*20,page*20)};
+      workflow_runs:history.slice((page-1)*5,page*5)};
     return {ok:true,redirected:false,text:async()=>JSON.stringify(response)};
    }
    throw Error('MOCK_GET_WRONG_ENDPOINT: '+url);
@@ -126,4 +129,31 @@ test('stage3 resumes when only stage2 history failed; unrelated runs cannot exha
   /PROJECT_WATCH_DUPLICATE_HISTORY/);
  assert.throws(()=>S.gateAttempts(c,[run(3,{created_at:'not a date'})],now),
   /PROJECT_WATCH_HISTORY_UNTRUSTED/);
+});
+
+test('GitHub pagination handles more than one response without exceeding 100KB',async()=>{
+ const unrelated=Array.from({length:10},(_,i)=>({number:10000+i,
+  head:{ref:'unrelated-branch'}}));
+ unrelated[9]=pr(1);
+ const history=Array.from({length:12},(_,i)=>run(2,{
+  id:1000+i,display_title:'UNRELATED PROJECT',name:'UNRELATED PROJECT'
+ }));
+ const t=transport(unrelated,history);
+ const result=await S.dispatchOne('mock-github-token',t.fn,now);
+ assert.equal(result.status,'DISPATCH_ACCEPTED_PENDING_LIVE_READBACK');
+ assert.equal(t.calls.filter(x=>x.url.includes('/pulls?')).length,3);
+ assert.equal(t.calls.filter(x=>x.url.includes('/actions/workflows/')).length,3);
+ assert.equal(S.OPEN_PULL_PAGE_SIZE,4);
+ assert.equal(S.HISTORY_PAGE_SIZE,5);
+});
+test('incomplete or duplicated paginated GitHub PR evidence fails closed',async()=>{
+ const original=pr(1);
+ const duplicate=transport([original,original]);
+ await assert.rejects(()=>S.dispatchOne('mock-token',duplicate.fn,now),
+  /PROJECT_WATCH_PULLS_INCOMPLETE_OR_DUPLICATE/);
+ const full=transport(Array.from({length:100},(_,i)=>({
+  number:i+1,head:{ref:'unrelated-'+i}
+ })));
+ await assert.rejects(()=>S.dispatchOne('mock-token',full.fn,now),
+  /PROJECT_WATCH_PULLS_INCOMPLETE_OR_DUPLICATE/);
 });
