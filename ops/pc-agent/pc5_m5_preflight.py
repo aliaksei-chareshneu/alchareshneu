@@ -14,7 +14,7 @@ import sys
 from pathlib import Path
 
 SOURCE_SHA256 = {
-    "browser_bridge_adapter.py": "e6cd545970133a76018aea88573745b7cfede1c9af59d5192c1953ebb35f8218",
+    "browser_bridge_adapter.py": "0165f97785044b0d2ca030665d0016ead8a39edf54f273644e319fc102e2804f",
     "pc5_gui_pilot.py": "06bec3a63819d5d627620adc7388eda37f18e8f2336b5b97a1114991b988d705",
     "pc5_gui_owner_approval.py": "70a413cff50de67e1ef1d74d84cfa095cc70258dfedec21517a3922baaccba10",
     "pc5_gui_readback.py": "57c403e814c78e9a7a0bb2b8c1e58fcc0e0e945153acb25877a4d3c477668a5e",
