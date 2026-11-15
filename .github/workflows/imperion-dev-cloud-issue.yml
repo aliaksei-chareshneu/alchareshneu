@@ -8,6 +8,8 @@ on:
       - 'scripts/imperion-dev-draft-tests.cjs'
       - 'scripts/imperion-dev-autonomous.cjs'
       - 'scripts/imperion-dev-bootstrap.cjs'
+      - 'scripts/imperion-dev-bootstrap-qa.sh'
+      - 'scripts/imperion-dev-bootstrap-publish.sh'
       - 'tests/imperion-dev-bootstrap.test.cjs'
       - 'tests/imperion-dev-bootstrap-fixture.test.cjs'
       - 'scripts/imperion-dev-model-policy.cjs'
@@ -390,6 +392,10 @@ jobs:
             fs.writeFileSync(process.argv[2],JSON.stringify(r,null,2)+"\n",{flag:"wx"});' \
             "$proof" "$RUNNER_TEMP/imperion-dev-autonomous-receipt.json" "$baseline"
           echo "AUTO_TRUSTED_AND_ADVISORY_TESTS_PASS_OWNER_REVIEW_ONLY" >> "$GITHUB_STEP_SUMMARY"
+      - name: Independent test-first new module red-green Docker acceptance
+        if: github.event_name == 'issue_comment' && startsWith(github.event.comment.body, '/imperion-dev bootstrap')
+        shell: bash
+        run: bash scripts/imperion-dev-bootstrap-qa.sh
       - name: Retain bounded public review proof for 3 days (never deploy)
         if: always()
         uses: actions/upload-artifact@v4
@@ -403,6 +409,8 @@ jobs:
             ${{ runner.temp }}/imperion-dev-advisory-mutation-result.json
             ${{ runner.temp }}/imperion-dev-autonomous-proposal.json
             ${{ runner.temp }}/imperion-dev-autonomous-receipt.json
+            ${{ runner.temp }}/imperion-dev-bootstrap-proposal.json
+            ${{ runner.temp }}/imperion-dev-bootstrap-receipt.json
           if-no-files-found: warn
           retention-days: 3
       - name: Stop ephemeral cloud Ollama
@@ -555,3 +563,11 @@ jobs:
           node -e 'const a=require(process.argv[1]);if(a.length!==1||!a[0].isDraft)process.exit(9)' \
             "$RUNNER_TEMP/autonomous-created-pr.json"
           echo "AUTO_GITHUB_BOT_DRAFT_PR_PROVIDER_VERIFIED_OWNER_REVIEW_REQUIRED" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Publish test-first owner-created public module ONLY as bot Draft PR
+        if: startsWith(github.event.comment.body, '/imperion-dev bootstrap')
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: bash scripts/imperion-dev-bootstrap-publish.sh
