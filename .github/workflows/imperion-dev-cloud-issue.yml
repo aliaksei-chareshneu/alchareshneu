@@ -19,6 +19,7 @@ on:
       - 'tests/imperion-dev-project-publish.test.cjs'
       - 'scripts/imperion-dev-project-watch.cjs'
       - 'tests/imperion-dev-project-watch.test.cjs'
+      - 'tests/imperion-dev-project-receipt.test.cjs'
       - 'docs/imperion-dev-multistage.md'
       - 'scripts/imperion-dev-bootstrap.cjs'
       - 'scripts/imperion-dev-bootstrap-qa.sh'
@@ -99,7 +100,7 @@ jobs:
         with:
           node-version: '22'
       - name: Validate owner, scope, model parser, patch gates and mock cases
-        run: node --test tests/imperion-dev-cloud-issue.test.cjs tests/imperion-dev-cloud-acceptance.test.cjs tests/imperion-dev-draft-tests.test.cjs tests/imperion-dev-autonomous.test.cjs tests/imperion-dev-model-policy.test.cjs tests/imperion-dev-stage12.test.cjs tests/imperion-dev-threefile.test.cjs tests/imperion-dev-failure-feedback.test.cjs tests/imperion-dev-bootstrap.test.cjs tests/imperion-dev-groq-provider.test.cjs tests/imperion-dev-free-quota.test.cjs tests/imperion-dev-department.test.cjs tests/imperion-dev-project-control.test.cjs tests/imperion-dev-project-auth.test.cjs tests/imperion-dev-project-runner.test.cjs tests/imperion-dev-project-publish.test.cjs tests/imperion-dev-project-watch.test.cjs
+        run: node --test tests/imperion-dev-cloud-issue.test.cjs tests/imperion-dev-cloud-acceptance.test.cjs tests/imperion-dev-draft-tests.test.cjs tests/imperion-dev-autonomous.test.cjs tests/imperion-dev-model-policy.test.cjs tests/imperion-dev-stage12.test.cjs tests/imperion-dev-threefile.test.cjs tests/imperion-dev-failure-feedback.test.cjs tests/imperion-dev-bootstrap.test.cjs tests/imperion-dev-groq-provider.test.cjs tests/imperion-dev-free-quota.test.cjs tests/imperion-dev-department.test.cjs tests/imperion-dev-project-control.test.cjs tests/imperion-dev-project-auth.test.cjs tests/imperion-dev-project-runner.test.cjs tests/imperion-dev-project-publish.test.cjs tests/imperion-dev-project-watch.test.cjs tests/imperion-dev-project-receipt.test.cjs
       - name: Check advisory witness shell syntax
         run: bash -n scripts/imperion-dev-witness.sh && bash -n scripts/imperion-dev-repair.sh && bash -n scripts/imperion-dev-project-publish.sh
       - name: Reject unapproved CPU model before model startup
