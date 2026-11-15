@@ -198,3 +198,47 @@ test('CUDA crash blocks any Sales4 claim without verified CPU-only inference',()
   assert.equal(R.modelRoute(task,{...local,cpu_inference_verified:false}).state,'CPU_ONLY_RUNTIME_PROOF_REQUIRED');
   assert.equal(R.modelRoute(task,{...local,inference_backend:'CUDA'}).state,'CPU_ONLY_RUNTIME_PROOF_REQUIRED');
 });
+
+
+test('strongest already verified Project00/80 Groq model is advertised for public approved drafts ONLY',()=>{
+  const x=R.modelRoute({...task,purpose:'PUBLIC_COPY_DRAFT',data_classification:'PUBLIC_APPROVED',
+    source_approved:true,external_ai_approved:true},local);
+  assert.equal(x.state,'DELEGATE_EXISTING_PUBLIC_MODEL_ROUTER');
+  assert.equal(x.provider,'groq');
+  assert.equal(x.model,'openai/gpt-oss-120b');
+  assert.equal(x.compute_location,'GROQ_CLOUD_WITH_GITHUB_ACTIONS_OWNER_SECRET');
+  assert.equal(x.data_classification,'PUBLIC_APPROVED_ONLY');
+  assert.equal(x.third_party_private_data_allowed,false);
+  assert.equal(x.provider_readback,false);
+  assert.equal(x.automatic_sends,false);
+  assert.equal(x.external_actions,0);
+});
+test('even public-looking request that identifies personal Telegram source fails closed',()=>{
+  const approved={...task,purpose:'PUBLIC_COPY_DRAFT',data_classification:'PUBLIC_APPROVED',
+    source_approved:true,external_ai_approved:true};
+  for(const x of [
+    {source_kind:'PERSONAL_TELEGRAM'},
+    {source_kind:'PRIVATE_CHAT'},
+    {raw_private_message:'Never send this private text to Groq'},
+    {personal_chat_id:'-999000'}]){
+      const y=R.modelRoute({...approved,...x},local);
+      assert.equal(y.state,'PERSONAL_CONVERSATION_NEVER_PUBLIC_SOURCE');
+      assert.equal(y.external_actions,0);
+    }
+});
+test('private sales request cannot force Groq, gpt-oss or future paid model',()=>{
+  for(const p of ['openai/gpt-oss-120b','groq:openai/gpt-oss-120b','qwen/qwen3.8-27b']){
+    const q=R.modelRoute({...task,preferred_model:p},local);
+    assert.equal(q.state,'PRIVATE_CLOUD_MODEL_NOT_AUTHORIZED');
+    assert.equal(q.external_actions,0);
+  }
+  for(const r of [{request_external_ai:true},{cloud_private_approved:true}])
+    assert.equal(R.modelRoute(task,{...local,...r}).state,'PRIVATE_CLOUD_MODEL_NOT_AUTHORIZED');
+});
+test('public cannot silently select untested model or bypass third-party approval',()=>{
+  const pub={...task,purpose:'PUBLIC_COPY_DRAFT',data_classification:'PUBLIC_APPROVED',
+    source_approved:true,external_ai_approved:true};
+  assert.equal(R.modelRoute({...pub,preferred_model:'qwen/qwen3.8-27b'},local).state,'PUBLIC_MODEL_NOT_VERIFIED_BY_PROJECT');
+  assert.equal(R.modelRoute({...pub,external_ai_approved:false},local).state,'PUBLIC_SOURCE_OR_EXTERNAL_AI_NOT_APPROVED');
+  assert.equal(R.modelRoute({...pub,send:true},local).state,'MODEL_NOT_ALLOWED_TO_EXECUTE_ACTIONS');
+});
