@@ -6,7 +6,7 @@ on:
       - 'ops/agent4_model_tiers.py'
       - 'tests/imperion-social-sales-routing.test.cjs'
       - 'tests/test_agent4_model_tiers.py'
-      - 'ops/install-agent4-model-tiers.ps1'
+      - 'ops/install-agent4-model-tiers.py'
       - '.github/workflows/agent4-model-tiers.yml'
   push:
     paths:
@@ -14,7 +14,7 @@ on:
       - 'ops/agent4_model_tiers.py'
       - 'tests/imperion-social-sales-routing.test.cjs'
       - 'tests/test_agent4_model_tiers.py'
-      - 'ops/install-agent4-model-tiers.ps1'
+      - 'ops/install-agent4-model-tiers.py'
       - '.github/workflows/agent4-model-tiers.yml'
 permissions:
   contents: read
@@ -34,3 +34,5 @@ jobs:
         run: node --test tests/imperion-social-sales-routing.test.cjs
       - name: Public Groq120B vs private Qwen CPU and invalid input guards
         run: python -m unittest discover -s tests -p 'test_agent4_model_tiers.py' -q
+      - name: Verify protected owner-PC install script is valid Python
+        run: python -m py_compile ops/install-agent4-model-tiers.py
