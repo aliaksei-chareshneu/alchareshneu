@@ -6,6 +6,7 @@ const P=require('./imperion-dev-project-control.cjs');
 const R=require('./imperion-dev-project-runner.cjs');
 const D=require('./imperion-dev-department.cjs');
 const A=require('./imperion-dev-autonomous.cjs');
+const W=require('./imperion-dev-cloud-issue.cjs');
 function block(s){throw Error(s)}
 function fileJson(dir,name,maxBytes=35000){
  const full=path.resolve(dir,name),base=path.resolve(dir);
@@ -55,11 +56,22 @@ async function verifyPublish(dir,root,live,token,fetcher=globalThis.fetch){
   if(direct.project_id!==actual.project_id||direct.goal!==actual.goal)
    block('PROJECT_PUBLISH_OWNER_EVENT_REJECTED');
  }else{
-  const r=await R.resolveResume(live,token,fetcher);
-  if(r.blocked||r.stage!==proof.stage||r.base_sha!==proof.readback.at(-1)?.sha||
-     r.plan.plan_sha256!==plan.plan_sha256||
-     JSON.stringify(r.records)!==JSON.stringify(proof.readback))
+  // The model job already did a full Actions:read CI readback. Publisher
+  // intentionally has NO Actions:read rights: revalidate exact PR metadata
+  // using its existing pull-requests scope, rather than escalating permissions.
+  const resumed=P.readback(plan,proof.readback);
+  if(resumed.status!=='NEXT_DRAFT_STAGE'||resumed.stage!==proof.stage)
    block('PROJECT_PUBLISH_RESUME_STATE_CHANGED');
+  for(const prior of proof.readback){
+   const pr=await R.getJson('https://api.github.com/repos/'+W.REPO+'/pulls/'+prior.pr,
+     token,fetcher);
+   const exact=P.stageSpec(plan,prior.stage);
+   if(pr.head?.ref!==prior.head||pr.head?.sha!==prior.sha||
+      pr.base?.ref!==exact.base||pr.draft!==true||pr.state!=='open'||
+      pr.merged_at!==null||pr.user?.login!=='github-actions[bot]'||
+      typeof pr.body!=='string'||!pr.body.includes(exact.marker))
+    block('PROJECT_PUBLISH_PREDECESSOR_PR_CHANGED');
+  }
  }
  const stageTask=P.authorizeStage(proof,live,root);
  if(stageTask.project_stage!==spec.stage||
