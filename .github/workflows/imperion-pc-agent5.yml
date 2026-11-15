@@ -56,3 +56,53 @@ jobs:
         run: |
           echo 'Tested bounded synthetic multi-step workspace jobs, natural instructions, deny rules and read-only probes.' >> "$GITHUB_STEP_SUMMARY"
           echo 'No Windows PC, LLM runtime, browser, secrets, messages, deploy, or payment involved.' >> "$GITHUB_STEP_SUMMARY"
+
+  # One-shot read-only probe. Never executes PR code, never checks out the repo.
+  # No inference tokens, no charge, no secrets printed and no model upgrade.
+  provider-key-readiness:
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.number == 237 &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.head.ref == 'agent5-pc-safe-runtime-20261108' &&
+      github.repository == 'aliaksei-chareshneu/alchareshneu'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    permissions: {}
+    steps:
+      - name: Check existing free model credential and model listing without inference
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        run: |
+          node --input-type=module <<'NODE'
+          const g=process.env.GROQ_API_KEY||'';
+          const o=process.env.OPENROUTER_API_KEY||'';
+          // Only fixed API endpoints are used; never inspect arbitrary URLs.
+          const probe=async(name,key,url)=>{
+            if(!key){console.log('PC5_PROBE '+name+' key=NOT_CONFIGURED');return;}
+            try {
+              const resp=await fetch(url,{method:'GET',redirect:'error',
+                headers:{Authorization:'Bearer '+key},
+                signal:AbortSignal.timeout(9000)});
+              if(!resp.ok||resp.redirected){
+                console.log('PC5_PROBE '+name+' key=UNVERIFIED http='+resp.status);
+                return;
+              }
+              const body=await resp.json();
+              if(name==='groq'){
+                const rows=Array.isArray(body?.data)?body.data:[];
+                const model=rows.some(x=>x?.id==='openai/gpt-oss-120b'&&x?.active!==false);
+                console.log('PC5_PROBE groq key=AUTHENTICATED gpt_oss_120b='+ (model?'AVAILABLE':'NOT_LISTED'));
+              }else {
+                console.log('PC5_PROBE openrouter key=AUTHENTICATED free_tier='+
+                  (body?.data?.is_free_tier===true?'YES':body?.data?.is_free_tier===false?'NO':'UNKNOWN'));
+              }
+            }catch{
+              console.log('PC5_PROBE '+name+' key=UNVERIFIED network_or_parse_error');
+            }
+          };
+          await probe('groq',g,'https://api.groq.com/openai/v1/models');
+          await probe('openrouter',o,'https://openrouter.ai/api/v1/key');
+          console.log('PC5_PROBE billing=NOT_PROVEN api_model_inference=NOT_EXECUTED gui=UNTOUCHED');
+          NODE
