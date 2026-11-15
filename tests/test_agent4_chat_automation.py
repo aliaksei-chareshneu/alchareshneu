@@ -129,6 +129,9 @@ class Tests(unittest.TestCase):
         calls=[]
         def api(method,payload):
             calls.append((method,payload))
+            if method == "getBusinessConnection":
+                return {"id":CID, "user":{"id":OWNER},"is_enabled":True,
+                        "rights":{"can_reply":True}}
             return {"message_id":99,"text":payload["text"],"chat":{"id":PASHA}}
         def sender(db,job_id,allowed,send_fn):
             r=db.execute("SELECT peer,draft FROM jobs WHERE id=?",(job_id,)).fetchone()
@@ -138,6 +141,30 @@ class Tests(unittest.TestCase):
                         self.h.get,api,sender,now=NOW+12)
         self.assertEqual(r["provider_message_id"],99)
         self.assertEqual(calls[0][1]["business_connection_id"],CID)
+    def test_revoked_rights_block_personal_send(self):
+        self.h.connect();self.h.allow();j=self.h.inbound()["job_id"]
+        self.h.db.execute("UPDATE jobs SET state='approved' WHERE id=?",(j,))
+        calls=[]
+        def api(method,payload):
+            calls.append(method)
+            return {"id":CID,"user":{"id":OWNER},"is_enabled":True,
+                    "rights":{"can_reply":False}}
+        with self.assertRaisesRegex(ValueError,"rights no longer valid"):
+            approved_send(self.h.db,j,f"SEND:{j}:{str(PASHA)[-4:]}",
+                          self.h.get,api,None,now=NOW+10)
+        self.assertEqual(calls,["getBusinessConnection"])
+    def test_disconnected_live_connection_blocks_send(self):
+        self.h.connect();self.h.allow();j=self.h.inbound()["job_id"]
+        self.h.db.execute("UPDATE jobs SET state='approved' WHERE id=?",(j,))
+        calls=[]
+        def api(method,payload):
+            calls.append(method)
+            return {"id":CID,"user":{"id":OWNER},"is_enabled":False,
+                    "rights":{"can_reply":True}}
+        with self.assertRaisesRegex(ValueError,"rights no longer valid"):
+            approved_send(self.h.db,j,f"SEND:{j}:{str(PASHA)[-4:]}",
+                          self.h.get,api,None,now=NOW+10)
+        self.assertEqual(calls,["getBusinessConnection"])
     def test_send_without_go(self):
         self.h.connect();self.h.allow();j=self.h.inbound()["job_id"]
         self.h.db.execute("UPDATE jobs SET state='approved' WHERE id=?",(j,))
