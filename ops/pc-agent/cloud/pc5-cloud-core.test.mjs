@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {validateRequest,strictModelRoute,selectFreeProvider,runCloudPC} from './pc5-cloud-core.mjs';
+import {validateRequest,strictModelRoute,selectFreeProvider,runCloudPC,readCloudPCReceipt,validateReceiptRequest,PC5_MODEL_POLICY} from './pc5-cloud-core.mjs';
 
 const A='a4b51234-1234-4123-8123-123456789abc',J='b4b51234-1234-4123-8123-123456789abc';
 const now=new Date('2026-11-15T17:00:00Z');
@@ -84,4 +84,80 @@ test('no verified provider or expected Supabase host -> fail before I/O',async()
   assert.equal((await runCloudPC(request,{...env,SUPABASE_URL:'https://malicious.invalid/'},x)).reason,
     'SUPABASE_URL_UNEXPECTED');
   assert.equal(x.state.calls.length,0);
+});
+
+const receiptReq={kind:'pc5_receipt',classification:'SYNTHETIC',case_id:'A5-CLOUD-20261115-001'};
+const receiptJob=()=>({
+  id:J,idempotency_key:'IMP-PC5-CLOUD-A5-CLOUD-20261115-001',
+  action:'pc_operator',payload:{mode:'machine_readiness'},
+  state:'done',attempts:1,
+  result:{agent:'IMPERION_AGENT5_RESTRICTED',requested:'pc_operator',
+          result:{status:'DONE',mode:'machine_readiness',free_ram_mb:420}}
+});
+const receiptTransport=(rows)=>async (_url,o)=>{
+  assert.equal(o.method,'GET');
+  assert.match(_url,/idempotency_key=eq\./);
+  return {ok:true,redirected:false,json:async()=>rows};
+};
+test('receipt readback verifies nested DONE but returns no raw Windows data',async()=>{
+  const r=await readCloudPCReceipt(receiptReq,env,{transport:receiptTransport([receiptJob()])});
+  assert.equal(r.status,'VERIFIED_DONE');
+  assert.equal(r.job_id,J);assert.equal(r.attempts,1);assert.equal(r.verified,true);
+  assert.equal(r.no_user_data_returned,true);
+  assert.equal(JSON.stringify(r).includes('420'),false);
+});
+test('queue done with nested app BLOCKED never counts as success',async()=>{
+  const item=receiptJob();item.result.result.status='BLOCKED';
+  item.result.result.reason='MODE_NOT_ALLOWED';
+  const r=await readCloudPCReceipt(receiptReq,env,{transport:receiptTransport([item])});
+  assert.equal(r.reason,'NESTED_WINDOWS_ACTION_NOT_VERIFIED');
+  assert.equal(r.verified,false);
+});
+test('mismatched nested mode, queue attempt count and wrong agent are denied',async()=>{
+  const cases=[
+    Object.assign(receiptJob(),{attempts:2}),
+    {...receiptJob(),result:{...receiptJob().result,agent:'OTHER_WORKER'}},
+    {...receiptJob(),result:{...receiptJob().result,result:{status:'DONE',mode:'shell'}}},
+    {...receiptJob(),payload:{mode:'shell'}},
+  ];
+  for(const row of cases){
+    const r=await readCloudPCReceipt(receiptReq,env,{transport:receiptTransport([row])});
+    assert.equal(r.status,'BLOCKED');
+  }
+});
+test('reserved/queued/error jobs are never considered completed',async()=>{
+  for(const state of ['cancelled','queued','claimed','error']){
+    const item=receiptJob();item.state=state;
+    const r=await readCloudPCReceipt(receiptReq,env,{transport:receiptTransport([item])});
+    assert.notEqual(r.status,'VERIFIED_DONE');
+    assert.equal(r.verified??false,false);
+  }
+});
+test('forged readback inputs fail without any network access',async()=>{
+  let calls=0;
+  const transport=async()=>{calls++;throw Error('NETWORK_ACCESS_SHOULD_NOT_HAPPEN');};
+  for(const obj of [
+    {...receiptReq,case_id:'../../secrets'},
+    {...receiptReq,case_id:'A5-CLOUD-20261115-001',go:true},
+    {...receiptReq,classification:'PRIVATE'},
+    {...receiptReq,kind:'pc5_synthetic_readonly'},
+  ]){
+    assert.throws(()=>validateReceiptRequest(obj));
+    assert.equal((await readCloudPCReceipt(obj,env,{transport})).status,'BLOCKED');
+  }
+  assert.equal(calls,0);
+});
+test('missing job, duplicate rows or unexpected worker code reject',async()=>{
+  for(const arr of [[],[receiptJob(),receiptJob()],
+    [{...receiptJob(),idempotency_key:'DIFFERENT'}]]){
+    const r=await readCloudPCReceipt(receiptReq,env,{transport:receiptTransport(arr)});
+    assert.equal(r.status,'BLOCKED');
+  }
+});
+test('strongest paid model is not authorized; newest vision is synthetic-only',()=>{
+  assert.equal(PC5_MODEL_POLICY.strongest_known_optional_paid,'gpt-6-astra');
+  assert.equal(PC5_MODEL_POLICY.paid_api_allowed,false);
+  assert.equal(PC5_MODEL_POLICY.newest_free_synthetic_vision_candidate,
+    'nvidia/nemotron-3.5-super-vl:free');
+  assert.equal(PC5_MODEL_POLICY.free_vision_on_private_windows_screen_allowed,false);
 });
