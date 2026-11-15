@@ -46,14 +46,83 @@ function candidateProjects(pulls){
  }
  return ready.sort((a,b)=>a.issue-b.issue||a.comment-b.comment).slice(0,10);
 }
-async function dispatchOne(token,fetcher=globalThis.fetch){
+const MAX_STAGE_ATTEMPTS=2;
+const RETRY_COOLDOWN_MS=24*60*60*1000;
+const MAX_HISTORY_PAGES=10, HISTORY_PAGE_SIZE=20;
+function runTitle(c){
+ return 'IMPERION DEV project '+c.project_id+' stage '+c.stage;
+}
+function gateAttempts(candidate,runs,now){
+ if(!Array.isArray(runs)||!Number.isFinite(now))
+  block('PROJECT_WATCH_HISTORY_INVALID');
+ const relevant=runs.filter(x=>x &&
+  x.name==='IMPERION DEV cloud issue coding (review only)' &&
+  x.display_title===runTitle(candidate) &&
+  x.event==='repository_dispatch' &&
+  x.actor?.login==='github-actions[bot]' &&
+  x.repository?.full_name===W.REPO &&
+  x.head_branch==='main');
+ if(relevant.some(x=>!Number.isSafeInteger(x.id)||
+    !Number.isFinite(Date.parse(x.created_at||''))||
+    Date.parse(x.created_at)>now+60000 ||
+    !['queued','in_progress','completed','waiting','pending','requested'].includes(x.status)))
+  block('PROJECT_WATCH_HISTORY_UNTRUSTED');
+ if(new Set(relevant.map(x=>x.id)).size!==relevant.length)
+  block('PROJECT_WATCH_DUPLICATE_HISTORY');
+ const sorted=relevant.slice().sort((a,b)=>Date.parse(b.created_at)-Date.parse(a.created_at));
+ if(relevant.length>=MAX_STAGE_ATTEMPTS)
+  return {status:'BLOCKED_STAGE_RETRY_LIMIT',attempts:relevant.length};
+ if(relevant.some(x=>x.status!=='completed'))
+  return {status:'WAIT_EXISTING_STAGE_RUN',attempts:relevant.length};
+ if(relevant.some(x=>x.conclusion==='success'))
+  return {status:'BLOCKED_SUCCESS_WITHOUT_DRAFT',attempts:relevant.length};
+ if(relevant.some(x=>!['failure','cancelled','timed_out'].includes(x.conclusion)))
+  return {status:'BLOCKED_UNKNOWN_STAGE_RESULT',attempts:relevant.length};
+ if(sorted.length>0&&now-Date.parse(sorted[0].created_at)<RETRY_COOLDOWN_MS)
+  return {status:'PAUSED_STAGE_RETRY_COOLDOWN',attempts:relevant.length};
+ return {status:'ELIGIBLE_STAGE_ATTEMPT',attempts:relevant.length};
+}
+async function readRunHistory(token,fetcher=globalThis.fetch){
+ const url=BASE+'/actions/workflows/imperion-dev-cloud-issue.yml/runs?event=repository_dispatch&per_page='+
+  HISTORY_PAGE_SIZE;
+ const runs=[];
+ let expectedTotal=null;
+ for(let page=1;page<=MAX_HISTORY_PAGES;page++){
+  const result=await R.getJson(url+'&page='+page,token,fetcher);
+  if(!Array.isArray(result?.workflow_runs)||
+     !Number.isSafeInteger(result.total_count)||result.total_count<0||
+     result.workflow_runs.length>HISTORY_PAGE_SIZE)
+   block('PROJECT_WATCH_INCOMPLETE_HISTORY');
+  if(expectedTotal===null)expectedTotal=result.total_count;
+  if(result.total_count!==expectedTotal)
+   block('PROJECT_WATCH_MOVING_HISTORY');
+  runs.push(...result.workflow_runs);
+  if(runs.length===expectedTotal)break;
+  if(result.workflow_runs.length!==HISTORY_PAGE_SIZE)
+   block('PROJECT_WATCH_INCOMPLETE_HISTORY');
+ }
+ if(runs.length!==expectedTotal||new Set(runs.map(x=>x.id)).size!==runs.length)
+  block('PROJECT_WATCH_HISTORY_LIMIT_REACHED');
+ return runs;
+}
+async function dispatchOne(token,fetcher=globalThis.fetch,now=Date.now()){
  if(typeof token!=='string'||token.length<8)block('PROJECT_WATCH_AUTH_REJECTED');
  const list=await R.getJson(BASE+'/pulls?state=open&per_page=100',token,fetcher);
  const candidates=candidateProjects(list);
  if(!candidates.length)return {status:'NO_ELIGIBLE_DRAFT_PROJECT'};
- const next=candidates[0];
+ const history=await readRunHistory(token,fetcher);
+ let next=null;
+ const deferred=[];
+ for(const candidate of candidates){
+  const gate=gateAttempts(candidate,history,now);
+  if(gate.status==='ELIGIBLE_STAGE_ATTEMPT'){next=candidate;break}
+  deferred.push({project_id:candidate.project_id,stage:candidate.stage,
+   status:gate.status,attempts:gate.attempts});
+ }
+ if(!next)return {status:'NO_ELIGIBLE_STAGE_AFTER_HISTORY_CHECK',
+  deferred,auto_merge:false,paid_api_czk:0};
  const payload={event_type:'imperion-dev-project-resume',
-  client_payload:{issue:next.issue,comment:next.comment}};
+  client_payload:{issue:next.issue,comment:next.comment,stage:next.stage}};
  let res;
  try{res=await fetcher(BASE+'/dispatches',{
   method:'POST',redirect:'error',credentials:'omit',
@@ -77,4 +146,5 @@ if(require.main===module)cli().catch(e=>{
  console.error(/^[A-Z0-9_]+$/.test(e.message)?e.message:'PROJECT_WATCH_FAIL_CLOSED');
  process.exitCode=9;
 });
-module.exports={candidateProjects,dispatchOne};
+module.exports={candidateProjects,dispatchOne,runTitle,gateAttempts,readRunHistory,
+ MAX_STAGE_ATTEMPTS,RETRY_COOLDOWN_MS};
