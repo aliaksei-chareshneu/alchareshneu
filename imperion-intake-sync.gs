@@ -551,12 +551,32 @@ function impReceiptMessage_(kind,row,m,events){
     if(isFinite(d.getTime()))parts.push(w[4]+': '+Utilities.formatDate(d,'Europe/Prague','dd.MM.yyyy HH:mm'));
    }
   }
-  if(e&&e.venue)parts.push(w[5]+': '+String(e.venue).slice(0,200));
+  // The regular Druzina meeting point is fixed; never reproduce an outdated
+  // "(place unverified)" catalog hint in transactional HEMA receipts.
+  var knownTraining=/^PUB-HEMA-\d{8}$/.test(v('Event_ID'));
+  if(knownTraining){
+    var meeting={
+     cs:'Sraz: Dukelská třída 157/44, Brno; trénink: Nová Zbrojovka, Brno.',
+     en:'Meeting: Dukelská třída 157/44, Brno; training: Nová Zbrojovka, Brno.',
+     ru:'Сбор: Dukelská třída 157/44, Brno; тренировка: Nová Zbrojovka, Brno.',
+     uk:'Збір: Dukelská třída 157/44, Brno; тренування: Nová Zbrojovka, Brno.'
+    };
+    parts.push(meeting[lang]||meeting.cs);
+    if(v('Requested_Tier')==='STARTER4'){
+      var pack={
+       cs:'Požadovaný balíček: Starter4, 4 návštěvy; 240 Kč za jednu návštěvu není cenou balíčku.',
+       en:'Requested package: Starter4, four visits; 240 Kč for a single visit is not the package price.',
+       ru:'Выбран Starter4, четыре посещения; 240 Kč за разовое посещение — не цена пакета.',
+       uk:'Обрано Starter4, чотири відвідування; 240 Kč за один візит — не ціна пакета.'
+      };
+      parts.push(pack[lang]||pack.cs);
+    }
+  }else if(e&&e.venue)parts.push(w[5]+': '+String(e.venue).slice(0,200));
   var paidQuote=Number(v('Quoted_Total_CZK'));
   if(v('Payment_Evidence_Status')==='PROOF_RECEIVED'&&paidQuote>0)
     parts.push(w[6]+': '+paidQuote+' Kč (PDF received for review; bank not verified)');
   else if(e&&e.price_verified===true&&Number.isInteger(e.price_czk)&&
-       !e.trainingPayment)parts.push(w[6]+': '+e.price_czk+' Kč');
+       !e.trainingPayment && !(knownTraining&&v('Requested_Tier')==='STARTER4'))parts.push(w[6]+': '+e.price_czk+' Kč');
   var rulesUrl=e&&String(e.rules_url||'')||'';
   if(!/^https:\/\/aliaksei-chareshneu\.github\.io\/alchareshneu\//.test(rulesUrl))
    rulesUrl='https://aliaksei-chareshneu.github.io/alchareshneu/register/safety/';
@@ -601,7 +621,15 @@ function impReceiptMessage_(kind,row,m,events){
     }
   }
   sender=v('Data_Controller').includes('Aliaksei Chareshneu')?'Aliaksei Chareshneu (OSVČ)':'Družina Moravy';
-  parts.push(w[8]);
+  if(knownTraining){
+    var note={
+     cs:'Vaše registrace je zaznamenána. Nepotřebujete druhou registraci; individuální stav účasti a platby se řídí již dohodnutými podmínkami.',
+     en:'Your registration is recorded. No second registration is needed; your individual attendance and payment follow the terms already agreed.',
+     ru:'Ваша заявка зарегистрирована. Повторная заявка не нужна; участие и оплата — по уже согласованным условиям.',
+     uk:'Вашу заявку зареєстровано. Повторна заявка не потрібна; участь та оплата — за погодженими умовами.'
+    };
+    parts.push(note[lang]||note.cs);
+  }else parts.push(w[8]);
  }else if(kind==='TRAINING'){
   id=v('Request_ID');if(!/^ENQ-[0-9a-f-]{36}$/i.test(id))return null;
   label='Družina Moravy HEMA';
