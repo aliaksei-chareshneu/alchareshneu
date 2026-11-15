@@ -1215,3 +1215,36 @@ function imperionInstallPrivateIntake(){
     ScriptApp.newTrigger('imperionCleanupPrivateIntake').timeBased().everyDays(1).atHour(4).create();
   return {installed:true,importerCreated:importers.length===0,retentionCreated:cleanups.length===0};
 }
+
+/** Read-only diagnostic retained from the active 15 Nov Community Hub project.
+ * Never ack, delete, send, or alter contacts during readiness inspection.
+ */
+function imperionPrivateIntakeReadiness(){
+ var result={sheetMatchesCanonical:false,paymentHeadersReady:false,bridgeKeyConfigured:false,notifyEmailConfigured:false,triggerCheckAvailable:false,importerTriggersVisible:null,cleanupTriggersVisible:null,bridgeReadOnlyOk:false,pendingCounts:null};
+ var p=PropertiesService.getScriptProperties();
+ var sheetId=p.getProperty('IMPERION_CRM_SHEET_ID')||(typeof SPREADSHEET_ID!=='undefined'?SPREADSHEET_ID:'');
+ result.sheetMatchesCanonical=sheetId==='1igxEHQ7wFFCoCA9lg4kzT2OoMrVLgbBogfqTxGeUftY';
+ result.bridgeKeyConfigured=/^[a-f0-9]{64}$/i.test(p.getProperty('IMPERION_INTAKE_BRIDGE_KEY')||'');
+ result.notifyEmailConfigured=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(p.getProperty('IMPERION_NOTIFY_EMAIL')||'');
+ try{
+  var sh=SpreadsheetApp.openById(sheetId).getSheetByName('Registrations');
+  if(sh){var m=impHeader_(sh).map; result.paymentHeadersReady=['Requested_Tier','Quoted_Tier','Personal_Approval_At','Quoted_Base_CZK','Late_Fee_CZK','Quoted_Total_CZK','Quoted_Group_Size','Late_48h','Payment_Evidence_Status','Payment_Proof_Received_At'].every(function(k){return m[k]!==undefined});}
+ }catch(e){}
+ try{
+  var triggers=ScriptApp.getProjectTriggers();
+  result.triggerCheckAvailable=true;
+  result.importerTriggersVisible=triggers.filter(function(t){return t.getHandlerFunction()==='imperionSyncPrivateIntake'}).length;
+  result.cleanupTriggersVisible=triggers.filter(function(t){return t.getHandlerFunction()==='imperionCleanupPrivateIntake'}).length;
+ }catch(e){}
+ if(result.bridgeKeyConfigured&&result.notifyEmailConfigured&&result.sheetMatchesCanonical){
+  try{
+   var batch=impPrivateFetch_(impPrivateConfig_(),null);
+   result.bridgeReadOnlyOk=batch.ok===true&&batch.protocol==='imperion-intake-bridge-v1';
+   if(result.bridgeReadOnlyOk)result.pendingCounts={rsvps:batch.rsvps.length,enquiries:batch.enquiries.length,b2b:batch.b2b.length};
+  }catch(e){}
+ }
+ console.log('IMPERION_INTAKE_READINESS '+JSON.stringify(result));
+ return result;
+}
+
+// IMPERION 2026-11-13: canonical intake module; duplicate FioDruzinaConsole archived offline.
