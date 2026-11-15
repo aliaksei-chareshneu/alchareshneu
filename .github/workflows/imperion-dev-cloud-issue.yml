@@ -11,6 +11,7 @@ on:
       - 'tests/imperion-dev-department.test.cjs'
       - 'scripts/imperion-dev-project-control.cjs'
       - 'tests/imperion-dev-project-control.test.cjs'
+      - 'tests/imperion-dev-project-auth.test.cjs'
       - 'docs/imperion-dev-multistage.md'
       - 'scripts/imperion-dev-bootstrap.cjs'
       - 'scripts/imperion-dev-bootstrap-qa.sh'
@@ -80,7 +81,7 @@ jobs:
         with:
           node-version: '22'
       - name: Validate owner, scope, model parser, patch gates and mock cases
-        run: node --test tests/imperion-dev-cloud-issue.test.cjs tests/imperion-dev-cloud-acceptance.test.cjs tests/imperion-dev-draft-tests.test.cjs tests/imperion-dev-autonomous.test.cjs tests/imperion-dev-model-policy.test.cjs tests/imperion-dev-stage12.test.cjs tests/imperion-dev-threefile.test.cjs tests/imperion-dev-failure-feedback.test.cjs tests/imperion-dev-bootstrap.test.cjs tests/imperion-dev-groq-provider.test.cjs tests/imperion-dev-free-quota.test.cjs tests/imperion-dev-department.test.cjs tests/imperion-dev-project-control.test.cjs
+        run: node --test tests/imperion-dev-cloud-issue.test.cjs tests/imperion-dev-cloud-acceptance.test.cjs tests/imperion-dev-draft-tests.test.cjs tests/imperion-dev-autonomous.test.cjs tests/imperion-dev-model-policy.test.cjs tests/imperion-dev-stage12.test.cjs tests/imperion-dev-threefile.test.cjs tests/imperion-dev-failure-feedback.test.cjs tests/imperion-dev-bootstrap.test.cjs tests/imperion-dev-groq-provider.test.cjs tests/imperion-dev-free-quota.test.cjs tests/imperion-dev-department.test.cjs tests/imperion-dev-project-control.test.cjs tests/imperion-dev-project-auth.test.cjs
       - name: Check advisory witness shell syntax
         run: bash -n scripts/imperion-dev-witness.sh && bash -n scripts/imperion-dev-repair.sh
       - name: Reject unapproved CPU model before model startup

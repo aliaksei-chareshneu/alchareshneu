@@ -23,6 +23,11 @@ function exactKeys(value,keys){
 }
 function taskFromEvent(e){
  const t=A.taskFromEvent(e);
+ if(t.project_stage!==undefined){
+  if(!process.env.IMPERION_DEV_PROJECT_STAGE_PROOF||t.department!==true)
+   reject('DEPT_PROJECT_EVIDENCE_REQUIRED');
+  return t;
+ }
  if(t.department!==true||!e.comment.body.startsWith('/imperion-dev department\n'))
   reject('DEPT_OWNER_COMMAND_REQUIRED');
  return t;
@@ -55,6 +60,13 @@ function checkTask(task,root){
  if(task.department!==true||task.mode!=='AUTO_OWNER_ISSUE')
   reject('DEPT_MODE_REJECTED');
  const c=A.candidateSources(task,root);
+ if(task.project_stage!==undefined){
+  if(!Array.isArray(task.project_files)||task.project_files.length<1||
+     task.project_files.length>3||new Set(task.project_files).size!==task.project_files.length||
+     !task.project_files.every(f=>c.files.some(x=>x.file===f)))
+   reject('DEPT_PROJECT_FILE_SCOPE_REJECTED');
+  c.files=c.files.filter(f=>task.project_files.includes(f.file));
+ }
  if(c.files.length>8||Buffer.byteLength(c.trusted)>16000)
   reject('DEPT_CONTEXT_UNBOUNDED');
  return c;
@@ -100,8 +112,10 @@ function verifyPlan(plan,root){
   reject('DEPT_PLAN_PROOF_REJECTED');
  if(!process.env.GITHUB_EVENT_PATH)reject('DEPT_EVENT_REQUIRED');
  const live=taskFromEvent(JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH,'utf8')));
- for(const key of ['scope','test','goal','issue','comment','mode','department'])
+ for(const key of ['scope','test','goal','issue','comment','mode','department','project_id','project_stage'])
   if(plan.task?.[key]!==live[key])reject('DEPT_PLAN_EVENT_MISMATCH');
+ if(JSON.stringify(plan.task?.project_files)!==JSON.stringify(live.project_files))
+  reject('DEPT_PLAN_PROJECT_FILES_CHANGED');
  const c=checkTask(live,root);
  const data=validatePlanData({files:plan.selected,steps:plan.steps,
   acceptance:plan.acceptance},c);

@@ -31,6 +31,8 @@ function parseCommand(body){
  return task;
 }
 function taskFromEvent(e){
+ if(process.env.IMPERION_DEV_PROJECT_STAGE_PROOF)
+  return require('./imperion-dev-project-control.cjs').authorizedTaskFromEnvironment(process.cwd());
  if(!e||e.action!=='created'||e.repository?.full_name!==W.REPO||
     !Number.isSafeInteger(e.issue?.number)||e.issue.number<=0||
     e.issue.user?.login!=='aliaksei-chareshneu'||e.issue.state!=='open'||
@@ -143,6 +145,14 @@ function validateTestDraft(x,selected){
  return x;
 }
 function generatedPath(task){
+ if(task.project_stage!==undefined){
+  if(task.mode!=='AUTO_OWNER_ISSUE'||!Number.isSafeInteger(task.issue)||
+     !Number.isSafeInteger(task.comment)||!Number.isInteger(task.project_stage)||
+     task.project_stage<1||task.project_stage>4||
+     task.project_id!==String(task.issue)+'-'+String(task.comment))
+   reject('AUTO_PROJECT_GENERATED_PATH_REJECTED');
+  return 'tests/generated/imperion-dev-project-'+task.project_id+'-s'+task.project_stage+'.test.cjs';
+ }
  if(task.mode==='AUTO_FIXTURE')return 'tests/generated/imperion-dev-autonomous-preview.test.cjs';
  if(task.mode!=='AUTO_OWNER_ISSUE'||!Number.isSafeInteger(task.issue)||!Number.isSafeInteger(task.comment)||
     task.issue<=0||task.comment<=0)reject('AUTO_GENERATED_PATH_REJECTED');
@@ -294,8 +304,10 @@ function verifyManifest(p,root){
  if(task?.mode==='AUTO_OWNER_ISSUE'){
   if(!process.env.GITHUB_EVENT_PATH)reject('AUTO_EVENT_REQUIRED');
   const live=taskFromEvent(JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH,'utf8')));
-  for(const key of ['scope','test','goal','issue','comment','mode','department'])
+  for(const key of ['scope','test','goal','issue','comment','mode','department','project_id','project_stage'])
    if(task[key]!==live[key])reject('AUTO_EVENT_MISMATCH');
+  if(JSON.stringify(task.project_files)!==JSON.stringify(live.project_files))
+   reject('AUTO_PROJECT_FILES_CHANGED');
  }else if(task?.mode!=='AUTO_FIXTURE'||task.scope!=='ops/imperion-dev-cloud-fixture'||
          task.test!=='tests/imperion-dev-cloud-multi-fixture.test.cjs')
   reject('AUTO_TASK_MODE_REJECTED');
