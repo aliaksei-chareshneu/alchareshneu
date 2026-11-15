@@ -142,6 +142,8 @@ test('one Qwen code repair stays on original selected file and original source S
   let response;
   if(prompt.includes('You are a careful coding assistant editing ONE PUBLIC')){
     assert.match(prompt,/PREVIOUS_ISOLATED_TEST_FAIL/);
+    assert.match(prompt,/negative_quantity_is_zero/);
+    assert.match(prompt,/actual/);
     response={old:'return unitPrice * quantity;',
       new:'return quantity < 0 ? 0 : unitPrice * quantity;'};
   }else if(prompt.includes('Suggest ONLY JSON data for a human-review advisory Node test')){
@@ -152,7 +154,9 @@ test('one Qwen code repair stays on original selected file and original source S
     response:JSON.stringify(response)})};
  };
  const original=fs.readFileSync(path.join(root,source),'utf8');
- const r=await A.retryCode(p,root,fetchImpl);
+ const feedback=JSON.stringify({origin:'INDEPENDENT_TRUSTED_TEST',failCount:1,
+  names:['negative_quantity_is_zero'],diffs:[{actual:'-6',expected:'0'}]});
+ const r=await A.retryCode(p,root,fetchImpl,feedback);
  assert.equal(calls,2);
  assert.equal(r.code_retry_done,true);
  assert.deepEqual(r.selected,[source]);
@@ -166,6 +170,7 @@ test('repair shell retains no-network Docker and one retry only',()=>{
  const sh=fs.readFileSync(path.join(root,'scripts/imperion-dev-repair.sh'),'utf8');
  const yaml=fs.readFileSync(path.join(root,'.github/workflows/imperion-dev-cloud-issue.yml'),'utf8');
  assert.match(sh,/--retry-code/);
+ assert.match(sh,/imperion-dev-auto-tests\.log/);
  assert.match(sh,/--network none --read-only --cap-drop ALL/);
  assert.match(sh,/--security-opt no-new-privileges/);
  assert.match(sh,/AUTO_CODE_REPAIR_ONE_ATTEMPT_PASS_REVIEW_ONLY/);

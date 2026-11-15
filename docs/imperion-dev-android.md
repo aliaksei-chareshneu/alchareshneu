@@ -119,3 +119,23 @@ Stage 12 acceptance is limited to a Draft PR with real GitHub Actions readback. 
 - **Cost truth.** A secret's presence, GitHub's `GROQ_VERIFIED_FREE_PLAN=true` execution flag, and the no-paid-fallback code DO NOT verify the vendor billing plan. Groq officially states Free and Developer are different plans and Developer can bill per-token. The owner should independently inspect [Groq Billing](https://console.groq.com/docs/billing-faqs) and the current [account rate limits](https://console.groq.com/docs/rate-limits) before relying on a strict 0 Kč long-term guarantee. No console settings, cards, upgrades, budgets, subscriptions or entitlements were altered by this code change.
 - **External head CI limitation.** GitHub may show `action_required`/no automated PR-head jobs on PRs created using GitHub Actions token. The acceptance evidence is the *issuing* workflow's three completed jobs, original source/test diff and owner review, NOT untriggered PR-head CI. Do not merge automatically. Site-wide `browser-regression` on an unrelated workflow run was cancelled while other website PRs were active; this is not evidence of website-green or model regression.
 - Owner action remains optional for each public synthetic coding Draft PR: inspect exact changed code and the source of any independent trusted test. For production code, require a separate explicit merge GO and site/live verification.
+
+
+## Stage 15 — bounded three-file development and real failure diagnosis (15 Nov 2026)
+
+**Owner approved expanding development capabilities, not new paid subscriptions, unrestricted private-code access, autonomous merge or deployment.** The existing GitHub Issue -> Groq Free / explicit Ollama -> independent Docker tests -> bot Draft PR stays in place.
+
+- **Autonomous selection expands to 1–3 existing public JS/CJS sources** inside a single owner-specified scripts, docs or ops directory. Every selected source filename must appear in an existing independently maintained trusted tests/*.test.cjs. Files must already exist. Legacy /imperion-dev cloud remains limited to 1–2 explicit JS sources or one Python source; no wider Python autonomy is implied.
+- Model now sees bounded read-only context snippets of the other two selected sources; each model patch is checked by exact original source SHA, path and source order. Only the trusted controller writes the isolated sandbox and review-only Draft PR.
+- When real trusted Docker tests fail, one repair receives **minimized sanitized failing TAP test names and bounded numeric mismatches**. It never gets raw CI logs, stack traces, local paths, email addresses, tokens or environment values. Retry stays inside original file set, original source SHA, original independent trusted test, one code retry, and the baseline-failing advisory behavior witness. Fail closed on invalid data, quota, bad model response or invalid source patch.
+- Model-generated advisory test cases remain NON-INDEPENDENT; changing behavior requires a generated witness that fails on unchanged source and passes after patch plus independent trusted tests. New modules without pre-existing trusted tests, whole applications, private sources, deployments, auto-merges and customer messages remain outside this approval.
+- Acceptance is a three-file synthetic fixture with tests for safe selection, no fourth file, unchanged original source validation, model mock, test generation, and actual isolated Node test execution. A real post-merge three-file owner GitHub Issue -> Draft PR test is a separate milestone and is NOT proven by the CI unit suite.
+
+Sample for later unique owner task (do not duplicate previous owner acceptance comments):
+
+    /imperion-dev autonomous
+    scope: ops/imperion-dev-cloud-fixture
+    test: tests/imperion-dev-cloud-three-fixture.test.cjs
+    goal: Clarify only the existing helper comments while preserving all outputs.
+
+**Cost:** existing Groq Personal Free plan and shown November projected $0.01 were verified by user screenshots; $0.01 was explicitly non-billable without upgrading. Do not change tariff, payment card, permissions or add any new model API. Strict existing per-run/24h Groq gates remain enforced.

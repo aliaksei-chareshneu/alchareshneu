@@ -33,7 +33,7 @@ function mockFetch(){
   const input=JSON.parse(opts.body);
   calls.push(input.prompt);
   let response;
-  if(input.prompt.includes('Select one or two existing PUBLIC modules')){
+  if(input.prompt.includes('Select one, two, or three existing PUBLIC modules')){
    response=JSON.stringify({files:[price]});
   }else if(input.prompt.includes('You are a careful coding assistant editing ONE PUBLIC')){
    response=JSON.stringify({
@@ -185,7 +185,7 @@ test('model receives the trusted JS contract and retries only one destructive ed
  const fetchImpl=async(_u,opts)=>{
   const x=JSON.parse(opts.body),prompt=x.prompt;modeled++;
   let reply;
-  if(prompt.includes('Select one or two existing PUBLIC modules')){
+  if(prompt.includes('Select one, two, or three existing PUBLIC modules')){
    reply=JSON.stringify({files:[price]});
   }else if(prompt.includes('You are a careful coding assistant editing ONE PUBLIC')){
    patches++;

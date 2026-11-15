@@ -6,7 +6,7 @@ proof="${1:?PROOF_REQUIRED}"
 trusted="${2:?TRUSTED_TEST_REQUIRED}"
 draft="${3:?ADVISORY_TEST_REQUIRED}"
 test "$proof" = "$RUNNER_TEMP/imperion-dev-autonomous-proposal.json"
-node scripts/imperion-dev-autonomous.cjs --retry-code "$proof"
+node scripts/imperion-dev-autonomous.cjs --retry-code "$proof" "$RUNNER_TEMP/imperion-dev-auto-tests.log"
 sandbox="$RUNNER_TEMP/imperion-dev-autonomous-code-repair"
 mkdir -p "$sandbox"
 git ls-files -z | tar --null -T - -cf - | tar -C "$sandbox" -xf -
