@@ -71,7 +71,7 @@ function validateSource(obj){
  if(Buffer.byteLength(s)>3500||s.length<70||
     !(s.startsWith("'use strict';\n")||s.startsWith('"use strict";\n'))||
     !/\bmodule\.exports\s*=\s*\{/.test(s)||
-    BAD_CONTROL.test(s)||BAD_SOURCE.test(s)||/\/\*|\*\/|\$\{|\x60/.test(s)||
+    BAD_CONTROL.test(s)||BAD_SOURCE.test(s)||/\/\*|\*\/|\$\{|\x60|<\/?[A-Za-z]{2,16}>/.test(s)||
     /\b(?:module\s*\[|exports\s*\[|exports\s*\.|Object\s*\.)/.test(s))
   reject('BOOTSTRAP_UNSAFE_SOURCE_REJECTED');
  return s;
