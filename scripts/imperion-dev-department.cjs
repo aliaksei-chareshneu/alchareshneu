@@ -223,6 +223,28 @@ function verifyReview(plan,proposal,qa,r,root){
  r.checks.forEach(x=>cleanText(x,8,160));
  return r;
 }
+function summaryMarkdown(plan,review){
+ if(plan?.status!=='PLANNED_PENDING_INDEPENDENT_TESTS'||
+    review?.status!=='DEPARTMENT_REVIEW_PASS'||
+    !Array.isArray(plan.steps)||!Array.isArray(review.checks))
+  reject('DEPT_SUMMARY_NOT_VERIFIED');
+ const lines=[
+  'Department review-only evidence (same-model reviewer, NOT independent correctness proof).',
+  'Planned changes:'
+ ];
+ for(const step of plan.steps){
+  cleanText(step.change,12,170);
+  lines.push('- '+step.file+': '+step.change+' [risk '+step.risk+']');
+ }
+ lines.push('Independent test: '+plan.task.test);
+ lines.push('Existing trusted Docker tests: PASS. Generated advisory: NOT independent.');
+ lines.push('Separate model reviewer: PASS, checks:');
+ for(const check of review.checks){cleanText(check,8,160);lines.push('- '+check)}
+ lines.push('Human review REQUIRED; no deployment, auto-merge or paid fallback.');
+ const result=lines.join('\\n');
+ if(result.length>1400)reject('DEPT_SUMMARY_TOO_LONG');
+ return result;
+}
 function verifyDirectory(dir,root){
  const {plan,proposal,qa}=proofFiles(dir);
  const name=path.join(dir,REVIEW_FILE),st=fs.lstatSync(name);
@@ -257,6 +279,10 @@ async function cli(){
   const receipt=verifyDirectory(path.resolve(process.argv[3]),root);
   console.log(JSON.stringify({status:'DEPARTMENT_EVIDENCE_VERIFIED_FOR_DRAFT_ONLY',
    issue:receipt.issue,comment:receipt.comment}));
+ }else if(mode==='--summary'&&process.argv[3]){
+  const dir=path.resolve(process.argv[3]),receipt=verifyDirectory(dir,root);
+  const plan=JSON.parse(fs.readFileSync(path.join(dir,PLAN_FILE),'utf8'));
+  console.log(summaryMarkdown(plan,receipt));
  }else reject('DEPT_CLI_MODE_REJECTED');
 }
 if(require.main===module)cli().catch(e=>{
@@ -266,4 +292,4 @@ if(require.main===module)cli().catch(e=>{
 module.exports={PLAN_FILE,REVIEW_FILE,PROPOSAL_FILE,QA_FILE,
  sha,taskFromEvent,cleanText,validatePlanData,checkTask,
  createPlan,verifyPlan,stage,verifyProof,validateReviewData,review,
- verifyReview,verifyDirectory};
+ verifyReview,verifyDirectory,summaryMarkdown};
