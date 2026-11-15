@@ -130,14 +130,14 @@ test('bootstrap artifact/publisher remains PR review-only and uses verified mode
  const y=fs.readFileSync(path.join(__dirname,'../.github/workflows/imperion-dev-cloud-issue.yml'),'utf8');
  assert.match(y,/imperion-dev-bootstrap\.cjs --check-event/);
  assert.match(y,/imperion-dev-bootstrap\.cjs --event/);
- assert.match(y,/imperion-dev-bootstrap-qa\\.sh/);
- assert.match(y,/imperion-dev-bootstrap-publish\\.sh/);
+ assert.match(y,/imperion-dev-bootstrap-qa\.sh/);
+ assert.match(y,/imperion-dev-bootstrap-publish\.sh/);
  const qa=fs.readFileSync(path.join(__dirname,'../scripts/imperion-dev-bootstrap-qa.sh'),'utf8');
  const publish=fs.readFileSync(path.join(__dirname,'../scripts/imperion-dev-bootstrap-publish.sh'),'utf8');
  assert.match(qa,/BOOTSTRAP_TRUSTED_AND_ADVISORY_TESTS_PASS/);
  assert.match(qa,/IMPERION_DEV_BOOTSTRAP_ACCEPTANCE=1/);
  assert.match(qa,/--network none --read-only --cap-drop ALL/);
  assert.match(publish,/gh pr create --draft/);
- assert.match(publish,/B\\.verifyManifest/);
+ assert.match(publish,/B\.verifyManifest/);
  assert.doesNotMatch(y+qa+publish,/gh pr merge|git push origin main/);
 });
