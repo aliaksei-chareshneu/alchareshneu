@@ -212,3 +212,13 @@ test('owner digest persists counts even without optional CRM details',()=>{
  assert.doesNotMatch(mails[0][2],/DRUŽINA MORAVY — zájem/);
  assert.doesNotMatch(mails[0][2],/REGISTRACE NA AKCE — nové/);
 });
+
+// Campaign/discovery must stay visible even when an incoming batch has no
+// source field (legacy rows) or contains no new registrations.
+test('RSVP sync always materializes source columns in canonical CRM',()=>{
+ assert.match(gs,/var h=impEnsureRsvpAttribution_\\(sh\\);/);
+ assert.match(gs,/Discovery_Source/);
+ assert.match(gs,/UTM_Source/);
+ assert.match(gs,/UTM_Medium/);
+ assert.match(gs,/UTM_Campaign/);
+});

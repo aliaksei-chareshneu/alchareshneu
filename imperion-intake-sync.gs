@@ -155,8 +155,9 @@ function impUpdateExistingRsvpProof_(sh,h,r){
 }
 function impWriteRsvps_(ss,items,events){
   var sh=ss.getSheetByName('Registrations');if(!sh)throw Error('Missing Registrations');
-  var h=(items||[]).some(function(r){return r&&Object.prototype.hasOwnProperty.call(r,'discovery_source');})?
-   impEnsureRsvpAttribution_(sh):impHeader_(sh);
+  // Always expose campaign/discovery columns, including on empty or legacy sync batches.
+  // Do not conflate unverified client discovery with a tagged campaign source.
+  var h=impEnsureRsvpAttribution_(sh);
   if((items||[]).some(function(r){return r && (r.payment_evidence_status==='PROOF_RECEIVED' ||
     /^PUB-HEMA-/.test(String(r.event_id||'')));}))
    h=impEnsureRsvpPaymentCols_(sh);
