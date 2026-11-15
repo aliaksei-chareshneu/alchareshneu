@@ -48,7 +48,8 @@ function candidateProjects(pulls){
 }
 const MAX_STAGE_ATTEMPTS=2;
 const RETRY_COOLDOWN_MS=24*60*60*1000;
-const MAX_HISTORY_PAGES=10, HISTORY_PAGE_SIZE=20;
+const MAX_HISTORY_PAGES=40, HISTORY_PAGE_SIZE=5;
+const MAX_OPEN_PULL_PAGES=25, OPEN_PULL_PAGE_SIZE=4;
 function runTitle(c){
  return 'IMPERION DEV project '+c.project_id+' stage '+c.stage;
 }
@@ -106,9 +107,24 @@ async function readRunHistory(token,fetcher=globalThis.fetch){
   block('PROJECT_WATCH_HISTORY_LIMIT_REACHED');
  return runs;
 }
+async function readOpenPulls(token,fetcher=globalThis.fetch){
+ const all=[];
+ for(let page=1;page<=MAX_OPEN_PULL_PAGES;page++){
+  const items=await R.getJson(BASE+'/pulls?state=open&per_page='+OPEN_PULL_PAGE_SIZE+
+    '&page='+page,token,fetcher);
+  if(!Array.isArray(items)||items.length>OPEN_PULL_PAGE_SIZE)
+   block('PROJECT_WATCH_PULLS_PAGE_INVALID');
+  all.push(...items);
+  if(items.length<OPEN_PULL_PAGE_SIZE)break;
+ }
+ if(all.length>=MAX_OPEN_PULL_PAGES*OPEN_PULL_PAGE_SIZE||
+    new Set(all.map(p=>p.number)).size!==all.length)
+  block('PROJECT_WATCH_PULLS_INCOMPLETE_OR_DUPLICATE');
+ return all;
+}
 async function dispatchOne(token,fetcher=globalThis.fetch,now=Date.now()){
  if(typeof token!=='string'||token.length<8)block('PROJECT_WATCH_AUTH_REJECTED');
- const list=await R.getJson(BASE+'/pulls?state=open&per_page=100',token,fetcher);
+ const list=await readOpenPulls(token,fetcher);
  const candidates=candidateProjects(list);
  if(!candidates.length)return {status:'NO_ELIGIBLE_DRAFT_PROJECT'};
  const history=await readRunHistory(token,fetcher);
@@ -147,5 +163,5 @@ if(require.main===module)cli().catch(e=>{
  console.error(/^[A-Z0-9_]+$/.test(e.message)?e.message:'PROJECT_WATCH_FAIL_CLOSED');
  process.exitCode=9;
 });
-module.exports={candidateProjects,dispatchOne,runTitle,gateAttempts,readRunHistory,
- MAX_STAGE_ATTEMPTS,RETRY_COOLDOWN_MS};
+module.exports={candidateProjects,dispatchOne,runTitle,gateAttempts,readRunHistory,readOpenPulls,
+ MAX_STAGE_ATTEMPTS,RETRY_COOLDOWN_MS,OPEN_PULL_PAGE_SIZE,HISTORY_PAGE_SIZE};
