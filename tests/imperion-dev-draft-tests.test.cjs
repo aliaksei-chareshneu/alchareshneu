@@ -119,9 +119,9 @@ test('invalid model output gets one bounded retry and no test file without passi
 });
 test('workflow keeps advisory fixture read-only while PR preview never calls a model',()=>{
  const y=fs.readFileSync(path.join(__dirname,'../.github/workflows/imperion-dev-cloud-issue.yml'),'utf8');
- assert.match(y,/Generate advisory test vectors on public synthetic PR preview \\(legacy\\)/);
+ assert.match(y,/Generate advisory test vectors on public synthetic PR preview \(legacy\)/);
  const modelJob=y.split('  cloud-qwen-coding:\n')[1]?.split('  draft-review-pr:\n')[0];
- assert.match(modelJob,/if: github\\.event_name == 'issue_comment'/);
+ assert.match(modelJob,/if: github\.event_name == 'issue_comment'/);
  assert.match(y,/UNTRUSTED_TEST_DRAFT_ONLY/);
  assert.match(y,/--network none --read-only --cap-drop ALL/);
  assert.doesNotMatch(y,/git push origin main|gh pr merge|auto-merge: true/);
