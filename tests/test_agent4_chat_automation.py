@@ -67,6 +67,20 @@ class Tests(unittest.TestCase):
     def test_unconsented_chat_is_not_saved(self):
         self.h.connect(); self.assertEqual(self.h.inbound()["status"],"BLOCKED_CHAT_SCOPE_OR_CONSENT")
         self.assertEqual(self.h.db.execute("SELECT count(*) FROM jobs").fetchone()[0],0)
+    def test_unconsented_chat_does_not_record_candidate_by_default(self):
+        self.h.connect()
+        self.assertEqual(self.h.inbound()["status"],"BLOCKED_CHAT_SCOPE_OR_CONSENT")
+        self.assertEqual(self.h.get(self.h.db,key("candidate",CID,PASHA),""),"")
+    def test_owner_approved_discovery_records_id_only_without_message(self):
+        self.h.connect()
+        self.h.put(self.h.db,"agent4_biz_discovery_enabled","1")
+        self.assertEqual(self.h.inbound(text="Private sample")["status"],
+                         "BLOCKED_CHAT_SCOPE_OR_CONSENT")
+        self.assertEqual(self.h.get(self.h.db,key("candidate",CID,PASHA)),
+                         str(NOW))
+        self.assertEqual(self.h.db.execute("SELECT count(*) FROM jobs").fetchone()[0],0)
+        self.assertNotIn("Private sample",
+                         str(list(self.h.db.execute("SELECT * FROM settings"))))
     def test_chat_scope_is_explicit(self):
         self.h.connect();self.h.allow(scope="OTHER")
         self.assertEqual(self.h.inbound()["status"],"BLOCKED_CHAT_SCOPE_OR_CONSENT")
