@@ -169,6 +169,11 @@ def handle_update(db, update, get, put, enqueue, event, now=None):
         return out("CHAT_OPTED_OUT")
     controller = permitted(db, cid, peer, get, c)
     if not controller:
+        # Optional owner-enabled discovery: record just the numeric peer ID
+        # locally, never their message body/name. No AI, sends or CRM before
+        # affirmative per-chat permission. OFF unless explicitly enabled.
+        if get(db, "agent4_biz_discovery_enabled", "0") == "1":
+            put(db, key("candidate", cid, peer), str(now))
         return out("BLOCKED_CHAT_SCOPE_OR_CONSENT")
     ext = f"biz:{digest(cid)[:32]}:{mid}"
     job_id = enqueue(db, "telegram-agent4", str(peer), ext, message)
