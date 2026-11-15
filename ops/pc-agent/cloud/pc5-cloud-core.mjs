@@ -147,3 +147,71 @@ export async function runCloudPC(raw,env,options={}){
           user_data_sent:false,external_text:'FIXED_SYNTHETIC_ONLY',
           possible_cost:'ZERO_ONLY_IF_VERIFIED_PROVIDER_FLAGS_ACCURATE'};
 }
+
+/**
+ * Headless closed-loop receipt reader for ONE pre-approved synthetic case.
+ * It reads the EXISTING queue through the same server-only Supabase credential.
+ * Never returns a raw worker result, file data, process title or external text.
+ */
+export function validateReceiptRequest(raw){
+  if(!raw||typeof raw!=='object'||Array.isArray(raw)||
+     Object.keys(raw).length!==3 ||
+     Object.keys(raw).some(key=>!['kind','classification','case_id'].includes(key)) ||
+     raw.kind!=='pc5_receipt'||raw.classification!=='SYNTHETIC' ||
+     typeof raw.case_id!=='string'||!/^A5-CLOUD-20[0-9]{6}-[0-9]{3}$/.test(raw.case_id))
+    throw Error('RECEIPT_REQUEST_NOT_ALLOWED');
+  return PREFIX+raw.case_id;
+}
+
+export async function readCloudPCReceipt(raw,env,options={}){
+  let key;
+  try{key=validateReceiptRequest(raw);}catch{return block('RECEIPT_REQUEST_NOT_ALLOWED');}
+  let rest;
+  try{rest=restrictedREST(env.SUPABASE_URL,env.SUPABASE_SERVICE_ROLE_KEY,
+                          options.transport||fetch);}catch{return block('RECEIPT_BACKEND_UNAVAILABLE');}
+  let rows;
+  try{
+    rows=await rest('browser_jobs','select=id,idempotency_key,action,payload,state,attempts,result&limit=2&idempotency_key=eq.'+
+      encodeURIComponent(key));
+  }catch{return block('RECEIPT_READBACK_UNAVAILABLE');}
+  if(rows.length!==1)return block(rows.length?'RECEIPT_DUPLICATE_DENIED':'CASE_NOT_FOUND');
+  const job=rows[0],mode=job?.payload?.mode;
+  if(job?.idempotency_key!==key || job?.action!=='pc_operator' ||
+     !Object.values(INTENTS).includes(mode)||
+     !UUID.test(job.id||'')||
+     !Number.isInteger(job.attempts)||job.attempts<0||job.attempts>1)
+    return block('RECEIPT_EVIDENCE_INVALID');
+  if(job.state==='cancelled')return block('CASE_RESERVED_OR_CANCELLED_NO_RETRY');
+  if(job.state==='queued'||job.state==='claimed')return {
+    status:'PENDING',case_id:raw.case_id,job_id:job.id,mode,
+    queued:true,verified:false,readback_only:true,provider_calls:0
+  };
+  if(job.state==='error')return block('WINDOWS_JOB_ERROR');
+  if(job.state!=='done')return block('RECEIPT_STATE_INVALID');
+  // The transport succeeded only if the nested application receipt also
+  // reports DONE for the EXACT allowed mode, with exactly one attempt.
+  const outer=job.result,inner=outer?.result;
+  if(job.attempts!==1||outer?.agent!=='IMPERION_AGENT5_RESTRICTED'||
+     outer?.requested!=='pc_operator'||
+     inner?.status!=='DONE'||inner?.mode!==mode)
+    return {
+      status:'BLOCKED',reason:'NESTED_WINDOWS_ACTION_NOT_VERIFIED',
+      case_id:raw.case_id,job_id:job.id,verified:false,readback_only:true,
+      provider_calls:0,queued:false
+    };
+  return {
+    status:'VERIFIED_DONE',case_id:raw.case_id,job_id:job.id,
+    mode,attempts:1,nested_status:'DONE',readback_only:true,
+    no_user_data_returned:true,model_did_not_authorize_privileges:true,
+    provider_calls:0,verified:true
+  };
+}
+
+export const PC5_MODEL_POLICY=Object.freeze({
+  strongest_known_optional_paid:'gpt-6-astra',
+  paid_api_allowed:false,
+  strongest_free_text_candidate:NEMOTRON,
+  newest_free_synthetic_vision_candidate:'nvidia/nemotron-3.5-super-vl:free',
+  free_vision_on_private_windows_screen_allowed:false,
+  local_qwen_role:'OPTIONAL_MEMORY_GATED_FALLBACK',
+});
