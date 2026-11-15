@@ -7,7 +7,10 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "ops"))
 from agent4_business_connection import handle_update, approved_send, key, digest
-from install_agent4_chat_automation import patch, SIGNATURE
+import runpy
+installer = runpy.run_path(str(Path(__file__).resolve().parents[1] / "ops" / "install-agent4-chat-automation.py"))
+patch = installer["patch"]
+SIGNATURE = installer["SIGNATURE"]
 
 CID="conn_Pasha_test_123"
 OWNER=86001
