@@ -70,11 +70,15 @@ mapfile -t staged < <(git diff --cached --name-only | LC_ALL=C sort)
 test "$(printf '%s\n' "${staged[@]}")" = "$(printf '%s\n' "${expected[@]}")"
 git commit -m "feat(dev): project $project_id milestone $stage review-only"
 git push --set-upstream origin "$head"
+head_sha="$(git rev-parse HEAD)"
+plan_sha="$(node -e 'const p=require(process.argv[1]);process.stdout.write(p.plan.plan_sha256)' "$stage_proof")"
+receipt_line="GitHub workflow receipt: run=$GITHUB_RUN_ID stage=$stage sha=$head_sha plan=$plan_sha"
 summary="$(node scripts/imperion-dev-department.cjs --summary "$proof_dir")"
-body="$(printf '%s\n\n%s\n\n%s\n\n%s\n' \
+body="$(printf '%s\n\n%s\n\n%s\n\n%s\n\n%s\n' \
   "$marker"$'\n'"Planned stages: $stage_count" \
   "Developer #1: verified project $project_id milestone $stage. Provider Groq Free model $model. Existing trusted tests and isolated no-network Docker QA: PASS. Same-provider independent-role reviewer: PASS, not independent correctness proof. Generated advisory: NOT independent. Human review required." \
   "$summary" \
+  "$receipt_line" \
   "No auto-merge, deployment, paid fallback, customer data, private source or repo settings changes. FOLLOW-UP STAGES REQUIRE EXACT PREDECESSOR CI EVIDENCE.")"
 gh pr create --draft --base "$base" --head "$head" \
   --title "DRAFT: IMPERION DEV project $project_id stage $stage ($model)" \
@@ -87,4 +91,6 @@ node -e 'const x=require(process.argv[1]);
      x[0].baseRefName!==process.argv[3]||
      typeof x[0].body!=="string"||!x[0].body.includes(process.argv[4]))process.exit(9)' \
    "$RUNNER_TEMP/imperion-dev-project-created.json" "$head" "$base" "$marker"
+receipt_name="$(node -e 'const p=require(process.argv[1]),P=require("./scripts/imperion-dev-project-control.cjs");process.stdout.write(P.stageArtifactName(p.plan,p.stage,process.argv[2]))' "$stage_proof" "$head_sha")"
+echo "IMPERION_DEV_PROJECT_STAGE_ARTIFACT_NAME=$receipt_name" >> "$GITHUB_ENV"
 echo "PROJECT_REVIEW_ONLY_DRAFT_PR_OPENED_AND_READBACK_VERIFIED" >> "$GITHUB_STEP_SUMMARY"

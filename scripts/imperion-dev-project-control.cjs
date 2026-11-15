@@ -194,18 +194,75 @@ function readback(plan,records,quota='AVAILABLE'){
     prs:[...seen.values()].sort((a,b)=>a.stage-b.stage).map(x=>x.pr),
     auto_merge:false,production_deploy:false};
 }
+// A GitHub Actions artifact authored AFTER the publisher created an exact-SHA
+// Draft PR is a provider-owned CI receipt. It is accepted only if the original
+// issue/dispatch run completed all three trusted jobs successfully. This avoids
+// GITHUB_TOKEN suppressing bot pull_request workflows; it does NOT bypass a
+// negative PR-level CI result or independent QA.
+const WORKFLOW_NAME='IMPERION DEV cloud issue coding (review only)';
+function stageArtifactName(plan,stage,sha){
+ if(plan?.schema!==SCHEMA||!/^[a-f0-9]{40}$/.test(sha||'')||
+    !Number.isInteger(stage)||stage<1||stage>plan.milestones.length||
+    !/^[a-f0-9]{64}$/.test(plan.plan_sha256||''))
+  block('PROJECT_ARTIFACT_NAME_REJECTED');
+ return 'imperion-dev-project-stage-'+plan.project_id+'-s'+stage+'-'+sha+
+   '-'+plan.plan_sha256.slice(0,12);
+}
+async function providerStageReceipt(pr,plan,stage,get){
+ if(typeof pr?.body!=='string')block('PROJECT_RECEIPT_PR_BODY_REJECTED');
+ const lines=pr.body.split(/\r?\n/).filter(l=>l.startsWith('GitHub workflow receipt:'));
+ if(lines.length===0)return 'PENDING';
+ if(lines.length!==1)block('PROJECT_RECEIPT_DUPLICATE_MARKER');
+ const m=/^GitHub workflow receipt: run=(\d{5,20}) stage=([1-4]) sha=([a-f0-9]{40}) plan=([a-f0-9]{64})$/.exec(lines[0]);
+ if(!m||Number(m[2])!==stage||m[3]!==pr.head?.sha||m[4]!==plan.plan_sha256)
+  block('PROJECT_RECEIPT_IDENTITY_REJECTED');
+ const runId=Number(m[1]);
+ if(!Number.isSafeInteger(runId)||runId<1)block('PROJECT_RECEIPT_RUN_ID_REJECTED');
+ const base='https://api.github.com/repos/'+W.REPO+'/actions/runs/'+runId;
+ const run=await get(base);
+ if(run.id!==runId||run.name!==WORKFLOW_NAME||run.repository?.full_name!==W.REPO||
+    !['issue_comment','repository_dispatch'].includes(run.event)||
+    run.head_branch!=='main'||run.run_attempt!==1||
+    (run.event==='issue_comment'&&run.actor?.login!==OWNER)||
+    (run.event==='repository_dispatch'&&run.actor?.login!=='github-actions[bot]'))
+  block('PROJECT_RECEIPT_RUN_PROVENANCE_REJECTED');
+ if(run.status!=='completed')return 'PENDING';
+ if(run.conclusion!=='success')return 'FAILURE';
+ const jobs=await get(base+'/jobs?per_page=100');
+ if(!Array.isArray(jobs.jobs)||jobs.jobs.length>50)
+  block('PROJECT_RECEIPT_JOBS_INVALID');
+ for(const name of ['task-preflight',
+   'cloud-model-coding (Groq Free primary; Ollama reserve)','draft-review-pr']){
+  const matched=jobs.jobs.filter(x=>x.name===name);
+  if(matched.length!==1)return 'FAILURE';
+  if(matched[0].status!=='completed')return 'PENDING';
+  if(matched[0].conclusion!=='success')return 'FAILURE';
+ }
+ const artifacts=await get(base+'/artifacts?per_page=100');
+ if(!Array.isArray(artifacts.artifacts)||artifacts.artifacts.length>100)
+  block('PROJECT_RECEIPT_ARTIFACTS_INVALID');
+ const name=stageArtifactName(plan,stage,pr.head.sha);
+ const matched=artifacts.artifacts.filter(a=>a.name===name);
+ if(matched.length!==1)return 'PENDING';
+ const a=matched[0];
+ if(a.expired!==false||!Number.isSafeInteger(a.size_in_bytes)||a.size_in_bytes<16||
+    (a.workflow_run&&a.workflow_run.id!==runId))
+  block('PROJECT_RECEIPT_ARTIFACT_INVALID');
+ return 'SUCCESS';
+}
+
 function ciFromRuns(sha,runs){
   if(!Array.isArray(runs)||runs.length>100)block('PROJECT_CI_READBACK_INVALID');
   const expected=['Site quality','IMPERION DEV cloud issue coding (review only)'];
-  let allSuccess=true;
+  let incomplete=false;
   for(const name of expected){
     const candidates=runs.filter(x=>x.name===name&&x.head_sha===sha&&x.event==='pull_request');
-    if(candidates.length===0)return 'PENDING';
+    if(candidates.length===0){incomplete=true;continue}
     const recent=candidates.sort((a,b)=>b.id-a.id)[0];
-    if(recent.status!=='completed')return 'PENDING';
-    if(recent.conclusion!=='success')allSuccess=false;
+    if(recent.status!=='completed'){incomplete=true;continue}
+    if(recent.conclusion!=='success')return 'FAILURE';
   }
-  return allSuccess?'SUCCESS':'FAILURE';
+  return incomplete?'PENDING':'SUCCESS';
 }
 async function githubReadback(plan,fetcher,token){
   if(typeof fetcher!=='function'||!token||token.length<8)
@@ -240,9 +297,12 @@ async function githubReadback(plan,fetcher,token){
     const log=await get(base+'/actions/runs?head_sha='+sha+'&event=pull_request&per_page=100');
     if(!Array.isArray(log.workflow_runs)||log.workflow_runs.length>100)
       block('PROJECT_GITHUB_RUN_HISTORY_REJECTED');
+    const prCi=ciFromRuns(sha,log.workflow_runs);
+    const ci=prCi==='PENDING'?await providerStageReceipt(p,plan,stage,get):prCi;
     records.push({origin:'GITHUB_API',stage,pr:p.number,sha,head:spec.head,
       base:spec.base,marker:spec.marker,draft:p.draft,state:p.state,
-      merged:p.merged_at!==null,ci:ciFromRuns(sha,log.workflow_runs)});
+      merged:p.merged_at!==null,ci,
+      ci_evidence:prCi==='PENDING'&&ci==='SUCCESS'?'ORIGIN_ACTIONS_ARTIFACT':'EXACT_HEAD_PR_CI'});
   }
   return records;
 }
@@ -327,4 +387,5 @@ function authorizedTaskFromEnvironment(root){
 
 module.exports={SCHEMA,MAX_STAGES,projectId,projectCommand,taskFromEvent,
   safeSentence,validateMilestones,sealPlan,verifyPlan,makePlan,branchName,
-  stageSpec,readback,ciFromRuns,githubReadback,verifyResumePlan,authorizeStage,authorizedTaskFromEnvironment};
+  stageSpec,readback,ciFromRuns,githubReadback,verifyResumePlan,authorizeStage,authorizedTaskFromEnvironment,
+  stageArtifactName,providerStageReceipt};
