@@ -48,6 +48,13 @@ def changes(root):
             "   ?'GPT-OSS 120B: только публичные черновики через GitHub; личные сообщения остаются локально'\n"
             "   :'Сильнейший внешний AI: не подключён к личным чатам',",
             "HTML_STATUS")
+    h=patch(h, '<p class="note">Telegram подключается отдельными процессами.',
+            '<p class="note">Более сильная GPT-OSS 120B: '
+            '<a href="https://github.com/aliaksei-chareshneu/alchareshneu/actions/workflows/imperion-groq-free-draft-smoke.yml" target="_blank" rel="noopener noreferrer">'
+            'GitHub Actions (только подтверждённые публичные данные)</a>. '
+            'Личные Telegram-чаты остаются на локальном AI, без передачи Groq.</p>'
+            '<p class="note">Telegram подключается отдельными процессами.',
+            "PUBLIC_GROQ_LINK")
     return {"panel.py":p.encode("utf-8"),"panel.html":h.encode("utf-8"),
             "agent4_model_tiers.py":SOURCE.read_bytes()}
 
