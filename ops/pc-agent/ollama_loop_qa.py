@@ -8,7 +8,8 @@ import urllib.request
 from pathlib import Path
 from restricted_executor import executor
 
-MODEL = "imperion-qwen3-cpu:0.6b"
+MODEL = "imperion-qwen35:4b"  # M3 owner GO: strongest installed local synthetic planner
+MIN_FREE_RAM_MB = 5120  # never load this 2.8 GiB model on memory-starved Windows
 URL = "http://127.0.0.1:11434/api/generate"
 ACTIONS = ("write_note", "hash_note", "read_note", "erase_note")
 EXPECTED_TEXT = "IMPERION_AGENT5_SYNTHETIC_OK"
@@ -51,6 +52,17 @@ def select_action(stage, observation):
     return json.loads(output)
 
 def main():
+    # Refuse to load a 2.8GB local model when host is under memory pressure.
+    try:
+        from pc_desktop_v4 import win_memory
+        free_mb, total_mb = win_memory()
+    except (OSError, ValueError, RuntimeError):
+        print(json.dumps({"status":"BLOCKED", "reason":"MEMORY_READBACK_FAILED", "model":MODEL}))
+        return 2
+    if free_mb < MIN_FREE_RAM_MB:
+        print(json.dumps({"status":"BLOCKED", "reason":"MODEL_LOW_MEMORY_NO_INFERENCE", "model":MODEL,
+                          "free_ram_mb":free_mb, "required_free_ram_mb":MIN_FREE_RAM_MB}))
+        return 2
     receipts = []
     with tempfile.TemporaryDirectory(prefix="imperion-a5-llm-loop-") as temp:
         root = Path(temp) / "synthetic"
