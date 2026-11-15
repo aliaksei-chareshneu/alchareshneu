@@ -12,7 +12,8 @@ function pr(stage,planned=3,project=id){
    '\nPlanned stages: '+planned+'\nHuman review required.'};
 }
 function run(stage=2,override={}){
- return {id:100001+stage,name:'IMPERION DEV cloud issue coding (review only)',
+ return {id:100001+stage,workflow_id:412528588,
+  name:'IMPERION DEV project '+id+' stage '+stage,
   display_title:'IMPERION DEV project '+id+' stage '+stage,
   event:'repository_dispatch',actor:{login:'github-actions[bot]'},
   repository:{full_name:repo},head_branch:'main',
