@@ -1,7 +1,7 @@
 // Cloud adapter only; existing Hub, n8n, Supabase tables and 5-agent operator stay canonical.
 // No scheduler, new CRM, browser, payment, email or publishing capability.
 import {generateFreeDraft} from "./free-core.mjs";
-import {runCloudPC} from "./pc5-cloud-core.mjs";
+import {runCloudPC,readCloudPCReceipt} from "./pc5-cloud-core.mjs";
 const json=(status,data)=>new Response(JSON.stringify(data),{status,
   headers:{"content-type":"application/json; charset=utf-8","cache-control":"no-store",
     "x-content-type-options":"nosniff"}});
@@ -30,6 +30,16 @@ Deno.serve(async request=>{
   // Agent5: the authenticated caller may request ONE synthetic read-only
   // model decision; the model cannot choose a shell, data, screen, URL or scope.
   // Legacy draft-only calls remain unchanged.
+  // M8: read the existing job and nested Windows result. No provider call.
+  // Only exact synthetic case IDs, no screenshots or raw worker output.
+  if(input?.kind==="pc5_receipt"){
+    const result=await readCloudPCReceipt(input,{
+      SUPABASE_URL:Deno.env.get("SUPABASE_URL")||"",
+      SUPABASE_SERVICE_ROLE_KEY:serverKey
+    });
+    return json(result.status==="VERIFIED_DONE"?200:
+      result.status==="PENDING"?202:423,result);
+  }
   if(input?.kind==="pc5_synthetic_readonly"){
     const result=await runCloudPC(input,{
       ...env,
