@@ -76,3 +76,17 @@ test('Free cap applies to eight confirmed owner issue admissions; skipped PRs ca
  await assert.rejects(()=>Q.admit(env(),history(runs,{confirmedIds:ids}).fn,now),
   /GROQ_FREE_DAILY_RUN_LIMIT_REACHED/);
 });
+
+test('resumed project repository_dispatch consumes same eight-run Free admission budget',async()=>{
+ const dispatch=i=>({id:35000+i,event:'repository_dispatch',
+  created_at:'2026-11-15T12:45:00Z'});
+ const runs=[{...self,event:'repository_dispatch'},...Array.from({length:7},(_,i)=>dispatch(i+1))];
+ const synthetic={...env(),GITHUB_EVENT_NAME:'repository_dispatch'};
+ const ids=Array.from({length:7},(_,i)=>35000+i+1);
+ const result=await Q.admit(synthetic,history(runs,{confirmedIds:ids}).fn,now);
+ assert.equal(result.prior,7);
+ const full=[{...self,event:'repository_dispatch'},...Array.from({length:8},(_,i)=>dispatch(i+1))];
+ const ids8=Array.from({length:8},(_,i)=>35000+i+1);
+ await assert.rejects(()=>Q.admit(synthetic,history(full,{confirmedIds:ids8}).fn,now),
+  /GROQ_FREE_DAILY_RUN_LIMIT_REACHED/);
+});
