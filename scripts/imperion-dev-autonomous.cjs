@@ -9,6 +9,7 @@ const crypto=require('node:crypto');
 const W=require('./imperion-dev-cloud-issue.cjs');
 const MODEL=W.MODEL;
 const COMMAND=/^\/imperion-dev autonomous\nscope: ((?:scripts|docs|ops)\/[a-zA-Z0-9][a-zA-Z0-9_/-]{1,88})\ntest: (tests\/[a-zA-Z0-9][a-zA-Z0-9_/-]{1,99}\.test\.cjs)\ngoal: ([^\r\n]{15,280})$/;
+const DEPARTMENT_COMMAND=new RegExp(COMMAND.source.replace('autonomous','department'));
 const FORBIDDEN=/(?:secrets?|tokens?|credentials?|oauth|auth|billing|payment|stripe|supabase|mailer|deploy|workflow|permissions?|privacy|legal|grant|cash|register|receipt|intake|rsvp|\.env)/i;
 const ENDPOINT='http://127.0.0.1:11434/api/generate';
 function reject(s){throw Error(s)}
@@ -18,9 +19,11 @@ function exactKeys(x,keys){
 }
 function parseCommand(body){
  if(typeof body!=='string'||Buffer.byteLength(body)>650)reject('AUTO_COMMAND_SIZE_REJECTED');
- const m=COMMAND.exec(body.trim());
+ const department=body.trim().startsWith('/imperion-dev department\n');
+ const m=(department?DEPARTMENT_COMMAND:COMMAND).exec(body.trim());
  if(!m)reject('AUTO_COMMAND_FORMAT_REJECTED');
  const task={scope:m[1],test:m[2],goal:m[3]};
+ if(department)task.department=true;
  if(task.scope.includes('..')||task.scope.includes('//')||/(^|\/)\./.test(task.scope)||
     FORBIDDEN.test(task.scope)||!W.safeTestFile(task.test)||
     /[\x00-\x1f]|(?:sk-[a-z0-9_-]{12,}|gh[pousr]_[a-z0-9_]{12,}|@|BEGIN PRIVATE KEY)/i.test(task.goal))
@@ -193,9 +196,10 @@ async function draftAdvisory(task,selected,updated,candidates,fetchImpl=PROVIDER
  }
  reject('AUTO_DRAFT_RETRIES_EXHAUSTED');
 }
-async function propose(task,root,fetchImpl=PROVIDER.fetchModel){
+async function propose(task,root,fetchImpl=PROVIDER.fetchModel,plannedFiles=null){
  const c=candidateSources(task,root);
- const selected=await selectFiles(task,c,fetchImpl);
+ const selected=plannedFiles===null?await selectFiles(task,c,fetchImpl):
+  validateSelection({files:plannedFiles},c.files);
  const limited={file:selected[0],test:task.test,goal:task.goal,mode:'AUTO_OWNER_ISSUE',
   issue:task.issue||0,comment:task.comment||0};
  if(selected.length>=2)limited.file2=selected[1];
@@ -290,7 +294,7 @@ function verifyManifest(p,root){
  if(task?.mode==='AUTO_OWNER_ISSUE'){
   if(!process.env.GITHUB_EVENT_PATH)reject('AUTO_EVENT_REQUIRED');
   const live=taskFromEvent(JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH,'utf8')));
-  for(const key of ['scope','test','goal','issue','comment','mode'])
+  for(const key of ['scope','test','goal','issue','comment','mode','department'])
    if(task[key]!==live[key])reject('AUTO_EVENT_MISMATCH');
  }else if(task?.mode!=='AUTO_FIXTURE'||task.scope!=='ops/imperion-dev-cloud-fixture'||
          task.test!=='tests/imperion-dev-cloud-multi-fixture.test.cjs')
@@ -393,6 +397,6 @@ if(require.main===module)cli().catch(e=>{
  console.error(/^[A-Z0-9_]+$/.test(e.message)?e.message:'AUTO_WORKER_BLOCKED');
  process.exitCode=2;
 });
-module.exports={COMMAND,parseCommand,taskFromEvent,candidateSources,validateSelection,
+module.exports={COMMAND,DEPARTMENT_COMMAND,parseCommand,taskFromEvent,candidateSources,validateSelection,
  selectFiles,validateTestDraft,renderTest,generatedPath,propose,verifyManifest,apply,
  fixtureTask,modelJSON,requiresBehaviorWitness,retryAdvisory,retryCode};
