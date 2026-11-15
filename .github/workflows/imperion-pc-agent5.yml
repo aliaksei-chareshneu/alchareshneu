@@ -38,6 +38,10 @@ jobs:
         run: python -B ops/pc-agent/pc5_m5_preflight.py --selftest
       - name: M5 one-shot physical consent runner policy tests (no prompt)
         run: python -B ops/pc-agent/pc5_gui_owner_finish.py --selftest
+      - name: M6 Windows audit replay, SHA tamper and dry-run-only remediation tests
+        run: python -B -m unittest discover -s ops/pc-agent -p 'test_pc5_maintenance.py' -v
+      - name: M7 audit-backed recovery planning and no-action safety tests
+        run: python -B -m unittest discover -s ops/pc-agent -p 'test_pc5_policy_v7.py' -v
       - name: Read-only capability report
         run: python -B ops/pc-agent/restricted_executor.py --status
       - name: Confirm no hosted model or external effect
