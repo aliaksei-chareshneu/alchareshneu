@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {validateRequest,strictModelRoute,selectFreeProvider,runCloudPC,readCloudPCReceipt,validateReceiptRequest,PC5_MODEL_POLICY} from './pc5-cloud-core.mjs';
+import {validateRequest,strictModelRoute,selectFreeProvider,runCloudPC,runAndVerifyCloudPC,readCloudPCReceipt,validateReceiptRequest,PC5_MODEL_POLICY} from './pc5-cloud-core.mjs';
 
 const A='a4b51234-1234-4123-8123-123456789abc',J='b4b51234-1234-4123-8123-123456789abc';
 const now=new Date('2026-11-15T17:00:00Z');
@@ -178,4 +178,74 @@ test('provider helpers never receive Supabase secrets or unrelated environment f
     assert.equal(JSON.stringify(pick.env).includes('sensitive_server_credential_example'),false);
     assert.equal(JSON.stringify(pick.env).includes('do_not_pass'),false);
   }
+});
+
+function closedLoopTransport({doneAt=2,innerStatus='DONE',innerMode='machine_readiness'}={}){
+  let polls=0, writes=[],requests=[];
+  const transport=async(url,opts)=>{
+    const u=new URL(url),entity=u.pathname.split('/').pop(),method=opts.method;
+    requests.push({entity,method});
+    let rows=[];
+    if(entity==='browser_agents') rows=[{id:A,active:true,last_seen_at:now.toISOString()}];
+    else if(method==='POST') {
+      writes.push({method,body:JSON.parse(opts.body)});
+      rows=[{id:J,state:'cancelled'}];
+    }else if(method==='PATCH') {
+      writes.push({method,body:JSON.parse(opts.body)});
+      rows=[{id:J,state:'queued'}];
+    }else if(entity==='browser_jobs'&&u.searchParams.get('select')?.includes('attempts')) {
+      polls++;
+      const complete=polls>=doneAt;
+      rows=[{id:J,
+        idempotency_key:'IMP-PC5-CLOUD-A5-CLOUD-20261115-001',
+        action:'pc_operator',payload:{mode:'machine_readiness'},
+        state:complete?'done':'queued',attempts:complete?1:0,
+        result:complete?{agent:'IMPERION_AGENT5_RESTRICTED',requested:'pc_operator',
+          result:{status:innerStatus,mode:innerMode,privateValue:'NEVER_RETURN'}}:null}];
+    }
+    return {ok:true,redirected:false,json:async()=>rows};
+  };
+  return {transport,writes,requests,getPolls:()=>polls};
+}
+test('M10 one request cloud to Windows closed loop reports verified ONLY after inner DONE',async()=>{
+  const c=closedLoopTransport({doneAt:2}),m=mock();
+  const result=await runAndVerifyCloudPC(request,env,{transport:c.transport,
+    infer:m.infer,clock:()=>now,sleep:async()=>{}});
+  assert.equal(result.status,'VERIFIED_DONE');
+  assert.equal(result.verified,true);
+  assert.equal(result.job_id,J);assert.equal(result.mode,'machine_readiness');
+  assert.equal(result.attempts,1);assert.equal(result.nested_status,'DONE');
+  assert.equal(result.model_authority,false);
+  assert.equal(result.inferred_free_account_billing,'UNVERIFIED');
+  assert.equal(c.getPolls(),2);
+  assert.deepEqual(c.writes.map(x=>x.method),['POST','PATCH']);
+  assert.equal(JSON.stringify(result).includes('NEVER_RETURN'),false);
+});
+test('M10 never equates queued status with Windows success',async()=>{
+  const c=closedLoopTransport({doneAt:99});
+  const result=await runAndVerifyCloudPC(request,env,{transport:c.transport,
+    infer:mock().infer,clock:()=>now,sleep:async()=>{}});
+  assert.equal(result.status,'QUEUED_PENDING');
+  assert.equal(result.verified,false);assert.equal(result.automatic_retry,false);
+  assert.equal(c.getPolls(),5);
+});
+test('M10 nested app failure is terminal; never auto-retries',async()=>{
+  const c=closedLoopTransport({doneAt:1,innerStatus:'BLOCKED'});
+  const result=await runAndVerifyCloudPC(request,env,{transport:c.transport,
+    infer:mock().infer,clock:()=>now,sleep:async()=>{}});
+  assert.equal(result.status,'BLOCKED');assert.equal(result.verified,false);
+  assert.equal(c.writes.length,2);assert.equal(c.getPolls(),1);
+});
+test('M10 mismatched Windows app mode cannot claim DONE',async()=>{
+  const c=closedLoopTransport({doneAt:1,innerMode:'shell'});
+  const result=await runAndVerifyCloudPC(request,env,{transport:c.transport,
+    infer:mock().infer,clock:()=>now,sleep:async()=>{}});
+  assert.equal(result.status,'BLOCKED');assert.equal(result.verified,false);
+});
+test('M10 invalid request and no provider never reserve or call Windows',async()=>{
+  const c=closedLoopTransport({doneAt:1});
+  const result=await runAndVerifyCloudPC({...request,go:true},env,{
+    transport:c.transport,infer:mock().infer,clock:()=>now,sleep:async()=>{}});
+  assert.equal(result.status,'BLOCKED');
+  assert.equal(c.requests.length,0);assert.equal(c.writes.length,0);
 });
