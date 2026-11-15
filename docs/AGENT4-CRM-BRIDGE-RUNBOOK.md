@@ -1,76 +1,90 @@
-# IMPERION Agent4 — owner-only Google CRM integration
+# IMPERION Agent4 — private CRM transport
 
-Scope: **existing** Telegram Agent4 on OCI, existing local Windows SQLite mirror and
-the existing private Google Community Hub. This is NOT a new CRM, a new bot, a
-second Telegram polling consumer, a web app, an external AI API or a sender.
+**Case:** IMP-SOCIAL-SALES-20261115. **Cost:** 0 new Kč.
+**Owner/controller:** OSVČ or Družina Moravy z.s. — separate lead tabs.
+**Transport is NOT a second CRM or Telegram consumer.** Only immutable
+source receipts pass through the existing Supabase project.
 
-## Provenance, classification, and legally separate controllers
+## Actual production path
 
-On user-initiated bot contact, an explicitly scoped \`/start osvc\` or
-\`/start druzina\` generates a \`telegram-agent4\` local job. Existing
-\`agent4_crm_handoff.pending()\` excludes owner self-tests and sources lacking
-a controller scope. The local sync worker rechecks the original local job,
-source-key digest, current controller, opt-out and owner-test event before
-any outbound Google API request. Data sent to Apps Script contains only the
-immutable SHA-derived source key, local job number, time and controller
-plus fixed metadata flags. **No chat text, phone, name, email, handle,
-payment amount or full Telegram ID leaves the local SQLite store.**
+Existing sole OCI Telegram DRAFT_ONLY listener -> existing local Windows
+SQLite mirror -> ONE Windows scheduled task
+**Imperion-AgentNetwork-Agent4CRMTransport** every 5 minutes ->
+existing private Supabase project (new RLS-only metadata transport) ->
+existing owner-bound Community Hub GAS importer
+**imperionSyncPrivateIntake** with an EARLY nonblocking pull hook ->
+canonical **Leads** (OSVČ) or **Druzina_Enrollment_Pipeline** (NGO) ->
+independent Google source-key row readback -> Supabase ACK ->
+next Windows run records existing local CRM_READBACK_CONFIRMED.
 
-The Apps Script \`ImperionAgent4CrmBridge.gs\` runs as the authenticated
-existing owner: \`ocOwner_()\` must verify the canonical Community Hub is
-PRIVATE and owned by the signed-in caller. It exposes only Script Execution
-API callable functions; no public \`doPost\` route, webhook or anonymous key.
-It refuses unexpected source fields, stale (>90d)/future timestamps,
-spurious opt-in claims, identity or payment claims and unknown controllers.
-Import has a separate owner-controlled feature flag
-\`IMP_AGENT4_CRM_ENABLED\` default OFF and a
-\`IMP_AGENT4_CRM_KILL_SWITCH\`; no new Script Properties secrets.
+No new bot, no new CRM, no second getUpdates, no customer text to
+Supabase, no client sends, no public posts, no bank-cash claims.
 
-- OSVČ: \`Leads\`, \`Submission_ID\` = immutable source key, deterministic
-  \`LEAD-AG4-...\`, \`Stage=New\`, \`Action_Status=HOLD_IDENTITY_HISTORY_CONSENT_REVIEW\`.
-- Družina Moravy z.s.: \`Druzina_Enrollment_Pipeline\`, \`Evidence\` = immutable
-  source key, existing numeric \`DM-###\` sequence, \`Person\` blank,
-  \`Outcome=PENDING_OWNER_REVIEW\` and \`Cash_Status=NOT_BANK_VERIFIED\`.
-- Each row contains NO financial promise, booking, customer identity,
-  attendance, outbound delivery or bank receipt.
-- The same source key is scanned under the existing ScriptLock before writing,
-  and read back immediately afterward. A second independent read-only
-  \`impAgent4CrmVerifyToken\` must confirm the same case ID before local
-  \`CRM_READBACK_CONFIRMED\` is stored. Ambiguous results are not blindly retried.
+## Security
 
-## Deployment order
+- Windows bearer generated locally with 256-bit cryptographic randomness;
+  saved only in user-private AppData file with restricted NTFS permissions.
+  Only its SHA-256 hash is stored in private Supabase auth table.
+- Edge function **imperion-agent4-transport** is live with its own
+  bearer validation. Anonymous GET returns HTTP 401; owner-key GET of
+  absent source returns MISSING. No public unauthenticated CRM API.
+- Existing private GAS token validates via pre-existing
+  verify_imperion_intake_bridge_token RPC; no new Google Cloud
+  project or additional public execution permissions. Script Execution
+  API was not enabled; the failed local clasp-run approach was retired.
+- Supabase tables **imperion_agent4_transport** and
+  **imperion_agent4_transport_auth** are RLS-protected, deny anon
+  SELECT and authenticated INSERT. Edge-only service role.
+- Payload is SHA-derived source key, legal entity, local job ID, time,
+  provider-send uncertainty and fixed unqualified markers. No email,
+  handle, phone, personal name, message body, price, marketing consent,
+  attendance, contract, payment or sensitive health information.
+- Existing local controller/opt-out/self-test checks execute BEFORE
+  any submit. GAS rejects unknown fields, collision, stale time,
+  invalid controller or duplicate source key. Independent CRM readback
+  before ACK; Windows GET before POST and again before local ACK.
+- GAS pull uses its existing ScriptLock and existing five-minute
+  private import trigger. Exceptions are isolated from RSVP imports.
+  No new GAS timer, credentials or outreach authorization.
+- Optional owner-only Script Properties IMP_AGENT4_CRM_KILL_SWITCH=true
+  or IMP_AGENT4_PULL_DISABLED=true blocks pulls. Windows helper can be
+  disabled independently, preserving the sole OCI Telegram listener.
 
-1. Run 23 adversarial offline tests in GitHub Actions; no provider effects.
-2. Clone the **already-bound** Community Hub Apps Script with owner \`clasp\`,
-   capture SHA256 hashes of ALL existing remote files and manifest; add ONLY
-   \`ImperionAgent4CrmBridge.js\`. Abort on source conflicts. Push once,
-   fresh clone and independently verify every original hash unchanged.
-3. Run owner Script API \`impAgent4CrmPingToken\` read-only; verify canonical
-   tabs and default feature disabled. Call owner-only
-   \`impAgent4CrmEnable('GO-AG4-CRM-20261115-OWNER',true)\` only after
-   owner GO for **internal metadata-only CRM** and successful readback.
-   This never grants user-message or social-publishing GO.
-4. In a private logged-in Windows directory, persist \`.clasp.json\` with
-   ONLY the already-bound script ID; use the account's existing \`clasp.cmd\`
-   OAuth credentials. Never place Google tokens or source chat data in GitHub.
-5. Run the Python sync \`ops/imperion-agent4-crm-sync.py\` once against the
-   existing local Agent4 data. If pending=0, it records \`IDLE_NO_PENDING\`
-   and does not touch the remote CRM. Then install ONE non-overlapping
-   Windows 5-minute task for this *metadata bridge only*. It never calls
-   Telegram getUpdates, WhatsApp, Meta or any outbound send API.
-6. On the FIRST genuine inbound, independently check remote \`Leads\` or
-   NGO pipeline source key and local SQLite \`CRM_READBACK_CONFIRMED\`,
-   then classify identity, budget, consent and intent with owner review.
-   Until then production *real buyer E2E* is **NOT VERIFIED**.
+## Deployment proof (15 November 2026)
 
-## Operations & rollback
+1. Existing bound Apps Script received private owner-only CRM metadata
+   helper, retaining all 24 existing cloud files; independent fresh
+   clasp clone and hashes verified.
+2. Added one private pull module and one existing importer hook,
+   preserving 24 unrelated modules. Later moved that hook EARLY after
+   legacy importer logs showed old Supabase requests but no new pull;
+   independent fresh clone confirmed all other 25 files unchanged.
+3. Existing Supabase project browser-bridge: migration applied, Edge
+   imperion-agent4-transport v1 ACTIVE. Anonymous HTTP 401, local
+   owner-authenticated source GET returned MISSING.
+4. Windows zmrzlina local agent: Python metadata-only helper installed;
+   dedicated five-minute task LastTaskResult=0, one-shot IDLE_NO_PENDING.
+   Owner panel readback shows CRM transport heartbeat_recent=true,
+   Qwen 3.5 4B local CPU, OCI Telegram DRAFT_ONLY and WhatsApp watcher.
+5. Local Agent4 Python suite 114/114 PASS. Bridge-only Node/Python
+   adversarial tests and deployment QA are separately recorded in
+   GitHub Actions. No genuine source was inserted for testing.
 
-Any error: fail closed, store only an error code in local settings, no
-external action. When remote write outcome is unknown, read back the
-source key before a possible idempotent import. Stop the scheduled helper
-and set \`IMP_AGENT4_CRM_ENABLED=false\` for kill; do not disable the
-single OCI Telegram listener or delete existing CRM rows. Existing
-SocialPublisher remains separately owner-GO-gated. No paid API/subscription.
+## Truthful status and next readback
 
-Generated QA tests and source approval are NOT proof of provider delivery,
-buyer contract, publication, invoice or bank cash.
+The local transport is operational. At last SQL readback there are
+0 staged source records, 0 GAS ACKs and 0 fake buyers. This is
+NOT evidence of a genuine customer E2E; the first actual opt-in
+Telegram lead still needs independent Google Sheets row and local
+CRM_READBACK_CONFIRMED verification. A new genuine incoming message
+is required for that last acceptance criterion.
+
+Publishing is separate: existing SocialPublisher modules are installed
+but disabled without scoped per-job owner GO, provider rights/quota,
+media rights, verified terms and post/first-comment URL readback.
+No new standing publish timer or marketing sends authorized.
+
+For rollback: disable only the Windows Agent4CRMTransport task and
+owner-private GAS pull flag, preserve all prior CRM rows and the
+sole OCI Telegram listener, reconcile ambiguous source keys before
+any repeated attempt.
