@@ -37,9 +37,21 @@ export function selectFreeProvider(env){
   // mandatory for OpenRouter, and verified key/plan flags are server-side.
   if(env.OPENROUTER_API_KEY && env.IMPERION_OPENROUTER_FREE_VERIFIED==='1' &&
      env.OPENROUTER_FREE_MODEL===NEMOTRON)
-    return {name:'nemotron_550b_free',env:{...env,GROQ_API_KEY:''}};
+    return {name:'nemotron_550b_free',env:{
+      GROQ_API_KEY:'',
+      IMPERION_GROQ_FREE_VERIFIED:'',
+      OPENROUTER_API_KEY:env.OPENROUTER_API_KEY,
+      IMPERION_OPENROUTER_FREE_VERIFIED:'1',
+      OPENROUTER_FREE_MODEL:NEMOTRON
+    }};
   if(env.GROQ_API_KEY && env.IMPERION_GROQ_FREE_VERIFIED==='1')
-    return {name:'groq_gpt_oss_120b_free',env:{...env,OPENROUTER_API_KEY:''}};
+    return {name:'groq_gpt_oss_120b_free',env:{
+      GROQ_API_KEY:env.GROQ_API_KEY,
+      IMPERION_GROQ_FREE_VERIFIED:'1',
+      OPENROUTER_API_KEY:'',
+      IMPERION_OPENROUTER_FREE_VERIFIED:'',
+      OPENROUTER_FREE_MODEL:''
+    }};
   return null;
 }
 
