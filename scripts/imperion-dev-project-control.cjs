@@ -225,7 +225,8 @@ async function providerStageReceipt(pr,plan,stage,get){
   'IMPERION DEV project '+plan.project_id+' stage '+stage:WORKFLOW_NAME;
  if(run.id!==runId||run.workflow_id!==WORKFLOW_ID||
     run.name!==expectedRunName||run.repository?.full_name!==W.REPO||
-    !['issue_comment','repository_dispatch'].includes(run.event)||
+    ((stage===1&&run.event!=='issue_comment')||
+     (stage>1&&run.event!=='repository_dispatch'))||
     run.head_branch!=='main'||run.run_attempt!==1||
     (run.event==='issue_comment'&&run.actor?.login!==OWNER)||
     (run.event==='repository_dispatch'&&run.actor?.login!=='github-actions[bot]'))
