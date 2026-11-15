@@ -105,6 +105,14 @@ def operate(payload: object, *, system: str | None = None,
             "external_or_private_data": "DENIED",
             "shell_and_gui_permissions": "UNCHANGED",
             "model_is_authority": False,
+            "primary_planner_location": "CLOUD",
+            "cloud_gateway": "imperion-free-inference",
+            "cloud_gateway_deployed_version": 3,
+            "cloud_primary_free_model_candidate": "nvidia/nemotron-3-ultra-550b-a55b:free",
+            "cloud_free_fallback_model_candidate": "openai/gpt-oss-120b",
+            "cloud_requires_verified_provider_key_and_free_flag": True,
+            "default_cloud_task_scope": "SYNTHETIC_FIXED_READONLY_ONLY",
+            "local_qwen_role": "OPTIONAL_EXPLICIT_SYNTHETIC_FALLBACK",
         }
     if payload.get("mode") != "model_plan" or set(payload) != {"mode", "goal", "data_class"}:
         return denied("FIELDS_NOT_ALLOWED")
