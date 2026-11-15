@@ -356,7 +356,8 @@ function authorizeStage(proof,live,root){
   }else if(live.action==='imperion-dev-project-resume'&&
     (live.sender?.login==='github-actions[bot]'||live.sender?.login===OWNER)&&
     live.client_payload?.issue===t.issue&&
-    live.client_payload?.comment===t.comment){
+    live.client_payload?.comment===t.comment&&
+    live.client_payload?.stage===stage){
     // The workflow must first fetch the original owner comment and
     // exact-SHA PR/CI readback from GitHub before writing this sealed proof.
     // The dispatcher payload alone NEVER grants the authority to code.
