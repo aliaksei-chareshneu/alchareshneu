@@ -1,5 +1,5 @@
 'use strict';
-// Public synthetic fixture, not an actual shipping offer.
+// Public synthetic fixture representing a simple shipping helper; not a real shipping offer.
 function totalWithDelivery(subtotal, delivery) {
   return subtotal + delivery;
 }
