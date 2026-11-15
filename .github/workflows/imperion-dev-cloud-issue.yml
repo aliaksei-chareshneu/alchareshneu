@@ -1,4 +1,5 @@
 name: IMPERION DEV cloud issue coding (review only)
+run-name: ${{ github.event_name == 'repository_dispatch' && format('IMPERION DEV project {0}-{1} stage {2}', github.event.client_payload.issue, github.event.client_payload.comment, github.event.client_payload.stage) || 'IMPERION DEV coding/review' }}
 on:
   pull_request:
     paths:
