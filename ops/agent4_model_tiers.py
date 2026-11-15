@@ -39,6 +39,8 @@ def choose_model(request, runtime):
             any(request.get(k) is True for k in ("send", "publish", "charge"))):
         return deny("MODEL_CANNOT_EXECUTE_ACTIONS")
     klass = request.get("classification")
+    if not isinstance(klass, str):
+        return deny("INVALID_CLASSIFICATION")
     if klass in RESTRICTED_CLASSES:
         return deny("RESTRICTED_CONTENT_NO_MODEL_AUTOMATION")
     if klass in PRIVATE_CLASSES:
@@ -50,23 +52,26 @@ def choose_model(request, runtime):
                 runtime.get("host") != "http://127.0.0.1:11434"):
             return deny("LOCAL_PRIVATE_BACKEND_UNVERIFIED")
         model = request.get("model") or runtime.get("selected_private_model")
-        if (model not in LOCAL_ALLOWED or
-                model not in runtime.get("installed_local_models", ())):
+        installed = runtime.get("installed_local_models", ())
+        if (not isinstance(model, str) or
+                not isinstance(installed, (list, tuple, set, frozenset)) or
+                model not in LOCAL_ALLOWED or model not in installed):
             return deny("LOCAL_PRIVATE_MODEL_UNAVAILABLE")
         return {**deny(""), "status": "LOCAL_PRIVATE_DRAFT_ONLY",
                 "provider": "ollama_local", "model": model,
                 "owner_review_required": True}
     if klass != "PUBLIC_APPROVED":
         return deny("UNCLASSIFIED_CLOUD_CONTENT_BLOCKED")
-    if (request.get("source_url") not in PUBLIC_SOURCES or
+    if (not isinstance(request.get("source_url"), str) or
+            request.get("source_url") not in PUBLIC_SOURCES or
             request.get("public_source_verified") is not True or
             request.get("external_ai_approved") is not True):
         return deny("PUBLIC_SOURCE_OR_EXTERNAL_AI_APPROVAL_MISSING")
-    if request.get("purpose") not in PUBLIC_PURPOSES:
+    if not isinstance(request.get("purpose"), str) or request.get("purpose") not in PUBLIC_PURPOSES:
         return deny("PUBLIC_PURPOSE_NOT_APPROVED")
     if any(k in request for k in FORBIDDEN_FIELDS):
         return deny("PRIVATE_FIELD_IN_PUBLIC_REQUEST")
-    if request.get("model") not in (None, STRONG_PUBLIC):
+    if request.get("model") is not None and request.get("model") != STRONG_PUBLIC:
         return deny("UNVERIFIED_CLOUD_MODEL")
     if (runtime.get("trusted_github_owner") is not True or
             runtime.get("free_quota_verified") is not True or
