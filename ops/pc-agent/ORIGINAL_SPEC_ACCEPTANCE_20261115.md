@@ -17,19 +17,19 @@ A real Windows PC operator for zmrzlina: receive owner tasks including from mobi
 | Actual cleanup/startup/service changes | **NOT LIVE** | Review-only dry-run, separate owner GO and rollback for every exact change |
 | Local Notepad GUI mouse/keyboard | **SOURCE INSTALLED, GUI E2E UNVERIFIED** | Owner one-time physical YES, GUI driver run, independent file+approval+receipt SHA readback, shared worker version proof |
 | General Word/Excel/browser/program GUI operations | **NOT LIVE** | Need separately allowlisted, reviewed drivers, consent, same active desktop, privacy-safe observations and real E2E; no general remote shell |
-| Planning with best free cloud model | **GATEWAY v4 ACTIVE, PROVIDER INFERENCE UNVERIFIED** | Nemotron 3 Ultra free -> Groq GPT-OSS120B free only after server-side key, provider plan, quota and independent model response verified |
+| Planning with best free cloud model | **GATEWAY v5 ACTIVE, PROVIDER INFERENCE UNVERIFIED** | Nemotron 3 Ultra free -> Groq GPT-OSS120B free only after server-side key, provider plan, quota and independent model response verified |
 | Synthetic GUI visual planning | **CATALOG ONLY, NOT LIVE** | Nemotron 3.5 Super VL free candidate verified publicly. NVIDIA free endpoint disallows confidential/personal screen images, so no personal screenshots ever sent |
 | Paid flagship API (OpenAI GPT-6 Astra) | **NOT AUTHORIZED** | Strongest published API candidate, but explicit new budget and data-processing authorization are required. No automatic paid fallback |
 | Autonomous recovery after Windows reboot | **NOT VERIFIED** | Test single existing BrowserBridge worker after reboot without duplicate process, then read heartbeat/generation and job result; no unattended reboot |
 | Owner-only approvals and privacy | **SOURCE + OFFLINE TESTS PASS** | Spoofed remote GO blocked; exact local physical approval consumed once; no keys in Windows code/PR; no private data to free providers |
-| Independent nested readback | **CLOUD GATEWAY v4 DEPLOYED and MOCK CI PASS** | JWT+service role; exact case ID, action, app mode, attempt count and nested DONE; live read-only queue query verified independently |
+| Independent nested readback | **CLOUD GATEWAY v5 DEPLOYED and MOCK CI PASS** | JWT+service role; exact case ID, action, app mode, attempt count and nested DONE; live read-only queue query verified independently |
 | Primary operational model using ChatGPT's GPT-6 in THIS conversation | **INTERACTIVE LIVE** | ChatGPT here has operated allowed Windows probes through Supabase; not a 24/7 external headless model |
 | Permanent autonomous headless model worker | **NOT VERIFIED / BLOCKED** | Groq/OpenRouter account-specific free flags, live response, and authorized recurring caller not independently verified. No new background worker |
 
 ## Source and immutable-ish proofs
 
 - Existing PR: https://github.com/aliaksei-chareshneu/alchareshneu/pull/237 (DRAFT; deliberately not merged).
-- Existing gateway: Supabase project `cmrknyhnnehyjpreehcf`, function `imperion-free-inference` ACTIVE v4 `verify_jwt=true`. Prior v2/v3 code retained at `ops/pc-agent/cloud/gateway/rollback-v2/` and `rollback-v3/` and v4 at `rollback-v4/`.
+- Existing gateway: Supabase project `cmrknyhnnehyjpreehcf`, function `imperion-free-inference` ACTIVE v5 `verify_jwt=true`. Prior v2/v3 code retained at `ops/pc-agent/cloud/gateway/rollback-v2/` and `rollback-v3/` and v4 at `rollback-v4/`.
 - Existing BrowserBridge queue: `public.browser_jobs`; never trust `state=done` alone, require nested app status and exact mode.
 - Windows low-memory observations in this work include ~233–2694MB free; no safe model/GUI inference can be presumed from a single observation.
 - Desktop Commander account quota was exhausted in this session. No attempt was made to bypass quota, restart worker or control desktop windows.
@@ -44,3 +44,12 @@ A real Windows PC operator for zmrzlina: receive owner tasks including from mobi
 ## Operational invariant
 
 MODEL_PLAN != PERMISSION. QUEUED != EXECUTED. state=done != application DONE. CI PASS != WINDOWS LIVE. USER CLICK != PRIVATE DATA EXPORT CONSENT. API MODEL SUPPORT != VERIFIED FREE ACCOUNT ENTITLEMENT. Do not mark this project fully done until the explicit acceptance gates above have independent receipts.
+
+
+## M9 evidence update — live server and device (15 Nov 2026)
+
+- Supabase `imperion-free-inference` is **v5 ACTIVE**, `verify_jwt=true`; model provider receives only its five relevant flags/keys, never the Supabase service role. GitHub CI PASS on this hardening.
+- Restricted Windows job `79745ec2-54e4-4f0d-9af7-00728b7e9590`: `state=done`, one attempt, `agent=IMPERION_AGENT5_RESTRICTED`, `requested=pc_operator`, nested `status=DONE`, nested `mode=machine_readiness`, RAM 1710 MB at observation.
+- New gateway `pc5_receipt` is **deployed code**, not yet independently HTTP-invoked. CI mocked exact nested readback and blocked malformed approvals/rows. Do not mislabel as real HTTP readback.
+- Windows `runtime_probe` job `41e3eb3c-fb87-4b18-9e01-9620e5f11aa6`: queue `done` but inner result `BLOCKED MODE_NOT_ALLOWED`. Running BrowserBridge has not reloaded M7 adapter, so GUI and new audit routes are still NOT cloud live.
+- Account-specific free provider authorization remains NOT VERIFIED, no headless model completion receipt. Desktop Commander quota exhaustion still prevents manual Windows refresh from this connection. No fees, private-data upload or process termination triggered.
