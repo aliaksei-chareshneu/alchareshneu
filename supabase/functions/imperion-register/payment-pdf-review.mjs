@@ -104,8 +104,19 @@ async function pageText(raw,bytes){
     if(end<0)break;
     const dict=raw.slice(Math.max(0,m.index-600),m.index);
     const flate=/\/FlateDecode\b/.test(dict);
+    // PDF streams end with a line break BEFORE "endstream". Different
+    // DecompressionStream runtimes reject trailing bytes after a zlib member.
+    // Prefer a direct /Length number; never treat an indirect n 0 R as bytes.
+    const lengthMatch=dict.match(/\/Length\s+(\d{1,7})(?!\s+\d+\s+R)\b/);
+    const length=lengthMatch?Number(lengthMatch[1]):NaN;
+    let dataEnd=Number.isSafeInteger(length)&&length>0&&start+length<=end
+      ? start+length:end;
+    if(dataEnd===end){
+      if(bytes[dataEnd-1]===10)dataEnd--;
+      if(bytes[dataEnd-1]===13)dataEnd--;
+    }
     const payload=flate
-      ? await inflateBounded(bytes.subarray(start,end),MAX_TEXT-total)
+      ? await inflateBounded(bytes.subarray(start,dataEnd),MAX_TEXT-total)
       : raw.slice(start,Math.min(end,start+MAX_TEXT-total));
     if(payload){
       const text=visibleText(payload);
