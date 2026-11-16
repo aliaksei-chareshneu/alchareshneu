@@ -33,6 +33,7 @@ Deno.serve(async(req:Request):Promise<Response>=>{
  const pending=await api.from('imperion_rsvp_submissions')
   .select('id,event_id,created_at,payment_variable_symbol,quoted_total_czk,payment_evidence_received_at,payment_bank_check_after,fio_bank_review_code,fio_bank_check_attempts')
   .eq('payment_evidence_status','PROOF_RECEIVED')
+  .eq('data_controller','Družina Moravy, z. s.')
   .is('bank_verified_at',null)
   .not('payment_variable_symbol','is',null)
   .not('payment_pdf_path','is',null)
