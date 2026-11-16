@@ -8,7 +8,7 @@ import {createTrainingSpd}
 import {inspectPaymentPdf}
  from '../supabase/functions/imperion-register/payment-pdf-review.mjs';
 
-const bank={iban:'CZ7920100000002400222222',accountId:'2400222222',bankId:'2010'};
+const bank={iban:'CZ0520100000002400222222',accountId:'2400222222',bankId:'2010'};
 const now=new Date(),created=new Date(now.getTime()-86400000).toISOString();
 const quote={id:'11111111-1111-4111-8111-111111111111',
   created_at:created,payment_variable_symbol:'7123456789',quoted_total_czk:240};
@@ -81,7 +81,7 @@ test('wrong/missing VS and old movement dates never settle',()=>{
 });
 test('new QR descriptor encodes bank-standard X-VS and preserves distinct UUID',()=>{
  const spd=createTrainingSpd(bank.iban,240,quote.id,quote.payment_variable_symbol);
- assert.match(spd,/^SPD\*1\.0\*ACC:CZ7920100000002400222222\*AM:240\.00\*CC:CZK\*MSG:DM /);
+ assert.match(spd,/^SPD\*1\.0\*ACC:CZ0520100000002400222222\*AM:240\.00\*CC:CZK\*MSG:DM /);
  assert.ok(spd.endsWith('*X-VS:7123456789'));
  assert.ok(spd.includes(quote.id.replace(/-/g,'').toUpperCase()));
  assert.equal(createTrainingSpd(bank.iban,240,quote.id,'not-digits'),null);
@@ -109,7 +109,7 @@ test('source protects same RSVP, one VS and bank movement with no automatic seat
  assert.ok(reg.includes('payment_variable_symbol:generateVariableSymbol()'));
  assert.ok(reg.includes('variableSymbol:vs,spd'));
  assert.ok(reg.includes('payment_bank_check_after:new Date(Math.max('));
- assert.ok(ui.includes('VS '+p.variableSymbol));
+ assert.ok(ui.includes("'VS '+p.variableSymbol"));
  assert.ok(bridge.includes('payment_evidence_status.in.(PROOF_RECEIVED,BANK_VERIFIED)'));
  assert.ok(sync.includes("var verified=r.payment_evidence_status==='BANK_VERIFIED'"));
  assert.ok(sync.includes("Payment_Status:'VERIFIED'"));
