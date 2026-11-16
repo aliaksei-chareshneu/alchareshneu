@@ -13,20 +13,20 @@
     uk:{heading:'Вартість тренування та PDF підтвердження оплати',choose:'Бажаний тариф',intro:'За 2 години: перше заняття 240 Kč, підтверджений Senior 120 Kč; Starter 4 — 800 Kč за чотири заняття протягом 30 днів. Після першого оплаченого та відвіданого заняття можна протягом 48 годин перейти на Starter 4, доплативши 560 Kč після перевірки.',late:'Для нової заявки менш ніж за 48 годин до тренування діє доплата 25%.',notReady:'Оплата закрита. Надішліть попередню заявку. Не сплачуйте і не приїжджайте без особистого письмового підтвердження.',ready:'Одержувач і рахунок доступні лише після персонального погодження та перевірки коду.',codeLabel:'Особистий код попередньої заявки (для повторного входу)',codeHelp:'Якщо записуєтеся вперше, залиште поле порожнім, надішліть заявку і збережіть одноразовий код.',check:'Перевірити погоджену суму й банківський рахунок',checking:'Перевіряємо…',checkFirst:'Спочатку перевірте персонально підтверджену суму та реквізити.',approved:'Підтверджений тариф: {tier}. База {base} Kč + доплата {fee} Kč = РАЗОМ {total} Kč. Одержувач: {recipient}. Рахунок: {account}. Переказуйте лише після письмового підтвердження організатора.',pdf:'PDF підтвердження банківського переказу (до 2 МБ) *',pdfHelp:'Приховайте дані про сторонні операції. PDF призначено для перевірки, він не доводить надходження коштів.',pending:'Для цього коду ще немає персонально погодженої суми або тренування не відкрите. Потрібне підтвердження організатора.',changed:'Сума або 48-годинна межа змінились. Перевірте розрахунок знову.',receipt:'PDF отримано на перевірку. Кошти та участь ще не підтверджені.',codeReceipt:'Збережіть цей особистий одноразовий код. Після письмового підтвердження організатора поверніться до тієї самої форми, введіть код і перевірте суму. Код не є бронюванням.'}
   };
   const QR_TEXT={
-    cs:{title:'QR platba pro schválenou žádost',reference:'Jedinečný identifikátor (zpráva pro příjemce): ',copy:'Kopírovat platební údaje',copied:'Údaje zkopírovány',failed:'Kopírování není dostupné',note:'QR pouze předvyplní převod; zpráva není variabilní symbol (VS). Připsání se ověřuje zvlášť.'},
-    en:{title:'QR transfer for this approved request',reference:'Unique reference (payment message): ',copy:'Copy transfer details',copied:'Details copied',failed:'Clipboard unavailable',note:'QR pre-fills a transfer; this message is not a numeric VS. Cleared funds require separate bank verification.'},
-    ru:{title:'QR для перевода по одобренной заявке',reference:'Уникальный идентификатор (сообщение получателю): ',copy:'Скопировать реквизиты',copied:'Скопировано',failed:'Копирование недоступно',note:'QR только заполняет перевод; сообщение не является вариабильным символом (VS). Поступление денег проверяется отдельно.'},
-    uk:{title:'QR для переказу за погодженою заявкою',reference:'Унікальний ідентифікатор (повідомлення одержувачу): ',copy:'Копіювати реквізити',copied:'Скопійовано',failed:'Копіювання недоступне',note:'QR лише заповнює переказ; повідомлення не є варіабільним символом (VS). Надходження коштів перевіряється окремо.'}
+    cs:{title:'QR platba pro schválenou žádost',reference:'Variabilní symbol (VS): ',copy:'Kopírovat platební údaje',copied:'Údaje zkopírovány',failed:'Kopírování není dostupné',note:'QR obsahuje schválenou částku, účet a VS. Připsání se ověřuje jen podle banky.'},
+    en:{title:'QR transfer for this approved request',reference:'Variable symbol (VS): ',copy:'Copy transfer details',copied:'Details copied',failed:'Clipboard unavailable',note:'QR includes the approved amount, account and VS. Settled funds are verified separately with the bank.'},
+    ru:{title:'QR для перевода по одобренной заявке',reference:'Вариабильный символ (VS): ',copy:'Скопировать реквизиты',copied:'Скопировано',failed:'Копирование недоступно',note:'QR содержит утверждённые сумму, счёт и VS. Поступление денег проверяется только по банку.'},
+    uk:{title:'QR для переказу за погодженою заявкою',reference:'Варіабельний символ (VS): ',copy:'Копіювати реквізити',copied:'Скопійовано',failed:'Копіювання недоступне',note:'QR містить погоджені суму, рахунок та VS. Надходження коштів перевіряється через банк.'}
   };
   const $=id=>document.getElementById(id);
   function renderApprovedQr(p){
     const area=$('paymentQrArea'),canvas=$('paymentQrCode'),ref=$('paymentReference');
     if(!area||!canvas||!ref)return;
     canvas.replaceChildren();area.hidden=true;
-    if(!p?.spd||!p?.paymentReference||!p?.iban||!window.QRCode)return;
+    if(!p?.spd||!p?.paymentReference||!p?.iban||!/^[1-9][0-9]{9}$/.test(p.variableSymbol||'')||!window.QRCode)return;
     const t=QR_TEXT[latestLang]||QR_TEXT.cs;
     $('paymentQrLabel').textContent=t.title;
-    ref.textContent=t.reference+p.paymentReference;
+    ref.textContent=t.reference+p.variableSymbol+' · ID '+p.paymentReference;
     $('paymentQrCaution').textContent=t.note;
     $('paymentCopyButton').textContent=t.copy;
     try{new window.QRCode(canvas,{text:p.spd,width:192,height:192,colorDark:'#000',colorLight:'#fff',correctLevel:window.QRCode.CorrectLevel.M});area.hidden=false;}
@@ -82,7 +82,7 @@
       const p=privateQuote.payload,tname=PRICE_NAMES[p.tier]?.[lang]||p.tier;
       $('trainingPaymentPrivate').textContent=fill(t.approved,{
        tier:tname,base:p.baseCzk,fee:p.surchargeCzk,total:p.totalCzk,
-       recipient:p.recipient,account:p.account});
+       recipient:p.recipient,account:p.account})+' VS: '+p.variableSymbol;
     }else if(!privateQuote){$('trainingPaymentPrivate').textContent='';}
   }
   function catalogPrice(event,lang){
@@ -133,7 +133,8 @@
         body:JSON.stringify(body),cache:'no-store',signal:AbortSignal.timeout(20000)});
       if(!reply.ok)throw Error(reply.status===409?'pending':'invalid');
       const payload=await reply.json(),p=payload.trainingPayment;
-      if(!payload.ok||!p?.account||!p?.recipient||!p?.quoteLockedAt)throw Error('invalid');
+      if(!payload.ok||!p?.account||!p?.recipient||!p?.quoteLockedAt||
+         !/^[1-9][0-9]{9}$/.test(p?.variableSymbol||''))throw Error('invalid');
       privateQuote={eventId:e.event_id,tier:tier(),code:token(),
         email:$('email').value.trim(),payload:p};
       render(e,latestLang,latestMode);
@@ -152,9 +153,10 @@
   $('paymentQuoteButton')?.addEventListener('click',checkQuote);
   $('paymentCopyButton')?.addEventListener('click',async()=>{
     const p=privateQuote?.payload;
-    if(!p?.spd||!p?.paymentReference||!p?.iban)return;
+    if(!p?.spd||!p?.paymentReference||!p?.iban||!p?.variableSymbol)return;
     const t=QR_TEXT[latestLang]||QR_TEXT.cs;
     const details=[p.recipient,p.iban,p.account,p.totalCzk+' CZK',
+      'VS '+p.variableSymbol,
       'DM '+p.paymentReference.replace(/-/g,'').toUpperCase()].join('\n');
     try{
       if(!navigator.clipboard?.writeText)throw Error('unsupported');
