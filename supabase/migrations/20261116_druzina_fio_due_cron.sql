@@ -55,6 +55,7 @@ SELECT cron.schedule(
  WHERE EXISTS(
   SELECT 1 FROM public.imperion_rsvp_submissions
   WHERE payment_evidence_status='PROOF_RECEIVED'
+    AND data_controller='Družina Moravy, z. s.'
     AND bank_verified_at IS NULL
     AND payment_variable_symbol IS NOT NULL
     AND payment_bank_check_after <= now()
