@@ -24,6 +24,41 @@ Deno.serve(async(req:Request):Promise<Response>=>{
  const verified=await api.rpc('verify_imperion_druzina_fio_cron_token',{p_token:key});
  if(verified.error||verified.data!==true)return reply({error:'unauthorized'},401);
 
+ // Read-only owner diagnostics. No bank call, movement, identifier, token,
+ // account number, person, PDF text or stored document ever leaves this route.
+ const input=await req.json().catch(()=>({}));
+ if(input?.action==='readiness'){
+   const enabled=Deno.env.get('DRUZINA_FIO_AUTOMATION_ENABLED')==='YES';
+   const token=Deno.env.get('DRUZINA_FIO_READONLY_TOKEN')||'';
+   const iban=(Deno.env.get('DRUZINA_APPROVED_IBAN')||'').replace(/\\s/g,'').toUpperCase();
+   const bank=Deno.env.get('DRUZINA_FIO_BANK_ID')||'';
+   const account=Deno.env.get('DRUZINA_FIO_ACCOUNT_ID')||'';
+   const payee=Deno.env.get('DRUZINA_APPROVED_PAYEE')||'';
+   const config={
+     adapterEnabled:enabled,
+     readOnlyTokenConfigured:/^[A-Za-z0-9]{64}$/.test(token),
+     readOnlyScopeOwnerConfirmed:Deno.env.get('DRUZINA_FIO_READONLY_CONFIRMED')==='YES',
+     legalSellerOwnerConfirmed:Deno.env.get('DRUZINA_FIO_SELLER_CONFIRMED')==='YES',
+     bankIbanConfigured:/^CZ\\d{22}$/.test(iban),
+     bankIdentityConfigured:/^\\d{4}$/.test(bank)&&/^\\d{1,16}$/.test(account),
+     payeeConfigured:payee.trim()==='Družina Moravy, z. s.'
+   };
+   const due=await api.from('imperion_rsvp_submissions')
+     .select('id',{count:'exact',head:true})
+     .eq('data_controller','Družina Moravy, z. s.')
+     .eq('payment_evidence_status','PROOF_RECEIVED')
+     .is('bank_verified_at',null)
+     .not('payment_variable_symbol','is',null)
+     .lte('payment_bank_check_after',new Date().toISOString());
+   if(due.error)return reply({error:'readiness_unavailable',bankCalls:0},503);
+   return reply({ok:true,status:Object.values(config).every(Boolean)
+     ? 'CONFIGURED_NOT_BANK_TESTED':'OWNER_CONFIGURATION_PENDING',
+     config,dueProofs:due.count||0,
+     bankCalls:0,applied:0,bookingConfirmed:false},200);
+ }
+ if(input?.action && input.action!=='run')
+   return reply({error:'invalid_action',bankCalls:0},400);
+
  // This gate is intentionally independent of the per-session payment release.
  // Only the verified owner can assert token scope and legal receiving entity.
  if(Deno.env.get('DRUZINA_FIO_AUTOMATION_ENABLED')!=='YES')
