@@ -168,6 +168,11 @@ async function readSmallMultipart(req:Request,contentType:string){
   for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.byteLength;}
   return new Request('https://upload.invalid/',{method:'POST',headers:{'content-type':contentType},body:bytes}).formData();
 }
+function generateVariableSymbol(){
+ const parts=crypto.getRandomValues(new Uint32Array(2));
+ const random=(BigInt(parts[0])<<32n)|BigInt(parts[1]);
+ return String(1000000000n+(random%9000000000n));
+}
 function generateResumeToken(){
  const bytes=crypto.getRandomValues(new Uint8Array(32));
  return btoa(String.fromCharCode(...bytes)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/g,'');
@@ -360,13 +365,17 @@ Deno.serve(async (req:Request):Promise<Response>=>{
       return reply({error:'payment_not_open'},409,origin);
     const hashed=await tokenHash(resumeToken);
     const lookup=await api.from('imperion_rsvp_submissions')
-      .select('id,created_at,training_requested_tier,training_authorized_tier,training_authorized_at')
+      .select('id,created_at,training_requested_tier,training_authorized_tier,training_authorized_at,payment_variable_symbol')
       .eq('event_id',v.eventId).eq('email',v.email).eq('first_name',v.first)
       .eq('last_name',v.last).eq('payment_resume_token_hash',hashed)
       .eq('rsvp_status','YES').eq('payment_evidence_status','NOT_REQUIRED')
       .is('payment_pdf_path',null).maybeSingle();
     if(lookup.error)return reply({error:'temporarily_unavailable'},503,origin);
     if(!lookup.data?.id)return reply({error:'invalid_payment_code'},400,origin);
+    const vs=String(lookup.data.payment_variable_symbol||'');
+    // Legacy UUID-message-only quotes cannot safely auto-match a Fio VS.
+    // Never silently change a previously issued payment reference.
+    if(!/^[1-9][0-9]{9}$/.test(vs))return reply({error:'numeric_vs_not_issued'},409,origin);
     const savedTier=lookup.data.training_requested_tier as TrainingTier;
     if(savedTier!==trainingTier)return reply({error:'training_tier_changed'},409,origin);
     const approved=!!lookup.data.training_authorized_at &&
@@ -385,7 +394,7 @@ Deno.serve(async (req:Request):Promise<Response>=>{
     // Check legal payee against protected Edge Function configuration; never accept a browser-supplied account.
     const approvedIban=verifiedBankIban(verifiedQuote.account,verifiedQuote.recipient,
       Deno.env.get('DRUZINA_APPROVED_IBAN'),Deno.env.get('DRUZINA_APPROVED_PAYEE'));
-    const spd=approvedIban ? createTrainingSpd(approvedIban,verifiedQuote.totalCzk,lookup.data.id) : null;
+    const spd=approvedIban ? createTrainingSpd(approvedIban,verifiedQuote.totalCzk,lookup.data.id,vs) : null;
     if(!spd)return reply({error:'approved_bank_not_configured'},409,origin);
     if(action==='quote'){
       if(proof)return reply({error:'invalid_request'},400,origin);
@@ -394,7 +403,7 @@ Deno.serve(async (req:Request):Promise<Response>=>{
         surchargeCzk:verifiedQuote.surchargeCzk,totalCzk:verifiedQuote.totalCzk,
         late48h:verifiedQuote.late48h,quoteLockedAt:verifiedQuote.quoteLockedAt,
         recipient:verifiedQuote.recipient,account:verifiedQuote.account,
-        iban:approvedIban,paymentReference:lookup.data.id,spd,
+        iban:approvedIban,paymentReference:lookup.data.id,variableSymbol:vs,spd,
         proofRequired:true,bankVerified:false}},200,origin);
     }
     if(!proof)return reply({error:'payment_pdf_required'},400,origin);
@@ -414,7 +423,7 @@ Deno.serve(async (req:Request):Promise<Response>=>{
     let review;
     try{review=await inspectPaymentPdf(bytes,{
       amountCzk:verifiedQuote.totalCzk,iban:approvedIban,
-      recipient:verifiedQuote.recipient,reference:lookup.data.id
+      recipient:verifiedQuote.recipient,reference:lookup.data.id,variableSymbol:vs
     });}catch{return reply({error:'invalid_payment_pdf'},400,origin);}
     const pdfPath=expiry.toISOString().slice(0,10)+'/'+crypto.randomUUID()+'.pdf';
     const upload=await api.storage.from(PROOF_BUCKET).upload(pdfPath,bytes,{
@@ -429,6 +438,10 @@ Deno.serve(async (req:Request):Promise<Response>=>{
       payment_evidence_status:'PROOF_RECEIVED',
       payment_pdf_review_status:review.status,payment_pdf_review_flags:review.flags,
       payment_evidence_received_at:new Date().toISOString(),
+      // No bank checks before the documented T-48 payment due date;
+      // new late applicants are due immediately after uploading proof.
+      payment_bank_check_after:new Date(Math.max(Date.now(),
+        Date.parse(event.begins_at)-LATE_WINDOW_MS)).toISOString(),
       payment_resume_token_hash:null,payment_crm_synced_at:null
     }).eq('id',lookup.data.id).eq('payment_resume_token_hash',hashed)
       .eq('payment_evidence_status','NOT_REQUIRED').is('payment_pdf_path',null)
@@ -452,7 +465,8 @@ Deno.serve(async (req:Request):Promise<Response>=>{
       discovery_source:v.discovery,utm_source:v.utmSource,
       utm_medium:v.utmMedium,utm_campaign:v.utmCampaign,
       ...(training?{training_requested_tier:trainingTier}:{}),
-      ...(issuedToken?{payment_resume_token_hash:await tokenHash(issuedToken),
+       ...(issuedToken?{payment_variable_symbol:generateVariableSymbol(),
+        payment_resume_token_hash:await tokenHash(issuedToken),
         payment_resume_token_issued_at:new Date().toISOString()}:{}),
     }).select('id').single();
     const writeError=created.error;
