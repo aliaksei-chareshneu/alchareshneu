@@ -377,6 +377,7 @@ const DEFAULT_EVENT_IMAGE = '../images/main_hero.webp';
 const COMMUNITY_TAG = {
   'Brnowalkers': {ru:'🥾 Брноходцы', en:'🥾 BrnoWalkers', cs:'🥾 BrnoWalkers', uk:'🥾 Брнохідці'},
   'Družina Moravy': {ru:'⚔️ Дружина', en:'⚔️ Družina', cs:'⚔️ Družina', uk:'⚔️ Дружина'},
+  'Morava v pohybu': {ru:'💪 Morava v pohybu', en:'💪 Morava v pohybu', cs:'💪 Morava v pohybu', uk:'💪 Morava v pohybu'},
   'Shared': {ru:'🤝 Совместно', en:'🤝 Joint event', cs:'🤝 Společná akce', uk:'🤝 Спільно'}
 };
 function formatEventDate(iso, lang) {
@@ -450,11 +451,11 @@ function renderEvents(lang) {
           <p class="eu-desc">${description}</p>
           <div class="eu-price-row">
             ${priceBlock}
-            ${locationName ? (ev.category === "HEMA Training" ? `<span class="eu-price-note">📍 ${locationName}</span>` : `<a class="eu-price-note" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(displayVenue)}" target="_blank" rel="noopener">📍 ${locationName}</a>`) : ""}
+            ${locationName ? (ev.category === "HEMA Training" || ev.category === "Calisthenics Workshop" ? `<span class="eu-price-note">📍 ${locationName}</span>` : `<a class="eu-price-note" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(displayVenue)}" target="_blank" rel="noopener">📍 ${locationName}</a>`) : ""}
           </div>
           <div class="eu-ctas">
             <a class="btn solid" href="${registerUrl}">${eventButtonLabel}</a>
-            <a class="btn" href="../academy/">${otherServicesLabel}</a>
+            ${ev.community==='Morava v pohybu'?'':`<a class="btn" href="../academy/">${otherServicesLabel}</a>`}
           </div>
         </div>
       </div>`;
@@ -477,10 +478,11 @@ function catalogEvent(e){
  const price=good?Number(e.price_czk):null,late=price!==null&&price>0&&Date.parse(e.begins_at)-Date.now()<172800000;
  const mode=e.registration_mode==='CONTACT'?'contact':(e.registration_mode==='FORM'&&e.is_open===true&&e.price_verified===true&&e.end_time_verified===true?'open':'planned');
  const club=/družin|druzin|hema|šerm|larp/i.test([e.community,e.category].join(' '));
+ const mvp=String(e.community||'').startsWith('Morava v pohybu');
  const venue=e.category==='HEMA Training'&&club&&e.event_id!=='PUB-OREL-20261114'?'Brno · exact meeting place after confirmation':String(e.venue||'');
  return {id:e.event_id,title:String(e.title||'').slice(0,200),description:String(e.public_note||'').slice(0,1200),
   startISO:e.begins_at,priceCzk:price===null?null:(late?price+Math.ceil(price*.25):price),isFree:price===0,late,
-  category:String(e.category||''),community:club?'Družina Moravy':'Brnowalkers',locationName:venue,registrationMode:mode,
+  category:String(e.category||''),community:mvp?'Morava v pohybu':(club?'Družina Moravy':'Brnowalkers'),locationName:venue,registrationMode:mode,
   controller:String(e.data_controller||'').slice(0,150),imageOverride:'',_catalogSource:e};
 }
 (function loadEvents(){
