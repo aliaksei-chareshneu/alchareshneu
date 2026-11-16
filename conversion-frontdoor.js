@@ -20,6 +20,23 @@
         'Оберіть один конкретний наступний крок. Справжні ціни й умови доступні до зобов’язання чи бронювання.']
   };
 
+  // Four-language titles for the image-led category selector.
+  // Kept separate from the event catalogue, controller and pricing data.
+  var VISUAL_COPY = {
+    cs:{label:'Vyberte si směr',academy:['Akademie','Jazyky · zkoušky · věda a IT','Vybrat výuku'],
+      druzina:['Družina Moravy','Historický šerm · HEMA · LARP','Prohlédnout tréninky'],
+      walkers:['BrnoWalkers','Výlety · procházky · hry','Vybrat zážitek']},
+    en:{label:'Choose your direction',academy:['Academy','Languages · exams · science and IT','Explore learning'],
+      druzina:['Družina Moravy','Historical fencing · HEMA · LARP','Explore training'],
+      walkers:['BrnoWalkers','Hikes · city walks · games','Explore activities']},
+    ru:{label:'Выбери направление',academy:['Академия','Языки · экзамены · наука и IT','Выбрать обучение'],
+      druzina:['Družina Moravy','Фехтование · HEMA · LARP','Выбрать тренировку'],
+      walkers:['BrnoWalkers','Походы · экскурсии · игры','Выбрать приключение']},
+    uk:{label:'Обери напрям',academy:['Академія','Мови · іспити · наука та IT','Обрати навчання'],
+      druzina:['Družina Moravy','Фехтування · HEMA · LARP','Обрати тренування'],
+      walkers:['BrnoWalkers','Походи · екскурсії · ігри','Обрати пригоду']}
+  };
+
   var LANGS = ['cs', 'en', 'ru', 'uk'];
   var COPY = {
     cs: {eyebrow:'HISTORIE · ZÁŽITKY · ROZVOJ', title:'Co vám dnes',title2:'chybí?',lead:'Chtěli byste více přátel, pohybu, zážitků nebo nových dovedností? Začněte tím, co chcete změnit — ne seznamem služeb.',button:'Vybrat zážitek',under:'JEDNO MÍSTO. MNOHO MOŽNOSTÍ.',dir1:'⚔️ Příběhy a pohyb',dir2:'🥾 Zážitky a setkání',dir3:'🎓 Učení a výsledky',calendarEyebrow:'KALENDÁŘ AKCÍ',calendarTitle:'Nadcházející akce a tréninky',calendarIntro:'Klikněte na den v kalendáři a otevřete podrobnosti, cenu a přihlášku.',all:'Vše',club:'Šerm a historie',walkers:'Výlety a hry',academy:'Jazyky a příprava',loading:'Načítáme aktuální veřejné akce…',offline:'Aktuální seznam se nepodařilo ověřit. Nespoléhejte na staré termíny.',empty:'Na tento měsíc nejsou zveřejněny dostupné akce v této kategorii.',errorTitle:'Termíny zatím nelze ověřit',emptyTitle:'Najděte další příležitost',noEventTitle:'Vyberte den s akcí',noEventDesc:'Vyberte označený den a otevřete podrobnosti.',learnTitle:'Připravte se na svůj cíl',learnDesc:'Čeština, jazyky, přijímačky, maturita, přírodní vědy a IT. Individuální termíny řešíme podle vašeho cíle a dostupnosti — bez smyšlených položek v kalendáři.',learnCta:'Vybrat přípravu',open:'Online přihláška otevřena',contact:'Před účastí kontaktujte pořadatele',planned:'Zatím bez potvrzené přihlášky',book:'Požádat o místo',ask:'Ověřit účast',follow:'Sledovat další termíny',price:'Cena bude potvrzena',free:'Zdarma',date:'Kdy',place:'Kde',priceLabel:'Cena',details:'Více informací',notice:'Odeslání přihlášky neznamená potvrzené místo ani platbu. Pořadatel potvrdí účast zvlášť.',photo:'Ilustrační fotografie podobné aktivity',calendarNote:'Časy: Europe/Prague. Veřejné akce jsou z katalogu; pravidelné pondělky jsou pouze orientační a vyžadují písemné potvrzení.',back:'Starší informace',privacy:'Soukromí a bezpečnost',controller:'Organizátora a podmínky ověříte u konkrétní akce.',liveCalendar:'Veřejný kalendář',today:'Dnes',prev:'Předchozí měsíc',next:'Další měsíc',close:'Zavřít podrobnosti akce'},
@@ -177,6 +194,23 @@
           '<a class="fd-hero-cta" id="fdHeroCta" href="#impr-calendar"><span aria-hidden="true">▦</span><span class="fd-hero-cta-copy"><strong id="fdHeroLabel"></strong><small id="fdHeroSub"></small></span></a>',
           '<a class="fd-hero-academy" id="fdAcademyCta" href="academy/?lang=cs"><span class="fd-academy-symbol" aria-hidden="true">🎓</span><span class="fd-academy-copy"><strong id="fdAcademyLabel"></strong><small id="fdAcademyNote"></small></span></a>',
           '</div>',
+          '<nav class="fd-visual-grid" id="fdVisualGrid" aria-label="Choose your direction">',
+            '<a class="fd-visual-tile fd-visual-academy" id="fdVisualAcademy" href="academy/?lang=cs">',
+              '<img src="images/hero-scholar.webp" width="540" height="680" alt="" loading="eager" decoding="async">',
+              '<span class="fd-visual-icon" aria-hidden="true"></span>',
+              '<span class="fd-visual-content"><strong id="fdVisualAcademyTitle">Academy</strong><small id="fdVisualAcademySub"></small><em id="fdVisualAcademyAction"></em></span>',
+            '</a>',
+            '<a class="fd-visual-tile fd-visual-druzina" id="fdVisualDruzina" href="druzina/?lang=cs">',
+              '<img src="images/druzina_train.webp" width="480" height="640" alt="" loading="eager" decoding="async">',
+              '<span class="fd-visual-icon" aria-hidden="true"></span>',
+              '<span class="fd-visual-content"><strong id="fdVisualDruzinaTitle">Družina Moravy</strong><small id="fdVisualDruzinaSub"></small><em id="fdVisualDruzinaAction"></em></span>',
+            '</a>',
+            '<a class="fd-visual-tile fd-visual-walkers" id="fdVisualWalkers" href="walkers/?lang=cs">',
+              '<img src="images/walkers_group.webp" width="640" height="480" alt="" loading="eager" decoding="async">',
+              '<span class="fd-visual-icon" aria-hidden="true"></span>',
+              '<span class="fd-visual-content"><strong id="fdVisualWalkersTitle">BrnoWalkers</strong><small id="fdVisualWalkersSub"></small><em id="fdVisualWalkersAction"></em></span>',
+            '</a>',
+          '</nav>',
           '<div class="fd-hero-topics" aria-hidden="true"><span id="fdDir1"></span><span id="fdDir2"></span><span id="fdDir3"></span></div>',
         '</div>',
         '<div class="fd-hero-bottom" id="fdUnder"></div>',
@@ -413,6 +447,15 @@
     el('fdFooterInfo').textContent=ft('about');
     // The Academy landing page and catalogue both support CS/EN/RU/UK.
     el('fdAcademyCta').href='academy/?lang='+encodeURIComponent(lang);
+    var vcopy=VISUAL_COPY[lang]||VISUAL_COPY.en;
+    el('fdVisualGrid').setAttribute('aria-label',vcopy.label);
+    [['academy','Academy','academy/'],['druzina','Druzina','druzina/'],['walkers','Walkers','walkers/']].forEach(function(item){
+      var copy=vcopy[item[0]];
+      el('fdVisual'+item[1]+'Title').textContent=copy[0];
+      el('fdVisual'+item[1]+'Sub').textContent=copy[1];
+      el('fdVisual'+item[1]+'Action').textContent=copy[2];
+      el('fdVisual'+item[1]).href=item[2]+'?lang='+encodeURIComponent(lang);
+    });
     [['fdNavAcademy','academy/'],['fdNavClub','druzina/'],['fdNavWalkers','walkers/']].forEach(function(pair){el(pair[0]).href=pair[1]+'?lang='+encodeURIComponent(lang);});
     el('fdNavAbout').href='about/?lang='+encodeURIComponent(lang);
     [['fdFacetTitle','facet'],['fdUpcomingTitle','upcoming'],['fdUpcomingIntro','upcomingIntro'],['fdAllTitle','allTitle'],['fdAllIntro','allIntro'],['fdReset','reset']].forEach(function(pair){el(pair[0]).textContent=ed(pair[1]);});
