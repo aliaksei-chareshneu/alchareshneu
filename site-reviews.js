@@ -8,7 +8,7 @@ var href='https://maps.app.goo.gl/fEbnJHxiVoAx1v498';
 var imgs=['ekaterina','elmusso','nejc','olga','samsung','viktoria'];
 var copy={
 cs:{badge:'55 recenzí na Googlu',badgeSub:'Stav dle pořadatele 13. 11. 2026 · Otevřít',eyebrow:'ZKUŠENOSTI LIDÍ',title:'Co říkají lidé',lead:'Ukázky dříve zveřejněných hodnocení. Úplné a aktuální znění, hodnocení a počet recenzí ověřte přímo na Googlu.',cta:'Všechny recenze na Googlu',alt:'Snímek dříve zveřejněné recenze'},
-en:{badge:'55 Google reviews',badgeSub:'Owner-reported 13 Nov 2026 · Open',eyebrow:'PEOPLE’S EXPERIENCES',title:'What people say',lead:'Selections of previously published testimonials. Read current reviews, ratings and counts directly on Google.',cta:'Read all Google reviews',alt:'Screenshot of a previously published review'},
+en:{badge:'55 Google reviews',badgeSub:'Owner-reported 13 Nov 2026 · Open',eyebrow:'PEOPLE’S EXPERIENCES',title:'What people say',lead:'English translations of earlier published reviews. Read the original posts and check current ratings and counts directly on Google.',cta:'Read all Google reviews',alt:'Screenshot of a previously published review'},
 ru:{badge:'55 отзывов Google',badgeSub:'Со слов владельца на 13.11.2026 · Читать',eyebrow:'ОПЫТ УЧАСТНИКОВ',title:'Что говорят люди',lead:'Подборка ранее опубликованных отзывов. Актуальное количество, рейтинг и полные тексты проверяйте непосредственно в Google.',cta:'Читать все отзывы в Google',alt:'Снимок ранее опубликованного отзыва'},
 uk:{badge:'55 відгуків Google',badgeSub:'За даними власника на 13.11.2026 · Читати',eyebrow:'ДОСВІД УЧАСНИКІВ',title:'Що говорять люди',lead:'Добірка раніше опублікованих відгуків. Актуальну кількість, рейтинг і повні тексти перевіряйте безпосередньо в Google.',cta:'Читати всі відгуки в Google',alt:'Знімок раніше опублікованого відгуку'}
 };
@@ -35,7 +35,7 @@ function update(){
  section.querySelector('.imp-review-read-all').href=href;section.querySelector('.imp-review-read-all').textContent=d.cta+' ↗';
  partners.textContent=({cs:'Partneři',en:'Partners',ru:'Партнёры',uk:'Партнери'})[lang]||'Partneři';
  partners.href='partners/?lang='+lang;
- section.querySelectorAll('img').forEach(function(img,i){img.alt=d.alt+' '+(i+1);});
+ section.querySelectorAll('img').forEach(function(img,i){var src='images/reviews/review_'+imgs[i]+(lang==='en'?'_en.svg':'.png');if(img.getAttribute('src')!==src)img.src=src;img.alt=d.alt+' '+(i+1)+(lang==='en'?' - translated English version':'');});
 }
 new MutationObserver(update).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
 update();
