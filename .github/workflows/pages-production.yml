@@ -60,7 +60,7 @@ jobs:
               cp -a "$dir" "_pages/$dir"
             fi
           done
-          for file in index.html 404.html robots.txt sitemap.xml styles.css brand-theme.css site-design.css intent-home.css conversion-frontdoor.css imperion-cinematic-site.css conversion-frontdoor.js site-calendar-policy.js site-reviews.js site-clarity-pages.js site-clarity.css site-conversion-v5.css unified-shell.js unified-shell.css imperion-bootstrap.js imperion-bootstrap.css imperion-finish.css site-design.js experience.css experience.js quest-theme.css quest-audio.js site.webmanifest apple-touch-icon.png favicon.ico favicon-16.png favicon-32.png favicon-48.png icon-192.png icon-512.png revolut-payment-qr.png; do
+          for file in index.html 404.html robots.txt sitemap.xml styles.css brand-theme.css site-design.css intent-home.css visual-first.css conversion-frontdoor.css imperion-cinematic-site.css conversion-frontdoor.js site-calendar-policy.js site-reviews.js site-clarity-pages.js site-clarity.css site-conversion-v5.css unified-shell.js unified-shell.css imperion-bootstrap.js imperion-bootstrap.css imperion-finish.css site-design.js experience.css experience.js quest-theme.css quest-audio.js site.webmanifest apple-touch-icon.png favicon.ico favicon-16.png favicon-32.png favicon-48.png icon-192.png icon-512.png revolut-payment-qr.png; do
             if [ -f "$file" ]; then
               cp "$file" "_pages/$file"
             fi
@@ -73,6 +73,10 @@ jobs:
           touch _pages/.nojekyll
           test -s _pages/index.html
           test -s _pages/intent-home.css
+          test -s _pages/visual-first.css
+          test -s _pages/images/icon-academy.svg
+          test -s _pages/images/icon-druzina.svg
+          test -s _pages/images/icon-walkers.svg
           test -s _pages/conversion-frontdoor.css
           test -s _pages/imperion-cinematic-site.css
           grep -Fq 'data-imperion-design' _pages/academy/index.html
@@ -106,6 +110,7 @@ jobs:
           test -s _pages/academy/academy-choice-v4.js
           test -s _pages/academy/academy-choice-v4.css
           test -s _pages/partners/index.html
+          grep -Fq 'visual-first.css?v=20261116a' _pages/index.html
           grep -Fq 'site-reviews.js?v=20261116-en1' _pages/index.html
           grep -Fq 'academy-choice-v4.js?v=20261113d' _pages/academy/index.html
           grep -Fq 'site-calendar-policy.js?v=20261113c' _pages/register/index.html
