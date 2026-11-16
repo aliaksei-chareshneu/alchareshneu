@@ -22,7 +22,7 @@ test('text PDF can match quote but never verify bank credit or booking',async()=
 });
 test('bounded extraction supports compressed FlateDecode',async()=>{
  const v=await inspectPaymentPdf(pdf(info,{compressed:true}),quote);
- assert.equal(v.status,'MATCHED_UNVERIFIED');
+ assert.equal(v.status,'MATCHED_UNVERIFIED',JSON.stringify(v));
 });
 test('wrong or missing reference and amount stay in manual review',async()=>{
  const v=await inspectPaymentPdf(pdf('Transfer 240.00 CZK to Druzina Moravy z. s. CZ6508000000192000145399'),quote);
