@@ -6,7 +6,10 @@ ALTER TABLE public.imperion_rsvp_submissions
  ADD COLUMN IF NOT EXISTS payment_bank_check_after timestamptz,
  ADD COLUMN IF NOT EXISTS fio_bank_movement_id text,
  ADD COLUMN IF NOT EXISTS fio_bank_amount_czk integer,
- ADD COLUMN IF NOT EXISTS fio_bank_movement_at timestamptz;
+ ADD COLUMN IF NOT EXISTS fio_bank_movement_at timestamptz,
+ ADD COLUMN IF NOT EXISTS fio_bank_review_code text,
+ ADD COLUMN IF NOT EXISTS fio_bank_check_attempts integer NOT NULL DEFAULT 0,
+ ADD COLUMN IF NOT EXISTS fio_bank_last_checked_at timestamptz;
 
 CREATE UNIQUE INDEX IF NOT EXISTS imperion_rsvp_payment_variable_symbol_uq
  ON public.imperion_rsvp_submissions(payment_variable_symbol)
