@@ -124,3 +124,21 @@ test('source protects same RSVP, one VS and bank movement with no automatic seat
  assert.ok(auth.includes("payment_bank_check_after <= now()"));
  assert.doesNotThrow(()=>new Function(ui)); // browser syntax only
 });
+
+
+test('owner-only readiness cannot poll bank or reveal credentials',()=>{
+  const source=fs.readFileSync('supabase/functions/imperion-druzina-fio-reconcile/index.ts','utf8');
+  const auth=source.indexOf("if(verified.error||verified.data!==true)return reply({error:'unauthorized'},401);");
+  const readiness=source.indexOf("if(input?.action==='readiness')");
+  const disabled=source.indexOf("if(Deno.env.get('DRUZINA_FIO_AUTOMATION_ENABLED')!=='YES')");
+  const bankFetch=source.indexOf("const response=await fetch(url");
+  assert.ok(auth>0&&auth<readiness&&readiness<disabled&&disabled<bankFetch);
+  const branch=source.slice(readiness,disabled);
+  for(const field of ['readOnlyTokenConfigured','readOnlyScopeOwnerConfirmed',
+    'legalSellerOwnerConfirmed','bankIbanConfigured','bankIdentityConfigured',
+    'payeeConfigured','dueProofs','bankCalls:0','bookingConfirmed:false']){
+    assert.ok(branch.includes(field),field);
+  }
+  assert.ok(!branch.includes('await fetch(url'),"no Fio network on readiness");
+  assert.ok(!branch.includes('token:token'),"never return raw token");
+});
