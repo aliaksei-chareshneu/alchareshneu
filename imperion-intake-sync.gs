@@ -131,7 +131,8 @@ function impAppendOrelSource_(ss,r){
 function impEnsureRsvpPaymentCols_(sh){
  var h=impHeader_(sh);
  var required=['Requested_Tier','Quoted_Tier','Personal_Approval_At','Quoted_Base_CZK','Late_Fee_CZK',
-  'Quoted_Total_CZK','Quoted_Group_Size','Late_48h','Payment_Evidence_Status','Payment_Proof_Received_At'];
+  'Quoted_Total_CZK','Quoted_Group_Size','Late_48h','Payment_Evidence_Status','Payment_Proof_Received_At',
+  'Bank_Verified_At','Bank_Review_Code'];
  var missing=required.filter(function(k){return h.map[k]===undefined;});
  if(missing.length){
   var last=sh.getLastColumn();
@@ -145,7 +146,8 @@ function impEnsureRsvpPaymentCols_(sh){
  * Do not overwrite earlier consents, identities or manually verified bank status.
  */
 function impUpdateExistingRsvpProof_(sh,h,r){
- if(r.payment_evidence_status!=='PROOF_RECEIVED')return;
+ var verified=r.payment_evidence_status==='BANK_VERIFIED'&&!!r.bank_verified_at;
+ if(!verified&&r.payment_evidence_status!=='PROOF_RECEIVED')return;
  var keys={
   Requested_Tier:r.training_requested_tier||'',
   Quoted_Tier:r.quoted_tier||'',
@@ -155,8 +157,11 @@ function impUpdateExistingRsvpProof_(sh,h,r){
   Quoted_Total_CZK:r.quoted_total_czk||'',
   Quoted_Group_Size:r.quoted_confirmed_count||'',
   Late_48h:r.quoted_late_48h===true?'YES':'NO',
-  Payment_Evidence_Status:'PROOF_RECEIVED',
+  Payment_Evidence_Status:verified?'BANK_VERIFIED':'PROOF_RECEIVED',
   Payment_Proof_Received_At:impDate_(r.payment_evidence_received_at),
+  Bank_Review_Code:r.fio_bank_review_code||'',
+  ...(r.payment_variable_symbol?{Payment_Reference:r.payment_variable_symbol}:{}),
+  ...(verified?{Bank_Verified_At:impDate_(r.bank_verified_at),Payment_Status:'VERIFIED'}:{})
  };
  var col=h.map.Submission_ID+1,last=sh.getLastRow(),id=String(r.id||'');
  if(last<2)return;
@@ -169,7 +174,7 @@ function impUpdateExistingRsvpProof_(sh,h,r){
    sh.getRange(row,h.map[key]+1).setValue(impText_(keys[key]));
    if(keys[key] instanceof Date)sh.getRange(row,h.map[key]+1).setNumberFormat('dd.mm.yyyy hh:mm');
   });
-  if(sh.getRange(row,h.map.Payment_Evidence_Status+1).getDisplayValue()!=='PROOF_RECEIVED')
+  if(sh.getRange(row,h.map.Payment_Evidence_Status+1).getDisplayValue()!==keys.Payment_Evidence_Status)
    throw Error('Payment proof CRM readback failed');
   return;
  }
@@ -179,7 +184,7 @@ function impWriteRsvps_(ss,items,events){
   var sh=ss.getSheetByName('Registrations');if(!sh)throw Error('Missing Registrations');
   var h=(items||[]).some(function(r){return r&&Object.prototype.hasOwnProperty.call(r,'discovery_source');})?
    impEnsureRsvpAttribution_(sh):impHeader_(sh);
-  if((items||[]).some(function(r){return r && (r.payment_evidence_status==='PROOF_RECEIVED' ||
+  if((items||[]).some(function(r){return r && (['PROOF_RECEIVED','BANK_VERIFIED'].includes(r.payment_evidence_status) ||
     /^PUB-HEMA-/.test(String(r.event_id||'')));}))
    h=impEnsureRsvpPaymentCols_(sh);
   if(h.map.Submission_ID===undefined)throw Error('Missing Submission_ID');
@@ -193,7 +198,8 @@ function impWriteRsvps_(ss,items,events){
       if(!Object.prototype.hasOwnProperty.call(states,intent))throw Error('Invalid public RSVP intent');
       var event=events&&events[String(r.event_id||'')];
       var isFree=!!(event&&event.price_verified===true&&Number(event.price_czk)===0);
-      var paymentStatus=(intent==='NO'||isFree)?'NOT_REQUIRED':'PENDING';
+      var bankVerified=r.payment_evidence_status==='BANK_VERIFIED'&&!!r.bank_verified_at;
+      var paymentStatus=(intent==='NO'||isFree)?'NOT_REQUIRED':(bankVerified?'VERIFIED':'PENDING');
       impAppend_(sh,h,{
         Reg_ID:'WEB-'+id,Event_ID:r.event_id||'',Timestamp:impDate_(r.created_at),
         Full_Name:[r.first_name,r.last_name].filter(Boolean).join(' '),
@@ -206,6 +212,7 @@ function impWriteRsvps_(ss,items,events){
         Retention_Until:impDate_(r.retention_until),Submission_ID:id,
         RSVP_Status:states[intent],RSVP_Status_At:impDate_(r.created_at),
         Payment_Status:paymentStatus,
+        Payment_Reference:r.payment_variable_symbol||'',
         Reply_Contact:r.email||r.phone||'',
         Source_Channel:'WEBSITE_RSVP_SUPABASE_UNCONFIRMED',
         Email:r.email||'',First_Name:r.first_name||'',Last_Name:r.last_name||'',
@@ -225,11 +232,13 @@ function impWriteRsvps_(ss,items,events){
         Late_48h:r.quoted_late_48h===true?'YES':'NO',
         Payment_Evidence_Status:r.payment_evidence_status||'NOT_REQUIRED',
         Payment_Proof_Received_At:impDate_(r.payment_evidence_received_at),
+        Bank_Verified_At:impDate_(r.bank_verified_at),
+        Bank_Review_Code:r.fio_bank_review_code||'',
         Receipt_Status:'PENDING',Receipt_Attempts:0,Receipt_Locale:r.language||'cs'
       });
       existing[id]=true;added++;
       try{impAppendOrelSource_(ss,r);}catch(e){console.error('Orel source mirror unavailable');}
-    }else if(r.payment_evidence_status==='PROOF_RECEIVED'){
+    }else if(['PROOF_RECEIVED','BANK_VERIFIED'].includes(r.payment_evidence_status)){
       impUpdateExistingRsvpProof_(sh,h,r);
     }
     ids.push(id);
