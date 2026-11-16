@@ -78,5 +78,6 @@ test('BrnoWalkers opens with image hero before preserved dated notices',async({p
  expect(order.hero).toBeGreaterThanOrEqual(0);
  expect(order.announcement).toBeGreaterThan(order.hero);
  await expect(page.locator('#bw-december-proposals')).toContainText('NOT confirmed bookings');
- await expect(page.locator('#walkers .hero-ctas a.btn.solid')).toHaveAttribute('href',/register/);
+ await expect(page.locator('#walkers .hero-ctas a.btn.solid')).toHaveAttribute('href',/\.\.\/calendar\//);
+ await expect(page.locator('#bw-walktalk-nov-2026 a[href*="register/"]')).toHaveCount(1);
 });
