@@ -5,6 +5,7 @@
  */
 import { createClient } from 'npm:@supabase/supabase-js@2.112.3';
 import { verifiedBankIban, createTrainingSpd } from './training-qr.mjs';
+import { inspectPaymentPdf } from './payment-pdf-review.mjs';
 
 const ALLOWED_ORIGIN = 'https://aliaksei-chareshneu.github.io';
 const SERVICE_URL = Deno.env.get('SUPABASE_URL') || '';
@@ -404,6 +405,17 @@ Deno.serve(async (req:Request):Promise<Response>=>{
        body.quoteLockedAt!==verifiedQuote.quoteLockedAt||
        body.quotedTier!==savedTier)
       return reply({error:'quote_changed'},409,origin);
+    // Prevent reuse across RSVPs. The partial unique index closes concurrent races.
+    const reused=await api.from('imperion_rsvp_submissions').select('id')
+      .eq('payment_pdf_sha256',hash).neq('id',lookup.data.id).limit(1);
+    if(reused.error)return reply({error:'temporarily_unavailable'},503,origin);
+    if(reused.data?.length)return reply({error:'duplicate_payment_pdf'},409,origin);
+    // Automated comparison is an untrusted document review, NEVER bank settlement.
+    let review;
+    try{review=await inspectPaymentPdf(bytes,{
+      amountCzk:verifiedQuote.totalCzk,iban:approvedIban,
+      recipient:verifiedQuote.recipient,reference:lookup.data.id
+    });}catch{return reply({error:'invalid_payment_pdf'},400,origin);}
     const pdfPath=expiry.toISOString().slice(0,10)+'/'+crypto.randomUUID()+'.pdf';
     const upload=await api.storage.from(PROOF_BUCKET).upload(pdfPath,bytes,{
       contentType:'application/pdf',upsert:false,cacheControl:'0'});
@@ -415,6 +427,7 @@ Deno.serve(async (req:Request):Promise<Response>=>{
       quoted_confirmed_count:null,quoted_late_48h:verifiedQuote.late48h,
       quoted_tier:savedTier,payment_pdf_path:pdfPath,payment_pdf_sha256:hash,
       payment_evidence_status:'PROOF_RECEIVED',
+      payment_pdf_review_status:review.status,payment_pdf_review_flags:review.flags,
       payment_evidence_received_at:new Date().toISOString(),
       payment_resume_token_hash:null,payment_crm_synced_at:null
     }).eq('id',lookup.data.id).eq('payment_resume_token_hash',hashed)
@@ -422,7 +435,8 @@ Deno.serve(async (req:Request):Promise<Response>=>{
       .select('id').maybeSingle();
     if(save.error||!save.data){
       await api.storage.from(PROOF_BUCKET).remove([pdfPath]);
-      return reply({error:'proof_storage_unavailable'},503,origin);
+      const duplicate=save.error?.code==='23505';
+      return reply({error:duplicate?'duplicate_payment_pdf':'proof_storage_unavailable'},duplicate?409:503,origin);
     }
     receiptId=save.data.id;proofReceived=true;
   }else{
