@@ -95,7 +95,7 @@ export function planExactCredits(movements,pending){
     const created=Date.parse(q.created_at||'');
     const settled=Date.parse(tx.movementAt||'');
     if(!Number.isFinite(created)||!Number.isFinite(settled)||
-       settled < created-2*86400000 ||
+       new Date(settled).toISOString().slice(0,10)<new Date(created).toISOString().slice(0,10) ||
        settled > Date.now()+86400000){
       manual.push({id:q.id,reason:'CREDIT_DATE_MISMATCH'});continue;
     }
