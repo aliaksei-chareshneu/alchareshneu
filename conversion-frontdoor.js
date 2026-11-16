@@ -250,6 +250,8 @@
     return 'planned';
   }
   function group(e) {
+    // Grant workshops belong to a separate informal youth project, not paid club/walkers categories.
+    if (/^PUB-MVP-CALI-/.test(String(e.event_id||'')) || /^Morava v pohybu/.test(String(e.community||''))) return 'grant';
     var s=[e.community,e.category,e.title].join(' ').toLocaleLowerCase();
     if(/academy|education|language|course|tutor|exam|příprav|priprаv|výuka|vyuka|češtin|cestin|lekce/.test(s))return 'academy';
     if(/družin|druzin|hema|šerm|serm|fenc|larp|historick|archery|lukostřel/.test(s))return 'club';
@@ -275,6 +277,7 @@
     return window.ImperionEventI18n?.venue(e,lang) || e.venue || tr('controller');
   }
   function icon(e){
+    if(group(e)==='grant')return '💪';
     var s=[e.category,e.title].join(' ').toLowerCase();
     if(/board|deskov|настол|hry/.test(s))return '🎲';
     if(/archery|luk|стрель|bow/.test(s))return '🏹';
