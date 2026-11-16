@@ -99,7 +99,7 @@ jobs:
           node --test tests/imperion-registration-window.test.cjs
 
       - name: Verify individual Druzina prices, private quote, 48h surcharge and PDF receipts
-        run: node --test tests/druzina-unified-payment.test.cjs tests/druzina-pdf-proof-review.test.mjs
+        run: node --test tests/druzina-unified-payment.test.cjs tests/druzina-pdf-proof-review.test.mjs tests/druzina-fio-automation.test.mjs
 
       - name: Smoke-test deployed Druzina registration API without writes
         run: node --test tests/imperion-register-live-smoke.test.mjs
