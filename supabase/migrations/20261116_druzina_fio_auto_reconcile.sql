@@ -85,7 +85,7 @@ BEGIN
    AND s.payment_bank_check_after<=now()
    AND s.bank_verified_at IS NULL
    AND s.fio_bank_movement_id IS NULL
-   AND p_movement_at >= s.created_at-interval '2 days'
+   AND p_movement_at::date >= s.created_at::date
  RETURNING s.id INTO v_id;
  RETURN v_id IS NOT NULL;
 END $$;
