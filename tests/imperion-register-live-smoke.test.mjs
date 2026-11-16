@@ -13,7 +13,7 @@ test('deployed registration GET is healthy, no bank details or fake booking',asy
  for(const e of body.events){
    assert.equal(Object.hasOwn(e,'training_payment_account'),false,'no public bank account');
    assert.equal(Object.hasOwn(e,'training_payment_recipient'),false,'no public payee');
-   assert.equal(e.bookingConfirmed,true,false,'no events automatically booked');
+   assert.notEqual(e.bookingConfirmed,true,'no events automatically booked');
    if(e.community==='Družina Moravy'&&e.category==='HEMA Training'&&e.trainingPayment){
      assert.equal(e.trainingPayment.requiresPersonalConfirmation,true);
      assert.equal(e.trainingPayment.proofRequired,false);
