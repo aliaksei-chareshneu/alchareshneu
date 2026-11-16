@@ -133,7 +133,7 @@ test('QR Platba instruction is unique, amount-locked, and cannot substitute bank
  assert.equal(qr.createTrainingSpd(iban,0,one),null);
  assert.equal(qr.createTrainingSpd(iban,240,'not-a-uuid'),null);
  for(const check of ["Deno.env.get('DRUZINA_APPROVED_IBAN')","Deno.env.get('DRUZINA_APPROVED_PAYEE')",
-  "if(!spd)return reply({error:'approved_bank_not_configured'}","paymentReference:lookup.data.id,spd"])assert.ok(edge.includes(check),check);
+  "if(!spd)return reply({error:'approved_bank_not_configured'}","paymentReference:lookup.data.id,variableSymbol:vs,spd"])assert.ok(edge.includes(check),check);
  assert.ok(!edge.includes('2703598853/2010'),'verified real bank account must not be hardcoded in public code');
  for(const page of pages){
   const html=fs.readFileSync(page,'utf8');

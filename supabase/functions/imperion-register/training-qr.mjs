@@ -22,10 +22,12 @@ export function verifiedBankIban(account,recipient,expectedIban,expectedPayee) {
   return a&&b&&a===b&&typeof recipient==='string'&&typeof expectedPayee==='string'&&
     recipient.trim()&&recipient.trim()===expectedPayee.trim()?a:null;
 }
-export function createTrainingSpd(iban,amountCzk,reference) {
+export function createTrainingSpd(iban,amountCzk,reference,vs=null) {
   if(domesticIban(iban)!==iban||!Number.isSafeInteger(amountCzk)||
      amountCzk<1||amountCzk>9999999||typeof reference!=='string'||
-     !/^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/i.test(reference))return null;
+     !/^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/i.test(reference)||
+     (vs!==null&&!/^[1-9][0-9]{9}$/.test(String(vs))))return null;
   return 'SPD*1.0*ACC:'+iban+'*AM:'+amountCzk.toFixed(2)+
-    '*CC:CZK*MSG:DM '+reference.replace(/-/g,'').toUpperCase();
+    '*CC:CZK*MSG:DM '+reference.replace(/-/g,'').toUpperCase()+
+    (vs===null?'':'*X-VS:'+String(vs));
 }

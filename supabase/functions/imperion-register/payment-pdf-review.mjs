@@ -152,7 +152,10 @@ export async function inspectPaymentPdf(bytes,quote){
   if(!seenAmount)flags.push('AMOUNT_NOT_FOUND');
   if(!/\bCZK\b|\bKC\b/.test(text))flags.push('CURRENCY_NOT_FOUND');
   if(!compact.includes(quote.iban))flags.push('RECIPIENT_IBAN_NOT_FOUND');
-  if(!compact.includes(expectedRef))flags.push('REFERENCE_NOT_FOUND');
+  const numericVS=String(quote.variableSymbol||'');
+  const vsSeen=/^[1-9][0-9]{9}$/.test(numericVS)&&
+    new RegExp('(?:^|[^0-9])'+numericVS+'(?:[^0-9]|$)').test(text);
+  if(!compact.includes(expectedRef)&&!vsSeen)flags.push('REFERENCE_NOT_FOUND');
   if(!text.includes(folded(quote.recipient)))flags.push('RECIPIENT_NAME_NOT_FOUND');
   return {status:flags.length===0?'MATCHED_UNVERIFIED':'NEEDS_MANUAL_REVIEW',
     flags,bankVerified:false,confirmed:false};
