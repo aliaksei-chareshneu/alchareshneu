@@ -30,7 +30,7 @@ Deno.serve(async(req:Request):Promise<Response>=>{
  if(input?.action==='readiness'){
    const enabled=Deno.env.get('DRUZINA_FIO_AUTOMATION_ENABLED')==='YES';
    const token=Deno.env.get('DRUZINA_FIO_READONLY_TOKEN')||'';
-   const iban=(Deno.env.get('DRUZINA_APPROVED_IBAN')||'').replace(/\\s/g,'').toUpperCase();
+   const iban=(Deno.env.get('DRUZINA_APPROVED_IBAN')||'').replace(/\s/g,'').toUpperCase();
    const bank=Deno.env.get('DRUZINA_FIO_BANK_ID')||'';
    const account=Deno.env.get('DRUZINA_FIO_ACCOUNT_ID')||'';
    const payee=Deno.env.get('DRUZINA_APPROVED_PAYEE')||'';
@@ -39,8 +39,8 @@ Deno.serve(async(req:Request):Promise<Response>=>{
      readOnlyTokenConfigured:/^[A-Za-z0-9]{64}$/.test(token),
      readOnlyScopeOwnerConfirmed:Deno.env.get('DRUZINA_FIO_READONLY_CONFIRMED')==='YES',
      legalSellerOwnerConfirmed:Deno.env.get('DRUZINA_FIO_SELLER_CONFIRMED')==='YES',
-     bankIbanConfigured:/^CZ\\d{22}$/.test(iban),
-     bankIdentityConfigured:/^\\d{4}$/.test(bank)&&/^\\d{1,16}$/.test(account),
+     bankIbanConfigured:/^CZ\d{22}$/.test(iban),
+     bankIdentityConfigured:/^\d{4}$/.test(bank)&&/^\d{1,16}$/.test(account),
      payeeConfigured:payee.trim()==='Družina Moravy, z. s.'
    };
    const due=await api.from('imperion_rsvp_submissions')
