@@ -2,14 +2,15 @@
 const {test,expect}=require('@playwright/test');
 const ENDPOINT='https://cmrknyhnnehyjpreehcf.supabase.co/functions/v1/imperion-register';
 const UUID='11111111-1111-4111-8111-111111111111';
+const VS='7123456789';
 const IBAN='CZ6508000000192000145399';
-const SPD='SPD*1.0*ACC:'+IBAN+'*AM:240.00*CC:CZK*MSG:DM '+UUID.replace(/-/g,'').toUpperCase();
+const SPD='SPD*1.0*ACC:'+IBAN+'*AM:240.00*CC:CZK*MSG:DM '+UUID.replace(/-/g,'').toUpperCase()+'*X-VS:'+VS;
 
 const event={event_id:'PUB-HEMA-20261116',title:'Synthetic Monday training',community:'Družina Moravy',category:'HEMA Training',price_czk:240,begins_at:'2026-11-16T17:00:00Z',ends_at:'2026-11-16T19:00:00Z',venue:'Brno synthetic',rules_url:'https://example.invalid/terms',is_open:true,source_active:true,price_verified:true,end_time_verified:true,registration_mode:'FORM',trainingPayment:{sessionPaymentOpen:true,tiers:[{tier:'STANDARD',baseCzk:240,surchargeCzk:0,totalCzk:240}]}};
 const approved={ok:true,confirmed:false,trainingPayment:{tier:'STANDARD',baseCzk:240,
  surchargeCzk:0,totalCzk:240,late48h:false,quoteLockedAt:'2026-11-14T09:00:00Z',
  recipient:'Synthetic Test Association',account:'19-2000145399/0800',iban:IBAN,
- paymentReference:UUID,spd:SPD,proofRequired:true,bankVerified:false}};
+ paymentReference:UUID,variableSymbol:VS,spd:SPD,proofRequired:true,bankVerified:false}};
 for(const [lang,uri] of [['cs','/register/'],['en','/register/en/'],['ru','/register/ru/'],['uk','/register/uk/']]){
  test('bank instructions require private approved quote in '+lang,async({page})=>{
   await page.clock.install({time:new Date('2026-11-14T08:00:00Z')});
@@ -57,6 +58,7 @@ for(const [lang,uri] of [['cs','/register/'],['en','/register/en/'],['ru','/regi
   await expect(page.locator('#paymentQrArea')).toBeVisible();
   await expect(page.locator('#paymentQrCode canvas')).toHaveCount(1);
   await expect(page.locator('#paymentReference')).toContainText(UUID);
+  await expect(page.locator('#paymentReference')).toContainText(VS);
   await expect(page.locator('#paymentProofField')).toBeVisible();
   expect(quotes).toBe(1);
   await page.locator('#paymentResumeToken').fill('B'.repeat(43));
