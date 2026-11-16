@@ -10,6 +10,9 @@ BEGIN
  END IF;
 END $$;
 
+-- Service role must resolve the existing non-exposed private schema.
+GRANT USAGE ON SCHEMA private TO service_role;
+
 CREATE OR REPLACE FUNCTION private.verify_druzina_fio_cron_token(p_token text)
 RETURNS boolean LANGUAGE sql SECURITY DEFINER SET search_path=''
 AS $$
