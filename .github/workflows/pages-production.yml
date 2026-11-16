@@ -87,6 +87,12 @@ jobs:
           test -s _pages/imperion-finish.css
           test -s _pages/site-calendar-policy.js
           test -s _pages/site-reviews.js
+          test -s _pages/images/reviews/review_ekaterina_en.svg
+          test -s _pages/images/reviews/review_elmusso_en.svg
+          test -s _pages/images/reviews/review_nejc_en.svg
+          test -s _pages/images/reviews/review_olga_en.svg
+          test -s _pages/images/reviews/review_samsung_en.svg
+          test -s _pages/images/reviews/review_viktoria_en.svg
           test -s _pages/site-clarity-pages.js
           test -s _pages/site-clarity.css
           test -s _pages/site-conversion-v5.css
@@ -100,7 +106,7 @@ jobs:
           test -s _pages/academy/academy-choice-v4.js
           test -s _pages/academy/academy-choice-v4.css
           test -s _pages/partners/index.html
-          grep -Fq 'site-reviews.js?v=20261113e' _pages/index.html
+          grep -Fq 'site-reviews.js?v=20261116-en1' _pages/index.html
           grep -Fq 'academy-choice-v4.js?v=20261113d' _pages/academy/index.html
           grep -Fq 'site-calendar-policy.js?v=20261113c' _pages/register/index.html
           grep -Fq 'imperion-bootstrap.js?v=20261113b' _pages/index.html
@@ -334,6 +340,39 @@ jobs:
           fi
           echo 'VERIFIED LIVE: first paint guard, common static header, A2 dark quiz theme, and Academy catalogue assets are served' >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Verify live English Google review translations over HTTPS
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://aliaksei-chareshneu.github.io/alchareshneu"
+          js="$(mktemp)"; svg="$(mktemp)"
+          trap 'rm -f "$js" "$svg"' EXIT
+          ok=0
+          for attempt in 1 2 3 4 5 6 7 8; do
+            if curl -fsSL --max-time 25 "$base/site-reviews.js?verify=$GITHUB_SHA-$attempt" -o "$js" &&
+               grep -Fq "lang==='en'?'_en.svg':'.png'" "$js"; then
+              ok=1; break
+            fi
+            sleep 4
+          done
+          test "$ok" -eq 1
+          for name in ekaterina elmusso nejc olga samsung viktoria; do
+            ok=0
+            for attempt in 1 2 3 4 5 6 7 8; do
+              if curl -fsSL --max-time 25 "$base/images/reviews/review_${name}_en.svg?verify=$GITHUB_SHA-$attempt" -o "$svg" &&
+                 grep -Fq 'data:image/png;base64,' "$svg" &&
+                 grep -Fq 'English translation' "$svg"; then
+                ok=1; break
+              fi
+              sleep 4
+            done
+            if [ "$ok" -ne 1 ]; then
+              echo "English review asset not live: $name" >&2
+              exit 1
+            fi
+          done
+          echo 'VERIFIED LIVE: six English review graphics and language-aware JavaScript served over HTTPS' >> "$GITHUB_STEP_SUMMARY"
+
       - name: Verify live Academy service picker, calendar policy and reviews on public HTTPS
         shell: bash
         run: |
@@ -348,7 +387,7 @@ jobs:
                curl -fsSL --max-time 25 "$base/partners/?verify=$GITHUB_SHA" -o "$partner" &&
                curl -fsSL --max-time 25 "$base/academy/academy-choice-v4.js?verify=$GITHUB_SHA" -o "$picker" &&
                curl -fsSL --max-time 25 "$base/site-calendar-policy.js?verify=$GITHUB_SHA" -o "$policy" &&
-               grep -Fq 'site-reviews.js?v=20261113e' "$home" &&
+               grep -Fq 'site-reviews.js?v=20261116-en1' "$home" &&
                grep -Fq 'academy-choice-v4.js?v=20261113d' "$academ" &&
                grep -Fq 'Rodičovské vouchery' "$partner" &&
                grep -Fq 'academy-service-picker' "$picker" &&
