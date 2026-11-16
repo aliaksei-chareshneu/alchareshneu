@@ -7,6 +7,18 @@
 (function (root) {
   'use strict';
   const TITLES = {
+    'Morava v pohybu · Kalistenika I — základy zdarma': {
+      cs: 'Morava v pohybu · Kalistenika I — základy zdarma',
+      en: 'Morava v pohybu · Calisthenics I — free beginner workshop',
+      ru: 'Morava v pohybu · Калистеника I — бесплатные основы',
+      uk: 'Morava v pohybu · Калістеніка I — безкоштовні основи'
+    },
+    'Morava v pohybu · Kalistenika II — síla zdarma': {
+      cs: 'Morava v pohybu · Kalistenika II — síla zdarma',
+      en: 'Morava v pohybu · Calisthenics II — free strength workshop',
+      ru: 'Morava v pohybu · Калистеника II — бесплатное занятие на силу',
+      uk: 'Morava v pohybu · Калістеніка II — безкоштовне силове заняття'
+    },
     'Družina — техника и тактика (план)': {
       cs: 'Družina — technika a taktika (předběžný plán)',
       en: 'Družina — technique and tactics (tentative)',
@@ -93,6 +105,12 @@
     }
   };
   const VENUES = {
+    'Nová Zbrojovka, Brno — přesný sraz po potvrzení': {
+      cs: 'Nová Zbrojovka, Brno — přesný sraz po potvrzení',
+      en: 'Nová Zbrojovka, Brno — meeting point only after confirmation',
+      ru: 'Nová Zbrojovka, Брно — точка сбора после подтверждения',
+      uk: 'Nová Zbrojovka, Брно — місце збору після підтвердження'
+    },
     'Nová Zbrojovka, Brno (точка не подтверждена)': {
       cs: 'Nová Zbrojovka, Brno (přesné místo srazu nepotvrzeno)',
       en: 'Nová Zbrojovka, Brno (exact meeting point unconfirmed)',
@@ -156,6 +174,20 @@
     return original;
   }
   const NOTES = {
+    'PUB-MVP-CALI-20261124': {
+      check: 'NEZÁVAZNÁ PŘIHLÁŠKA NA BEZPLATNÝ WORKSHOP.',
+      cs: 'Bezplatná kalistenika I pro mládež: nezávazná přihláška online. Přesný sraz, počasí, bezpečnost povrchu, vedení a osobní účast potvrdíme jednotlivě. Nejezděte bez potvrzení; nezletilí potřebují souhlas rodiče. Žádná platba.',
+      en: 'Free youth calisthenics I: submit an online participation request. Exact meeting point, weather, safe ground, adult supervision and individual places require confirmation. Do not travel without confirmation; minors need parental consent. No payment.',
+      ru: 'Бесплатная калистеника I для молодёжи: отправьте заявку на сайте. Точка сбора, погода, безопасность, взрослые руководители и участие подтверждаются индивидуально. Не приезжайте без подтверждения; несовершеннолетним нужно согласие родителей.',
+      uk: 'Безкоштовна калістеніка I для молоді: подайте заявку на сайті. Місце збору, погода, безпека та участь підтверджуються індивідуально. Не приїжджайте без підтвердження; неповнолітнім потрібна згода батьків.'
+    },
+    'PUB-MVP-CALI-20261126': {
+      check: 'NEZÁVAZNÁ PŘIHLÁŠKA NA BEZPLATNÝ WORKSHOP.',
+      cs: 'Bezplatná kalistenika II pro mládež: nezávazná přihláška online. Přesný sraz, počasí, bezpečnost povrchu, vedení a osobní účast potvrdíme jednotlivě. Nejezděte bez potvrzení; nezletilí potřebují souhlas rodiče. Žádná platba.',
+      en: 'Free youth calisthenics II: submit an online participation request. Exact meeting point, weather, safe ground, adult supervision and individual places require confirmation. Do not travel without confirmation; minors need parental consent. No payment.',
+      ru: 'Бесплатная калистеника II для молодёжи: отправьте заявку на сайте. Точка сбора, погода, безопасность, взрослые руководители и участие подтверждаются индивидуально. Не приезжайте без подтверждения; несовершеннолетним нужно согласие родителей.',
+      uk: 'Безкоштовна калістеніка II для молоді: подайте заявку на сайті. Місце збору, погода, безпека та участь підтверджуються індивідуально. Не приїжджайте без підтвердження; неповнолітнім потрібна згода батьків.'
+    },
     'PUB-WALK-20261117': {
       check: 'Ранние места 390 Kč / стандарт 490 Kč',
       cs: 'Placená vycházka 18+. Zvýhodněná místa za 390 Kč, běžná cena 490 Kč; nejvýše 18 účastníků. Koná se od 8 skutečně platících osob. Zájem vyjádřený e-mailem není rezervace; organizace a platba se domlouvají zvlášť.',
