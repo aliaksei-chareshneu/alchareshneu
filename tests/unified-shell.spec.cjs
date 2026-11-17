@@ -187,3 +187,165 @@ test('Walkers historic cancelled hike is a collapsed archival refund notice belo
  await notice.locator('summary').click();
  await expect(notice.locator('a[href^="mailto:"]')).toBeVisible();
 });
+
+test('Shared navigation follows in-page locale switches and saved locale',async({page})=>{
+ await mockPublicEvents(page);
+ await page.goto('/druzina/?lang=cs');
+ await expect(page.locator('#imp-shell-links [data-imp-link="home"]')).toHaveText('Úvod');
+ // The legacy page selector is visually retired by the unified shell, but still
+ // dispatches the original local rendering logic.
+ await page.evaluate(()=>document.querySelector('#langSwitch button[data-lang="ru"]').click());
+ await expect(page.locator('html')).toHaveAttribute('lang','ru');
+ await expect(page.locator('#imp-shell-links [data-imp-link="home"]')).toHaveText('Главная');
+ await expect(page.locator('#imp-shell-top [data-imp-lang="ru"]')).toHaveAttribute('aria-current','true');
+ await expect(page.locator('#imp-shell-links [data-imp-link="academy"]')).toHaveAttribute('href',/lang=ru/);
+ await expect(page.locator('#imp-shell-top .imp-shell-logo-copy small')).toContainText('ИСТОРИЯ');
+ await page.goto('/academy/');
+ await expect(page.locator('html')).toHaveAttribute('lang','ru');
+ await expect(page.locator('#imp-shell-links [data-imp-link="home"]')).toHaveText('Главная');
+});
+
+const localeIntegrity={
+ cs:{home:'Úvod',corporate:'Poptat nabídku →',skip:'Přejít k obsahu'},
+ en:{home:'Home',corporate:'Request a proposal →',skip:'Skip to content'},
+ ru:{home:'Главная',corporate:'Запросить предложение →',skip:'Перейти к содержанию'},
+ uk:{home:'Головна',corporate:'Запросити пропозицію →',skip:'Перейти до вмісту'}
+};
+for(const [code,expected] of Object.entries(localeIntegrity)){
+ test('No mixed-language public labels in '+code,async({page})=>{
+  await mockPublicEvents(page);
+  await page.goto('/druzina/?lang='+code);
+  await expect(page.locator('html')).toHaveAttribute('lang',code);
+  await expect(page.locator('#imp-shell-links [data-imp-link="home"]')).toHaveText(expected.home);
+  // This legacy registration block is intentionally hidden by the current
+  // conversion-first design. Verify child locale gating via computed style,
+  // not Playwright :visible, which also counts hidden ancestors.
+  const regLanguages=await page.locator('#new-training-enquiry [data-reg-lang]').evaluateAll(nodes=>
+   nodes.filter(x=>getComputedStyle(x).display!=='none').map(x=>x.dataset.regLang));
+  expect(regLanguages).toEqual([code,code,code]);
+  const hubLanguages=await page.locator('#november-events-hub [data-november-lang]').evaluateAll(nodes=>
+   nodes.filter(x=>getComputedStyle(x).display!=='none').map(x=>x.dataset.novemberLang));
+  expect(hubLanguages).toEqual([code]);
+  const safetyCtas=await page.locator('.dm-safety-language-cta [data-safety-link-lang]').evaluateAll(nodes=>
+   nodes.filter(x=>getComputedStyle(x).display!=='none').map(x=>({lang:x.dataset.safetyLinkLang,href:x.getAttribute('href')})));
+  expect(safetyCtas).toEqual([{lang:code,href:'safety/?lang='+code}]);
+
+  await page.goto('/academy/?lang='+code);
+  const shown=await page.locator('.tab-btn [data-courses-nav-lang]').evaluateAll(nodes=>
+   nodes.filter(x=>getComputedStyle(x).display!=='none').map(x=>x.dataset.coursesNavLang));
+  expect(shown).toEqual([code]);
+
+  await page.goto('/corporate/?lang='+code);
+  const corporate=page.locator('.revenue-row a.btn.solid[href^="mailto:"][data-locale]:visible');
+  await expect(corporate).toHaveCount(1);
+  await expect(corporate).toHaveText(expected.corporate);
+
+  await page.goto('/register/?lang='+code);
+  // The historical 28 October cancellation notice expires on 4 November 2026.
+  // Do not assert its translations: the live script intentionally removes it.
+  await expect(page.locator('#bw-cancel-20261028')).toHaveCount(0);
+
+  await page.goto('/druzina/novinky/?lang='+code);
+  await expect(page.locator('a.skip-link')).toHaveText(expected.skip);
+ });
+}
+
+for(const [code,expected] of Object.entries({
+ cs:'Ceník tréninků Družina Moravy',
+ en:'Družina Moravy training prices',
+ ru:'Цены на тренировки Družina Moravy',
+ uk:'Ціни на тренування Družina Moravy'
+})){
+ test('Training price page uses '+code+' throughout visible copy and correct registration URLs',async({page})=>{
+  await page.goto('/druzina/permanentky/?lang='+code);
+  await expect(page.locator('html')).toHaveAttribute('lang',code);
+  await expect(page.locator('body > header:not(#imp-shell-top) h1')).toHaveText(expected);
+  await expect(page.locator('#current-training-prices .notice p[lang]:visible')).toHaveCount(1);
+  await expect(page.locator('#current-training-prices .notice p[lang="'+code+'"]')).toBeVisible();
+  await expect(page.locator('section[aria-labelledby="languages-pricing"] details:visible')).toHaveCount(1);
+  await expect(page.locator('.price-grid .price')).toHaveCount(3);
+  await expect(page.locator('.price-grid .price .big')).toHaveText(['240 Kč','120 Kč','800 Kč']);
+  for(const link of await page.locator('.price-grid .act').all()){
+   await expect(link).toHaveAttribute('href','../../register/?lang='+code);
+  }
+  await expect(page.locator('#imp-shell-links [data-imp-link="home"]')).toHaveText(localeIntegrity[code].home);
+ });
+}
+
+for(const code of ['cs','en','ru','uk']){
+ test('Druzina training paths do not mix languages in '+code,async({page})=>{
+  await page.goto('/druzina/cesty/?lang='+code);
+  await expect(page.locator('html')).toHaveAttribute('lang',code);
+  await expect(page.locator('#spolecne-temy h2 [data-shared-lang]:visible')).toHaveCount(1);
+  await expect(page.locator('#spolecne-temy h2 [data-shared-lang="'+code+'"]')).toBeVisible();
+  await expect(page.locator('#spolecne-temy > div[data-shared-lang]:visible')).toHaveCount(1);
+  await expect(page.locator('#training-programme-archive [data-status-lang]:visible')).toHaveCount(1);
+  await expect(page.locator('#training-programme-archive [data-status-lang="'+code+'"]')).toBeVisible();
+  await expect(page.locator('#spolecne-temy div[data-shared-lang="'+code+'"] a').first()).toHaveAttribute('href','../rules/?lang='+code);
+ });
+}
+
+for(const code of ['cs','en','ru','uk']){
+ test('Safety briefing shows only chosen language '+code,async({page})=>{
+  await page.goto('/druzina/safety/?lang='+code);
+  await expect(page.locator('html')).toHaveAttribute('lang',code);
+  await expect(page.locator('main h1 [data-safety-ui]:visible')).toHaveCount(1);
+  await expect(page.locator('main > section[lang]:visible')).toHaveCount(1);
+  await expect(page.locator('main > section[lang="'+code+'"]')).toBeVisible();
+  await expect(page.locator('#safety-contact [data-safety-ui]:visible')).toHaveCount(1);
+  await expect(page.locator('#safety-contact [data-safety-ui="'+code+'"]')).toBeVisible();
+  await expect(page.locator('main > .notice:first-of-type [data-safety-ui]:visible')).toHaveCount(1);
+  await expect(page.locator('main #ru h3').last()).toContainText('Страховка');
+  if(code!=='ru')await expect(page.locator('main #ru h3:visible')).toHaveCount(0);
+ });
+}
+
+for(const code of ['cs','en','ru','uk']){
+ test('Registration privacy notice remains one language in '+code,async({page})=>{
+  await page.goto('/register/privacy/?lang='+code);
+  await expect(page.locator('html')).toHaveAttribute('lang',code);
+  await expect(page.locator('main h1 [data-privacy-ui]:visible')).toHaveCount(1);
+  await expect(page.locator('main h1 [data-privacy-ui="'+code+'"]')).toBeVisible();
+  await expect(page.locator('main > section[lang]:visible')).toHaveCount(1);
+  await expect(page.locator('main > section[lang="'+code+'"]')).toBeVisible();
+  await expect(page.locator('#privacy-back')).toHaveAttribute('href','../?lang='+code);
+ });
+}
+
+for(const code of ['cs','en','ru','uk']){
+ test('Registration safety content and safety links follow '+code,async({page})=>{
+  await page.goto('/register/safety/?lang='+code);
+  await expect(page.locator('html')).toHaveAttribute('lang',code);
+  await expect(page.locator('main > section[lang]:visible')).toHaveCount(1);
+  await expect(page.locator('main > section[lang="'+code+'"]')).toBeVisible();
+  await expect(page.locator('main h1 [data-safety-i18n]:visible')).toHaveCount(1);
+  await expect(page.locator('main h1 [data-safety-i18n="'+code+'"]')).toBeVisible();
+  await expect(page.locator('#safety-return-top')).toHaveAttribute('href',new RegExp('lang='+code+'$'));
+  const href=await page.locator('main > section[lang="'+code+'"] a[href*="/druzina/safety/"]').getAttribute('href');
+  expect(href).toMatch(new RegExp('lang='+code+'$'));
+  const next={cs:'en',en:'ru',ru:'uk',uk:'cs'}[code];
+  await page.locator('main > nav[aria-label="Language"] a[href="#'+next+'"]').click();
+  await expect(page.locator('html')).toHaveAttribute('lang',next);
+  await expect(page.locator('main > section[lang="'+next+'"]')).toBeVisible();
+  await expect(page.locator('#safety-return-bottom')).toHaveAttribute('href',new RegExp('lang='+next+'$'));
+ });
+}
+
+for(const [code,expected] of Object.entries({
+ be:'Галоўная',
+ sk:'Úvod'
+})){
+ test('Ranks language '+code+' synchronizes the shared header without exporting unsupported site locales',async({page})=>{
+  await page.goto('/druzina/ranks.html?lang='+code);
+  await expect(page.locator('html')).toHaveAttribute('lang',code);
+  await expect(page.locator('.panel:not([hidden])')).toHaveCount(1);
+  await expect(page.locator('.panel:not([hidden])')).toHaveAttribute('data-locale',code);
+  await expect(page.locator('#imp-shell-links [data-imp-link="home"]')).toHaveText(expected);
+  await expect(page.locator('#imp-shell-top [data-imp-lang="'+code+'"]')).toHaveAttribute('aria-current','true');
+  await expect(page.locator('#imp-shell-links [data-imp-link="home"]')).toHaveAttribute('href',/lang=cs/);
+  const next=code==='be'?'sk':'be';
+  await page.locator('nav.langs button[data-lang="'+next+'"]').click();
+  await expect(page.locator('html')).toHaveAttribute('lang',next);
+  await expect(page.locator('#imp-shell-top [data-imp-lang="'+next+'"]')).toHaveAttribute('aria-current','true');
+ });
+}
