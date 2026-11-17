@@ -1,8 +1,8 @@
 # IMPERION public job scout — free cloud pilot
 
-**Status: DRAFT / public discovery only; NOT an auto-application service.**
+**Status: owner GO 2026-11-17 to merge and enable daily PUBLIC discovery only; NOT an auto-application service.**
 Owner: individual job applicant (not Družina Moravy z.s.). Reviewed 2026-11-17.
-No new database, agent, account, scheduler, subscription, model or API key.
+No new database, agent, account, external scheduler, subscription, model or API key. The schedule uses existing GitHub Actions.
 
 ## What already exists / why this adapter
 
@@ -15,7 +15,7 @@ This adapter checks one employer's **public** job index, reads at most four inde
 
 ## Choice of implementation
 
-**A — REUSE/ADAPT (chosen for review):** standard GitHub Actions runner + existing Node.js dependencies, with a tiny official-source adapter. Public standard runners are free in public repos; account-specific storage/limits and GitHub terms still apply. No schedule in this PR. The new workflow is PR QA / manual-only, not a new scheduler.
+**A — REUSE/ADAPT (owner approved):** standard GitHub Actions runner + existing Node.js dependencies, with a tiny official-source adapter. Public standard runners are free in public repos; account-specific storage/limits and GitHub terms still apply. Daily schedule at **07:17 UTC** (08:17 CET / 09:17 CEST, GitHub best-effort) on the default branch; a one-off push-to-main smoke verifies activation. No new external scheduler.
 
 **B — ADAPT after private approval:** keep public discovery on Actions, but do private CV tailoring, history checks and official application submission through the *existing* authorized private Gmail/Browser Bridge/CRM paths, with site-specific permissions, anti-bot policy and explicit owner GO. A Windows-hosted Browser Bridge does not work with the PC off; an independent cloud browser for private submission is not verified. Do not migrate cookies, CV or secrets to public Actions.
 
@@ -24,17 +24,17 @@ This adapter checks one employer's **public** job index, reads at most four inde
 ## Acceptance and evidence
 
 1. Synthetic Node tests PASS in an independent GitHub Actions job: allowlisted URLs, dedup, date extraction, robots rules, no POST, zero CV upload, no private data, no submission.
-2. A **separate** public-source smoke may return PUBLIC_SOURCE_READBACK with counts of actual MUNI pages, or PUBLIC_SOURCE_BLOCKED. CI passing with smoke marked continue-on-error **is not** proof of a live source read.
+2. Public-source smoke returns PUBLIC_SOURCE_READBACK with counts of actual MUNI pages and up to ten public vacancy links in the Actions job summary, or PUBLIC_SOURCE_BLOCKED. For PR checks only, source smoke is continue-on-error and requires separate readback. For **scheduled** and **push-to-main** runs, a failed public source read makes the workflow FAIL.
 3. The output status is always PUBLIC_DISCOVERY_ONLY. It does not prove HPP, insurance, fit, salary, newness versus Gmail/03, or a submitted application.
 4. Before real applications: verify official source and terms; privately compare against Inbox/SENT and canonical 03; confirm skills and CV; obtain exact owner GO; submit through the official form; verify a confirmation email or employer/portal receipt. Never infer success from a click or filled field.
 5. Stop on CAPTCHA/2FA, disallowed robots or anti-bot controls; never bypass them.
-6. Keep the pilot reversible: close the Draft PR to discard; do not merge, enable a schedule, alter permissions or change production without separate authorization.
+6. The owner explicitly authorized **merge + daily public MUNI discovery only** on 2026-11-17. No approval for any private applicant-data handling, automatic application, email, portal login, paid service or extra source. Rollback: revert the merge/schedule commit or disable this GitHub Actions workflow. Never enable automatic real submissions without a new GO.
 
 ## Manual development commands (after code checkout)
 
     npm ci --ignore-scripts --no-audit --no-fund
     node --test tests/imperion-job-scout.test.cjs
-    node ops/job-scout/muni-public.cjs --live --pages 1 --details 2 --out /tmp/imperion-public-job-scout.json
+    node ops/job-scout/muni-public.cjs --live --pages 1 --details 10 --out /tmp/imperion-public-job-scout.json
 
 The --live flag is an explicit opt-in for a bounded, read-only source fetch. It does not submit a form. No CV is required or accepted.
 
@@ -46,7 +46,7 @@ The --live flag is an explicit opt-in for a bounded, read-only source fetch. It 
 
 ## Remaining blockers
 
-- Real MUNI robots.txt and GitHub runner HTTP readback, source-specific parser QA.
+- Real MUNI robots.txt and GitHub runner HTTP readback: **VERIFIED** by GitHub Actions run 44068457035 (prior run 44068158933: 10 links / 2 detail pages); future daily readback and new-vacancy coverage still require monitoring.
 - Site terms for automated discovery and any applicant-form automation.
 - Private, authenticated and secure CV/applicant data handling independent of public CI.
 - Official receipt readback from each employer.
