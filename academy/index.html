@@ -82,6 +82,13 @@ html:lang(en) #service-choice-consultation .choice-copy[lang=en],html:lang(cs) #
 <script src="academy-service-catalog.js?v=20261113d" defer></script>
 <script src="academy-choice-v4.js?v=20261113d" defer></script>
 <link rel="stylesheet" href="../visual-first.css?v=20261116a">
+<style>
+.tab-btn [data-courses-nav-lang]{display:none}
+html[lang="cs"] .tab-btn [data-courses-nav-lang="cs"],
+html[lang="en"] .tab-btn [data-courses-nav-lang="en"],
+html[lang="ru"] .tab-btn [data-courses-nav-lang="ru"],
+html[lang="uk"] .tab-btn [data-courses-nav-lang="uk"]{display:inline}
+</style>
 </head>
 <body data-imperion-scope="shared" data-imperion-design="academy">
 <a class="skip-link" href="#page-content" data-exp="skip">Skip to content</a>
@@ -113,7 +120,7 @@ html:lang(en) #service-choice-consultation .choice-copy[lang=en],html:lang(cs) #
     <a class="tab-btn" href="../" data-i18n="tabs.main">Home</a>
     <a class="tab-btn" href="../walkers/" data-i18n="tabs.walkers">BrnoWalkers</a>
     <a class="tab-btn active" aria-current="page" href="../academy/" data-i18n="tabs.academy">Academy</a>
-    <a class="tab-btn" href="courses/">Courses / Kurzy / Курсы</a>
+    <a class="tab-btn" href="courses/"><span lang="cs" data-courses-nav-lang="cs">Kurzy</span><span lang="en" data-courses-nav-lang="en">Courses</span><span lang="ru" data-courses-nav-lang="ru">Курсы</span><span lang="uk" data-courses-nav-lang="uk">Курси</span></a>
     <a class="tab-btn" href="programmes/?utm_source=academy_nav&amp;utm_medium=site&amp;utm_campaign=life_milestones_20261105">Admission · Exams · Career</a>
     <a class="tab-btn" href="../druzina/" data-i18n="tabs.druzina">Družina Moravy</a>
     <a class="tab-btn" href="../calendar/" data-i18n="tabs.calendar">Calendar</a>
