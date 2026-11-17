@@ -101,6 +101,25 @@ test('Czech named-month deadlines are parsed and old postings excluded', () => {
   assert.equal(upcoming.expired, false);
 });
 
+test('explicit German MA and C1 requirement is a qualification gate, not a 0.5 FTE match', () => {
+  const item = {
+    title: 'Lektor/lektorka pro Katedru dalších cizích jazyků (úvazek 0,5)',
+    url: 'https://www.muni.cz/o-univerzite/kariera-na-mu/volna-mista/81955',
+  };
+  const body = '<html><body><main><h1>' + item.title + '</h1>' +
+    '<p>Termín přihlášek 11. prosince 2026</p>' +
+    '<p>Absolvent magisterského studia programu v oblasti německého jazyka</p>' +
+    '<p>Schopnost vyučovat v českém a německém jazyce (minimální úroveň C1)</p>' +
+    '</main></body></html>';
+  const flagged = scout.parseDetail(body, item, new Date('2026-11-17T11:00:00Z'));
+  assert.equal(flagged.deadline, '2026-12-11');
+  assert.equal(flagged.half_fte_explicit, true);
+  assert.equal(flagged.qualification_gate, 'GERMAN_LANGUAGE_MA_AND_C1');
+  const ordinary = scout.parseDetail(halfTitleHtml, item, new Date('2026-11-17T11:00:00Z'));
+  assert.equal(ordinary.qualification_gate, null);
+  assert.ok(flagged.score < ordinary.score);
+});
+
 test('unknown deadline is explicitly unverified, not silently fabricated', () => {
   const item = {
     title: 'Koordinátor',
