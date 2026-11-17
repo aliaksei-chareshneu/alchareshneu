@@ -29,6 +29,11 @@
   // Some informational pages have four dedicated language sections rather than buttons.
   if(!supported.length&&document.querySelector('[data-locale="cs"], [data-dm-hero-all-lang="cs"]'))
     supported=['cs','en','ru','uk'];
+  // Explicit single-language documents must not show a Russian/Czech shell above untranslated English/Czech copy.
+  // These routes are not offered as multilingual until their substantive content is translated.
+  var monolingual=/^(?:(?:shop\/(?:ai-workflow-roi|csv-rescue|legal|thanks|guides\/(?:automation-payback|csv-data-quality)))\/?|(?:brno-stories\/(?:weekly|tanec-draku-2026))\/?|(?:platform-evidence(?:\/sample)?)\/?|autopilot\/?|corporate\/travel-audit\/?)(?:index\.html)?$/.test(path);
+  if(monolingual)supported=[document.documentElement.lang];
+  if(!supported.length&&document.querySelector('main > section[lang="cs"]')&&document.querySelector('main > section[lang="en"]'))supported=['cs','en','ru','uk'];
   var q=new URLSearchParams(location.search),request=q.get('lang');
   var routeLang=registerIndex?(path.match(/^register\/(en|ru|uk)\//)||[])[1]:null;
   var lang=copy[routeLang]?routeLang:copy[request]&&(!supported.length||supported.indexOf(request)>=0)?request:

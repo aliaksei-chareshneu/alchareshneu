@@ -68,6 +68,19 @@ uk:{
 }};
 var query=new URLSearchParams(location.search),lang=dict[query.get('lang')]?query.get('lang'):'en',t=dict[lang];
 document.documentElement.lang=lang;
+// The shop landing has four translated variants. Do not leave English navigation or an incorrect main locale.
+var shopNav={
+ en:{brand:'Digital tools',links:['Store','Free guides','Terms & contact','Main website'],title:'Digital products for researchers and businesses'},
+ cs:{brand:'Digitální nástroje',links:['Obchod','Bezplatné návody','Podmínky a kontakt','Hlavní web'],title:'Digitální produkty pro výzkumníky a firmy'},
+ ru:{brand:'Цифровые инструменты',links:['Магазин','Бесплатные руководства','Условия и контакты','Главный сайт'],title:'Цифровые продукты для исследователей и компаний'},
+ uk:{brand:'Цифрові інструменти',links:['Магазин','Безплатні посібники','Умови й контакти','Головний сайт'],title:'Цифрові продукти для дослідників і компаній'}
+};
+var navCopy=shopNav[lang],brand=document.querySelector('header.nav > .wrap > a');
+if(brand)brand.textContent='Aliaksei Chareshneu · '+navCopy.brand;
+document.querySelectorAll('header.nav .nav-links > a').forEach(function(a,i){if(navCopy.links[i])a.textContent=navCopy.links[i]});
+var shopMain=document.querySelector('main[data-locale]');if(shopMain)shopMain.dataset.locale=lang;
+document.title=navCopy.title+' | Aliaksei Chareshneu';
+
 function set(s,v){var el=document.querySelector(s);if(el)el.textContent=v;}
 var hero=['.hero .eyebrow','.hero h1','.hero .wrap>p'];hero.forEach(function(sel,i){set(sel,t.hero[i]);});
 Array.from(document.querySelectorAll('.cards article.card')).slice(0,2).forEach(function(card,i){
