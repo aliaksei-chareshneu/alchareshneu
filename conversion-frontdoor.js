@@ -337,10 +337,9 @@
   function matches(e){return (filter==='all'||group(e)===filter)&&(city==='all'||eventCity(e)===city);}
   function isSuppressed(e){
     var date=String(e.begins_at||'').slice(0,10);
-    // Owner decision: regular Saturday HEMA is suspended from 7 Nov until separately reinstated.
-    // Free Orel 14 Nov is a distinct approved workshop, not a regular Saturday session.
-    var clubSaturday=e.category==='HEMA Training'&&group(e)==='club'&&e.event_id!=='PUB-OREL-20261114'&&new Date(e.begins_at).getUTCDay()===6;
-    return clubSaturday||date==='2026-11-15'||date==='2026-11-17'||e.event_id==='BW-PAID-20261028'||e.event_id==='COM-HIKE-20261028';
+    // Saturday HEMA is governed by each verified server event gate, not an obsolete global weekday ban.
+    // Keep only the owner-cancelled historic days and unrelated cancelled walk exclusions.
+    return date==='2026-11-15'||date==='2026-11-17'||e.event_id==='BW-PAID-20261028'||e.event_id==='COM-HIKE-20261028';
   }
   function displayData(y,m){
     // Fail closed while public catalogue is loading or unavailable; no synthetic events.
