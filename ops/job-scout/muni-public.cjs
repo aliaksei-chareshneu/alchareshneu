@@ -111,10 +111,18 @@ function parseDetail(html, item, now = new Date()) {
   const half = /(?:0[,.]5\s*(?:[-–]\s*1[,.]0)?\s*(?:FTE|úvaz(?:ek|ku)))|(?:úvaz(?:ek|ku)\s*0[,.]5)/i.test(body + ' ' + title);
   const partTime = half || /(?:Typ úvazku.{0,70}částečný|Částečný úvazek)/i.test(body);
   const expired = deadline ? deadline < todayPrague(now) : false;
-  const score = titleScore(title) + (half ? 35 : partTime ? 15 : 0) - (expired ? 100 : 0);
+  // This is a public advert requirement, not a claim about any applicant's skills.
+  // Explicit specialized credentials must not be mistaken for a generic 0.5 FTE fit.
+  const germanDegreeAndC1 =
+    /magistersk[eé]ho studia.{0,110}německého jazyka/i.test(body) &&
+    /(?:úroveň C1|rodilý mluvčí)/i.test(body);
+  const qualificationGate = germanDegreeAndC1 ? 'GERMAN_LANGUAGE_MA_AND_C1' : null;
+  const score = titleScore(title) + (half ? 35 : partTime ? 15 : 0) -
+    (expired ? 100 : 0) - (qualificationGate ? 100 : 0);
   return {
     title, url: allowedUrl(item.url, 'detail'), deadline,
     deadline_verified: Boolean(deadline),
+    qualification_gate: qualificationGate,
     part_time_advertised: partTime, half_fte_explicit: half,
     expired, score,
     hpp_confirmed: false, insurance_confirmed: false,
@@ -248,6 +256,7 @@ async function main(args = process.argv.slice(2)) {
       deadline: job.deadline || 'NOT_VERIFIED',
       half_fte_explicit: job.half_fte_explicit,
       part_time_advertised: job.part_time_advertised,
+      qualification_gate: job.qualification_gate || 'NOT_ASSESSED',
       title_score: job.score, status: job.status,
     }));
   }
