@@ -100,6 +100,8 @@ for(const file of allFiles.filter(x=>!excluded.has(x))){
     }
    }
    if(file==='druzina/index.html'){
+    // The training CTA is below the fold; inspect it once scrolled into the rendered viewport.
+    await page.locator('#new-training-enquiry').evaluate(el=>el.scrollIntoView({block:'center'}));
     const links=page.locator('#new-training-enquiry .dm-book-actions a[data-book-lang]:visible');
     const snapshot=await page.evaluate(()=>{
      const section=document.querySelector('#new-training-enquiry');
