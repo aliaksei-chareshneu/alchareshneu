@@ -295,3 +295,15 @@ for(const code of ['cs','en','ru','uk']){
   if(code!=='ru')await expect(page.locator('main #ru h3:visible')).toHaveCount(0);
  });
 }
+
+for(const code of ['cs','en','ru','uk']){
+ test('Registration privacy notice remains one language in '+code,async({page})=>{
+  await page.goto('/register/privacy/?lang='+code);
+  await expect(page.locator('html')).toHaveAttribute('lang',code);
+  await expect(page.locator('main h1 [data-privacy-ui]:visible')).toHaveCount(1);
+  await expect(page.locator('main h1 [data-privacy-ui="'+code+'"]')).toBeVisible();
+  await expect(page.locator('main > section[lang]:visible')).toHaveCount(1);
+  await expect(page.locator('main > section[lang="'+code+'"]')).toBeVisible();
+  await expect(page.locator('#privacy-back')).toHaveAttribute('href','../?lang='+code);
+ });
+}
