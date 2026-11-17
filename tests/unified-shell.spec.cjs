@@ -187,3 +187,56 @@ test('Walkers historic cancelled hike is a collapsed archival refund notice belo
  await notice.locator('summary').click();
  await expect(notice.locator('a[href^="mailto:"]')).toBeVisible();
 });
+
+test('Shared navigation follows in-page locale switches and saved locale',async({page})=>{
+ await mockPublicEvents(page);
+ await page.goto('/druzina/?lang=cs');
+ await expect(page.locator('#imp-shell-links [data-imp-link="home"]')).toHaveText('Úvod');
+ // The legacy page selector is visually retired by the unified shell, but still
+ // dispatches the original local rendering logic.
+ await page.evaluate(()=>document.querySelector('#langSwitch button[data-lang="ru"]').click());
+ await expect(page.locator('html')).toHaveAttribute('lang','ru');
+ await expect(page.locator('#imp-shell-links [data-imp-link="home"]')).toHaveText('Главная');
+ await expect(page.locator('#imp-shell-top [data-imp-lang="ru"]')).toHaveAttribute('aria-current','true');
+ await expect(page.locator('#imp-shell-links [data-imp-link="academy"]')).toHaveAttribute('href',/lang=ru/);
+ await expect(page.locator('#imp-shell-top .imp-shell-logo-copy small')).toContainText('ИСТОРИЯ');
+ await page.goto('/academy/');
+ await expect(page.locator('html')).toHaveAttribute('lang','ru');
+ await expect(page.locator('#imp-shell-links [data-imp-link="home"]')).toHaveText('Главная');
+});
+
+const localeIntegrity={
+ cs:{home:'Úvod',corporate:'Poptat nabídku →',skip:'Přejít k obsahu'},
+ en:{home:'Home',corporate:'Request a proposal →',skip:'Skip to content'},
+ ru:{home:'Главная',corporate:'Запросить предложение →',skip:'Перейти к содержанию'},
+ uk:{home:'Головна',corporate:'Запросити пропозицію →',skip:'Перейти до вмісту'}
+};
+for(const [code,expected] of Object.entries(localeIntegrity)){
+ test('No mixed-language public labels in '+code,async({page})=>{
+  await mockPublicEvents(page);
+  await page.goto('/druzina/?lang='+code);
+  await expect(page.locator('html')).toHaveAttribute('lang',code);
+  await expect(page.locator('#imp-shell-links [data-imp-link="home"]')).toHaveText(expected.home);
+  await expect(page.locator('#new-training-enquiry [data-reg-lang]:visible')).toHaveCount(3);
+  await expect(page.locator('#new-training-enquiry [data-reg-lang="'+code+'"]')).toHaveCount(3);
+  await expect(page.locator('#november-events-hub [data-november-lang]:visible')).toHaveCount(1);
+  await expect(page.locator('#november-events-hub [data-november-lang="'+code+'"]')).toBeVisible();
+
+  await page.goto('/academy/?lang='+code);
+  const shown=await page.locator('.tab-btn [data-courses-nav-lang]').evaluateAll(nodes=>
+   nodes.filter(x=>getComputedStyle(x).display!=='none').map(x=>x.dataset.coursesNavLang));
+  expect(shown).toEqual([code]);
+
+  await page.goto('/corporate/?lang='+code);
+  const corporate=page.locator('.revenue-row a.btn.solid[href^="mailto:"][data-locale]:visible');
+  await expect(corporate).toHaveCount(1);
+  await expect(corporate).toHaveText(expected.corporate);
+
+  await page.goto('/register/?lang='+code);
+  await expect(page.locator('#bw-cancel-20261028 summary [data-archive-lang]:visible')).toHaveCount(1);
+  await expect(page.locator('#bw-cancel-20261028 summary [data-archive-lang="'+code+'"]')).toBeVisible();
+
+  await page.goto('/druzina/novinky/?lang='+code);
+  await expect(page.locator('a.skip-link')).toHaveText(expected.skip);
+ });
+}
