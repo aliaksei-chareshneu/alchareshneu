@@ -294,7 +294,7 @@ for(const code of ['cs','en','ru','uk']){
   await expect(page.locator('#safety-contact [data-safety-ui]:visible')).toHaveCount(1);
   await expect(page.locator('#safety-contact [data-safety-ui="'+code+'"]')).toBeVisible();
   await expect(page.locator('main > .notice:first-of-type [data-safety-ui]:visible')).toHaveCount(1);
-  await expect(page.locator('main #ru h3')).toContainText('Страховка');
+  await expect(page.locator('main #ru h3').last()).toContainText('Страховка');
   if(code!=='ru')await expect(page.locator('main #ru h3:visible')).toHaveCount(0);
  });
 }
