@@ -1,0 +1,67 @@
+name: IMPERION public job scout — review only
+
+# Existing GitHub Actions runtime; NO schedule, external application, CV, secrets or CRM.
+on:
+  pull_request:
+    paths:
+      - 'ops/job-scout/**'
+      - 'tests/imperion-job-scout.test.cjs'
+      - '.github/workflows/imperion-job-scout.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: imperion-job-scout-review
+  cancel-in-progress: false
+
+jobs:
+  offline-synthetic-qa:
+    if: github.repository == 'aliaksei-chareshneu/alchareshneu'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Use existing locked dependencies without install scripts
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Test URL allowlist, robots, deadlines, no submissions and synthetic E2E
+        run: node --test tests/imperion-job-scout.test.cjs
+      - name: Explicit scope
+        run: |
+          echo 'Synthetic QA only: no real vacancy submission, no CV, no private CRM, no spending.' >> "$GITHUB_STEP_SUMMARY"
+
+  bounded-public-source-smoke:
+    if: github.repository == 'aliaksei-chareshneu/alchareshneu'
+    needs: offline-synthetic-qa
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Use existing locked dependencies without install scripts
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Read only official MUNI public vacancies after robots.txt gate
+        id: public_source
+        continue-on-error: true
+        run: |
+          node ops/job-scout/muni-public.cjs --live --pages 1 --details 2 --out "$RUNNER_TEMP/imperion-public-job-scout.json"
+      - name: Report provider readback accurately (no applicant data)
+        if: always()
+        run: |
+          if [ -s "$RUNNER_TEMP/imperion-public-job-scout.json" ]; then
+            node -e 'const fs=require("node:fs");const x=JSON.parse(fs.readFileSync(process.argv[1])); console.log("Public official source checked:",x.index_count,"links;",x.details_checked,"detail pages; submissions:",x.applications_sent);' "$RUNNER_TEMP/imperion-public-job-scout.json"
+            echo 'PUBLIC_SOURCE_READBACK: see verified count in step logs; zero applications submitted.' >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo 'PUBLIC_SOURCE_BLOCKED: no source readback; do not claim live job discovery.' >> "$GITHUB_STEP_SUMMARY"
+          fi
+          echo 'Never upload CV, email, cookies or private applicant data into this public workflow.' >> "$GITHUB_STEP_SUMMARY"
