@@ -226,6 +226,9 @@ for(const [code,expected] of Object.entries(localeIntegrity)){
   const hubLanguages=await page.locator('#november-events-hub [data-november-lang]').evaluateAll(nodes=>
    nodes.filter(x=>getComputedStyle(x).display!=='none').map(x=>x.dataset.novemberLang));
   expect(hubLanguages).toEqual([code]);
+  const safetyCtas=await page.locator('.dm-safety-language-cta [data-safety-link-lang]').evaluateAll(nodes=>
+   nodes.filter(x=>getComputedStyle(x).display!=='none').map(x=>({lang:x.dataset.safetyLinkLang,href:x.getAttribute('href')})));
+  expect(safetyCtas).toEqual([{lang:code,href:'safety/?lang='+code}]);
 
   await page.goto('/academy/?lang='+code);
   const shown=await page.locator('.tab-btn [data-courses-nav-lang]').evaluateAll(nodes=>
