@@ -16,6 +16,7 @@
     ru:{home:'Главная',events:'События',academy:'Академия',club:'Дружина',walkers:'BrnoWalkers',about:'Обо мне',partners:'Партнёры',skip:'К содержанию',nav:'Главная навигация'},
     uk:{home:'Головна',events:'Події',academy:'Академія',club:'Дружина',walkers:'BrnoWalkers',about:'Про мене',partners:'Партнери',skip:'До вмісту',nav:'Головна навігація'}
   };
+  var taglines={cs:'HISTORIE · ZÁŽITKY · ROZVOJ',en:'HISTORY · EXPERIENCES · GROWTH',ru:'ИСТОРИЯ · ВПЕЧАТЛЕНИЯ · РАЗВИТИЕ',uk:'ІСТОРІЯ · ВРАЖЕННЯ · РОЗВИТОК'};
   var supported=Array.from(new Set(
     Array.from(document.querySelectorAll('button[data-lang], a[data-lang], button[data-switch]'))
       .map(function(x){return x.getAttribute('data-lang')||x.getAttribute('data-switch');})
@@ -43,7 +44,7 @@
   var shield=document.createElement('span');shield.className='imp-shell-logo-mark';shield.setAttribute('aria-hidden','true');shield.textContent='⚔';
   var brandCopy=document.createElement('span');brandCopy.className='imp-shell-logo-copy';
   var brandTop=document.createElement('strong');brandTop.textContent='IMPERION';
-  var brandSub=document.createElement('small');brandSub.textContent='HISTORIE · ZÁŽITKY · ROZVOJ';
+  var brandSub=document.createElement('small');brandSub.textContent=taglines[lang];
   brandCopy.appendChild(brandTop);brandCopy.appendChild(brandSub);
   brand.appendChild(shield);brand.appendChild(brandCopy);inside.appendChild(brand);
   var nav=document.createElement('nav');nav.className='imp-shell-links';nav.id='imp-shell-links';nav.setAttribute('aria-label',copy[lang].nav);
@@ -83,6 +84,26 @@
     });
   }
   bindTargets(lang);
+  // Localized subpages can change <html lang> after the shared header was created.
+  // Keep navigation, language selection and all links in sync with the visible page.
+  function syncShellLanguage(){
+    var actual=document.documentElement.lang;
+    if(!copy[actual]||(supported.length&&supported.indexOf(actual)<0))return;
+    lang=actual;
+    skip.textContent=copy[lang].skip;
+    brandSub.textContent=taglines[lang];
+    nav.setAttribute('aria-label',copy[lang].nav);
+    keys.forEach(function(k){links[k].textContent=copy[lang][k];});
+    Array.from(language.children).forEach(function(a){
+      if(a.dataset.impLang===lang)a.setAttribute('aria-current','true');
+      else a.removeAttribute('aria-current');
+    });
+    bindTargets(lang);
+  }
+  new MutationObserver(syncShellLanguage).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
+  document.addEventListener('site:language',syncShellLanguage);
+  // Respect an already-initialized saved language when no explicit URL locale exists.
+  if(!copy[request]&&!routeLang)syncShellLanguage();
   if(section==='partners')document.documentElement.lang=lang;
   // Keep the historical global menus in the DOM for script compatibility and no-JS fallback,
   // but retire their *visual* duplication only after the new header is mounted.
