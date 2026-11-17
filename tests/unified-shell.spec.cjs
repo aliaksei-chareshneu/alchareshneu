@@ -262,3 +262,16 @@ for(const [code,expected] of Object.entries({
   await expect(page.locator('#imp-shell-links [data-imp-link="home"]')).toHaveText(localeIntegrity[code].home);
  });
 }
+
+for(const code of ['cs','en','ru','uk']){
+ test('Druzina training paths do not mix languages in '+code,async({page})=>{
+  await page.goto('/druzina/cesty/?lang='+code);
+  await expect(page.locator('html')).toHaveAttribute('lang',code);
+  await expect(page.locator('#spolecne-temy h2 [data-shared-lang]:visible')).toHaveCount(1);
+  await expect(page.locator('#spolecne-temy h2 [data-shared-lang="'+code+'"]')).toBeVisible();
+  await expect(page.locator('#spolecne-temy > div[data-shared-lang]:visible')).toHaveCount(1);
+  await expect(page.locator('#training-programme-archive [data-status-lang]:visible')).toHaveCount(1);
+  await expect(page.locator('#training-programme-archive [data-status-lang="'+code+'"]')).toBeVisible();
+  await expect(page.locator('#spolecne-temy div[data-shared-lang="'+code+'"] a').first()).toHaveAttribute('href','../rules/?lang='+code);
+ });
+}
