@@ -6,6 +6,24 @@
  */
 var IMP_INTAKE_URL="https://cmrknyhnnehyjpreehcf.supabase.co/functions/v1/imperion-intake-bridge";
 
+/** Retry only read-only startup operations before any CRM write or ACK.
+ * Do not replay a batch, sent mail or a payment state after an uncertain error.
+ * Longer outages recover through the existing five-minute trigger.
+ */
+function impIntakeTransientGoogleRetry_(operation){
+  var delays=[0,350,1000];
+  for(var attempt=0;attempt<delays.length;attempt++){
+    if(attempt)Utilities.sleep(delays[attempt]);
+    try{return operation();}
+    catch(error){
+      var detail=String((error&&error.message)||error||'');
+      var transient=/Service Spreadsheets failed while accessing document|server error occurred|Error code INTERNAL/i.test(detail);
+      if(!transient||attempt===delays.length-1)throw error;
+      console.warn('IMPERION private intake: transient Google backend startup failure; retry '+(attempt+1)+'/'+(delays.length-1));
+    }
+  }
+}
+
 function impPrivateConfig_(){
   var p=PropertiesService.getScriptProperties();
   var key=p.getProperty('IMPERION_INTAKE_BRIDGE_KEY')||'';
@@ -1019,7 +1037,8 @@ function imperionSyncPrivateIntake(){
   var lock=LockService.getScriptLock();
   if(!lock.tryLock(12000))throw Error('Another intake run is already in progress');
   try{
-    var cfg=impPrivateConfig_(),ss=SpreadsheetApp.openById(cfg.sheetId);
+    var cfg=impIntakeTransientGoogleRetry_(function(){return impPrivateConfig_();}),
+        ss=impIntakeTransientGoogleRetry_(function(){return SpreadsheetApp.openById(cfg.sheetId);});
     ['Registrations','Druzina_Requests','Leads'].forEach(function(n){impEnsureReceiptCols_(ss.getSheetByName(n));});
     var addedR=0,addedE=0,addedB=0,addedA=0,processed=0;
     // One safe public price lookup; never infer paid status from a blank/unknown fee.
