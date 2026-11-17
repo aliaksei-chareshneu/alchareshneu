@@ -330,3 +330,22 @@ for(const code of ['cs','en','ru','uk']){
   await expect(page.locator('#safety-return-bottom')).toHaveAttribute('href',new RegExp('lang='+next+'$'));
  });
 }
+
+for(const [code,expected] of Object.entries({
+ be:'Галоўная',
+ sk:'Úvod'
+})){
+ test('Ranks language '+code+' synchronizes the shared header without exporting unsupported site locales',async({page})=>{
+  await page.goto('/druzina/ranks.html?lang='+code);
+  await expect(page.locator('html')).toHaveAttribute('lang',code);
+  await expect(page.locator('.panel:not([hidden])')).toHaveCount(1);
+  await expect(page.locator('.panel:not([hidden])')).toHaveAttribute('data-locale',code);
+  await expect(page.locator('#imp-shell-links [data-imp-link="home"]')).toHaveText(expected);
+  await expect(page.locator('#imp-shell-top [data-imp-lang="'+code+'"]')).toHaveAttribute('aria-current','true');
+  await expect(page.locator('#imp-shell-links [data-imp-link="home"]')).toHaveAttribute('href',/lang=cs/);
+  const next=code==='be'?'sk':'be';
+  await page.locator('nav.langs button[data-lang="'+next+'"]').click();
+  await expect(page.locator('html')).toHaveAttribute('lang',next);
+  await expect(page.locator('#imp-shell-top [data-imp-lang="'+next+'"]')).toHaveAttribute('aria-current','true');
+ });
+}
