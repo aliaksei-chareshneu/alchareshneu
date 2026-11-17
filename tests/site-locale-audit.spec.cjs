@@ -66,6 +66,27 @@ for(const file of allFiles.filter(x=>!excluded.has(x))){
    await page.goto('/'+file+'?lang='+requested,{waitUntil:'domcontentloaded',timeout:25000});
    const expected=fixedLang[file]||(partialLanguages[file]&&!partialLanguages[file].includes(requested)?'cs':requested);
    await expect(page.locator('html')).toHaveAttribute('lang',expected,{timeout:7000});
+   // Visual-text check, not source grep: hidden translation blocks are excluded.
+   // Keep natural language selector labels (Русский / Українська) accessible in every locale.
+   if(['cs','en'].includes(expected)){
+    const unexpected=await page.evaluate(()=>{
+     const root=document.querySelector('main');if(!root)return[];
+     const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT),out=[];
+     let node;
+     while((node=walker.nextNode())){
+      const text=(node.textContent||'').trim();
+      if(!/[А-Яа-яЁёІіЇїЄєЎўҐґ]/.test(text))continue;
+      const el=node.parentElement;if(!el)continue;
+      if(el.closest('nav,[role="group"],.lang-links,.langs,.languages,.language,.lang-switch,.language-switch,.language-selector,[data-imp-lang],.imp-shell-lang,[data-lang],[data-set-lang]'))continue;
+      if(/Čeština.{0,30}English.{0,30}(Русский|Українська)|English.{0,30}(Русский|Українська)/.test(text))continue;
+      const range=document.createRange();range.selectNodeContents(node);
+      if(!Array.from(range.getClientRects()).some(r=>r.width>0&&r.height>0))continue;
+      out.push(text.slice(0,120));if(out.length>=8)break;
+     }
+     return out;
+    });
+    expect(unexpected,'visible Cyrillic outside language controls on '+file+'?lang='+requested).toEqual([]);
+   }
    if(langSensitivePanels.has(file)){
     const selector=langSensitivePanels.get(file);
     await expect(page.locator(selector+':visible')).toHaveCount(1);
