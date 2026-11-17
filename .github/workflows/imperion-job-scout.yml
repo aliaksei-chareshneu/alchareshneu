@@ -6,6 +6,7 @@ on:
     paths:
       - 'ops/job-scout/**'
       - 'tests/imperion-job-scout.test.cjs'
+      - 'tests/imperion-job-scout-form.spec.cjs'
       - '.github/workflows/imperion-job-scout.yml'
   workflow_dispatch:
 
@@ -35,6 +36,27 @@ jobs:
       - name: Explicit scope
         run: |
           echo 'Synthetic QA only: no real vacancy submission, no CV, no private CRM, no spending.' >> "$GITHUB_STEP_SUMMARY"
+
+  synthetic-browser-form-qa:
+    if: github.repository == 'aliaksei-chareshneu/alchareshneu'
+    needs: offline-synthetic-qa
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install existing locked Playwright package without scripts
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Install pinned browser in ephemeral free runner
+        run: timeout 240s npx playwright install chromium
+      - name: Fill and submit LOCAL SYNTHETIC form only (no network requests)
+        run: npx playwright test tests/imperion-job-scout-form.spec.cjs --workers=1 --reporter=line
+      - name: State browser proof scope
+        run: echo 'Browser QA is synthetic-only; not a real employer submission.' >> "$GITHUB_STEP_SUMMARY"
 
   bounded-public-source-smoke:
     if: github.repository == 'aliaksei-chareshneu/alchareshneu'
