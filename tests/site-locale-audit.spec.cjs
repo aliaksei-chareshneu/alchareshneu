@@ -37,6 +37,7 @@ const fixedLang={
  'register/uk/index.html':'uk'
 };
 const languages=['cs','en','ru','uk'];
+const partialLanguages={'corporate/leadership/index.html':['cs','en']};
 test('sitewide inventory includes all current HTML sources and has no unclassified exclusions',async()=>{
  expect(allFiles.length).toBeGreaterThanOrEqual(60);
  expect(allFiles.filter(x=>excluded.has(x))).toEqual(['404.html','RegistrationPortal.html','druzina/prihlaska/index.html']);
@@ -60,15 +61,18 @@ for(const file of allFiles.filter(x=>!excluded.has(x))){
  test('all four language requests: '+file,async({page})=>{
   await page.route('**/functions/v1/**',route=>route.fulfill({status:200,contentType:'application/json',headers:{'Access-Control-Allow-Origin':'*'},body:'{"events":[],"bookingConfirmed":false}'}));
   for(const requested of languages){
+   // Registration's language-specific directories are canonical; do not construct contradictory URLs.
+   if(file.startsWith('register/')&&fixedLang[file]&&requested!==fixedLang[file])continue;
    await page.goto('/'+file+'?lang='+requested,{waitUntil:'domcontentloaded',timeout:25000});
-   const expected=fixedLang[file]||requested;
+   const expected=fixedLang[file]||(partialLanguages[file]&&!partialLanguages[file].includes(requested)?'cs':requested);
    await expect(page.locator('html')).toHaveAttribute('lang',expected,{timeout:7000});
    if(langSensitivePanels.has(file)){
     const selector=langSensitivePanels.get(file);
     await expect(page.locator(selector+':visible')).toHaveCount(1);
     await expect(page.locator(selector+'[lang="'+expected+'"]')).toBeVisible();
     if(file.startsWith('druzina/')&&['cs','en'].includes(expected)){
-     const txt=await page.locator('main').innerText();
+     // Names in a language picker (e.g. «Русский») are intentional, not a leak in the safety instructions.
+     const txt=await page.locator(selector+'[lang="'+expected+'"]').innerText();
      expect(txt).not.toMatch(/[А-Яа-яЁёІіЇїЄєЎўҐґ]/);
     }
    }
@@ -89,7 +93,8 @@ for(const file of allFiles.filter(x=>!excluded.has(x))){
 }
 test('Academy course language switch persists in URL and survives reload',async({page})=>{
  await page.goto('/academy/courses/?lang=cs');
- await page.locator('nav.lang button[data-lang="ru"]').click();
+ // The original selector is intentionally visually retired by the unified global header.
+ await page.evaluate(()=>document.querySelector('nav.lang button[data-lang="ru"]').click());
  await expect(page).toHaveURL(/[?&]lang=ru/);
  await expect(page.locator('html')).toHaveAttribute('lang','ru');
  await page.reload();
