@@ -14,13 +14,15 @@
     cs:{home:'Úvod',events:'Akce',academy:'Akademie',club:'Družina',walkers:'BrnoWalkers',about:'O mně',partners:'Partneři',skip:'Přejít k obsahu',nav:'Hlavní navigace'},
     en:{home:'Home',events:'Events',academy:'Academy',club:'Družina',walkers:'BrnoWalkers',about:'About',partners:'Partners',skip:'Skip to content',nav:'Main navigation'},
     ru:{home:'Главная',events:'События',academy:'Академия',club:'Дружина',walkers:'BrnoWalkers',about:'Обо мне',partners:'Партнёры',skip:'К содержанию',nav:'Главная навигация'},
-    uk:{home:'Головна',events:'Події',academy:'Академія',club:'Дружина',walkers:'BrnoWalkers',about:'Про мене',partners:'Партнери',skip:'До вмісту',nav:'Головна навігація'}
+    uk:{home:'Головна',events:'Події',academy:'Академія',club:'Дружина',walkers:'BrnoWalkers',about:'Про мене',partners:'Партнери',skip:'До вмісту',nav:'Головна навігація'},
+    be:{home:'Галоўная',events:'Падзеі',academy:'Акадэмія',club:'Дружына',walkers:'BrnoWalkers',about:'Пра мяне',partners:'Партнёры',skip:'Да зместу',nav:'Галоўная навігацыя'},
+    sk:{home:'Úvod',events:'Podujatia',academy:'Akadémia',club:'Družina',walkers:'BrnoWalkers',about:'O mne',partners:'Partneri',skip:'Preskočiť na obsah',nav:'Hlavná navigácia'}
   };
-  var taglines={cs:'HISTORIE · ZÁŽITKY · ROZVOJ',en:'HISTORY · EXPERIENCES · GROWTH',ru:'ИСТОРИЯ · ВПЕЧАТЛЕНИЯ · РАЗВИТИЕ',uk:'ІСТОРІЯ · ВРАЖЕННЯ · РОЗВИТОК'};
+  var taglines={cs:'HISTORIE · ZÁŽITKY · ROZVOJ',en:'HISTORY · EXPERIENCES · GROWTH',ru:'ИСТОРИЯ · ВПЕЧАТЛЕНИЯ · РАЗВИТИЕ',uk:'ІСТОРІЯ · ВРАЖЕННЯ · РОЗВИТОК',be:'ГІСТОРЫЯ · УРАЖАННІ · РАЗВІЦЦЁ',sk:'HISTÓRIA · ZÁŽITKY · ROZVOJ'};
   var supported=Array.from(new Set(
     Array.from(document.querySelectorAll('button[data-lang], a[data-lang], button[data-switch]'))
       .map(function(x){return x.getAttribute('data-lang')||x.getAttribute('data-switch');})
-      .filter(function(x){return ['cs','en','ru','uk'].indexOf(x)>=0;})
+      .filter(function(x){return ['cs','en','ru','uk','be','sk'].indexOf(x)>=0;})
   ));
   var registerIndex=/^register\/(?:(?:en|ru|uk)\/)?(?:index\.html)?$/.test(path);
   if(['about','partners'].includes(section)||registerIndex||path==='druzina/cesty/'||path==='druzina/cesty/index.html')supported=['cs','en','ru','uk'];
@@ -55,7 +57,8 @@
     nav.appendChild(a);links[k]=a;
   });inside.appendChild(nav);
   var language=document.createElement('div');language.className='imp-shell-lang';language.setAttribute('role','group');language.setAttribute('aria-label','Language / Jazyk');
-  ['cs','en','ru','uk'].forEach(function(l){
+  var shellLanguages=path==='druzina/ranks.html'?['cs','en','ru','uk','be','sk']:['cs','en','ru','uk'];
+  shellLanguages.forEach(function(l){
     if(supported.length===0||supported.indexOf(l)<0)return;
     var a=document.createElement('a');a.dataset.impLang=l;a.lang=l;a.hreflang=l;a.textContent=l==='cs'?'CZ':l==='uk'?'UA':l.toUpperCase();
     if(lang===l)a.setAttribute('aria-current','true');
@@ -63,7 +66,7 @@
   });
   if(language.children.length>0)inside.appendChild(language);
   header.appendChild(inside);
-  function urlFor(route,code){var u=new URL(route,root);u.searchParams.set('lang',code);return u.href;}
+  function urlFor(route,code){var u=new URL(route,root);u.searchParams.set('lang',['be','sk'].includes(code)?'cs':code);return u.href;}
   function bindTargets(code){
     brand.href=urlFor('',code);
     links.home.href=urlFor('',code);
