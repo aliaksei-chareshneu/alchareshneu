@@ -101,7 +101,22 @@ for(const file of allFiles.filter(x=>!excluded.has(x))){
    }
    if(file==='druzina/index.html'){
     const links=page.locator('#new-training-enquiry .dm-book-actions a[data-book-lang]:visible');
-    await expect(links).toHaveCount(1);
+    const snapshot=await page.evaluate(()=>{
+     const section=document.querySelector('#new-training-enquiry');
+     const targets=Array.from(document.querySelectorAll('a[data-book-lang]'));
+     return {htmlLang:document.documentElement.lang,sectionExists:!!section,sectionParent:section?.parentElement?.tagName,
+       targets:targets.map(a=>{
+         const rect=a.getBoundingClientRect(),blocks=[];
+         for(let p=a;p&&p!==document.body;p=p.parentElement){
+          const style=getComputedStyle(p);
+          if(p.hidden||style.display==='none'||style.visibility==='hidden'||p.getAttribute('aria-hidden')==='true')
+           blocks.push({tag:p.tagName,id:p.id,class:p.className,display:style.display,visibility:style.visibility,hidden:p.hidden});
+         }
+         return {lang:a.dataset.bookLang,inSection:section?.contains(a),display:getComputedStyle(a).display,inline:a.getAttribute('style'),hidden:a.hidden,rect:[rect.width,rect.height],blocks:blocks.slice(0,4)};
+       })
+     };
+    });
+    await expect(links,'CTA computed visibility: '+JSON.stringify(snapshot)).toHaveCount(1);
     await expect(links.first()).toHaveAttribute('data-book-lang',expected);
     await expect(links.first()).toHaveAttribute('href','../register/?lang='+expected);
    }
