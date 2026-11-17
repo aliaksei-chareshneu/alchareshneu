@@ -78,6 +78,8 @@ for(const file of allFiles.filter(x=>!excluded.has(x))){
       if(!/[А-Яа-яЁёІіЇїЄєЎўҐґ]/.test(text))continue;
       const el=node.parentElement;if(!el)continue;
       if(el.closest('nav,[role="group"],.lang-links,.langs,.languages,.language,.lang-switch,.language-switch,.language-selector,[data-imp-lang],.imp-shell-lang,[data-lang],[data-set-lang]'))continue;
+      // An in-page anchor naming the available languages is a selector, not translated body copy.
+      if(/^(Русский|Українська)$/.test(text)&&el.closest('a[href^="#"]'))continue;
       if(/Čeština.{0,30}English.{0,30}(Русский|Українська)|English.{0,30}(Русский|Українська)/.test(text))continue;
       const range=document.createRange();range.selectNodeContents(node);
       if(!Array.from(range.getClientRects()).some(r=>r.width>0&&r.height>0))continue;
@@ -96,6 +98,12 @@ for(const file of allFiles.filter(x=>!excluded.has(x))){
      const txt=await page.locator(selector+'[lang="'+expected+'"]').innerText();
      expect(txt).not.toMatch(/[А-Яа-яЁёІіЇїЄєЎўҐґ]/);
     }
+   }
+   if(file==='druzina/index.html'){
+    const links=page.locator('#new-training-enquiry .dm-book-actions a[data-book-lang]:visible');
+    await expect(links).toHaveCount(1);
+    await expect(links.first()).toHaveAttribute('data-book-lang',expected);
+    await expect(links.first()).toHaveAttribute('href','../register/?lang='+expected);
    }
    if(file==='shop/index.html'){
     const t={cs:'Obchod',en:'Store',ru:'Магазин',uk:'Магазин'}[requested];
