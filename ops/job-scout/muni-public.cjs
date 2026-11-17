@@ -59,10 +59,24 @@ function extractIndex(html) {
   return jobs;
 }
 
+const CZECH_MONTHS = Object.freeze({
+  ledna: 1, leden: 1, února: 2, únor: 2, března: 3, březen: 3,
+  dubna: 4, duben: 4, května: 5, květen: 5, června: 6, červen: 6,
+  července: 7, červenec: 7, srpna: 8, srpen: 8, září: 9,
+  října: 10, říjen: 10, listopadu: 11, listopad: 11,
+  prosince: 12, prosinec: 12,
+});
+
 function dateFromCzech(text) {
-  const m = String(text).match(/\b(\d{1,2})\.\s*(\d{1,2})\.\s*(20\d{2})\b/);
+  // MUNI displays "30. listopadu 2026"; numeric dates also occur in other sources.
+  const m = String(text).normalize('NFC').match(
+    /\b(\d{1,2})\.\s*(\d{1,2})\.?\s*(20\d{2})\b|\b(\d{1,2})\.\s*([a-záčďéěíňóřšťúůýž]+)\s+(20\d{2})\b/i
+  );
   if (!m) return null;
-  const [day, month, year] = [Number(m[1]), Number(m[2]), Number(m[3])];
+  const day = Number(m[1] || m[4]);
+  const month = m[2] ? Number(m[2]) : CZECH_MONTHS[m[5].toLowerCase()];
+  const year = Number(m[3] || m[6]);
+  if (!month || month < 1 || month > 12) return null;
   const date = new Date(Date.UTC(year, month - 1, day));
   if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 ||
       date.getUTCDate() !== day) return null;
@@ -90,14 +104,25 @@ function parseDetail(html, item, now = new Date()) {
   const main = doc.querySelector('main') || doc.body;
   const body = clean(main.textContent);
   const title = clean(doc.querySelector('h1')?.textContent) || item.title;
-  const deadlineFragment = body.match(/(?:Termín přihlášek|Uzávěrka přihlášek)\s*:?\s*(\d{1,2}\.\s*\d{1,2}\.\s*20\d{2})/i);
+  const deadlineFragment = body.match(
+    /(?:Termín přihlášek|Uzávěrka přihlášek)\s*:?\s*(\d{1,2}\.\s*(?:\d{1,2}\.?\s*|[a-záčďéěíňóřšťúůýž]+\s+)20\d{2})/i
+  );
   const deadline = deadlineFragment ? dateFromCzech(deadlineFragment[1]) : null;
   const half = /(?:0[,.]5\s*(?:[-–]\s*1[,.]0)?\s*(?:FTE|úvaz(?:ek|ku)))|(?:úvaz(?:ek|ku)\s*0[,.]5)/i.test(body + ' ' + title);
   const partTime = half || /(?:Typ úvazku.{0,70}částečný|Částečný úvazek)/i.test(body);
   const expired = deadline ? deadline < todayPrague(now) : false;
-  const score = titleScore(title) + (half ? 35 : partTime ? 15 : 0) - (expired ? 100 : 0);
+  // This is a public advert requirement, not a claim about any applicant's skills.
+  // Explicit specialized credentials must not be mistaken for a generic 0.5 FTE fit.
+  const germanDegreeAndC1 =
+    /magistersk[eé]ho studia.{0,110}německého jazyka/i.test(body) &&
+    /(?:úroveň C1|rodilý mluvčí)/i.test(body);
+  const qualificationGate = germanDegreeAndC1 ? 'GERMAN_LANGUAGE_MA_AND_C1' : null;
+  const score = titleScore(title) + (half ? 35 : partTime ? 15 : 0) -
+    (expired ? 100 : 0) - (qualificationGate ? 100 : 0);
   return {
     title, url: allowedUrl(item.url, 'detail'), deadline,
+    deadline_verified: Boolean(deadline),
+    qualification_gate: qualificationGate,
     part_time_advertised: partTime, half_fte_explicit: half,
     expired, score,
     hpp_confirmed: false, insurance_confirmed: false,
@@ -217,9 +242,24 @@ async function main(args = process.argv.slice(2)) {
   fs.writeFileSync(out, JSON.stringify(report, null, 2) + '\n', { mode: 0o600 });
   console.log(JSON.stringify({
     status: report.status, index_count: report.index_count,
-    details_checked: report.details_checked, relevant: report.jobs.length,
+    details_checked: report.details_checked,
+    title_signal_matches: report.jobs.filter(j => j.score > 0).length,
+    deadlines_verified: report.jobs.filter(j => j.deadline_verified).length,
+    deadlines_unknown: report.jobs.filter(j => !j.deadline_verified).length,
     applications_sent: 0, private_data_processed: false,
   }));
+  // Public employer data only, no applicant details. Makes the daily scan actionable
+  // without GitHub artifact storage, extra APIs, emails, or a second CRM.
+  for (const job of report.jobs.slice(0, 10)) {
+    console.log('PUBLIC_VACANCY ' + JSON.stringify({
+      title: job.title.slice(0, 140), url: job.url,
+      deadline: job.deadline || 'NOT_VERIFIED',
+      half_fte_explicit: job.half_fte_explicit,
+      part_time_advertised: job.part_time_advertised,
+      qualification_gate: job.qualification_gate || 'NOT_ASSESSED',
+      title_score: job.score, status: job.status,
+    }));
+  }
 }
 
 if (require.main === module) {

@@ -76,6 +76,61 @@ test('Czech date parser rejects impossible dates', () => {
   assert.equal(scout.dateFromCzech('30. 11. 2026'), '2026-11-30');
 });
 
+test('Czech named-month deadlines are parsed and old postings excluded', () => {
+  const item = {
+    title: 'Lektor/lektorka',
+    url: 'https://www.muni.cz/o-univerzite/kariera-na-mu/volna-mista/81959',
+  };
+  assert.equal(scout.dateFromCzech('11. září 2026'), '2026-09-11');
+  assert.equal(scout.dateFromCzech('18. listopadu 2026'), '2026-11-18');
+  assert.equal(scout.dateFromCzech('31. února 2026'), null);
+  assert.equal(scout.dateFromCzech('12. neznámého 2026'), null);
+  const expired = scout.parseDetail(
+    detailHtml.replace('30. 11. 2026', '11. září 2026'),
+    item, new Date('2026-11-17T11:00:00Z')
+  );
+  assert.equal(expired.deadline, '2026-09-11');
+  assert.equal(expired.deadline_verified, true);
+  assert.equal(expired.expired, true);
+  const upcoming = scout.parseDetail(
+    detailHtml.replace('30. 11. 2026', '18. listopadu 2026'),
+    item, new Date('2026-11-17T11:00:00Z')
+  );
+  assert.equal(upcoming.deadline, '2026-11-18');
+  assert.equal(upcoming.deadline_verified, true);
+  assert.equal(upcoming.expired, false);
+});
+
+test('explicit German MA and C1 requirement is a qualification gate, not a 0.5 FTE match', () => {
+  const item = {
+    title: 'Lektor/lektorka pro Katedru dalších cizích jazyků (úvazek 0,5)',
+    url: 'https://www.muni.cz/o-univerzite/kariera-na-mu/volna-mista/81955',
+  };
+  const body = '<html><body><main><h1>' + item.title + '</h1>' +
+    '<p>Termín přihlášek 11. prosince 2026</p>' +
+    '<p>Absolvent magisterského studia programu v oblasti německého jazyka</p>' +
+    '<p>Schopnost vyučovat v českém a německém jazyce (minimální úroveň C1)</p>' +
+    '</main></body></html>';
+  const flagged = scout.parseDetail(body, item, new Date('2026-11-17T11:00:00Z'));
+  assert.equal(flagged.deadline, '2026-12-11');
+  assert.equal(flagged.half_fte_explicit, true);
+  assert.equal(flagged.qualification_gate, 'GERMAN_LANGUAGE_MA_AND_C1');
+  const ordinary = scout.parseDetail(halfTitleHtml, item, new Date('2026-11-17T11:00:00Z'));
+  assert.equal(ordinary.qualification_gate, null);
+  assert.ok(flagged.score < ordinary.score);
+});
+
+test('unknown deadline is explicitly unverified, not silently fabricated', () => {
+  const item = {
+    title: 'Koordinátor',
+    url: 'https://www.muni.cz/o-univerzite/kariera-na-mu/volna-mista/81958',
+  };
+  const job = scout.parseDetail(detailHtml.replace('Termín přihlášek 30. 11. 2026', 'Přihlášky online'), item);
+  assert.equal(job.deadline, null);
+  assert.equal(job.deadline_verified, false);
+  assert.equal(job.hpp_confirmed, false);
+});
+
 test('robots parser rejects disallowed pages and honors specific allow', () => {
   assert.equal(scout.robotsAllows(robots, 'https://www.muni.cz/private/data'), false);
   assert.equal(scout.robotsAllows(robots, 'https://www.muni.cz/o-univerzite/kariera-na-mu/volna-mista/81958'), true);
