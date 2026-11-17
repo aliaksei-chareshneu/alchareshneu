@@ -217,10 +217,15 @@ for(const [code,expected] of Object.entries(localeIntegrity)){
   await page.goto('/druzina/?lang='+code);
   await expect(page.locator('html')).toHaveAttribute('lang',code);
   await expect(page.locator('#imp-shell-links [data-imp-link="home"]')).toHaveText(expected.home);
-  await expect(page.locator('#new-training-enquiry [data-reg-lang]:visible')).toHaveCount(3);
-  await expect(page.locator('#new-training-enquiry [data-reg-lang="'+code+'"]')).toHaveCount(3);
-  await expect(page.locator('#november-events-hub [data-november-lang]:visible')).toHaveCount(1);
-  await expect(page.locator('#november-events-hub [data-november-lang="'+code+'"]')).toBeVisible();
+  // This legacy registration block is intentionally hidden by the current
+  // conversion-first design. Verify child locale gating via computed style,
+  // not Playwright :visible, which also counts hidden ancestors.
+  const regLanguages=await page.locator('#new-training-enquiry [data-reg-lang]').evaluateAll(nodes=>
+   nodes.filter(x=>getComputedStyle(x).display!=='none').map(x=>x.dataset.regLang));
+  expect(regLanguages).toEqual([code,code,code]);
+  const hubLanguages=await page.locator('#november-events-hub [data-november-lang]').evaluateAll(nodes=>
+   nodes.filter(x=>getComputedStyle(x).display!=='none').map(x=>x.dataset.novemberLang));
+  expect(hubLanguages).toEqual([code]);
 
   await page.goto('/academy/?lang='+code);
   const shown=await page.locator('.tab-btn [data-courses-nav-lang]').evaluateAll(nodes=>
