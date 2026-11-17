@@ -1014,12 +1014,31 @@ function impFlushOwnerDigest_(cfg,ss,events){
   }
 }
 
+/** Limited retries for Google backend faults in READ-ONLY startup calls.
+ * No retries for imports, CRM writes, outbound mail, ACKs, or side effects.
+ * The existing five-minute owner trigger remains the outer recovery path.
+ */
+function impStartupReadWithRetry_(operation){
+  var delays=[0,500,1500];
+  for(var attempt=0;attempt<delays.length;attempt++){
+    if(attempt)Utilities.sleep(delays[attempt]);
+    try{return operation();}
+    catch(e){
+      var message=String(e&&e.message||e||'');
+      var temporary=/Service Spreadsheets (?:failed|timed out) while accessing document|server error occurred|server not available|Error code INTERNAL/i.test(message);
+      if(!temporary||attempt===delays.length-1)throw e;
+      console.warn('IMPERION intake startup: transient Google backend failure, retry '+(attempt+1)+'/'+(delays.length-1));
+    }
+  }
+}
+
 /** Run manually once first, then enable owner-created time triggers. */
 function imperionSyncPrivateIntake(){
   var lock=LockService.getScriptLock();
   if(!lock.tryLock(12000))throw Error('Another intake run is already in progress');
   try{
-    var cfg=impPrivateConfig_(),ss=SpreadsheetApp.openById(cfg.sheetId);
+    var cfg=impStartupReadWithRetry_(function(){return impPrivateConfig_();}),
+        ss=impStartupReadWithRetry_(function(){return SpreadsheetApp.openById(cfg.sheetId);});
     ['Registrations','Druzina_Requests','Leads'].forEach(function(n){impEnsureReceiptCols_(ss.getSheetByName(n));});
     var addedR=0,addedE=0,addedB=0,addedA=0,processed=0;
     // One safe public price lookup; never infer paid status from a blank/unknown fee.
