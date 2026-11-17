@@ -21,11 +21,11 @@ html[lang="cs"] #current-training-prices .notice p[lang="cs"],
 html[lang="en"] #current-training-prices .notice p[lang="en"],
 html[lang="ru"] #current-training-prices .notice p[lang="ru"],
 html[lang="uk"] #current-training-prices .notice p[lang="uk"]{display:block}
-#languages-pricing details{display:none}
-html[lang="cs"] #languages-pricing details:nth-of-type(1),
-html[lang="en"] #languages-pricing details:nth-of-type(2),
-html[lang="ru"] #languages-pricing details:nth-of-type(3),
-html[lang="uk"] #languages-pricing details:nth-of-type(4){display:block}
+section[aria-labelledby="languages-pricing"] details{display:none}
+html[lang="cs"] section[aria-labelledby="languages-pricing"] details:nth-of-type(1),
+html[lang="en"] section[aria-labelledby="languages-pricing"] details:nth-of-type(2),
+html[lang="ru"] section[aria-labelledby="languages-pricing"] details:nth-of-type(3),
+html[lang="uk"] section[aria-labelledby="languages-pricing"] details:nth-of-type(4){display:block}
 </style>
 </head><body data-imperion-scope="dark" data-imperion-design="druzina-pricing">
 <header><nav><a href="../">← Družina Moravy</a><a href="../rules/">Safety / Bezpečnost</a><a href="../cesty/">Training programme</a><a href="../novinky/?lang=en#en-pricing">November updates</a></nav>
@@ -88,7 +88,7 @@ function localize(){
  prior.querySelector('h2').textContent=t.priorTitle;
  var priorP=prior.querySelectorAll(':scope>p');
  if(priorP.length>=3){priorP[0].textContent=t.priorText;priorP[1].hidden=true;priorP[2].textContent=t.priorGear;}
- var terms=document.querySelector('#languages-pricing');terms.textContent;terms.querySelector('h2').textContent=t.detailsTitle;
+ var terms=document.querySelector('section[aria-labelledby="languages-pricing"]');terms.querySelector('h2').textContent=t.detailsTitle;
  var foot=document.querySelector('footer');foot.querySelector('p').textContent=t.footer;
  var anchors=foot.querySelectorAll('a');anchors[0].textContent=t.footerClub;anchors[1].textContent=t.footerSafety;anchors[2].textContent=t.footerContact;
  for(var a of terms.querySelectorAll('details a')){var u=new URL(a.href,location.href);if(u.pathname.includes('/register/'))u.searchParams.set('lang',lang);a.href=u.href;}
