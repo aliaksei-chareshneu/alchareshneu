@@ -324,6 +324,10 @@ function showEvent(){
  meta.textContent=eventDate(e)+' · '+eventVenue(e)+' · '+(groupPrice||(e.price_verified===false?t('payment'):Number(e.price_czk)===0?t('free'):Number(e.price_czk)+' Kč'));info.append(meta);
  const status=document.createElement('p');status.className='event-state';status.textContent=statusLabel(e);info.append(status);
  const note=document.createElement('p');note.textContent=mode==='FORM'?t('unconfirmed'):ct(mode==='CONTACT'?'manualNote':'planNote');info.append(note);
+ if((e.event_id==='PUB-HEMA-20261123'||e.event_id==='PUB-HEMA-20261128')&&mode==='FORM'){
+  const details=window.ImperionEventI18n?.note(e,lang);
+  if(details){const p=document.createElement('p');p.className='catalog-summary';p.textContent=details;info.append(p);}
+ }
  if((e.event_id==='PUB-WALK-TALK-20261115'||e.event_id==='PUB-WALK-TALK-20261118') && mode==='FORM'){
    const city=e.event_id==='PUB-WALK-TALK-20261118';
    const copy=({
