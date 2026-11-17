@@ -1014,19 +1014,20 @@ function impFlushOwnerDigest_(cfg,ss,events){
   }
 }
 
-/** Recover only transient Google Sheets service failures while opening the EXISTING CRM.
- * Retries here are read-only and bounded; never retry writes, ACKs or mail sends.
- * The five-minute owner trigger remains the outer recovery mechanism.
+/** Limited retries for Google backend faults in READ-ONLY startup calls.
+ * No retries for imports, CRM writes, outbound mail, ACKs, or side effects.
+ * The existing five-minute owner trigger remains the outer recovery path.
  */
-function impOpenCrmWithRetry_(sheetId){
-  for(var attempt=0;attempt<3;attempt++){
-    try{
-      return SpreadsheetApp.openById(sheetId);
-    }catch(e){
+function impStartupReadWithRetry_(operation){
+  var delays=[0,500,1500];
+  for(var attempt=0;attempt<delays.length;attempt++){
+    if(attempt)Utilities.sleep(delays[attempt]);
+    try{return operation();}
+    catch(e){
       var message=String(e&&e.message||e||'');
-      var temporary=/Service Spreadsheets (?:failed|timed out) while accessing document|server error occurred(?: while reading from storage)?|server not available|Error code INTERNAL/i.test(message);
-      if(!temporary||attempt===2)throw e;
-      Utilities.sleep(1000*Math.pow(2,attempt)+Math.floor(Math.random()*250));
+      var temporary=/Service Spreadsheets (?:failed|timed out) while accessing document|server error occurred|server not available|Error code INTERNAL/i.test(message);
+      if(!temporary||attempt===delays.length-1)throw e;
+      console.warn('IMPERION intake startup: transient Google backend failure, retry '+(attempt+1)+'/'+(delays.length-1));
     }
   }
 }
@@ -1036,7 +1037,8 @@ function imperionSyncPrivateIntake(){
   var lock=LockService.getScriptLock();
   if(!lock.tryLock(12000))throw Error('Another intake run is already in progress');
   try{
-    var cfg=impPrivateConfig_(),ss=impOpenCrmWithRetry_(cfg.sheetId);
+    var cfg=impStartupReadWithRetry_(function(){return impPrivateConfig_();}),
+        ss=impStartupReadWithRetry_(function(){return SpreadsheetApp.openById(cfg.sheetId);});
     ['Registrations','Druzina_Requests','Leads'].forEach(function(n){impEnsureReceiptCols_(ss.getSheetByName(n));});
     var addedR=0,addedE=0,addedB=0,addedA=0,processed=0;
     // One safe public price lookup; never infer paid status from a blank/unknown fee.
