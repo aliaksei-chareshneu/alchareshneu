@@ -27,7 +27,7 @@
   var registerIndex=/^register\/(?:(?:en|ru|uk)\/)?(?:index\.html)?$/.test(path);
   if(['about','partners'].includes(section)||registerIndex||path==='druzina/cesty/'||path==='druzina/cesty/index.html')supported=['cs','en','ru','uk'];
   // Some informational pages have four dedicated language sections rather than buttons.
-  if(!supported.length&&document.querySelector('[data-locale="cs"], [data-dm-hero-all-lang="cs"]'))
+  if(!supported.length&&document.querySelector('[data-locale], [data-dm-hero-all-lang]'))
     supported=['cs','en','ru','uk'];
   // Explicit single-language documents must not show a Russian/Czech shell above untranslated English/Czech copy.
   // These routes are not offered as multilingual until their substantive content is translated.
