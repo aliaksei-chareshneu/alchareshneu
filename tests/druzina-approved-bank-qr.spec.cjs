@@ -71,7 +71,8 @@ for(const [lang,uri] of [['cs','/register/'],['en','/register/en/'],['ru','/regi
 test('public HEMA CTA presents currently open 23/28 November dates without automatic payment',async({page})=>{
  await page.clock.install({time:new Date('2026-11-15T09:00:00Z')});
  await page.goto('/druzina/',{waitUntil:'domcontentloaded'});
- await expect(page.locator('#dm-nov14-fast-rsvp')).toBeVisible();
+ // The legacy hero promotion is deliberately suppressed by the current design; keep its current links safe.
+ await expect(page.locator('#dm-nov14-fast-rsvp')).toBeHidden();
  const upcoming=page.locator('#dm-nov14-fast-rsvp [data-fast-lang="cs"] a');
  await expect(upcoming).toHaveCount(2);
  await expect(upcoming.nth(0)).toHaveAttribute('href',/PUB-HEMA-20261123/);
