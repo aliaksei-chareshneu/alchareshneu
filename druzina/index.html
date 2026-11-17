@@ -357,11 +357,13 @@ html[lang="en"] #new-training-enquiry [data-reg-lang="en"],
 html[lang="ru"] #new-training-enquiry [data-reg-lang="ru"],
 html[lang="uk"] #new-training-enquiry [data-reg-lang="uk"]{display:block}
 
-.dm-book-actions [data-book-lang]{display:none}
-html[lang="cs"] .dm-book-actions [data-book-lang="cs"],
-html[lang="en"] .dm-book-actions [data-book-lang="en"],
-html[lang="ru"] .dm-book-actions [data-book-lang="ru"],
-html[lang="uk"] .dm-book-actions [data-book-lang="uk"]{display:inline-flex}
+/* Only one locale-specific booking CTA is ever visible. A later global
+   button display rule must not override the language gate. */
+#new-training-enquiry .dm-book-actions > a[data-book-lang]{display:none!important}
+html[lang="cs"] #new-training-enquiry .dm-book-actions > a[data-book-lang="cs"],
+html[lang="en"] #new-training-enquiry .dm-book-actions > a[data-book-lang="en"],
+html[lang="ru"] #new-training-enquiry .dm-book-actions > a[data-book-lang="ru"],
+html[lang="uk"] #new-training-enquiry .dm-book-actions > a[data-book-lang="uk"]{display:inline-flex!important}
 </style>
 <p class="reg-eyebrow" data-reg-lang="cs" lang="cs">DRUŽINA MORAVY · PŘIHLÁŠKA NA TRÉNINK</p>
 <p class="reg-eyebrow" data-reg-lang="en" lang="en">DRUŽINA MORAVY · TRAINING ENQUIRY</p>
