@@ -76,5 +76,9 @@ test('public HEMA CTA is one existing registration, with past workshop hidden',a
  const links=page.locator('.dm-book-actions a[data-book-lang]');
  await expect(links).toHaveCount(4);
  for(const link of await links.all())expect(await link.getAttribute('href')).toMatch(/\.\.\/register\/\?lang=(cs|en|ru|uk)$/);
- await expect(page.locator('.reg-note')).toContainText('No online payment.');
+ // The public information note is now split into four language variants.
+ await expect(page.locator('.reg-note[data-reg-lang="en"]')).toContainText('No online payment.');
+ await expect(page.locator('.reg-note[data-reg-lang="cs"]')).toContainText('Na webu se neplatí.');
+ await expect(page.locator('.reg-note[data-reg-lang="ru"]')).toContainText('Онлайн-оплаты нет.');
+ await expect(page.locator('.reg-note[data-reg-lang="uk"]')).toContainText('Онлайн-оплати немає.');
 });
