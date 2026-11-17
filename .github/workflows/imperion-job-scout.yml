@@ -84,13 +84,13 @@ jobs:
         # Daily and merge-to-main runs must fail on real source errors; PR QA is separately gated.
         continue-on-error: ${{ github.event_name == 'pull_request' }}
         run: |
-          node ops/job-scout/muni-public.cjs --live --pages 1 --details "${{ (github.event_name == 'schedule' || github.event_name == 'push') && '10' || '2' }}" --out "$RUNNER_TEMP/imperion-public-job-scout.json"
+          node ops/job-scout/muni-public.cjs --live --pages 3 --details "${{ (github.event_name == 'schedule' || github.event_name == 'push') && '10' || '2' }}" --out "$RUNNER_TEMP/imperion-public-job-scout.json"
       - name: Report provider readback accurately (no applicant data)
         if: always()
         run: |
           if [ -s "$RUNNER_TEMP/imperion-public-job-scout.json" ]; then
             node -e 'const fs=require("node:fs");const x=JSON.parse(fs.readFileSync(process.argv[1])); console.log("Public official source checked:",x.index_count,"links;",x.details_checked,"detail pages; submissions:",x.applications_sent);' "$RUNNER_TEMP/imperion-public-job-scout.json"
-            node -e 'const fs=require("node:fs");const x=JSON.parse(fs.readFileSync(process.argv[1]));const safe=s=>String(s??"").replace(/[|\r\n]/g," ").slice(0,140);const rows=["PUBLIC_SOURCE_READBACK: official MUNI source read, zero applications.","","| Vacancy | Deadline | Part-time | Explicit 0.5 FTE |","|---|---|---|---|"];for(const j of x.jobs.slice(0,10))rows.push("| ["+safe(j.title)+"]("+j.url+") | "+safe(j.deadline||"NOT VERIFIED")+" | "+j.part_time_advertised+" | "+j.half_fte_explicit+" |");fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY,rows.join("\n")+"\n");' "$RUNNER_TEMP/imperion-public-job-scout.json"
+            node -e 'const fs=require("node:fs");const x=JSON.parse(fs.readFileSync(process.argv[1]));const safe=s=>String(s??"").replace(/[|\r\n]/g," ").slice(0,140);const rows=["PUBLIC_SOURCE_READBACK: official MUNI source read, zero applications.","Public employer index links: "+x.index_count+"; detailed public pages checked: "+x.details_checked+"; verified deadlines among displayed candidates: "+x.jobs.filter(j=>j.deadline_verified).length+". Source index is NOT proof of actual vacancy availability, HPP or applicant eligibility.","","| Vacancy | Deadline | Part-time | Explicit 0.5 FTE |","|---|---|---|---|"];for(const j of x.jobs.slice(0,10))rows.push("| ["+safe(j.title)+"]("+j.url+") | "+safe(j.deadline||"NOT VERIFIED")+" | "+j.part_time_advertised+" | "+j.half_fte_explicit+" |");fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY,rows.join("\n")+"\n");' "$RUNNER_TEMP/imperion-public-job-scout.json"
           else
             echo 'PUBLIC_SOURCE_BLOCKED: no source readback; do not claim live job discovery.' >> "$GITHUB_STEP_SUMMARY"
           fi
