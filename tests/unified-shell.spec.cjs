@@ -238,8 +238,11 @@ for(const [code,expected] of Object.entries(localeIntegrity)){
   await expect(corporate).toHaveText(expected.corporate);
 
   await page.goto('/register/?lang='+code);
-  await expect(page.locator('#bw-cancel-20261028 summary [data-archive-lang]:visible')).toHaveCount(1);
-  await expect(page.locator('#bw-cancel-20261028 summary [data-archive-lang="'+code+'"]')).toBeVisible();
+  // The old cancelled-event archive may be hidden by the active design.
+  // Verify language isolation directly rather than ancestor visibility.
+  const archiveLanguages=await page.locator('#bw-cancel-20261028 summary [data-archive-lang]').evaluateAll(nodes=>
+   nodes.filter(x=>getComputedStyle(x).display!=='none').map(x=>x.dataset.archiveLang));
+  expect(archiveLanguages).toEqual([code]);
 
   await page.goto('/druzina/novinky/?lang='+code);
   await expect(page.locator('a.skip-link')).toHaveText(expected.skip);
