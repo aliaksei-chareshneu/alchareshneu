@@ -258,7 +258,7 @@ for(const [code,expected] of Object.entries({
   await expect(page.locator('body > header:not(#imp-shell-top) h1')).toHaveText(expected);
   await expect(page.locator('#current-training-prices .notice p[lang]:visible')).toHaveCount(1);
   await expect(page.locator('#current-training-prices .notice p[lang="'+code+'"]')).toBeVisible();
-  await expect(page.locator('#languages-pricing details:visible')).toHaveCount(1);
+  await expect(page.locator('section[aria-labelledby="languages-pricing"] details:visible')).toHaveCount(1);
   await expect(page.locator('.price-grid .price')).toHaveCount(3);
   await expect(page.locator('.price-grid .price .big')).toHaveText(['240 Kč','120 Kč','800 Kč']);
   for(const link of await page.locator('.price-grid .act').all()){
