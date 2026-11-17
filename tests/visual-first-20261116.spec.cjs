@@ -83,5 +83,18 @@ test('BrnoWalkers opens with image hero before preserved dated notices',async({p
  // Keep the cancellation notice visible; no registration must reopen for this event.
  await expect(page.locator('#bw-walktalk-nov-2026')).toContainText('Registration is closed');
  await expect(page.locator('#bw-walktalk-nov-2026 a[href*="register/"]')).toHaveCount(0);
- await expect(page.locator('#bw-walktalk-nov-2026 a[href*="walktalk-november-2026.html"]')).toHaveCount(1);
+ await expect(page.locator('#bw-walktalk-nov-2026 a[href*="walktalk-november-2026.html"]:visible')).toHaveCount(1);
 });
+
+for(const lang of ['cs','en','ru','uk']){
+ test('BrnoWalkers cancellation and registration labels follow '+lang,async({page})=>{
+  await page.goto('/walkers/?lang='+lang);
+  await expect(page.locator('html')).toHaveAttribute('lang',lang);
+  await expect(page.locator('#bw-walktalk-nov-2026 [data-bw-cancel-lang]:visible')).toHaveCount(1);
+  await expect(page.locator('#bw-walktalk-nov-2026 [data-bw-cancel-lang="'+lang+'"]')).toBeVisible();
+  await expect(page.locator('#bw-walktalk-nov-2026 a[href*="register/"]')).toHaveCount(0);
+  const reg=await page.locator('#new-website-registration [data-bw-register-lang]').evaluateAll(els=>
+   els.filter(el=>getComputedStyle(el).display!=='none').map(el=>el.dataset.bwRegisterLang));
+  expect(reg).toEqual([lang,lang,lang]);
+ });
+}
