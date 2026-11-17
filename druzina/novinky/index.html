@@ -85,7 +85,7 @@ button{font:inherit}.sr-only{position:absolute!important;width:1px!important;hei
 <script src="../../unified-shell.js?v=20261113b" defer></script>
 </head>
 <body data-imperion-scope="novinky" data-imperion-design="druzina">
-<a class="skip-link" href="#main">Skip to content / Перейти к содержанию</a>
+<a class="skip-link" href="#main">Přejít k obsahu</a>
 <header class="site-header"><div class="container header-row"><a class="brand" href="../">Družina Moravy<small>HEMA · LARP · BRNO</small></a><nav class="language" aria-label="Select language / Выберите язык"><button type="button" data-lang="cs" aria-pressed="true" aria-label="Čeština">CZ</button><button type="button" data-lang="en" aria-pressed="false" aria-label="English">EN</button><button type="button" data-lang="ru" aria-pressed="false" aria-label="Русский">RU</button><button type="button" data-lang="uk" aria-pressed="false" aria-label="Українська">UA</button></nav></div></header>
 <main class="container page-main" id="main"><article class="locale" data-locale="cs" lang="cs"><p class="fine-print" role="note" style="margin:14px 0;padding:13px 16px;border-left:4px solid #f5ce94;background:#1d3041;color:#f3f6f8"><strong>AKTUALIZACE 9. 11. 2026: skupinový vzorec ze 7. listopadu je zrušen. Pro nové účastníky platí první návštěva 240 Kč, Starter 4 za 800 Kč, pro ověřený Senior tarif 120 Kč. Dřívější individuální závazky zůstávají zachovány.</strong> <a href="#cs-pricing">Ceny a nezávazný dotaz →</a></p>
 <section class="hero" aria-label="Nová pravidla. Stejná družina.">
@@ -197,6 +197,8 @@ var supported=["cs","en","ru","uk"];
 function select(code,writeUrl){
  if(supported.indexOf(code)<0)code="cs";
  document.documentElement.lang=code;
+ var skipLabels={cs:"Přejít k obsahu",en:"Skip to content",ru:"Перейти к содержанию",uk:"Перейти до вмісту"};
+ var skip=document.querySelector("a.skip-link");if(skip)skip.textContent=skipLabels[code];
  panels.forEach(function(p){p.hidden=p.dataset.locale!==code;});
  buttons.forEach(function(b){b.setAttribute("aria-pressed",String(b.dataset.lang===code));});
  var titles={cs:"Novinky | Družina Moravy",en:"November update | Družina Moravy",ru:"Изменения с 1 ноября | Дружина Моравы",uk:"Зміни з 1 листопада | Дружина Морави"};
