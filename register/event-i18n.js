@@ -7,6 +7,19 @@
 (function (root) {
   'use strict';
   const TITLES = {
+  'Družina Moravy · HEMA — práce ve dvojicích (23.11.)': {
+    cs: 'Družina Moravy · HEMA — práce ve dvojicích (po 23. 11.)',
+    en: 'Družina Moravy · HEMA — partner drills (Mon 23 Nov)',
+    ru: 'Družina Moravy · HEMA — работа в парах (пн, 23.11)',
+    uk: 'Družina Moravy · HEMA — робота в парах (пн, 23.11)'
+  },
+  'Družina Moravy · HEMA — sobotní trénink (28.11.)': {
+    cs: 'Družina Moravy · HEMA — sobotní trénink (28. 11.)',
+    en: 'Družina Moravy · HEMA — Saturday training (28 Nov)',
+    ru: 'Družina Moravy · HEMA — субботняя тренировка (28.11)',
+    uk: 'Družina Moravy · HEMA — суботнє тренування (28.11)'
+  },
+
     'Morava v pohybu · Kalistenika I — základy zdarma': {
       cs: 'Morava v pohybu · Kalistenika I — základy zdarma',
       en: 'Morava v pohybu · Calisthenics I — free beginner workshop',
@@ -174,6 +187,21 @@
     return original;
   }
   const NOTES = {
+  'PUB-HEMA-20261123': {
+    check: 'ORGANIZAČNÍ GO PRO TERMÍN',
+    cs: 'Pondělí 23. 11. 18:00–20:00: nezávazné přihlášky jsou otevřené. Termín schválil pořadatel; přesný bezpečný sraz, kapacita, dostupnost vybavení a místo každého účastníka vyžadují osobní písemné potvrzení. Do té doby neplaťte ani nejezděte.',
+    en: 'Monday 23 Nov 18:00–20:00: preliminary registration is open. The organiser has approved this date; the safe meeting point, capacity, loan equipment and each place still require personal written confirmation. Please do not pay or travel before then.',
+    ru: 'Понедельник, 23.11, 18:00–20:00: предварительная запись открыта. Организатор согласовал дату; место сбора, безопасность, вместимость, выдачу снаряжения и участие подтвердим лично письменно. До этого не платите и не приезжайте.',
+    uk: 'Понеділок, 23.11, 18:00–20:00: попередній запис відкрито. Організатор погодив дату; місце збору, безпеку, кількість місць, спорядження та участь підтвердимо особисто письмово. До цього не платіть і не приїжджайте.'
+  },
+  'PUB-HEMA-20261128': {
+    check: 'ORGANIZAČNÍ GO PRO TERMÍN',
+    cs: 'Sobota 28. 11. 18:00–20:00: nezávazné přihlášky jsou otevřené po souhlasu pořadatele. Konání závisí na bezpečné ploše, vybavení a instruktorovi. Přesný sraz a jednotlivá místa potvrdíme písemně; zatím neplaťte ani nejezděte.',
+    en: 'Saturday 28 Nov 18:00–20:00: preliminary registration is open with the organiser’s approval. The session depends on a safe training area, equipment and instructor availability. We will confirm the meeting point and each place in writing; please do not pay or travel before then.',
+    ru: 'Суббота, 28.11, 18:00–20:00: предварительная запись открыта по согласованию с организатором. Проведение зависит от безопасного места, снаряжения и тренера; точку сбора и участие подтвердим письменно. Пока не платите и не приезжайте.',
+    uk: 'Субота, 28.11, 18:00–20:00: попередній запис відкрито за згодою організатора. Проведення залежить від безпечного місця, спорядження та тренера; місце збору й участь підтвердимо письмово. Поки не платіть і не приїжджайте.'
+  },
+
     'PUB-MVP-CALI-20261124': {
       check: 'NEZÁVAZNÁ PŘIHLÁŠKA NA BEZPLATNÝ WORKSHOP.',
       cs: 'Bezplatná kalistenika I pro mládež: nezávazná přihláška online. Přesný sraz, počasí, bezpečnost povrchu, vedení a osobní účast potvrdíme jednotlivě. Nejezděte bez potvrzení; nezletilí potřebují souhlas rodiče. Žádná platba.',
