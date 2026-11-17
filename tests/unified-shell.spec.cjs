@@ -238,11 +238,9 @@ for(const [code,expected] of Object.entries(localeIntegrity)){
   await expect(corporate).toHaveText(expected.corporate);
 
   await page.goto('/register/?lang='+code);
-  // The old cancelled-event archive may be hidden by the active design.
-  // Verify language isolation directly rather than ancestor visibility.
-  const archiveLanguages=await page.locator('#bw-cancel-20261028 summary [data-archive-lang]').evaluateAll(nodes=>
-   nodes.filter(x=>getComputedStyle(x).display!=='none').map(x=>x.dataset.archiveLang));
-  expect(archiveLanguages).toEqual([code]);
+  // The historical 28 October cancellation notice expires on 4 November 2026.
+  // Do not assert its translations: the live script intentionally removes it.
+  await expect(page.locator('#bw-cancel-20261028')).toHaveCount(0);
 
   await page.goto('/druzina/novinky/?lang='+code);
   await expect(page.locator('a.skip-link')).toHaveText(expected.skip);
