@@ -79,5 +79,9 @@ test('BrnoWalkers opens with image hero before preserved dated notices',async({p
  expect(order.announcement).toBeGreaterThan(order.hero);
  await expect(page.locator('#bw-december-proposals')).toContainText('NOT confirmed bookings');
  await expect(page.locator('#walkers .hero-ctas a.btn.solid')).toHaveAttribute('href',/\.\.\/calendar\//);
- await expect(page.locator('#bw-walktalk-nov-2026 a[href*="register/"]')).toHaveCount(1);
+ // The 18 Nov walk was cancelled for insufficient confirmed attendees.
+ // Keep the cancellation notice visible; no registration must reopen for this event.
+ await expect(page.locator('#bw-walktalk-nov-2026')).toContainText('Registration is closed');
+ await expect(page.locator('#bw-walktalk-nov-2026 a[href*="register/"]')).toHaveCount(0);
+ await expect(page.locator('#bw-walktalk-nov-2026 a[href*="walktalk-november-2026.html"]')).toHaveCount(1);
 });
