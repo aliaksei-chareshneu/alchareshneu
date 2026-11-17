@@ -280,3 +280,18 @@ for(const code of ['cs','en','ru','uk']){
   await expect(page.locator('#spolecne-temy div[data-shared-lang="'+code+'"] a').first()).toHaveAttribute('href','../rules/?lang='+code);
  });
 }
+
+for(const code of ['cs','en','ru','uk']){
+ test('Safety briefing shows only chosen language '+code,async({page})=>{
+  await page.goto('/druzina/safety/?lang='+code);
+  await expect(page.locator('html')).toHaveAttribute('lang',code);
+  await expect(page.locator('main h1 [data-safety-ui]:visible')).toHaveCount(1);
+  await expect(page.locator('main > section[lang]:visible')).toHaveCount(1);
+  await expect(page.locator('main > section[lang="'+code+'"]')).toBeVisible();
+  await expect(page.locator('#safety-contact [data-safety-ui]:visible')).toHaveCount(1);
+  await expect(page.locator('#safety-contact [data-safety-ui="'+code+'"]')).toBeVisible();
+  await expect(page.locator('main > .notice:first-of-type [data-safety-ui]:visible')).toHaveCount(1);
+  await expect(page.locator('main #ru h3')).toContainText('Страховка');
+  if(code!=='ru')await expect(page.locator('main #ru h3:visible')).toHaveCount(0);
+ });
+}
