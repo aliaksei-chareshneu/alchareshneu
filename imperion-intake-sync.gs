@@ -1014,12 +1014,29 @@ function impFlushOwnerDigest_(cfg,ss,events){
   }
 }
 
+/** Recover only transient Google Sheets service failures while opening the EXISTING CRM.
+ * Retries here are read-only and bounded; never retry writes, ACKs or mail sends.
+ * The five-minute owner trigger remains the outer recovery mechanism.
+ */
+function impOpenCrmWithRetry_(sheetId){
+  for(var attempt=0;attempt<3;attempt++){
+    try{
+      return SpreadsheetApp.openById(sheetId);
+    }catch(e){
+      var message=String(e&&e.message||e||'');
+      var temporary=/Service Spreadsheets (?:failed|timed out) while accessing document|server error occurred(?: while reading from storage)?|server not available|Error code INTERNAL/i.test(message);
+      if(!temporary||attempt===2)throw e;
+      Utilities.sleep(1000*Math.pow(2,attempt)+Math.floor(Math.random()*250));
+    }
+  }
+}
+
 /** Run manually once first, then enable owner-created time triggers. */
 function imperionSyncPrivateIntake(){
   var lock=LockService.getScriptLock();
   if(!lock.tryLock(12000))throw Error('Another intake run is already in progress');
   try{
-    var cfg=impPrivateConfig_(),ss=SpreadsheetApp.openById(cfg.sheetId);
+    var cfg=impPrivateConfig_(),ss=impOpenCrmWithRetry_(cfg.sheetId);
     ['Registrations','Druzina_Requests','Leads'].forEach(function(n){impEnsureReceiptCols_(ss.getSheetByName(n));});
     var addedR=0,addedE=0,addedB=0,addedA=0,processed=0;
     // One safe public price lookup; never infer paid status from a blank/unknown fee.
