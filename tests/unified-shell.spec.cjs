@@ -311,3 +311,22 @@ for(const code of ['cs','en','ru','uk']){
   await expect(page.locator('#privacy-back')).toHaveAttribute('href','../?lang='+code);
  });
 }
+
+for(const code of ['cs','en','ru','uk']){
+ test('Registration safety content and safety links follow '+code,async({page})=>{
+  await page.goto('/register/safety/?lang='+code);
+  await expect(page.locator('html')).toHaveAttribute('lang',code);
+  await expect(page.locator('main > section[lang]:visible')).toHaveCount(1);
+  await expect(page.locator('main > section[lang="'+code+'"]')).toBeVisible();
+  await expect(page.locator('main h1 [data-safety-i18n]:visible')).toHaveCount(1);
+  await expect(page.locator('main h1 [data-safety-i18n="'+code+'"]')).toBeVisible();
+  await expect(page.locator('#safety-return-top')).toHaveAttribute('href',new RegExp('lang='+code+'$'));
+  const href=await page.locator('main > section[lang="'+code+'"] a[href*="/druzina/safety/"]').getAttribute('href');
+  expect(href).toMatch(new RegExp('lang='+code+'$'));
+  const next={cs:'en',en:'ru',ru:'uk',uk:'cs'}[code];
+  await page.locator('main > nav[aria-label="Language"] a[href="#'+next+'"]').click();
+  await expect(page.locator('html')).toHaveAttribute('lang',next);
+  await expect(page.locator('main > section[lang="'+next+'"]')).toBeVisible();
+  await expect(page.locator('#safety-return-bottom')).toHaveAttribute('href',new RegExp('lang='+next+'$'));
+ });
+}
