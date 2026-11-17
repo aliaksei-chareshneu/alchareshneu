@@ -240,3 +240,25 @@ for(const [code,expected] of Object.entries(localeIntegrity)){
   await expect(page.locator('a.skip-link')).toHaveText(expected.skip);
  });
 }
+
+for(const [code,expected] of Object.entries({
+ cs:'Ceník tréninků Družina Moravy',
+ en:'Družina Moravy training prices',
+ ru:'Цены на тренировки Družina Moravy',
+ uk:'Ціни на тренування Družina Moravy'
+})){
+ test('Training price page uses '+code+' throughout visible copy and correct registration URLs',async({page})=>{
+  await page.goto('/druzina/permanentky/?lang='+code);
+  await expect(page.locator('html')).toHaveAttribute('lang',code);
+  await expect(page.locator('body > header:not(#imp-shell-top) h1')).toHaveText(expected);
+  await expect(page.locator('#current-training-prices .notice p[lang]:visible')).toHaveCount(1);
+  await expect(page.locator('#current-training-prices .notice p[lang="'+code+'"]')).toBeVisible();
+  await expect(page.locator('#languages-pricing details:visible')).toHaveCount(1);
+  await expect(page.locator('.price-grid .price')).toHaveCount(3);
+  await expect(page.locator('.price-grid .price .big')).toHaveText(['240 Kč','120 Kč','800 Kč']);
+  for(const link of await page.locator('.price-grid .act').all()){
+   await expect(link).toHaveAttribute('href','../../register/?lang='+code);
+  }
+  await expect(page.locator('#imp-shell-links [data-imp-link="home"]')).toHaveText(localeIntegrity[code].home);
+ });
+}
