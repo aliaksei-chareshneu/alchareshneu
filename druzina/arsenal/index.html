@@ -20,8 +20,18 @@ footer{padding:20px 0 45px}.warning{background:#273c50;padding:14px 18px;border-
 <link rel="stylesheet" href="../../unified-shell.css?v=20261113b">
 <link rel="stylesheet" href="../../imperion-finish.css?v=20261113b">
 <script src="../../unified-shell.js?v=20261113b" defer></script>
-</head><body data-imperion-scope="dark" data-imperion-design="druzina"><header><a href="../">← Družina Moravy</a><h1>Klubový arzenál / Club arsenal</h1>
-<p class="warning"><strong>Free inspected equipment, not a promise of stock.</strong> For confirmed club activities and individually approved trips only. <a href="../rules/">Mandatory safety rules / Pravidla bezpečnosti →</a></p>
+
+<style id="imp-four-language-isolation">
+/* Only the selected public language is visible, including when JavaScript is unavailable. */
+main > section[lang]{display:none}
+html[lang="cs"] main > section[lang="cs"],
+html[lang="en"] main > section[lang="en"],
+html[lang="ru"] main > section[lang="ru"],
+html[lang="uk"] main > section[lang="uk"]{display:block}
+nav[aria-label="Language"] a[aria-current="page"],nav.lang a[aria-current="page"]{border-color:#f2c684;background:#283f56;font-weight:800}
+</style>
+</head><body data-imperion-scope="dark" data-imperion-design="druzina"><header><a href="../">← Družina Moravy</a><h1>Klubový arzenál</h1>
+<p class="warning"><strong>Kontrolované vybavení zdarma, bez záruky dostupnosti.</strong> Vybavení nabízíme jen pro potvrzené klubové aktivity a individuálně schválené výjezdy. <a href="../rules/?lang=cs">Povinná pravidla bezpečnosti →</a></p>
 <nav aria-label="Language"><a href="#cs" lang="cs">Čeština</a><a href="#en" lang="en">English</a><a href="#ru" lang="ru">Русский</a><a href="#uk" lang="uk">Українська</a></nav></header><main><section id="cs" lang="cs" aria-labelledby="cs-title"><h2 id="cs-title">Klubový arzenál</h2><p>Vhodné vybavení půjčujeme na potvrzené klubové lekce a individuálně odsouhlasené výjezdy LARP bez příplatku, bez placených sad a bez finanční kauce. Skutečný počet kusů, velikost, stav a pravidla výdeje vždy ověří správce.</p><div class="grid"><article><h3>Měkčené jednoruční zbraně</h3><p>Meče a další předem schválené měkčené krátké zbraně pro základy boje.</p></article>
 <article><h3>Štíty</h3><p>Menší i větší bezpečně zkontrolované štíty pro individuální i skupinový výcvik.</p></article>
 <article><h3>Měkčené kopí a obouruční zbraně</h3><p>Pro specializace až po ověření dovedností, pravidel konkrétní akce a bezpečné délky.</p></article>
@@ -45,4 +55,38 @@ footer{padding:20px 0 45px}.warning{background:#273c50;padding:14px 18px;border-
 <article><h3>М’які списи та дворучна зброя</h3><p>Для спеціалізацій після перевірки навичок і правил конкретної події.</p></article>
 <article><h3>Дві одиниці зброї</h3><p>Перевірені пари м’якої зброї для занять обігачів.</p></article>
 <article><h3>Луки та стріли</h3><p>Лише у відповідно обладнаній безпечній зоні під наглядом; не автоматично в загальному бою.</p></article>
-<article><h3>Історичні шоломи, костюми й обладунки</h3><p>Шоломи, гамбезони, табарди та інші речі за розміром і після огляду. Історичний шолом не обов’язково є сертифікованим захистом.</p></article></div><p class="caution">Повний комплект кожному не гарантовано. Потрібні фактична наявність, придатний розмір і дозвіл на використання. Удари в голову заборонені навіть за наявності шолома.</p><p><a href="../rules/">Правила безпеки →</a></p></section></main><footer><a href="../">Club home</a> · <a href="../rules/">Safety rules</a> · <a href="../cesty/">Training skills</a> · <a href="../safety/">First visit</a></footer></body></html>
+<article><h3>Історичні шоломи, костюми й обладунки</h3><p>Шоломи, гамбезони, табарди та інші речі за розміром і після огляду. Історичний шолом не обов’язково є сертифікованим захистом.</p></article></div><p class="caution">Повний комплект кожному не гарантовано. Потрібні фактична наявність, придатний розмір і дозвіл на використання. Удари в голову заборонені навіть за наявності шолома.</p><p><a href="../rules/">Правила безпеки →</a></p></section></main><footer><a href="../">Club home</a> · <a href="../rules/">Safety rules</a> · <a href="../cesty/">Training skills</a> · <a href="../safety/">First visit</a></footer>
+<script id="imp-arsenal-i18n">
+(function(){
+'use strict';
+var copy={
+cs:{title:'Klubový arzenál',strong:'Kontrolované vybavení zdarma, bez záruky dostupnosti.',warn:'Vybavení nabízíme jen pro potvrzené klubové aktivity a individuálně schválené výjezdy. ',rule:'Povinná pravidla bezpečnosti →',foot:['Klub','Pravidla bezpečnosti','Tréninkové cesty','První návštěva']},
+en:{title:'Club arsenal',strong:'Inspected equipment at no extra cost, subject to availability.',warn:'Equipment is provided only for confirmed club activities and individually approved trips. ',rule:'Mandatory safety rules →',foot:['Club home','Safety rules','Training paths','First visit']},
+ru:{title:'Клубный арсенал',strong:'Проверенное снаряжение без доплаты, наличие не гарантировано.',warn:'Снаряжение предоставляется только для подтверждённых занятий клуба и индивидуально согласованных поездок. ',rule:'Обязательные правила безопасности →',foot:['Главная клуба','Правила безопасности','Направления тренировок','Первое посещение']},
+uk:{title:'Клубний арсенал',strong:'Перевірене спорядження без доплати, наявність не гарантована.',warn:'Спорядження надаємо лише для підтверджених клубних занять та індивідуально погоджених поїздок. ',rule:'Обов’язкові правила безпеки →',foot:['Головна клубу','Правила безпеки','Напрями тренувань','Перший візит']}
+};
+var nav=document.querySelector('body>header nav[aria-label="Language"]'),links=Array.from(nav.querySelectorAll('a[lang]'));
+var warn=document.querySelector('body>header .warning'),foot=Array.from(document.querySelectorAll('body>footer a'));
+function sync(){
+ var lang=document.documentElement.lang;if(!copy[lang])return;
+ var t=copy[lang];document.title=t.title+' | Družina Moravy';
+ document.querySelector('body>header h1').textContent=t.title;
+ var back=document.querySelector('body>header>a');if(back)back.href='../?lang='+lang;
+ var strong=document.createElement('strong');strong.textContent=t.strong;
+ var link=document.createElement('a');link.href='../rules/?lang='+lang;link.textContent=t.rule;
+ warn.replaceChildren(strong,document.createTextNode(' '+t.warn),link);
+ links.forEach(function(a){a.setAttribute('aria-current',a.lang===lang?'page':'false')});
+ foot.forEach(function(a,i){a.textContent=t.foot[i]||a.textContent;var u=new URL(a.getAttribute('href'),location.href);u.searchParams.set('lang',lang);a.href=u.href});
+}
+function activate(lang,store){
+ if(!copy[lang])return;
+ if(document.documentElement.lang!==lang)document.documentElement.lang=lang;
+ if(store){try{localStorage.setItem('dm_lang',lang)}catch(_){}var u=new URL(location.href);u.searchParams.set('lang',lang);u.hash=lang;history.replaceState(null,'',u)}
+ sync();
+}
+links.forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();activate(a.lang,true);document.getElementById(a.lang).scrollIntoView({block:'start'})})});
+var q=new URLSearchParams(location.search).get('lang'),h=location.hash.slice(1),saved='';try{saved=localStorage.getItem('dm_lang')||''}catch(_){}
+activate(copy[q]?q:copy[h]?h:copy[saved]?saved:'cs',false);
+new MutationObserver(sync).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
+})();
+</script></body></html>
