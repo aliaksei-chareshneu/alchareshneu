@@ -92,6 +92,12 @@
       ru: 'BrnoWalkers — Исчезнувшее Брно | историческая экскурсия',
       uk: 'BrnoWalkers — Зникле Брно | історична екскурсія'
     },
+    'BrnoWalkers — Brno Mysteries & Christmas Lights (29 Nov)': {
+      cs: 'BrnoWalkers — Tajemství Brna a vánoční světla (29. 11.)',
+      en: 'BrnoWalkers — Brno Mysteries & Christmas Lights (29 Nov)',
+      ru: 'BrnoWalkers — Тайны Брно и рождественские огни (29 ноября)',
+      uk: 'BrnoWalkers — Таємниці Брна та різдвяні вогні (29 листопада)'
+    },
     'BrnoWalkers — Červený kopec → Kamenná kolonie (18+)': {
       cs: 'BrnoWalkers — Červený kopec → Kamenná kolonie (18+)',
       en: 'BrnoWalkers — Červený kopec to Kamenná kolonie (18+)',
@@ -141,6 +147,12 @@
       en: 'Central Brno (meeting point after minimum group confirmation)',
       ru: 'Центр Брно (место сбора после подтверждения минимальной группы)',
       uk: 'Центр Брна (місце збору після підтвердження мінімальної групи)'
+    },
+    'Outside Měnínská brána, Měnínská 7, Brno': {
+      cs: 'Před Měnínskou bránou, Měnínská 7, Brno',
+      en: 'Outside Měnínská brána, Měnínská 7, Brno',
+      ru: 'У Менинских ворот, Měnínská 7, Брно',
+      uk: 'Біля Менінської брами, Měnínská 7, Брно'
     },
     'OUTSIDE Jurkovičova vila': {
       cs: 'Před Jurkovičovou vilou',
@@ -224,11 +236,11 @@
       uk: 'Платна прогулянка 18+. Перші місця за 390 Kč, звичайна ціна 490 Kč, максимум 18 осіб. Проводиться від 8 учасників, які оплатили. Зацікавленість електронною поштою не є бронюванням; оплату й організацію узгоджують окремо.'
     },
     'PUB-WALK-20261129': {
-      check: 'Экскурсия 450 Kč с человека',
-      cs: 'Historická prohlídka za 450 Kč na osobu. Koná se od 8 skutečně platících účastníků. E-mailový zájem není rezervace; místo srazu, právní podmínky a platba budou upřesněny před převodem peněz.',
-      en: 'Historical city tour: CZK 450 per person. Runs with at least 8 paying participants. Email interest is not a booking. Meeting point, legal terms and payment are confirmed before any transfer.',
-      ru: 'Экскурсия 450 Kč с человека. Проводится от 8 реально оплативших. Выражение интереса по email не является бронью. Точка сбора, легальные условия и оплата уточняются до получения денег.',
-      uk: 'Історична екскурсія: 450 Kč з особи. Проводиться від 8 учасників, які оплатили. Зацікавленість електронною поштою не є бронюванням; місце збору, юридичні умови й оплату уточнюють до переказу коштів.'
+      check: '29 Nov · 190 Kč · EN · preliminary registration',
+      cs: 'Neděle 29. 11. 15:30–17:00, 190 Kč/os. Anglická komentovaná procházka centrem Brna. Přihláška je nezávazná a bez platby; místo a podmínky platby a storna pořadatel potvrdí písemně. Do té doby neplaťte ani nejezděte. Sraz před Měnínskou bránou.',
+      en: 'Sunday 29 Nov, 15:30–17:00, CZK 190/person. English-guided walk around central Brno. This is a free, non-binding request, not a booking or payment. The organiser confirms the event, your place and payment/cancellation terms in writing. Please do not pay or travel before confirmation. Meet outside Měnínská brána.',
+      ru: 'Воскресенье, 29 ноября, 15:30–17:00, 190 Kč/чел. Пешеходная экскурсия на английском. Заявка бесплатна и предварительна, не является бронью или оплатой. Проведение, место и условия оплаты/отмены подтвердим письменно. До подтверждения не платите и не приезжайте. Встреча у Měnínská brána.',
+      uk: 'Неділя, 29 листопада, 15:30–17:00, 190 Kč/особа. Пішохідна екскурсія англійською. Заявка безплатна й попередня, не є бронюванням або оплатою. Участь та умови оплати і скасування підтвердимо письмово. До підтвердження не платіть і не приїжджайте. Зустріч біля Měnínská brána.'
     },
     'PUB-ADV-HEMA-20261125-A': {
       check: 'HOLD: зал недоступен',
