@@ -20,7 +20,7 @@ const cases = [
   ['Družina — техника (план)', 'Nová Zbrojovka, Brno (точка не подтверждена)', 'HEMA Training'],
   ['Družina — сценарии (план)', 'Nová Zbrojovka, Brno (точка не подтверждена)', 'HEMA Training'],
   ['Advanced HEMA — workshop I (площадка не подтверждена)', 'Brno, площадка подбирается (MENDELU B1/B2 недоступны)', 'Workshop'],
-  ['BrnoWalkers — Brno, které zmizelo | историческая экскурсия', 'Центр Брно (сбор после подтверждения минимальной группы)', 'Guided Walk'],
+  ['BrnoWalkers — Brno Mysteries & Christmas Lights (29 Nov)', 'Outside Měnínská brána, Měnínská 7, Brno', 'Guided Walk'],
   ['BrnoWalkers — Obřany → Bílovice nad Svitavou | Free community hike', 'Brno hlavní nádraží — main entrance', 'Hike']
 ];
 
@@ -42,9 +42,9 @@ test('new unknown Russian catalogue items receive an explicit neutral label', ()
 });
 
 test('booking notice is localized without changing the underlying event ID', () => {
-  const e={event_id:'PUB-WALK-20261129',public_note:'Экскурсия 450 Kč с человека. Проводится от 8 реально оплативших.',title:'BrnoWalkers — Brno, které zmizelo | историческая экскурсия'};
-  assert.match(locale.note(e,'cs'),/450 Kč/);
-  assert.match(locale.note(e,'en'),/8 paying participants/);
+  const e={event_id:'PUB-WALK-20261129',public_note:'29 Nov 15:30; 190 Kč per person.',title:'BrnoWalkers — Brno Mysteries & Christmas Lights (29 Nov)'};
+  assert.match(locale.note(e,'cs'),/190 Kč/);
+  assert.match(locale.note(e,'en'),/non-binding request/);
   assert.equal(e.event_id,'PUB-WALK-20261129');
 });
 
