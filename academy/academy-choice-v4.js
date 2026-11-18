@@ -44,10 +44,10 @@
  function t(){return dictionary[lc()]}
  function safeText(s){return String(s||'').replace(/[&<>"']/g,function(v){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','&#39;':'&#39;',"'":'&#39;'}[v]})}
  function sById(id){return serviceMap.find(function(x){return x[0]===id})||serviceMap[0]}
- function msg(subject,variant){
+ function msg(subject,variant,musicEnquiry){
   var tag={cs:'Dobrý den! Zajímá mě služba Academy: ',en:'Hello! I am interested in an Academy service: ',ru:'Здравствуйте! Интересует услуга Академии: ',uk:'Вітаю! Цікавить послуга Академії: '}[lc()];
   var p={cs:'Poptávám konkrétní rozsah, termín a cenu: ',en:'Please confirm scope, dates and price: ',ru:'Прошу согласовать объём, время и цену: ',uk:'Прошу узгодити обсяг, час і ціну: '}[lc()];
-  return (lc()==='ru'?'https://t.me/Chareshneu?text=':'https://wa.me/420702914842?text=')+encodeURIComponent(tag+subject+'. '+(variant||'')+'. '+p);
+  return (musicEnquiry && lc()==='ru'?'https://t.me/Chareshneu?text=':'https://wa.me/420702914842?text=')+encodeURIComponent(tag+subject+'. '+(variant||'')+'. '+p);
  }
  function setup(){
    var root=document.getElementById('academy-choose');if(!root)return;
@@ -102,11 +102,11 @@
      var spec=sv[0]==='fencing'||sv[0]==='archery'?d.safe:sv[0]==='legal'||sv[0]==='medical'?d.legal:'';
      var product=window.ImperionAcademyCatalog&&window.ImperionAcademyCatalog.info(sv[0],'v'+(i+1),lang);
      var price=isMusic?musicVariants[lang].quote:(product&&product.label||({cs:'Cena dle nabídky',en:'Quoted price',ru:'Цена по запросу',uk:'Ціна за пропозицією'})[lang]);
-     var destination=isMusic?msg(name,title):'order/?lang='+encodeURIComponent(lang)+'&service='+encodeURIComponent(sv[0])+'&variant=v'+(i+1);
+     var destination=isMusic?msg(name,title,true):'order/?lang='+encodeURIComponent(lang)+'&service='+encodeURIComponent(sv[0])+'&variant=v'+(i+1);
      var orderText=isMusic?musicVariants[lang].cta:({cs:'Objednat →',en:'Order →',ru:'Заказать →',uk:'Замовити →'})[lang];
      html+='<article class="academy-service-option"><h4>'+safeText(title)+'</h4><p>'+safeText(name)+' · '+safeText(title)+(spec?'. '+safeText(spec):'')+'</p><strong class="academy-option-price">'+safeText(price)+'</strong><a href="'+destination+'"'+(isMusic?' target="_blank" rel="noopener noreferrer"':'')+'>'+safeText(orderText)+'</a></article>';
    });
-   target.innerHTML=html+'</div><a class="academy-custom" target="_blank" rel="noopener noreferrer" href="'+msg(name,d.custom)+'">'+safeText(d.custom)+'</a>';
+   target.innerHTML=html+'</div><a class="academy-custom" target="_blank" rel="noopener noreferrer" href="'+msg(name,d.custom,isMusic)+'">'+safeText(d.custom)+'</a>';
  }
  function initPrices(){
    var target=document.getElementById('academy-pricing'),d=t();
