@@ -140,8 +140,9 @@ for(const [lang,subjects] of Object.entries(musicLessons)){
   await expect(section).toBeVisible();
   await expect(section.locator('.academy-music-list li')).toHaveCount(5);
   for(const name of subjects)await expect(section).toContainText(name);
-  const landing=section.locator('a[href^="https://wa.me/"]');
+  const landing=section.locator('a.btn.solid');
   await expect(landing).toHaveCount(1);
+  await expect(landing).toHaveAttribute('href',lang==='ru'?/^https:\/\/t\.me\/Chareshneu\?text=/:/^https:\/\/wa\.me\/420702914842\?text=/);
   await expect(landing).toHaveAttribute('rel','noopener noreferrer');
   const search=page.locator('#academy-service-search');
   for(const name of subjects){
@@ -154,7 +155,7 @@ for(const [lang,subjects] of Object.entries(musicLessons)){
    await expect(links).toHaveCount(3);
    for(const link of await links.all()){
     const url=await link.getAttribute('href');
-    expect(url).toMatch(/^https:\/\/wa\.me\/420702914842\?text=/);
+    expect(url).toMatch(lang==='ru'?/^https:\/\/t\.me\/Chareshneu\?text=/:/^https:\/\/wa\.me\/420702914842\?text=/);
     expect(decodeURIComponent(url)).toContain(name);
    }
   }
