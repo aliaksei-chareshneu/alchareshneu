@@ -47,7 +47,7 @@
  function msg(subject,variant){
   var tag={cs:'Dobrý den! Zajímá mě služba Academy: ',en:'Hello! I am interested in an Academy service: ',ru:'Здравствуйте! Интересует услуга Академии: ',uk:'Вітаю! Цікавить послуга Академії: '}[lc()];
   var p={cs:'Poptávám konkrétní rozsah, termín a cenu: ',en:'Please confirm scope, dates and price: ',ru:'Прошу согласовать объём, время и цену: ',uk:'Прошу узгодити обсяг, час і ціну: '}[lc()];
-  return 'https://wa.me/420702914842?text='+encodeURIComponent(tag+subject+'. '+(variant||'')+'. '+p);
+  return (lc()==='ru'?'https://t.me/Chareshneu?text=':'https://wa.me/420702914842?text=')+encodeURIComponent(tag+subject+'. '+(variant||'')+'. '+p);
  }
  function setup(){
    var root=document.getElementById('academy-choose');if(!root)return;
