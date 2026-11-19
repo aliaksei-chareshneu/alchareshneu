@@ -285,7 +285,7 @@ Deno.serve(async (req:Request):Promise<Response>=>{
       return reply({error:'too_many_requests'},429,origin);
     const h=await tokenHash(code);
     const {data,error}=await api.from('imperion_rsvp_submissions')
-      .select('payment_evidence_status,bank_verified_at,booking_confirmed_at')
+      .select('payment_evidence_status,bank_verified_at')
       .eq('event_id',eid).eq('email',email).eq('first_name',first)
       .eq('last_name',last).eq('payment_status_token_hash',h)
       .gt('retention_until',new Date().toISOString()).maybeSingle();
@@ -293,7 +293,7 @@ Deno.serve(async (req:Request):Promise<Response>=>{
     if(!data)return reply({error:'invalid_payment_code'},400,origin);
     return reply({ok:true,paymentEvidenceStatus:data.payment_evidence_status,
       bankVerified:!!data.bank_verified_at,
-      confirmed:!!data.bank_verified_at&&!!data.booking_confirmed_at},200,origin);
+      confirmed:false // explicit organiser confirmation not automated by PDF},200,origin);
   }
 
   // A short, genuine contact REQUEST for adult Druzina participants.
