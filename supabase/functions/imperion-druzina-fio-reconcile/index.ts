@@ -114,14 +114,20 @@ Deno.serve(async(req:Request):Promise<Response>=>{
   // Never log Fio JSON, URLs, account holder, counterparty or access token.
   return reply({error:'fio_account_or_format_check_failed',bankCalls:1,applied:0},503);
  }
- let applied=0,conflicts=0;
+ let applied=0,conflicts=0,booked=0;
  for(const row of plan.matches){
   const result=await api.rpc('druzina_apply_fio_bank_credit',{
    p_submission_id:row.id,p_variable_symbol:row.variableSymbol,
    p_movement_id:row.movementId,p_amount_czk:row.amountCzk,
    p_movement_at:row.movementAt});
   if(result.error){conflicts++;continue;} // Unique movement index and RPC enforce atomic replay protection.
-  if(result.data===true)applied++;else conflicts++;
+  if(result.data===true){
+    applied++;
+    // A real settled credit is necessary but not sufficient for a seat.
+    // Capacity, event authorisation and participant approval are locked by DB RPC.
+    const confirmed=await api.rpc('imperion_confirm_paid_rsvp',{p_submission_id:row.id});
+    if(!confirmed.error&&confirmed.data===true)booked++;
+   }else conflicts++;
  }
  const reasons=new Map(plan.manual.map(x=>[x.id,x.reason]));
  for(const row of pending.data){
@@ -147,5 +153,5 @@ Deno.serve(async(req:Request):Promise<Response>=>{
   ' review='+plan.manual.length+' conflicts='+conflicts);
  return reply({ok:true,status:'BANK_READBACK_COMPLETED',bankCalls:1,
   bankVerified:applied,needsReview:plan.manual.length,conflicts,
-  unmatchedBankCredits:plan.unmatched,bookingConfirmed:false});
+  unmatchedBankCredits:plan.unmatched,bookingConfirmed:booked});
 });
