@@ -132,7 +132,7 @@ function impEnsureRsvpPaymentCols_(sh){
  var h=impHeader_(sh);
  var required=['Requested_Tier','Quoted_Tier','Personal_Approval_At','Quoted_Base_CZK','Late_Fee_CZK',
   'Quoted_Total_CZK','Quoted_Group_Size','Late_48h','Payment_Evidence_Status','Payment_Proof_Received_At',
-  'Bank_Verified_At','Bank_Review_Code'];
+  'Bank_Verified_At','Bank_Review_Code','PDF_Review_Status','Owner_Bank_Check','Proof_Alert_Status','Proof_Alert_Sent_At'];
  var missing=required.filter(function(k){return h.map[k]===undefined;});
  if(missing.length){
   var last=sh.getLastColumn();
@@ -160,6 +160,8 @@ function impUpdateExistingRsvpProof_(sh,h,r){
   Payment_Evidence_Status:verified?'BANK_VERIFIED':'PROOF_RECEIVED',
   Payment_Proof_Received_At:impDate_(r.payment_evidence_received_at),
   Bank_Review_Code:r.fio_bank_review_code||'',
+  PDF_Review_Status:r.payment_pdf_review_status||'REVIEW_PENDING',
+  Owner_Bank_Check:verified?'BANK_VERIFIED':'CHECK_BANK_CREDIT',
   ...(r.payment_variable_symbol?{Payment_Reference:r.payment_variable_symbol}:{}),
   ...(verified?{Bank_Verified_At:impDate_(r.bank_verified_at),Payment_Status:'VERIFIED'}:{})
  };
@@ -174,6 +176,9 @@ function impUpdateExistingRsvpProof_(sh,h,r){
    sh.getRange(row,h.map[key]+1).setValue(impText_(keys[key]));
    if(keys[key] instanceof Date)sh.getRange(row,h.map[key]+1).setNumberFormat('dd.mm.yyyy hh:mm');
   });
+  if(!verified&&h.map.Proof_Alert_Status!==undefined &&
+     !sh.getRange(row,h.map.Proof_Alert_Status+1).getDisplayValue())
+    sh.getRange(row,h.map.Proof_Alert_Status+1).setValue('PENDING');
   if(sh.getRange(row,h.map.Payment_Evidence_Status+1).getDisplayValue()!==keys.Payment_Evidence_Status)
    throw Error('Payment proof CRM readback failed');
   return;
@@ -234,6 +239,9 @@ function impWriteRsvps_(ss,items,events){
         Payment_Proof_Received_At:impDate_(r.payment_evidence_received_at),
         Bank_Verified_At:impDate_(r.bank_verified_at),
         Bank_Review_Code:r.fio_bank_review_code||'',
+        PDF_Review_Status:r.payment_pdf_review_status||'',
+        Owner_Bank_Check:r.payment_evidence_status==='PROOF_RECEIVED'?'CHECK_BANK_CREDIT':'',
+        Proof_Alert_Status:r.payment_evidence_status==='PROOF_RECEIVED'?'PENDING':'',
         Receipt_Status:'PENDING',Receipt_Attempts:0,Receipt_Locale:r.language||'cs'
       });
       existing[id]=true;added++;
