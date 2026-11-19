@@ -28,7 +28,8 @@ test('PDF status from an independent bank is never inferred from document text',
  assert.ok(edge.includes('MATCHED_UNVERIFIED')===false);
  assert.ok(!edge.includes("payment_evidence_status:'BANK_VERIFIED'"));
  assert.ok(edge.includes("payment_evidence_status:'PROOF_RECEIVED'"));
- assert.ok(edge.includes("confirmed:false // explicit organiser confirmation not automated by PDF"));
+ const statusBranch=edge.slice(edge.indexOf("if(body.action==='status')"),edge.indexOf("if (body.intent==='DRUZINA_ENQUIRY')"));
+ assert.match(statusBranch,/bankVerified:!!data\.bank_verified_at,\s*confirmed:false\},200,origin\)/);
 });
 test('same-row CRM receives review type and owner check without rewriting bank as paid',()=>{
  for(const s of ['payment_pdf_review_status','impUpdateExistingRsvpProof_',
