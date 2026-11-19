@@ -130,6 +130,8 @@ a{color:var(--mint)}button,input,select{font:inherit}button{cursor:pointer}.skip
               pattern="[A-Za-z0-9_-]{43}" autocomplete="off" spellcheck="false">
             <p id="paymentResumeHelp" class="catalog-summary"></p>
             <button id="paymentQuoteButton" class="retry" type="button" hidden></button>
+            <button id="paymentStatusButton" class="retry" type="button" hidden></button>
+            <p id="paymentStatusResult" class="event-state" role="status" aria-live="polite"></p>
           </div>
           <p id="trainingPaymentPrivate" class="event-state" aria-live="polite"></p>
           <div id="paymentQrArea" class="field" hidden>
