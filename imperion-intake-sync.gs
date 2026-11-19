@@ -1028,9 +1028,10 @@ function impFlushOwnerDigest_(cfg,ss,events){
  * A crash after MailApp accepts an email is not retried blindly.
  */
 function impSendProofReviewAlerts_(ss,cfg){
- var sh=ss.getSheetByName('Registrations');if(!sh||sh.getLastRow()<2)
+ var sh=ss.getSheetByName('Registrations');if(!sh)
    return {sent:0,uncertain:0,blocked:0};
- var h=impHeader_(sh),m=h.map;
+ var h=impEnsureRsvpPaymentCols_(sh),m=h.map;
+ if(sh.getLastRow()<2)return {sent:0,uncertain:0,blocked:0};
  var required=['Submission_ID','Event_ID','Payment_Evidence_Status','PDF_Review_Status',
    'Owner_Bank_Check','Proof_Alert_Status','Proof_Alert_Sent_At','Payment_Status'];
  if(required.some(function(k){return m[k]===undefined;}))
