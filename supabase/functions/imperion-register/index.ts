@@ -484,7 +484,7 @@ Deno.serve(async (req:Request):Promise<Response>=>{
       recipient:verifiedQuote.recipient,reference:lookup.data.id,variableSymbol:vs
     });}catch{return reply({error:'invalid_payment_pdf'},400,origin);}
     const pdfPath=expiry.toISOString().slice(0,10)+'/'+crypto.randomUUID()+'.pdf';
-    const upload=await api.storage.from(PROOF_BUCKET).upload(pdfPath,bytes,{
+    const upload=await api.storage.from(isOsVc?OSVC_PROOF_BUCKET:PROOF_BUCKET).upload(pdfPath,bytes,{
       contentType:'application/pdf',upsert:false,cacheControl:'0'});
     if(upload.error)return reply({error:'proof_storage_unavailable'},503,origin);
     const save=await api.from('imperion_rsvp_submissions').update({
@@ -505,7 +505,7 @@ Deno.serve(async (req:Request):Promise<Response>=>{
       .eq('payment_evidence_status','NOT_REQUIRED').is('payment_pdf_path',null)
       .select('id').maybeSingle();
     if(save.error||!save.data){
-      await api.storage.from(PROOF_BUCKET).remove([pdfPath]);
+      await api.storage.from(isOsVc?OSVC_PROOF_BUCKET:PROOF_BUCKET).remove([pdfPath]);
       const duplicate=save.error?.code==='23505';
       return reply({error:duplicate?'duplicate_payment_pdf':'proof_storage_unavailable'},duplicate?409:503,origin);
     }
@@ -513,7 +513,7 @@ Deno.serve(async (req:Request):Promise<Response>=>{
   }else{
     // Registration creates a request, never a paid booking. A secret continuation
     // code is revealed only for a genuinely new RSVP; duplicate contacts get none.
-    issuedToken=training&&v.rsvp==='YES'?generateResumeToken():null;
+    issuedToken=payment&&v.rsvp==='YES'?generateResumeToken():null;
     const created=await api.from('imperion_rsvp_submissions').insert({
       event_id:v.eventId,first_name:v.first,last_name:v.last,email:v.email,phone:v.phone,
       age_group:v.age,guardian_name:v.guardianName,guardian_phone:v.guardianPhone,
@@ -525,6 +525,7 @@ Deno.serve(async (req:Request):Promise<Response>=>{
       ...(training?{training_requested_tier:trainingTier}:{}),
        ...(issuedToken?{payment_variable_symbol:generateVariableSymbol(),
         payment_resume_token_hash:await tokenHash(issuedToken),
+        payment_status_token_hash:await tokenHash(issuedToken),
         payment_resume_token_issued_at:new Date().toISOString()}:{}),
     }).select('id').single();
     const writeError=created.error;
