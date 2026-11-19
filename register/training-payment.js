@@ -12,6 +12,18 @@
     ru:{heading:'Цена тренировки и PDF подтверждения оплаты',choose:'Запрашиваемый тариф',intro:'За 2 часа: первое занятие 240 Kč, подтверждённый Senior 120 Kč; Starter 4 — 800 Kč за четыре занятия в течение 30 дней. После первого оплаченного и посещённого занятия можно в течение 48 часов перейти на Starter 4, доплатив 560 Kč после проверки.',late:'Для новой записи менее чем за 48 часов до занятия действует доплата 25%.',notReady:'Оплата закрыта. Отправьте предварительную заявку. Не переводите деньги и не приезжайте без личного письменного подтверждения.',ready:'Получатель и банковский счёт доступны только после персонального подтверждения и проверки кода.',codeLabel:'Личный код предыдущей заявки (для повторного входа)',codeHelp:'Если записываетесь впервые, оставьте код пустым и отправьте заявку, затем сохраните полученный одноразовый код.',check:'Проверить утверждённую сумму и банковский счёт',checking:'Проверяем…',checkFirst:'Сначала проверьте лично подтверждённую стоимость и реквизиты.',approved:'Подтверждённый тариф: {tier}. База {base} Kč + доплата {fee} Kč = ИТОГО {total} Kč. Получатель: {recipient}. Счёт: {account}. Переводить только после письменного подтверждения организатора.',pdf:'PDF подтверждения банковского перевода (макс. 2 МБ) *',pdfHelp:'Скройте сведения о посторонних операциях. PDF отправляется на проверку, но не доказывает поступление средств.',pending:'По этому коду ещё нет персонально утверждённой суммы или занятие не открыто. Требуется подтверждение организатора.',changed:'Сумма или 48-часовая граница изменились. Проверьте расчёт заново.',receipt:'PDF получен на проверку. Деньги и участие пока не подтверждены.',codeReceipt:'Сохраните этот личный одноразовый код. После письменного подтверждения организатора вернитесь в ту же форму, введите код и проверьте сумму. Код не является бронированием.'},
     uk:{heading:'Вартість тренування та PDF підтвердження оплати',choose:'Бажаний тариф',intro:'За 2 години: перше заняття 240 Kč, підтверджений Senior 120 Kč; Starter 4 — 800 Kč за чотири заняття протягом 30 днів. Після першого оплаченого та відвіданого заняття можна протягом 48 годин перейти на Starter 4, доплативши 560 Kč після перевірки.',late:'Для нової заявки менш ніж за 48 годин до тренування діє доплата 25%.',notReady:'Оплата закрита. Надішліть попередню заявку. Не сплачуйте і не приїжджайте без особистого письмового підтвердження.',ready:'Одержувач і рахунок доступні лише після персонального погодження та перевірки коду.',codeLabel:'Особистий код попередньої заявки (для повторного входу)',codeHelp:'Якщо записуєтеся вперше, залиште поле порожнім, надішліть заявку і збережіть одноразовий код.',check:'Перевірити погоджену суму й банківський рахунок',checking:'Перевіряємо…',checkFirst:'Спочатку перевірте персонально підтверджену суму та реквізити.',approved:'Підтверджений тариф: {tier}. База {base} Kč + доплата {fee} Kč = РАЗОМ {total} Kč. Одержувач: {recipient}. Рахунок: {account}. Переказуйте лише після письмового підтвердження організатора.',pdf:'PDF підтвердження банківського переказу (до 2 МБ) *',pdfHelp:'Приховайте дані про сторонні операції. PDF призначено для перевірки, він не доводить надходження коштів.',pending:'Для цього коду ще немає персонально погодженої суми або тренування не відкрите. Потрібне підтвердження організатора.',changed:'Сума або 48-годинна межа змінились. Перевірте розрахунок знову.',receipt:'PDF отримано на перевірку. Кошти та участь ще не підтверджені.',codeReceipt:'Збережіть цей особистий одноразовий код. Після письмового підтвердження організатора поверніться до тієї самої форми, введіть код і перевірте суму. Код не є бронюванням.'}
   };
+  const OSVC_TEXT={
+    cs:{heading:'Platba za průvodcovskou akci',intro:'Cena je za vybranou akci, bez automatického příplatku a bez klubových tarifů.',notReady:'Platba zatím není otevřena. Odešlete nezávaznou přihlášku. Neplaťte a necestujte bez písemného potvrzení pořadatele.',ready:'Bankovní údaje OSVČ se zobrazí jen po osobním schválení vaší žádosti.',approved:'Schválená cena {total} Kč. Příjemce OSVČ: {recipient}. Účet: {account}. Plaťte až po písemném potvrzení pořadatele.',receipt:'PDF bylo přijato, ale banka ani místo dosud nebyly potvrzeny.',codeReceipt:'Uložte si soukromý kód. Použijte jej k pozdějšímu ověření ceny a stavu účasti. Samotný kód není vstupenka.',statusCheck:'Ověřit stav platby a účasti',statusWaiting:'Kontroluji stav…',statusPending:'Přihláška přijata; platba zatím není ověřena.',statusProof:'PDF přijato; bankovní připsání zatím není ověřeno.',statusPaid:'Banka potvrdila připsání; místo ještě čeká na potvrzení.',statusConfirmed:'Platba připsána a místo na vybrané akci potvrzeno.',statusInvalid:'Kód nebo údaje nebyly ověřeny.'},
+    en:{heading:'Guided-event payment',intro:'Fixed price for the selected event. Club plans and training surcharges do not apply.',notReady:'Payment is not open yet. Enquire first. Do not pay or travel until the organiser confirms in writing.',ready:'The OSVC bank details appear only after individual approval.',approved:'Approved amount CZK {total}. OSVC payee: {recipient}. Account: {account}. Transfer only after written organiser approval.',receipt:'PDF received; funds and the place remain unverified.',codeReceipt:'Keep this private code to check your approved quote and booking status later. The code is not a ticket.',statusCheck:'Check payment and booking status',statusWaiting:'Checking…',statusPending:'Request received; no bank credit verified yet.',statusProof:'PDF received; bank settlement not yet verified.',statusPaid:'Bank credit verified; place not yet confirmed.',statusConfirmed:'Funds received and a place confirmed for this event.',statusInvalid:'Unable to verify the code or contact details.'},
+    ru:{heading:'Оплата экскурсии',intro:'Стоимость относится к выбранному мероприятию. Клубные тарифы и доплата за позднюю тренировку не применяются.',notReady:'Приём оплаты пока закрыт. Отправьте заявку. Не переводите деньги и не приезжайте без письменного подтверждения организатора.',ready:'Реквизиты OSVČ выдаются только после индивидуального одобрения заявки.',approved:'Согласованная сумма {total} Kč. Получатель OSVČ: {recipient}. Счёт: {account}. Переводить только после письменного подтверждения.',receipt:'PDF получен, поступление денег и место пока не подтверждены.',codeReceipt:'Сохраните личный код для проверки суммы и статуса заявки. Код сам по себе не является билетом.',statusCheck:'Проверить оплату и место',statusWaiting:'Проверяем…',statusPending:'Заявка получена, банк пока не подтвердил поступление.',statusProof:'PDF получен, банковское зачисление ещё не подтверждено.',statusPaid:'Деньги зачислены, место ещё не подтверждено.',statusConfirmed:'Оплата поступила, место на мероприятии подтверждено.',statusInvalid:'Не удалось проверить код или контактные данные.'},
+    uk:{heading:'Оплата екскурсії',intro:'Ціна стосується конкретного заходу; клубні тарифи й доплата за тренування не застосовуються.',notReady:'Оплату ще не відкрито. Надішліть заявку. Не сплачуйте та не вирушайте без письмового підтвердження організатора.',ready:'Реквізити OSVČ доступні лише після індивідуального погодження.',approved:'Погоджена сума {total} Kč. Одержувач OSVČ: {recipient}. Рахунок: {account}. Сплачуйте лише після письмового погодження.',receipt:'PDF отримано, але надходження коштів та місце ще не підтверджені.',codeReceipt:'Збережіть приватний код для перевірки суми та статусу. Код сам по собі не є квитком.',statusCheck:'Перевірити оплату й участь',statusWaiting:'Перевіряю…',statusPending:'Заявку отримано, банківський платіж ще не перевірено.',statusProof:'PDF отримано, зарахування коштів ще не перевірено.',statusPaid:'Кошти надійшли, місце ще не підтверджено.',statusConfirmed:'Оплату отримано, місце на заході підтверджено.',statusInvalid:'Не вдалося перевірити код або контактні дані.'}
+  };
+  const STATUS_TEXT={
+    cs:{statusCheck:'Ověřit stav platby a účasti',statusWaiting:'Kontroluji…',statusPending:'Přihláška přijata; platba zatím není ověřena.',statusProof:'PDF přijato; banka zatím nepotvrdila připsání.',statusPaid:'Platba ověřena bankou, místo zatím není potvrzeno.',statusConfirmed:'Platba i místo na akci jsou potvrzeny.',statusInvalid:'Kód nebo údaje nebyly ověřeny.'},
+    en:{statusCheck:'Check payment and booking status',statusWaiting:'Checking…',statusPending:'Enquiry received; bank credit not yet verified.',statusProof:'PDF received; bank credit not yet verified.',statusPaid:'Funds verified; place not yet confirmed.',statusConfirmed:'Payment and a place are confirmed.',statusInvalid:'Unable to verify code or contact details.'},
+    ru:{statusCheck:'Проверить оплату и место',statusWaiting:'Проверяем…',statusPending:'Заявка получена; оплата не подтверждена.',statusProof:'PDF принят; зачисление не подтверждено.',statusPaid:'Поступление денег подтверждено, место пока нет.',statusConfirmed:'Оплата и место подтверждены.',statusInvalid:'Неверный код или контактные данные.'},
+    uk:{statusCheck:'Перевірити оплату й місце',statusWaiting:'Перевіряю…',statusPending:'Заявку отримано, платіж не перевірено.',statusProof:'PDF отримано, зарахування ще не підтверджено.',statusPaid:'Кошти перевірено, місце ще не підтверджено.',statusConfirmed:'Оплату та місце підтверджено.',statusInvalid:'Не вдалося перевірити код чи дані.'}
+  };
   const QR_TEXT={
     cs:{title:'QR platba pro schválenou žádost',reference:'Variabilní symbol (VS): ',copy:'Kopírovat platební údaje',copied:'Údaje zkopírovány',failed:'Kopírování není dostupné',note:'QR obsahuje schválenou částku, účet a VS. Připsání se ověřuje jen podle banky.'},
     en:{title:'QR transfer for this approved request',reference:'Variable symbol (VS): ',copy:'Copy transfer details',copied:'Details copied',failed:'Clipboard unavailable',note:'QR includes the approved amount, account and VS. Settled funds are verified separately with the bank.'},
@@ -33,7 +45,7 @@
     catch{canvas.replaceChildren();}
   }
   let latestEvent=null,latestLang='cs',latestMode='PLANNED',privateQuote=null;
-  const copy=()=>T[latestLang]||T.cs;
+  const copy=()=>({...((T[latestLang]||T.cs)),...(latestEvent?.trainingPayment?.kind==='OSVC_EVENT'?(OSVC_TEXT[latestLang]||OSVC_TEXT.cs):{})});
   const fill=(s,d)=>s.replace(/\{(\w+)\}/g,(_,key)=>String(d[key]??''));
   const tier=()=>$('trainingTier')?.value||'STANDARD';
   const token=()=>$('paymentResumeToken')?.value?.trim()||'';
@@ -48,15 +60,17 @@
     latestEvent=event;latestLang=lang;latestMode=mode;
     const box=$('trainingPayment'),proof=$('paymentProof'),plan=$('trainingTier');
     if(!box||!proof||!plan)return;
-    const q=event?.trainingPayment;
+    const q=event?.trainingPayment,osvc=q?.kind==='OSVC_EVENT';
     box.hidden=!q||mode!=='FORM';
     if(changed)clearPrivateQuote();
     if(box.hidden){proof.required=false;proof.value='';$('trainingPaymentPrivate').textContent='';renderApprovedQr(null);return;}
     const t=copy();
+    if(osvc)plan.value='STANDARD';
+    if(plan.closest('.field'))plan.closest('.field').hidden=osvc;
     $('trainingPaymentHeading').textContent=t.heading;
     $('trainingPlanLabel').textContent=t.choose;
     for(const opt of plan.options)opt.textContent=PRICE_NAMES[opt.value]?.[lang]||opt.value;
-    $('trainingPaymentNote').textContent=t.intro+' '+t.late;
+    $('trainingPaymentNote').textContent=osvc?t.intro:t.intro+' '+t.late;
     const prices=(q.tiers||[]).map(p=>{
       const tname=PRICE_NAMES[p.tier]?.[lang]||p.tier;
       return tname+': '+p.baseCzk+' + '+p.surchargeCzk+' = '+p.totalCzk+' Kč';
@@ -66,6 +80,10 @@
     $('paymentResumeLabel').textContent=t.codeLabel;
     $('paymentResumeHelp').textContent=t.codeHelp;
     $('paymentQuoteButton').textContent=t.check;
+    if($('paymentStatusButton')){
+      $('paymentStatusButton').hidden=!isGoing||!token();
+      $('paymentStatusButton').textContent=(STATUS_TEXT[lang]||STATUS_TEXT.cs).statusCheck;
+    }
     $('paymentPdfLabel').textContent=t.pdf;
     $('paymentProofHelp').textContent=t.pdfHelp;
     const isGoing=document.querySelector('input[name=rsvp]:checked')?.value==='YES';
@@ -88,6 +106,7 @@
   function catalogPrice(event,lang){
     const q=event?.trainingPayment;
     if(!q)return null;
+    if(q.kind==='OSVC_EVENT')return String(q.tiers?.[0]?.totalCzk||event.price_czk)+' Kč';
     const tiers=Array.isArray(q.tiers)?q.tiers:[];
     const values=tiers.map(p=>p.totalCzk).join(' / ');
     if(!values)return null;
@@ -141,6 +160,29 @@
     }catch(err){out.textContent=err?.message==='pending'?d.pending:d.changed;}
     finally{btn.disabled=false;btn.textContent=copy().check;}
   }
+  async function checkStatus(){
+    const e=latestEvent,output=$('paymentStatusResult'),btn=$('paymentStatusButton');
+    if(!e?.trainingPayment||!token()||!output||!btn)return;
+    const d=STATUS_TEXT[latestLang]||STATUS_TEXT.cs;
+    const first=$('firstName').value.trim(),last=$('lastName').value.trim(),
+      email=$('email').value.trim();
+    if(first.length<2||last.length<2||!email.includes('@')){
+      output.textContent=d.statusInvalid;return;
+    }
+    btn.disabled=true;output.textContent=d.statusWaiting;
+    try{
+      const res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({action:'status',eventId:e.event_id,
+          firstName:first,lastName:last,email,paymentResumeToken:token()}),
+        cache:'no-store',signal:AbortSignal.timeout(20000)});
+      if(!res.ok)throw Error('invalid');
+      const status=await res.json();
+      output.textContent=status.confirmed?d.statusConfirmed:
+        status.bankVerified?d.statusPaid:
+        status.paymentEvidenceStatus==='PROOF_RECEIVED'?d.statusProof:d.statusPending;
+    }catch{output.textContent=d.statusInvalid;}
+    finally{btn.disabled=false;btn.textContent=d.statusCheck;}
+  }
   function changedMessage(lang){return (T[lang]||T.cs).changed;}
   function receiptMessage(lang){return (T[lang]||T.cs).receipt;}
   function resumeMessage(lang){return (T[lang]||T.cs).codeReceipt;}
@@ -151,13 +193,14 @@
     $(id)?.addEventListener('input',()=>{clearPrivateQuote();render(latestEvent,latestLang,latestMode);});
   });
   $('paymentQuoteButton')?.addEventListener('click',checkQuote);
+  $('paymentStatusButton')?.addEventListener('click',checkStatus);
   $('paymentCopyButton')?.addEventListener('click',async()=>{
     const p=privateQuote?.payload;
     if(!p?.spd||!p?.paymentReference||!p?.iban||!p?.variableSymbol)return;
     const t=QR_TEXT[latestLang]||QR_TEXT.cs;
     const details=[p.recipient,p.iban,p.account,p.totalCzk+' CZK',
       'VS '+p.variableSymbol,
-      'DM '+p.paymentReference.replace(/-/g,'').toUpperCase()].join('\n');
+      (latestEvent?.trainingPayment?.kind==='OSVC_EVENT'?'BW ':'DM ')+p.paymentReference.replace(/-/g,'').toUpperCase()].join('\n');
     try{
       if(!navigator.clipboard?.writeText)throw Error('unsupported');
       await navigator.clipboard.writeText(details);$('paymentCopyButton').textContent=t.copied;
