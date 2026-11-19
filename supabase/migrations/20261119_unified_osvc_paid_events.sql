@@ -12,6 +12,7 @@ ALTER TABLE public.imperion_rsvp_events
 
 ALTER TABLE public.imperion_rsvp_submissions
   ADD COLUMN IF NOT EXISTS osvc_authorized_at timestamptz,
+  ADD COLUMN IF NOT EXISTS payment_status_token_hash text,
   ADD COLUMN IF NOT EXISTS booking_confirmed_at timestamptz;
 
 ALTER TABLE public.imperion_rsvp_events
@@ -38,6 +39,10 @@ ALTER TABLE public.imperion_rsvp_submissions
   )),
   ADD CONSTRAINT imperion_osvc_authorization_guard_20261119
   CHECK (osvc_authorized_at IS NULL OR data_controller='Aliaksei Chareshneu (OSVČ)');
+
+CREATE UNIQUE INDEX IF NOT EXISTS imperion_rsvp_payment_status_token_hash_uq_20261119
+  ON public.imperion_rsvp_submissions(payment_status_token_hash)
+  WHERE payment_status_token_hash IS NOT NULL;
 
 CREATE INDEX IF NOT EXISTS imperion_rsvp_booked_capacity_idx_20261119
   ON public.imperion_rsvp_submissions (event_id,booking_confirmed_at)
