@@ -98,6 +98,11 @@ test('approved public source → quota reservation → one draft; no side effect
   assert.equal(reservations.length,1);
   assert.equal(reservations[0].daily_ceiling,600);
   assert.equal(JSON.parse(calls[1].body).messages[1].content.includes('Open day'),true);
+  const systemPrompt=JSON.parse(calls[1].body).messages[0].content;
+  assert.match(systemPrompt,/OUTCOME-FIRST STORYTELLING/);
+  assert.match(systemPrompt,/BEFORE/);
+  assert.match(systemPrompt,/AFTER/);
+  assert.match(systemPrompt,/Never invent customer pain/);
 });
 test('rejected quota fails closed, never calls model', async () => {
   let posts=0;
