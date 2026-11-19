@@ -293,7 +293,7 @@ Deno.serve(async (req:Request):Promise<Response>=>{
     if(!data)return reply({error:'invalid_payment_code'},400,origin);
     return reply({ok:true,paymentEvidenceStatus:data.payment_evidence_status,
       bankVerified:!!data.bank_verified_at,
-      confirmed:false // explicit organiser confirmation not automated by PDF},200,origin);
+      confirmed:false},200,origin); // PDF is not bank proof or a seat confirmation
   }
 
   // A short, genuine contact REQUEST for adult Druzina participants.
