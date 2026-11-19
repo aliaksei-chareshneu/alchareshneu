@@ -119,8 +119,9 @@ function communityChannels(community: string, locale: string, age: string, rsvp:
   };
 }
 
-const EVENT_COLS='event_id,title,community,category,begins_at,ends_at,venue,price_czk,data_controller,rules_url,contact_activity,is_open,registration_mode,action_url,public_note,price_verified,end_time_verified,source_active,training_price_scheme,training_confirmed_count,training_quote_locked_at,training_operational_go_at,training_payment_open,training_payment_recipient,training_payment_account';
+const EVENT_COLS='event_id,title,community,category,begins_at,ends_at,venue,price_czk,data_controller,rules_url,contact_activity,is_open,registration_mode,action_url,public_note,price_verified,end_time_verified,source_active,training_price_scheme,training_confirmed_count,training_quote_locked_at,training_operational_go_at,training_payment_open,training_payment_recipient,training_payment_account,osvc_payment_open,osvc_payment_recipient,osvc_payment_account,osvc_quote_locked_at,osvc_operational_go_at,booking_capacity,booking_operational_go_at';
 const PROOF_BUCKET='imperion-training-payment-proofs';
+const OSVC_PROOF_BUCKET='imperion-academy-payment-proofs'; // existing private OSVC storage
 const MAX_PDF_BYTES=2*1024*1024;
 const MAX_MULTIPART_BYTES=MAX_PDF_BYTES+15000;
 const LATE_WINDOW_MS=48*60*60*1000;
@@ -167,6 +168,32 @@ async function readSmallMultipart(req:Request,contentType:string){
   const bytes=new Uint8Array(length);let offset=0;
   for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.byteLength;}
   return new Request('https://upload.invalid/',{method:'POST',headers:{'content-type':contentType},body:bytes}).formData();
+}
+// Different legal seller from Druzina; no NGO bank details or club discounts.
+function osvcQuote(e:any,now=Date.now(),privateBank=false){
+  if(e.data_controller!=='Aliaksei Chareshneu (OSVČ)' ||
+     !['Guided Walk','Hike','Tour','Workshop'].includes(e.category) ||
+     !Number.isSafeInteger(Number(e.price_czk)) ||
+     Number(e.price_czk)<1||Number(e.price_czk)>9999999)return null;
+  const ready=!!(e.osvc_payment_open&&e.osvc_quote_locked_at&&e.osvc_operational_go_at&&
+    e.is_open&&e.source_active&&e.registration_mode==='FORM'&&
+    e.price_verified&&e.end_time_verified&&
+    String(e.osvc_payment_recipient||'').trim().length>=3&&
+    String(e.osvc_payment_account||'').trim().length>=8);
+  return {status:ready?'AWAITING_PERSONAL_APPROVAL':'AWAITING_ORGANIZER_GO',
+    tier:'STANDARD',baseCzk:Number(e.price_czk),surchargeCzk:0,
+    totalCzk:Number(e.price_czk),late48h:false,proofRequired:false,
+    quoteLockedAt:ready?e.osvc_quote_locked_at:null,
+    recipient:ready&&privateBank?e.osvc_payment_recipient:null,
+    account:ready&&privateBank?e.osvc_payment_account:null,
+    sessionPaymentOpen:ready};
+}
+function publicOsVcQuote(e:any){
+  const q=osvcQuote(e);if(!q)return null;
+  return {kind:'OSVC_EVENT',status:q.status,late48h:false,
+    sessionPaymentOpen:q.sessionPaymentOpen,tiers:[{
+      tier:'STANDARD',baseCzk:q.baseCzk,surchargeCzk:0,totalCzk:q.totalCzk
+    }],proofRequired:false,requiresPersonalConfirmation:true};
 }
 function generateVariableSymbol(){
  const parts=crypto.getRandomValues(new Uint32Array(2));
@@ -216,9 +243,10 @@ Deno.serve(async (req:Request):Promise<Response>=>{
       .gt('begins_at',new Date().toISOString()).order('begins_at',{ascending:true}).limit(120);
     if (error) return reply({error:'temporarily_unavailable'},503,origin);
     return reply({events:(data||[]).filter(e=>registrationStillOpen(e.event_id)).map(e=>{
-      const {training_payment_recipient,training_payment_account,...safe}=e;
-      return {...safe,trainingPayment:publicTrainingQuote(e)};
-    }),version:'2026-11-09-training-quotes-v1',bookingConfirmed:false},200,origin);
+      const {training_payment_recipient,training_payment_account,
+        osvc_payment_recipient,osvc_payment_account,...safe}=e;
+      return {...safe,trainingPayment:publicTrainingQuote(e)||publicOsVcQuote(e)};
+    }),version:'2026-11-19-event-checkout-v2',bookingConfirmed:false},200,origin);
   }
   // POST requires a real browser origin. A non-browser script can forge it,
   // so we also validate strictly and rate-limit server-side.
@@ -242,6 +270,31 @@ Deno.serve(async (req:Request):Promise<Response>=>{
     if(!body||typeof body!=='object'||Array.isArray(body))throw new Error('type');
   }catch{return reply({error:'invalid_request'},400,origin);}
   if (body.website) return reply({ok:true,status:'RECEIVED'},200,origin); // anti-bot honeypot
+  // Reusable read-only status credential. Distinct from the one-use upload code.
+  // Never return names, account details, proof content or bank movements.
+  if(body.action==='status'){
+    let eid:string,first:string,last:string,email:string,code:string;
+    try{
+      eid=text(body.eventId,100);first=safeName(body.firstName);
+      last=safeName(body.lastName);email=safeEmail(body.email);
+      code=String(body.paymentResumeToken||'').trim();
+      if(!/^[A-Za-z0-9-]{2,100}$/.test(eid)||
+         !/^[A-Za-z0-9_-]{43}$/.test(code))throw Error('invalid');
+    }catch{return reply({error:'invalid_payment_code'},400,origin);}
+    if(!(await allow('status',eid+'|'+email,12)))
+      return reply({error:'too_many_requests'},429,origin);
+    const h=await tokenHash(code);
+    const {data,error}=await api.from('imperion_rsvp_submissions')
+      .select('payment_evidence_status,bank_verified_at,booking_confirmed_at')
+      .eq('event_id',eid).eq('email',email).eq('first_name',first)
+      .eq('last_name',last).eq('payment_status_token_hash',h)
+      .gt('retention_until',new Date().toISOString()).maybeSingle();
+    if(error)return reply({error:'temporarily_unavailable'},503,origin);
+    if(!data)return reply({error:'invalid_payment_code'},400,origin);
+    return reply({ok:true,paymentEvidenceStatus:data.payment_evidence_status,
+      bankVerified:!!data.bank_verified_at,
+      confirmed:!!data.bank_verified_at&&!!data.booking_confirmed_at},200,origin);
+  }
 
   // A short, genuine contact REQUEST for adult Druzina participants.
   // This is deliberately NOT a reservation and cannot bypass is_open gates
