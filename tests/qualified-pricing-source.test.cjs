@@ -49,6 +49,7 @@ test('historical and association offers remain distinct from personal tutoring',
   assert.match(club, /240 Kč/);
   assert.match(club, /120 Kč/);
   assert.match(club, /800 Kč/);
-  assert.match(walkers, /450 Kč/);
+  // Existing live 29 November Brno Mysteries listing is 190 Kč/person, not the retired 450 Kč offer.
+  assert.match(walkers, /190 Kč\/person/);
   assert.match(walkers, /490 Kč/);
 });

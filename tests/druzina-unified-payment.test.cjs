@@ -66,7 +66,7 @@ test('the resume code enforces server-side tier approval and no duplicate intake
   ".eq('payment_evidence_status','NOT_REQUIRED').is('payment_pdf_path',null)",
   "payment_resume_token_hash:null","payment_crm_synced_at:null",
   "paymentEvidenceStatus:'PROOF_RECEIVED',bankVerified:false",
-  "verifiedQuote=trainingQuote(event,savedTier,registrationMs,true)",
+  "verifiedQuote=isOsVc?osvcQuote(event,registrationMs,true):trainingQuote(event,savedTier,registrationMs,true)",
   ".select('id,created_at,training_requested_tier",
   "Date.now()>=Date.parse(event.begins_at)"]){
   assert.ok(edge.includes(needle),needle);
@@ -111,7 +111,7 @@ test('private receipt cleanup is controlled, not public file listing',()=>{
 });
 
 test('Starter4 cannot be charged through a one-event RSVP without a package ledger',()=>{
- assert.ok(edge.includes("if(savedTier==='STARTER4')return reply({error:'package_checkout_requires_plan_authorization'}"));
+ assert.ok(edge.includes("if(!isOsVc&&savedTier==='STARTER4')return reply({error:'package_checkout_requires_plan_authorization'}"));
 });
 test('QR Platba instruction is unique, amount-locked, and cannot substitute bank readback',async()=>{
  const path=require('node:path'),{pathToFileURL}=require('node:url');
@@ -132,7 +132,7 @@ test('QR Platba instruction is unique, amount-locked, and cannot substitute bank
  assert.notEqual(spd,qr.createTrainingSpd(iban,240,two));
  assert.equal(qr.createTrainingSpd(iban,0,one),null);
  assert.equal(qr.createTrainingSpd(iban,240,'not-a-uuid'),null);
- for(const check of ["Deno.env.get('DRUZINA_APPROVED_IBAN')","Deno.env.get('DRUZINA_APPROVED_PAYEE')",
+ for(const check of ["Deno.env.get(isOsVc?'OSVC_APPROVED_IBAN':'DRUZINA_APPROVED_IBAN')","Deno.env.get(isOsVc?'OSVC_APPROVED_PAYEE':'DRUZINA_APPROVED_PAYEE')",
   "if(!spd)return reply({error:'approved_bank_not_configured'}","paymentReference:lookup.data.id,variableSymbol:vs,spd"])assert.ok(edge.includes(check),check);
  assert.ok(!edge.includes('2703598853/2010'),'verified real bank account must not be hardcoded in public code');
  for(const page of pages){

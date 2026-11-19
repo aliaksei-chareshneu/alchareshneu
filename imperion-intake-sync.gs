@@ -132,7 +132,7 @@ function impEnsureRsvpPaymentCols_(sh){
  var h=impHeader_(sh);
  var required=['Requested_Tier','Quoted_Tier','Personal_Approval_At','Quoted_Base_CZK','Late_Fee_CZK',
   'Quoted_Total_CZK','Quoted_Group_Size','Late_48h','Payment_Evidence_Status','Payment_Proof_Received_At',
-  'Bank_Verified_At','Bank_Review_Code'];
+  'Bank_Verified_At','Bank_Review_Code','PDF_Review_Status','Owner_Bank_Check','Proof_Alert_Status','Proof_Alert_Sent_At'];
  var missing=required.filter(function(k){return h.map[k]===undefined;});
  if(missing.length){
   var last=sh.getLastColumn();
@@ -160,6 +160,8 @@ function impUpdateExistingRsvpProof_(sh,h,r){
   Payment_Evidence_Status:verified?'BANK_VERIFIED':'PROOF_RECEIVED',
   Payment_Proof_Received_At:impDate_(r.payment_evidence_received_at),
   Bank_Review_Code:r.fio_bank_review_code||'',
+  PDF_Review_Status:r.payment_pdf_review_status||'REVIEW_PENDING',
+  Owner_Bank_Check:verified?'BANK_VERIFIED':'CHECK_BANK_CREDIT',
   ...(r.payment_variable_symbol?{Payment_Reference:r.payment_variable_symbol}:{}),
   ...(verified?{Bank_Verified_At:impDate_(r.bank_verified_at),Payment_Status:'VERIFIED'}:{})
  };
@@ -174,6 +176,9 @@ function impUpdateExistingRsvpProof_(sh,h,r){
    sh.getRange(row,h.map[key]+1).setValue(impText_(keys[key]));
    if(keys[key] instanceof Date)sh.getRange(row,h.map[key]+1).setNumberFormat('dd.mm.yyyy hh:mm');
   });
+  if(!verified&&h.map.Proof_Alert_Status!==undefined &&
+     !sh.getRange(row,h.map.Proof_Alert_Status+1).getDisplayValue())
+    sh.getRange(row,h.map.Proof_Alert_Status+1).setValue('PENDING');
   if(sh.getRange(row,h.map.Payment_Evidence_Status+1).getDisplayValue()!==keys.Payment_Evidence_Status)
    throw Error('Payment proof CRM readback failed');
   return;
@@ -234,6 +239,9 @@ function impWriteRsvps_(ss,items,events){
         Payment_Proof_Received_At:impDate_(r.payment_evidence_received_at),
         Bank_Verified_At:impDate_(r.bank_verified_at),
         Bank_Review_Code:r.fio_bank_review_code||'',
+        PDF_Review_Status:r.payment_pdf_review_status||'',
+        Owner_Bank_Check:r.payment_evidence_status==='PROOF_RECEIVED'?'CHECK_BANK_CREDIT':'',
+        Proof_Alert_Status:r.payment_evidence_status==='PROOF_RECEIVED'?'PENDING':'',
         Receipt_Status:'PENDING',Receipt_Attempts:0,Receipt_Locale:r.language||'cs'
       });
       existing[id]=true;added++;
@@ -1014,6 +1022,69 @@ function impFlushOwnerDigest_(cfg,ss,events){
   }
 }
 
+/** Exactly-once-attempt owner alert for each new payment PDF. Bank status remains
+ * PENDING until the owner independently checks the correct seller account.
+ * No PDF, account number, payer details or public evidence link is emailed.
+ * A crash after MailApp accepts an email is not retried blindly.
+ */
+function impSendProofReviewAlerts_(ss,cfg){
+ var sh=ss.getSheetByName('Registrations');if(!sh)
+   return {sent:0,uncertain:0,blocked:0};
+ var h=impEnsureRsvpPaymentCols_(sh),m=h.map;
+ if(sh.getLastRow()<2)return {sent:0,uncertain:0,blocked:0};
+ var required=['Submission_ID','Event_ID','Payment_Evidence_Status','PDF_Review_Status',
+   'Owner_Bank_Check','Proof_Alert_Status','Proof_Alert_Sent_At','Payment_Status'];
+ if(required.some(function(k){return m[k]===undefined;}))
+   throw Error('Missing proof-review columns; do not silently lose alerts');
+ var n=sh.getLastRow()-1,rows=sh.getRange(2,1,n,sh.getLastColumn()).getDisplayValues();
+ var quota=Math.max(0,MailApp.getRemainingDailyQuota()-1),limit=Math.min(15,quota);
+ var sent=0,uncertain=0,blocked=0;
+ for(var i=0;i<rows.length;i++){
+  var row=rows[i],value=function(k){return String(row[m[k]]||'').trim();};
+  if(value('Payment_Evidence_Status')!=='PROOF_RECEIVED'||
+     value('Owner_Bank_Check')!=='CHECK_BANK_CREDIT')continue;
+  if(value('Proof_Alert_Status')==='DISPATCH_STARTED'){
+    sh.getRange(i+2,m.Proof_Alert_Status+1).setValue('DELIVERY_UNCERTAIN');
+    uncertain++;continue;
+  }
+  if(value('Proof_Alert_Status')!=='PENDING')continue;
+  if(sent>=limit){blocked++;continue;}
+  var id=value('Submission_ID');
+  if(!/^[a-f0-9-]{36}$/i.test(id)){blocked++;continue;}
+  var eventId=value('Event_ID').replace(/[^A-Za-z0-9-]/g,'').slice(0,75);
+  var review=value('PDF_Review_Status');
+  var plausible=review==='MATCHED_UNVERIFIED';
+  var title=plausible?'PDF выглядит правдоподобно':'PDF требует проверки реквизитов';
+  var mailTitle='[Imperion PDF] '+title+' — '+eventId;
+  var body=[
+    'Поступил банковский PDF для заявки на мероприятие '+eventId+'.',
+    'Техническая проверка документа: '+(review||'REVIEW_PENDING')+'.',
+    plausible?'Поля в PDF предварительно совпали с заявкой. Это НЕ доказательство подлинности и оплаты.':
+      'В PDF не все поля удалось подтвердить. Документ и банковский счёт надо проверить вручную.',
+    'Действие: открыть банковский счёт правильного продавца, подтвердить фактическое зачисление и идентификатор.',
+    'В CRM пока остаётся Payment_Status=PENDING и Owner_Bank_Check=CHECK_BANK_CREDIT.',
+    'Исходный PDF хранится в закрытом хранилище сайта, не в этом письме.',
+    'Заявка (приватная таблица): '+impOwnerDigestRowUrl_(cfg,ss,'Registrations',i+2),
+    'Submission_ID: '+id
+  ].join('\n');
+  // Persist attempt marker before sending: never generate duplicate owner mail
+  // if the script crashes immediately after the provider accepts the email.
+  sh.getRange(i+2,m.Proof_Alert_Status+1).setValue('DISPATCH_STARTED');
+  SpreadsheetApp.flush();
+  try{
+    MailApp.sendEmail({to:cfg.email,subject:mailTitle,body:body});
+    sh.getRange(i+2,m.Proof_Alert_Sent_At+1).setValue(new Date());
+    sh.getRange(i+2,m.Proof_Alert_Status+1).setValue('SENT_TO_PROVIDER');
+    sent++;
+  }catch(e){
+    sh.getRange(i+2,m.Proof_Alert_Status+1).setValue('DELIVERY_UNCERTAIN');
+    uncertain++;
+    console.error('PDF owner notification not verified; review the same CRM row');
+  }
+ }
+ return {sent:sent,uncertain:uncertain,blocked:blocked};
+}
+
 /** Limited retries for Google backend faults in READ-ONLY startup calls.
  * No retries for imports, CRM writes, outbound mail, ACKs, or side effects.
  * The existing five-minute owner trigger remains the outer recovery path.
@@ -1064,12 +1135,13 @@ function imperionSyncPrivateIntake(){
     }
     // Retry a previously failed digest even if this run has no new rows.
     impFlushOwnerDigest_(cfg,ss,events);
+    var proofAlerts=impSendProofReviewAlerts_(ss,cfg);
     var receipts=impSendReceiptQueue_(ss,cfg,events);
     var followups=impSendAttendedFollowups_(ss,cfg);
     var chatInvites=impSendApprovedChatInvites_(ss,cfg);
     console.log('Private intake receipts: dispatched='+receipts.sent+', errors='+receipts.failed);
     console.log('Private intake: new RSVP='+addedR+', enquiries='+addedE+', corporate OSVC='+addedB+', Academy OSVC='+addedA+', acked='+processed);
-    return {newRsvps:addedR,newEnquiries:addedE,newB2B:addedB,newAcademy:addedA,acked:processed,receipts:receipts,followups:followups,chatInvites:chatInvites};
+    return {newRsvps:addedR,newEnquiries:addedE,newB2B:addedB,newAcademy:addedA,acked:processed,proofAlerts:proofAlerts,receipts:receipts,followups:followups,chatInvites:chatInvites};
   }finally{lock.releaseLock();}
 }
 

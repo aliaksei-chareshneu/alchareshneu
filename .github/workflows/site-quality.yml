@@ -13,6 +13,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Verify PDF-only owner review and four-language upload flow
+        run: |
+          node --check register/training-payment.js
+          node --check tests/paid-event-pdf-owner-notify.test.cjs
+          node --test tests/paid-event-pdf-owner-notify.test.cjs
+          node --test tests/druzina-unified-payment.test.cjs
+
       - name: Verify required public pages
         shell: bash
         run: |
