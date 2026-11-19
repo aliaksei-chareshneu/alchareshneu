@@ -59,6 +59,15 @@ export function closingDate(notice,now=new Date()) {
   return {date:null,source:'NOT_VERIFIED',expired:false};
 }
 
+/** Select only previously persisted rows with an absent deadline.
+ * Never overwrite manual deadlines or any monetary / outreach metadata.
+ */
+export function deadlineBackfillCandidates(items,existingRows) {
+  if(!Array.isArray(items)||!Array.isArray(existingRows))throw Error('INVALID_BACKFILL_INPUT');
+  const known=new Map(existingRows.map(x=>[x.source_key,x]));
+  return items.filter(x=>x.deadline_on && known.has(x.source_key) && !known.get(x.source_key).deadline_on);
+}
+
 export function moneyGate(quoteCzk, fullHours, directCostsCzk=0) {
   if (![quoteCzk, fullHours, directCostsCzk].every(v=>Number.isFinite(v)) || quoteCzk<0 || fullHours<=0 || directCostsCzk<0)
     return {gate:'REVIEW_UNCOSTED', net_czk_per_full_hour:null};
