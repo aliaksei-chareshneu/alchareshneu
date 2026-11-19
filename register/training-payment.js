@@ -75,18 +75,18 @@
       const tname=PRICE_NAMES[p.tier]?.[lang]||p.tier;
       return tname+': '+p.baseCzk+' + '+p.surchargeCzk+' = '+p.totalCzk+' Kč';
     });
-    $('trainingPaymentAmount').textContent=prices.join(' · ');
+    $('trainingPaymentAmount').textContent=osvc?(q.tiers?.[0]?.totalCzk+' Kč'):prices.join(' · ');
     $('trainingPaymentInstructions').textContent=q.sessionPaymentOpen?t.ready:t.notReady;
     $('paymentResumeLabel').textContent=t.codeLabel;
     $('paymentResumeHelp').textContent=t.codeHelp;
     $('paymentQuoteButton').textContent=t.check;
+    $('paymentPdfLabel').textContent=t.pdf;
+    $('paymentProofHelp').textContent=t.pdfHelp;
+    const isGoing=document.querySelector('input[name=rsvp]:checked')?.value==='YES';
     if($('paymentStatusButton')){
       $('paymentStatusButton').hidden=!isGoing||!token();
       $('paymentStatusButton').textContent=(STATUS_TEXT[lang]||STATUS_TEXT.cs).statusCheck;
     }
-    $('paymentPdfLabel').textContent=t.pdf;
-    $('paymentProofHelp').textContent=t.pdfHelp;
-    const isGoing=document.querySelector('input[name=rsvp]:checked')?.value==='YES';
     $('paymentResumeField').hidden=!isGoing;
     $('paymentQuoteButton').hidden=!isGoing||!token();
     const good=!!privateQuote&&privateQuote.eventId===event.event_id&&
@@ -184,8 +184,8 @@
     finally{btn.disabled=false;btn.textContent=d.statusCheck;}
   }
   function changedMessage(lang){return (T[lang]||T.cs).changed;}
-  function receiptMessage(lang){return (T[lang]||T.cs).receipt;}
-  function resumeMessage(lang){return (T[lang]||T.cs).codeReceipt;}
+  function receiptMessage(lang){return latestEvent?.trainingPayment?.kind==='OSVC_EVENT'?(OSVC_TEXT[lang]||OSVC_TEXT.cs).receipt:(T[lang]||T.cs).receipt;}
+  function resumeMessage(lang){return latestEvent?.trainingPayment?.kind==='OSVC_EVENT'?(OSVC_TEXT[lang]||OSVC_TEXT.cs).codeReceipt:(T[lang]||T.cs).codeReceipt;}
   document.querySelectorAll('input[name=rsvp]').forEach(el=>el.addEventListener('change',()=>{
     clearPrivateQuote();render(latestEvent,latestLang,latestMode);
   }));
