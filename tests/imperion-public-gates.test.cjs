@@ -99,3 +99,51 @@ test('Google reviews dated owner count must not be fabricated', () => {
   docs['index.html']=docs['index.html'].replace('data-intent="reviews">55 Google reviews · owner-reported (13 Nov 2026)', 'data-intent="reviews">500 Google reviews · owner-reported (13 Nov 2026)');
   assert.ok(runAudit(docs).errors.some(e=>e.id==='root:review-link'),'fabricated count must fail');
 });
+
+
+test('buyer-led corporate positioning keeps two distinct lawful purchase paths', () => {
+  const root=path.resolve(__dirname,'..');
+  const corporate=fs.readFileSync(path.join(root,'corporate/index.html'),'utf8');
+  const homepage=fs.readFileSync(path.join(root,'index.html'),'utf8');
+  const bureau=corporate.split('id="external-lecturer"')[1].split('</article>')[0];
+  const technical=corporate.split('id="technical-answer-pilot"')[1].split('</article>')[0];
+  assert.ok(corporate.includes('id="buyer-paths"')&&bureau&&technical);
+  for (const loc of ['en','cs','ru','uk']) {
+    assert.ok(bureau.includes('data-locale="'+loc+'"'),'lecturer '+loc);
+    assert.ok(technical.includes('data-locale="'+loc+'"'),'technical '+loc);
+  }
+  assert.ok(bureau.includes('mailto:chereshnev.biochem@gmail.com?subject='),'known written lecturer enquiry');
+  assert.ok(!bureau.includes('12 900 Kč'),'training agency is not quoted a direct-company workshop price');
+  assert.ok(bureau.includes('lektor')&&bureau.includes('material'),'scope and teaching rights are explicit');
+  assert.ok(technical.includes('technical-answers/?lang=cs'),'existing bounded pilot not a new checkout');
+  assert.ok(technical.includes('14 900 Kč'),'existing price retained, no unapproved increase');
+  assert.ok(!corporate.includes('The initial 15-minute fit discussion is free.'));
+  assert.ok(!corporate.includes('Úvodní 15minutové posouzení je zdarma.'));
+  assert.equal((corporate.match(/<details\\b/g)||[]).length,(corporate.match(/<\\/details>/g)||[]).length,'valid details wrappers');
+  assert.ok(corporate.includes('id="more-corporate-services"'),'secondary offers remain discoverable');
+  for(const label of [
+    "business:'For training providers & technical teams",
+    "business:'Pro školicí organizace a technické týmy",
+    "business:'Учебным центрам и техническим командам",
+    "business:'Навчальним центрам і технічним командам",
+  ]) assert.ok(homepage.includes(label),'translated relevant corporate handoff '+label);
+});
+test('exceptional Nov 28 HEMA public date survives old Saturday suppression without reopening Saturdays', () => {
+  const root=path.resolve(__dirname,'..');
+  const calendar=fs.readFileSync(path.join(root,'calendar/index.html'),'utf8');
+  const clarity=fs.readFileSync(path.join(root,'site-clarity-pages.js'),'utf8');
+  const druzina=fs.readFileSync(path.join(root,'druzina/index.html'),'utf8');
+  assert.ok(calendar.includes("e.event_id!=='PUB-HEMA-20261128'"));
+  assert.ok(clarity.includes("e.event_id!=='PUB-HEMA-20261128'"));
+  assert.ok(calendar.includes("getUTCDay()===6"),'other Saturdays still suppressed');
+  assert.ok(clarity.includes("getUTCDay()===6"),'other Saturdays still suppressed');
+  for(const fragment of [
+    '28. 11. přijímáme jen nezávazné přihlášky',
+    'Only 28 November is open for preliminary enquiries',
+    '28 ноября принимаются только предварительные заявки',
+    '28 листопада приймаються лише попередні заявки',
+  ]) assert.ok(druzina.includes(fragment),'calendar and club policy must agree '+fragment);
+  assert.ok(!druzina.includes('no Saturday training dates are open'),'obsolete blanket ban');
+  assert.ok(!druzina.includes('soboty nyní nerezervujeme'),'obsolete blanket ban CS');
+  assert.ok(druzina.includes('240 Kč')&&druzina.includes('800 Kč'),'existing NGO tariff stays untouched');
+});
