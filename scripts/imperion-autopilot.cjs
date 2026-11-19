@@ -68,6 +68,10 @@ function build(source, now = Date.now()) {
     }).format(new Date(e.begins_at));
     return {
       event_id: e.event_id, status: 'HOLD_FOR_MANUAL_APPROVAL',
+      // Static event metadata cannot establish a buyer's authentic before/after story.
+      // Require an owner-checked, evidence-backed outcome before any real post.
+      outcome_storytelling_review: 'REQUIRED_BEFORE_PUBLICATION',
+      outcome_claim_source: 'VERIFIED_PUBLIC_EVENT_METADATA_ONLY',
       destination: 'OWN_PROFILE_OR_EXPLICITLY_ALLOWED_COMMUNITY_ONLY',
       direct_public_links: false, posted: false, published_url: null,
       text_cs: 'Chystá se ' + e.title + '.\n' +
