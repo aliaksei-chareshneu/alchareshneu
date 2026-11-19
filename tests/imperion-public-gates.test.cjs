@@ -107,13 +107,17 @@ test('buyer-led corporate positioning keeps two distinct lawful purchase paths',
   const homepage=fs.readFileSync(path.join(root,'index.html'),'utf8');
   const bureau=corporate.split('id="external-lecturer"')[1].split('</article>')[0];
   const technical=corporate.split('id="technical-answer-pilot"')[1].split('</article>')[0];
-  assert.ok(corporate.includes('id="buyer-paths"')&&bureau&&technical);
+  const employer=corporate.split('id="team-upskilling"')[1].split('</article>')[0];
+  assert.ok(corporate.includes('id="buyer-paths"')&&bureau&&technical&&employer);
   for (const loc of ['en','cs','ru','uk']) {
     assert.ok(bureau.includes('data-locale="'+loc+'"'),'lecturer '+loc);
     assert.ok(technical.includes('data-locale="'+loc+'"'),'technical '+loc);
+    assert.ok(employer.includes('data-locale="'+loc+'"'),'employer '+loc);
   }
   assert.ok(bureau.includes('mailto:chereshnev.biochem@gmail.com?subject='),'known written lecturer enquiry');
   assert.ok(!bureau.includes('12 900 Kč'),'training agency is not quoted a direct-company workshop price');
+  assert.ok(employer.includes('service=AI_WORKSHOP'),'HR uses existing corporate workshop intake');
+  assert.ok(employer.includes('12 900 Kč'),'existing direct-employer workshop price retained');
   assert.ok(bureau.includes('lektor')&&bureau.includes('material'),'scope and teaching rights are explicit');
   assert.ok(technical.includes('technical-answers/?lang=cs'),'existing bounded pilot not a new checkout');
   assert.ok(technical.includes('14 900 Kč'),'existing price retained, no unapproved increase');
