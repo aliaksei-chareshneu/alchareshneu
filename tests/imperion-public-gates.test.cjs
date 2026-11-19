@@ -125,6 +125,7 @@ test('buyer-led corporate positioning keeps two distinct lawful purchase paths',
   assert.ok(!corporate.includes('Úvodní 15minutové posouzení je zdarma.'));
   assert.equal(corporate.split('<details').length,corporate.split('</details>').length,'valid details wrappers');
   assert.ok(corporate.includes('id="more-corporate-services"'),'secondary offers remain discoverable');
+  assert.ok(corporate.indexOf('<div class="revenue-row"><a class="btn solid" data-locale="cs" hidden href="mailto:') < corporate.indexOf('id="more-corporate-services"'),'primary localized B2B contact remains visible outside disclosure');
   for(const label of [
     "business:'For training providers & technical teams",
     "business:'Pro školicí organizace a technické týmy",
