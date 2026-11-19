@@ -1,6 +1,6 @@
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import {createClient} from 'npm:@supabase/supabase-js@2.112.3';
-import {QUERY_GROUPS,tedRequest,parseTedResponse,pragueSlot} from './core.mjs';
+import {QUERY_GROUPS,tedRequest,parseTedResponse,pragueSlot,deadlineBackfillCandidates} from './core.mjs';
 
 /**
  * Read-only external TED search -> private Supabase candidate staging.
@@ -79,7 +79,7 @@ Deno.serve(async (req)=>{
       }
       // Safe backfill: only absent dates and only from explicit official TED lot fields.
       // Never overwrite owner-reviewed dates, bids, cost estimates or CRM metadata.
-      const backfills=items.filter(x=>x.deadline_on && known.has(x.source_key) && !known.get(x.source_key).deadline_on);
+      const backfills=deadlineBackfillCandidates(items,existing.data||[]);
       for(const item of backfills) {
         const result=await api.from('imperion_deal_hunter_candidates')
           .update({deadline_on:item.deadline_on})
