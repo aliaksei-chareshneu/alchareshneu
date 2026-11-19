@@ -1,6 +1,6 @@
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import {createClient} from 'npm:@supabase/supabase-js@2.112.3';
-import {QUERY_GROUPS,tedRequest,parseTedResponse,pragueSlot} from './core.mjs';
+import {QUERY_GROUPS,tedRequest,parseTedResponse,pragueSlot,deadlineBackfillCandidates} from './core.mjs';
 
 /**
  * Read-only external TED search -> private Supabase candidate staging.
@@ -62,14 +62,14 @@ Deno.serve(async (req)=>{
     }
   });
   const items=[...all.values()].sort((a,b)=>b.fit_score-a.fit_score).slice(0,60);
-  let inserted=0,persisted=0;
+  let inserted=0,persisted=0,deadlineBackfilled=0;
   let status=sourcesOk===0?'SOURCE_FAILED':errors.length?'SOURCE_PARTIAL':'SOURCE_OK';
   try{
     if(sourcesOk&&items.length){
       const keys=items.map(x=>x.source_key);
-      const existing=await api.from('imperion_deal_hunter_candidates').select('source_key').in('source_key',keys);
+      const existing=await api.from('imperion_deal_hunter_candidates').select('source_key,deadline_on').in('source_key',keys);
       if(existing.error)throw Error('CANDIDATE_READ_FAILED');
-      const known=new Set((existing.data||[]).map(x=>x.source_key));
+      const known=new Map((existing.data||[]).map(x=>[x.source_key,x]));
       const fresh=items.filter(x=>!known.has(x.source_key));
       if(fresh.length){
         const result=await api.from('imperion_deal_hunter_candidates').insert(fresh).select('source_key');
@@ -77,8 +77,22 @@ Deno.serve(async (req)=>{
         inserted=result.data?.length||0;
         if(inserted!==fresh.length)throw Error('CANDIDATE_INSERT_READBACK_MISMATCH');
       }
-      const verified=await api.from('imperion_deal_hunter_candidates').select('source_key').in('source_key',keys);
+      // Safe backfill: only absent dates and only from explicit official TED lot fields.
+      // Never overwrite owner-reviewed dates, bids, cost estimates or CRM metadata.
+      const backfills=deadlineBackfillCandidates(items,existing.data||[]);
+      for(const item of backfills) {
+        const result=await api.from('imperion_deal_hunter_candidates')
+          .update({deadline_on:item.deadline_on})
+          .eq('source_key',item.source_key).is('deadline_on',null)
+          .select('source_key,deadline_on');
+        if(result.error)throw Error('DEADLINE_BACKFILL_FAILED');
+        deadlineBackfilled+=result.data?.length||0;
+      }
+      const verified=await api.from('imperion_deal_hunter_candidates').select('source_key,deadline_on').in('source_key',keys);
       if(verified.error || (verified.data||[]).length!==items.length)throw Error('PERSISTED_READBACK_FAILED');
+      const readback=new Map(verified.data.map(x=>[x.source_key,x]));
+      if(items.some(x=>x.deadline_on && !readback.get(x.source_key)?.deadline_on))
+        throw Error('DEADLINE_READBACK_FAILED');
       persisted=verified.data.length;
     }
   }catch(e){status='PERSISTENCE_FAILED';errors.push(String(e.message||'DB_FAILED').slice(0,60));}
@@ -86,7 +100,7 @@ Deno.serve(async (req)=>{
   const finished=await api.from('imperion_deal_hunter_runs').update({finished_at:new Date().toISOString(),status,received,screened:items.length,inserted,persisted,source_successes:sourcesOk,source_errors:errors,report}).eq('id',runId).select('id,status,received,screened,inserted,persisted').single();
   if(finished.error)return reply({ok:false,error:'run_receipt_writeback_failed',run_id:runId},503);
   return reply({ok:status==='SOURCE_OK',run_id:runId,status:finished.data.status,received:finished.data.received,
-    screened:finished.data.screened,inserted:finished.data.inserted,persisted:finished.data.persisted,
+    screened:finished.data.screened,inserted:finished.data.inserted,persisted:finished.data.persisted,deadline_backfilled:deadlineBackfilled,
     sources_ok:sourcesOk,errors,owner_report:report,crm_sync:'NOT_IMPLEMENTED',
     external_messages:0,submissions:0,charges:0,owner_approval_required:true},status==='SOURCE_OK'?200:207);
 });

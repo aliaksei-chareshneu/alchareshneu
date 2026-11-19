@@ -9,7 +9,7 @@ export function tedQuery(cpv) {
   return 'buyer-country=CZE AND notice-type IN (cn-standard cn-social cn-desg) AND classification-cpv='+cpv+' SORT BY publication-date DESC';
 }
 export function tedRequest(cpv) {
-  return {query:tedQuery(cpv), fields:['publication-number','notice-title','buyer-name','publication-date','deadline','classification-cpv','notice-type','total-value','total-value-cur'],
+  return {query:tedQuery(cpv), fields:['publication-number','notice-title','buyer-name','publication-date','deadline','deadline-receipt-tender-date-lot','deadline-receipt-request-date-lot','classification-cpv','notice-type','total-value','total-value-cur'],
     page:1, limit:20, scope:'ACTIVE', paginationMode:'PAGE_NUMBER'};
 }
 export function shortText(value, max=220) {
@@ -26,6 +26,48 @@ export function dateOrNull(x) {
   const d = new Date(x.slice(0,10)+'T00:00:00Z');
   return Number.isFinite(d.getTime()) && d.toISOString().slice(0,10)===x.slice(0,10) ? x.slice(0,10):null;
 }
+/** TED has separate lot-level submission and participation-request deadlines.
+ * Adapted from the existing public-only scripts/imperion-b2b-ted.cjs.
+ * The generic "deadline" field is NOT evidence of a tender submission date.
+ */
+export function deadlineDates(value) {
+  const found=new Set();
+  const visit=(x,depth=0)=>{
+    if(depth>5 || found.size>=30)return;
+    if(typeof x==='string') {
+      const d=dateOrNull(x.trim().slice(0,60));
+      if(d)found.add(d);
+    } else if(Array.isArray(x)) x.slice(0,30).forEach(y=>visit(y,depth+1));
+    else if(x && typeof x==='object')Object.values(x).slice(0,30).forEach(y=>visit(y,depth+1));
+  };
+  visit(value);
+  return [...found].sort();
+}
+export function closingDate(notice,now=new Date()) {
+  const today=now.toISOString().slice(0,10);
+  const fields=[
+    ['deadline-receipt-tender-date-lot','TENDER_LOT'],
+    ['deadline-receipt-request-date-lot','PARTICIPATION_REQUEST_LOT']
+  ];
+  for(const [field,source] of fields) {
+    const dates=deadlineDates(notice[field]);
+    if(!dates.length)continue;
+    const future=dates.find(d=>d>=today);
+    return {date:future||null,source,expired:!future};
+  }
+  // Do not mislabel an ancillary TED generic deadline as the bid deadline.
+  return {date:null,source:'NOT_VERIFIED',expired:false};
+}
+
+/** Select only previously persisted rows with an absent deadline.
+ * Never overwrite manual deadlines or any monetary / outreach metadata.
+ */
+export function deadlineBackfillCandidates(items,existingRows) {
+  if(!Array.isArray(items)||!Array.isArray(existingRows))throw Error('INVALID_BACKFILL_INPUT');
+  const known=new Map(existingRows.map(x=>[x.source_key,x]));
+  return items.filter(x=>x.deadline_on && known.has(x.source_key) && !known.get(x.source_key).deadline_on);
+}
+
 export function moneyGate(quoteCzk, fullHours, directCostsCzk=0) {
   if (![quoteCzk, fullHours, directCostsCzk].every(v=>Number.isFinite(v)) || quoteCzk<0 || fullHours<=0 || directCostsCzk<0)
     return {gate:'REVIEW_UNCOSTED', net_czk_per_full_hour:null};
@@ -49,8 +91,9 @@ export function normalizeNotice(n, group, now=new Date()) {
   score=Math.min(100,score+bonus*17);
   if(score<35)return null;
   const published=dateOrNull(n['publication-date']);
-  const deadline=dateOrNull(shortText(n.deadline,50));
-  if (deadline && deadline < now.toISOString().slice(0,10)) return null;
+  const closing=closingDate(n,now);
+  if (closing.expired) return null;
+  const deadline=closing.date;
   const noticeValue=shortText(n['total-value'],80);
   const noticeCurrency=shortText(n['total-value-cur'],8);
   return {
@@ -58,7 +101,7 @@ export function normalizeNotice(n, group, now=new Date()) {
     source_url, title, buyer, cpv_codes:cpv, published_on:published,
     deadline_on:deadline, notice_value_raw:noticeValue||null, notice_currency:noticeCurrency||null,
     fit_score:score, status:'REVIEW_UNCOSTED', legal_entity:'OSVC',
-    evidence_classification:'OFFICIAL_NOTICE; OPEN_DEADLINE_ELIGIBILITY_BUDGET_AND_OWNER_RATE_UNVERIFIED',
+    evidence_classification:'OFFICIAL_NOTICE; DEADLINE_FIELD='+closing.source+'; OPEN_DEADLINE_ELIGIBILITY_BUDGET_AND_OWNER_RATE_UNVERIFIED',
     last_seen_at:now.toISOString()
   };
 }

@@ -234,3 +234,11 @@ jobs:
             playwright-report/
             test-results/
           retention-days: 7
+
+  ted-deal-hunter-offline-qa:
+    name: TED Deal Hunter — isolated public-only parser QA
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test lot-level deadline parsing and safe null-only backfill
+        run: node --test tests/imperion-deal-hunter.test.mjs
