@@ -396,11 +396,14 @@ Deno.serve(async (req:Request):Promise<Response>=>{
   // the sheet feed still says is_open=true. Recheck after database read.
   if (!registrationStillOpen(v.eventId)) return reply({error:'event_not_available'},400,origin);
   const training=trainingQuote(event);
-  if(training&&Date.now()>=Date.parse(event.begins_at))
+  const osvc=osvcQuote(event);
+  const payment=training||osvc,isOsVc=!!osvc;
+  if(payment&&Date.now()>=Date.parse(event.begins_at))
     return reply({error:'event_not_available'},409,origin);
   let trainingTier:TrainingTier='STANDARD';
-  if(training){
-    try{trainingTier=safeEnum(body.trainingTier||'STANDARD',['STANDARD','SENIOR','STARTER4']) as TrainingTier;}
+  if(payment){
+    try{trainingTier=safeEnum(body.trainingTier||'STANDARD',
+      isOsVc?['STANDARD']:['STANDARD','SENIOR','STARTER4']) as TrainingTier;}
     catch{return reply({error:'invalid_training_tier'},400,origin);}
   }
   const resumeToken=String(body.paymentResumeToken||'').trim();
@@ -409,16 +412,16 @@ Deno.serve(async (req:Request):Promise<Response>=>{
   if(resumeToken&&!/^[A-Za-z0-9_-]{43}$/.test(resumeToken))
     return reply({error:'invalid_payment_code'},400,origin);
   if(action==='quote'&&!resumeToken)return reply({error:'payment_code_required'},400,origin);
-  if(proof&&(!resumeToken||!training))return reply({error:'payment_not_open'},400,origin);
+  if(proof&&(!resumeToken||!payment))return reply({error:'payment_not_open'},400,origin);
   const expiry=new Date(new Date(event.ends_at).getTime()+90*86400000);
   let receiptId:string|null=null,issuedToken:string|null=null;
-  let proofReceived=false,verifiedQuote:null|ReturnType<typeof trainingQuote>=null;
+  let proofReceived=false,verifiedQuote:null|NonNullable<ReturnType<typeof trainingQuote>>|NonNullable<ReturnType<typeof osvcQuote>>=null;
   if(resumeToken){
-    if(!training||!training.sessionPaymentOpen||v.rsvp!=='YES')
+    if(!payment||!payment.sessionPaymentOpen||v.rsvp!=='YES')
       return reply({error:'payment_not_open'},409,origin);
     const hashed=await tokenHash(resumeToken);
     const lookup=await api.from('imperion_rsvp_submissions')
-      .select('id,created_at,training_requested_tier,training_authorized_tier,training_authorized_at,payment_variable_symbol')
+      .select('id,created_at,training_requested_tier,training_authorized_tier,training_authorized_at,osvc_authorized_at,payment_variable_symbol')
       .eq('event_id',v.eventId).eq('email',v.email).eq('first_name',v.first)
       .eq('last_name',v.last).eq('payment_resume_token_hash',hashed)
       .eq('rsvp_status','YES').eq('payment_evidence_status','NOT_REQUIRED')
@@ -431,23 +434,25 @@ Deno.serve(async (req:Request):Promise<Response>=>{
     if(!/^[1-9][0-9]{9}$/.test(vs))return reply({error:'numeric_vs_not_issued'},409,origin);
     const savedTier=lookup.data.training_requested_tier as TrainingTier;
     if(savedTier!==trainingTier)return reply({error:'training_tier_changed'},409,origin);
-    const approved=!!lookup.data.training_authorized_at &&
-      (savedTier==='STANDARD'||lookup.data.training_authorized_tier===savedTier);
+    const approved=isOsVc?!!lookup.data.osvc_authorized_at:
+      (!!lookup.data.training_authorized_at &&
+       (savedTier==='STANDARD'||lookup.data.training_authorized_tier===savedTier));
     if(!approved)return reply({error:'personal_confirmation_pending'},409,origin);
     // Starter4 requires a verified four-session package ledger and seat gates.
     // An approved single-event RSVP cannot sell four attendances.
-    if(savedTier==='STARTER4')return reply({error:'package_checkout_requires_plan_authorization'},409,origin);
+    if(!isOsVc&&savedTier==='STARTER4')return reply({error:'package_checkout_requires_plan_authorization'},409,origin);
     // Late fee belongs to the original registration timestamp, not to a later PDF upload.
     const registrationMs=Date.parse(lookup.data.created_at||'');
     if(!Number.isFinite(registrationMs)||registrationMs>Date.now())
       return reply({error:'invalid_registration_timestamp'},409,origin);
-    verifiedQuote=trainingQuote(event,savedTier,registrationMs,true);
+    verifiedQuote=isOsVc?osvcQuote(event,registrationMs,true):trainingQuote(event,savedTier,registrationMs,true);
     if(!verifiedQuote||!verifiedQuote.sessionPaymentOpen||!verifiedQuote.account)
       return reply({error:'payment_not_open'},409,origin);
     // Check legal payee against protected Edge Function configuration; never accept a browser-supplied account.
     const approvedIban=verifiedBankIban(verifiedQuote.account,verifiedQuote.recipient,
-      Deno.env.get('DRUZINA_APPROVED_IBAN'),Deno.env.get('DRUZINA_APPROVED_PAYEE'));
-    const spd=approvedIban ? createTrainingSpd(approvedIban,verifiedQuote.totalCzk,lookup.data.id,vs) : null;
+      Deno.env.get(isOsVc?'OSVC_APPROVED_IBAN':'DRUZINA_APPROVED_IBAN'),
+       Deno.env.get(isOsVc?'OSVC_APPROVED_PAYEE':'DRUZINA_APPROVED_PAYEE'));
+    const spd=approvedIban ? createTrainingSpd(approvedIban,verifiedQuote.totalCzk,lookup.data.id,vs,isOsVc?'BW':'DM') : null;
     if(!spd)return reply({error:'approved_bank_not_configured'},409,origin);
     if(action==='quote'){
       if(proof)return reply({error:'invalid_request'},400,origin);
