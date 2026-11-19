@@ -471,7 +471,7 @@ render(detectLang());
 const PUBLIC_EVENT_CATALOG_URL='https://cmrknyhnnehyjpreehcf.supabase.co/functions/v1/imperion-register';
 function catalogSuppressed(e){
  const date=String(e.begins_at||'').slice(0,10),cat=String(e.category||''),club=/družin|druzin|hema/i.test([e.community,e.category].join(' '));
- const sat=cat==='HEMA Training'&&club&&e.event_id!=='PUB-OREL-20261114'&&new Date(e.begins_at).getUTCDay()===6;
+ const sat=cat==='HEMA Training'&&club&&e.event_id!=='PUB-OREL-20261114'&&e.event_id!=='PUB-HEMA-20261128'&&new Date(e.begins_at).getUTCDay()===6;
  return sat||date==='2026-11-15'||date==='2026-11-17'||e.event_id==='BW-PAID-20261028'||e.event_id==='COM-HIKE-20261028';
 }
 function catalogEvent(e){
