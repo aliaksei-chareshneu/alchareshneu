@@ -20,6 +20,9 @@ jobs:
           node --test tests/paid-event-pdf-owner-notify.test.cjs
           node --test tests/druzina-unified-payment.test.cjs
 
+      - name: Verify official TED lot-level deadlines and null-only backfill (offline, no data writes)
+        run: node --test tests/imperion-deal-hunter.test.mjs
+
       - name: Verify required public pages
         shell: bash
         run: |
