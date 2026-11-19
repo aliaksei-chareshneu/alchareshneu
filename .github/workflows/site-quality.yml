@@ -242,3 +242,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Test lot-level deadline parsing and safe null-only backfill
         run: node --test tests/imperion-deal-hunter.test.mjs
+      - name: Probe live official TED field availability (read-only, optional)
+        if: github.head_ref == 'fix/imperion-deal-hunter-deadlines-20261119'
+        continue-on-error: true
+        run: node tests/imperion-deal-hunter-live-probe.mjs
