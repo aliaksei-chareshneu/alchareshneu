@@ -27,7 +27,7 @@ function valid(e){
  if(!e||!/^PUB-[A-Z0-9-]{4,90}$/.test(e.event_id||'')||Date.parse(e.begins_at)<=Date.now())return false;
  // Never surface explicitly suspended, withdrawn or owner-HOLD dates as next events.
  if(e.source_active===false||['2026-11-15','2026-11-17'].includes(String(e.begins_at||'').slice(0,10))||['BW-PAID-20261028','COM-HIKE-20261028'].includes(e.event_id))return false;
- if(club&&e.category==='HEMA Training'&&new Date(e.begins_at).getUTCDay()===6&&e.event_id!=='PUB-OREL-20261114')return false;
+ if(club&&e.category==='HEMA Training'&&new Date(e.begins_at).getUTCDay()===6&&e.event_id!=='PUB-OREL-20261114'&&e.event_id!=='PUB-HEMA-20261128')return false;
  return isRelevant(e);
 }
 const eventsUrlPromise=fetch(api,{method:'GET',cache:'no-store'}).then(r=>r.ok?r.json():null).then(payload=>{
