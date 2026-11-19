@@ -119,7 +119,7 @@ test('buyer-led corporate positioning keeps two distinct lawful purchase paths',
   assert.ok(technical.includes('14 900 Kč'),'existing price retained, no unapproved increase');
   assert.ok(!corporate.includes('The initial 15-minute fit discussion is free.'));
   assert.ok(!corporate.includes('Úvodní 15minutové posouzení je zdarma.'));
-  assert.equal((corporate.match(/<details\\b/g)||[]).length,(corporate.match(/<\\/details>/g)||[]).length,'valid details wrappers');
+  assert.equal(corporate.split('<details').length,corporate.split('</details>').length,'valid details wrappers');
   assert.ok(corporate.includes('id="more-corporate-services"'),'secondary offers remain discoverable');
   for(const label of [
     "business:'For training providers & technical teams",
