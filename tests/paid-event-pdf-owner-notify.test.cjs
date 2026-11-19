@@ -41,7 +41,7 @@ test('same-row CRM receives review type and owner check without rewriting bank a
  assert.ok(crm.includes("MailApp.sendEmail({to:cfg.email"));
  assert.ok(crm.includes("sh.getRange(i+2,m.Proof_Alert_Status+1).setValue('DISPATCH_STARTED')"));
  assert.ok(crm.includes("'DELIVERY_UNCERTAIN'"));
- assert.ok(!crm.includes("Payment_Status:'VERIFIED'")); // manual bank review should not be implicit
+ assert.ok(crm.includes("...(verified?{Bank_Verified_At:impDate_(r.bank_verified_at),Payment_Status:'VERIFIED'}:{})")); // only separately bank-verified rows
 });
 test('four public forms share the same private PDF check and no bank-paid promises',()=>{
  assert.doesNotThrow(()=>new Function(ui));
