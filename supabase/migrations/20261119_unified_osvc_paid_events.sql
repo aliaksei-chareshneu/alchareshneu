@@ -6,13 +6,11 @@ ALTER TABLE public.imperion_rsvp_events
   ADD COLUMN IF NOT EXISTS osvc_payment_recipient text,
   ADD COLUMN IF NOT EXISTS osvc_payment_account text,
   ADD COLUMN IF NOT EXISTS osvc_quote_locked_at timestamptz,
-  ADD COLUMN IF NOT EXISTS osvc_operational_go_at timestamptz,
-;
+  ADD COLUMN IF NOT EXISTS osvc_operational_go_at timestamptz;
 
 ALTER TABLE public.imperion_rsvp_submissions
   ADD COLUMN IF NOT EXISTS osvc_authorized_at timestamptz,
-  ADD COLUMN IF NOT EXISTS payment_status_token_hash text,
-;
+  ADD COLUMN IF NOT EXISTS payment_status_token_hash text;
 
 ALTER TABLE public.imperion_rsvp_events
   ADD CONSTRAINT imperion_osvc_event_payment_go_guard_20261119
