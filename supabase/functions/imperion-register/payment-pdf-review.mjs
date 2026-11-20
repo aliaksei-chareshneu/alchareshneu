@@ -2,7 +2,7 @@
  * Extracted text is only a review hint. This module cannot attest settlement,
  * initiate payments, authenticate bank data or confirm a booking.
  */
-const MAX_INPUT=2*1024*1024;
+const MAX_INPUT=5*1024*1024;
 const MAX_TEXT=256*1024;
 const MAX_STREAMS=12;
 const latin1=new TextDecoder('latin1');
