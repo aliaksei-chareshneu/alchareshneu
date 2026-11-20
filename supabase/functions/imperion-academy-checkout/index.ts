@@ -9,6 +9,9 @@ const URL=Deno.env.get("SUPABASE_URL")||"";
 const SECRET=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")||"";
 const DB=URL&&SECRET?createClient(URL,SECRET,{auth:{persistSession:false,autoRefreshToken:false}}):null;
 const BUCKET="imperion-academy-payment-proofs";
+const MAX_PDF_BYTES=5*1024*1024;
+const MAX_IMAGE_BYTES=2*1024*1024;
+const MAX_MULTIPART_BYTES=MAX_PDF_BYTES+16000;
 const enc=new TextEncoder();
 const SERVICES=new Set(["czech","english","math","physics","chemistry","biology","biochemistry","natural-sciences","python","data","fitness","calisthenics","fencing","archery","medical","offices","legal"]);
 const LOCALES=new Set(["cs","en","ru","uk"]);
@@ -125,7 +128,7 @@ async function proof(req:Request,origin:string|null){
  if(!approvedQuote(item)||item.payment_evidence_status!=="AWAITING_PROOF"||item.bank_verified_at)
    return reply({error:"quote_not_authorized_or_proof_not_needed"},409,origin);
  const file=body.get("paymentProof");
- if(!(file instanceof File)||file.size<100||file.size>2097152)return reply({error:"invalid_file_size"},400,origin);
+ if(!(file instanceof File)||file.size<100||file.size>MAX_PDF_BYTES)return reply({error:"invalid_file_size"},400,origin);
  const bytes=new Uint8Array(await file.arrayBuffer());
  const signature=(...v:number[])=>v.every((n,i)=>bytes[i]===n);
  let mime="",ext="";
@@ -133,6 +136,7 @@ async function proof(req:Request,origin:string|null){
  else if(signature(137,80,78,71,13,10,26,10)){mime="image/png";ext="png";}
  else if(signature(255,216,255)){mime="image/jpeg";ext="jpg";}
  else return reply({error:"unsupported_file_format"},400,origin);
+ if(mime!=="application/pdf"&&file.size>MAX_IMAGE_BYTES)return reply({error:"invalid_file_size"},400,origin);
  const digest=await sha256(bytes);
  const expiry=String(item.retention_until||"").slice(0,10);
  if(!/^\d{4}-\d{2}-\d{2}$/.test(expiry))return reply({error:"retention_configuration_unavailable"},503,origin);
@@ -160,7 +164,7 @@ Deno.serve(async(req:Request)=>{
  if(origin!==ORIGIN)return reply({error:"forbidden_origin"},403,null);
  if(!DB)return reply({error:"temporarily_unavailable"},503,origin);
  const size=Number(req.headers.get("content-length")||0);
- if(size>2300000)return reply({error:"payload_too_large"},413,origin);
+ if(size>MAX_MULTIPART_BYTES)return reply({error:"payload_too_large"},413,origin);
  const contentType=(req.headers.get("content-type")||"").toLowerCase();
  if(contentType.startsWith("multipart/form-data"))return proof(req,origin);
  if(!contentType.startsWith("application/json")||size>8192)return reply({error:"invalid_content_type"},400,origin);
