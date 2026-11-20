@@ -122,7 +122,7 @@ function communityChannels(community: string, locale: string, age: string, rsvp:
 const EVENT_COLS='event_id,title,community,category,begins_at,ends_at,venue,price_czk,data_controller,rules_url,contact_activity,is_open,registration_mode,action_url,public_note,price_verified,end_time_verified,source_active,training_price_scheme,training_confirmed_count,training_quote_locked_at,training_operational_go_at,training_payment_open,training_payment_recipient,training_payment_account,osvc_payment_open,osvc_payment_recipient,osvc_payment_account,osvc_quote_locked_at,osvc_operational_go_at';
 const PROOF_BUCKET='imperion-training-payment-proofs';
 const OSVC_PROOF_BUCKET='imperion-academy-payment-proofs'; // existing private OSVC storage
-const MAX_PDF_BYTES=2*1024*1024;
+const MAX_PDF_BYTES=5*1024*1024;
 const MAX_MULTIPART_BYTES=MAX_PDF_BYTES+15000;
 const LATE_WINDOW_MS=48*60*60*1000;
 type TrainingTier='STANDARD'|'SENIOR'|'STARTER4';
