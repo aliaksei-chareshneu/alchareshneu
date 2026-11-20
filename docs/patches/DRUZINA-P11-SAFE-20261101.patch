@@ -1,0 +1,557 @@
+# Družina P11 exact owner-bound Apps Script patch
+# Diff against verified p10 HEAD source from 01 Nov 2026 (not against public GitHub main).
+# New pure helper DruzinaSafetyRelease.js and owner-only P11OwnerHealth.js are separate files in PR128.
+# Keep this patch PRIVATE-REVIEWED until all provider/legal/consent E2E verification.
+# No direct customer payments or bookings are permitted by these modifications.
+
+diff --git a/Code.js b/Code.js
+index 39199e9..8923a0d 100644
+--- a/Code.js
++++ b/Code.js
+@@ -14,43 +14,54 @@ function doGet(e){
+ function include_(name){ return HtmlService.createHtmlOutputFromFile(name).getContent(); }
+ 
+ function getBootstrap(){
+-  return {version:APP.VERSION,now:new Date().toISOString(),sessions:listSessionsPublic_(),policy:policyVersion_(),tariff:currentTariff_(),location:APP.LOCATION};
++  const release=drusPaidRelease_();
++  const sessions=release.ok?listSessionsPublic_():[];
++  const active=release.ok&&drusApprovedProductActive_();
++  const available=active&&sessions.some(s=>Number(s.available)>0);
++  return {version:APP.VERSION,now:new Date().toISOString(),
++    sessions:available?sessions:[],
++    policy:policyVersion_(),tariff:currentTariff_(),
++    location:'Confirmed venue supplied for approved session only',
++    bookingEnabled:available,bookingStatus:available?'AVAILABLE':'PAUSED',
++    enquiryUrl:DRUS_ENQUIRY_URL};
+ }
+-
+ function identifyMember(payload){
+   // A guessed email or phone never proves ownership. No existence or profile oracle.
+   return {ok:true,message:'Use the private management link sent to your registered email.'};
+ }
+ 
+ function getEligibleProducts(payload){
+-  const m=authorizeBookingMember_(payload); refreshMemberAccount_(m);
++  drusRequirePaid_();
++  const m=authorizeBookingMember_(payload);
++  drusRequireMemberConsent_(m); refreshMemberAccount_(m);
+   // Unverified contact input must never disclose a member ID, name, rank or debt.
+   if(memberBlocked_(m)) return {member:{status:'HOLD'},products:[],blocked:true};
+ 
+   const products=[];
+-  if(isTrialEligible_(m)) products.push({code:'DRU-TRIAL',name:'First training',price:120,type:'TRIAL',sessions:1});
++  if(isTrialEligible_(m)) products.push({code:isNovEffectiveFor_(new Date())?'DRU-FIRSTVISIT-202611':'DRU-TRIAL',name:'First training',price:isNovEffectiveFor_(new Date())?240:120,type:'TRIAL',sessions:1});
+ 
+   const current=tariffForDate_(new Date());
+   if(String(m.Tier)==='Senior') products.push({code:isNovEffectiveFor_(new Date())?'DRU-SENIOR-FLEX-202611':'DRU-SENIOR-DROPIN',name:'Senior Flex / single',price:current.seniorFlex,type:'FLEX',sessions:1});
+-  else products.push({code:'DRU-JUNIOR-DROPIN',name:'Junior Flex / single',price:current.juniorFlex,type:'FLEX',sessions:1});
++  else products.push({code:isNovEffectiveFor_(new Date())?'DRU-JUNIOR-FLEX-202611':'DRU-JUNIOR-DROPIN',name:'Junior Flex / single',price:current.juniorFlex,type:'FLEX',sessions:1});
+ 
+   if(novPackageSalesOpen_()){
+-    if(String(m.Tier)==='Senior'){
+-      products.push({code:'DRU-SENIOR4-202611',name:'Senior Regular 4',price:650,type:'PACKAGE',sessions:4});
+-      products.push({code:'DRU-SENIOR8-202611',name:'Senior Active 8',price:1100,type:'PACKAGE',sessions:8});
+-      products.push({code:'DRU-SENIOR12-202611',name:'Senior Core 12',price:1500,type:'PACKAGE',sessions:12});
+-    }else{
++    if(String(m.Tier)!=='Senior'){
+       const up=starterUpgradeEligibility_(m);
+-      if(up) products.push({code:'DRU-STARTER4-202611',name:'Starter 4 — Trial credited',price:680,packagePrice:800,type:'PACKAGE_UPGRADE',sessions:3,trialUpgradeBookingId:up.bookingId,trialCredit:120});
++      if(up) products.push({code:'DRU-STARTER4-202611',name:'Starter 4 — Trial credited',price:560,packagePrice:800,type:'PACKAGE_UPGRADE',sessions:3,trialUpgradeBookingId:up.bookingId,trialCredit:240});
+       else products.push({code:'DRU-STARTER4-202611',name:'Starter 4',price:800,type:'PACKAGE',sessions:4});
+     }
+   }
+-  return {member:{status:'ACTIVE'},products,blocked:false};
++  const sale=productMap_();
++  const eligible=products.filter(p=>sale[p.code]&&String(sale[p.code].Active).toUpperCase()==='TRUE');
++  return {member:{status:'ACTIVE'},products:eligible,blocked:false};
+ }
+ 
+ function getSessionOffer(payload){
+-  const m=authorizeBookingMember_(payload); refreshMemberAccount_(m); assertMemberCanBook_(m);
++  drusRequirePaid_();
++  const m=authorizeBookingMember_(payload);
++  drusRequireMemberConsent_(m); refreshMemberAccount_(m); assertMemberCanBook_(m);
+   const s=sessionById_(payload.sessionId); if(!s) throw new Error('Session not found');
++  drusRequireSession_(s);
+   const w=windowFor_(s.Start_DateTime); const code=productForWindow_(m.Tier,s.Start_DateTime);
+   return {window:w,productCode:code,price:code?effectivePrice_(code):null,available:availableCapacity_(s),policy:policyVersionForDate_(s.Start_DateTime)};
+ }
+
+diff --git a/Config.js b/Config.js
+index 5e071d3..1c3d40b 100644
+--- a/Config.js
++++ b/Config.js
+@@ -10,7 +10,7 @@ const APP = Object.freeze({
+   HOLD_MINUTES: 20,
+   MAX_PROOF_BYTES: 5 * 1024 * 1024,
+   ALLOWED_PROOF_MIME: ['image/jpeg', 'image/png', 'application/pdf'],
+-  VERSION: 'DRU-PORTAL-2026-10-14-v2.1-p10'
++  VERSION: 'DRU-PORTAL-2026-11-01-v2.2-p11-SAFE'
+ });
+ 
+ const SHEETS = Object.freeze({
+
+diff --git a/Index.html b/Index.html
+index ab1d9bb..4430d33 100644
+--- a/Index.html
++++ b/Index.html
+@@ -13,7 +13,7 @@
+ </head>
+ <body>
+ <div class="wrap">
+-  <div class="top"><div><div class="brand">Družina Moravy</div><div class="tag">Training booking • portal is the only booking authority</div></div><select id="lang" style="width:auto"><option value="en">EN</option><option value="cs">CZ</option><option value="ru">RU</option></select></div>
++  <div class="top"><div><div class="brand">Družina Moravy</div><div class="tag">Training enquiries • paid bookings require confirmation</div></div><select id="lang" style="width:auto"><option value="en">EN</option><option value="cs">CZ</option><option value="ru">RU</option><option value="uk">UA</option></select></div>
+   <nav class="portal-nav" aria-label="Družina Moravy"><a href="https://script.google.com/macros/s/AKfycbwHs_Kc4o6dsnBVWcIEhqv2whK57zibvHU3yntB3JUINhJ9vYVW0G5T-4ddPDUPjJIJ/exec?mode=book">Training</a><a href="https://script.google.com/macros/s/AKfycbwHs_Kc4o6dsnBVWcIEhqv2whK57zibvHU3yntB3JUINhJ9vYVW0G5T-4ddPDUPjJIJ/exec?mode=trainer">Trainer check-in</a><a href="https://script.google.com/macros/s/AKfycbwHs_Kc4o6dsnBVWcIEhqv2whK57zibvHU3yntB3JUINhJ9vYVW0G5T-4ddPDUPjJIJ/exec?mode=hub">Operations</a></nav>
+   <div id="app" class="card">Loading…</div>
+ </div>
+@@ -23,13 +23,13 @@ const T={en:{identity:'Your details',name:'Name',email:'Email',phone:'Phone',con
+ Object.assign(T.en,{hold:'Account on hold',holdHelp:'Booking is temporarily unavailable. Contact the organizer to resolve the account hold.',manageHelp:'Use your private management link or request it at your registered email address.',emailManage:'Email my management link',emailRequired:'Enter your registered email address.'});
+ Object.assign(T.cs,{hold:'Účet je pozastaven',holdHelp:'Rezervace jsou dočasně nedostupné. Pro vyřešení pozastavení účtu kontaktujte organizátora.',manageHelp:'Použijte svůj soukromý odkaz nebo požádejte o jeho zaslání na registrovaný e-mail.',emailManage:'Zaslat odkaz pro správu e-mailem',emailRequired:'Zadejte svůj registrovaný e-mail.'});
+ Object.assign(T.ru,{hold:'Аккаунт заблокирован',holdHelp:'Новые записи временно недоступны. Свяжитесь с организатором для снятия блокировки.',manageHelp:'Используйте вашу личную ссылку или запросите её на зарегистрированный email.',emailManage:'Отправить ссылку на мой email',emailRequired:'Введите ваш зарегистрированный email.'});
+-function tr(k){return (T[document.getElementById('lang').value]||T.en)[k]||k} document.getElementById('lang').onchange=()=>MODE==='trainer'?(TRAINER_TOKEN?loadTrainerRoster():renderTrainerLogin()):MODE==='manage'&&TOKEN?renderManage():renderIdentity();
++function tr(k){return (T[document.getElementById('lang').value]||T.en)[k]||k} document.getElementById('lang').onchange=()=>MODE==='trainer'?(TRAINER_TOKEN?loadTrainerRoster():renderTrainerLogin()):MODE==='manage'&&TOKEN?renderManage():(BOOT&&BOOT.bookingEnabled===false?renderEnquiryOnly():renderIdentity());
+ function esc(value){return String(value==null?'':value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+ function safePaymentUrl(value){try{const url=new URL(String(value||''));return ['https:','http:'].includes(url.protocol)?url.href:'';}catch(e){return '';}}
+ function isPackage(){return SELECTED_PRODUCT&&['PACKAGE','PACKAGE_UPGRADE'].includes(SELECTED_PRODUCT.type);}
+ function call(fn,...args){return new Promise((res,rej)=>google.script.run.withSuccessHandler(res).withFailureHandler(e=>rej(new Error(e.message||e)))[fn](...args));}
+ function fmt(d){return new Intl.DateTimeFormat(document.getElementById('lang').value==='ru'?'ru-RU':document.getElementById('lang').value==='cs'?'cs-CZ':'en-GB',{weekday:'short',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit',timeZone:'Europe/Prague'}).format(new Date(d));}
+-async function init(){if(MODE==='trainer'){renderTrainerLogin();return} BOOT=await call('getBootstrap'); if(MODE==='manage'&&TOKEN){renderManage();return} renderIdentity();}
++async function init(){if(MODE==='trainer'){renderTrainerLogin();return} BOOT=await call('getBootstrap'); if(MODE==='manage'&&TOKEN){renderManage();return} if(!BOOT.bookingEnabled){renderEnquiryOnly();return} renderIdentity();}
+ function renderTrainerLogin(){
+   document.getElementById('app').innerHTML='<h2>Trainer check-in</h2><p class="small">Enter the private trainer key. It stays in this page only.</p><label for="trainerKey">Trainer key</label><input id="trainerKey" type="password" autocomplete="off"><br><br><button class="primary" onclick="startTrainer()">Open roster</button>';
+ }
+@@ -81,6 +81,19 @@ async function saveEvidenceReview(memberId){
+     await loadTrainerRoster();
+   }catch(e){err(e)}
+ }
++function renderEnquiryOnly(){
++  const copy={
++    en:['Training enquiries open','Paid reservations are paused until the organizer confirms the session, location, safety documents and payment beneficiary. An enquiry is not a booking.','Request a training date'],
++    cs:['Přijímáme nezávazné žádosti','Placené rezervace jsou pozastavené do potvrzení termínu, místa, bezpečnosti a příjemce platby. Žádost není rezervace.','Požádat o termín'],
++    ru:['Принимаем заявки без оплаты','Платные бронирования приостановлены до подтверждения даты, места, безопасности и получателя платежа. Заявка не означает бронирование.','Оставить заявку'],
++    uk:['Приймаємо заявки без оплати','Платні бронювання призупинено до підтвердження дати, місця, безпеки та отримувача оплати. Заявка не є бронюванням.','Надіслати заявку']
++  };
++  const lang=document.getElementById('lang').value, t=copy[lang]||copy.en;
++  const target='https://aliaksei-chareshneu.github.io/alchareshneu/druzina/prihlaska/';
++  document.getElementById('app').innerHTML='<h2>'+esc(t[0])+'</h2><p>'+esc(t[1])+'</p>'+
++   '<p><a class="primary" style="display:inline-block;text-decoration:none;padding:14px 20px;border-radius:10px" href="'+target+'?lang='+encodeURIComponent(lang)+'">'+esc(t[2])+'</a></p>'+
++   '<p class="small">Družina Moravy · No payment collected here. Existing prepaid rights are unaffected.</p>';
++}
+ function renderIdentity(){document.getElementById('app').innerHTML=`<h2>${tr('identity')}</h2><div class="grid"><div><label>${tr('name')}</label><input id="name"></div><div><label>${tr('email')}</label><input id="email" type="email"></div><div><label>${tr('phone')}</label><input id="phone"></div></div><br><button class="primary" onclick="identify()">${tr('continue')}</button><br><br><button onclick="emailManagementLink()">${tr('emailManage')}</button>`;}
+ async function emailManagementLink(){try{const email=val('email')||(MEMBER&&MEMBER.email)||''; if(!email.trim())throw new Error(tr('emailRequired')); const r=await call('requestManagementLink',{email}); alert(r.message);}catch(e){err(e)}}
+ async function identify(){try{const member={name:val('name').trim(),email:val('email').trim(),phone:val('phone').trim()}; await call('requestBookingCode',{email:member.email}); MEMBER=member; renderBookingCode();}catch(e){err(e)}}
+@@ -93,7 +106,7 @@ function selectProduct(index){SELECTED_PRODUCT=PRODUCTS[index]; SELECTED_SESSION
+ function eligibleSessions(){return BOOT.sessions.filter(s=>s.available>0 && ((SELECTED_PRODUCT.type==='PACKAGE'||SELECTED_PRODUCT.type==='PACKAGE_UPGRADE'||SELECTED_PRODUCT.type==='TRIAL')?s.window==='STANDARD':s.window!=='CLOSED'));}
+ function renderSessions(){const need=SELECTED_PRODUCT.sessions||1; const sessions=eligibleSessions(); const urgent=isPackage()?(BOOT.sessions||[]).filter(s=>s.available>0&&['LATE','EMERGENCY'].includes(s.window)):[]; const urgentHtml=urgent.length?`<div class="card"><label>Optional: add one imminent training separately</label><select id="urgentAdd" onchange="EXTRA_URGENT=this.value"><option value="">No extra training</option>${urgent.map(s=>`<option value="${esc(s.id)}">${esc(fmt(s.start))} — ${esc(s.window)}</option>`).join('')}</select><p class="small">This visit is charged separately at the exact Late/Emergency price and never consumes a package session.</p></div>`:''; document.getElementById('app').innerHTML=`<h2>${tr('sessions')}</h2><p class="small">${esc(SELECTED_PRODUCT.name)} • select ${esc(need)}</p>${sessions.length?sessions.map(s=>`<div id="s_${esc(s.id)}" class="session" data-session-id="${esc(s.id)}" onclick="toggleSession(this.dataset.sessionId)"><b>${esc(fmt(s.start))}</b><div>${esc(s.theme)}</div><span class="pill ${esc(String(s.window).toLowerCase())}">${esc(s.window)}</span> <span class="pill">${esc(s.available)} free</span></div>`).join(''):`<p>${tr('no')}</p>`}${urgentHtml}<br><button id="next" class="primary" disabled onclick="review()">${tr('checkout')}</button>`;}
+ function toggleSession(id){const need=SELECTED_PRODUCT.sessions||1; if(!isPackage())SELECTED_SESSIONS=[]; const i=SELECTED_SESSIONS.indexOf(id); if(i>=0)SELECTED_SESSIONS.splice(i,1); else if(SELECTED_SESSIONS.length<need)SELECTED_SESSIONS.push(id); document.querySelectorAll('.session').forEach(x=>x.classList.remove('selected')); SELECTED_SESSIONS.forEach(x=>document.getElementById('s_'+x)?.classList.add('selected')); document.getElementById('next').disabled=SELECTED_SESSIONS.length!==need;}
+-async function review(){try{let items=[]; if(SELECTED_PRODUCT.type==='PACKAGE'||SELECTED_PRODUCT.type==='PACKAGE_UPGRADE'){items=[{productCode:SELECTED_PRODUCT.code,sessionIds:SELECTED_SESSIONS,trialUpgradeBookingId:SELECTED_PRODUCT.trialUpgradeBookingId||''}]; if(EXTRA_URGENT){const offer=await call('getSessionOffer',{member:MEMBER,bookingToken:BOOKING_TOKEN,sessionId:EXTRA_URGENT}); items.push({productCode:offer.productCode,sessionId:EXTRA_URGENT});}} else if(SELECTED_PRODUCT.type==='TRIAL'){items=[{productCode:'DRU-TRIAL',sessionId:SELECTED_SESSIONS[0]}];} else {const sid=SELECTED_SESSIONS[0]; const offer=await call('getSessionOffer',{member:MEMBER,bookingToken:BOOKING_TOKEN,sessionId:sid}); items=[{productCode:offer.productCode,sessionId:sid}];} const q=await call('createQuote',{member:MEMBER,bookingToken:BOOKING_TOKEN,items}); window.Q=q; renderQuote(q);}catch(e){err(e)}}
++async function review(){try{let items=[]; if(SELECTED_PRODUCT.type==='PACKAGE'||SELECTED_PRODUCT.type==='PACKAGE_UPGRADE'){items=[{productCode:SELECTED_PRODUCT.code,sessionIds:SELECTED_SESSIONS,trialUpgradeBookingId:SELECTED_PRODUCT.trialUpgradeBookingId||''}]; if(EXTRA_URGENT){const offer=await call('getSessionOffer',{member:MEMBER,bookingToken:BOOKING_TOKEN,sessionId:EXTRA_URGENT}); items.push({productCode:offer.productCode,sessionId:EXTRA_URGENT});}} else if(SELECTED_PRODUCT.type==='TRIAL'){items=[{productCode:SELECTED_PRODUCT.code,sessionId:SELECTED_SESSIONS[0]}];} else {const sid=SELECTED_SESSIONS[0]; const offer=await call('getSessionOffer',{member:MEMBER,bookingToken:BOOKING_TOKEN,sessionId:sid}); items=[{productCode:offer.productCode,sessionId:sid}];} const q=await call('createQuote',{member:MEMBER,bookingToken:BOOKING_TOKEN,items}); window.Q=q; renderQuote(q);}catch(e){err(e)}}
+ function renderQuote(q){const lines=(q.items||[]).map(x=>`<div class="small">${esc(x.name)}: <b>${esc(x.lineTotal)} Kč</b></div>`).join(''); const paymentUrl=safePaymentUrl(q.paymentUrl); document.getElementById('app').innerHTML=`<h2>${tr('checkout')}</h2>${lines}<hr style="border-color:var(--line)"><div class="summary">Total</div><div class="amount">${esc(q.amount)} Kč</div><p>Reference: <b>${esc(q.paymentReference)}</b></p>${paymentUrl?`<p><a href="${esc(paymentUrl)}" target="_blank" rel="noopener noreferrer">Open payment link</a></p>`:''}<p class="small">Hold expires ${esc(fmt(q.expiresAt))}. The server rechecks the booking cutoff when you submit proof.</p><label>${tr('proof')}</label><input id="proof" type="file" accept="image/jpeg,image/png,application/pdf"><p><label><input id="paid" type="checkbox" style="width:auto"> ${tr('paid')}</label></p><button class="primary" onclick="submitPayment()">${tr('submit')}</button>`;}
+ async function submitPayment(){try{if(!document.getElementById('paid').checked)throw new Error('Confirm that you paid the exact amount'); const proof=await fileData('proof'); const r=await call('submitQuotePayment',{quoteId:window.Q.quoteId,bookingToken:BOOKING_TOKEN,declaredAmount:window.Q.amount,proof,method:'transfer',manageToken:TOKEN}); document.getElementById('app').innerHTML=`<h2 class="ok">✓ ${esc(r.message)}</h2><p>Payment ID: ${esc(r.paymentId)}</p>${r.manageToken?`<p><a href="https://script.google.com/macros/s/AKfycbwHs_Kc4o6dsnBVWcIEhqv2whK57zibvHU3yntB3JUINhJ9vYVW0G5T-4ddPDUPjJIJ/exec?mode=manage&amp;token=${esc(encodeURIComponent(r.manageToken))}">${tr('manage')}</a></p>`:`<p>${tr('manageHelp')}</p><button onclick="emailManagementLink()">${tr('emailManage')}</button>`}`;}catch(e){err(e)}}
+ async function renderManage(){try{const s=await call('getManageState',TOKEN); MEMBER=s.member; BOOT.sessions=s.sessions; const blocked=Number(s.member.outstanding)>0||String(s.member.status).toUpperCase()==='HOLD'; document.getElementById('app').innerHTML=`<h2>${tr('manage')}</h2>${Number(s.member.outstanding)>0?`<p class="bad">${tr('outstanding')}: ${esc(s.member.outstanding)} Kč</p><p class="small">${tr('payDebt')}</p><label>${tr('proof')}</label><input id="proof" type="file" accept="image/jpeg,image/png,application/pdf"><br><br><button class="primary" onclick="payDebt()">${tr('submit')}</button>`:blocked?`<p class="bad">${tr('holdHelp')}</p>`:''}${s.bookings.map(b=>`<div class="session"><b>${esc(fmt(b.start))}</b><div>${esc(b.theme)}</div>${b.canMove&&!blocked?`<button data-booking-id="${esc(b.bookingId)}" onclick="moveUI(this.dataset.bookingId)">${tr('move')}</button>`:'<span class="pill">locked</span>'}</div>`).join('')||'<p>No upcoming bookings.</p>'}`;}catch(e){err(e)}}
+
+diff --git a/Payments.js b/Payments.js
+index 8edb6ce..9a2fd35 100644
+--- a/Payments.js
++++ b/Payments.js
+@@ -12,52 +12,11 @@ function decodeProof_(proof, paymentId) {
+   return {url:file.getUrl(),name:file.getName(),fileId:file.getId()};
+ }
+ 
+-function submitQuotePayment(payload) {
+-  return withLock_(()=>{
+-    const verifiedMember=bookingVerifiedRequired_()?authorizeBookingMember_(payload):null;
+-    const quote=quoteById_(payload.quoteId);
+-    if(!quote) throw new Error('Quote not found');
+-    const member=findOne_(SHEETS.MEMBERS,r=>String(r.Member_ID)===String(quote.Member_ID));
+-    if(!member) throw new Error('Member not found');
+-    if(verifiedMember && String(verifiedMember.Member_ID)!==String(member.Member_ID)) throw new Error('Email verification does not match this checkout');
+-    const items=revalidateQuote_(quote,member);
+-    const expected=money_(quote.Expected_Amount_CZK);
+-    const declared=Number(payload.declaredAmount||0);
+-    if(declared!==expected) throw new Error('Exact payment amount required: '+expected+' Kč');
+-    const paymentId=id_('PAY');
+-    const proof=decodeProof_(payload.proof,paymentId);
+-    // Upload can take long enough to cross a cutoff. The final gate is after it completes.
+-    try { revalidateQuote_(quote,member); }
+-    catch(error) { DriveApp.getFileById(proof.fileId).setTrashed(true); throw error; }
+-    if(findOne_(SHEETS.PAYMENTS,p=>String(p.Source_Request_ID)===String(quote.Quote_ID))) throw new Error('This checkout already has a payment; contact the organizer');
+-    // A Sheets/Drive failure cannot be retried as a second charge or booking.
+-    // An interrupted COMMITTING quote requires owner reconciliation.
+-    patchRow_(SHEETS.QUOTES,quote._row,{Status:'COMMITTING'});
+-    const policy=[...new Set(items.map(x=>x.policyVersion).filter(Boolean))].join('+') || String(quote.Policy_Version||policyVersion_());
+-    const payRow={Payment_ID:paymentId,Member_ID:member.Member_ID,Product_Code:items.length===1?items[0].productCode:'MULTI_CART',Amount_CZK:declared,Declared_At:nowIso_(),Proof_File_URL:proof.url,Proof_Filename:proof.name,Verification_Status:'PROOF_SUBMITTED',Verified_At:'',Payment_Reference:String(quote.Payment_Reference),Source_Request_ID:String(quote.Quote_ID),Method:String(payload.method||'transfer'),Notes:'Portal checkout',Expected_Amount_CZK:expected,Received_Amount_CZK:declared,Outstanding_CZK:0,Cutoff_Class:items.map(x=>x.cutoff||x.kind).join('+'),Policy_Version:policy,Reconciled_At:'',Reconciliation_Note:'Awaiting bank reconciliation'};
+-    appendObj_(SHEETS.PAYMENTS,payRow);
+-    const created=[];
+-    items.forEach(it=>{
+-      if(it.kind==='PACKAGE' || it.kind==='PACKAGE_UPGRADE'){
+-        const activated=activatePackage_(member,it,paymentId);
+-        created.push(...activated.bookingIds);
+-        appendObj_(SHEETS.PAYMENT_ITEMS,{Payment_Item_ID:id_('PI'),Payment_ID:paymentId,Product_Code:it.productCode,Description:it.name,Qty:1,Unit_Amount_CZK:it.unitAmount,Line_Total_CZK:it.lineTotal,Related_Session_ID:'',Related_Plan_ID:activated.planId,Status:'PROOF_SUBMITTED',Notes:'Policy '+it.policyVersion+(it.trialCredit?' | Trial credit '+it.trialCredit+' Kč':'')});
+-      }else{
+-        const bid=createBooking_(member,it.sessionId,'',paymentId,it.productCode,it.cutoff,it.policyVersion);
+-        created.push(bid);
+-        appendObj_(SHEETS.PAYMENT_ITEMS,{Payment_Item_ID:id_('PI'),Payment_ID:paymentId,Product_Code:it.productCode,Description:it.name,Qty:1,Unit_Amount_CZK:it.unitAmount,Line_Total_CZK:it.lineTotal,Related_Session_ID:it.sessionId||'',Related_Plan_ID:'',Status:'PROOF_SUBMITTED',Notes:'Policy '+it.policyVersion});
+-      }
+-    });
+-    patchRow_(SHEETS.QUOTES,quote._row,{Status:'COMMITTED'});
+-    findAll_(SHEETS.HOLDS,r=>String(r.Request_ID)===String(quote.Quote_ID) && String(r.Status)==='ACTIVE').forEach(h=>patchRow_(SHEETS.HOLDS,h._row,{Status:'COMMITTED'}));
+-    audit_('portal','Payment',paymentId,'SUBMIT_PROOF','',expected,'Quote '+quote.Quote_ID);
+-    const result={ok:true,paymentId,bookings:created,message:'Payment proof received. Your booking is provisionally confirmed.'};
+-    // A receipt and a matching email/phone do not authenticate an existing member.
+-    if(payload.manageToken&&String(payload.manageToken)===String(member.Manage_Token||'')) result.manageToken=String(member.Manage_Token);
+-    return result;
+-  });
++function submitQuotePayment(payload){
++  // Payment proof is never a settled bank credit. No provisional booking,
++  // package consumption, ledger clearing or customer 'paid' status is allowed.
++  return drusNeverProofAsPayment_();
+ }
+-
+ function createBooking_(member,sessionId,planId,paymentId,productCode,cutoff,policyVersion,appliedOverride){
+   const ses=sessionById_(sessionId); const pkg=packageInfo_(productCode);
+   const base=planId ? normalFlexPriceFor_(member,ses.Start_DateTime) : effectivePrice_(productCode);
+@@ -94,21 +53,7 @@ function refreshSessionCounts_(sessionId){
+ }
+ 
+ function payOutstanding(payload){
+-  return withLock_(()=>{
+-    // Proof upload and provisional debt clearance require possession of the
+-    // emailed private management link, never just a guessed email/phone.
+-    const token=String(payload&&payload.manageToken||'');
+-    const member=memberByToken_(token);
+-    if(!member) throw new Error('Private management link required');
+-    const due=outstandingFor_(member.Member_ID);
+-    if(due<=0) return {ok:true,message:'No outstanding balance'};
+-    if(Number(payload.declaredAmount||0)!==due) throw new Error('Exact outstanding amount required: '+due+' Kč');
+-    const pid=id_('PAY'); const proof=decodeProof_(payload.proof,pid);
+-    appendObj_(SHEETS.PAYMENTS,{Payment_ID:pid,Member_ID:member.Member_ID,Product_Code:'OUTSTANDING_BALANCE',Amount_CZK:due,Declared_At:nowIso_(),Proof_File_URL:proof.url,Proof_Filename:proof.name,Verification_Status:'PROOF_SUBMITTED',Payment_Reference:'DEBT-'+pid.slice(-6),Source_Request_ID:'',Method:String(payload.method||'transfer'),Notes:'Outstanding balance proof',Expected_Amount_CZK:due,Received_Amount_CZK:due,Outstanding_CZK:0,Cutoff_Class:'DEBT',Policy_Version:policyVersion_(),Reconciliation_Note:'Provisional clearance pending reconciliation'});
+-    const open=findAll_(SHEETS.LEDGER,r=>String(r.Member_ID)===String(member.Member_ID)&&String(r.Status)==='OPEN'&&String(r.Blocks_Booking).toUpperCase()!=='FALSE');
+-    open.forEach(l=>patchRow_(SHEETS.LEDGER,l._row,{Status:'PENDING_VERIFICATION',Blocks_Booking:false,Payment_ID:pid,Notes:String(l.Notes||'')+' | Proof submitted '+nowIso_()}));
+-    refreshMemberAccount_(member);
+-    audit_('portal','Member',member.Member_ID,'PROVISIONAL_DEBT_CLEAR','HOLD','ACTIVE','Payment '+pid);
+-    return {ok:true,paymentId:pid,member:publicMemberState_(member,false),message:'Payment proof received. Booking access is restored provisionally.'};
+-  });
++  // Preserve existing debts and all old contractual rights; owner reconciles
++  // verified Fio bank receipts separately. A screenshot cannot clear debt.
++  return drusNeverProofAsPayment_();
+ }
+
+diff --git a/Policy.js b/Policy.js
+index 040c0a6..58232cb 100644
+--- a/Policy.js
++++ b/Policy.js
+@@ -30,7 +30,7 @@ function windowFor_(sessionStart) {
+ function tariffForDate_(dateLike) {
+   const after = isNovEffectiveFor_(dateLike);
+   return after ? {
+-    trial:120, juniorFlex:240, seniorFlex:200, starter4:800, senior4:650, senior8:1100, senior12:1500,
++    trial:240, juniorFlex:240, seniorFlex:200, starter4:800, senior4:650, senior8:1100, senior12:1500,
+     juniorLate:300, seniorLate:250, juniorEmergency:360, seniorEmergency:300
+   } : {
+     trial:120, juniorFlex:240, seniorFlex:120, starter4:null, senior4:null, senior8:null, senior12:null,
+@@ -46,7 +46,7 @@ function productForWindow_(tier, sessionStart) {
+   const t = String(tier || 'Junior').toLowerCase();
+   const senior = t === 'senior';
+   if (w === 'CLOSED') return null;
+-  if (w === 'STANDARD') return senior ? (nov ? 'DRU-SENIOR-FLEX-202611' : 'DRU-SENIOR-DROPIN') : 'DRU-JUNIOR-DROPIN';
++  if (w === 'STANDARD') return senior ? (nov ? 'DRU-SENIOR-FLEX-202611' : 'DRU-SENIOR-DROPIN') : (nov ? 'DRU-JUNIOR-FLEX-202611' : 'DRU-JUNIOR-DROPIN');
+   if (w === 'LATE') return senior ? (nov ? 'DRU-SENIOR-LATE-202611' : 'DRU-SENIOR-LATE-202610') : (nov ? 'DRU-JUNIOR-LATE-202611' : 'DRU-JUNIOR-LATE-202610');
+   return senior ? (nov ? 'DRU-SENIOR-EMERGENCY-202611' : 'DRU-SENIOR-EMERGENCY-202610') : (nov ? 'DRU-JUNIOR-EMERGENCY-202611' : 'DRU-JUNIOR-EMERGENCY-202610');
+ }
+@@ -68,7 +68,7 @@ function packageInfo_(productCode) {
+ 
+ function effectivePrice_(productCode) {
+   const p = productMap_()[productCode];
+-  if (!p) throw new Error('Unknown product: ' + productCode);
++  if (!p||String(p.Active).toUpperCase()!=='TRUE') throw new Error('Product not approved for paid sale');
+   return money_(p.Price_CZK);
+ }
+ 
+@@ -81,7 +81,7 @@ function paymentContainsProduct_(paymentId, productCode){
+ function isTrialEligible_(member){
+   if(Number(member.Attendance_Total||0)>0) return false;
+   const existing=findAll_(SHEETS.BOOKINGS,r=>String(r.Member_ID)===String(member.Member_ID) && !['CANCELLED','CLUB_CANCELLED','PAYMENT_EXCEPTION'].includes(String(r.Status)));
+-  for(let i=0;i<existing.length;i++) if(paymentContainsProduct_(existing[i].Payment_ID,'DRU-TRIAL')) return false;
++  for(let i=0;i<existing.length;i++) if(paymentContainsProduct_(existing[i].Payment_ID,'DRU-TRIAL')||paymentContainsProduct_(existing[i].Payment_ID,'DRU-FIRSTVISIT-202611')) return false;
+   return true;
+ }
+ 
+@@ -89,20 +89,20 @@ function starterUpgradeEligibility_(member){
+   if(String(member.Tier||'Junior')!=='Junior') return null;
+   const already=findOne_(SHEETS.PLANS,r=>String(r.Member_ID)===String(member.Member_ID) && String(r.Product_Code)==='DRU-STARTER4-202611' && ['ACTIVE','COMPLETED'].includes(String(r.Status)));
+   if(already) return null;
+-  const candidates=findAll_(SHEETS.BOOKINGS,r=>String(r.Member_ID)===String(member.Member_ID) && String(r.Status)==='ATTENDED' && paymentContainsProduct_(r.Payment_ID,'DRU-TRIAL'));
++  const candidates=findAll_(SHEETS.BOOKINGS,r=>String(r.Member_ID)===String(member.Member_ID) && String(r.Status)==='ATTENDED' && String(r.Attendance_Status)==='PRESENT' && String(r.Attendance_Checked).toUpperCase()==='TRUE' && paymentContainsProduct_(r.Payment_ID,'DRU-FIRSTVISIT-202611'));
+   candidates.sort((a,b)=>new Date(sessionById_(b.Session_ID)?.Start_DateTime||0)-new Date(sessionById_(a.Session_ID)?.Start_DateTime||0));
+   for(let i=0;i<candidates.length;i++){
+     const b=candidates[i], s=sessionById_(b.Session_ID); if(!s) continue;
+     if(b.Plan_ID) continue;
+     const payment=findOne_(SHEETS.PAYMENTS,p=>String(p.Payment_ID)===String(b.Payment_ID));
+-    if(!payment||!['PROOF_SUBMITTED','VERIFIED'].includes(String(payment.Verification_Status))) continue;
+-    const trialLine=findOne_(SHEETS.PAYMENT_ITEMS,p=>String(p.Payment_ID)===String(b.Payment_ID)&&String(p.Product_Code)==='DRU-TRIAL');
+-    const trialPaid=trialLine?money_(trialLine.Line_Total_CZK):String(payment.Product_Code)==='DRU-TRIAL'?money_(payment.Amount_CZK):0;
+-    if(trialPaid!==120) continue;
++    if(!payment||String(payment.Verification_Status)!=='VERIFIED') continue;
++    const trialLine=findOne_(SHEETS.PAYMENT_ITEMS,p=>String(p.Payment_ID)===String(b.Payment_ID)&&String(p.Product_Code)==='DRU-FIRSTVISIT-202611');
++    const trialPaid=trialLine?money_(trialLine.Line_Total_CZK):String(payment.Product_Code)==='DRU-FIRSTVISIT-202611'?money_(payment.Amount_CZK):0;
++    if(trialPaid!==240) continue;
+     const start=new Date(s.Start_DateTime), end=new Date(s.End_DateTime||s.Start_DateTime);
+     if(start < novEffectiveDate_()) continue;
+     const h=(Date.now()-end.getTime())/3600000;
+-    if(h>=0 && h<=48) return {bookingId:String(b.Booking_ID),sessionId:String(s.Session_ID),start:start.toISOString(),end:end.toISOString(),credit:120,remaining:680};
++    if(h>=0 && h<=48) return {bookingId:String(b.Booking_ID),sessionId:String(s.Session_ID),start:start.toISOString(),end:end.toISOString(),credit:240,remaining:560};
+   }
+   return null;
+ }
+@@ -110,13 +110,16 @@ function starterUpgradeEligibility_(member){
+ function validateSessionProduct_(member, productCode, session) {
+   if (!session) throw new Error('Session not found');
+   if (String(session.Status || 'OPEN') !== 'OPEN') throw new Error('Session is not open');
++  drusRequireSession_(session);
+   const w = windowFor_(session.Start_DateTime);
+   if (w === 'CLOSED') throw new Error('Booking for this training is closed');
+   if(findOne_(SHEETS.BOOKINGS,b=>String(b.Member_ID)===String(member.Member_ID)&&String(b.Session_ID)===String(session.Session_ID)&&['PROVISIONAL_CONFIRMED','VERIFIED','CONFIRMED','ATTENDED','NO_SHOW'].includes(String(b.Status)))) throw new Error('You already have a booking for this session');
+   if(w==='EMERGENCY'&&Number(member.Attendance_Total||0)<=0&&!findOne_(SHEETS.BOOKINGS,b=>String(b.Member_ID)===String(member.Member_ID)&&['PROVISIONAL_CONFIRMED','VERIFIED','CONFIRMED','ATTENDED','NO_SHOW'].includes(String(b.Status)))) throw new Error('Emergency Flex is available to existing members only');
+ 
+-  if(productCode==='DRU-TRIAL'){
+-    if(w!=='STANDARD') throw new Error('First-time Trial must be booked at least 48 hours in advance');
++  if(productCode==='DRU-TRIAL'||productCode==='DRU-FIRSTVISIT-202611'){
++    if(isNovEffectiveFor_(session.Start_DateTime)!==(productCode==='DRU-FIRSTVISIT-202611'))
++      throw new Error('First visit product does not match session policy date');
++    if(w!=='STANDARD') throw new Error('First visit must be booked at least 48 hours in advance');
+     if(!isTrialEligible_(member)) throw new Error('Trial is not available for this member');
+     return w;
+   }
+@@ -124,6 +127,7 @@ function validateSessionProduct_(member, productCode, session) {
+   const pkg = packageInfo_(productCode);
+   if (pkg) {
+     if (!novPackageSalesOpen_()) throw new Error('November packages are not on sale yet');
++    if(productCode!=='DRU-STARTER4-202611') throw new Error('Package validity and rights are not released');
+     if (w !== 'STANDARD') throw new Error('Packages can only cover sessions at least 48 hours away');
+     if (new Date(session.Start_DateTime) < new Date(pkg.effectiveFrom)) throw new Error('This package can only cover sessions from 1 November 2026');
+     if (pkg.eligible.indexOf(String(member.Tier || 'Junior')) < 0) throw new Error('This package is not available for your current tier');
+
+diff --git a/Quotes.js b/Quotes.js
+index 6059b29..2537bcc 100644
+--- a/Quotes.js
++++ b/Quotes.js
+@@ -16,14 +16,16 @@ function cleanupExpiredHolds_() {
+ }
+ 
+ function createQuote(payload) {
++  drusRequirePaid_(); // No holds, member mutations or payment promises when closed.
+   return withLock_(()=>{
+-    const member=authorizeBookingMember_(payload); // auth gate before any new holds or sheet writes
++    const member=authorizeBookingMember_(payload);
++    drusRequireMemberConsent_(member); // auth gate before any new holds or sheet writes
+     ensureQuotesSheet_(); cleanupExpiredHolds_(); ensureSessions_();
+     refreshMemberAccount_(member);
+     assertMemberCanBook_(member);
+     const items=Array.isArray(payload.items)?payload.items:[];
+     if(!items.length) throw new Error('Your cart is empty');
+-    if(items.filter(it=>String(it.productCode)==='DRU-TRIAL').length>1) throw new Error('Only one Trial may be booked');
++    if(items.filter(it=>['DRU-TRIAL','DRU-FIRSTVISIT-202611'].includes(String(it.productCode))).length>1) throw new Error('Only one Trial may be booked');
+     if(items.filter(it=>it.trialUpgradeBookingId).length>1) throw new Error('Trial credit may only be used once');
+     const normalized=[]; let total=0; const cartSessionSeen={};
+     let packageFirst=null, packageLast=null;
+@@ -31,7 +33,12 @@ function createQuote(payload) {
+     items.forEach(item=>{
+       const code=String(item.productCode||'');
+       const pkg=packageInfo_(code);
++      const listed=productMap_()[code];
++      if(!listed||String(listed.Active).toUpperCase()!=='TRUE')
++        throw new Error('Product has not been released for sale');
+       if(pkg){
++        if(code!=='DRU-STARTER4-202611')
++          throw new Error('This package is staged, not released');
+         const upgradeId=String(item.trialUpgradeBookingId||'');
+         let upgrade=null, required=pkg.sessions, packageStart=null, dueNow=pkg.price;
+         if(code==='DRU-STARTER4-202611' && upgradeId){
+@@ -52,6 +59,14 @@ function createQuote(payload) {
+         dates.sort((a,b)=>a-b);
+         if(!packageStart) packageStart=dates[0];
+         if((dates[dates.length-1]-packageStart)>30*86400000) throw new Error('All package dates must fit inside 30 days from the package first session');
++        const rate=drubQuoteItem({nowISO:new Date().toISOString(),
++          sessionStartsAt:dates[0].toISOString(),type:upgrade?'STARTER4_UPGRADE':'STARTER4',
++          tier:'JUNIOR',selectedSessions:dates.map(d=>d.toISOString()),
++          verifiedFirstAttendance:upgrade?{verified:true,paymentVerified:true,
++            creditAlreadyUsed:false,sessionId:upgrade.sessionId,
++            amountReceivedCZK:240,attendedAt:upgrade.end}:undefined});
++        if(!rate.ok||rate.amountCZK!==dueNow)
++          throw new Error('Server package price/cutoff mismatch: '+(rate.code||'INVALID'));
+         packageFirst=packageStart; packageLast=dates[dates.length-1];
+         normalized.push({kind:upgrade?'PACKAGE_UPGRADE':'PACKAGE',productCode:code,sessionIds:ids,qty:1,unitAmount:dueNow,lineTotal:dueNow,name:upgrade?(pkg.name+' — Trial credit'):pkg.name,packagePrice:pkg.price,trialCredit:upgrade?upgrade.credit:0,trialUpgradeBookingId:upgrade?upgrade.bookingId:'',policyVersion:policyVersionForDate_(packageStart)});
+         total+=dueNow;
+@@ -63,6 +78,15 @@ function createQuote(payload) {
+         const win=validateSessionProduct_(member,code,ses);
+         if(availableCapacity_(ses)<1) throw new Error('This session is full');
+         const price=effectivePrice_(code);
++        if(isNovEffectiveFor_(ses.Start_DateTime)){
++          const type=code==='DRU-FIRSTVISIT-202611'?'FIRST_VISIT':'FLEX';
++          const rate=drubQuoteItem({nowISO:new Date().toISOString(),
++            sessionStartsAt:new Date(ses.Start_DateTime).toISOString(),type,
++            tier:String(member.Tier).toUpperCase()==='SENIOR'?'SENIOR':'JUNIOR',
++            existingMemberVerified:true,firstVisitEligible:type==='FIRST_VISIT'});
++          if(!rate.ok||rate.amountCZK!==price)
++            throw new Error('Server price/cutoff mismatch: '+(rate.code||'INVALID'));
++        }
+         normalized.push({kind:'SESSION',productCode:code,sessionId:sid,qty:1,unitAmount:price,lineTotal:price,name:String(productMap_()[code].Offer||code),cutoff:win,policyVersion:policyVersionForDate_(ses.Start_DateTime)});
+         total+=price;
+       }
+@@ -80,16 +104,17 @@ function createQuote(payload) {
+ }
+ 
+ function paymentUrl_(){
+-  const p=productMap_();
+-  for(const k in p) if(k.indexOf('DRU-')===0&&/^https:\/\//i.test(String(p[k].Payment_URL||''))) return String(p[k].Payment_URL);
++  // No generic Revolut URL; destination must match the authorized seller and
++  // quote-specific bank reference, verified independently before release.
+   return '';
+ }
+-
+ function quoteById_(qid){
+   ensureQuotesSheet_(); return findOne_(SHEETS.QUOTES,r=>String(r.Quote_ID)===String(qid));
+ }
+ 
+ function revalidateQuote_(quote,member){
++  drusRequirePaid_();
++  drusRequireMemberConsent_(member);
+   if(!quote || String(quote.Status)!=='OPEN') throw new Error('Quote is no longer open');
+   if(new Date(quote.Expires_At)<=new Date()) throw new Error('Quote expired; please refresh prices and dates');
+   assertMemberCanBook_(member);
+@@ -104,7 +129,7 @@ function revalidateQuote_(quote,member){
+       const dates=it.sessionIds.map(sid=>new Date(sessionById_(sid).Start_DateTime)).sort((a,b)=>a-b);
+       const start=it.kind==='PACKAGE_UPGRADE'?new Date(starterUpgradeEligibility_(member).start):dates[0];
+       if(dates[dates.length-1]-start>30*86400000) throw new Error('All package dates must fit inside 30 days');
+-      if(it.lineTotal!==packageInfo_(it.productCode).price-(it.kind==='PACKAGE_UPGRADE'?120:0)) throw new Error('Package price changed; refresh checkout');
++      if(it.lineTotal!==packageInfo_(it.productCode).price-(it.kind==='PACKAGE_UPGRADE'?240:0)) throw new Error('Package price changed; refresh checkout');
+     } else { const ses=sessionById_(it.sessionId); validateSessionProduct_(member,it.productCode,ses); if(availableCapacity_(ses,quote.Quote_ID)<1) throw new Error('This session is full'); }
+     if(it.kind==='SESSION'&&it.lineTotal!==effectivePrice_(it.productCode)) throw new Error('Price changed; refresh checkout');
+   });
+
+diff --git a/Sessions.js b/Sessions.js
+index 8c235e0..3ead5ed 100644
+--- a/Sessions.js
++++ b/Sessions.js
+@@ -1,40 +1,8 @@
+ function ensureSessions_() {
+-  return withLock_(() => {
+-    const existing = rows_(SHEETS.SESSIONS);
+-    const existingByDay = {};
+-    existing.forEach(r => {
+-      if (!r.Start_DateTime) return;
+-      existingByDay[Utilities.formatDate(new Date(r.Start_DateTime), APP.TIMEZONE, 'yyyy-MM-dd')] = true;
+-    });
+-    const start = new Date();
+-    start.setHours(0,0,0,0);
+-    const end = new Date(start.getTime() + APP.SESSION_HORIZON_DAYS * 86400000);
+-    const themes = {1:'Fundamentals & Technique', 4:'Drills & Sparring', 6:'LARP / Team / Weapons Lab'};
+-    let added = 0;
+-    for (let d = new Date(start); d <= end; d = new Date(d.getTime() + 86400000)) {
+-      const dow = Number(Utilities.formatDate(d, APP.TIMEZONE, 'u'));
+-      if (![1,4,6].includes(dow)) continue;
+-      const day = Utilities.formatDate(d, APP.TIMEZONE, 'yyyy-MM-dd');
+-      if (existingByDay[day]) continue;
+-      const startIso = localDateTimeIso_(day, '18:00');
+-      const startDate = new Date(startIso);
+-      const endDate = new Date(startDate.getTime() + 90 * 60000);
+-      appendObj_(SHEETS.SESSIONS, {
+-        Session_ID: 'SES-' + day.replace(/-/g,''), Start_DateTime: startIso, End_DateTime: endDate.toISOString(),
+-        Weekday: ['','Mon','Tue','Wed','Thu','Fri','Sat','Sun'][dow], Theme: themes[dow], Capacity: APP.DEFAULT_CAPACITY,
+-        Booking_Deadline: new Date(startDate.getTime() - 48*3600000).toISOString(), Status:'OPEN', Calendar_Event_ID:'',
+-        Location: APP.LOCATION, Booked_Count:0, Attended_Count:0, Created_At: nowIso_(), Notes:'Auto-generated',
+-        Late_Booking_Closes: new Date(startDate.getTime() - 3*3600000).toISOString(),
+-        Booking_Window: windowFor_(startIso), Rules_Version: policyVersionForDate_(startIso),
+-        Emergency_Booking_Closes: new Date(startDate.getTime() - 0.5*3600000).toISOString()
+-      });
+-      existingByDay[day] = true;
+-      added++;
+-    }
+-    return added;
+-  });
++  // No synthetic sessions, locations, or recurring Thursday dates.
++  // Owner creates explicit sessions in the existing private CRM after per-date GO.
++  return 0;
+ }
+-
+ function localDateTimeIso_(day, hhmm) {
+   const parts = day.split('-').map(Number);
+   const tm = hhmm.split(':').map(Number);
+@@ -56,18 +24,22 @@ function bookedCount_(sessionId) {
+   return findAll_(SHEETS.BOOKINGS, r => String(r.Session_ID) === String(sessionId) && ['PROVISIONAL_CONFIRMED','VERIFIED','CONFIRMED'].includes(String(r.Status))).length;
+ }
+ 
+-function availableCapacity_(session, ignoreRequestId) {
+-  const cap = Number(session.Capacity || APP.DEFAULT_CAPACITY);
+-  const booked = bookedCount_(session.Session_ID);
+-  const activeHolds = findAll_(SHEETS.HOLDS, r => String(r.Session_ID) === String(session.Session_ID) && String(r.Status) === 'ACTIVE' && new Date(r.Expires_At) > new Date() && (!ignoreRequestId || String(r.Request_ID)!==String(ignoreRequestId))).length;
+-  return Math.max(0, cap - booked - activeHolds);
++function availableCapacity_(session,ignoreRequestId){
++  if(!session) return 0;
++  const safe=drusSafeCapacity_(session);
++  if(!safe)return 0;
++  const booked=bookedCount_(session.Session_ID);
++  const held=findAll_(SHEETS.HOLDS,r=>String(r.Session_ID)===String(session.Session_ID)&&
++    String(r.Status)==='ACTIVE'&&new Date(r.Expires_At)>new Date()&&
++    (!ignoreRequestId||String(r.Request_ID)!==String(ignoreRequestId))).length;
++  return Math.max(0,safe-booked-held);
+ }
+-
+ function listSessionsPublic_() {
+   ensureSessions_();
+   const now = Date.now();
++  const publicGates=drusCapacityGateMap_();
+   const sessions = rows_(SHEETS.SESSIONS)
+-    .filter(r => String(r.Status || 'OPEN') === 'OPEN' && new Date(r.Start_DateTime).getTime() > now)
++    .filter(r => String(r.Status || 'OPEN') === 'OPEN' && new Date(r.Start_DateTime).getTime() > now && drusSafeCapacity_(r,publicGates)>0)
+     .sort((a,b) => new Date(a.Start_DateTime)-new Date(b.Start_DateTime))
+     .slice(0, 60);
+ 
+@@ -85,6 +57,7 @@ function listSessionsPublic_() {
+     held[key] = (held[key] || 0) + 1;
+   });
+   const cfg = configMap_();
++  const gates=drusCapacityGateMap_();
+   const novCutoff = novEffectiveDate_().getTime();
+   return sessions.map(r => {
+     const id = String(r.Session_ID);
+@@ -95,7 +68,7 @@ function listSessionsPublic_() {
+     return {
+       id, start:new Date(r.Start_DateTime).toISOString(), end:new Date(r.End_DateTime).toISOString(),
+       theme:String(r.Theme||''), location:String(r.Location||APP.LOCATION), window:windowFor_(r.Start_DateTime),
+-      available:Math.max(0, capacity-(booked[id]||0)-(held[id]||0)), capacity, policy
++      available:Math.max(0, drusSafeCapacity_(r,gates)-(booked[id]||0)-(held[id]||0)), capacity:drusSafeCapacity_(r,gates), policy
+     };
+   });
+ }
+@@ -108,6 +81,7 @@ function syncSessionsToCalendar() {
+ function syncSessionsToCalendar_() {
+   return withLock_(()=>{
+   const cfg=configMap_();
++  if(!drusPaidRelease_().ok)return {created:0,linked:0,skipped:true,reason:'PAID_BOOKING_DISABLED'};
+   if(cfg.CALENDAR_SYNC_ENABLED!==true) return {created:0,linked:0,skipped:true,reason:'CALENDAR_SYNC_ENABLED is false'};
+   ensureSessions_();
+   const cal = CalendarApp.getCalendarById(APP.CALENDAR_ID);
+@@ -116,10 +90,11 @@ function syncSessionsToCalendar_() {
+   if(!portal) return {created:0,linked:0,skipped:true,reason:'PORTAL_URL is not configured'};
+   let created=0, linked=0;
+   const duplicateSessions=[];
++  const gates=drusCapacityGateMap_();
+   const linkedIds={};
+   rows_(SHEETS.SESSIONS).forEach(r=>{ if(r.Calendar_Event_ID) linkedIds[String(r.Calendar_Event_ID)]=String(r.Session_ID); });
+   rows_(SHEETS.SESSIONS).forEach(r => {
+-    if (String(r.Status||'OPEN') !== 'OPEN' || new Date(r.Start_DateTime) < new Date(Date.now()-86400000)) return;
++    if (String(r.Status||'OPEN') !== 'OPEN' || new Date(r.Start_DateTime) < new Date(Date.now()-86400000) || drusSafeCapacity_(r,gates)<=0) return;
+     const linkedEvent=r.Calendar_Event_ID ? cal.getEventById(String(r.Calendar_Event_ID)) : null;
+     const start = new Date(r.Start_DateTime), end = new Date(r.End_DateTime);
+     const near = cal.getEvents(new Date(start.getTime()-5*60000), new Date(start.getTime()+5*60000));
+@@ -132,7 +107,7 @@ function syncSessionsToCalendar_() {
+     let ev=candidates[0];
+     if (!ev) {
+       const title = 'Družina Moravy Training — ' + (r.Theme || 'Training');
+-      const desc = 'Structured historical-combat / LARP training with soft weapons and controlled contact. No ordinary head strikes. Booking is confirmed only through the booking portal: '+portal+'\nFirst training: 120 Kč.';
++      const desc = 'Controlled soft/LARP training. STOP and personal safety briefing required. Booking is confirmed only after bank and safety verification via: '+portal+'\nSession tariff is verified for this date; do not use old standing offers.';
+       ev = cal.createEvent(title, start, end, {location:r.Location||APP.LOCATION, description:desc});
+       created++;
+     } else linked++;
