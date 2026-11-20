@@ -7,6 +7,7 @@ const names = {
   uk: 'Важливий крок у житті?'
 };
 const codes = ['UNI','MED','A2','CER','CAREER','DEFENSE','EXEC','LIFE'];
+const digitalOfferCode='A2-REVIEW';
 
 for (const [language, heading] of Object.entries(names)) {
   test('Academy milestone programmes: accessible, localized and scroll-safe — ' + language, async ({page}) => {
@@ -17,7 +18,7 @@ for (const [language, heading] of Object.entries(names)) {
     await expect(page.locator('html')).toHaveAttribute('lang', language);
     await expect(page.locator('h1:visible')).toContainText(heading);
     await expect(page.locator('.locale:visible')).toHaveCount(1);
-    await expect(page.locator('.offer:visible')).toHaveCount(8);
+    await expect(page.locator('.offer:visible')).toHaveCount(9);
     await expect(page.locator('.conditions:visible')).toContainText('690 Kč');
     await expect(page.locator('a.choose:visible')).toHaveCount(8);
     await expect(page.locator('#programme option')).toHaveCount(13);
@@ -31,6 +32,10 @@ for (const [language, heading] of Object.entries(names)) {
     await page.locator('.locale:visible [data-choose="' + code + '"]').click();
     await expect(page.locator('#programme')).toHaveValue(code);
     await expect(page).toHaveURL(/#enquire$/);
+    const pilot=page.locator('.locale:visible [data-product="A2-REVIEW"]');
+    await expect(pilot).toHaveCount(1);
+    await expect(pilot).toContainText('1 490 Kč');
+    await expect(pilot.locator('a[href^="mailto:"]')).toHaveAttribute('href', /A2-DIGITAL-20261120/);
     expect(failed).toEqual([]);
   });
 }
@@ -40,7 +45,7 @@ test('Academy milestone enquiries preselect A2 from the free quiz and keep verif
   await expect(page.locator('#programme')).toHaveValue('A2');
   await expect(page.locator('.locale:visible')).toContainText('trvalý pobyt');
   await expect(page.locator('.locale:visible')).toContainText('nikoli zkoušku B1 k občanství');
-  await expect(page.locator('.offer:visible')).toHaveCount(8);
+  await expect(page.locator('.offer:visible')).toHaveCount(9);
   await expect(page.locator('#interest-form')).toHaveCount(1);
   expect((await page.locator('#interest-form').getAttribute('action'))).toBeNull();
 });
@@ -144,4 +149,15 @@ test('Academy single lesson requests preferred Prague time without claiming a ca
  expect(sent[0]).toMatchObject({programme:'LESSON',locale:'ru',privacyAcknowledged:true,adultOrGuardianConfirmed:true});
  expect(sent[0].deadline).toContain(later+' 10:30 Europe/Prague (not a reservation)');
  expect(sent[0].deadline).toContain('Alternatives: Tue 18:30, Sat 11:00');
+});
+
+test('A2 digital offer deep-link focuses visible locale and does not alter secure backend intake', async ({page})=>{
+  await page.goto('/academy/programmes/?lang=ru&offer=a2-digital&utm_source=site&utm_medium=social&utm_campaign=a2_digital_20261120');
+  const pilot=page.locator('.locale:visible [data-product="A2-REVIEW"]');
+  await expect(pilot).toBeInViewport();
+  await expect(pilot.locator('a[href^="mailto:"]')).toHaveCount(1);
+  await expect(page.locator('#programme option')).toHaveCount(13);
+  await expect(page.locator('#programme option[value="A2-REVIEW"]')).toHaveCount(0);
+  await expect(page.locator('[data-product="A2"]')).toHaveCount(4);
+  await expect(page.locator('#interest-form')).toHaveCount(1);
 });
