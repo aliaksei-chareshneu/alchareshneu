@@ -88,3 +88,45 @@ For rollback: disable only the Windows Agent4CRMTransport task and
 owner-private GAS pull flag, preserve all prior CRM rows and the
 sole OCI Telegram listener, reconcile ambiguous source keys before
 any repeated attempt.
+
+## Client retention / repeat-order review (20 November 2026)
+
+The EXISTING five-function operator now includes `client_care` in its
+READ_ONLY_PREVIEW, from the already-authorized private Community Hub snapshot.
+Source: `ops/imperion-client-care.cjs`. **No new CRM, chat bot, trigger,
+subscription, controller or external model.** No customer data is copied to
+GitHub, Supabase transport, or Chatwoot.
+
+It reads existing OSVC `Leads` fields: `Stage`, `Action_Status`,
+`Next_Action_At`, `Followup_Count`, `Renewal_At`,
+`Sessions_Remaining`, `Paid_CZK`, `Service_Review_At`,
+`Client_Care_Action`, and the existing Commercial Gate. It keeps
+Druzina_Enrollment_Pipeline out of OSVC commercial lifecycle logic.
+
+The deterministic reviewer:
+- suppresses explicit STOP/CLOSED/LOST, opt-outs, stopped contact aliases,
+  QA fixtures and NO_CHASE / WAIT_INBOUND cases;
+- never infers a deadline from narrative; accepts offset-aware ISO or an
+  unambiguous Prague-local datetime (rejects DST overlap/gap);
+- prefers an actually due renewal/service-review task for active customers
+  over generic next-step reminders, never checks before the due date;
+- emits only owner-review tasks with an existing Lead_ID, due time and action
+  class; **never drafts, sends, posts, books, invoices or calls a bank API**;
+- treats `Paid_CZK` as an unverified CRM claim, not BANK VERIFIED cash;
+- requires manual Inbox/SENT/CRM/opt-out, identity, legal basis, offer/price
+  and provider-readback checks before any separately authorized send.
+
+Run the existing owner-private snapshot through:
+`node ops/imperion-agent-team.cjs --input PRIVATE_HUB_SNAPSHOT.json`.
+Inspect `client_care` in the local JSON response. Never commit the snapshot.
+The new offline test is
+`node --test tests/imperion-client-care.test.cjs`; CI runs it inside
+the existing Site quality workflow.
+
+**Deployment status:** GitHub code and synthetic tests are not an active
+follow-up sender. Current official WhatsApp/Meta channel permissions,
+Chatwoot credentials, Telegram personal Chat Automation scope, and
+production owner-computer E2E remain individually unverified; do not
+enable mass outreach or buy subscriptions. Preserve the existing sole
+OCI Telegram consumer. If the client-care projection malfunctions, revert
+only its `client_care` call/import, not the CRM bridge or existing listener.
