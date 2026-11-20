@@ -1,0 +1,31 @@
+name: IMPERION LinkedIn MCP test
+
+on:
+  pull_request:
+    paths:
+      - 'integrations/linkedin-mcp/**'
+      - '.github/workflows/imperion-linkedin-mcp.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: integrations/linkedin-mcp
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: integrations/linkedin-mcp/requirements.txt
+      - name: Install dependencies
+        run: python -m pip install --disable-pip-version-check -r requirements.txt 'pytest>=8,<10'
+      - name: Verify mocked OAuth and no-duplicate publication
+        run: python -m pytest -q
+      - name: Compile source
+        run: python -m compileall -q app.py
