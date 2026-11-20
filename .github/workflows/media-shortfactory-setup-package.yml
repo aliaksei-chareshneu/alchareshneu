@@ -1,0 +1,96 @@
+name: ShortFactory Windows automation installer
+
+on:
+  push:
+    branches:
+      - feature/imperion-youtube-trend-intake-20261022
+    paths:
+      - 'shortfactory_autopilot.py'
+      - 'shortfactory_youtube_private.py'
+      - 'shortfactory_idea_worker.py'
+      - 'shortfactory_free_one_click.py'
+      - 'cinematic_shorts.py'
+      - 'shortfactory_voice_kokoro.py'
+      - 'original_reel_builder.py'
+      - 'run_shortfactory_daily.ps1'
+      - 'install_shortfactory.ps1'
+      - 'INSTALL_SHORTFACTORY.cmd'
+      - 'queue/ready/roman-training-demo.json'
+      - 'config/shortfactory_settings.example.json'
+      - 'requirements_shortfactory.txt'
+      - 'tests/test_shortfactory_autopilot.py'
+      - '.github/workflows/media-shortfactory-setup-package.yml'
+  pull_request:
+    paths:
+      - 'shortfactory_autopilot.py'
+      - 'shortfactory_youtube_private.py'
+      - 'shortfactory_idea_worker.py'
+      - 'run_shortfactory_daily.ps1'
+      - 'install_shortfactory.ps1'
+      - 'tests/test_shortfactory_autopilot.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Safety tests and module syntax (no network, no uploads)
+        run: |
+          python -m unittest discover -s tests -p 'test_shortfactory_autopilot.py' -v
+          python -m py_compile shortfactory_autopilot.py shortfactory_youtube_private.py shortfactory_idea_worker.py shortfactory_free_one_click.py cinematic_shorts.py shortfactory_voice_kokoro.py original_reel_builder.py
+          python shortfactory_autopilot.py --dry-run --root . --queue queue/ready --drafts /tmp/shortfactory-test-drafts --state /tmp/shortfactory-test-state
+          python shortfactory_idea_worker.py --trends /tmp/not-present.csv --ideas /tmp/shortfactory-test-ideas
+      - name: PowerShell parse check
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          foreach ($p in @('install_shortfactory.ps1','run_shortfactory_daily.ps1')) {
+            $tokens = $null
+            $errors = $null
+            $null = [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $p), [ref]$tokens, [ref]$errors)
+            if ($errors.Count -gt 0) { $errors | ForEach-Object { Write-Error "$p : $_" }; exit 1 }
+          }
+      - name: Create portable reviewed install bundle
+        run: |
+          python - <<'PY'
+          import shutil
+          from pathlib import Path
+          base=Path('.')
+          paths=[
+            'INSTALL_SHORTFACTORY.cmd','install_shortfactory.ps1',
+            'run_shortfactory_daily.ps1','requirements_shortfactory.txt',
+            'shortfactory_autopilot.py','shortfactory_youtube_private.py',
+            'shortfactory_idea_worker.py','shortfactory_free_one_click.py',
+            'cinematic_shorts.py','shortfactory_voice_kokoro.py',
+            'original_reel_builder.py',
+            'examples/roman_training_voice_20261025.json',
+            'examples/roman_motion_free_20261025.json',
+            'queue/ready/roman-training-demo.json',
+            'config/shortfactory_settings.example.json',
+            'tests/test_shortfactory_autopilot.py',
+            'docs/SHORTFACTORY-NO-VIDEO-CREDIT-PIPELINE.md',
+            'docs/SHORTFACTORY_AUTOPILOT_INSTALL_RU.md',
+          ]
+          for path in paths:
+              assert (base/path).is_file(),path
+          package=Path('dist/ShortFactory_SETUP')
+          for path in paths:
+              target=package/path
+              target.parent.mkdir(parents=True,exist_ok=True)
+              shutil.copyfile(base/path,target)
+          print('Prepared one-layer installer artifact:',len(paths),'files')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MoravianHost-ShortFactory-automation-Windows-install
+          path: dist/
+          retention-days: 10
+          if-no-files-found: error

@@ -1,0 +1,22 @@
+{
+  "episode_id": "roman-training-demo",
+  "voice_spec": "examples/roman_training_voice_20261025.json",
+  "visual_spec": "examples/roman_motion_free_20261025.json",
+  "licensed_material_verified": true,
+  "entity": "DRUZINA_ZS",
+  "upload_visibility": "private",
+  "made_for_kids": false,
+  "synthetic_media": true,
+  "preferred_variant": "action",
+  "editorial_approved": false,
+  "approved_for_public": false,
+  "title": "Did Roman Recruits Train With Double-Weight Weapons?",
+  "summary": "A late Roman writer, Vegetius, described double-weight practice clubs and wicker shields. His account is a source about military drill, not proof of universal training in every Roman legion.",
+  "cta_url": "https://aliaksei-chareshneu.github.io/alchareshneu/druzina/join/?lang=en",
+  "tags": [
+    "Roman army",
+    "Vegetius",
+    "Roman history",
+    "historical fencing"
+  ]
+}
