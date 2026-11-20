@@ -1,0 +1,96 @@
+name: IMPERION Agent5 restricted PC executor QA
+on:
+  pull_request:
+    paths:
+      - 'ops/pc-agent/**'
+      - '.github/workflows/imperion-pc-agent5.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  safe-executor:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Pure-stdlib sandbox and denial tests (no machine access)
+        run: python -B ops/pc-agent/restricted_executor.py --selftest
+      - name: Localhost-only relay security tests (no network exposure)
+        run: python -B ops/pc-agent/loopback_readonly.py --selftest
+      - name: Staged Browser Bridge adapter safety checks (no live restart)
+        run: python -B ops/pc-agent/browser_bridge_adapter.py --selftest
+      - name: Isolated multi-step workspace tasks, natural instructions and replay tests
+        run: python -B ops/pc-agent/pc_task_engine.py --selftest
+      - name: Chat-to-PC v3 import/plan/execute/fetch, locking and tamper-denial QA
+        run: python -B ops/pc-agent/pc_operator_v3.py --selftest
+      - name: Fixed Windows app catalog and memory readiness guard (pure-stdlib stubs)
+        run: python -B ops/pc-agent/pc_desktop_v4.py --selftest
+      - name: Offline model selection denial tests (no Ollama or network)
+        run: python -B -m unittest discover -s ops/pc-agent -p 'test_pc5_model_router.py' -v
+      - name: Synthetic GUI denial, one-use ticket and independent receipt QA (no real input)
+        run: python -B -m unittest discover -s ops/pc-agent -p 'test_pc5_gui_security.py' -v
+      - name: M5 no-side-effects Windows readiness guard unit tests
+        run: python -B ops/pc-agent/pc5_m5_preflight.py --selftest
+      - name: M5 one-shot physical consent runner policy tests (no prompt)
+        run: python -B ops/pc-agent/pc5_gui_owner_finish.py --selftest
+      - name: M6 lightweight Windows diagnostics and privacy guard tests
+        run: python -B -m unittest discover -s ops/pc-agent -p 'test_pc5_low_ram_audit.py' -v
+      - name: M6 Windows audit replay, SHA tamper and dry-run-only remediation tests
+        run: python -B -m unittest discover -s ops/pc-agent -p 'test_pc5_maintenance.py' -v
+      - name: M7 audit-backed recovery planning and no-action safety tests
+        run: python -B -m unittest discover -s ops/pc-agent -p 'test_pc5_policy_v7.py' -v
+      - name: Cloud-only model-to-PC queue synthetic security tests and gateway syntax
+        run: |
+          node --check ops/pc-agent/cloud/gateway/index.mjs
+          node --check ops/pc-agent/cloud/gateway/free-core.mjs
+          node --check ops/pc-agent/cloud/pc5-cloud-core.mjs
+          node --test ops/pc-agent/cloud/pc5-cloud-core.test.mjs
+      - name: Read-only capability report
+        run: python -B ops/pc-agent/restricted_executor.py --status
+      - name: Confirm no hosted model or external effect
+        run: |
+          echo 'Tested bounded synthetic multi-step workspace jobs, natural instructions, deny rules and read-only probes.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'No Windows PC, LLM runtime, browser, secrets, messages, deploy, or payment involved.' >> "$GITHUB_STEP_SUMMARY"
+
+  # Public-repo hosted Windows smoke: never authenticates to zmrzlina.
+  # This validates real Windows Python imports, hashes and deny paths,
+  # but never opens Notepad, controls a user desktop, or calls a model.
+  windows-native-synthetic:
+    runs-on: windows-2025
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Win32 GUI owner-consent and ABI-safe imports (no GUI)
+        shell: pwsh
+        run: |
+          python -B ops/pc-agent/pc5_m5_preflight.py --selftest
+          python -B ops/pc-agent/pc5_gui_owner_finish.py --selftest
+          python -B -m unittest discover -s ops/pc-agent -p 'test_pc5_gui_security.py' -v
+      - name: Native Windows read-only audit, continuity and memory gates
+        shell: pwsh
+        run: |
+          python -B -m unittest discover -s ops/pc-agent -p 'test_pc5_low_ram_audit.py' -v
+          python -B -m unittest discover -s ops/pc-agent -p 'test_pc5_maintenance.py' -v
+          python -B -m unittest discover -s ops/pc-agent -p 'test_pc5_policy_v7.py' -v
+      - name: Validate original local Notepad path without launching app
+        shell: pwsh
+        run: |
+          $notepad = Join-Path $env:WINDIR 'System32/notepad.exe'
+          if (!(Test-Path -LiteralPath $notepad -PathType Leaf)) {
+            Write-Output 'PC5_HOSTED_WINDOWS_NOTEPAD=ABSENT; compatibility needs manual local check'
+          } else {
+            Write-Output 'PC5_HOSTED_WINDOWS_NOTEPAD=FOUND; GUI_E2E_NOT_TESTED'
+          }
+          Write-Output 'PC5_HARDWARE_ACCESS=NONE; OWNER_APPROVAL_NOT_REQUESTED'
