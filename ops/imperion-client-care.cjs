@@ -123,8 +123,10 @@ function review(snapshot) {
     if(service&&string(col(r,'Client_Care_Action')))
       due.push({date:service,purpose:'SERVICE_OUTCOME_OWNER_REVIEW',rank:1});
     const renewal=dueAt(col(r,'Renewal_At'));
-    const remaining=Number(col(r,'Sessions_Remaining'));
-    if(renewal&&ACTIVE.has(f.stage)&&string(col(r,'Sessions_Remaining'))!==''&&
+    const remainingRaw=col(r,'Sessions_Remaining');
+    const remaining=Number(remainingRaw);
+    if(renewal&&ACTIVE.has(f.stage)&&remainingRaw!==''&&
+       remainingRaw!==null&&remainingRaw!==undefined&&
        Number.isInteger(remaining)&&remaining>=0&&remaining<=1)
       due.push({date:renewal,purpose:'RENEWAL_OWNER_REVIEW',rank:0});
     if(!due.length){counts.missing_or_unparseable_deadline++;continue;}
