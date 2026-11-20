@@ -13,6 +13,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const growthPolicy = require('./imperion-growth-policy.cjs');
 const socialSalesRouting = require('./imperion-social-sales-routing.cjs');
+const clientCare = require('./imperion-client-care.cjs');
 
 const ROOT = path.resolve(__dirname, '..');
 const FIELDS = Object.freeze({
@@ -324,7 +325,8 @@ async function runAll(snapshot, options={}) {
   return {
     schema_version:1, snapshot_id:snapshot.snapshot_id, checked_at:snapshot.captured_at,
     mode:'READ_ONLY_PREVIEW', paid_api_calls:0, new_crm_records:0,
-    chief:chief(snapshot), sales:sales(snapshot), social:await social(snapshot),
+    chief:chief(snapshot), sales:sales(snapshot), client_care:clientCare.review(snapshot),
+    social:await social(snapshot),
     growth:growthPolicy.review(snapshot,pragueEventIso),
     // Existing Agent #4 is PRIVATE and external from this preview. No model is
     // assumed available unless independently verified local runtime evidence
