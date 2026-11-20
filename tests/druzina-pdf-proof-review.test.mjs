@@ -62,3 +62,22 @@ test('backend retains proof-only state and duplicate-hash guard',async()=>{
  }
  assert.ok(!edge.includes('bank_verified_at:new Date()'));
 });
+
+test('PDF reviewer accepts 5 MiB but rejects larger files',async()=>{
+ const small=Buffer.from(pdf(info));
+ const end=small.subarray(small.length-6);
+ assert.equal(end.toString('ascii'),'%%EOF\n');
+ const atLimit=Buffer.concat([small.subarray(0,-6),Buffer.alloc(5*1024*1024-small.length,32),end]);
+ assert.equal(atLimit.length,5*1024*1024);
+ const valid=await inspectPaymentPdf(new Uint8Array(atLimit),quote);
+ assert.equal(valid.status,'MATCHED_UNVERIFIED');
+ await assert.rejects(()=>inspectPaymentPdf(new Uint8Array(Buffer.concat([atLimit,Buffer.from(' ')])),quote),/INVALID_PDF_SIZE/);
+});
+test('PDF limits stay aligned in site and server upload paths',async()=>{
+ const {readFileSync}=await import('node:fs');
+ const get=path=>readFileSync(path,'utf8');
+ assert.ok(get('supabase/functions/imperion-register/index.ts').includes('const MAX_PDF_BYTES=5*1024*1024;'));
+ assert.ok(get('register/training-payment.js').includes('proof.size>5242880'));
+ assert.ok(get('supabase/functions/imperion-academy-checkout/index.ts').includes('const MAX_PDF_BYTES=5*1024*1024;'));
+ assert.ok(get('academy/order/order.js').includes('5242880:2097152'));
+});
