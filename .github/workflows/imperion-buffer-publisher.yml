@@ -1,0 +1,50 @@
+name: Imperion Buffer publisher (gated)
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run_only:
+        description: "Dry run, do not queue posts"
+        type: boolean
+        default: true
+  schedule:
+    - cron: "17 * * * *"
+
+concurrency:
+  group: imperion-buffer-publisher
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    # No live activity until repository owner explicitly enables the integration.
+    if: ${{ vars.IMPERION_BUFFER_ENABLED == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Dependencies
+        run: pip install --disable-pip-version-check "google-auth>=2.30,<3" "requests>=2.31,<3"
+      - name: Verify parsing/approval gates
+        run: python -m unittest discover -s automation -p "test_social_buffer_bridge.py" -v
+      - name: Read SocialPublishing and queue at most one confirmed job
+        env:
+          IMPERION_SPREADSHEET_ID: ${{ secrets.IMPERION_SPREADSHEET_ID }}
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          BUFFER_API_KEY: ${{ secrets.BUFFER_API_KEY }}
+          BUFFER_CHANNEL_MAP_JSON: ${{ secrets.BUFFER_CHANNEL_MAP_JSON }}
+          ENABLE_BUFFER_PUBLISH: ${{ vars.IMPERION_BUFFER_ENABLED }}
+          DRY_RUN_ONLY: ${{ inputs.dry_run_only }}
+          EVENT_NAME: ${{ github.event_name }}
+        shell: bash
+        run: |
+          if [ "$EVENT_NAME" = "workflow_dispatch" ] && [ "$DRY_RUN_ONLY" = "true" ]; then
+            python automation/social_buffer_bridge.py
+          else
+            python automation/social_buffer_bridge.py --publish
+          fi
