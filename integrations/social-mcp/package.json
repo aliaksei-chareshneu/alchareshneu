@@ -1,0 +1,14 @@
+{
+  "name": "imperion-social-mcp",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Zero-dependency MCP bridge to the existing Imperion SocialPublishing and Telegram Apps Script",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test tests/*.test.mjs"
+  }
+}

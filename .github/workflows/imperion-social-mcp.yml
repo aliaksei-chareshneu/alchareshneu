@@ -1,0 +1,64 @@
+name: Imperion Social MCP checks
+on:
+  pull_request:
+    paths:
+      - 'integrations/social-mcp/**'
+      - '.github/workflows/imperion-social-mcp.yml'
+  push:
+    paths:
+      - 'integrations/social-mcp/**'
+      - '.github/workflows/imperion-social-mcp.yml'
+jobs:
+  synthetic-tests:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Protocol and fail-closed tests (NO external API)
+        working-directory: integrations/social-mcp
+        run: node --test tests/*.test.mjs
+  stage-readonly-smoke:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify remote staging health and MCP JSON-RPC (NO publishing)
+        run: |
+          node --input-type=module - <<'NODE'
+          import assert from 'node:assert/strict';
+          const url = 'https://cmrknyhnnehyjpreehcf.supabase.co/functions/v1/imperion-social-mcp-stage';
+          const health = await fetch(url + '/health', {signal: AbortSignal.timeout(15000)});
+          assert.equal(health.status, 200);
+          const h = await health.json();
+          assert.equal(h.ok, true);
+          assert.equal(h.publishing, false);
+          async function rpc(method, params = {}) {
+            const response = await fetch(url, {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json', 'Accept': 'application/json,text/event-stream'},
+              body: JSON.stringify({jsonrpc: '2.0', id: method, method, params}),
+              signal: AbortSignal.timeout(15000)
+            });
+            assert.equal(response.status, 200);
+            return response.json();
+          }
+          const init = await rpc('initialize', {protocolVersion:'2025-11-25',capabilities:{},clientInfo:{name:'CI',version:'1'}});
+          assert.equal(init.result.serverInfo.name, 'imperion-social-mcp-stage');
+          const list = await rpc('tools/list');
+          assert.deepEqual(list.result.tools.map(x => x.name), ['publication_status','whatsapp_group_capabilities']);
+          assert.ok(list.result.tools.every(x => x.annotations?.readOnlyHint === true));
+          const status = await rpc('tools/call', {name:'publication_status',arguments:{}});
+          const value = JSON.parse(status.result.content[0].text);
+          assert.equal(value.telegramPublishing, false);
+          assert.equal(value.whatsappPublishing, false);
+          const denied = await rpc('tools/call', {name:'telegram_publish_approved',arguments:{job_id:'TEST-SYNTHETIC',confirm:true}});
+          assert.equal(denied.error.code, -32601);
+          console.log('LIVE_STAGING_MCP_JSON_RPC_READ_ONLY_VERIFIED');
+          NODE
