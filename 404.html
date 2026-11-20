@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="cs">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Страница не найдена · Aliaksei Chareshneu</title>
+<title>Stránka nenalezena · Aliaksei Chareshneu</title>
 <meta name="robots" content="noindex">
 <link rel="icon" type="image/x-icon" href="favicon.ico">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
@@ -11,11 +11,13 @@
 <meta name="theme-color" content="#0b1729">
 <link href="https://fonts.googleapis.com/css2?family=Spectral:wght=600;700&family=Source+Sans+3:wght=400;600&family=JetBrains+Mono:wght=500;700&display=swap" rel="stylesheet">
 <script>
-  // Preserve any hash/path the user tried to hit, then redirect into the SPA router.
-  // GitHub Pages serves this file for any unknown path under the project.
+  // A missing page must preserve the user's chosen locale when returning home.
   var target = '/alchareshneu/';
   var hash = window.location.hash;
-  window.location.replace(target + (hash || '#main'));
+  var requested = new URLSearchParams(window.location.search).get('lang');
+  var saved = ''; try { saved = localStorage.getItem('dm_lang') || ''; } catch (_) {}
+  var language = /^(cs|en|ru|uk)$/.test(requested || '') ? requested : /^(cs|en|ru|uk)$/.test(saved) ? saved : 'cs';
+  window.location.replace(target + '?lang=' + encodeURIComponent(language) + (hash || '#main'));
 </script>
 <style>
   :root{
@@ -42,11 +44,11 @@
 </head>
 <body data-imperion-scope="dark">
   <div class="card">
-    <div class="code">404 · СТРАНИЦА НЕ НАЙДЕНА</div>
-    <h1>⚔️ Карта не туда привела</h1>
-    <p>Перенаправляем тебя на главную страницу автоматически…</p>
-    <a class="btn" href="/alchareshneu/#main">Перейти на главную</a>
-    <noscript><p>JavaScript отключён — нажми на кнопку выше, чтобы продолжить.</p></noscript>
+    <div class="code">404 · STRÁNKA NENALEZENA</div>
+    <h1>⚔️ Tudy cesta nevede</h1>
+    <p>Automaticky vás přesměrujeme na hlavní stránku…</p>
+    <a class="btn" href="/alchareshneu/?lang=cs#main">Přejít na hlavní stránku</a>
+    <noscript><p>JavaScript je vypnutý — pokračujte tlačítkem výše.</p></noscript>
   </div>
 </body>
 </html>

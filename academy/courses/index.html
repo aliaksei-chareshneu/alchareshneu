@@ -102,10 +102,10 @@
 <script>
 (function(){
 const langs=['en','cs','ru','uk'];
-function langSet(x){let l=langs.includes(x)?x:'cs';document.documentElement.lang=l;document.querySelectorAll('[data-locale]').forEach(e=>e.hidden=e.dataset.locale!==l);document.querySelectorAll('[data-lang]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.lang===l)));}
-document.querySelectorAll('[data-lang]').forEach(b=>b.addEventListener('click',()=>langSet(b.dataset.lang)));
+function langSet(x){let l=langs.includes(x)?x:'cs';document.documentElement.lang=l;document.querySelector('a.brand').href='../../?lang='+l;document.querySelector('a.back').href='../?lang='+l;document.querySelectorAll('[data-locale]').forEach(e=>e.hidden=e.dataset.locale!==l);document.querySelectorAll('[data-lang]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.lang===l)));}
+document.querySelectorAll('[data-lang]').forEach(b=>b.addEventListener('click',()=>{let c=b.dataset.lang;langSet(c);try{localStorage.setItem('dm_lang',c)}catch(_){}let u=new URL(location.href);u.searchParams.set('lang',c);history.replaceState(null,'',u)}));
 document.querySelectorAll('[data-filter]').forEach(b=>b.addEventListener('click',()=>{let g=b.dataset.filter;document.querySelectorAll('[data-filter]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));document.querySelectorAll('.course').forEach(x=>x.hidden=g!=='all'&&x.dataset.group!==g);}));
-let supplied=new URLSearchParams(location.search).get('lang');let preferred=supplied||'cs';langSet(preferred);
+let supplied=new URLSearchParams(location.search).get('lang'),saved='';try{saved=localStorage.getItem('dm_lang')||''}catch(_){}let preferred=langs.includes(supplied)?supplied:langs.includes(saved)?saved:'cs';langSet(preferred);
 })();
 </script>
 </body></html>

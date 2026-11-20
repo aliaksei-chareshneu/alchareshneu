@@ -357,11 +357,13 @@ html[lang="en"] #new-training-enquiry [data-reg-lang="en"],
 html[lang="ru"] #new-training-enquiry [data-reg-lang="ru"],
 html[lang="uk"] #new-training-enquiry [data-reg-lang="uk"]{display:block}
 
-.dm-book-actions [data-book-lang]{display:none}
-html[lang="cs"] .dm-book-actions [data-book-lang="cs"],
-html[lang="en"] .dm-book-actions [data-book-lang="en"],
-html[lang="ru"] .dm-book-actions [data-book-lang="ru"],
-html[lang="uk"] .dm-book-actions [data-book-lang="uk"]{display:inline-flex}
+/* Only one locale-specific booking CTA is ever visible. A later global
+   button display rule must not override the language gate. */
+#new-training-enquiry .dm-book-actions > a[data-book-lang]{display:none!important}
+html[lang="cs"] #new-training-enquiry .dm-book-actions > a[data-book-lang="cs"],
+html[lang="en"] #new-training-enquiry .dm-book-actions > a[data-book-lang="en"],
+html[lang="ru"] #new-training-enquiry .dm-book-actions > a[data-book-lang="ru"],
+html[lang="uk"] #new-training-enquiry .dm-book-actions > a[data-book-lang="uk"]{display:inline-flex!important}
 </style>
 <p class="reg-eyebrow" data-reg-lang="cs" lang="cs">DRUŽINA MORAVY · PŘIHLÁŠKA NA TRÉNINK</p>
 <p class="reg-eyebrow" data-reg-lang="en" lang="en">DRUŽINA MORAVY · TRAINING ENQUIRY</p>
@@ -377,6 +379,27 @@ html[lang="uk"] .dm-book-actions [data-book-lang="uk"]{display:inline-flex}
 <a data-book-lang="ru" lang="ru" href="../register/?lang=ru">Записаться на тренировку →</a>
 <a data-book-lang="uk" lang="uk" href="../register/?lang=uk">Записатися на тренування →</a>
 </div>
+<script id="dm-booking-cta-language-sync">
+/* Keep the active CTA clickable even when other global CSS changes button display.
+   This never submits a form or sends a request; it only controls visible copy. */
+(function(){
+  'use strict';
+  var box=document.querySelector('#new-training-enquiry .dm-book-actions');
+  if(!box)return;
+  var links=Array.from(box.querySelectorAll('a[data-book-lang]'));
+  function syncBookingLocale(){
+    var lang=document.documentElement.getAttribute('lang');
+    if(!['cs','en','ru','uk'].includes(lang))lang='cs';
+    links.forEach(function(a){
+      var show=a.dataset.bookLang===lang;
+      a.hidden=!show;
+      a.style.setProperty('display',show?'inline-flex':'none','important');
+    });
+  }
+  syncBookingLocale();
+  new MutationObserver(syncBookingLocale).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
+})();
+</script>
 <p class="reg-note" data-reg-lang="cs" lang="cs">Přihlášky na plánované tréninky jsou otevřené. Pořadatel pro každý termín písemně potvrdí místo, bezpečnostní podmínky a případnou cenu. Na webu se neplatí. Pokyny k bankovnímu převodu dostanete až po individuálním schválení. Před potvrzením nic neposílejte.</p>
 <p class="reg-note" data-reg-lang="en" lang="en">Applications for planned sessions are open; the organiser confirms the venue, safety and any paid terms individually in writing. No online payment. Bank transfer instructions appear only after individual approval. Do not transfer funds before confirmation.</p>
 <p class="reg-note" data-reg-lang="ru" lang="ru">Запись на запланированные тренировки открыта. Организатор письменно подтвердит место, условия безопасности и возможную цену для каждого занятия. Онлайн-оплаты нет. Реквизиты для перевода предоставляются только после личного подтверждения. До подтверждения деньги не переводите.</p>

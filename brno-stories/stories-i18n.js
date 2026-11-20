@@ -50,7 +50,7 @@ uk:{
  play:'Дивитися репортаж (26 с)',next:'Інші теми: міські пригоди, походи, культура, мешканці Брно та враження, які інакше можна пропустити.',
  footer1:'Особистий авторський проєкт Aliaksei Chareshneu.',footer2:'Družina Moravy z. s. — окрема неприбуткова організація.'
 }};
-var q=new URLSearchParams(location.search),code=q.get('lang'),lang=text[code]?code:'cs',d=text[lang];
-document.documentElement.lang=lang;
+var q=new URLSearchParams(location.search),code=q.get('lang'),saved='';try{saved=localStorage.getItem('dm_lang')||''}catch(_){}var lang=text[code]?code:text[saved]?saved:'cs',d=text[lang];
+document.documentElement.lang=lang;var main=document.querySelector('main[data-locale]');if(main)main.dataset.locale=lang;var back=document.querySelector('header a[data-story="main"]');if(back)back.href='../?lang='+lang;
 document.querySelectorAll('[data-story]').forEach(function(el){var key=el.dataset.story;if(!Object.prototype.hasOwnProperty.call(d,key))return;if(key==='firstBody')el.innerHTML=d[key];else el.textContent=d[key];});
 })();

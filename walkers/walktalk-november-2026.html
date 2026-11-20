@@ -84,6 +84,10 @@ document.querySelectorAll('[data-set-lang]').forEach(button=>button.addEventList
  document.body.dataset.lang=value;document.documentElement.lang=value;
  document.querySelectorAll('[data-set-lang]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.setLang===value)));
 }));
+const navCopy={cs:['Hlavní stránka','Všechny registrace','Kontakt'],en:['Main page','All registrations','Contact'],ru:['Главная страница','Все регистрации','Контакт'],uk:['Головна сторінка','Усі реєстрації','Контакт']};
+function syncNav(){var l=document.documentElement.lang;var t=navCopy[l];if(!t)return;var links=document.querySelectorAll('header.head nav a');links.forEach(function(a,i){a.textContent=t[i]||a.textContent;if(i<2){var u=new URL(a.getAttribute('href'),location.href);u.searchParams.set('lang',l);a.href=u.href}})}
+new MutationObserver(syncNav).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
+document.querySelectorAll('[data-set-lang]').forEach(function(b){b.addEventListener('click',function(){var l=b.dataset.setLang;try{localStorage.setItem('dm_lang',l)}catch(_){}var u=new URL(location.href);u.searchParams.set('lang',l);history.replaceState(null,'',u);syncNav()})});
 const params=new URLSearchParams(location.search),incoming=params.get('lang');
 const source=(params.get('src')||params.get('utm_source')||'').trim();
 if(/^[A-Za-z0-9_-]{1,64}$/.test(source)){
@@ -93,6 +97,6 @@ if(/^[A-Za-z0-9_-]{1,64}$/.test(source)){
   link.href=url.toString();
  });
 }
-if(['en','cs','ru','uk'].includes(incoming)){document.body.dataset.lang=incoming;document.documentElement.lang=incoming;document.querySelectorAll('[data-set-lang]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.setLang===incoming)))}
+if(['en','cs','ru','uk'].includes(incoming)){document.body.dataset.lang=incoming;document.documentElement.lang=incoming;document.querySelectorAll('[data-set-lang]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.setLang===incoming)))}syncNav();
 </script>
 </body></html>
