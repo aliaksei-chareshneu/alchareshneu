@@ -133,22 +133,22 @@ test('buyer-led corporate positioning keeps two distinct lawful purchase paths',
     "business:'Навчальним центрам і технічним командам",
   ]) assert.ok(homepage.includes(label),'translated relevant corporate handoff '+label);
 });
-test('exceptional Nov 28 HEMA public date survives old Saturday suppression without reopening Saturdays', () => {
+test('exceptional Nov 28 stays in calendar while club homepage routes to guarded registration', () => {
   const root=path.resolve(__dirname,'..');
   const calendar=fs.readFileSync(path.join(root,'calendar/index.html'),'utf8');
   const clarity=fs.readFileSync(path.join(root,'site-clarity-pages.js'),'utf8');
   const druzina=fs.readFileSync(path.join(root,'druzina/index.html'),'utf8');
   assert.ok(calendar.includes("e.event_id!=='PUB-HEMA-20261128'"));
   assert.ok(clarity.includes("e.event_id!=='PUB-HEMA-20261128'"));
-  assert.ok(calendar.includes("getUTCDay()===6"),'other Saturdays still suppressed');
-  assert.ok(clarity.includes("getUTCDay()===6"),'other Saturdays still suppressed');
-  for(const fragment of [
-    '28. 11. přijímáme jen nezávazné přihlášky',
-    'Only 28 November is open for preliminary enquiries',
-    '28 ноября принимаются только предварительные заявки',
-    '28 листопада приймаються лише попередні заявки',
-  ]) assert.ok(druzina.includes(fragment),'calendar and club policy must agree '+fragment);
+  assert.ok(calendar.includes("getUTCDay()===6"),'other Saturdays still filtered until confirmed');
+  assert.ok(clarity.includes("getUTCDay()===6"),'other Saturdays still filtered until confirmed');
+  for(const lang of ['cs','en','ru','uk']) {
+    assert.ok(druzina.includes('data-hub-lang="'+lang+'"'),'permanent information hub '+lang);
+    assert.ok(druzina.includes('href="../register/?lang='+lang+'"'),'single canonical registration '+lang);
+    assert.ok(druzina.includes('href="cesty/?lang='+lang+'"'),'training programme visible '+lang);
+  }
   assert.ok(!druzina.includes('no Saturday training dates are open'),'obsolete blanket ban');
   assert.ok(!druzina.includes('soboty nyní nerezervujeme'),'obsolete blanket ban CS');
+  assert.ok(druzina.includes('Do not pay or travel without written confirmation'),'nonbinding booking gate');
   assert.ok(druzina.includes('240 Kč')&&druzina.includes('800 Kč'),'existing NGO tariff stays untouched');
 });
