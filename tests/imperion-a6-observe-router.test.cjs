@@ -68,3 +68,51 @@ test('25 structured ID values cannot spoof stable string IDs',()=>{
   check(b,'BLOCKED','INVALID_SIGNAL');
   assert.equal(b.results[0].case_id,null);
 });
+
+
+test('26 exported role and subject allowlists cannot be mutated during preview',()=>{
+  assert.ok(Object.isFrozen(POLICY));
+  assert.ok(Object.isFrozen(POLICY.CODE_REVIEW));
+  assert.ok(Object.isFrozen(POLICY.CODE_REVIEW[1]));
+  assert.ok(Object.isFrozen(POLICY.CODE_REVIEW[2]));
+  assert.throws(()=>POLICY.CODE_REVIEW[1].push('ATTACKER_SOURCE'),TypeError);
+  assert.throws(()=>POLICY.CODE_REVIEW[2].push('ATTACKER_ENTITY'),TypeError);
+  const x=run({source_system:'ATTACKER_SOURCE'});
+  check(x,'BLOCKED','UNTRUSTED_SOURCE_FOR_ROUTE');
+});
+test('27 duplicate existing commands with same key fail closed rather than hiding conflict',()=>{
+  const key='GITHUB:CODE_REVIEW:e0001';
+  const x=run({}, {existing_jobs:[
+    {idempotency_key:key,case_id:'IMPTEST01',legal_subject:'OSVC'},
+    {idempotency_key:key,case_id:'IMPTEST02',legal_subject:'OSVC'}
+  ]});
+  check(x,'BLOCKED','DUPLICATE_EXISTING_COMMAND');
+  assert.equal(x.results[0].next,'NO_ACTION');
+  assert.equal(x.existing_needing_readback,0);
+});
+test('28 cross-entity key collision cannot be treated as an authorized existing job',()=>{
+  const x=run({}, {existing_jobs:[{
+    idempotency_key:'GITHUB:CODE_REVIEW:e0001',case_id:'IMPTEST01',
+    legal_subject:'DRUZINA_MORAVY_ZS'
+  }]});
+  check(x,'BLOCKED','EXISTING_LEGAL_SUBJECT_CONFLICT');
+  assert.equal(x.existing_needing_readback,0);
+});
+test('29 source key reused by another case does not silence the real ownership conflict',()=>{
+  const x=run({}, {existing_jobs:[{
+    idempotency_key:'GITHUB:CODE_REVIEW:e0001',case_id:'DIFFERENT_CASE',
+    legal_subject:'OSVC'
+  }]});
+  check(x,'BLOCKED','EXISTING_CASE_ID_CONFLICT');
+  assert.equal(x.existing_needing_readback,0);
+});
+test('30 one exact previously seen case remains readback-only, never reexecuted',()=>{
+  const x=run({}, {existing_jobs:[{
+    idempotency_key:'GITHUB:CODE_REVIEW:e0001',case_id:'IMPTEST01',
+    legal_subject:'OSVC',state:'DONE',receipt:'NOT_INDEPENDENTLY_CHECKED'
+  }]});
+  check(x,'EXISTS_READBACK','EXISTING_COMMAND_REQUIRES_READBACK');
+  assert.equal(x.results[0].next,'PROVIDER_READBACK');
+  assert.equal(x.existing_needing_readback,1);
+  assert.equal(x.actions_executed,0);
+});
