@@ -110,11 +110,23 @@ function chief(snapshot) {
     approval: upper(field(r, 'Owner_Approval', 'Approval_Status', 'approval_status')), 
     proof: !!str(field(r, 'Evidence_URI', 'Receipt_URL', 'evidence_url', 'Evidence')),
   }));
+  // Repeated or missing Job_ID is ambiguous: never assign work or accept DONE
+  // from either copy. Reconcile the EXISTING Hub source first, without writes.
+  const jobCounts = new Map();
+  for (const job of allJobs) {
+    if (job.id.startsWith('MISSING_ID_ROW_')) continue;
+    const key = job.id.toLowerCase();
+    jobCounts.set(key, (jobCounts.get(key) || 0) + 1);
+  }
+  const duplicateCounts = [...jobCounts.values()].filter(n => n > 1);
+  const invalidJobRows = allJobs.filter(x => x.id.startsWith('MISSING_ID_ROW_')).length;
+  const uniqueJobs = allJobs.filter(x => !x.id.startsWith('MISSING_ID_ROW_') &&
+    jobCounts.get(x.id.toLowerCase()) === 1);
   // A user-entered DONE/VERIFIED state is only a claim, not a provider receipt.
   // Never erase it from review simply because the spreadsheet says "DONE".
   const closedClaim = new Set(['DONE', 'CLOSED', 'VERIFIED']);
-  const claimedCompleted = allJobs.filter(x => closedClaim.has(x.status));
-  const tasks = allJobs.filter(x => !closedClaim.has(x.status) && x.status !== 'CANCELLED');
+  const claimedCompleted = uniqueJobs.filter(x => closedClaim.has(x.status));
+  const tasks = uniqueJobs.filter(x => !closedClaim.has(x.status) && x.status !== 'CANCELLED');
   const rank = { OVERDUE: 0, WITHIN_24H: 1, DATE_REVIEW: 2, MISSING_DATE: 3, FUTURE: 4 };
   tasks.sort((a,b) => rank[a.due]-rank[b.due] || a.id.localeCompare(b.id));
   const events = rows(snapshot.data, 'events').map((r,i) => ({
@@ -127,6 +139,11 @@ function chief(snapshot) {
     .sort((a,b) => a.starts_at.localeCompare(b.starts_at));
   return {
     state: 'REVIEW_REQUIRED', source: 'EXISTING_IMPERION_HUB/IMPERION_Agent_Jobs+Events',
+    source_job_rows: allJobs.length, invalid_job_rows: invalidJobRows,
+    duplicate_job_ids: duplicateCounts.length,
+    duplicate_job_rows: duplicateCounts.reduce((n, count) => n + count, 0),
+    source_id_integrity: invalidJobRows || duplicateCounts.length
+      ? 'BLOCKED_RECONCILE_JOB_IDS' : 'METADATA_ONLY',
     open_tasks: tasks.length, urgent: tasks.filter(t => ['OVERDUE','WITHIN_24H'].includes(t.due)).length,
     priority_tasks: tasks.slice(0, 20), next_7_days_events: events.slice(0,20),
     // Presence of Evidence_URI only identifies a candidate source to check.
@@ -143,7 +160,8 @@ function chief(snapshot) {
 }
 function sales(snapshot) {
   const source = rows(snapshot.data, 'revenue_actions');
-  const contacts = source.length ? source : rows(snapshot.data, 'leads');
+  const leadRows = rows(snapshot.data, 'leads');
+  const contacts = source.length ? source : leadRows;
   let closed=0, duplicate=0, qaOnly=0;
   const seen = new Set(), candidates = [];
   // Revenue_Actions has Lead_ID but may omit Email/Company entirely. A
@@ -157,7 +175,10 @@ function sales(snapshot) {
     .some(k => QA_ONLY_TAG.test(upper(field(r,k,k.toLowerCase()))));
   const stopped = r => {
     const stage = str(field(r,'Stage','stage','Status','status')).toLowerCase();
-    const optOut = ['TRUE','YES'].includes(upper(field(r,'Opt_Out','opt_out','Do_Not_Contact')));
+    // A blank Opt_Out must not mask a separate true Do_Not_Contact field.
+    const denied = v => v === true || v === 1 || ['TRUE','YES','Y','1'].includes(upper(v));
+    const optOut = denied(field(r,'Opt_Out','opt_out')) ||
+      denied(field(r,'Do_Not_Contact','do_not_contact'));
     const actionStatus = upper(field(r,'Action_Status','action_status'));
     const statusStop = /(?:^|[_\s-])(STOP|HOLD|CLOSED|DORMANT|LOST|DO_NOT_CONTACT)(?:[_\s-]|$)/.test(actionStatus);
     return STOP_STAGES.has(stage) || stage.startsWith('closed_') || optOut || statusStop;
@@ -165,17 +186,22 @@ function sales(snapshot) {
   // A stopped identity also blocks aliases/different rows sharing the same
   // normalized email or company, never bypassing an opt-out via a duplicate.
   // QA fixtures are quarantined, not interpreted as real opt-out evidence.
-  const blockedTokens = new Set(contacts.filter(r => !qaOnlyRow(r) && stopped(r)).flatMap(tokens));
+  // Revenue_Actions may omit email/opt-out columns. Never bypass a STOP
+  // persisted in the canonical Leads row with the same Lead_ID.
+  const stopRows = source.length ? contacts.concat(leadRows) : contacts;
+  const blockedTokens = new Set(stopRows.filter(r => !qaOnlyRow(r) && stopped(r)).flatMap(tokens));
   for (const [i,r] of contacts.entries()) {
     if (qaOnlyRow(r)) { qaOnly++; continue; }
     const stage = str(field(r,'Stage','stage','Status','status')).toLowerCase();
     if (stopped(r) || tokens(r).some(t=>blockedTokens.has(t))) { closed++; continue; }
     const id = identity(r,['Lead_ID','Opportunity_ID','Action_ID','ID'],i);
-    const email = str(field(r,'Email','email')).toLowerCase();
-    const org = str(field(r,'Company','Organisation','Organization','Company_Domain','Domain')).toLowerCase();
-    const dedup = email || org || id.toLowerCase();
-    if (id.startsWith('MISSING_ID_') || !dedup || seen.has(dedup)) { duplicate++; continue; }
-    seen.add(dedup);
+    // Check ALL identifiers, not only the first available email/company:
+    // a renamed email must not yield a second candidate for the same Lead_ID.
+    const dedupTokens = [...tokens(r), 'canonical_id:' + id.toLowerCase()];
+    if (id.startsWith('MISSING_ID_') || dedupTokens.some(t => seen.has(t))) {
+      duplicate++; continue;
+    }
+    dedupTokens.forEach(t => seen.add(t));
     const history = upper(field(r,'Email_History_Check','History_Verified','history_verified'));
     const stopChecked = upper(field(r,'Stop_List_Checked','stop_list_checked'));
     const date = str(field(r,'Next_Action_At','Next_Action_Date','Due_At'));
