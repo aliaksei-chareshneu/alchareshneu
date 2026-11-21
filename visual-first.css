@@ -120,6 +120,12 @@ html[data-imperion-frontdoor="ready"] #imperion-frontdoor .fd-hero {
   #imperion-frontdoor .fd-visual-walkers {grid-column:1/-1;min-height:220px;}
 }
 @media(max-width:640px){
+  /* Anchor the disclosure to the full nav width, not the last wrapped word. */
+  #imperion-frontdoor .fd-nav{position:relative}
+  #imperion-frontdoor .fd-nav .fd-more{position:static}
+  #imperion-frontdoor .fd-nav .fd-more-links{
+    left:0;right:0;top:calc(100% + 6px);width:100%;min-width:0;max-width:100%;
+  }
   #imperion-frontdoor .fd-header {position:relative;}
   #imperion-frontdoor .fd-hero-inner {padding:26px 0 29px;}
   #imperion-frontdoor .fd-hero h1 {font-size:clamp(33px,9.2vw,51px);margin:9px 0 8px;}
