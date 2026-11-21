@@ -53,7 +53,8 @@ for(const lang of languages){
   await expect(page.locator('#druzina .dm-v2-primary')).toHaveAttribute('href','../register/?lang='+lang);
   await expect(page.locator('#druzina .dm-v2-secondary')).toHaveAttribute('href','../register/?lang='+lang);
   await expect(page.locator('.dm-v2-announcements')).not.toHaveAttribute('open','');
-  await expect(page.locator('.dm-v2-status')).toBeVisible();
+  await expect(page.locator('#dm-visitor-hub [data-hub-lang="'+lang+'"]')).toBeVisible();
+  await expect(page.locator('#dm-single-registration')).toHaveCount(0);
   const measured=await page.locator('#druzina .dm-v2-primary').evaluate(el=>{
    const x=getComputedStyle(el),r=el.getBoundingClientRect();
    return {bg:x.backgroundColor,fg:x.color,width:r.width,height:r.height};
