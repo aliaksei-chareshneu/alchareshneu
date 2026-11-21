@@ -60,7 +60,8 @@ if(require.main===module)(async()=>{let count=0;for(const path of ['index.html',
    assert.ok(booking.startsWith('../register/?lang='),path+' '+lang+' primary navigation must reach the safeguarded enquiry form');
    assert.equal(new URL(d.querySelector('.dm-hero-register')?.href||'',d.location.href).pathname,'/alchareshneu/register/','hero CTA must lead to first-visit enquiry');
    assert.equal(d.querySelector('.dm-v2-announcements')?.open,false,'long club updates must be collapsed by default');
-   assert.ok(d.querySelector('.dm-v2-status')?.textContent.includes('7'),'cancelled session stays visible');
+   assert.ok(d.querySelector('#dm-visitor-hub [data-hub-lang="'+lang+'"]'),'persistent four-language club hub visible');
+   assert.equal(d.querySelector('#dm-single-registration'),null,'retired second signup prompt removed');
    assert.ok(d.querySelector('.dm-trust-line')?.textContent.length>20,'club participation and trust statement visible');
    const retired=[...d.querySelectorAll('a[href]')].filter(a=>/docs[.]google[.]com[/]forms[/]d[/]e|revolut[.]me[/]/i.test(a.href));
    assert.equal(retired.length,0,'paused HEMA page must not link to retired payment/booking forms');
