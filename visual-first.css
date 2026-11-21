@@ -23,15 +23,21 @@ html[data-imperion-frontdoor="ready"] #imperion-frontdoor .fd-hero {
 #imperion-frontdoor .fd-value-then,
 #imperion-frontdoor .fd-hero-topics,
 #imperion-frontdoor .fd-hero-bottom { display:none; }
+/* Preserve the two legacy tested shortcuts, but keep them below the three
+   real destination cards as quiet text links rather than competing CTAs. */
 #imperion-frontdoor .fd-hero-actions {
-  display:flex; justify-content:center; flex-wrap:wrap; gap:10px;
-  width:min(690px,100%); max-width:690px; margin:0;
+  order:3;display:flex;justify-content:center;flex-wrap:wrap;gap:7px 20px;
+  width:min(700px,100%);max-width:700px;margin:16px auto 0;
 }
 #imperion-frontdoor .fd-hero-cta,
 #imperion-frontdoor .fd-hero-academy {
-  flex:1 1 230px; min-width:0; min-height:54px; padding:10px 17px;
-  border-radius:12px; box-shadow:0 8px 19px #0008; gap:8px;
+  flex:0 1 auto;min-width:0;min-height:43px;padding:8px 12px;
+  border:1px solid #8daca4;background:#14313b;color:#f6dfb2;
+  border-radius:9px;box-shadow:none;gap:7px;
 }
+#imperion-frontdoor .fd-hero-cta:hover,
+#imperion-frontdoor .fd-hero-academy:hover {background:#244a4b;color:#fff6de}
+#imperion-frontdoor .fd-nav :is(#fdNavHome,#fdNavAbout){display:none}
 #imperion-frontdoor #fdHeroCta > span[aria-hidden],
 #imperion-frontdoor .fd-academy-symbol { display:none; }
 #imperion-frontdoor .fd-hero-cta-copy strong,
@@ -47,7 +53,7 @@ html[data-imperion-frontdoor="ready"] #imperion-frontdoor .fd-hero {
    existing site asset; the tiles are links to the actual separate projects. */
 #imperion-frontdoor .fd-visual-grid {
   display:grid; grid-template-columns:1.06fr 1fr 1fr;
-  gap:clamp(11px,1.5vw,18px); width:min(1190px,100%); margin:24px auto 0;
+  gap:clamp(11px,1.5vw,18px); width:min(1190px,100%); margin:14px auto 0; order:2;
   text-align:left;
 }
 #imperion-frontdoor .fd-visual-tile {
@@ -118,14 +124,22 @@ html[data-imperion-frontdoor="ready"] #imperion-frontdoor .fd-hero {
   #imperion-frontdoor .fd-hero-cta-copy small,#imperion-frontdoor .fd-academy-copy small{font-size:10px;}
   #imperion-frontdoor .fd-visual-grid {grid-template-columns:1fr;gap:11px;margin-top:17px;}
   #imperion-frontdoor .fd-visual-tile {
-    min-height:186px;padding:15px;border-radius:15px;gap:8px;
+    flex-direction:row;align-items:flex-start;
+    min-height:136px;padding:12px;border-radius:14px;gap:9px;
   }
   #imperion-frontdoor .fd-visual-icon {
-    width:60px;height:60px;background-size:48px;border-radius:14px;
+    width:45px;height:45px;background-size:35px;border-radius:11px;
   }
-  #imperion-frontdoor .fd-visual-content strong {font-size:24px;}
-  #imperion-frontdoor .fd-visual-content small {font-size:13px;}
-  #imperion-frontdoor .fd-visual-content em {font-size:12px;padding:7px 12px;margin-top:3px;}
+  #imperion-frontdoor .fd-visual-content {
+    flex:1;align-self:flex-end;align-items:flex-start;min-width:0;gap:3px;
+  }
+  #imperion-frontdoor .fd-visual-content strong {font-size:21px;}
+  #imperion-frontdoor .fd-visual-content small {font-size:12px;}
+  #imperion-frontdoor .fd-visual-content em {font-size:11px;padding:6px 9px;margin-top:2px;}
+  #imperion-frontdoor .fd-hero-actions{order:3;margin-top:10px;gap:7px}
+  #imperion-frontdoor .fd-hero-cta,#imperion-frontdoor .fd-hero-academy {
+    min-height:39px;padding:7px 10px;flex:0 1 auto;
+  }
 }
 
 /* Non-JS fallback homepage (?view=details) — preserve CTA links and detailed information. */
