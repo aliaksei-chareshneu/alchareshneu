@@ -13,6 +13,13 @@ const POLICY = Object.freeze({
   COO_HEALTH: ['A6_COO', ['COMMUNITY_HUB', 'SUPABASE'], ['OSVC', 'DRUZINA_MORAVY_ZS']],
   GRANT_SOURCE: ['A7_GRANTS', ['OFFICIAL_SOURCE'], ['DRUZINA_MORAVY_ZS', 'RESEARCH_INSTITUTION']]
 });
+// Freeze nested allowlists: a consumer cannot silently widen role/source/entity
+// permissions by mutating the exported POLICY object during a preview.
+for (const rule of Object.values(POLICY)) {
+  Object.freeze(rule[1]);
+  Object.freeze(rule[2]);
+  Object.freeze(rule);
+}
 const ACTIONS = new Set(['READ_ONLY_REVIEW','SYNTHETIC_TEST']);
 const CLASSES = new Set(['PUBLIC','SYNTHETIC','PRIVATE_AGGREGATE']);
 const SOURCE_ID = /^[a-zA-Z0-9_-]{3,100}$/;
@@ -32,9 +39,13 @@ function preview({now,signals,mandate,existing_jobs=[]}={}) {
   if(!Array.isArray(existing_jobs)||existing_jobs.length>1000)throw Error('INVALID_EXISTING_JOBS');
   // Existing-job snapshots are metadata only, never a substitute for provider readback.
   const existing=new Map();
+  const ambiguousExisting=new Set();
   for(const j of existing_jobs) {
     if(!j||typeof j!=='object'||typeof j.idempotency_key!=='string'||!j.idempotency_key) continue;
-    if(!existing.has(j.idempotency_key))existing.set(j.idempotency_key,j);
+    // Multiple persisted commands with the same key violate idempotency;
+    // NEVER silently trust the first and discard contradictory provider rows.
+    if(existing.has(j.idempotency_key))ambiguousExisting.add(j.idempotency_key);
+    else existing.set(j.idempotency_key,j);
   }
   const seen=new Map();
   const results=[];
@@ -64,6 +75,17 @@ function preview({now,signals,mandate,existing_jobs=[]}={}) {
     else if(!Array.isArray(mandate.allowed_types)||!mandate.allowed_types.includes(e.event_type)||
       !Array.isArray(mandate.allowed_subjects)||!mandate.allowed_subjects.includes(e.legal_subject)){
       reason='MANDATE_SCOPE_MISMATCH';
+    }
+    else if(ambiguousExisting.has(key)){
+      reason='DUPLICATE_EXISTING_COMMAND';role=rule[0];
+    }
+    else if(existing.has(key)&&existing.get(key).legal_subject!==undefined&&
+      existing.get(key).legal_subject!==e.legal_subject){
+      reason='EXISTING_LEGAL_SUBJECT_CONFLICT';role=rule[0];
+    }
+    else if(existing.has(key)&&existing.get(key).case_id!==undefined&&
+      existing.get(key).case_id!==e.case_id){
+      reason='EXISTING_CASE_ID_CONFLICT';role=rule[0];
     }
     else if(existing.has(key)){
       verdict='EXISTS_READBACK';reason='EXISTING_COMMAND_REQUIRES_READBACK';role=rule[0];
