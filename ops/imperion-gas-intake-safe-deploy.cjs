@@ -5,7 +5,14 @@
 // Default dry-run; explicit --apply required for a cloud write.
 const fs=require('node:fs'),os=require('node:os'),path=require('node:path'),
 crypto=require('node:crypto'),cp=require('node:child_process'),vm=require('node:vm');
-const SCRIPT_ID='1a_AHisFPBBLsi7I_T5rXBL0NmikoA4Iux7UaqLVAiX8aYLtPY-G3CRhl';
+// Owner browser readback 2026-11-20: automation contains ImperionIntakeSync
+// and the private Agent4 modules. The separate bound sheet project contains
+// imperion-intake-sync and Academy, but no Agent4 hook. Never target that copy.
+// This runner does NOT install a trigger or consolidate those two importers.
+const SCRIPT_ID='1oJF_LuybEYHo_YnxSapEdRyd54LS_CpPlrV8FH-py-3vu06Qa61yD4t5';
+function assertOwnerProject(config){
+ if(!config||config.scriptId!==SCRIPT_ID)throw Error('WRONG_OWNER_PROJECT_ABORT');
+}
 const TARGET='ImperionIntakeSync.js';
 const OLD='    var cfg=impPrivateConfig_(),ss=SpreadsheetApp.openById(cfg.sheetId);';
 const NEW='    var cfg=impStartupReadWithRetry_(function(){return impPrivateConfig_();}),\n'+
@@ -89,8 +96,7 @@ function main(){
  const owner=path.join(process.env.USERPROFILE||os.homedir(),
    'ChatGPT-Workspace','80-Digital-Platform-Automation','.clasp.json');
  if(!fs.existsSync(owner))throw Error('OWNER_CLASP_CONFIG_MISSING');
- if(JSON.parse(fs.readFileSync(owner,'utf8')).scriptId!==SCRIPT_ID)
-  throw Error('WRONG_OWNER_PROJECT_ABORT');
+ assertOwnerProject(JSON.parse(fs.readFileSync(owner,'utf8')));
  const stage=path.join(process.env.LOCALAPPDATA||os.tmpdir(),
    'ImperionAgents','clasp-private-staging');
  fs.mkdirSync(stage,{recursive:true});
@@ -123,4 +129,4 @@ function main(){
 if(require.main===module){
  try{main()}catch(e){process.stderr.write('BLOCKED '+String(e.message||e)+'\n');process.exitCode=1;}
 }
-module.exports={patchStartup,assertEqual};
+module.exports={patchStartup,assertEqual,assertOwnerProject};

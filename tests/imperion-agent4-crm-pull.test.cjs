@@ -7,7 +7,7 @@ function fixture({data=[],ackFails=false,kill=false,readbackFails=false}={}){
  let sent=[], appended=[], existing=new Map(),runs=0;
  const host={
   Date,Math,JSON,Number,String,Object,Array,Error,isFinite,
-  PropertiesService:{getScriptProperties:()=>({getProperty:k=>k==='IMP_AGENT4_CRM_KILL_SWITCH'&&kill?'true':null})},
+  PropertiesService:{getScriptProperties:()=>({getProperty:k=>k==='IMP_AGENT4_CRM_ENABLED'?'true':k==='IMP_AGENT4_CRM_KILL_SWITCH'&&kill?'true':null})},
   UrlFetchApp:{fetch:(url,opt)=>{sent.push({url,opt});
    const p=JSON.parse(opt.payload);let result;
    if(p.action==='pull')result={ok:true,protocol:'imperion-agent4-transport-v1',rows:data};

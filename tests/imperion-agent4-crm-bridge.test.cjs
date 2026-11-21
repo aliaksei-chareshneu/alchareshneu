@@ -94,6 +94,19 @@ test('source-key mismatch across legal controllers does not cross-link OSVC lead
  const y=parse(f.context.impAgent4CrmVerify(key,'DRUZINA_MORAVY_ZS'));
  assert.equal(y.found,false);assert.equal(y.case_id,null);assert.equal(x.controller,'OSVC');
 });
+
+test('persisted case ID must match both source key and controller before verification',()=>{
+ for(const badId of ['DM-001','LEAD-AG4-'+'b'.repeat(24)]){
+  const f=fixture();f.enable();f.context.impAgent4CrmImport(payload());
+  f.tabs.Leads.rows[1][leadHeaders.indexOf('Lead_ID')]=badId;
+  assert.throws(()=>f.context.impAgent4CrmVerify(key,'OSVC'),/EXISTING_CRM_ID_UNEXPECTED/);
+  assert.throws(()=>f.context.impAgent4CrmImport(payload()),/EXISTING_CRM_ID_UNEXPECTED/);
+  assert.equal(f.posted(),1);
+ }
+ const f=fixture();f.enable();f.context.impAgent4CrmImport(payload({legal_entity:'DRUZINA_MORAVY_ZS'}));
+ f.tabs.Druzina_Enrollment_Pipeline.rows[1][dmHeaders.indexOf('Lead_ID')]='LEAD-AG4-'+'a'.repeat(24);
+ assert.throws(()=>f.context.impAgent4CrmVerify(key,'DRUZINA_MORAVY_ZS'),/EXISTING_CRM_ID_UNEXPECTED/);
+});
 test('duplicate source key in remote sheet raises review rather than choosing arbitrary case',()=>{
  const f=fixture();f.enable();f.context.impAgent4CrmImport(payload());
  f.tabs.Leads.rows.push([...f.tabs.Leads.rows[1]]);
@@ -115,4 +128,70 @@ test('clasp proof tokens cannot report payment or external send',()=>{
  const missing=f.context.impAgent4CrmVerifyToken(key,'OSVC');assert.equal(missing,'IMPAG4_VERIFY_MISSING_'+key+'_NONE');
  const imp=f.context.impAgent4CrmImportToken(payload());assert.match(imp,/^IMPAG4_IMPORT_CREATED_REMOTE_READBACK_VERIFIED_IMP4-TG-[a-f0-9]{24}_LEAD-AG4-/);
  const tok=f.context.impAgent4CrmVerifyToken(key,'OSVC');assert.match(tok,/^IMPAG4_VERIFY_FOUND_IMP4-TG-[a-f0-9]{24}_LEAD-AG4-/);
+});
+
+// Integration: real pull + validation + mapping + dedup + readback functions.
+// Only provider transport and Sheets storage are in-memory adapters.
+function integrated({ackOutage=false}={}){
+ const f=fixture();let outage=ackOutage;const requests=[];
+ f.context.console={log:()=>{}};
+ f.context.UrlFetchApp={fetch:(_url,opt)=>{
+  const body=JSON.parse(opt.payload);requests.push(body);
+  if(body.action==='ack'&&outage)throw Error('synthetic connection lost after CRM commit');
+  const result=body.action==='pull'?{ok:true,protocol:'imperion-agent4-transport-v1',rows:[payload()]}:
+   {ok:true,status:'REMOTE_CRM_ACK_VERIFIED',source_key:body.source_key,case_id:body.case_id};
+  return {getResponseCode:()=>200,getContentText:()=>JSON.stringify(result)};
+ }};
+ vm.runInContext(fs.readFileSync(path.join(__dirname,'../ImperionAgent4CrmPull.gs'),'utf8'),f.context);
+ return {...f,requests,recover:()=>{outage=false},run:()=>f.context.impAgent4CrmPull_(
+  {key:'f'.repeat(64)},{getSheetByName:n=>f.tabs[n]})};
+}
+test('integrated scheduled import requires explicit enable; false and missing flags never touch providers',()=>{
+ for(const flag of [undefined,'false','TRUE',true]){
+  const f=integrated();f.props.IMP_AGENT4_CRM_ENABLED=flag;
+  assert.equal(f.run().status,'DISABLED');assert.equal(f.requests.length,0);assert.equal(f.posted(),0);
+ }
+});
+test('integrated CRM persistence survives ACK outage and repeated delivery without duplicate rows',()=>{
+ const f=integrated({ackOutage:true});f.enable();
+ const first=f.run();assert.equal(first.imported,1);assert.equal(first.acked,0);assert.equal(first.held,1);
+ assert.equal(f.posted(),1);f.recover();
+ for(let i=0;i<2;i++){
+  const next=f.run();assert.equal(next.imported,0);assert.equal(next.acked,1);assert.equal(next.held,0);
+ }
+ assert.equal(f.posted(),1);assert.equal(f.tabs.Druzina_Enrollment_Pipeline.rows.length,1);
+ const row=f.tabs.Leads.rows[1];
+ assert.equal(row[leadHeaders.indexOf('Action_Status')],'HOLD_IDENTITY_HISTORY_CONSENT_REVIEW');
+ assert.equal(row[leadHeaders.indexOf('Paid_CZK')],'');
+ assert.ok(f.requests.filter(r=>r.action==='ack').every(r=>r.case_id==='LEAD-AG4-'+'a'.repeat(24)));
+});
+test('integrated corrupted controller ID is held without ACK or second insert',()=>{
+ const f=integrated();f.enable();f.run();
+ f.tabs.Leads.rows[1][leadHeaders.indexOf('Lead_ID')]='DM-001';
+ f.requests.length=0;
+ const r=f.run();assert.equal(r.held,1);assert.equal(r.acked,0);assert.equal(f.posted(),1);
+ assert.deepEqual(f.requests.map(r=>r.action),['pull']);
+});
+
+function integratedTick(f){
+ vm.runInContext(fs.readFileSync(path.join(__dirname,'../imperion-intake-sync.gs'),'utf8'),f.context);
+ const website=[];const c=f.context;c.console.warn=()=>{};
+ c.impPrivateConfig_=()=>({sheetId:'canonical_hub_id',key:'f'.repeat(64)});
+ c.impEnsureReceiptCols_=()=>{};c.impReceiptCatalog_=()=>({});
+ c.impPrivateFetch_=()=>{website.push('pull');return {protocol:'imperion-intake-bridge-v1',rsvps:[],enquiries:[],b2b:[],academy:[]}};
+ // These outbound adapters are deliberately never connected in a synthetic test.
+ for(const name of ['impFlushOwnerDigest_','impSendProofReviewAlerts_','impSendReceiptQueue_',
+  'impSendAttendedFollowups_','impSendApprovedChatInvites_'])c[name]=()=>({sent:0,failed:0});
+ return {run:()=>c.imperionSyncPrivateIntake(),website};
+}
+test('existing intake tick runs actual Agent4 bridge once, preserves Academy path and releases lock',()=>{
+ const f=integrated();f.enable();const t=integratedTick(f);const r=t.run();
+ assert.equal(r.agent4.acked,1);assert.equal(r.newAcademy,0);assert.equal(f.posted(),1);
+ assert.deepEqual(t.website,['pull']);assert.equal(f.release(),1);
+});
+test('Agent4 transport outage does not stop website intake and existing lock is released',()=>{
+ const f=integrated();f.enable();const t=integratedTick(f);
+ f.context.UrlFetchApp.fetch=()=>{throw Error('synthetic transport down')};
+ const r=t.run();assert.equal(r.agent4.status,'HELD');assert.equal(f.posted(),0);
+ assert.deepEqual(t.website,['pull']);assert.equal(f.release(),1);
 });
