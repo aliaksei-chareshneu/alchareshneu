@@ -20,7 +20,8 @@ function impAgent4CrmPull_(cfg,ss){
     typeof impAg4Append_!=='function'||typeof impAg4Check_!=='function')
    throw Error('AGENT4_EXISTING_BRIDGE_NOT_READY');
  var props=PropertiesService.getScriptProperties();
- if(props.getProperty('IMP_AGENT4_CRM_KILL_SWITCH')==='true'||
+ if(props.getProperty('IMP_AGENT4_CRM_ENABLED')!=='true'||
+    props.getProperty('IMP_AGENT4_CRM_KILL_SWITCH')==='true'||
     props.getProperty('IMP_AGENT4_PULL_DISABLED')==='true')
    return {status:'DISABLED',imported:0,acked:0,held:0};
  var batch=impAgent4Transport_(cfg.key,{action:'pull'});

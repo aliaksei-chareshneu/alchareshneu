@@ -1110,6 +1110,14 @@ function imperionSyncPrivateIntake(){
   try{
     var cfg=impStartupReadWithRetry_(function(){return impPrivateConfig_();}),
         ss=impStartupReadWithRetry_(function(){return SpreadsheetApp.openById(cfg.sheetId);});
+    // Reuse this lock and timer. Optional private modules are never installed here.
+    // Agent4 transport failure must not prevent website/Academy intake.
+    var agent4={status:'NOT_INSTALLED',imported:0,acked:0,held:0};
+    if(typeof impAgent4CrmPull_==='function'){
+      try{agent4=impAgent4CrmPull_(cfg,ss);}
+      catch(_){agent4={status:'HELD',imported:0,acked:0,held:1};
+        console.warn('Agent4 metadata pull held; existing website intake continues');}
+    }
     ['Registrations','Druzina_Requests','Leads'].forEach(function(n){impEnsureReceiptCols_(ss.getSheetByName(n));});
     var addedR=0,addedE=0,addedB=0,addedA=0,processed=0;
     // One safe public price lookup; never infer paid status from a blank/unknown fee.
@@ -1141,7 +1149,7 @@ function imperionSyncPrivateIntake(){
     var chatInvites=impSendApprovedChatInvites_(ss,cfg);
     console.log('Private intake receipts: dispatched='+receipts.sent+', errors='+receipts.failed);
     console.log('Private intake: new RSVP='+addedR+', enquiries='+addedE+', corporate OSVC='+addedB+', Academy OSVC='+addedA+', acked='+processed);
-    return {newRsvps:addedR,newEnquiries:addedE,newB2B:addedB,newAcademy:addedA,acked:processed,proofAlerts:proofAlerts,receipts:receipts,followups:followups,chatInvites:chatInvites};
+    return {agent4:agent4,newRsvps:addedR,newEnquiries:addedE,newB2B:addedB,newAcademy:addedA,acked:processed,proofAlerts:proofAlerts,receipts:receipts,followups:followups,chatInvites:chatInvites};
   }finally{lock.releaseLock();}
 }
 
