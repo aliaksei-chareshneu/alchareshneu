@@ -162,3 +162,16 @@ test('invalid client-care page arguments fail closed and preserve default API',(
     assert.equal(r.external_actions,0);
   }
 });
+
+test('agent team paginates same private snapshot and remains read-only',async()=>{
+  const x=base();x.data.Leads=Array.from({length:52},(_,i)=>row('LEAD-TEAM-'+i));
+  const r=await agent.runAll(x,{clientCarePage:2});
+  assert.equal(r.client_care.queue_total,52);
+  assert.equal(r.client_care.queue_page,2);
+  assert.equal(r.client_care.queue.length,2);
+  assert.equal(r.client_care.next_page,null);
+  assert.equal(r.mode,'READ_ONLY_PREVIEW');
+  assert.equal(r.external_messages_sent,0);
+  assert.equal(r.new_crm_records,0);
+  assert.equal(r.payments_created,0);
+});
