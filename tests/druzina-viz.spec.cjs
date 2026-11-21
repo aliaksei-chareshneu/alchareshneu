@@ -11,7 +11,7 @@ test("Druzina rank chart renders, toggles categories and localises",async({page}
  await expect(toggle).toBeVisible();
  await toggle.click();
  await expect(toggle).toHaveAttribute("aria-pressed","true");
- await expect(chart.locator(".recharts-xAxis .recharts-cartesian-axis-tick-value").last()).toContainText("A");
+ await expect(chart).toHaveAttribute("aria-label",/A · Achievements: 10/);
  await page.locator('.langs button[data-lang="ru"]').click();
  await expect(page.getByRole("heading",{name:"Карта системы званий"})).toBeVisible();
  await expect(page.getByRole("button",{name:"Включая достижения A"})).toHaveAttribute("aria-pressed","true");
