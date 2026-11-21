@@ -75,12 +75,15 @@ test('public HEMA entrypoint exposes current form and programme without expired 
  await expect(page.locator('#dm-visitor-hub [data-hub-lang="cs"] a[href="../register/?lang=cs"]')).toBeVisible();
  await expect(page.locator('#dm-visitor-hub [data-hub-lang="cs"] a[href="cesty/?lang=cs"]')).toBeVisible();
  await expect(page.locator('#dm-visitor-hub [data-hub-lang="cs"]')).toContainText('240 Kč');
- const links=page.locator('.dm-book-actions a[data-book-lang]');
- await expect(links).toHaveCount(4);
- for(const link of await links.all())expect(await link.getAttribute('href')).toMatch(/\.\.\/register\/\?lang=(cs|en|ru|uk)$/);
- // The public information note is now split into four language variants.
- await expect(page.locator('.reg-note[data-reg-lang="en"]')).toContainText('No online payment.');
- await expect(page.locator('.reg-note[data-reg-lang="cs"]')).toContainText('Na webu se neplatí.');
- await expect(page.locator('.reg-note[data-reg-lang="ru"]')).toContainText('Онлайн-оплаты нет.');
- await expect(page.locator('.reg-note[data-reg-lang="uk"]')).toContainText('Онлайн-оплати немає.');
+ for(const lang of ['cs','en','ru','uk']){
+  const hub=page.locator('#dm-visitor-hub [data-hub-lang="'+lang+'"]');
+  await expect(hub.locator('a[href="../register/?lang='+lang+'"]')).toHaveCount(1);
+  await expect(hub.locator('a[href="cesty/?lang='+lang+'"]')).toHaveCount(1);
+  await expect(hub.locator('a[href="rules/?lang='+lang+'"]')).toHaveCount(1);
+  await expect(hub.locator('a[href="permanentky/?lang='+lang+'"]')).toHaveCount(2);
+ }
+ await expect(page.locator('#dm-visitor-hub [data-hub-lang="en"]')).toContainText('No online payment.');
+ await expect(page.locator('#dm-visitor-hub [data-hub-lang="cs"]')).toContainText('Před potvrzením neplaťte ani necestujte.');
+ await expect(page.locator('#dm-visitor-hub [data-hub-lang="ru"]')).toContainText('Не платите и не приезжайте без подтверждения.');
+ await expect(page.locator('#dm-visitor-hub [data-hub-lang="uk"]')).toContainText('Не сплачуйте та не приїжджайте без підтвердження.');
 });
