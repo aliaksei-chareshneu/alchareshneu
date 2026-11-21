@@ -24,7 +24,7 @@ async function prepare(page,events=fixtures){
  return ()=>mutations;
 }
 for(const width of [320,390,1440]){
- test('two hero paths, photo shadows, compact nav and no overflow '+width,async({page})=>{
+ test('three visible routes, optional older CTAs, compact nav and no overflow '+width,async({page})=>{
   await page.setViewportSize({width,height:860});
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
   const mutations=await prepare(page);
@@ -46,8 +46,9 @@ for(const width of [320,390,1440]){
   await expect(page.locator('.fd-photo-shadows')).toHaveCSS('background-image',/imperion-hero-cinematic-20261112\.webp/);
   expect(await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth)).toBeLessThanOrEqual(1);
   if(width<=390){
-   await expect(page.locator('#fdHeroCta')).toBeInViewport();
-   await expect(page.locator('#fdAcademyCta')).toBeInViewport();
+   // The three primary destination cards now appear before the older shortcuts.
+   await expect(page.locator('#fdVisualGrid .fd-visual-tile').first()).toBeInViewport();
+   await expect(page.locator('#fdNav .fd-more')).toBeVisible();
   }
   await page.locator('.fd-hero').screenshot({path:'test-results/frontdoor-v4-'+width+'-hero.png'});
   await page.locator('#fdHeroCta').click();

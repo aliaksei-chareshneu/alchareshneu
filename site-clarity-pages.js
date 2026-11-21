@@ -72,13 +72,28 @@ eventsUrlPromise.then(function(events){
  render();
 });
 if(club){
+ // Keep only the three key choices in the existing permanent hub.
+ // Safety stays visible on demand; no legal or booking content is discarded.
+ const hub=document.getElementById('dm-visitor-hub');
+ const safetyLabels={cs:'Bezpečnost a první návštěva',en:'Safety and first visit',
+   ru:'Безопасность и первый визит',uk:'Безпека та перший візит'};
+ if(hub)hub.querySelectorAll('[data-hub-lang]').forEach(function(panel){
+   const grid=panel.querySelector('.dm-hub-grid');
+   const cards=grid?grid.querySelectorAll(':scope > article.dm-hub-card'):[];
+   if(cards.length!==4)return;
+   const more=document.createElement('details');more.className='imp-hub-safety-more';
+   const summary=document.createElement('summary');
+   summary.textContent=safetyLabels[panel.getAttribute('data-hub-lang')]||safetyLabels.en;
+   more.append(summary,cards[3]);grid.insertAdjacentElement('afterend',more);
+ });
  const original=hero.querySelector('#dm-nov14-fast-rsvp');
  if(original)original.hidden=true;
  const info=document.createElement('section');info.id='imp-club-essentials';info.className='imp-essentials';
- info.innerHTML='<p class="imp-kicker"></p><h2></h2><div class="imp-facts"></div><div class="imp-quick-links"></div>';
+ info.innerHTML='<p class="imp-kicker"></p><details class="imp-first-visit"><summary></summary><div class="imp-facts"></div><div class="imp-quick-links"></div></details>';
  hero.insertAdjacentElement('afterend',info);
  function renderInfo(){
-  const d=t();info.querySelector('.imp-kicker').textContent=d.clubAbout;info.querySelector('h2').textContent=d.visiting;
+  const d=t();info.querySelector('.imp-kicker').textContent=d.clubTitle;
+  info.querySelector('.imp-first-visit > summary').textContent=d.clubAbout;
   info.querySelector('.imp-facts').replaceChildren();
   [[d.first,d.visitBody],[d.when,d.whenBody],[d.where,d.whereBody]].forEach(function(v){
     let card=document.createElement('div'),h=document.createElement('h3'),p=document.createElement('p');h.textContent=v[0];p.textContent=v[1];card.append(h,p);info.querySelector('.imp-facts').append(card);
@@ -98,6 +113,25 @@ if(club){
  function onLang(){render();renderInfo();extras.querySelector('summary').textContent=t().archive}
  new MutationObserver(onLang).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});onLang();
 }else{
+ // Retain the up-to-date event card, but collapse unconfirmed December
+ // proposals to a one-line optional section in the same position.
+ const proposals=document.getElementById('bw-december-proposals');
+ const proposalCopy={cs:'Prosincové výlety · návrhy, nikoliv potvrzené termíny',
+  en:'December hikes · proposals, not confirmed dates',
+  ru:'Декабрьские прогулки · предложения, даты не подтверждены',
+  uk:'Грудневі прогулянки · пропозиції, дати не підтверджено'};
+ let proposalDetails=null;
+ if(proposals&&proposals.tagName==='SECTION'){
+   proposalDetails=document.createElement('details');
+   proposalDetails.id='bw-december-proposals';
+   proposalDetails.className='imp-walkers-proposals';
+   const summary=document.createElement('summary');
+   proposalDetails.append(summary);
+   proposals.removeAttribute('id');
+   proposals.replaceWith(proposalDetails);
+   proposalDetails.append(proposals);
+   summary.textContent=proposalCopy[lang()]||proposalCopy.cs;
+ }
  const essentials=document.createElement('section');essentials.id='imp-walkers-essentials';essentials.className='imp-essentials';
  essentials.innerHTML='<p class="imp-kicker"></p><h2></h2><p></p><div class="imp-quick-links"></div>';
  hero.insertAdjacentElement('afterend',essentials);
@@ -110,7 +144,9 @@ if(club){
     if(item&&!item.contains(hero)&&!item.contains(essentials)&&!item.contains(archives))archive.append(item);
  });
  function onLang(){
-  const d=t();render();essentials.querySelector('.imp-kicker').textContent=d.walkAbout;essentials.querySelector('h2').textContent=d.walkTitle;
+  const d=t();render();
+  if(proposalDetails)proposalDetails.querySelector('summary').textContent=proposalCopy[lang()]||proposalCopy.cs;
+  essentials.querySelector('.imp-kicker').textContent=d.walkAbout;essentials.querySelector('h2').textContent=d.walkTitle;
   essentials.querySelector('p:not(.imp-kicker)').textContent=d.walkNote;
   archives.querySelector('summary').textContent=d.archive;
   const links=essentials.querySelector('.imp-quick-links');links.replaceChildren();

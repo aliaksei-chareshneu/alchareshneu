@@ -16,7 +16,7 @@ const sections=[
  {path:'/academy/programmes/?lang=ru',section:'academy'},
  {path:'/druzina/cesty/?lang=ru',section:'club'},
  {path:'/druzina/novinky/?lang=ru',section:'club'},
- {path:'/corporate/?lang=ru',section:null},
+ {path:'/corporate/?lang=ru',section:'corporate'},
  {path:'/start/?lang=ru',section:null},
  {path:'/register/ru/?lang=ru',section:null},
  {path:'/shop/?lang=cs',section:null}
@@ -30,13 +30,15 @@ for(const target of sections){
   const h=page.locator('#imp-shell-top');
   await expect(h).toBeVisible();
   await expect(page.locator('body')).toHaveAttribute('data-imp-nav-ready','yes');
-  await expect(h.locator('nav.imp-shell-links a')).toHaveCount(7);
+  await expect(h.locator('nav.imp-shell-links a')).toHaveCount(8);
+  await expect(h.locator('nav.imp-shell-links > a')).toHaveCount(3);
+  await expect(h.locator('nav.imp-shell-links > details.imp-shell-more')).toHaveCount(1);
   await expect(h.locator('nav.imp-shell-links a[aria-current="page"]')).toHaveCount(target.section?1:0);
   if(target.section)await expect(h.locator('nav.imp-shell-links a[aria-current="page"]')).toHaveAttribute('data-imp-link',target.section);
   await expect(page.locator('[data-imp-retired-nav="1"]:visible')).toHaveCount(0);
   for(const item of await h.locator('nav.imp-shell-links a').all()){
    const dest=await item.getAttribute('href');
-   expect(new URL(dest,page.url()).pathname).toMatch(/^(?:\/|\/(?:about|academy|druzina|walkers|partners)\/)$/);
+   expect(new URL(dest,page.url()).pathname).toMatch(/^(?:\/|\/(?:about|academy|druzina|walkers|partners|corporate)\/)$/);
   }
   if(target.hero)await expect(page.locator('main .hero .hero-ctas > a:visible')).toHaveCount(2);
   const wide=await h.evaluate(el=>el.getBoundingClientRect().width);
@@ -56,6 +58,7 @@ test('Main -> Academy -> Druzina -> BrnoWalkers -> About retains language and on
  await expect(page.locator('.tabs-bar:visible')).toHaveCount(0);
  await page.locator('#imp-shell-links [data-imp-link="walkers"]').click();
  await expect(page).toHaveURL(/\/walkers\/\?lang=ru/);
+ await page.locator('#imp-shell-links .imp-shell-more > summary').click();
  await page.locator('#imp-shell-links [data-imp-link="about"]').click();
  await expect(page).toHaveURL(/\/about\/\?lang=ru/);
  await expect(page.locator('main h1')).toContainText('За проектами');
@@ -66,6 +69,7 @@ test('About from frontdoor opens current page, never the hidden legacy home',asy
  await mockPublicEvents(page);
  await page.goto('/?lang=en');
  await expect(page.locator('#fdNavAbout')).toHaveAttribute('href','about/?lang=en');
+ await page.locator('#fdNav .fd-more > summary').click();
  await page.locator('#fdNavAbout').click();
  await expect(page).toHaveURL(/\/about\/\?lang=en$/);
  await expect(page.locator('main h1')).toContainText('One person');
@@ -141,7 +145,7 @@ for(const code of ['cs','en','ru','uk']){
   await page.goto('/brno-stories/?lang='+code);
   await expect(page.locator('#imp-shell-top')).toBeVisible();
   await expect(page.locator('#imp-shell-top [data-imp-lang="uk"]')).toHaveCount(1);
-  await expect(page.locator('#imp-shell-top nav.imp-shell-links a')).toHaveCount(7);
+  await expect(page.locator('#imp-shell-top nav.imp-shell-links a')).toHaveCount(8);
   await expect(page.locator('html')).toHaveAttribute('lang',code);
   await expect(page.locator('main [data-story="firstTitle"]')).not.toBeEmpty();
   if(code==='uk')await expect(page.locator('main h1')).toContainText('У Брно більше історій');

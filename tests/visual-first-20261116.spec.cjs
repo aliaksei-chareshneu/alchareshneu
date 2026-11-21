@@ -30,7 +30,7 @@ for(const lang of ['cs','en','ru','uk']){
    await expect(item).toBeVisible();
    const bounds=await item.boundingBox();
    expect(bounds.width).toBeGreaterThan(275);
-   expect(bounds.height).toBeGreaterThan(170);
+   expect(bounds.height).toBeGreaterThanOrEqual(120); // Compact cards fit three directions on mobile
    const image=item.locator('img');
    expect(await image.evaluate(el=>el.complete&&el.naturalWidth>0)).toBeTruthy();
    const bg=await item.locator('.fd-visual-icon').evaluate(el=>getComputedStyle(el).backgroundImage);
@@ -56,7 +56,7 @@ for(const width of [320,768,1440]){
   const sizes=await page.locator('.fd-visual-tile').evaluateAll(els=>els.map(el=>({
    w:el.getBoundingClientRect().width,h:el.getBoundingClientRect().height
   })));
-  expect(sizes.every(x=>x.w>=width*.26&&x.h>=170)).toBeTruthy();
+  expect(sizes.every(x=>x.w>=width*.26&&x.h>=120)).toBeTruthy();
  });
 }
 test('no-JS detail fallback remains photo-led with verified existing CTA paths',async({page})=>{

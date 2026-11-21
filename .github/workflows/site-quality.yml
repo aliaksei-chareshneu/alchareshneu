@@ -225,6 +225,8 @@ jobs:
         run: npx playwright test tests/frontdoor-v4-nav-calendar.spec.cjs --workers=2
       - name: Verify visual-first landing cards, SVG icons, localized routes and no scroll overflow
         run: npx playwright test tests/visual-first-20261116.spec.cjs --workers=2
+      - name: Verify 3 visitor paths, accessible More, and collapsed dated content (4 locales)
+        run: npx playwright test tests/site-three-paths-20261121.spec.cjs --workers=2
       - name: Check cinematic Czech-default homepage, event rail and payment disclosure
         run: npx playwright test tests/frontdoor-v5-cinematic-czech.spec.cjs --workers=2
       - name: Check sitewide cinematic rollout, accessible gold CTA and desktop vs mobile dialogs
