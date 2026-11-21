@@ -68,16 +68,13 @@ for(const [lang,uri] of [['cs','/register/'],['en','/register/en/'],['ru','/regi
   await expect(page.locator('#paymentQrArea')).toBeHidden();
  });
 }
-test('public HEMA CTA presents currently open 23/28 November dates without automatic payment',async({page})=>{
- await page.clock.install({time:new Date('2026-11-15T09:00:00Z')});
- await page.goto('/druzina/',{waitUntil:'domcontentloaded'});
- // The legacy hero promotion is deliberately suppressed by the current design; keep its current links safe.
- await expect(page.locator('#dm-nov14-fast-rsvp')).toBeHidden();
- const upcoming=page.locator('#dm-nov14-fast-rsvp [data-fast-lang="cs"] a');
- await expect(upcoming).toHaveCount(2);
- await expect(upcoming.nth(0)).toHaveAttribute('href',/PUB-HEMA-20261123/);
- await expect(upcoming.nth(1)).toHaveAttribute('href',/PUB-HEMA-20261128/);
- await expect(page.locator('#dm-meeting-20261109')).toBeHidden();
+test('public HEMA entrypoint exposes current form and programme without expired promotions',async({page})=>{
+ await page.goto('/druzina/?lang=cs',{waitUntil:'domcontentloaded'});
+ await expect(page.locator('#dm-nov14-fast-rsvp')).toHaveCount(0);
+ await expect(page.locator('#dm-meeting-20261109')).toHaveCount(0);
+ await expect(page.locator('#dm-visitor-hub [data-hub-lang="cs"] a[href="../register/?lang=cs"]')).toBeVisible();
+ await expect(page.locator('#dm-visitor-hub [data-hub-lang="cs"] a[href="cesty/?lang=cs"]')).toBeVisible();
+ await expect(page.locator('#dm-visitor-hub [data-hub-lang="cs"]')).toContainText('240 Kč');
  const links=page.locator('.dm-book-actions a[data-book-lang]');
  await expect(links).toHaveCount(4);
  for(const link of await links.all())expect(await link.getAttribute('href')).toMatch(/\.\.\/register\/\?lang=(cs|en|ru|uk)$/);
