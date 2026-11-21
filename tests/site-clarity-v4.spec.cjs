@@ -126,3 +126,42 @@ test('no unintended x-scroll on Academy prices, 390px mobile',async({page})=>{
  const width=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,inner:innerWidth}));
  expect(width.scroll).toBeLessThanOrEqual(width.inner+1);
 });
+
+const musicLessons={
+ cs:['Hudební kompozice','Zpěv a hlasová průprava','Dirigování sboru','Kytara','Klavír'],
+ en:['Music composition','Vocals and voice coaching','Choir conducting','Guitar','Piano'],
+ ru:['Музыкальная композиция','Вокал и постановка голоса','Дирижирование хором','Гитара','Фортепиано'],
+ uk:['Музична композиція','Вокал і постановка голосу','Диригування хором','Гітара','Фортепіано']
+};
+for(const [lang,subjects] of Object.entries(musicLessons)){
+ test('Academy music: five visible offers and safe searchable enquiries in '+lang,async({page})=>{
+  await page.goto('/academy/?lang='+lang);
+  const section=page.locator('#academy-music .academy-music-locale[lang="'+lang+'"]');
+  await expect(section).toBeVisible();
+  await expect(section.locator('.academy-music-list li')).toHaveCount(5);
+  for(const name of subjects)await expect(section).toContainText(name);
+  const landing=section.locator('a.btn.solid');
+  await expect(landing).toHaveCount(1);
+  await expect(landing).toHaveAttribute('href',lang==='ru'?/^https:\/\/t\.me\/Chareshneu\?text=/:/^https:\/\/wa\.me\/420702914842\?text=/);
+  await expect(landing).toHaveAttribute('rel','noopener noreferrer');
+  const search=page.locator('#academy-service-search');
+  for(const name of subjects){
+   await search.fill(name);
+   const option=page.locator('#academy-service-options [role="option"]').filter({hasText:name}).first();
+   await expect(option).toBeVisible();
+   await option.click();
+   await expect(page.locator('#academy-selected-service h3')).toContainText(name);
+   const links=page.locator('#academy-selected-service .academy-service-option a');
+   await expect(links).toHaveCount(3);
+   for(const link of await links.all()){
+    const url=await link.getAttribute('href');
+    expect(url).toMatch(lang==='ru'?/^https:\/\/t\.me\/Chareshneu\?text=/:/^https:\/\/wa\.me\/420702914842\?text=/);
+    expect(decodeURIComponent(url)).toContain(name);
+   }
+  }
+  await page.locator('#academy-prices-brief .academy-prices-open').click();
+  for(const name of subjects.slice(0,3)){
+   await expect(page.locator('#academy-full-prices')).toContainText(name);
+  }
+ });
+}
