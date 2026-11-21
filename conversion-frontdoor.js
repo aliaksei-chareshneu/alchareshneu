@@ -266,6 +266,17 @@
   ].join('');
   document.body.insertAdjacentHTML('afterbegin',html);
   var parent=el('imperion-frontdoor');
+  // The main navigation has only the three customer journeys. Existing
+  // event/about links and the separate OSVC corporate route remain in "More".
+  var rootNav=el('fdNav');
+  var more=document.createElement('details');more.className='fd-more';
+  var moreSummary=document.createElement('summary');moreSummary.id='fdMoreSummary';
+  var moreLinks=document.createElement('div');moreLinks.className='fd-more-links';
+  more.append(moreSummary,moreLinks);
+  ['fdNavHome','fdNavEvents','fdNavAbout'].forEach(function(id){moreLinks.append(el(id));});
+  var corporate=document.createElement('a');corporate.id='fdNavCorporate';
+  corporate.href='corporate/';moreLinks.append(corporate);
+  rootNav.append(more);
   function label(id,key){el(id).textContent=tr(key);}
   function hrefForEvent(e) {
     return 'register/?lang='+encodeURIComponent(lang)+'&event='+encodeURIComponent(e.event_id)+'&src=frontdoor_calendar';
@@ -457,6 +468,9 @@
     });
     [['fdNavAcademy','academy/'],['fdNavClub','druzina/'],['fdNavWalkers','walkers/']].forEach(function(pair){el(pair[0]).href=pair[1]+'?lang='+encodeURIComponent(lang);});
     el('fdNavAbout').href='about/?lang='+encodeURIComponent(lang);
+    el('fdMoreSummary').textContent=({cs:'Další',en:'More',ru:'Ещё',uk:'Ще'})[lang];
+    el('fdNavCorporate').textContent=({cs:'Pro firmy',en:'For business',ru:'Для компаний',uk:'Для компаній'})[lang];
+    el('fdNavCorporate').href='corporate/?lang='+encodeURIComponent(lang);
     [['fdFacetTitle','facet'],['fdUpcomingTitle','upcoming'],['fdUpcomingIntro','upcomingIntro'],['fdAllTitle','allTitle'],['fdAllIntro','allIntro'],['fdReset','reset']].forEach(function(pair){el(pair[0]).textContent=ed(pair[1]);});
     parent.querySelectorAll('[data-fd-city]').forEach(function(btn){btn.textContent=ft('city'+btn.dataset.fdCity.charAt(0).toUpperCase()+btn.dataset.fdCity.slice(1));});
     parent.querySelectorAll('[data-fd-language]').forEach(function(btn){btn.setAttribute('aria-pressed',String(btn.dataset.fdLanguage===lang));});
