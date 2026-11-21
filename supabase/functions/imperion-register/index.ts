@@ -8,6 +8,9 @@ import { verifiedBankIban, createTrainingSpd } from './training-qr.mjs';
 import { inspectPaymentPdf } from './payment-pdf-review.mjs';
 
 const ALLOWED_ORIGIN = 'https://aliaksei-chareshneu.github.io';
+// Each new RSVP must explicitly accept BOTH the safety and the property-care terms.
+// The stored safety_version identifies their immutable combined wording; no extra public data is collected.
+const PROPERTY_RULES_VERSION = '2026-11-15-property-v1';
 const SERVICE_URL = Deno.env.get('SUPABASE_URL') || '';
 const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
 const controller = new TextEncoder();
@@ -311,7 +314,9 @@ Deno.serve(async (req:Request):Promise<Response>=>{
       const rawContact=text(body.contact,254);
       const kind: 'email'|'phone'=rawContact.includes('@')?'email':'phone';
       const contact=kind==='email'?safeEmail(rawContact):safePhone(rawContact);
-      if (body.adultConfirmed!==true || body.safety!==true) throw new Error('consent');
+      if (body.adultConfirmed!==true || body.safety!==true ||
+          body.propertyCare!==true || body.propertyRulesVersion!==PROPERTY_RULES_VERSION)
+        throw new Error('consent');
       let date:string|null=null;
       if (day==='DATE') {
         date=text(body.preferredDate,10);
@@ -338,7 +343,7 @@ Deno.serve(async (req:Request):Promise<Response>=>{
       first_name:entry.first,last_name:entry.last,contact:entry.contact,
       contact_kind:entry.kind,visit_type:entry.type,preferred_day:entry.day,
       preferred_date:entry.date,adult_confirmed:true,safety_acknowledged:true,
-      safety_version:'2026-10-25-v2',language:entry.lang,
+      safety_version:PROPERTY_RULES_VERSION,language:entry.lang,
       data_controller:'Družina Moravy, z. s.',
       source:'site-druzina-first-visit',status:'RECEIVED_UNCONFIRMED',
     }).select('id').single();
@@ -374,7 +379,9 @@ Deno.serve(async (req:Request):Promise<Response>=>{
     v.eventId=text(body.eventId,100);
     if (!/^[A-Za-z0-9-]{2,100}$/.test(v.eventId)) throw new Error('event');
     if (age==='under18' && (v.guardianName||'').length<3) throw new Error('guardian');
-    if (body.safety!==true) throw new Error('safety');
+    if (body.safety!==true || body.propertyCare!==true ||
+        body.propertyRulesVersion!==PROPERTY_RULES_VERSION)
+      throw new Error('safety_or_property');
     if (age==='under18') v.photo='NO';
   } catch {return reply({error:'please_check_required_fields'},400,origin);}
   if (!registrationStillOpen(v.eventId)) return reply({error:'event_not_available'},400,origin);
@@ -517,7 +524,7 @@ Deno.serve(async (req:Request):Promise<Response>=>{
     const created=await api.from('imperion_rsvp_submissions').insert({
       event_id:v.eventId,first_name:v.first,last_name:v.last,email:v.email,phone:v.phone,
       age_group:v.age,guardian_name:v.guardianName,guardian_phone:v.guardianPhone,
-      rsvp_status:v.rsvp,safety_acknowledged:true,safety_version:'2026-10-25-v1',
+      rsvp_status:v.rsvp,safety_acknowledged:true,safety_version:PROPERTY_RULES_VERSION,
       photo_choice:v.photo,marketing_requested:v.future,data_controller:event.data_controller,
       language:v.locale,retention_until:expiry.toISOString(),
       discovery_source:v.discovery,utm_source:v.utmSource,

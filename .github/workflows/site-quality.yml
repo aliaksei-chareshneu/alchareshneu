@@ -103,6 +103,8 @@ jobs:
       - name: Check public RSVP frontend, consent and server contract
         run: |
           node tests/imperion-rsvp-source.test.cjs
+          node tests/druzina-property-care.test.cjs
+          node tests/druzina-enquiry-backend.test.cjs
           node --test tests/imperion-registration-window.test.cjs
 
       - name: Verify individual Druzina prices, private quote, 48h surcharge and PDF receipts
