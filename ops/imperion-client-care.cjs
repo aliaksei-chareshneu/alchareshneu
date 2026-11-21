@@ -84,7 +84,10 @@ function identifiers(r) {
     telegram&&'telegram:'+fingerprint(telegram)
   ].filter(Boolean);
 }
-function review(snapshot) {
+function review(snapshot, options={}) {
+  const page=options?.page===undefined ? 1 : options.page;
+  if(!Number.isSafeInteger(page)||page<1||page>100)
+    return {state:'INVALID_REVIEW_PAGE',source:SOURCE,external_actions:0};
   const data=snapshot?.data;
   const checked=explicitTime(snapshot?.captured_at);
   if(snapshot?.schema_version!==1||snapshot?.source_system!=='EXISTING_IMPERION_HUB'||
@@ -153,8 +156,14 @@ function review(snapshot) {
     });
   }
   tasks.sort((a,b)=>a.due_at.localeCompare(b.due_at)||a.lead_id.localeCompare(b.lead_id));
+  // Bound private output, but never silently discard due owner-review cases.
+  // The same verified snapshot can be paged without another CRM read or send.
+  const page_size=50,page_count=Math.ceil(tasks.length/page_size);
+  const start=(page-1)*page_size;
   return {state:'OWNER_REVIEW_ONLY',source:SOURCE,checked_at:checked,controller:'OSVC',
-    counts,queue_total:tasks.length,queue:tasks.slice(0,50),
+    counts,queue_total:tasks.length,queue:tasks.slice(start,start+page_size),
+    queue_page:page,queue_page_size:page_size,queue_page_count:page_count,
+    next_page:page<page_count?page+1:null,
     queued_for_sending:0,external_actions:0,new_crm_records:0,payments_verified:0,
     bank_provider_readback:'NOT_PERFORMED',
     ngo_contacts_used:0,ngo_commercial_cross_sell:false,
