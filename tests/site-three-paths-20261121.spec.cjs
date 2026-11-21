@@ -67,3 +67,17 @@ for(const width of [320,390,768]){
    expect(bounds.right).toBeLessThanOrEqual(width+1);
  });
 }
+
+for(const width of [320,390,768]){
+ test('secondary navigation remains in bounds on subpages '+width,async({page})=>{
+  await offlineCatalog(page);
+  await page.setViewportSize({width,height:900});
+  await page.goto('/academy/?lang=ru');
+  await page.locator('#imp-shell-links .imp-shell-more > summary').click();
+  const corporate=page.locator('#imp-shell-links [data-imp-link="corporate"]');
+  await expect(corporate).toBeVisible();
+  const rect=await corporate.evaluate(el=>{const x=el.getBoundingClientRect();return {left:x.left,right:x.right}});
+  expect(rect.left).toBeGreaterThanOrEqual(-1);
+  expect(rect.right).toBeLessThanOrEqual(width+1);
+ });
+}
