@@ -69,6 +69,7 @@ test('About from frontdoor opens current page, never the hidden legacy home',asy
  await mockPublicEvents(page);
  await page.goto('/?lang=en');
  await expect(page.locator('#fdNavAbout')).toHaveAttribute('href','about/?lang=en');
+ await page.locator('#fdNav .fd-more > summary').click();
  await page.locator('#fdNavAbout').click();
  await expect(page).toHaveURL(/\/about\/\?lang=en$/);
  await expect(page.locator('main h1')).toContainText('One person');
