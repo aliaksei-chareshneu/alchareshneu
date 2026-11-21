@@ -375,3 +375,13 @@ body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-more-list a:is(:hover,:
     min-height:33px;font-size:12px;
   }
 }
+
+/* Keep secondary subpage routes inside narrow screen boundaries, even when
+   primary links wrap onto multiple rows (CZ/EN/RU/UA). */
+@media(max-width:920px){
+ body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-links{position:relative}
+ body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-more{position:static}
+ body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-more-list{
+   top:calc(100% + 6px);left:0;right:0;width:100%;min-width:0;max-width:100%;
+ }
+}
