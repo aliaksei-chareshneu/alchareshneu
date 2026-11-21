@@ -94,6 +94,19 @@ test('source-key mismatch across legal controllers does not cross-link OSVC lead
  const y=parse(f.context.impAgent4CrmVerify(key,'DRUZINA_MORAVY_ZS'));
  assert.equal(y.found,false);assert.equal(y.case_id,null);assert.equal(x.controller,'OSVC');
 });
+
+test('persisted case ID must match both source key and controller before verification',()=>{
+ for(const badId of ['DM-001','LEAD-AG4-'+'b'.repeat(24)]){
+  const f=fixture();f.enable();f.context.impAgent4CrmImport(payload());
+  f.tabs.Leads.rows[1][leadHeaders.indexOf('Lead_ID')]=badId;
+  assert.throws(()=>f.context.impAgent4CrmVerify(key,'OSVC'),/EXISTING_CRM_ID_UNEXPECTED/);
+  assert.throws(()=>f.context.impAgent4CrmImport(payload()),/EXISTING_CRM_ID_UNEXPECTED/);
+  assert.equal(f.posted(),1);
+ }
+ const f=fixture();f.enable();f.context.impAgent4CrmImport(payload({legal_entity:'DRUZINA_MORAVY_ZS'}));
+ f.tabs.Druzina_Enrollment_Pipeline.rows[1][dmHeaders.indexOf('Lead_ID')]='LEAD-AG4-'+'a'.repeat(24);
+ assert.throws(()=>f.context.impAgent4CrmVerify(key,'DRUZINA_MORAVY_ZS'),/EXISTING_CRM_ID_UNEXPECTED/);
+});
 test('duplicate source key in remote sheet raises review rather than choosing arbitrary case',()=>{
  const f=fixture();f.enable();f.context.impAgent4CrmImport(payload());
  f.tabs.Leads.rows.push([...f.tabs.Leads.rows[1]]);

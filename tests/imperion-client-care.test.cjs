@@ -61,6 +61,27 @@ test('repeating a Lead_ID creates at most one owner item',()=>{
   assert.equal(r.queue_total,1);
   assert.equal(r.counts.duplicate,1);
 });
+
+test('typed Sheets opt-outs and contradictory aliases always suppress owner sales queue',()=>{
+  for(const fields of [{Opt_Out:true},{Do_Not_Contact:1},
+    {Opt_Out:'',Do_Not_Contact:'YES'},{Opt_Out:false,Do_Not_Contact:true}]){
+    const x=base();x.data.Leads=[row('LEAD-OPT',{Email:'same@example.invalid',...fields}),
+      row('LEAD-ALIAS',{Email:'same@example.invalid'})];
+    const r=care.review(x);
+    assert.equal(r.queue_total,0);assert.equal(r.counts.stopped_or_alias,2);
+  }
+});
+
+test('explicit non-OSVC controller in Leads is held instead of relabelled',()=>{
+  for(const fields of [{Legal_Entity:'DRUZINA_MORAVY_ZS'},
+    {legal_entity:'JRDM'},{Data_Controller:'PERSONAL'},
+    {Legal_Entity:'OSVC',Data_Controller:'DRUZINA_MORAVY_ZS'}]){
+    const x=base();x.data.Leads=[row('LEAD-WRONG',fields)];
+    const r=care.review(x);
+    assert.equal(r.queue_total,0);assert.equal(r.counts.controller_conflict,1);
+    assert.equal(r.external_actions,0);
+  }
+});
 test('commercial HOLD is visible as owner check, never auto messaging approval',()=>{
   const x=base();x.data.Leads=[row('LEAD-I',{
     'Коммерческий допуск — REVIEW / HOLD / STOP':'HOLD — check lawful history'})];

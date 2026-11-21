@@ -71,7 +71,8 @@ function impAg4Check_(ss, sourceKey, controller) {
   if (matches.length > 1) throw Error('DUPLICATE_REMOTE_SOURCE_KEY');
   if (!matches.length) return {exists: false, sheet: sh, header: h, controller: controller};
   var obj = impAg4Row_(sh, h, matches[0]);
-  if (!/^(LEAD-AG4-[0-9a-f]{24}|DM-[0-9]{3,6})$/.test(obj.Lead_ID))
+  if (isOs ? obj.Lead_ID !== 'LEAD-AG4-' + sourceKey.slice('IMP4-TG-'.length) :
+      !/^DM-[0-9]{3,6}$/.test(obj.Lead_ID))
     throw Error('EXISTING_CRM_ID_UNEXPECTED');
   if (isOs && obj.Source !== IMP_AG4_CRM_SOURCE) throw Error('SOURCE_OWNER_CONFLICT');
   if (!isOs && obj.Channel !== IMP_AG4_CRM_SOURCE) throw Error('SOURCE_OWNER_CONFLICT');

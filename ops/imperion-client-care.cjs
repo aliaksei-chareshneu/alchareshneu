@@ -67,7 +67,8 @@ function flags(r) {
   const status=string(col(r,'Action_Status','action_status')).toUpperCase();
   const gate=string(col(r,'Коммерческий допуск — REVIEW / HOLD / STOP','Commercial_Gate')).toUpperCase();
   const stopped=STOP.test(stage)||STOP.test(status)||gate.startsWith('STOP')||
-    ['TRUE','YES','1'].includes(string(col(r,'Opt_Out','Do_Not_Contact')).toUpperCase());
+    ['Opt_Out','Do_Not_Contact'].some(k => r[k] === true || r[k] === 1 ||
+      ['TRUE','YES','1'].includes(string(r[k]).toUpperCase()));
   const quiet=NO_CHASE.test(status);
   const hold=gate.startsWith('HOLD')||/(?:^|[_\s-])HOLD(?:$|[_\s-])/.test(status);
   const qa=['Source','Action_Status','Stage','Lead_ID'].some(k=>QA.test(string(col(r,k,k.toLowerCase()))));
@@ -98,12 +99,19 @@ function review(snapshot) {
     for(const token of identifiers(r)) hardStop.add(token);
   const seen=new Set(),tasks=[];
   const counts={rows:records.length,qa_excluded:0,stopped_or_alias:0,
+    controller_conflict:0,
     no_chase:0,duplicate:0,missing_id:0,missing_or_unparseable_deadline:0,
     future_quiet:0,owner_review_due:0};
   const now=Date.parse(checked);
   for(const r of records){
     const f=flags(r);
     if(f.qa){counts.qa_excluded++;continue;}
+    // Leads is the legacy OSVC tab, but explicit row metadata must never be
+    // overwritten with OSVC merely because a misplaced row reached this tab.
+    if(['Legal_Entity','legal_entity','Data_Controller'].some(k =>
+      Object.hasOwn(r,k) && string(r[k]) && string(r[k])!=='OSVC')){
+      counts.controller_conflict++;continue;
+    }
     const id=idOf(r);
     if(!id){counts.missing_id++;continue;}
     const tokens=identifiers(r);
