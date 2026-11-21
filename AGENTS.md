@@ -194,6 +194,19 @@ For the owner's personal OSVČ, Academy and service-choice funnels:
 - Preserve previously agreed prices, obligations and nonprofit/community participation rights. Do not transfer Družina Moravy z.s. prospects to the owner's OSVČ billing without a separate lawful agreement.
 - Keep EN/CZ/RU/UK website copy and CTAs consistent. Measure actual paid work and personal net profit per all owner hours, not call volume.
 
+## 10B. OUTCOME-FIRST STORYTELLING — ALL PERSUASIVE COPY (OWNER DECISION 2026-11-19)
+
+All public ads, social posts, videos, websites, commercial offers and authorized sales drafts must lead with the customer's credible lived improvement, not a list of features, credentials, equipment or discounts.
+
+- Buyer first: identify the real segment, decision-maker and problem/job-to-be-done; unverified pains are hypotheses, never facts.
+- Show an authentic BEFORE scene and a concrete, plausible AFTER scene the buyer can imagine in their own day, team or business. Features, proof, price, scope and constraints explain *why* the offer can help.
+- B2C: make the daily benefit tangible. B2B: express the manager's/team's operational benefit, actual deliverables and who pays; do not invent ROI or guaranteed results.
+- Finish with one verified lawful CTA matching the legal seller, real price/terms, channel rules, rights and existing registration/payment flow.
+- Every generated promotional draft requires buyer-outcome QA before approval. If approved facts do not support a concrete outcome, request human factual input or label the benefit unverified; NEVER fabricate testimonials, relief from medical conditions, guaranteed exam outcomes, urgency or customer results.
+- For official legal, scientific, medical and procedural communications, preserve factual accuracy, evidence and statutory requirements over persuasive narrative. All GO, consent, privacy, NGO/OSVČ separation and BANK CASH distinctions remain unchanged.
+
+The canonical decision is IMP-OUTCOME-STORY-20261119 in 00 IMPERION. This repository rule is not proof that any specific agent runtime, post or website is deployed.
+
 ## 11. PUBLICATION AND COMMUNICATION
 
 Never publish into Facebook groups through bypasses or identities without permission.
