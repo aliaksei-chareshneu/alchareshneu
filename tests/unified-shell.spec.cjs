@@ -217,15 +217,15 @@ for(const [code,expected] of Object.entries(localeIntegrity)){
   await page.goto('/druzina/?lang='+code);
   await expect(page.locator('html')).toHaveAttribute('lang',code);
   await expect(page.locator('#imp-shell-links [data-imp-link="home"]')).toHaveText(expected.home);
-  // This legacy registration block is intentionally hidden by the current
-  // conversion-first design. Verify child locale gating via computed style,
-  // not Playwright :visible, which also counts hidden ancestors.
-  const regLanguages=await page.locator('#new-training-enquiry [data-reg-lang]').evaluateAll(nodes=>
-   nodes.filter(x=>getComputedStyle(x).display!=='none').map(x=>x.dataset.regLang));
-  expect(regLanguages).toEqual([code,code,code]);
-  const hubLanguages=await page.locator('#november-events-hub [data-november-lang]').evaluateAll(nodes=>
-   nodes.filter(x=>getComputedStyle(x).display!=='none').map(x=>x.dataset.novemberLang));
+  // The permanent club hub has one active locale and one canonical form.
+  const hubLanguages=await page.locator('#dm-visitor-hub [data-hub-lang]').evaluateAll(nodes=>
+   nodes.filter(x=>getComputedStyle(x).display!=='none').map(x=>x.dataset.hubLang));
   expect(hubLanguages).toEqual([code]);
+  const hub=page.locator('#dm-visitor-hub [data-hub-lang="'+code+'"]');
+  await expect(hub.locator('a[href="../register/?lang='+code+'"]')).toHaveCount(1);
+  await expect(hub.locator('a[href="cesty/?lang='+code+'"]')).toHaveCount(1);
+  await expect(hub.locator('a[href="permanentky/?lang='+code+'"]')).toHaveCount(2);
+  await expect(hub.locator('a[href="rules/?lang='+code+'"]')).toHaveCount(1);
   const safetyCtas=await page.locator('.dm-safety-language-cta [data-safety-link-lang]').evaluateAll(nodes=>
    nodes.filter(x=>getComputedStyle(x).display!=='none').map(x=>({lang:x.dataset.safetyLinkLang,href:x.getAttribute('href')})));
   expect(safetyCtas).toEqual([{lang:code,href:'safety/?lang='+code}]);

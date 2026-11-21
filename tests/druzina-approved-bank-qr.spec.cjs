@@ -68,22 +68,22 @@ for(const [lang,uri] of [['cs','/register/'],['en','/register/en/'],['ru','/regi
   await expect(page.locator('#paymentQrArea')).toBeHidden();
  });
 }
-test('public HEMA CTA presents currently open 23/28 November dates without automatic payment',async({page})=>{
- await page.clock.install({time:new Date('2026-11-15T09:00:00Z')});
- await page.goto('/druzina/',{waitUntil:'domcontentloaded'});
- // The legacy hero promotion is deliberately suppressed by the current design; keep its current links safe.
- await expect(page.locator('#dm-nov14-fast-rsvp')).toBeHidden();
- const upcoming=page.locator('#dm-nov14-fast-rsvp [data-fast-lang="cs"] a');
- await expect(upcoming).toHaveCount(2);
- await expect(upcoming.nth(0)).toHaveAttribute('href',/PUB-HEMA-20261123/);
- await expect(upcoming.nth(1)).toHaveAttribute('href',/PUB-HEMA-20261128/);
- await expect(page.locator('#dm-meeting-20261109')).toBeHidden();
- const links=page.locator('.dm-book-actions a[data-book-lang]');
- await expect(links).toHaveCount(4);
- for(const link of await links.all())expect(await link.getAttribute('href')).toMatch(/\.\.\/register\/\?lang=(cs|en|ru|uk)$/);
- // The public information note is now split into four language variants.
- await expect(page.locator('.reg-note[data-reg-lang="en"]')).toContainText('No online payment.');
- await expect(page.locator('.reg-note[data-reg-lang="cs"]')).toContainText('Na webu se neplatí.');
- await expect(page.locator('.reg-note[data-reg-lang="ru"]')).toContainText('Онлайн-оплаты нет.');
- await expect(page.locator('.reg-note[data-reg-lang="uk"]')).toContainText('Онлайн-оплати немає.');
+test('public HEMA entrypoint exposes current form and programme without expired promotions',async({page})=>{
+ await page.goto('/druzina/?lang=cs',{waitUntil:'domcontentloaded'});
+ await expect(page.locator('#dm-nov14-fast-rsvp')).toHaveCount(0);
+ await expect(page.locator('#dm-meeting-20261109')).toHaveCount(0);
+ await expect(page.locator('#dm-visitor-hub [data-hub-lang="cs"] a[href="../register/?lang=cs"]')).toBeVisible();
+ await expect(page.locator('#dm-visitor-hub [data-hub-lang="cs"] a[href="cesty/?lang=cs"]')).toBeVisible();
+ await expect(page.locator('#dm-visitor-hub [data-hub-lang="cs"]')).toContainText('240 Kč');
+ for(const lang of ['cs','en','ru','uk']){
+  const hub=page.locator('#dm-visitor-hub [data-hub-lang="'+lang+'"]');
+  await expect(hub.locator('a[href="../register/?lang='+lang+'"]')).toHaveCount(1);
+  await expect(hub.locator('a[href="cesty/?lang='+lang+'"]')).toHaveCount(1);
+  await expect(hub.locator('a[href="rules/?lang='+lang+'"]')).toHaveCount(1);
+  await expect(hub.locator('a[href="permanentky/?lang='+lang+'"]')).toHaveCount(2);
+ }
+ await expect(page.locator('#dm-visitor-hub [data-hub-lang="en"]')).toContainText('No online payment.');
+ await expect(page.locator('#dm-visitor-hub [data-hub-lang="cs"]')).toContainText('Před potvrzením neplaťte ani necestujte.');
+ await expect(page.locator('#dm-visitor-hub [data-hub-lang="ru"]')).toContainText('Не платите и не приезжайте без подтверждения.');
+ await expect(page.locator('#dm-visitor-hub [data-hub-lang="uk"]')).toContainText('Не сплачуйте та не приїжджайте без підтвердження.');
 });
