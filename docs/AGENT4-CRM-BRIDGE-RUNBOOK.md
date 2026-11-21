@@ -118,6 +118,10 @@ The deterministic reviewer:
 
 Run the existing owner-private snapshot through:
 `node ops/imperion-agent-team.cjs --input PRIVATE_HUB_SNAPSHOT.json`.
+For over 50 due owner reviews, inspect `client_care.next_page` and run
+`node ops/imperion-agent-team.cjs --input PRIVATE_HUB_SNAPSHOT.json --client-care-page 2`
+(with subsequent pages as indicated); `queue_total` is the entire backlog,
+not the first 50. This uses the SAME owner-private snapshot, never sends or writes.
 Inspect `client_care` in the local JSON response. Never commit the snapshot.
 The new offline test is
 `node --test tests/imperion-client-care.test.cjs`; CI runs it inside
