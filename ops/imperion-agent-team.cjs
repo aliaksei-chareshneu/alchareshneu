@@ -325,7 +325,7 @@ async function runAll(snapshot, options={}) {
   return {
     schema_version:1, snapshot_id:snapshot.snapshot_id, checked_at:snapshot.captured_at,
     mode:'READ_ONLY_PREVIEW', paid_api_calls:0, new_crm_records:0,
-    chief:chief(snapshot), sales:sales(snapshot), client_care:clientCare.review(snapshot),
+    chief:chief(snapshot), sales:sales(snapshot), client_care:clientCare.review(snapshot,{page:options.clientCarePage??1}),
     social:await social(snapshot),
     growth:growthPolicy.review(snapshot,pragueEventIso),
     // Existing Agent #4 is PRIVATE and external from this preview. No model is
@@ -341,10 +341,15 @@ async function runAll(snapshot, options={}) {
   };
 }
 async function main(argv=process.argv.slice(2)) {
-  if (argv.length!==2 || argv[0]!=='--input' || !argv[1].endsWith('.json')) throw Error('USAGE: node ops/imperion-agent-team.cjs --input PRIVATE_HUB_SNAPSHOT.json');
+  if (![2,4].includes(argv.length) || argv[0]!=='--input' || !argv[1].endsWith('.json') ||
+      (argv.length===4 && argv[2]!=='--client-care-page'))
+    throw Error('INVALID_AGENT_TEAM_ARGUMENTS');
+  const page=argv.length===4?Number(argv[3]):1;
+  if (argv.length===4 && (!/^[1-9][0-9]{0,2}$/.test(argv[3]) ||
+      !Number.isSafeInteger(page) || page>100)) throw Error('INVALID_REVIEW_PAGE');
   const file=path.resolve(argv[1]);
   const snapshot=JSON.parse(fs.readFileSync(file,'utf8'));
-  process.stdout.write(JSON.stringify(await runAll(snapshot),null,2)+'\n');
+  process.stdout.write(JSON.stringify(await runAll(snapshot,{clientCarePage:page}),null,2)+'\n');
 }
 if(require.main===module)main().catch(e=>{
   process.stderr.write((/^[A-Z0-9_: .-]+$/.test(e.message)?e.message:'AGENT_TEAM_FAILED')+'\n');
