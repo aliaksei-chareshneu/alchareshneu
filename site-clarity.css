@@ -84,3 +84,48 @@ body[data-imperion-design="walkers"] .imp-secondary-body #faq{margin:18px 0}
  body[data-imperion-design="druzina"] #druzina.hero>.hero-visuals .hero-scrim{background:linear-gradient(180deg,transparent 60%,#071d23c8 100%)}
 }
 @media(max-width:650px){#imp-home-reviews .imp-review-grid{grid-template-columns:1fr}#imp-home-reviews .imp-review-item img{height:auto;max-height:420px}.imp-quick-links a{width:100%}}
+
+/* 21 Nov editorial consolidation. Keep the three existing Družina decisions
+   above the fold; the fourth safety detail remains keyboard-accessible. */
+body[data-imperion-design="druzina"] #dm-visitor-hub .dm-hub-grid{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+}
+body[data-imperion-design="druzina"] #dm-visitor-hub .imp-hub-safety-more{
+  width:100%;margin:13px 0;border:1px solid #ae9b7b;border-radius:12px;
+  background:rgba(16,40,43,.1);overflow:hidden;
+}
+body[data-imperion-design="druzina"] #dm-visitor-hub .imp-hub-safety-more>summary{
+  cursor:pointer;list-style:none;padding:13px 16px;min-height:44px;
+  font:750 15px/1.4 system-ui,sans-serif;
+}
+body[data-imperion-design="druzina"] #dm-visitor-hub .imp-hub-safety-more>summary::-webkit-details-marker{display:none}
+body[data-imperion-design="druzina"] #dm-visitor-hub .imp-hub-safety-more>summary::after{content:" +";font-weight:800}
+body[data-imperion-design="druzina"] #dm-visitor-hub .imp-hub-safety-more[open]>summary::after{content:" −"}
+body[data-imperion-design="druzina"] #dm-visitor-hub .imp-hub-safety-more>.dm-hub-card{
+  margin:0;padding:15px;min-height:0;box-shadow:none;border:none;border-top:1px solid #ae9b7b;
+}
+body[data-imperion-design="druzina"] #imp-club-essentials{
+  padding:12px 20px;margin-block:12px;background:#112c30;
+}
+body[data-imperion-design="druzina"] #imp-club-essentials .imp-kicker{margin-bottom:5px}
+body[data-imperion-design="druzina"] #imp-club-essentials .imp-first-visit>summary{
+  cursor:pointer;min-height:44px;display:flex;align-items:center;
+  color:#ffe2a8;font:740 16px/1.4 system-ui,sans-serif;
+}
+body[data-imperion-design="walkers"] #bw-december-proposals.imp-walkers-proposals{
+  max-width:1130px;width:calc(100% - 30px);margin:14px auto;
+  background:#163b37;border:1px solid #75b9a1;border-radius:13px;
+  overflow:hidden;color:#eefaf4;
+}
+body[data-imperion-design="walkers"] #bw-december-proposals.imp-walkers-proposals>summary{
+  cursor:pointer;min-height:50px;padding:14px 19px;
+  color:#d6fbe9;font:750 16px/1.4 system-ui,sans-serif;
+}
+body[data-imperion-design="walkers"] #bw-december-proposals.imp-walkers-proposals>section{
+  margin:0!important;max-width:100%!important;border:0!important;border-top:1px solid #75b9a1!important;
+  border-radius:0!important;
+}
+@media(max-width:760px){
+ body[data-imperion-design="druzina"] #dm-visitor-hub .dm-hub-grid{grid-template-columns:1fr!important}
+ body[data-imperion-design="druzina"] #imp-club-essentials{padding:11px 14px}
+}
