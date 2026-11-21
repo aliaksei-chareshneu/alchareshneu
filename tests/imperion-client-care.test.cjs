@@ -132,3 +132,33 @@ test('existing five-function preview includes only an owner-review client care p
   assert.equal(r.external_messages_sent,0);
   assert.equal(r.new_crm_records,0);
 });
+
+// A large existing Leads backlog must not disappear behind the first 50 owner cases.
+test('pagination must expose every due case with no sending, duplicates or PII',()=>{
+  const x=base();x.data.Leads=Array.from({length:117},(_,i)=>
+    row('LEAD-PAGED-'+String(i).padStart(3,'0'),{
+      Email:'internal'+i+'@example.invalid',
+      Notes:'PRIVATE_SHOULD_NEVER_BE_EXPORTED',
+    }));
+  const p1=care.review(x),p2=care.review(x,{page:2}),p3=care.review(x,{page:3});
+  assert.equal(p1.queue_total,117);
+  assert.deepEqual([p1.queue.length,p2.queue.length,p3.queue.length],[50,50,17]);
+  assert.deepEqual([p1.next_page,p2.next_page,p3.next_page],[2,3,null]);
+  assert.deepEqual([p1.queue_page_count,p2.queue_page_count,p3.queue_page_count],[3,3,3]);
+  assert.equal(new Set([...p1.queue,...p2.queue,...p3.queue].map(a=>a.lead_id)).size,117);
+  for(const page of [p1,p2,p3]){
+    assert.equal(page.external_actions,0);
+    assert.equal(page.payments_verified,0);
+    assert.equal(page.queued_for_sending,0);
+    assert.doesNotMatch(JSON.stringify(page),/PRIVATE_SHOULD_NEVER_BE_EXPORTED|example\.invalid/);
+  }
+});
+test('invalid client-care page arguments fail closed and preserve default API',()=>{
+  const x=base();x.data.Leads=[row('LEAD-ONE')];
+  assert.equal(care.review(x).queue_page,1);
+  for(const page of [0,-1,'2',1.5,101,NaN]){
+    const r=care.review(x,{page});
+    assert.equal(r.state,'INVALID_REVIEW_PAGE');
+    assert.equal(r.external_actions,0);
+  }
+});
