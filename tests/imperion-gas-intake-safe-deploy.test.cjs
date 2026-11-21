@@ -1,6 +1,11 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict');
-const {patchStartup,assertEqual}=require('../ops/imperion-gas-intake-safe-deploy.cjs');
+const {patchStartup,assertEqual,assertOwnerProject}=require('../ops/imperion-gas-intake-safe-deploy.cjs');
+test('runner accepts only the observed private automation project, not the bound Academy importer',()=>{
+ assert.doesNotThrow(()=>assertOwnerProject({scriptId:'1oJF_LuybEYHo_YnxSapEdRyd54LS_CpPlrV8FH-py-3vu06Qa61yD4t5'}));
+ for(const config of [null,{}, {scriptId:'1a_AHisFPBBLsi7I_T5rXBL0NmikoA4Iux7UaqLVAiX8aYLtPY-G3CRhl'}, {scriptId:'unknown'}])
+  assert.throws(()=>assertOwnerProject(config),/WRONG_OWNER_PROJECT_ABORT/);
+});
 const source=[
  'function impPrivateConfig_(){return {};}',
  'function imperionSyncPrivateIntake(){',
