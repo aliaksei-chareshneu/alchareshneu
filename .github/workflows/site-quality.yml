@@ -13,6 +13,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Build and test isolated Druzina visual upgrades
+        run: |
+          npm --prefix site-viz install --no-audit --no-fund
+          npm --prefix site-viz run build
+          npm --prefix site-viz test
+
       - name: Verify PDF-only owner review and four-language upload flow
         run: |
           node --check register/training-payment.js
