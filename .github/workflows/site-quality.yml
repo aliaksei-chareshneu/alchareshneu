@@ -13,6 +13,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Build and test isolated Druzina visual upgrades
+        run: |
+          npm --prefix site-viz install --no-audit --no-fund
+          npm --prefix site-viz run build
+          npm --prefix site-viz test
+
       - name: Verify PDF-only owner review and four-language upload flow
         run: |
           node --check register/training-payment.js
@@ -203,6 +209,12 @@ jobs:
         run: timeout 240s npx playwright install chromium
       - run: npm run test:security
       - run: npm run test:dom
+      - name: Build isolated visual assets for Chromium QA
+        run: |
+          npm --prefix site-viz install --no-audit --no-fund
+          npm --prefix site-viz run build
+      - name: Run Druzina Motion Anime and Recharts browser regression
+        run: npx playwright test tests/druzina-viz.spec.cjs --workers=2
       - name: Verify site clarity v4 recurring calendar, reviews, Academy picker and partners
         run: npx playwright test tests/site-clarity-v4.spec.cjs --workers=2
       - name: Verify native Academy order, 55 reviews, About and 30-day calendar

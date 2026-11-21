@@ -50,6 +50,12 @@ jobs:
       - name: Build fresh public feed from verified existing catalogue
         run: node scripts/imperion-autopilot.cjs
 
+      - name: Build local Druzina Motion Anime and Recharts bundles
+        run: |
+          npm --prefix site-viz install --no-audit --no-fund
+          npm --prefix site-viz run build
+          npm --prefix site-viz test
+
       - name: Copy only public website assets
         shell: bash
         run: |
@@ -134,6 +140,9 @@ jobs:
           grep -q 'MByZEt1c_Jw' _pages/brno-stories/tanec-draku-2026/index.html
           grep -q 'paro.damenavas.cz/project/2755/' _pages/dame-na-vas-2755/index.html
           grep -q 'dame-na-vas-2755/' _pages/sitemap.xml
+          test -s _pages/druzina/viz.css
+          test -s _pages/druzina/viz/effects.js
+          test -s _pages/druzina/viz/ranks.js
           du -sh _pages
 
       - name: Upload exact expected public-only snapshot for post-deploy proof
