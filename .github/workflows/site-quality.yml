@@ -228,6 +228,8 @@ jobs:
         run: npx playwright test tests/visual-first-20261116.spec.cjs --workers=2
       - name: Verify 3 visitor paths, accessible More, and collapsed dated content (4 locales)
         run: npx playwright test tests/site-three-paths-20261121.spec.cjs --workers=2
+      - name: Editorial WCAG contrast, readable text and 4-viewport visual QA
+        run: DESIGN_CAPTURE=1 npx playwright test tests/editorial-visual-gate-20261122.spec.cjs --workers=1
       - name: Verify new four-language homepage usability, keyboard skip and menu
         run: npx playwright test tests/home-ux-standards-20261122.spec.cjs --workers=2
       - name: Check cinematic Czech-default homepage, event rail and payment disclosure
