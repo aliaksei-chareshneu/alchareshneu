@@ -25,7 +25,9 @@ test('verified Raiffeisen account is consistent across personal commercial check
  assert.ok(dialog.includes(RAIF)&&dialog.includes(RAIF_IBAN));
  assert.ok(server.includes("Deno.env.get('OSVC_APPROVED_IBAN') || '"+RAIF_IBAN+"'"));
  assert.ok(server.includes("Deno.env.get('OSVC_APPROVED_PAYEE') || 'Aliaksei Chareshneu'"));
- assert.ok(server.includes("Deno.env.get('DRUZINA_APPROVED_IBAN') || 'CZ4220100000002703598853'"));
+ assert.ok(!server.includes('DRUZINA_APPROVED_IBAN'),'NGO account must never enter client-facing quote code');
+ assert.ok(server.includes("nonprofit_checkout_disabled"),'legacy association checkout blocked');
+ assert.ok(server.includes("sessionPaymentOpen:false"),'nonprofit catalogue cannot solicit a transfer');
  assert.ok(server.includes('verifiedBankIban(verifiedQuote.account,verifiedQuote.recipient'));
  assert.ok(server.includes("if(!approved)return reply({error:'personal_confirmation_pending'"));
  assert.ok(academy.includes('quote_account'),'academy displays individually approved account, not a guessed default');
@@ -72,7 +74,7 @@ test('Academy never publishes an approved quotation for the wrong bank or legal 
    quote_account:'7804336003/5500'};
  assert.equal(approvedQuote(quote),true);
  assert.equal(approvedQuote({...quote,quote_account:RAIF_IBAN}),true);
- assert.equal(approvedQuote({...quote,quote_account:'2703598853/2010'}),false);
+ assert.equal(approvedQuote({...quote,quote_account:'19-2000145399/0800'}),false);
  assert.equal(approvedQuote({...quote,quote_recipient:'Družina Moravy, z. s.'}),false);
  assert.equal(approvedQuote({...quote,payment_quote_status:'NOT_QUOTED'}),false);
  assert.equal(approvedQuote({...quote,payment_evidence_status:'BANK_VERIFIED'}),true);
