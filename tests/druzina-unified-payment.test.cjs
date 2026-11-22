@@ -69,7 +69,7 @@ test('the resume code enforces server-side tier approval and no duplicate intake
   ".eq('payment_evidence_status','NOT_REQUIRED').is('payment_pdf_path',null)",
   "payment_resume_token_hash:null","payment_crm_synced_at:null",
   "paymentEvidenceStatus:'PROOF_RECEIVED',bankVerified:false",
-  "verifiedQuote=isOsVc?osvcQuote(event,registrationMs,true):trainingQuote(event,savedTier,registrationMs,true)",
+  "verifiedQuote=isOsVc?osvcQuote(event,registrationMs,true,savedTier):trainingQuote(event,savedTier,registrationMs,true)",
   ".select('id,created_at,training_requested_tier",
   "Date.now()>=Date.parse(event.begins_at)"]){
   assert.ok(edge.includes(needle),needle);
@@ -114,7 +114,7 @@ test('private receipt cleanup is controlled, not public file listing',()=>{
 });
 
 test('Starter4 cannot be charged through a one-event RSVP without a package ledger',()=>{
- assert.ok(edge.includes("if(!isOsVc&&savedTier==='STARTER4')return reply({error:'package_checkout_requires_plan_authorization'}"));
+ assert.ok(edge.includes("if(savedTier==='STARTER4')return reply({error:'package_checkout_requires_plan_authorization'}"));
 });
 test('QR Platba instruction is unique, amount-locked, and cannot substitute bank readback',async()=>{
  const path=require('node:path'),{pathToFileURL}=require('node:url');
@@ -153,7 +153,7 @@ test('QR Platba instruction is unique, amount-locked, and cannot substitute bank
 
 test('already-transferred PDF is private, manually reviewed, and excluded from bank automation',()=>{
  for(const part of ["if(action==='manual_proof'){",
-   "if(isOsVc||!training||!proof)return reply({error:'payment_not_open'}",
+   "if((isOsVc&&!isOsVcHema)||(!training&&!isOsVcHema)||!proof ||",
    "payment_pdf_review_status:'NEEDS_MANUAL_REVIEW'",
    "payment_pdf_review_flags:['NO_APPROVED_PAYMENT_QUOTE','RECIPIENT_SELF_REPORTED_'+proofRecipient]",
    "payment_bank_check_after:null",
