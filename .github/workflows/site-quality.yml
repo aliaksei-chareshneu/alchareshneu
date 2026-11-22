@@ -228,8 +228,6 @@ jobs:
         run: npx playwright test tests/visual-first-20261116.spec.cjs --workers=2
       - name: Verify 3 visitor paths, accessible More, and collapsed dated content (4 locales)
         run: npx playwright test tests/site-three-paths-20261121.spec.cjs --workers=2
-      - name: Editorial WCAG contrast, readable text and 4-viewport visual QA
-        run: DESIGN_CAPTURE=1 npx playwright test tests/editorial-visual-gate-20261122.spec.cjs --workers=1
       - name: Verify new four-language homepage usability, keyboard skip and menu
         run: npx playwright test tests/home-ux-standards-20261122.spec.cjs --workers=2
       - name: Check cinematic Czech-default homepage, event rail and payment disclosure
@@ -285,6 +283,27 @@ jobs:
       - run: npx playwright install chromium
       - name: Read actual public HEMA date, meeting point and PDF selector (no submits)
         run: npx playwright test tests/druzina-live-registration.spec.cjs --workers=1
+
+  editorial-visual-qa:
+    name: Editorial contrast + photo QA (320/390/768/1440)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: timeout 240s npx playwright install chromium
+      - name: Check readable text, real photos and responsive page in Chromium
+        run: DESIGN_CAPTURE=1 npx playwright test tests/editorial-visual-gate-20261122.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: editorial-visual-screenshots
+          path: test-results/editorial-hero-*.jpg
+          retention-days: 7
 
   ted-deal-hunter-offline-qa:
     name: TED Deal Hunter — isolated public-only parser QA
