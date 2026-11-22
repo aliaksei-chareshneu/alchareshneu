@@ -15,9 +15,20 @@ test('deployed registration GET is healthy, no bank details or fake booking',asy
    assert.equal(Object.hasOwn(e,'training_payment_recipient'),false,'no public payee');
    assert.notEqual(e.bookingConfirmed,true,'no events automatically booked');
    if(e.community==='Družina Moravy'&&e.category==='HEMA Training'&&e.trainingPayment){
-     assert.equal(e.trainingPayment.requiresPersonalConfirmation,true);
      assert.equal(e.trainingPayment.proofRequired,false);
-     assert.deepEqual(e.trainingPayment.tiers.map(t=>t.baseCzk),[240,120,800]);
+     if(e.trainingPayment.kind==='OSVC_EVENT'){
+       assert.equal(e.data_controller,'Aliaksei Chareshneu (OSVČ)');
+       assert.equal(e.trainingPayment.personalSellerConsentRequired,true);
+       assert.equal(e.trainingPayment.requiresPersonalConfirmation,false);
+       assert.deepEqual(e.trainingPayment.tiers.map(t=>t.baseCzk),[240,120]);
+       assert.equal(e.trainingPayment.sessionPaymentOpen,true);
+       assert.ok(!JSON.stringify(e).includes('CZ4220100000002703598853'),
+         'nonprofit receiving bank is not offered to HEMA buyers');
+     }else{
+       assert.equal(e.trainingPayment.requiresPersonalConfirmation,true);
+       assert.deepEqual(e.trainingPayment.tiers.map(t=>t.baseCzk),[240,120,800]);
+       assert.equal(e.trainingPayment.sessionPaymentOpen,false);
+     }
    }
  }
 });
