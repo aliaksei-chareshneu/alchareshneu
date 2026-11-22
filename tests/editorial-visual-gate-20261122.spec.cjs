@@ -116,3 +116,34 @@ for(const width of [320,390,768,1440]){
     }
   });
 }
+
+
+/* Shared route visual review: the same CSS is linked from all three destinations. */
+for(const [id,route] of [
+  ['academy','/academy/?lang=cs'],
+  ['druzina','/druzina/?lang=cs'],
+  ['walkers','/walkers/?lang=cs']
+]){
+  test('Shared header and linked service page stay readable: '+id,async({page})=>{
+    await fixedPublicEvents(page);
+    await page.setViewportSize({width:390,height:930});
+    await page.goto(route,{waitUntil:'domcontentloaded'});
+    await expect(page.locator('#imp-shell-top')).toBeVisible();
+    await expect(page.locator('#page-content')).toBeVisible();
+    await page.evaluate(()=>document.fonts.ready);
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth)).toBeLessThanOrEqual(1);
+    const mobile=await page.locator('#imp-shell-top').evaluate(el=>({
+      height:el.getBoundingClientRect().height,
+      language:parseFloat(getComputedStyle(el.querySelector('.imp-shell-lang a')).fontSize)
+    }));
+    expect(mobile.height).toBeGreaterThanOrEqual(94);
+    expect(mobile.language).toBeGreaterThanOrEqual(12);
+    if(process.env.DESIGN_CAPTURE==='1'){
+      const jpeg=await page.screenshot({type:'jpeg',quality:35,
+        path:'test-results/editorial-subpage-'+id+'-390.jpg'});
+      const data=jpeg.toString('base64').match(/.{1,540}/g)||[];
+      data.forEach((chunk,i)=>console.log('DESIGN_SUB_CAPTURE:'+id+':'+i+':'+chunk));
+      console.log('DESIGN_SUB_CAPTURE_END:'+id+':'+data.length);
+    }
+  });
+}
