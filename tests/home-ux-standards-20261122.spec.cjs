@@ -70,3 +70,38 @@ for(const width of [320,390,768,1440]){
   }
  });
 }
+
+test('design craft: pointer feedback and reduced-motion respect', async({page})=>{
+  await isolatedEvents(page);
+  await page.setViewportSize({width:1280,height:800});
+  await page.emulateMedia({reducedMotion:'no-preference'});
+  await page.goto('/?lang=en');
+  const tile=page.locator('#fdVisualAcademy');
+  await expect(tile).toBeVisible();
+  const canHover=await page.evaluate(()=>matchMedia('(hover:hover) and (pointer:fine)').matches);
+  if(canHover){
+    const props=await tile.evaluate(el=>getComputedStyle(el).transitionProperty);
+    expect(props).toContain('transform');
+    await tile.hover();
+    await page.waitForTimeout(240);
+    expect(await tile.evaluate(el=>getComputedStyle(el).transform)).not.toBe('none');
+  }
+  await page.emulateMedia({reducedMotion:'reduce'});
+  const stopped=await tile.evaluate(el=>({
+    transition:getComputedStyle(el).transitionDuration,
+    imageTransition:getComputedStyle(el.querySelector('img')).transitionDuration
+  }));
+  expect(stopped.transition).toBe('0s');
+  expect(stopped.imageTransition).toBe('0s');
+});
+test('design craft: mobile language and booking links are thumb-sized',async({page})=>{
+  await isolatedEvents(page);
+  await page.setViewportSize({width:390,height:844});
+  await page.goto('/?lang=cs');
+  for(const selector of ['.fd-languages button','#fdHeroCta']){
+    const box=await page.locator(selector).first().boundingBox();
+    expect(box).not.toBeNull();
+    expect(box.height).toBeGreaterThanOrEqual(44);
+  }
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth)).toBeLessThanOrEqual(1);
+});
