@@ -4,7 +4,7 @@
 
 /* The JS-mounted homepage is what visitors normally see. */
 html[data-imperion-frontdoor="ready"] #imperion-frontdoor .fd-hero {
-  height:auto; min-height:0; background:#10242a;
+  height:auto; min-height:0; background:#f5f0e7;
 }
 #imperion-frontdoor .fd-hero-inner {
   padding:clamp(30px,4vw,56px) 0 clamp(32px,4vw,56px);
