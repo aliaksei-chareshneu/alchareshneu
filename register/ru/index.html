@@ -488,7 +488,13 @@ function showReceipt(eventData,body,payload){
  const safe=String(eventData?.rules_url||''),ruleUrl=/^https:\/\/aliaksei-chareshneu\.github\.io\/alchareshneu\//.test(safe)?safe:policyBase+'safety/';
  const link=document.createElement('a');link.href=ruleUrl;link.target='_blank';link.rel='noopener';link.textContent=dict.rules;el.appendChild(link);
  const actions=document.createElement('div');actions.className='receipt-actions';
- const copy=document.createElement('button');copy.type='button';copy.textContent=dict.copy;
+ const copy=document.createElement('button');copy.type='button';
+ copy.textContent=payload.resumeToken?({
+  cs:'Kopírovat údaje (bez soukromého kódu)',
+  en:'Copy details (without private code)',
+  ru:'Скопировать данные (без личного кода)',
+  uk:'Скопіювати дані (без особистого коду)'
+ })[lang]:dict.copy;
  const summary=[dict.title,...records.map(([k,v])=>k+': '+v),note.textContent,dict.rules+': '+ruleUrl].join('\n');
  copy.addEventListener('click',()=>{if(navigator.clipboard?.writeText)navigator.clipboard.writeText(summary)
   .then(()=>{copy.textContent=dict.copied;},()=>{copy.textContent=dict.copy;});});
