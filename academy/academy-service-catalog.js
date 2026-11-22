@@ -34,7 +34,7 @@ function info(key,variant,lang){
  const category=s.category;
  let amount=null,exact=false,prefix='',mode='QUOTE',unit=d.minute;
  if(category==='school'||category==='languages'||category==='technical'&&index!==1){
-   amount=690;exact=true;mode='STANDARD_LESSON';
+   amount=1000;exact=true;mode='STANDARD_LESSON';
  }
  if(category==='movement'){
    if(key==='fitness'||key==='calisthenics'){amount=index===1?600:400;exact=index!==2;mode=index===1?'IN_PERSON_TRAINING':'ONLINE_FITNESS';}
