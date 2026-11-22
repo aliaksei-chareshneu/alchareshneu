@@ -6,6 +6,13 @@
  */
 (function (root) {
   'use strict';
+  // Meeting point is fixed; the actual practice surface can still vary.
+  const HEMA_MEETING = Object.freeze({
+    cs: 'Sraz: Dukelská třída 157/44, Brno',
+    en: 'Meeting point: Dukelská třída 157/44, Brno',
+    ru: 'Место встречи: Dukelská třída 157/44, Брно',
+    uk: 'Місце зустрічі: Dukelská třída 157/44, Брно'
+  });
   const TITLES = {
   'Družina Moravy · HEMA — práce ve dvojicích (23.11.)': {
     cs: 'Družina Moravy · HEMA — práce ve dvojicích (po 23. 11.)',
@@ -182,6 +189,11 @@
   function localized(event, locale, field) {
     if (!event) return '';
     const lang = Object.prototype.hasOwnProperty.call(UNKNOWN,locale) ? locale : 'cs';
+    // Correct stale catalogue venue fields for regular HEMA without changing
+    // separate outdoor training areas or unrelated community events.
+    if (field === 'venue' && /^PUB-HEMA-\d{8}$/.test(String(event.event_id || ''))) {
+      return HEMA_MEETING[lang];
+    }
     const original = String(event[field] || '').trim();
     // Forward-compatible: the API can later provide structured locale fields.
     const multi = event[field + '_i18n'] || event[field + '_translations'];
@@ -201,17 +213,17 @@
   const NOTES = {
   'PUB-HEMA-20261123': {
     check: 'ORGANIZAČNÍ GO PRO TERMÍN',
-    cs: 'Pondělí 23. 11. 18:00–20:00: nezávazné přihlášky jsou otevřené. Termín schválil pořadatel; přesný bezpečný sraz, kapacita, dostupnost vybavení a místo každého účastníka vyžadují osobní písemné potvrzení. Do té doby neplaťte ani nejezděte.',
-    en: 'Monday 23 Nov 18:00–20:00: preliminary registration is open. The organiser has approved this date; the safe meeting point, capacity, loan equipment and each place still require personal written confirmation. Please do not pay or travel before then.',
-    ru: 'Понедельник, 23.11, 18:00–20:00: предварительная запись открыта. Организатор согласовал дату; место сбора, безопасность, вместимость, выдачу снаряжения и участие подтвердим лично письменно. До этого не платите и не приезжайте.',
-    uk: 'Понеділок, 23.11, 18:00–20:00: попередній запис відкрито. Організатор погодив дату; місце збору, безпеку, кількість місць, спорядження та участь підтвердимо особисто письмово. До цього не платіть і не приїжджайте.'
+    cs: 'Pondělí 23. 11. 18:00–20:00: nezávazné přihlášky jsou otevřené. Termín schválil pořadatel; kapacita, dostupnost vybavení a místo každého účastníka vyžadují osobní písemné potvrzení. Do té doby neplaťte ani nejezděte.',
+    en: 'Monday 23 Nov 18:00–20:00: preliminary registration is open. The organiser has approved this date; capacity, loan equipment and individual places still require personal written confirmation. Please do not pay or travel before then.',
+    ru: 'Понедельник, 23.11, 18:00–20:00: предварительная запись открыта. Организатор согласовал дату; безопасность, вместимость, выдачу снаряжения и участие подтвердим лично письменно. До этого не платите и не приезжайте.',
+    uk: 'Понеділок, 23.11, 18:00–20:00: попередній запис відкрито. Організатор погодив дату; безпеку, кількість місць, спорядження та участь підтвердимо особисто письмово. До цього не платіть і не приїжджайте.'
   },
   'PUB-HEMA-20261128': {
     check: 'ORGANIZAČNÍ GO PRO TERMÍN',
-    cs: 'Sobota 28. 11. 18:00–20:00: nezávazné přihlášky jsou otevřené po souhlasu pořadatele. Konání závisí na bezpečné ploše, vybavení a instruktorovi. Přesný sraz a jednotlivá místa potvrdíme písemně; zatím neplaťte ani nejezděte.',
-    en: 'Saturday 28 Nov 18:00–20:00: preliminary registration is open with the organiser’s approval. The session depends on a safe training area, equipment and instructor availability. We will confirm the meeting point and each place in writing; please do not pay or travel before then.',
-    ru: 'Суббота, 28.11, 18:00–20:00: предварительная запись открыта по согласованию с организатором. Проведение зависит от безопасного места, снаряжения и тренера; точку сбора и участие подтвердим письменно. Пока не платите и не приезжайте.',
-    uk: 'Субота, 28.11, 18:00–20:00: попередній запис відкрито за згодою організатора. Проведення залежить від безпечного місця, спорядження та тренера; місце збору й участь підтвердимо письмово. Поки не платіть і не приїжджайте.'
+    cs: 'Sobota 28. 11. 18:00–20:00: nezávazné přihlášky jsou otevřené po souhlasu pořadatele. Konání závisí na bezpečné ploše, vybavení a instruktorovi. Jednotlivá místa potvrdíme písemně; zatím neplaťte ani nejezděte.',
+    en: 'Saturday 28 Nov 18:00–20:00: preliminary registration is open with the organiser’s approval. The session depends on a safe training area, equipment and instructor availability. We will confirm individual places in writing; please do not pay or travel before then.',
+    ru: 'Суббота, 28.11, 18:00–20:00: предварительная запись открыта по согласованию с организатором. Проведение зависит от безопасного места, снаряжения и тренера; участие подтвердим письменно. Пока не платите и не приезжайте.',
+    uk: 'Субота, 28.11, 18:00–20:00: попередній запис відкрито за згодою організатора. Проведення залежить від безпечного місця, спорядження та тренера; участь підтвердимо письмово. Поки не платіть і не приїжджайте.'
   },
 
     'PUB-MVP-CALI-20261124': {
@@ -258,10 +270,10 @@
     }
   };
   const HEMA_NOTE = {
-    cs: 'Přijímáme pouze nezávazné žádosti o trénink. Odeslání není rezervace, závazek k platbě ani potvrzení konání. Termín, místo, bezpečnost a cenu musí pořadatel před účastí individuálně písemně potvrdit. Do té doby neplaťte ani necestujte.',
-    en: 'Training enquiries only: submitting is not a reservation, payment obligation or confirmation that the session will take place. The organiser must individually confirm date, place, safety and price in writing. Do not pay or travel before confirmation.',
-    ru: 'Принимаются только предварительные заявки на тренировку. Заявка не означает бронирование, оплату или подтверждение проведения. Дата, место, безопасность и цена подтверждаются организатором письменно. До подтверждения не платите и не приезжайте.',
-    uk: 'Приймаємо лише попередні запити на тренування. Запит не означає бронювання, оплату або підтвердження проведення. Дату, місце, безпеку та ціну організатор підтверджує письмово. До підтвердження не платіть і не приїжджайте.'
+    cs: 'Přijímáme pouze nezávazné žádosti o trénink. Odeslání není rezervace, závazek k platbě ani potvrzení konání. Termín, bezpečnost a cenu musí pořadatel před účastí individuálně písemně potvrdit. Do té doby neplaťte ani necestujte.',
+    en: 'Training enquiries only: submitting is not a reservation, payment obligation or confirmation that the session will take place. The organiser must individually confirm date, safety and price in writing. Do not pay or travel before confirmation.',
+    ru: 'Принимаются только предварительные заявки на тренировку. Заявка не означает бронирование, оплату или подтверждение проведения. Дата, безопасность и цена подтверждаются организатором письменно. До подтверждения не платите и не приезжайте.',
+    uk: 'Приймаємо лише попередні запити на тренування. Запит не означає бронювання, оплату або підтвердження проведення. Дату, безпеку та ціну організатор підтверджує письмово. До підтвердження не платіть і не приїжджайте.'
   };
   const HIKE_NOTE = {
     cs: 'Bezplatný komunitní výlet s průvodcem. Přihláška je předběžná, dokud pořadatel osobně nepotvrdí místo.',
