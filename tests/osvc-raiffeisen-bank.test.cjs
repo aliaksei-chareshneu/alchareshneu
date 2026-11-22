@@ -21,7 +21,7 @@ test('verified Raiffeisen account is consistent across personal commercial check
  assert.ok(validIban(RAIF_IBAN));
  assert.equal(main.split(RAIF).length-1,5,'five four-language walkers FAQs use the bank');
  for(const locale of ['cs','en','ru','uk']) assert.ok(dialog.includes(locale+":'OSVČ Aliaksei Chareshneu"),locale);
- assert.match(dialog,/e\.data_controller==='Aliaksei Chareshneu \(OSVČ\)'/);
+ assert.ok(dialog.includes("['Aliaksei Chareshneu (OSVČ)','Aliaksei Chareshneu (OSVČ, IČO 23041625)'].includes(e.data_controller)"),'both legal sole-trader spellings receive Raiffeisen');
  assert.ok(dialog.includes(RAIF)&&dialog.includes(RAIF_IBAN));
  assert.ok(server.includes("Deno.env.get('OSVC_APPROVED_IBAN') || '"+RAIF_IBAN+"'"));
  assert.ok(server.includes("Deno.env.get('OSVC_APPROVED_PAYEE') || 'Aliaksei Chareshneu'"));
