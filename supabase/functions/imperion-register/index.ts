@@ -151,7 +151,7 @@ function trainingQuote(e:TrainingEvent,tier:TrainingTier='STANDARD',now=Date.now
 }
 function publicTrainingQuote(e:TrainingEvent){
   const q=trainingQuote(e);if(!q)return null;
-  return {status:q.status,late48h:q.late48h,sessionPaymentOpen:q.sessionPaymentOpen,
+  return {status:'AWAITING_ORGANIZER_GO',late48h:q.late48h,sessionPaymentOpen:false,
     tiers:(['STANDARD','SENIOR','STARTER4'] as TrainingTier[]).map(t=>{
       const price=trainingQuote(e,t)!;
       return {tier:t,baseCzk:price.baseCzk,surchargeCzk:price.surchargeCzk,totalCzk:price.totalCzk};
@@ -419,6 +419,11 @@ Deno.serve(async (req:Request):Promise<Response>=>{
   let receiptId:string|null=null,issuedToken:string|null=null;
   let proofReceived=false,verifiedQuote:null|NonNullable<ReturnType<typeof trainingQuote>>|NonNullable<ReturnType<typeof osvcQuote>>=null;
   if(resumeToken){
+    // Direct owner decision: no client-visible association bank details, even
+    // if a legacy event or individual authorization mistakenly remains open.
+    // Existing-transfer PDFs are still accepted for private manual review.
+    if(!isOsVc && action!=='manual_proof')
+      return reply({error:'nonprofit_checkout_disabled'},409,origin);
     if(!payment||(action!=='manual_proof'&&!payment.sessionPaymentOpen)||v.rsvp!=='YES')
       return reply({error:'payment_not_open'},409,origin);
     const hashed=await tokenHash(resumeToken);
@@ -497,17 +502,13 @@ Deno.serve(async (req:Request):Promise<Response>=>{
     verifiedQuote=isOsVc?osvcQuote(event,registrationMs,true):trainingQuote(event,savedTier,registrationMs,true);
     if(!verifiedQuote||!verifiedQuote.sessionPaymentOpen||!verifiedQuote.account)
       return reply({error:'payment_not_open'},409,origin);
-    // The exact receiving bank and its owner must match this individually
-    // approved event quote; client-supplied bank data is never accepted.
-    // Personal OSVC: Raiffeisenbank certificate dated 21 October 2024.
-    // Druzina z.s.: independent Fio certificate dated 15 September 2026.
-    // Private operator overrides take precedence and mismatches fail closed.
-    // This check NEVER establishes bank settlement or an accepted seat.
+    // Personal commercial services use ONLY the independently verified
+    // Raiffeisenbank owned by Aliaksei Chareshneu (OSVC).
+    // The nonprofit association bank never enters a public response or QR.
+    // No receipt or registration is marked bank-verified by this check.
     const approvedIban=verifiedBankIban(verifiedQuote.account,verifiedQuote.recipient,
-      isOsVc ? (Deno.env.get('OSVC_APPROVED_IBAN') || 'CZ9755000000007804336003') :
-        (Deno.env.get('DRUZINA_APPROVED_IBAN') || 'CZ4220100000002703598853'),
-      isOsVc ? (Deno.env.get('OSVC_APPROVED_PAYEE') || 'Aliaksei Chareshneu') :
-        (Deno.env.get('DRUZINA_APPROVED_PAYEE') || 'Družina Moravy, z. s.'));
+      Deno.env.get('OSVC_APPROVED_IBAN') || 'CZ9755000000007804336003',
+      Deno.env.get('OSVC_APPROVED_PAYEE') || 'Aliaksei Chareshneu');
     const spd=approvedIban ? createTrainingSpd(approvedIban,verifiedQuote.totalCzk,lookup.data.id,vs,isOsVc?'BW':'DM') : null;
     if(!spd)return reply({error:'approved_bank_not_configured'},409,origin);
     if(action==='quote'){
