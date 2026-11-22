@@ -302,7 +302,7 @@ jobs:
         if: always()
         with:
           name: editorial-visual-screenshots
-          path: test-results/editorial-hero-*.jpg
+          path: test-results/editorial-*.jpg
           retention-days: 7
 
   ted-deal-hunter-offline-qa:
