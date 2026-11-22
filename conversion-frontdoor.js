@@ -195,7 +195,7 @@
         '<div class="fd-mosaic fd-photo-shadows" aria-hidden="true"></div>',
         '<div class="fd-shell fd-hero-inner">',
           '<div class="fd-eyebrow" id="fdEyebrow"></div>',
-          '<h1><span id="fdHero1" style="color:#fffdf3"></span> <span id="fdHero2"></span></h1>',
+          '<h1><span id="fdHero1"></span> <span id="fdHero2"></span></h1>',
           '<p class="fd-lede" id="fdLead"></p>',
           '<p class="fd-value-now" id="fdValueNow"></p>',
           '<p class="fd-value-then" id="fdValueThen"></p>',
