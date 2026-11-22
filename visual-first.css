@@ -313,7 +313,8 @@ body[data-imperion-design] :is(#academy,#druzina,#walkers).hero .tagline {max-wi
 }
 #imperion-frontdoor .fd-hero::after{display:none;}
 #imperion-frontdoor .fd-hero-inner{
-  width:min(1240px,calc(100% - 56px));align-items:flex-start;justify-content:flex-start;
+  width:min(1240px,calc(100% - 56px));flex:0 1 auto;margin:0 auto;
+  align-items:flex-start;justify-content:flex-start;
   padding:clamp(36px,4vw,64px) 0 clamp(52px,5vw,76px);text-align:left;
 }
 #imperion-frontdoor .fd-hero .fd-eyebrow{

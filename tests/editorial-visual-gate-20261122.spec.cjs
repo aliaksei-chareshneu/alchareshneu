@@ -30,6 +30,11 @@ for(const width of [320,390,768,1440]){
     await expect(page.locator('html')).toHaveAttribute('data-imperion-frontdoor','ready');
     await page.evaluate(()=>document.fonts.ready);
     expect(await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth)).toBeLessThanOrEqual(1);
+    // A flex:1 legacy rule previously stretched the hero to screen edges.
+    const inner=await page.locator('.fd-hero-inner').boundingBox();
+    expect(inner).not.toBeNull();
+    expect(inner.x,'Editorial hero must have side breathing room').toBeGreaterThanOrEqual(
+      width>=1440?70:width>=640?20:14);
     // Calculated text/background color alone misses background-image overlays.
     await expect(page.locator('.fd-hero .fd-mosaic.fd-photo-shadows')).toBeHidden();
     const effectiveHero=await page.locator('.fd-hero').evaluate(el=>({
