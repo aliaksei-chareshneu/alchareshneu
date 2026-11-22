@@ -69,6 +69,13 @@ for(const width of [320,390,768,1440]){
     expect(styles.sub.fontSize).toBeGreaterThanOrEqual(14);
     expect(styles.badge.fontSize).toBeGreaterThanOrEqual(13);
     expect(styles.calNote.fontSize).toBeGreaterThanOrEqual(14);
+    if(width<=600){
+      await expect(page.locator('#fdBrandSubtitle')).toBeHidden();
+      const langSize=await page.locator('.fd-languages button').first()
+        .evaluate(el=>parseFloat(getComputedStyle(el).fontSize));
+      expect(langSize).toBeGreaterThanOrEqual(12);
+    }
+
     for(const card of await page.locator('.fd-visual-tile').all()){
       const b=await card.boundingBox();
       expect(b&&b.width).toBeGreaterThan(165);

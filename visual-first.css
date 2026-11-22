@@ -454,3 +454,24 @@ body[data-imperion-design] :is(#academy,#druzina,#walkers).hero .tagline {max-wi
     transition:none!important;transform:none!important;
   }
 }
+
+/* Shared header legibility. Prior mobile subtitle used 7px and locale 10px.
+   Keep both public shells the same size; hide only redundant mobile subheading. */
+#imperion-frontdoor .fd-logo-text small,
+body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-logo-copy small {
+  font-size:12px;line-height:1.25;letter-spacing:.035em;
+}
+#imperion-frontdoor .fd-languages button,
+body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-lang a {
+  font-size:12px;min-width:32px;min-height:40px;
+}
+@media(max-width:600px) {
+  #imperion-frontdoor .fd-logo-text small,
+  body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-logo-copy small {
+    display:none!important;
+  }
+  #imperion-frontdoor .fd-languages button,
+  body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-lang a {
+    font-size:12px;min-width:28px;min-height:40px;
+  }
+}
