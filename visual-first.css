@@ -284,7 +284,7 @@ body[data-imperion-design] :is(#academy,#druzina,#walkers).hero .tagline {max-wi
 }
 /* Improve mobile tap sizes without adding decorative gestures. */
 @media(max-width:640px){
-  #imperion-frontdoor .fd-languages button {min-height:44px;}
+  #imperion-frontdoor .fd-languages button {min-height:40px;}
   #imperion-frontdoor .fd-hero-cta,
   #imperion-frontdoor .fd-hero-academy {min-height:44px;}
 }
