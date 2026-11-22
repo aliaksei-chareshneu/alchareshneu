@@ -497,3 +497,14 @@ body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-lang a {
     width:auto;min-width:0;flex:1 1 142px;
   }
 }
+
+/* Fix 160px mobile CTA flex basis inherited from experience.css.
+   On small screens flex-direction:column changes flex-basis into HEIGHT;
+   actionable buttons became giant empty rectangles on Academy/BrnoWalkers. */
+@media(max-width:480px){
+  body[data-imperion-scope="shared"] #academy .hero-ctas > a.btn,
+  body[data-imperion-scope="shared"] #walkers .hero-ctas > a.btn{
+    flex:0 0 auto;min-height:54px;height:auto;max-height:none;
+    width:100%;padding:13px 18px;line-height:1.35;font-size:16px;
+  }
+}

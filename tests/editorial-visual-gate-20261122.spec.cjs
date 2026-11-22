@@ -138,6 +138,15 @@ for(const [id,route] of [
     }));
     expect(mobile.height).toBeGreaterThanOrEqual(94);
     expect(mobile.language).toBeGreaterThanOrEqual(12);
+    if(id==='academy'||id==='walkers'){
+      const heights=await page.locator('#'+id+' .hero-ctas > a.btn')
+        .evaluateAll(items=>items.map(el=>Math.round(el.getBoundingClientRect().height)));
+      expect(heights.length).toBeGreaterThanOrEqual(2);
+      expect(heights.every(h=>h>=44&&h<=95),
+        'Mobile hero CTA height should be compact: '+JSON.stringify(heights)).toBe(true);
+      console.log('SUBPAGE_CTA_HEIGHT:'+id+':'+JSON.stringify(heights));
+    }
+
     if(process.env.DESIGN_CAPTURE==='1'){
       const jpeg=await page.screenshot({type:'jpeg',quality:35,
         path:'test-results/editorial-subpage-'+id+'-390.jpg'});
