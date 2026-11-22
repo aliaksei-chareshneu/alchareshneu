@@ -117,14 +117,15 @@ function formatDateForPost(val) {
 
 // Настолки — добровольный взнос, а не бинарное "бесплатно/платно": Price_CZK здесь
 // ориентир, не обязательный минимум. Отдельная ветка, а не хардкод в 5 местах по коду.
-function paymentPhrase(category, isFree, price) {
-  if (category === 'Board Games') {
-    return isFree
-      ? 'Добровольный взнос — на усмотрение участника, через Revolut: revolut.me/aliaksj5pq'
-      : 'Добровольный взнос (ориентир ~' + price + ' Kč), через Revolut: revolut.me/aliaksj5pq';
-  }
-  if (isFree) return 'Вход свободный 🆓';
-  return price + ' Kč. Оплата: revolut.me/aliaksj5pq';
+// Approved personal commercial payee, not a nonprofit/donation account.
+var IMP_OSVC_RAIF_ACCOUNT = '7804336003/5500';
+var IMP_OSVC_RAIF_PAYEE = 'Aliaksei Chareshneu';
+function paymentPhrase(category, isFree, price, community) {
+  if (isFree || category === 'Board Games') return 'Бесплатно — оплата не требуется.';
+  if (community !== 'Brnowalkers')
+    return price + ' Kč. Оплата только после письменного подтверждения юридического организатора, суммы и его счёта.';
+  return price + ' Kč. После письменного подтверждения: Raiffeisenbank ' +
+    IMP_OSVC_RAIF_ACCOUNT + ', получатель ' + IMP_OSVC_RAIF_PAYEE + ' (OSVČ).';
 }
 
 // Роутинг канала по клубу — без этого все анонсы уходили бы в один канал.
@@ -168,33 +169,28 @@ function translateForSocial(text, targetLang) {
   }
 }
 
-function paymentPhraseLocalized(category, isFree, price, lang) {
-  var revolut = 'revolut.me/aliaksj5pq';
-  if (lang === 'cs') {
-    if (category === 'Board Games') {
-      return isFree
-        ? 'Dobrovolný příspěvek — podle uvážení účastníka, přes Revolut: ' + revolut
-        : 'Dobrovolný příspěvek (orientačně ~' + price + ' Kč), přes Revolut: ' + revolut;
-    }
-    if (isFree) return 'Vstup zdarma 🆓';
-    return price + ' Kč. Platba: ' + revolut;
-  }
-  if (lang === 'uk') {
-    if (category === 'Board Games') {
-      return isFree
-        ? 'Добровільний внесок — на розсуд учасника, через Revolut: ' + revolut
-        : 'Добровільний внесок (орієнтовно ~' + price + ' Kč), через Revolut: ' + revolut;
-    }
-    if (isFree) return 'Вхід вільний 🆓';
-    return price + ' Kč. Оплата: ' + revolut;
-  }
-  if (category === 'Board Games') {
-    return isFree
-      ? 'Voluntary contribution — pay what you like via Revolut: ' + revolut
-      : 'Voluntary contribution (suggested ~' + price + ' Kč) via Revolut: ' + revolut;
-  }
-  if (isFree) return 'Free entry 🆓';
-  return price + ' Kč. Payment: ' + revolut;
+function paymentPhraseLocalized(category, isFree, price, lang, community) {
+  var copy = {
+    cs:{free:'Akce zdarma — neplaťte.',personal:'Po písemném potvrzení: Raiffeisenbank ',
+      holder:', příjemce Aliaksei Chareshneu (OSVČ).',
+      other:'Platba až po písemném potvrzení právního pořadatele, ceny a jeho účtu.'},
+    en:{free:'Free event — do not pay.',personal:'After written approval: Raiffeisenbank ',
+      holder:', recipient Aliaksei Chareshneu (OSVČ).',
+      other:'Transfer only after written confirmation of the legal organiser, total and its bank details.'},
+    ru:{free:'Бесплатное событие — не платите.',personal:'После письменного подтверждения: Raiffeisenbank ',
+      holder:', получатель Aliaksei Chareshneu (OSVČ).',
+      other:'Оплата только после письменного подтверждения юридического организатора, суммы и его счёта.'},
+    uk:{free:'Безкоштовний захід — не платіть.',personal:'Після письмового підтвердження: Raiffeisenbank ',
+      holder:', отримувач Aliaksei Chareshneu (OSVČ).',
+      other:'Оплата лише після письмового підтвердження юридичного організатора, суми та його рахунку.'}
+  }[lang] || {
+    free:'Free event — do not pay.',personal:'After written approval: Raiffeisenbank ',
+    holder:', recipient Aliaksei Chareshneu (OSVČ).',
+    other:'Transfer only after written confirmation of the legal organiser, total and its bank details.'
+  };
+  if (isFree || category === 'Board Games') return copy.free;
+  if (community !== 'Brnowalkers') return price + ' Kč. ' + copy.other;
+  return price + ' Kč. ' + copy.personal + IMP_OSVC_RAIF_ACCOUNT + copy.holder;
 }
 
 function socialLabels(lang) {
@@ -218,14 +214,14 @@ function buildFacebookPost(community, category, title, description, startFormatt
     translatedDescription,
     labels.when + ': ' + startFormatted,
     labels.where + ': ' + locationName,
-    paymentPhraseLocalized(category, isFree, price, lang),
+    paymentPhraseLocalized(category, isFree, price, lang, community),
     labels.registration + ': ' + registerUrl,
     labels.allEvents + ': ' + CALENDAR_PUBLIC_LINK
   ];
   return lines.filter(function (x) { return String(x || '').trim() !== ''; }).join('\n');
 }
 
-function buildWhatsAppCopy(category, title, description, startFormatted, locationName, isFree, price, registerUrl) {
+function buildWhatsAppCopy(community, category, title, description, startFormatted, locationName, isFree, price, registerUrl) {
   var titleEn = translateForSocial(title, 'en');
   var descriptionEn = translateForSocial(description, 'en');
   return '=== WhatsApp (copy & paste) ===\n' +
@@ -233,7 +229,7 @@ function buildWhatsAppCopy(category, title, description, startFormatted, locatio
     (descriptionEn ? descriptionEn + '\n' : '') +
     'When: ' + startFormatted + '\n' +
     'Where: ' + locationName + '\n' +
-    paymentPhraseLocalized(category, isFree, price, 'en') + '\n' +
+    paymentPhraseLocalized(category, isFree, price, 'en', community) + '\n' +
     'Registration: ' + registerUrl + '\n' +
     'All events: ' + CALENDAR_PUBLIC_LINK;
 }
@@ -354,7 +350,7 @@ function processEventRow(sheet, row, headerMap, forceRetry) {
         ? buildFacebookPost(community, category, title, description, startFormatted, locationName, isFree, price, tallyUrl)
         : '';
       var bufferText = isPublicEvent
-        ? buildWhatsAppCopy(category, title, description, startFormatted, locationName, isFree, price, tallyUrl) +
+        ? buildWhatsAppCopy(community, category, title, description, startFormatted, locationName, isFree, price, tallyUrl) +
           '\n\n=== Facebook copy (' + getFacebookRoute(community).lang.toUpperCase() + ') ===\n' + fbCopy
         : '=== Corporate (internal, not published) ===\n' +
           translateForSocial(title, 'en') + '\n' + startFormatted + ', ' + locationName + '\n' +
@@ -674,7 +670,7 @@ function sendEventReminders() {
       '🐡 ' + escapeHtml(locationName) +
       (locationAddr ? '\n📌 ' + escapeHtml(locationAddr) : '') + '\n' +
       '🕐 ' + startStr + '\n' +
-      '💰 ' + paymentPhrase(category, isFree, price) + '\n' +
+      '💰 ' + paymentPhrase(category, isFree, price, community) + '\n' +
       '\n🗓,<a href="' + calLink + '">Добавить в календарь</a>';
 
     try {

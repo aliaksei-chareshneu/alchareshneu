@@ -9,6 +9,19 @@ const URL=Deno.env.get("SUPABASE_URL")||"";
 const SECRET=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")||"";
 const DB=URL&&SECRET?createClient(URL,SECRET,{auth:{persistSession:false,autoRefreshToken:false}}):null;
 const BUCKET="imperion-academy-payment-proofs";
+/* 21 Oct 2024 Raiffeisenbank certificate: personal OSVC bank holder only.
+   Reject a quote routed to NGO/other payee or another bank. No automatic
+   checkout, payment, booking, price or bank-credit verification is enabled. */
+const OSVC_APPROVED_ACCOUNT="7804336003/5500";
+const OSVC_APPROVED_IBAN="CZ9755000000007804336003";
+const OSVC_APPROVED_PAYEE="Aliaksei Chareshneu";
+function osvcBankMatches(x:Record<string,unknown>){
+ const payee=String(x.quote_recipient||"").trim();
+ const account=String(x.quote_account||"").replace(/\s+/g,"").toUpperCase();
+ return payee===OSVC_APPROVED_PAYEE &&
+   (account===OSVC_APPROVED_ACCOUNT || account===OSVC_APPROVED_IBAN);
+}
+
 const MAX_PDF_BYTES=5*1024*1024;
 const MAX_IMAGE_BYTES=2*1024*1024;
 const MAX_MULTIPART_BYTES=MAX_PDF_BYTES+16000;
@@ -91,7 +104,7 @@ async function order(raw:Record<string,unknown>,req:Request,origin:string|null){
 function approvedQuote(x:Record<string,unknown>){
  if(x.payment_quote_status!=="APPROVED"||!["AWAITING_PROOF","PROOF_RECEIVED","BANK_VERIFIED"].includes(String(x.payment_evidence_status))||!x.quote_locked_at||
     !(Number(x.quoted_amount_czk)>0)||!(typeof x.quote_recipient==="string"&&x.quote_recipient.length>=3)||
-    !(typeof x.quote_account==="string"&&x.quote_account.length>=8))return false;
+    !(typeof x.quote_account==="string"&&x.quote_account.length>=8)||!osvcBankMatches(x))return false;
  if(x.quote_expires_at&&Date.parse(String(x.quote_expires_at))<Date.now())return false;
  return true;
 }

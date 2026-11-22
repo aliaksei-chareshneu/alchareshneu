@@ -25,6 +25,7 @@ jobs:
           node --check tests/paid-event-pdf-owner-notify.test.cjs
           node --test tests/paid-event-pdf-owner-notify.test.cjs
           node --test tests/druzina-unified-payment.test.cjs
+          node --test tests/osvc-raiffeisen-bank.test.cjs
 
       - name: Verify required public pages
         shell: bash
