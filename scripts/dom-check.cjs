@@ -23,10 +23,10 @@ if(require.main===module)(async()=>{let count=0;for(const path of ['index.html',
    assert.ok((d.querySelector('#action').href||'').startsWith(lang==='ru'?'https://t.me/druzinamoravy_news':'https://chat.whatsapp.com/'),'language-appropriate opt-in club updates');
    assert.ok((d.querySelector('#question').href||'').startsWith(lang==='ru'?'https://t.me/Chareshneu':'https://wa.me/420702914842'),'separate human enquiry');
    const safeApplicationCopy={
-    en:["Registration is open for Monday 23 and Saturday 28 November","Exact meeting point, equipment and personal participation are confirmed individually","Do not pay or travel without confirmation"],
-    cs:["Přihlášky na pondělí 23. a sobotu 28. listopadu","Sraz, vybavení a osobní účast potvrzujeme jednotlivě","Bez potvrzení neplať ani necestuj"],
-    ru:["Запись на понедельник 23 и субботу 28 ноября","Место сбора, снаряжение и участие подтверждаем индивидуально","Не платите и не приезжайте без подтверждения"],
-    uk:["Запис на понеділок 23 та суботу 28 листопада","Місце збору, спорядження й участь підтверджуємо особисто","До підтвердження не сплачуйте та не приїжджайте"]
+    en:["Registration is open for Monday 23 and Saturday 28 November","Equipment and personal participation are confirmed individually","Do not pay or travel without confirmation"],
+    cs:["Přihlášky na pondělí 23. a sobotu 28. listopadu","Vybavení a osobní účast potvrzujeme jednotlivě","Bez potvrzení neplať ani necestuj"],
+    ru:["Запись на понедельник 23 и субботу 28 ноября","Снаряжение и участие подтверждаем индивидуально","Не платите и не приезжайте без подтверждения"],
+    uk:["Запис на понеділок 23 та суботу 28 листопада","Спорядження й участь підтверджуємо особисто","До підтвердження не сплачуйте та не приїжджайте"]
    };
    const safetyCopy=d.querySelector('[data-k="safety"]')?.textContent||'';
    for(const phrase of safeApplicationCopy[lang])assert.ok(safetyCopy.includes(phrase),'current applications/paid-confirmation safety gate missing '+lang+': '+phrase);
