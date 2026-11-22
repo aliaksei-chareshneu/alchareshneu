@@ -101,7 +101,8 @@ test('personal HEMA quote uses the published senior tariff, 48-hour rule and onl
  .replace("function osvcQuote(e:any,now=Date.now(),privateBank=false,tier:TrainingTier='STANDARD')",
           "function osvcQuote(e,now=Date.now(),privateBank=false,tier='STANDARD')")
  .replace('function publicOsVcQuote(e:any)','function publicOsVcQuote(e)')
- .replace("(['STANDARD','SENIOR'] as TrainingTier[])","['STANDARD','SENIOR']");
+ .replace("(['STANDARD','SENIOR'] as TrainingTier[])","['STANDARD','SENIOR']")
+ .replace("osvcQuote(e,Date.now(),false,t)!","osvcQuote(e,Date.now(),false,t)");
  const fn=Function("const TRAINING_TIER_PRICE_CZK={STANDARD:240,SENIOR:120,STARTER4:800};const LATE_WINDOW_MS=48*3600000;"+
    isolated+";return {osvcQuote,publicOsVcQuote};")();
  const event={event_id:'PUB-HEMA-20261123',community:'Družina Moravy',
