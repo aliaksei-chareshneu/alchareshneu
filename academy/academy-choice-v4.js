@@ -110,7 +110,7 @@
    if(jumps){var oldJump=body.querySelector('.price-jump-list');if(oldJump&&oldJump!==jumps)oldJump.remove();body.append(jumps);}
    if(categories){var oldCats=body.querySelector('.price-cats');if(oldCats&&oldCats!==categories)oldCats.remove();body.append(categories);}
    overview.innerHTML='<div class="eyebrow-sm">ACADEMY · OSVČ</div><h2>'+safeText(d.priceTitle)+'</h2><p>'+safeText(d.priceLead)+'</p><div class="academy-price-four">'+
-      [[d.priceStudy,'690 Kč / 60 min'],[d.priceGroup,'350 Kč / osoba / 60 min'],[d.priceMove,'400 / 600 Kč / 60 min'],[d.priceConsult,'200 Kč / 10 min']].map(function(x){return '<div class="academy-price-tile"><span>'+safeText(x[0])+'</span><strong>'+safeText(x[1])+'</strong></div>';}).join('')+'</div><p class="academy-price-explainer">'+safeText(d.priceNotes)+'</p><a class="academy-prices-open" href="#academy-full-prices">'+safeText(d.allPrices)+'</a>';
+      [[d.priceStudy,'1 000 Kč / 60 min'],[d.priceGroup,'350 Kč / osoba / 60 min'],[d.priceMove,'400 / 600 Kč / 60 min'],[d.priceConsult,'250 Kč / 15 min']].map(function(x){return '<div class="academy-price-tile"><span>'+safeText(x[0])+'</span><strong>'+safeText(x[1])+'</strong></div>';}).join('')+'</div><p class="academy-price-explainer">'+safeText(d.priceNotes)+'</p><a class="academy-prices-open" href="#academy-full-prices">'+safeText(d.allPrices)+'</a>';
    overview.querySelector('.academy-prices-open').addEventListener('click',function(e){e.preventDefault();details.open=true;details.scrollIntoView({block:'start'});});
    function onHash(){if(/^#price-(edu|fit|nutr|supp|hous|itsec|coach|web|trek)$/.test(location.hash))details.open=true;}
    if(!initialized){window.addEventListener('hashchange',onHash);}

@@ -19,7 +19,7 @@ for (const [language, heading] of Object.entries(names)) {
     await expect(page.locator('h1:visible')).toContainText(heading);
     await expect(page.locator('.locale:visible')).toHaveCount(1);
     await expect(page.locator('.offer:visible')).toHaveCount(9);
-    await expect(page.locator('.conditions:visible')).toContainText('690 Kč');
+    await expect(page.locator('.conditions:visible')).toContainText('1 000 Kč');
     await expect(page.locator('a.choose:visible')).toHaveCount(8);
     await expect(page.locator('#programme option')).toHaveCount(13);
     await expect(page.locator('link[href="../../site-design.css?v=20261027"]')).toHaveCount(1);

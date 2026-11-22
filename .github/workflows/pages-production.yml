@@ -470,13 +470,13 @@ jobs:
                  grep -Fq 'Written quote' "$courses" &&
                  grep -Fq 'Specializovaná 60min lekce se oceňuje individuálně' "$a2" &&
                  grep -Fq '"terms":' "$a2script" &&
-                 grep -Fq 'Standard individual online tutoring is 690 Kč / 60 min' "$start" &&
+                 grep -Fq 'Standard individual online tutoring is 1 000 Kč / 60 min' "$start" &&
                  grep -Fq 'Starter 4' "$home" &&
                  grep -Fq 'qualifications' "$home" &&
                  ! grep -Fq 'first tutoring lesson is listed at 300 Kč' "$start" &&
                  ! grep -Fq '300%20CZK' "$start" &&
                  ! grep -Fq '455 Kč' "$home" &&
-                 ! grep -Fq '1 000 Kč' "$a2script" &&
+                 grep -Fq '1 000 Kč' "$a2script" &&
                  ! grep -Fq 'Specialist individual online session (60 min, scope agreed beforehand)' "$academy"; then
                 checked=1
                 break

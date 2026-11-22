@@ -34,7 +34,7 @@ function info(key,variant,lang){
  const category=s.category;
  let amount=null,exact=false,prefix='',mode='QUOTE',unit=d.minute;
  if(category==='school'||category==='languages'||category==='technical'&&index!==1){
-   amount=690;exact=true;mode='STANDARD_LESSON';
+   amount=1000;exact=true;mode='STANDARD_LESSON';
  }
  if(category==='movement'){
    if(key==='fitness'||key==='calisthenics'){amount=index===1?600:400;exact=index!==2;mode=index===1?'IN_PERSON_TRAINING':'ONLINE_FITNESS';}
@@ -48,7 +48,8 @@ function info(key,variant,lang){
  if(category==='technical'&&index===1||category==='support'&&key!=='medical'||category==='movement'&&index===2){
    amount=null;exact=false;mode='QUOTE';
  }
- const label=amount===null?d.quote:(prefix+amount+' Kč / '+unit);
+ const shownAmount=amount===1000?'1 000':String(amount);
+ const label=amount===null?d.quote:(prefix+shownAmount+' Kč / '+unit);
  return {key:s.id,category,format:variant,name:s.names[lang]||s.names.cs,
    title:d.formats[category]?.[index]||s.names[lang],label,amount,exact,mode,notice:d.provisional};
 }
