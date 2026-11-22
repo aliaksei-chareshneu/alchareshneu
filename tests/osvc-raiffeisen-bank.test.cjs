@@ -77,3 +77,15 @@ test('Academy never publishes an approved quotation for the wrong bank or legal 
  assert.equal(approvedQuote({...quote,payment_quote_status:'NOT_QUOTED'}),false);
  assert.equal(approvedQuote({...quote,payment_evidence_status:'BANK_VERIFIED'}),true);
 });
+
+test('approved QR encodes Raiffeisenbank and rejects association/personal bank mixup',async()=>{
+ const {pathToFileURL}=require('node:url'),path=require('node:path');
+ const qr=await import(pathToFileURL(path.resolve('supabase/functions/imperion-register/training-qr.mjs')).href);
+ assert.equal(qr.verifiedBankIban(RAIF,'Aliaksei Chareshneu',RAIF_IBAN,'Aliaksei Chareshneu'),RAIF_IBAN);
+ assert.equal(qr.verifiedBankIban(RAIF,'Družina Moravy, z. s.',RAIF_IBAN,'Aliaksei Chareshneu'),null);
+ assert.equal(qr.verifiedBankIban('2703598853/2010','Aliaksei Chareshneu',RAIF_IBAN,'Aliaksei Chareshneu'),null);
+ const spd=qr.createTrainingSpd(RAIF_IBAN,190,'11111111-1111-4111-8111-111111111111','1234567890','BW');
+ assert.ok(spd.includes('ACC:'+RAIF_IBAN));
+ assert.ok(spd.includes('*AM:190.00'));
+ assert.ok(spd.includes('*X-VS:1234567890'));
+});
