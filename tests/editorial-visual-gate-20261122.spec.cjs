@@ -80,7 +80,7 @@ for(const width of [320,390,768,1440]){
       contrast:readable.map(([k,b])=>[k,+contrast(styles[k].color,b).toFixed(2)])
     }));
     if(process.env.DESIGN_CAPTURE==='1'&&(width===390||width===1440)){
-      const jpeg=await page.locator('.fd-hero').screenshot({type:'jpeg',quality:38});
+      const jpeg=await page.locator('.fd-hero').screenshot({type:'jpeg',quality:38,\n        path:'test-results/editorial-hero-'+width+'.jpg'});
       const b64=jpeg.toString('base64');
       const chunks=b64.match(/.{1,540}/g)||[];
       chunks.forEach((chunk,i)=>console.log('DESIGN_CAPTURE:'+width+':'+i+':'+chunk));
