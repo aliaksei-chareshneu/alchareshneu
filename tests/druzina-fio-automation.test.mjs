@@ -108,7 +108,7 @@ test('source protects same RSVP, one VS and bank movement with no automatic seat
   ui=fs.readFileSync('register/training-payment.js','utf8');
  assert.ok(reg.includes('payment_variable_symbol:generateVariableSymbol()'));
  assert.ok(reg.includes('variableSymbol:vs,spd'));
- assert.ok(reg.includes('payment_bank_check_after:new Date(Math.max('));
+ assert.ok(reg.includes('payment_bank_check_after:isOsVc?null:new Date(Math.max('));
  assert.ok(ui.includes("'VS '+p.variableSymbol"));
  assert.ok(bridge.includes('payment_evidence_status.in.(PROOF_RECEIVED,BANK_VERIFIED)'));
  assert.ok(sync.includes("var verified=r.payment_evidence_status==='BANK_VERIFIED'"));

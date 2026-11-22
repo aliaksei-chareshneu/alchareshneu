@@ -126,12 +126,12 @@ const MAX_PDF_BYTES=5*1024*1024;
 const MAX_MULTIPART_BYTES=MAX_PDF_BYTES+15000;
 const LATE_WINDOW_MS=48*60*60*1000;
 type TrainingTier='STANDARD'|'SENIOR'|'STARTER4';
-type TrainingEvent={event_id:string;community:string;category:string;price_czk:number;begins_at:string;ends_at:string;price_verified:boolean;end_time_verified:boolean;source_active:boolean;is_open:boolean;registration_mode:string;training_price_scheme:string;training_quote_locked_at:string|null;training_operational_go_at:string|null;training_payment_open:boolean;training_payment_recipient:string|null;training_payment_account:string|null};
+type TrainingEvent={event_id:string;community:string;category:string;data_controller:string;price_czk:number;begins_at:string;ends_at:string;price_verified:boolean;end_time_verified:boolean;source_active:boolean;is_open:boolean;registration_mode:string;training_price_scheme:string;training_quote_locked_at:string|null;training_operational_go_at:string|null;training_payment_open:boolean;training_payment_recipient:string|null;training_payment_account:string|null};
 const TRAINING_TIER_PRICE_CZK:Record<TrainingTier,number>={STANDARD:240,SENIOR:120,STARTER4:800};
 function trainingQuote(e:TrainingEvent,tier:TrainingTier='STANDARD',now=Date.now(),privateBank=false){
   // 9 Nov 2026 approved owner tariffs. The 7 Nov group-size formula is withdrawn.
   // Free Orel and legacy individual commitments are never repriced.
-  if(e.community!=='Družina Moravy'||e.category!=='HEMA Training'||
+  if(e.data_controller!=='Družina Moravy, z. s.'||e.community!=='Družina Moravy'||e.category!=='HEMA Training'||
     e.training_price_scheme!=='INDIVIDUAL'||Number(e.price_czk)<=0||
     e.event_id==='PUB-OREL-20261114')return null;
   const ready=!!(e.training_quote_locked_at&&e.training_operational_go_at&&
@@ -151,7 +151,7 @@ function trainingQuote(e:TrainingEvent,tier:TrainingTier='STANDARD',now=Date.now
 }
 function publicTrainingQuote(e:TrainingEvent){
   const q=trainingQuote(e);if(!q)return null;
-  return {status:q.status,late48h:q.late48h,sessionPaymentOpen:q.sessionPaymentOpen,
+  return {status:'AWAITING_ORGANIZER_GO',late48h:q.late48h,sessionPaymentOpen:false,
     tiers:(['STANDARD','SENIOR','STARTER4'] as TrainingTier[]).map(t=>{
       const price=trainingQuote(e,t)!;
       return {tier:t,baseCzk:price.baseCzk,surchargeCzk:price.surchargeCzk,totalCzk:price.totalCzk};
@@ -169,20 +169,26 @@ async function readSmallMultipart(req:Request,contentType:string){
   for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.byteLength;}
   return new Request('https://upload.invalid/',{method:'POST',headers:{'content-type':contentType},body:bytes}).formData();
 }
-// Different legal seller from Druzina; no NGO bank details or club discounts.
-function osvcQuote(e:any,now=Date.now(),privateBank=false){
+// Personal HEMA teaching uses the sole trader as the legal seller. The
+// nonprofit's attendance/membership and historic payments remain separate.
+function osvcQuote(e:any,now=Date.now(),privateBank=false,tier:TrainingTier='STANDARD'){
+  const hema=e.community==='Družina Moravy'&&e.category==='HEMA Training';
   if(e.data_controller!=='Aliaksei Chareshneu (OSVČ)' ||
-     !['Guided Walk','Hike','Tour','Workshop'].includes(e.category) ||
-     !Number.isSafeInteger(Number(e.price_czk)) ||
-     Number(e.price_czk)<1||Number(e.price_czk)>9999999)return null;
+    !(['Guided Walk','Hike','Tour','Workshop'].includes(e.category)||hema) ||
+    !Number.isSafeInteger(Number(e.price_czk)) ||
+    Number(e.price_czk)<1||Number(e.price_czk)>9999999 ||
+    (hema&&tier==='STARTER4'))return null;
   const ready=!!(e.osvc_payment_open&&e.osvc_quote_locked_at&&e.osvc_operational_go_at&&
     e.is_open&&e.source_active&&e.registration_mode==='FORM'&&
     e.price_verified&&e.end_time_verified&&
-    String(e.osvc_payment_recipient||'').trim().length>=3&&
-    String(e.osvc_payment_account||'').trim().length>=8);
+    String(e.osvc_payment_recipient||'').trim()==='Aliaksei Chareshneu'&&
+    String(e.osvc_payment_account||'').replace(/\s/g,'')==='CZ9755000000007804336003');
+  const base=hema?TRAINING_TIER_PRICE_CZK[tier]:Number(e.price_czk);
+  const late=hema&&Date.parse(e.begins_at)-now<LATE_WINDOW_MS;
+  const surcharge=late?Math.ceil(base*0.25):0;
   return {status:ready?'AWAITING_PERSONAL_APPROVAL':'AWAITING_ORGANIZER_GO',
-    tier:'STANDARD',baseCzk:Number(e.price_czk),surchargeCzk:0,
-    totalCzk:Number(e.price_czk),late48h:false,proofRequired:false,
+    tier:hema?tier:'STANDARD',baseCzk:base,surchargeCzk:surcharge,
+    totalCzk:base+surcharge,late48h:late,proofRequired:false,
     quoteLockedAt:ready?e.osvc_quote_locked_at:null,
     recipient:ready&&privateBank?e.osvc_payment_recipient:null,
     account:ready&&privateBank?e.osvc_payment_account:null,
@@ -190,10 +196,15 @@ function osvcQuote(e:any,now=Date.now(),privateBank=false){
 }
 function publicOsVcQuote(e:any){
   const q=osvcQuote(e);if(!q)return null;
-  return {kind:'OSVC_EVENT',status:q.status,late48h:false,
-    sessionPaymentOpen:q.sessionPaymentOpen,tiers:[{
-      tier:'STANDARD',baseCzk:q.baseCzk,surchargeCzk:0,totalCzk:q.totalCzk
-    }],proofRequired:false,requiresPersonalConfirmation:true};
+  const hema=e.category==='HEMA Training'&&e.community==='Družina Moravy';
+  const tiers=hema?(['STANDARD','SENIOR'] as TrainingTier[]).map(t=>{
+    const tierQuote=osvcQuote(e,Date.now(),false,t)!;
+    return {tier:t,baseCzk:tierQuote.baseCzk,
+      surchargeCzk:tierQuote.surchargeCzk,totalCzk:tierQuote.totalCzk};
+  }):[{tier:'STANDARD',baseCzk:q.baseCzk,surchargeCzk:0,totalCzk:q.totalCzk}];
+  return {kind:'OSVC_EVENT',status:q.status,late48h:q.late48h,
+    sessionPaymentOpen:q.sessionPaymentOpen,tiers,proofRequired:false,
+    requiresPersonalConfirmation:!hema,personalSellerConsentRequired:hema};
 }
 function generateVariableSymbol(){
  const parts=crypto.getRandomValues(new Uint32Array(2));
@@ -398,30 +409,38 @@ Deno.serve(async (req:Request):Promise<Response>=>{
   const training=trainingQuote(event);
   const osvc=osvcQuote(event);
   const payment=training||osvc,isOsVc=!!osvc;
+  const isOsVcHema=isOsVc&&event.category==='HEMA Training'&&event.community==='Družina Moravy';
   if(payment&&Date.now()>=Date.parse(event.begins_at))
     return reply({error:'event_not_available'},409,origin);
   let trainingTier:TrainingTier='STANDARD';
   if(payment){
     try{trainingTier=safeEnum(body.trainingTier||'STANDARD',
-      isOsVc?['STANDARD']:['STANDARD','SENIOR','STARTER4']) as TrainingTier;}
+      isOsVc?(isOsVcHema?['STANDARD','SENIOR']:['STANDARD']):['STANDARD','SENIOR','STARTER4']) as TrainingTier;}
     catch{return reply({error:'invalid_training_tier'},400,origin);}
   }
   const resumeToken=String(body.paymentResumeToken||'').trim();
   const action=String(body.action||'submit');
-  if(!['submit','quote'].includes(action))return reply({error:'invalid_request'},400,origin);
+  if(!['submit','quote','manual_proof'].includes(action))return reply({error:'invalid_request'},400,origin);
   if(resumeToken&&!/^[A-Za-z0-9_-]{43}$/.test(resumeToken))
     return reply({error:'invalid_payment_code'},400,origin);
-  if(action==='quote'&&!resumeToken)return reply({error:'payment_code_required'},400,origin);
+  if((action==='quote'||action==='manual_proof')&&!resumeToken)
+    return reply({error:'payment_code_required'},400,origin);
+  if(action==='manual_proof'&&!proof)return reply({error:'payment_pdf_required'},400,origin);
   if(proof&&(!resumeToken||!payment))return reply({error:'payment_not_open'},400,origin);
   const expiry=new Date(new Date(event.ends_at).getTime()+90*86400000);
   let receiptId:string|null=null,issuedToken:string|null=null;
   let proofReceived=false,verifiedQuote:null|NonNullable<ReturnType<typeof trainingQuote>>|NonNullable<ReturnType<typeof osvcQuote>>=null;
   if(resumeToken){
-    if(!payment||!payment.sessionPaymentOpen||v.rsvp!=='YES')
+    // Direct owner decision: no client-visible association bank details, even
+    // if a legacy event or individual authorization mistakenly remains open.
+    // Existing-transfer PDFs are still accepted for private manual review.
+    if(!isOsVc && action!=='manual_proof')
+      return reply({error:'nonprofit_checkout_disabled'},409,origin);
+    if(!payment||(action!=='manual_proof'&&!payment.sessionPaymentOpen)||v.rsvp!=='YES')
       return reply({error:'payment_not_open'},409,origin);
     const hashed=await tokenHash(resumeToken);
     const lookup=await api.from('imperion_rsvp_submissions')
-      .select('id,created_at,training_requested_tier,training_authorized_tier,training_authorized_at,osvc_authorized_at,payment_variable_symbol')
+      .select('id,created_at,data_controller,training_requested_tier,training_authorized_tier,training_authorized_at,osvc_authorized_at,osvc_personal_consent_at,payment_variable_symbol')
       .eq('event_id',v.eventId).eq('email',v.email).eq('first_name',v.first)
       .eq('last_name',v.last).eq('payment_resume_token_hash',hashed)
       .eq('rsvp_status','YES').eq('payment_evidence_status','NOT_REQUIRED')
@@ -434,25 +453,110 @@ Deno.serve(async (req:Request):Promise<Response>=>{
     if(!/^[1-9][0-9]{9}$/.test(vs))return reply({error:'numeric_vs_not_issued'},409,origin);
     const savedTier=lookup.data.training_requested_tier as TrainingTier;
     if(savedTier!==trainingTier)return reply({error:'training_tier_changed'},409,origin);
-    const approved=isOsVc?!!lookup.data.osvc_authorized_at:
-      (!!lookup.data.training_authorized_at &&
-       (savedTier==='STANDARD'||lookup.data.training_authorized_tier===savedTier));
+    // A customer who ALREADY made a transfer may attach its PDF without an
+    // approved quote. Do not advertise payment instructions or auto-match funds.
+    // Restricted to Druzina HEMA, valid one-use code + exact original identity.
+    // This is document intake for human review, NOT checkout or bank settlement.
+    if(action==='manual_proof'){
+      if((isOsVc&&!isOsVcHema)||(!training&&!isOsVcHema)||!proof ||
+        (isOsVcHema&&lookup.data.data_controller!=='Družina Moravy, z. s.'))
+        return reply({error:'payment_not_open'},409,origin);
+      // The public Druzina page states OSVC as the current paid-training
+      // provider. Some older individually agreed transfers may be to the z.s.
+      // Never merge their private PDF evidence or infer the payee from club name.
+      let proofRecipient:'OSVC'|'DRUZINA';
+      try{proofRecipient=safeEnum(body.proofRecipient,['OSVC','DRUZINA']) as 'OSVC'|'DRUZINA';}
+      catch{return reply({error:'proof_recipient_required'},400,origin);}
+      const manualBucket=proofRecipient==='OSVC'?OSVC_PROOF_BUCKET:PROOF_BUCKET;
+      let bytes:Uint8Array,hash:string;
+      try{const parsed=await pdfInfo(proof);bytes=parsed.bytes;hash=parsed.hash;}
+      catch{return reply({error:'invalid_payment_pdf'},400,origin);}
+      const reused=await api.from('imperion_rsvp_submissions').select('id')
+        .eq('payment_pdf_sha256',hash).neq('id',lookup.data.id).limit(1);
+      if(reused.error)return reply({error:'temporarily_unavailable'},503,origin);
+      if(reused.data?.length)return reply({error:'duplicate_payment_pdf'},409,origin);
+      const pdfPath=expiry.toISOString().slice(0,10)+'/'+crypto.randomUUID()+'.pdf';
+      const uploaded=await api.storage.from(manualBucket).upload(pdfPath,bytes,{
+        contentType:'application/pdf',upsert:false,cacheControl:'0'});
+      if(uploaded.error)return reply({error:'proof_storage_unavailable'},503,origin);
+      const saved=await api.from('imperion_rsvp_submissions').update({
+        payment_pdf_path:pdfPath,payment_pdf_sha256:hash,
+        payment_evidence_status:'PROOF_RECEIVED',
+        payment_pdf_review_status:'NEEDS_MANUAL_REVIEW',
+        payment_pdf_review_flags:['NO_APPROVED_PAYMENT_QUOTE','RECIPIENT_SELF_REPORTED_'+proofRecipient],
+        payment_evidence_received_at:new Date().toISOString(),
+        // Explicitly EXCLUDE from Fio automation; owner must review legal
+        // seller, actual recipient, terms and transfer before any bank check.
+        payment_bank_check_after:null,
+        payment_resume_token_hash:null,payment_crm_synced_at:null
+      }).eq('id',lookup.data.id).eq('payment_resume_token_hash',hashed)
+        .eq('payment_evidence_status','NOT_REQUIRED').is('payment_pdf_path',null)
+        .select('id').maybeSingle();
+      if(saved.error||!saved.data){
+        await api.storage.from(manualBucket).remove([pdfPath]);
+        return reply({error:saved.error?.code==='23505'?'duplicate_payment_pdf':'proof_storage_unavailable'},
+          saved.error?.code==='23505'?409:503,origin);
+      }
+      return reply({ok:true,status:'RECEIVED',reference:saved.data.id,confirmed:false,
+        paymentEvidenceStatus:'PROOF_RECEIVED',pdfReviewStatus:'NEEDS_MANUAL_REVIEW',
+        paymentNotApproved:true,bankVerified:false,
+        message:'PDF received for manual review only. No bank or seat confirmation.'},200,origin);
+    }
+    // Re-offer for personal HEMA: a buyer with an existing private code
+    // explicitly agrees to the sole-trader provider and the published tariff.
+    // Keep the original association provider in a separate audit column.
+    // Opting in does not confirm a seat, payment or an old association debt.
+    if(isOsVcHema){
+      if(body.osvcSellerConsent!==true)
+        return reply({error:'personal_seller_consent_required'},409,origin);
+      // A person cannot self-select the verified Senior discount. Reuse an
+      // already approved SENIOR tier or a separate owner OSVC authorization.
+      // Reject package checkout BEFORE changing the legal seller.
+      if(savedTier==='STARTER4')
+        return reply({error:'package_checkout_requires_plan_authorization'},409,origin);
+      if(savedTier==='SENIOR' &&
+         !(lookup.data.osvc_authorized_at ||
+           (lookup.data.training_authorized_at && lookup.data.training_authorized_tier==='SENIOR')))
+        return reply({error:'senior_status_not_verified'},409,origin);
+      if(!['Družina Moravy, z. s.','Aliaksei Chareshneu (OSVČ)'].includes(String(lookup.data.data_controller||'')))
+        return reply({error:'provider_mismatch'},409,origin);
+      if(!lookup.data.osvc_personal_consent_at){
+        const switched=await api.from('imperion_rsvp_submissions').update({
+          data_controller:'Aliaksei Chareshneu (OSVČ)',
+          osvc_personal_consent_at:new Date().toISOString(),
+          osvc_previous_controller:lookup.data.data_controller==='Družina Moravy, z. s.'
+            ? 'Družina Moravy, z. s.':null,
+          payment_crm_synced_at:null
+        }).eq('id',lookup.data.id).eq('payment_resume_token_hash',hashed)
+          .eq('payment_evidence_status','NOT_REQUIRED')
+          .is('osvc_personal_consent_at',null)
+          .select('id').maybeSingle();
+        if(switched.error||!switched.data)return reply({error:'consent_record_unavailable'},503,origin);
+      }
+    }
+    const approved=isOsVc
+      ?(isOsVcHema||!!lookup.data.osvc_authorized_at)
+      :(!!lookup.data.training_authorized_at &&
+        (savedTier==='STANDARD'||lookup.data.training_authorized_tier===savedTier));
     if(!approved)return reply({error:'personal_confirmation_pending'},409,origin);
     // Starter4 requires a verified four-session package ledger and seat gates.
     // An approved single-event RSVP cannot sell four attendances.
-    if(!isOsVc&&savedTier==='STARTER4')return reply({error:'package_checkout_requires_plan_authorization'},409,origin);
+    if(savedTier==='STARTER4')return reply({error:'package_checkout_requires_plan_authorization'},409,origin);
     // Late fee belongs to the original registration timestamp, not to a later PDF upload.
     const registrationMs=Date.parse(lookup.data.created_at||'');
     if(!Number.isFinite(registrationMs)||registrationMs>Date.now())
       return reply({error:'invalid_registration_timestamp'},409,origin);
-    verifiedQuote=isOsVc?osvcQuote(event,registrationMs,true):trainingQuote(event,savedTier,registrationMs,true);
+    verifiedQuote=isOsVc?osvcQuote(event,registrationMs,true,savedTier):trainingQuote(event,savedTier,registrationMs,true);
     if(!verifiedQuote||!verifiedQuote.sessionPaymentOpen||!verifiedQuote.account)
       return reply({error:'payment_not_open'},409,origin);
-    // Check legal payee against protected Edge Function configuration; never accept a browser-supplied account.
+    // Personal commercial services use ONLY the independently verified
+    // Raiffeisenbank owned by Aliaksei Chareshneu (OSVC).
+    // The nonprofit association bank never enters a public response or QR.
+    // No receipt or registration is marked bank-verified by this check.
     const approvedIban=verifiedBankIban(verifiedQuote.account,verifiedQuote.recipient,
-      Deno.env.get(isOsVc?'OSVC_APPROVED_IBAN':'DRUZINA_APPROVED_IBAN'),
-       Deno.env.get(isOsVc?'OSVC_APPROVED_PAYEE':'DRUZINA_APPROVED_PAYEE'));
-    const spd=approvedIban ? createTrainingSpd(approvedIban,verifiedQuote.totalCzk,lookup.data.id,vs,isOsVc?'BW':'DM') : null;
+      Deno.env.get('OSVC_APPROVED_IBAN') || 'CZ9755000000007804336003',
+      Deno.env.get('OSVC_APPROVED_PAYEE') || 'Aliaksei Chareshneu');
+    const spd=approvedIban ? createTrainingSpd(approvedIban,verifiedQuote.totalCzk,lookup.data.id,vs,isOsVcHema?'HEMA-OSVC':isOsVc?'BW':'DM') : null;
     if(!spd)return reply({error:'approved_bank_not_configured'},409,origin);
     if(action==='quote'){
       if(proof)return reply({error:'invalid_request'},400,origin);
@@ -498,7 +602,7 @@ Deno.serve(async (req:Request):Promise<Response>=>{
       payment_evidence_received_at:new Date().toISOString(),
       // No bank checks before the documented T-48 payment due date;
       // new late applicants are due immediately after uploading proof.
-      payment_bank_check_after:new Date(Math.max(Date.now(),
+      payment_bank_check_after:isOsVc?null:new Date(Math.max(Date.now(),
         Date.parse(event.begins_at)-LATE_WINDOW_MS)).toISOString(),
       payment_resume_token_hash:null,payment_crm_synced_at:null
     }).eq('id',lookup.data.id).eq('payment_resume_token_hash',hashed)
@@ -522,7 +626,7 @@ Deno.serve(async (req:Request):Promise<Response>=>{
       language:v.locale,retention_until:expiry.toISOString(),
       discovery_source:v.discovery,utm_source:v.utmSource,
       utm_medium:v.utmMedium,utm_campaign:v.utmCampaign,
-      ...(training?{training_requested_tier:trainingTier}:{}),
+      ...((training||isOsVcHema)?{training_requested_tier:trainingTier}:{}),
        ...(issuedToken?{payment_variable_symbol:generateVariableSymbol(),
         payment_resume_token_hash:await tokenHash(issuedToken),
         payment_status_token_hash:await tokenHash(issuedToken),

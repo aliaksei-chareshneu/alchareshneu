@@ -12,12 +12,13 @@ const sql=fs.readFileSync('supabase/migrations/20261119_unified_osvc_paid_events
 const fio=fs.readFileSync('supabase/functions/imperion-druzina-fio-reconcile/index.ts','utf8');
 test('OSVC tour receives a separate quote and evidence workflow, NOT NGO bank config',()=>{
  for(const s of ["data_controller!=='Aliaksei Chareshneu (OSVČ)'",
-   "isOsVc?'OSVC_APPROVED_IBAN':'DRUZINA_APPROVED_IBAN'",
-   "isOsVc?'OSVC_APPROVED_PAYEE':'DRUZINA_APPROVED_PAYEE'",
+   "Deno.env.get('OSVC_APPROVED_IBAN')",
+   "nonprofit_checkout_disabled",
+   "Deno.env.get('OSVC_APPROVED_PAYEE')",
    "isOsVc?OSVC_PROOF_BUCKET:PROOF_BUCKET",
    "publicTrainingQuote(e)||publicOsVcQuote(e)",
    "paymentEvidenceStatus:'PROOF_RECEIVED',bankVerified:false",
-   "osvc_authorized_at","!isOsVc&&savedTier==='STARTER4'"])
+   "osvc_authorized_at","if(savedTier==='STARTER4')"])
    assert.ok(edge.includes(s),s);
  assert.match(edge,/if\(proof&&\(!resumeToken\|\|!payment\)\)/);
  assert.ok(sql.includes('osvc_payment_open boolean NOT NULL DEFAULT false'));

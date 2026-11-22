@@ -97,6 +97,13 @@
     }
   };
   function pc(k){return (PAYMENT_COPY[lang]||PAYMENT_COPY.cs)[k];}
+  var OSVC_RAIF_NOTICE={
+    cs:'OSVČ Aliaksei Chareshneu — Raiffeisenbank 7804336003/5500, IBAN CZ9755000000007804336003. Platit až po písemném potvrzení poskytovatele, akce a konečné ceny. Ne pro platby spolku.',
+    en:'OSVČ Aliaksei Chareshneu — Raiffeisenbank 7804336003/5500, IBAN CZ9755000000007804336003. Transfer only after written approval of the provider, event and final price. Not for association payments.',
+    ru:'OSVČ Aliaksei Chareshneu — Raiffeisenbank 7804336003/5500, IBAN CZ9755000000007804336003. Переводите только после письменного согласования продавца, мероприятия и суммы. Не для платежей объединению.',
+    uk:'OSVČ Aliaksei Chareshneu — Raiffeisenbank 7804336003/5500, IBAN CZ9755000000007804336003. Переказуйте лише після письмового погодження продавця, події та суми. Не для платежів громадській організації.'
+  };
+
   function isPaidActivity(e){return e&&Number.isFinite(Number(e.price_czk))&&Number(e.price_czk)>0;}
   function displayEventPrice(e){
     if(e.provisional)return window.ImperionCalendarPolicy.langData(lang).price;
@@ -119,7 +126,7 @@
     el('fdPaymentTiming').textContent=pc('timing');
     el('fdPaymentCancellation').textContent=pc('cancellation');
     el('fdPaymentException').textContent=pc('exception');
-    el('fdPaymentNotice').textContent=pc('notice');
+    el('fdPaymentNotice').textContent=['Aliaksei Chareshneu (OSVČ)','Aliaksei Chareshneu (OSVČ, IČO 23041625)'].includes(e.data_controller) ? (OSVC_RAIF_NOTICE[lang]||OSVC_RAIF_NOTICE.cs) : pc('notice');
     el('fdPaymentGuard').textContent=pc('guard');
     // An event ID is mandatory and validated from the existing public catalogue.
     var message=pc('message')+' "'+publicTitle(e)+'" (ID: '+e.event_id+'). '+pc('ask');

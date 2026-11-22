@@ -77,14 +77,16 @@ for(const lang of languages){
   await expect(page.locator('#rsvpForm')).toBeVisible();
   await expect(page.locator('#eventId')).toHaveValue(ID);
   await expect(page.locator('#trainingPayment')).toBeVisible();
-  await expect(page.locator('#paymentProofField')).toBeHidden();
+  await expect(page.locator('#paymentProofField')).toBeVisible();
+  await expect(page.locator('#paymentProof')).not.toHaveAttribute('required','');
   await expect(page.locator('#interestForm')).toHaveCount(0);
  });
  test('Only canonical form accepts new preliminary RSVP; code is not a paid seat: '+lang,async({page})=>{
   const submitted=await mockApi(page);
   await page.goto('/register/?lang='+lang+'&event='+ID);
   await expect(page.locator('#rsvpForm')).toBeVisible();
-  await expect(page.locator('#paymentProofField')).toBeHidden();
+  await expect(page.locator('#paymentProofField')).toBeVisible();
+  await expect(page.locator('#paymentProof')).not.toHaveAttribute('required','');
   await page.locator('#submit').click();
   expect(submitted).toHaveLength(0);
   await page.locator('#firstName').fill('Test');
@@ -104,7 +106,7 @@ for(const lang of languages){
   expect(body).not.toHaveProperty('quotedTotalCzk');
  });
 }
-test('Only an individually approved private quote enables a PDF; upload cannot verify the bank',async({page})=>{
+test('Approved quote alone reveals bank details; unverified PDF stays manual',async({page})=>{
  const q={status:'AWAITING_PERSONAL_APPROVAL',late48h:true,proofRequired:false,
    sessionPaymentOpen:true,tiers:[
     {tier:'STANDARD',baseCzk:240,surchargeCzk:60,totalCzk:300},
@@ -131,7 +133,9 @@ test('Only an individually approved private quote enables a PDF; upload cannot v
  });
  await page.goto('/register/?lang=en&event='+ID);
  await expect(page.locator('#trainingPaymentAmount')).toContainText('300');
- await expect(page.locator('#paymentProofField')).toBeHidden();
+ await expect(page.locator('#paymentProofField')).toBeVisible();
+ await expect(page.locator('#paymentProof')).not.toHaveAttribute('required','');
+ await expect(page.locator('#paymentQrArea')).toBeHidden();
  await page.locator('#firstName').fill('Test');
  await page.locator('#lastName').fill('Visitor');
  await page.locator('#email').fill('example@example.invalid');
@@ -139,7 +143,8 @@ test('Only an individually approved private quote enables a PDF; upload cannot v
  await page.locator('#safety').check();
  await page.locator('#paymentResumeToken').fill('A'.repeat(43));
  await expect(page.locator('#paymentQuoteButton')).toBeVisible();
- await expect(page.locator('#paymentProofField')).toBeHidden();
+ await expect(page.locator('#paymentProofField')).toBeVisible();
+ await expect(page.locator('#paymentQrArea')).toBeHidden();
  await page.locator('#paymentQuoteButton').click();
  await expect(page.locator('#paymentProofField')).toBeVisible();
  await expect(page.locator('#trainingPaymentPrivate')).toContainText('300');
@@ -153,6 +158,71 @@ test('Only an individually approved private quote enables a PDF; upload cannot v
  expect(pdfBody).toContain('transfer.pdf');
  await expect(page.locator('#result')).toContainText('PDF');
 });
+
+test('One-screen already-paid PDF is attached to newly created RSVP, not a second registration',async({page})=>{
+ const requests=[],responses=[];
+ await mockApi(page,mockEvent(),async request=>{
+  requests.push(request);
+  if((request.headers()['content-type']||'').startsWith('multipart/')){
+   responses.push('PROOF_RECEIVED');
+   return {ok:true,status:'RECEIVED',reference:'11111111-1111-4111-8111-111111111111',
+    confirmed:false,paymentEvidenceStatus:'PROOF_RECEIVED',
+    pdfReviewStatus:'NEEDS_MANUAL_REVIEW',bankVerified:false,paymentNotApproved:true};
+  }
+  responses.push('RECEIVED');
+  return {ok:true,status:'RECEIVED',confirmed:false,
+   reference:'11111111-1111-4111-8111-111111111111',resumeToken:'A'.repeat(43)};
+ });
+ await page.goto('/register/?lang=en&event='+ID);
+ await page.locator('#firstName').fill('Test');
+ await page.locator('#lastName').fill('Visitor');
+ await page.locator('#email').fill('example@example.invalid');
+ await page.locator('#phone').fill('+420702000000');
+ await page.locator('#safety').check();
+ await expect(page.locator('#paymentProofField')).toBeVisible();
+ await expect(page.locator('#trainingPaymentInstructions')).not.toContainText('Transfer to');
+ await page.locator('#paymentProof').setInputFiles({name:'prior-transfer.pdf',mimeType:'application/pdf',
+  buffer:Buffer.from('%PDF-1.4\\n'+'.'.repeat(400))});
+ await page.locator('#submit').click();
+ await expect(page.locator('#result')).toBeVisible();
+ expect(requests).toHaveLength(2);
+ expect(responses).toEqual(['RECEIVED','PROOF_RECEIVED']);
+ expect(requests[0].headers()['content-type']).toContain('application/json');
+ expect(requests[1].headers()['content-type']).toContain('multipart/form-data');
+ expect(requests[1].postData()).toContain('manual_proof');
+ expect(requests[1].postData()).toContain('proofRecipient');
+ expect(requests[1].postData()).toContain('OSVC');
+ expect(requests[1].postData()).toContain('prior-transfer.pdf');
+ await expect(page.locator('#result')).toContainText('PDF');
+ await expect(page.locator('#result input[readonly]')).toHaveValue('A'.repeat(43));
+ await expect(page.locator('#result')).not.toContainText('bank verified');
+});
+
+test('Existing RSVP uses private code to upload receipt without duplicate booking',async({page})=>{
+ const posts=[];
+ await mockApi(page,mockEvent(),async request=>{
+  posts.push(request);
+  return {ok:true,status:'RECEIVED',confirmed:false,
+   paymentEvidenceStatus:'PROOF_RECEIVED',bankVerified:false,pdfReviewStatus:'NEEDS_MANUAL_REVIEW'};
+ });
+ await page.goto('/register/?lang=en&event='+ID);
+ await page.locator('#firstName').fill('Test');
+ await page.locator('#lastName').fill('Visitor');
+ await page.locator('#email').fill('example@example.invalid');
+ await page.locator('#phone').fill('+420702000000');
+ await page.locator('#safety').check();
+ await page.locator('#paymentResumeToken').fill('A'.repeat(43));
+ await page.locator('#paymentProof').setInputFiles({name:'existing.pdf',mimeType:'application/pdf',
+  buffer:Buffer.from('%PDF-1.4\\n'+'.'.repeat(400))});
+ await page.locator('#submit').click();
+ await expect(page.locator('#result')).toBeVisible();
+ expect(posts).toHaveLength(1);
+ expect(posts[0].headers()['content-type']).toContain('multipart/form-data');
+ expect(posts[0].postData()).toContain('manual_proof');
+ expect(posts[0].postData()).toContain('proofRecipient');
+ await expect(page.locator('#result')).toContainText('PDF');
+});
+
 test('Free Orel HEMA-classified workshop never displays payment PDF',async({page})=>{
  const event=mockFree();
  await mockApi(page,event);
