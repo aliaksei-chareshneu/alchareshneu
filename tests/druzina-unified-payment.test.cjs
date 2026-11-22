@@ -70,7 +70,7 @@ test('the resume code enforces server-side tier approval and no duplicate intake
   "payment_resume_token_hash:null","payment_crm_synced_at:null",
   "paymentEvidenceStatus:'PROOF_RECEIVED',bankVerified:false",
   "verifiedQuote=isOsVc?osvcQuote(event,registrationMs,true,savedTier):trainingQuote(event,savedTier,registrationMs,true)",
-  ".select('id,created_at,training_requested_tier",
+  ".select('id,created_at,data_controller,training_requested_tier",
   "Date.now()>=Date.parse(event.begins_at)"]){
   assert.ok(edge.includes(needle),needle);
  }
