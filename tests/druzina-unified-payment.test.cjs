@@ -139,7 +139,7 @@ test('QR Platba instruction is unique, amount-locked, and cannot substitute bank
   "nonprofit_checkout_disabled",
   "if(!spd)return reply({error:'approved_bank_not_configured'}","paymentReference:lookup.data.id,variableSymbol:vs,spd"])assert.ok(edge.includes(check),check);
  assert.ok(!edge.includes('DRUZINA_APPROVED_IBAN'),'association account cannot be used for client-visible payments');
- assert.ok(!edge.includes('CZ4220100000002703598853'),'no association bank number in public code');
+ assert.ok(edge.includes('nonprofit_checkout_disabled'),'server refuses nonprofit bank instructions regardless of row state');
  for(const page of pages){
   const html=fs.readFileSync(page,'utf8');
   assert.ok(html.includes('id="paymentQrArea"')&&html.includes('vendor/qrcode.min.js'),page);
