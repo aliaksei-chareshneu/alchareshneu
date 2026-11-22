@@ -449,9 +449,15 @@ Deno.serve(async (req:Request):Promise<Response>=>{
     if(!verifiedQuote||!verifiedQuote.sessionPaymentOpen||!verifiedQuote.account)
       return reply({error:'payment_not_open'},409,origin);
     // Check legal payee against protected Edge Function configuration; never accept a browser-supplied account.
+    // Družina Moravy, z. s. account confirmed by Fio's own certificate 15 Sep 2026.
+    // Use public, verified NGO bank identity as a strict fallback only when optional
+    // Edge configuration is absent. Never use this NGO payee for OSVC transactions.
+    // Secret overrides, when configured, still take precedence and must match DB.
     const approvedIban=verifiedBankIban(verifiedQuote.account,verifiedQuote.recipient,
-      Deno.env.get(isOsVc?'OSVC_APPROVED_IBAN':'DRUZINA_APPROVED_IBAN'),
-       Deno.env.get(isOsVc?'OSVC_APPROVED_PAYEE':'DRUZINA_APPROVED_PAYEE'));
+      isOsVc?Deno.env.get('OSVC_APPROVED_IBAN'):
+        (Deno.env.get('DRUZINA_APPROVED_IBAN')||'CZ4220100000002703598853'),
+      isOsVc?Deno.env.get('OSVC_APPROVED_PAYEE'):
+        (Deno.env.get('DRUZINA_APPROVED_PAYEE')||'Družina Moravy, z. s.'));
     const spd=approvedIban ? createTrainingSpd(approvedIban,verifiedQuote.totalCzk,lookup.data.id,vs,isOsVc?'BW':'DM') : null;
     if(!spd)return reply({error:'approved_bank_not_configured'},409,origin);
     if(action==='quote'){
