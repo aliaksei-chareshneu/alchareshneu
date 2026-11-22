@@ -135,3 +135,17 @@ test('personal HEMA quote uses the published senior tariff, 48-hour rule and onl
  assert.ok(ui.includes('osvcSellerConsent:hemaPersonal'));
  assert.ok(ui.includes('osvcSellerConsent:!!'));
 });
+
+test('HEMA Senior discount cannot be self-selected without verified status',()=>{
+ const edge=read('supabase/functions/imperion-register/index.ts');
+ const consent=edge.indexOf("if(body.osvcSellerConsent!==true)");
+ const senior=edge.indexOf("if(savedTier==='SENIOR' &&",consent);
+ const accept=edge.indexOf('osvc_personal_consent_at:new Date().toISOString()',consent);
+ assert.ok(consent>0 && senior>consent && accept>senior,
+   'verify Senior before changing legal seller or issuing the Raiffeisen quote');
+ const checks=edge.slice(senior,accept);
+ assert.ok(checks.includes("lookup.data.training_authorized_tier==='SENIOR'"));
+ assert.ok(checks.includes('lookup.data.osvc_authorized_at'));
+ assert.ok(checks.includes("senior_status_not_verified"));
+ assert.ok(edge.includes("if(savedTier==='STARTER4')"));
+});
