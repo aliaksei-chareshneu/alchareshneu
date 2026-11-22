@@ -21,6 +21,7 @@ function loadPrices(){
 const {trainingQuote,publicTrainingQuote}=loadPrices();
 const event={
  event_id:'PUB-HEMA-20261116',community:'Družina Moravy',category:'HEMA Training',
+ data_controller:'Družina Moravy, z. s.',
  price_czk:240,begins_at:'2026-11-16T17:00:00Z',is_open:true,source_active:true,
  price_verified:true,end_time_verified:true,registration_mode:'FORM',
  training_price_scheme:'INDIVIDUAL',training_payment_open:true,
