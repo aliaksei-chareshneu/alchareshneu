@@ -23,6 +23,9 @@ jobs:
           ffmpeg -hide_banner -filters 2>&1 | grep -E ' subtitles ' >/dev/null
       - name: Python unit tests
         run: python3 -m unittest discover -s tools/auto-video-pipeline/tests -v
+      - name: E09 editor agent read-only capability preflight
+        working-directory: tools/auto-video-pipeline
+        run: python3 editor_agent.py doctor --project "${{ runner.temp }}"
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
