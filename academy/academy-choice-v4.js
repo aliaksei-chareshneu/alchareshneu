@@ -20,7 +20,12 @@
   ['archery','movement',{cs:'Individuální lukostřelba',en:'Private archery',ru:'Индивидуальная стрельба из лука',uk:'Індивідуальна стрільба з лука'}],
   ['medical','support',{cs:'Tlumočení u lékaře',en:'Medical interpreting',ru:'Перевод у врача',uk:'Переклад у лікаря'}],
   ['offices','support',{cs:'Úřady a dokumenty',en:'Offices and documents',ru:'Учреждения и документы',uk:'Установи та документи'}],
-  ['legal','support',{cs:'Hledání odborníka',en:'Finding a specialist',ru:'Поиск специалиста',uk:'Пошук фахівця'}]
+  ['legal','support',{cs:'Hledání odborníka',en:'Finding a specialist',ru:'Поиск специалиста',uk:'Пошук фахівця'}],
+  ['composition','music',{cs:'Hudební kompozice',en:'Music composition',ru:'Музыкальная композиция',uk:'Музична композиція'}],
+  ['vocals','music',{cs:'Zpěv a hlasová průprava',en:'Vocals and voice coaching',ru:'Вокал и постановка голоса',uk:'Вокал і постановка голосу'}],
+  ['choir-conducting','music',{cs:'Dirigování sboru',en:'Choir conducting',ru:'Дирижирование хором',uk:'Диригування хором'}],
+  ['guitar','music',{cs:'Kytara',en:'Guitar',ru:'Гитара',uk:'Гітара'}],
+  ['piano','music',{cs:'Klavír',en:'Piano',ru:'Фортепиано',uk:'Фортепіано'}]
  ];
  var dictionary={
  cs:{find:'Vyhledejte předmět nebo službu',placeholder:'Začněte psát: chemie, A2, fitness, Python…',found:'Vyberte možnost ze seznamu',choose:'Vybrat variantu →',custom:'Nic z toho? Popište svůj vlastní cíl →',allPrices:'Zobrazit úplný ceník a všechna zaměření',priceTitle:'Ceny na první pohled',priceLead:'Předběžné sazby pro nové poptávky; konkrétní rozsah, podmínky a termín potvrdíme písemně.',priceStudy:'Individuální výuka online',priceGroup:'Online mini-skupina · od 6 platících osob',priceMove:'Fitness online / osobně',priceConsult:'Pomoc s výběrem služby',priceNotes:'Skupina: 350 Kč/os./60 min do 31.12.2026, 400 Kč od 1.1.2027. Ostatní individuální odborné služby dle písemné nabídky. Dřívější dohody platí.',full:'Úplný původní ceník · otevřít 9 kategorií',extras:'Další informace, balíčky a placená konzultace',product:'Vyberte konkrétní formát',sub:'Tři srozumitelné možnosti pro váš cíl. Poptávka není rezervace.',school:['Škola a průběžné učivo','Přijímačky a maturita','Univerzita a náročné předměty'],technical:['Začít od základu','Praktický projekt nebo data','Univerzita a pokročilá práce'],languages:['Komunikace v životě a práci','Zkouška nebo certifikát','Studium a profesní situace'],movement:['Úvodní individuální lekce','Pravidelný osobní plán','Technika, koordinace a bezpečný postup'],support:['Příprava a porozumění','Tlumočení nebo doprovod','Praktické navazující kroky'],safe:'Výuka pohybu není lékařská péče. Šerm a lukostřelba vyžadují ověřené místo, výstroj a bezpečnostní podmínky.',legal:'Pouze jazyková a organizační podpora, nikoliv právní rady nebo léčení.'},
@@ -28,15 +33,21 @@
  ru:{find:'Найдите предмет или услугу',placeholder:'Например: химия, A2, фитнес, Python…',found:'Выберите вариант из списка',choose:'Выбрать этот вариант →',custom:'Не нашли подходящее? Описать свою задачу →',allPrices:'Все цены и направления деятельности',priceTitle:'Цены с первого взгляда',priceLead:'Публичные ставки для новых запросов. Состав, доступность и условия согласуются письменно.',priceStudy:'Индивидуальный урок онлайн',priceGroup:'Онлайн-минигруппа · от 6 оплативших',priceMove:'Фитнес онлайн / очно',priceConsult:'Помощь с выбором услуги',priceNotes:'Группа: 350 Kč/чел./60 мин до 31.12.2026; 400 Kč с 01.01.2027. Специализированные услуги — по письменному предложению. Старые договорённости действуют.',full:'Полный оригинальный прайс · 9 категорий',extras:'Дополнительные программы, пакеты и консультация',product:'Выберите конкретный формат',sub:'Три понятных решения под вашу цель. Запрос — ещё не запись.',school:['Школьная программа и контрольные','Вступительные экзамены и выпускные','Предмет в университете'],technical:['Начать с нуля','Практический проект и данные','Университет и продвинутый уровень'],languages:['Для жизни и работы','Для экзамена или сертификата','Для учёбы и профессии'],movement:['Первая индивидуальная тренировка','План регулярных занятий','Техника, координация и безопасность'],support:['Подготовить вопросы и документы','Перевод или сопровождение','Следующие организационные шаги'],safe:'Это не медицинская услуга. Фехтование и стрельба из лука — только после проверки места, снаряжения и безопасности.',legal:'Только языковая и организационная помощь, без медицинских и юридических консультаций.'},
  uk:{find:'Знайдіть предмет або послугу',placeholder:'Наприклад: хімія, A2, фітнес, Python…',found:'Оберіть варіант зі списку',choose:'Обрати цей варіант →',custom:'Не знайшли свого? Опишіть власну мету →',allPrices:'Усі ціни та напрями діяльності',priceTitle:'Ціни з першого погляду',priceLead:'Публічні ставки для нових звернень. Обсяг, доступність та умови погоджуються письмово.',priceStudy:'Індивідуальне заняття онлайн',priceGroup:'Онлайн-мінігрупа · від 6 оплативших',priceMove:'Фітнес онлайн / очно',priceConsult:'Допомога з вибором послуги',priceNotes:'Група: 350 Kč/особу/60 хв до 31.12.2026; 400 Kč з 01.01.2027. Спеціальні послуги за письмовою пропозицією. Раніше погоджені умови зберігаються.',full:'Повний оригінальний прайс · 9 категорій',extras:'Додаткові програми, пакети та консультація',product:'Оберіть конкретний формат',sub:'Три зрозумілі рішення для вашої мети. Звернення не дорівнює бронюванню.',school:['Шкільний курс і контрольні','Вступні та випускні іспити','Університетський предмет'],technical:['Почати з основ','Практичний проєкт і дані','Університет і поглиблений рівень'],languages:['Для життя й роботи','Для іспиту або сертифіката','Для навчання та професії'],movement:['Перше індивідуальне заняття','План регулярних тренувань','Техніка, координація та безпека'],support:['Підготувати запитання й документи','Переклад або супровід','Наступні організаційні кроки'],safe:'Це не медична допомога. Фехтування та стрільба з лука — після перевірки місця, спорядження і безпеки.',legal:'Лише мовна та організаційна допомога, без медичних чи юридичних консультацій.'}
  };
+ var musicVariants={
+  cs:{options:['Individuální online lekce','Osobní lekce v Brně','Individuální program nebo práce se sborem'],quote:'Cena dle písemné nabídky',cta:'Poptat termín a cenu →'},
+  en:{options:['Private online lesson','In-person lesson in Brno','Tailored programme or choir work'],quote:'Price quoted in writing',cta:'Request time and price →'},
+  ru:{options:['Индивидуальный онлайн-урок','Очное занятие в Брно','Персональная программа или работа с хором'],quote:'Цена по письменному предложению',cta:'Узнать цену и время →'},
+  uk:{options:['Індивідуальний онлайн-урок','Очне заняття у Брно','Індивідуальна програма або робота з хором'],quote:'Ціна за письмовою пропозицією',cta:'Уточнити ціну й час →'}
+ };
  var chosen='',initialized=false;
  function lc(){var c=document.documentElement.lang;return dictionary[c]?c:'cs'}
  function t(){return dictionary[lc()]}
  function safeText(s){return String(s||'').replace(/[&<>"']/g,function(v){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','&#39;':'&#39;',"'":'&#39;'}[v]})}
  function sById(id){return serviceMap.find(function(x){return x[0]===id})||serviceMap[0]}
- function msg(subject,variant){
+ function msg(subject,variant,musicEnquiry){
   var tag={cs:'Dobrý den! Zajímá mě služba Academy: ',en:'Hello! I am interested in an Academy service: ',ru:'Здравствуйте! Интересует услуга Академии: ',uk:'Вітаю! Цікавить послуга Академії: '}[lc()];
   var p={cs:'Poptávám konkrétní rozsah, termín a cenu: ',en:'Please confirm scope, dates and price: ',ru:'Прошу согласовать объём, время и цену: ',uk:'Прошу узгодити обсяг, час і ціну: '}[lc()];
-  return 'https://wa.me/420702914842?text='+encodeURIComponent(tag+subject+'. '+(variant||'')+'. '+p);
+  return (musicEnquiry && lc()==='ru'?'https://t.me/Chareshneu?text=':'https://wa.me/420702914842?text=')+encodeURIComponent(tag+subject+'. '+(variant||'')+'. '+p);
  }
  function setup(){
    var root=document.getElementById('academy-choose');if(!root)return;
@@ -85,17 +96,17 @@
  function draw(){
    var target=document.getElementById('academy-selected-service');if(!target)return;
    if(!chosen){target.replaceChildren();return;}
-   var lang=lc(),d=t(),sv=sById(chosen),name=sv[2][lang],options=d[sv[1]]||d.school;
+   var lang=lc(),d=t(),sv=sById(chosen),name=sv[2][lang],isMusic=sv[1]==='music',options=isMusic?musicVariants[lang].options:(d[sv[1]]||d.school);
    var html='<h3>'+safeText(name)+'</h3><p>'+safeText(d.sub)+'</p><div class="academy-service-three">';
    options.forEach(function(title,i){
      var spec=sv[0]==='fencing'||sv[0]==='archery'?d.safe:sv[0]==='legal'||sv[0]==='medical'?d.legal:'';
      var product=window.ImperionAcademyCatalog&&window.ImperionAcademyCatalog.info(sv[0],'v'+(i+1),lang);
-     var price=product&&product.label||({cs:'Cena dle nabídky',en:'Quoted price',ru:'Цена по запросу',uk:'Ціна за пропозицією'})[lang];
-     var destination='order/?lang='+encodeURIComponent(lang)+'&service='+encodeURIComponent(sv[0])+'&variant=v'+(i+1);
-     var orderText=({cs:'Objednat →',en:'Order →',ru:'Заказать →',uk:'Замовити →'})[lang];
-     html+='<article class="academy-service-option"><h4>'+safeText(title)+'</h4><p>'+safeText(name)+' · '+safeText(title)+(spec?'. '+safeText(spec):'')+'</p><strong class="academy-option-price">'+safeText(price)+'</strong><a href="'+destination+'">'+safeText(orderText)+'</a></article>';
+     var price=isMusic?musicVariants[lang].quote:(product&&product.label||({cs:'Cena dle nabídky',en:'Quoted price',ru:'Цена по запросу',uk:'Ціна за пропозицією'})[lang]);
+     var destination=isMusic?msg(name,title,true):'order/?lang='+encodeURIComponent(lang)+'&service='+encodeURIComponent(sv[0])+'&variant=v'+(i+1);
+     var orderText=isMusic?musicVariants[lang].cta:({cs:'Objednat →',en:'Order →',ru:'Заказать →',uk:'Замовити →'})[lang];
+     html+='<article class="academy-service-option"><h4>'+safeText(title)+'</h4><p>'+safeText(name)+' · '+safeText(title)+(spec?'. '+safeText(spec):'')+'</p><strong class="academy-option-price">'+safeText(price)+'</strong><a href="'+destination+'"'+(isMusic?' target="_blank" rel="noopener noreferrer"':'')+'>'+safeText(orderText)+'</a></article>';
    });
-   target.innerHTML=html+'</div><a class="academy-custom" target="_blank" rel="noopener noreferrer" href="'+msg(name,d.custom)+'">'+safeText(d.custom)+'</a>';
+   target.innerHTML=html+'</div><a class="academy-custom" target="_blank" rel="noopener noreferrer" href="'+msg(name,d.custom,isMusic)+'">'+safeText(d.custom)+'</a>';
  }
  function initPrices(){
    var target=document.getElementById('academy-pricing'),d=t();
