@@ -509,6 +509,15 @@ Deno.serve(async (req:Request):Promise<Response>=>{
     if(isOsVcHema){
       if(body.osvcSellerConsent!==true)
         return reply({error:'personal_seller_consent_required'},409,origin);
+      // A person cannot self-select the verified Senior discount. Reuse an
+      // already approved SENIOR tier or a separate owner OSVC authorization.
+      // Reject package checkout BEFORE changing the legal seller.
+      if(savedTier==='STARTER4')
+        return reply({error:'package_checkout_requires_plan_authorization'},409,origin);
+      if(savedTier==='SENIOR' &&
+         !(lookup.data.osvc_authorized_at ||
+           (lookup.data.training_authorized_at && lookup.data.training_authorized_tier==='SENIOR')))
+        return reply({error:'senior_status_not_verified'},409,origin);
       if(!['Družina Moravy, z. s.','Aliaksei Chareshneu (OSVČ)'].includes(String(lookup.data.data_controller||'')))
         return reply({error:'provider_mismatch'},409,origin);
       if(!lookup.data.osvc_personal_consent_at){
