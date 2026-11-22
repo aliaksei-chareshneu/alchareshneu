@@ -13,25 +13,25 @@ test('root homepage does not advertise retired Druzina subscriptions', () => {
   assert.match(s, /БЕСПЛАТН|BEZPLATN|FREE beginner workshop/);
 });
 
-test('Academy shows current standard rate but no fixed specialist 1000-CZK tutoring offer', () => {
+test('Academy uses approved standard rate while specialist work remains quoted separately', () => {
   const academy = read('academy/index.html');
   const courses = read('academy/courses/index.html');
   const programmes = read('academy/programmes/index.html');
-  for (const html of [academy,courses,programmes]) assert.match(html, /690 Kč/);
+  for (const html of [academy,courses,programmes]) { assert.match(html, /1 000 Kč/); assert.doesNotMatch(html, /690 Kč/); }
   assert.doesNotMatch(academy, /(?:specialist lessons|specializovaná|специализированный|спеціалізоване)[^<]{0,55}1[ ,]?000 Kč/i);
-  assert.doesNotMatch(courses, /1[ ,]?000 Kč/);
+  assert.match(courses, /1[ ,]?000 Kč/);
   assert.doesNotMatch(programmes, /(?:specialist individual coaching:|specializovaná individuální lekce:|специализированное:|спеціалізоване:)\s*1[ ,]?000 Kč/i);
   assert.match(academy, /Compare a like-for-like offer/);
   assert.match(courses, /no automatic discount promise/);
-  assert.match(programmes, /10-minute service-selection consultation is 200 Kč/);
-  assert.doesNotMatch(programmes, /15-minute service-selection consultation is 250 Kč/);
+  assert.match(programmes, /15-minute service-selection consultation is 250 Kč/);
+  assert.doesNotMatch(programmes, /10-minute service-selection consultation is 200 Kč/);
 });
 
 test('A2 learning page and translated dynamic results use written specialist quote', () => {
   for (const path of ['academy/a2/index.html','academy/a2/quiz.js']) {
     const src = read(path);
-    assert.match(src, /690 Kč/);
-    assert.doesNotMatch(src, /1[ ,]?000 Kč/);
+    assert.match(src, /1 000 Kč/);
+    assert.doesNotMatch(src, /690 Kč/);
     assert.match(src, /písemn|written|письменн|письмов/i);
   }
 });
@@ -39,7 +39,7 @@ test('A2 learning page and translated dynamic results use written specialist quo
 test('first-tutoring CTA has no retired 300-CZK price or prefilled 300-CZK claim', () => {
   const start = read('start/index.html');
   assert.doesNotMatch(start, /300 Kč|300%20(?:CZK|K%C4%8D)/i);
-  assert.match(start, /690 Kč \/ 60/);
+  assert.match(start, /1 000 Kč \/ 60/);
   assert.match(start, /сопоставим|srovnatel|Compare tutors fairly/);
 });
 
