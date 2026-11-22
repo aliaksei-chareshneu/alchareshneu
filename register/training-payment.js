@@ -187,13 +187,32 @@
     data.append('payload',JSON.stringify({...body,action:'manual_proof',
       paymentResumeToken:privateCode,trainingTier:body.trainingTier||tier()}));
     data.append('paymentProof',file,file.name);
-    const res=await fetch(API,{method:'POST',body:data,cache:'no-store',
-      signal:AbortSignal.timeout(30000)});
-    if(!res.ok)throw Error('manual_upload_failed');
-    const result=await res.json();
-    if(result.ok!==true||result.paymentEvidenceStatus!=='PROOF_RECEIVED'||
-       result.bankVerified!==false)throw Error('manual_upload_failed');
-    return result;
+    try{
+      const res=await fetch(API,{method:'POST',body:data,cache:'no-store',
+        signal:AbortSignal.timeout(30000)});
+      if(!res.ok)throw Error('manual_upload_failed');
+      const result=await res.json();
+      if(result.ok!==true||result.paymentEvidenceStatus!=='PROOF_RECEIVED'||
+         result.bankVerified!==false)throw Error('manual_upload_failed');
+      return result;
+    }catch(error){
+      // A dropped response is not proof of a failed upload. Reuse the existing
+      // read-only one-use-code status endpoint; never resubmit an RSVP.
+      try{
+        const status=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({action:'status',eventId:event.event_id,
+            firstName:body.firstName,lastName:body.lastName,email:body.email,
+            paymentResumeToken:privateCode}),cache:'no-store',
+          signal:AbortSignal.timeout(10000)});
+        if(status.ok){
+          const saved=await status.json();
+          if(saved.ok===true&&saved.paymentEvidenceStatus==='PROOF_RECEIVED')
+            return {ok:true,status:'RECEIVED',confirmed:false,
+              paymentEvidenceStatus:'PROOF_RECEIVED',bankVerified:false};
+        }
+      }catch(_){}
+      throw error;
+    }
   }
   async function checkQuote(){
     const e=latestEvent,d=copy(),form=$('rsvpForm'),out=$('trainingPaymentPrivate');
