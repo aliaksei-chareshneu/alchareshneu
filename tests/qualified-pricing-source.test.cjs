@@ -110,9 +110,9 @@ test('Czech main content is visible before JS; English remains a separately sele
 test('important programme and course pages are in one canonical public sitemap', () => {
   const sitemap = read('sitemap.xml');
   for (const slug of ['academy/programmes/', 'academy/courses/', 'corporate/', 'walkers/', 'druzina/', 'start/']) {
-    assert.match(sitemap, new RegExp('<loc>https://aliaksei-chareshneu\\.github\\.io/alchareshneu/'+slug.replace(/\\//g,'\\/')+'</loc>'), slug);
+    assert.ok(sitemap.includes('<loc>https://aliaksei-chareshneu.github.io/alchareshneu/' + slug + '</loc>'), slug);
   }
-  const locs = [...sitemap.matchAll(/<loc>([^<]+)<\\/loc>/g)].map(m => m[1]);
+  const locs = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m => m[1]);
   assert.equal(locs.length, new Set(locs).size, 'duplicate sitemap URLs');
-  assert.doesNotMatch(read('about/index.html'), /hreflang="cs" href="[^"]+\\?lang=cs"/);
+  assert.doesNotMatch(read('about/index.html'), /hreflang="cs" href="[^"]+\?lang=cs"/);
 });
