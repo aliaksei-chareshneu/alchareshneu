@@ -54,6 +54,8 @@ test('public catalogue cannot expose banking details or present approved seat',(
  assert.deepEqual(q.tiers.map(x=>x.baseCzk),[240,120,800]);
  assert.equal(q.requiresPersonalConfirmation,true);
  assert.equal(q.proofRequired,false);
+ assert.equal(q.sessionPaymentOpen,false);
+ assert.equal(q.status,'AWAITING_ORGANIZER_GO');
  assert.ok(!JSON.stringify(q).includes('verified-bank-placeholder'));
  assert.equal(trainingQuote(event,'SENIOR',t0-72*3600000,false).account,null);
  assert.equal(trainingQuote(event,'SENIOR',t0-72*3600000,true).account,'verified-bank-placeholder');
@@ -132,10 +134,12 @@ test('QR Platba instruction is unique, amount-locked, and cannot substitute bank
  assert.notEqual(spd,qr.createTrainingSpd(iban,240,two));
  assert.equal(qr.createTrainingSpd(iban,0,one),null);
  assert.equal(qr.createTrainingSpd(iban,240,'not-a-uuid'),null);
- for(const check of ["Deno.env.get('OSVC_APPROVED_IBAN')","Deno.env.get('DRUZINA_APPROVED_IBAN')",
-  "Deno.env.get('OSVC_APPROVED_PAYEE')","Deno.env.get('DRUZINA_APPROVED_PAYEE')",
+ for(const check of ["Deno.env.get('OSVC_APPROVED_IBAN')",
+  "Deno.env.get('OSVC_APPROVED_PAYEE')",
+  "nonprofit_checkout_disabled",
   "if(!spd)return reply({error:'approved_bank_not_configured'}","paymentReference:lookup.data.id,variableSymbol:vs,spd"])assert.ok(edge.includes(check),check);
- assert.ok(!edge.includes('2703598853/2010'),'verified real bank account must not be hardcoded in public code');
+ assert.ok(!edge.includes('DRUZINA_APPROVED_IBAN'),'association account cannot be used for client-visible payments');
+ assert.ok(!edge.includes('CZ4220100000002703598853'),'no association bank number in public code');
  for(const page of pages){
   const html=fs.readFileSync(page,'utf8');
   assert.ok(html.includes('id="paymentQrArea"')&&html.includes('vendor/qrcode.min.js'),page);
