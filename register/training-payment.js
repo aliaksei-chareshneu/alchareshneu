@@ -30,6 +30,20 @@
     ru:{title:'QR для перевода по одобренной заявке',reference:'Вариабильный символ (VS): ',copy:'Скопировать реквизиты',copied:'Скопировано',failed:'Копирование недоступно',note:'QR содержит утверждённые сумму, счёт и VS. Поступление денег проверяется только по банку.'},
     uk:{title:'QR для переказу за погодженою заявкою',reference:'Варіабельний символ (VS): ',copy:'Копіювати реквізити',copied:'Скопійовано',failed:'Копіювання недоступне',note:'QR містить погоджені суму, рахунок та VS. Надходження коштів перевіряється через банк.'}
   };
+  const MANUAL={
+    cs:{label:'Už jste zaplatili? Přiložte PDF potvrzení (nepovinné, max. 5 MB)',
+      help:'Jen pokud jste už provedli převod na dříve schválený účet. Tato stránka nevyzývá k nové platbě. PDF přijmeme k ruční kontrole; místo ani připsání peněz tím nepotvrzujeme.',
+      failed:'PDF se nepodařilo nahrát. Přihláška zůstává uložena. Uchovejte si osobní kód a zkuste PDF přiložit znovu.'},
+    en:{label:'Already transferred? Attach the PDF receipt (optional, max 5 MB)',
+      help:'Only if you already transferred to an account approved earlier. Do not initiate a new transfer based on this page. We review the PDF manually; it does not confirm funds or a place.',
+      failed:'PDF upload failed, but your RSVP was saved. Keep your private code to retry the document upload.'},
+    ru:{label:'Уже переводили деньги? Приложите PDF квитанции (необязательно, до 5 МБ)',
+      help:'Только если перевод уже сделан на ранее согласованный счёт. Не переводите деньги на основании этой страницы. PDF поступит на ручную проверку и не подтверждает оплату или место.',
+      failed:'PDF не удалось загрузить, но заявка сохранена. Сохраните личный код и повторите загрузку документа.'},
+    uk:{label:'Уже переказували кошти? Додайте PDF квитанції (необов’язково, до 5 МБ)',
+      help:'Лише якщо ви вже переказали кошти на раніше погоджений рахунок. Не сплачуйте на підставі цієї сторінки. PDF піде на ручну перевірку та не підтверджує оплату або місце.',
+      failed:'PDF не завантажено, але заявку збережено. Збережіть приватний код і повторіть завантаження документа.'}
+  };
   const $=id=>document.getElementById(id);
   function renderApprovedQr(p){
     const area=$('paymentQrArea'),canvas=$('paymentQrCode'),ref=$('paymentReference');
@@ -49,9 +63,13 @@
   const fill=(s,d)=>s.replace(/\{(\w+)\}/g,(_,key)=>String(d[key]??''));
   const tier=()=>$('trainingTier')?.value||'STANDARD';
   const token=()=>$('paymentResumeToken')?.value?.trim()||'';
-  function clearPrivateQuote(){
+  function clearPrivateQuote(resetProof=false){
+    const hadApprovedQuote=!!privateQuote;
     privateQuote=null;
-    const file=$('paymentProof');if(file){file.required=false;file.value='';}
+    const file=$('paymentProof');if(file){
+      file.required=false;
+      if(resetProof||hadApprovedQuote)file.value='';
+    }
     const state=$('trainingPaymentPrivate');if(state)state.textContent='';
     renderApprovedQr(null);
   }
@@ -62,7 +80,7 @@
     if(!box||!proof||!plan)return;
     const q=event?.trainingPayment,osvc=q?.kind==='OSVC_EVENT';
     box.hidden=!q||mode!=='FORM';
-    if(changed)clearPrivateQuote();
+    if(changed)clearPrivateQuote(true);
     if(box.hidden){proof.required=false;proof.value='';$('trainingPaymentPrivate').textContent='';renderApprovedQr(null);return;}
     const t=copy();
     const paidWalk=osvc&&event?.event_id==='PUB-WALK-20261129';
@@ -104,9 +122,14 @@
     const good=!!privateQuote&&privateQuote.eventId===event.event_id&&
       privateQuote.tier===tier()&&privateQuote.code===token()&&
       privateQuote.email===$('email')?.value.trim();
-    $('paymentProofField').hidden=!good;
+    // Permit document intake for ALREADY completed transfers even before an
+    // approved quote. It cannot open payment collection or confirm a seat.
+    const manual=!osvc&&isGoing;
+    $('paymentProofField').hidden=!(good||manual);
     proof.required=good;
-    if(!good)proof.value='';
+    $('paymentPdfLabel').textContent=good?t.pdf:(manual?(MANUAL[lang]||MANUAL.cs).label:t.pdf);
+    $('paymentProofHelp').textContent=good?t.pdfHelp:(manual?(MANUAL[lang]||MANUAL.cs).help:t.pdfHelp);
+    if(!good&&!manual)proof.value='';
     renderApprovedQr(good?privateQuote.payload:null);
     if(good){
       const p=privateQuote.payload,tname=PRICE_NAMES[p.tier]?.[lang]||p.tier;
@@ -136,15 +159,41 @@
     body.trainingTier=tier();
     if(!token())return {headers:{'Content-Type':'application/json'},body:JSON.stringify(body)};
     const quote=privateQuote,proof=$('paymentProof')?.files?.[0];
-    if(!quote||quote.eventId!==event.event_id||quote.tier!==tier()||
-       quote.code!==token()||quote.email!==$('email').value.trim())throw Error('quote_required');
     if(!proof||proof.size<100||proof.size>5242880||!proof.name.toLowerCase().endsWith('.pdf'))throw Error('invalid_pdf');
+    if(!quote){
+      if(event?.trainingPayment?.kind==='OSVC_EVENT')throw Error('quote_required');
+      const manual=new FormData();
+      manual.append('payload',JSON.stringify({...body,action:'manual_proof',paymentResumeToken:token()}));
+      manual.append('paymentProof',proof,proof.name);
+      return {body:manual};
+    }
+    if(quote.eventId!==event.event_id||quote.tier!==tier()||
+       quote.code!==token()||quote.email!==$('email').value.trim())throw Error('quote_required');
     const data=new FormData();
     data.append('payload',JSON.stringify({...body,action:'submit',paymentResumeToken:token(),
       quotedTier:tier(),quotedTotalCzk:quote.payload.totalCzk,
       quoteLockedAt:quote.payload.quoteLockedAt}));
     data.append('paymentProof',proof,proof.name);
     return {body:data};
+  }
+  // Same existing RSVP endpoint and private one-use code; no duplicate signup.
+  async function uploadManualProof(event,body,privateCode,file){
+    if(!event||event.trainingPayment?.kind==='OSVC_EVENT'||event.category!=='HEMA Training')
+      throw Error('unsupported_event');
+    if(!/^[A-Za-z0-9_-]{43}$/.test(privateCode||'')||
+       !file||file.size<100||file.size>5242880||!file.name.toLowerCase().endsWith('.pdf'))
+      throw Error('invalid_pdf');
+    const data=new FormData();
+    data.append('payload',JSON.stringify({...body,action:'manual_proof',
+      paymentResumeToken:privateCode,trainingTier:body.trainingTier||tier()}));
+    data.append('paymentProof',file,file.name);
+    const res=await fetch(API,{method:'POST',body:data,cache:'no-store',
+      signal:AbortSignal.timeout(30000)});
+    if(!res.ok)throw Error('manual_upload_failed');
+    const result=await res.json();
+    if(result.ok!==true||result.paymentEvidenceStatus!=='PROOF_RECEIVED'||
+       result.bankVerified!==false)throw Error('manual_upload_failed');
+    return result;
   }
   async function checkQuote(){
     const e=latestEvent,d=copy(),form=$('rsvpForm'),out=$('trainingPaymentPrivate');
@@ -219,5 +268,6 @@
     }catch{$('paymentCopyButton').textContent=t.failed;}
   });
   window.ImperionTrainingPayment={render,catalogPrice,requestOptions,changedMessage,
-    receiptMessage,resumeMessage,clearPrivateQuote};
+    receiptMessage,resumeMessage,clearPrivateQuote,uploadManualProof,
+    manualUi:(language)=>MANUAL[language]||MANUAL.cs};
 })();
