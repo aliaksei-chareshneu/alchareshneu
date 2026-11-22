@@ -79,10 +79,10 @@ Remotion: https://www.remotion.dev/docs/ai/codex-plugin | https://www.remotion.d
 
 This existing pipeline now has a bounded editing interface at [editor_agent.py](editor_agent.py) and a [canonical toolchain inventory](EDITOR-AGENT-TOOLCHAIN.md), based on the owner's tutorial and previous free-tool research. **It does not replace** the main ShortFactory, Growth Agent #3 or SocialPublishing.
 
-- \`python3 editor_agent.py doctor --project /private/project\`: inspect installed FFmpeg, ffprobe, Remotion, Whisper and yt-dlp without installing anything.
-- \`python3 editor_agent.py init --project /private/project\`: make local \`public/\` and \`out/\` and preserve an existing \`style.md\`.
-- \`plan\`: call existing video_factory.make_plan for authorized footage inside the local \`public/\` folder.
-- \`revise\`: turn keep/change/remove feedback into a **new** bounded cut plan; do not overwrite original, and clear subtitle offsets after timing changes.
-- \`render\`: route through the existing source-SHA and rights/consent gate; return review-only MP4, **never publish**.
+- `python3 editor_agent.py doctor --project /private/project`: inspect installed FFmpeg, ffprobe, Remotion, Whisper and yt-dlp without installing anything.
+- `python3 editor_agent.py init --project /private/project`: make local `public/` and `out/` and preserve an existing `style.md`.
+- `plan`: call existing video_factory.make_plan for authorized footage inside the local `public/` folder.
+- `revise`: turn keep/change/remove feedback into a **new** bounded cut plan; do not overwrite original, and clear subtitle offsets after timing changes.
+- `render`: route through the existing source-SHA and rights/consent gate; return review-only MP4, **never publish**.
 
 HyperFrames license/identity are not verified, and Piratex MCP is for public trend data, not rendering. No paid services, new subscriptions, new queues, automatic external downloads or public posting are enabled.
