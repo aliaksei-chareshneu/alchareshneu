@@ -218,6 +218,12 @@ test('seo audits existing files without publication or external crawl',()=>{
 });
 test('video examines existing queue only: no rendering or payment',()=>{
   const out=A.video(sample());
+  assert.equal(out.editor_agent_entrypoint,'tools/auto-video-pipeline/editor_agent.py');
+  assert.equal(out.editor_toolchain_reference,'tools/auto-video-pipeline/EDITOR-AGENT-TOOLCHAIN.md');
+  assert.ok(out.declared_tool_stack.includes('ffmpeg'));
+  assert.ok(out.declared_tool_stack.includes('whisper'));
+  assert.equal(out.tool_installation_checked,false);
+  assert.equal(out.renderer_executed,false);
   assert.equal(out.eligible_in_supplied_snapshot,1);
   assert.equal(out.clips_rendered,0);
   assert.equal(out.published,0);
