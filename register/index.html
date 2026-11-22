@@ -146,6 +146,14 @@ a{color:var(--mint)}button,input,select{font:inherit}button{cursor:pointer}.skip
             <input id="paymentProof" name="paymentProof" type="file" accept=".pdf,application/pdf">
             <p id="paymentProofHelp" class="catalog-summary"></p>
           </div>
+          <div id="paymentProofRecipientField" class="field" hidden>
+            <label id="paymentProofRecipientLabel" for="paymentProofRecipient"></label>
+            <select id="paymentProofRecipient" name="paymentProofRecipient">
+              <option value="OSVC">Aliaksei Chareshneu (OSVČ)</option>
+              <option value="DRUZINA">Družina Moravy, z. s.</option>
+            </select>
+            <p id="paymentProofRecipientHelp" class="catalog-summary"></p>
+          </div>
         </section>
         <fieldset class="consent-choices" id="optionalConsents"><legend id="optionalConsentLabel">Dobrovolné volby</legend><p id="optionalConsentNote" class="consent-help"></p><div class="consent-toolbar"><button type="button" id="optInAll" class="consent-select-all" aria-pressed="false" aria-controls="photo future" aria-describedby="optionalConsentNote">Souhlasím s fotografiemi i pozvánkami</button><span id="optionalConsentCount" class="consent-count" role="status" aria-live="polite">0 ze 2 vybráno</span></div><div class="check"><label><input id="photo" type="checkbox"><span><strong data-i18n="photoHead">Volitelně povoluji své fotografie/video</strong> <span data-i18n="photoNote">pro zveřejnění na kanálech pořadatele. Bez souhlasu se můžete zúčastnit také. U nezletilých je potřebné zvláštní potvrzení rodiče.</span></span></label></div>
         <div class="check"><label><input id="future" type="checkbox"><span><strong data-i18n="updatesHead">Chci občasné pozvánky na další akce (volitelné).</strong> <span data-i18n="updatesNote">Nejde o spam. Pozvánky vyžadují samostatné potvrzení; odhlášení kdykoli.</span></span></label></div>
