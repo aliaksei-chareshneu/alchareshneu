@@ -54,3 +54,26 @@ test('announcement generator sends personal Raiffeisen only for BrnoWalkers, nev
  assert.match(functions.paymentPhrase('Guided Walk',false,190,'Brnowalkers'),/7804336003\/5500/);
  assert.doesNotMatch(functions.paymentPhrase('HEMA Training',false,240,'Družina Moravy'),/7804336003/);
 });
+
+test('Academy never publishes an approved quotation for the wrong bank or legal recipient',()=>{
+ const edge=read('supabase/functions/imperion-academy-checkout/index.ts');
+ const start=edge.indexOf('const OSVC_APPROVED_ACCOUNT=');
+ const end=edge.indexOf('const MAX_PDF_BYTES=',start);
+ const approve=edge.indexOf('function approvedQuote(');
+ const approveEnd=edge.indexOf('async function quote(',approve);
+ assert.ok(start>0&&end>start&&approve>0&&approveEnd>approve);
+ const source=(edge.slice(start,end)+'\n'+edge.slice(approve,approveEnd))
+  .replace('function osvcBankMatches(x:Record<string,unknown>)','function osvcBankMatches(x)')
+  .replace('function approvedQuote(x:Record<string,unknown>)','function approvedQuote(x)');
+ const {approvedQuote}=Function(source+'\nreturn {approvedQuote};')();
+ const quote={payment_quote_status:'APPROVED',payment_evidence_status:'AWAITING_PROOF',
+   quote_locked_at:'2026-11-22T00:00:00Z',quote_expires_at:'2100-01-01T00:00:00Z',
+   quoted_amount_czk:400,quote_recipient:'Aliaksei Chareshneu',
+   quote_account:'7804336003/5500'};
+ assert.equal(approvedQuote(quote),true);
+ assert.equal(approvedQuote({...quote,quote_account:RAIF_IBAN}),true);
+ assert.equal(approvedQuote({...quote,quote_account:'2703598853/2010'}),false);
+ assert.equal(approvedQuote({...quote,quote_recipient:'Družina Moravy, z. s.'}),false);
+ assert.equal(approvedQuote({...quote,payment_quote_status:'NOT_QUOTED'}),false);
+ assert.equal(approvedQuote({...quote,payment_evidence_status:'BANK_VERIFIED'}),true);
+});
