@@ -30,8 +30,8 @@ test('bare URL defaults to Czech even after a previous RU choice was cached',asy
  await page.goto('/');
  await expect(page.locator('html')).toHaveAttribute('data-imperion-frontdoor','ready');
  await expect(page.locator('html')).toHaveAttribute('lang','cs');
- await expect(page.locator('#fdHero1')).toHaveText('Co vám dnes');
- await expect(page.locator('#fdHero2')).toHaveText('chybí?');
+ await expect(page.locator('#fdHero1')).toHaveText('Učte se. Hýbejte se.');
+ await expect(page.locator('#fdHero2')).toHaveText('Objevujte Brno.');
  await expect(page.locator('#fdValueNow')).toContainText('příležitosti');
  await expect(page.locator('#fdValueThen')).toContainText('ceny');
  await expect(page.locator('#fdHeroLabel')).toHaveText('Vybrat akci');
@@ -40,7 +40,7 @@ test('bare URL defaults to Czech even after a previous RU choice was cached',asy
  await expect(page.locator('html')).toHaveAttribute('lang','ru');
  await expect(page.locator('#fdHeroLabel')).toHaveText('Выбрать событие');
  await page.goto('/');
- await expect(page.locator('#fdHero1')).toHaveText('Co vám dnes');
+ await expect(page.locator('#fdHero1')).toHaveText('Učte se. Hýbejte se.');
  await expect(page.locator('html')).toHaveAttribute('lang','cs');
  await page.goto('/?view=details');
  await expect(page.locator('#imperion-frontdoor')).toHaveCount(0);
