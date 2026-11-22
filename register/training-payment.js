@@ -18,6 +18,14 @@
     ru:{heading:'Оплата экскурсии',intro:'Стоимость относится к выбранному мероприятию. Клубные тарифы и доплата за позднюю тренировку не применяются.',notReady:'Приём оплаты пока закрыт. Отправьте заявку. Не переводите деньги и не приезжайте без письменного подтверждения организатора.',ready:'Реквизиты OSVČ выдаются только после индивидуального одобрения заявки.',approved:'Согласованная сумма {total} Kč. Получатель OSVČ: {recipient}. Счёт: {account}. Переводить только после письменного подтверждения.',receipt:'PDF получен, поступление денег и место пока не подтверждены.',codeReceipt:'Сохраните личный код для проверки суммы и статуса заявки. Код сам по себе не является билетом.',statusCheck:'Проверить оплату и место',statusWaiting:'Проверяем…',statusPending:'Заявка получена, банк пока не подтвердил поступление.',statusProof:'PDF получен, банковское зачисление ещё не подтверждено.',statusPaid:'Деньги зачислены, место ещё не подтверждено.',statusConfirmed:'Оплата поступила, место на мероприятии подтверждено.',statusInvalid:'Не удалось проверить код или контактные данные.'},
     uk:{heading:'Оплата екскурсії',intro:'Ціна стосується конкретного заходу; клубні тарифи й доплата за тренування не застосовуються.',notReady:'Оплату ще не відкрито. Надішліть заявку. Не сплачуйте та не вирушайте без письмового підтвердження організатора.',ready:'Реквізити OSVČ доступні лише після індивідуального погодження.',approved:'Погоджена сума {total} Kč. Одержувач OSVČ: {recipient}. Рахунок: {account}. Сплачуйте лише після письмового погодження.',receipt:'PDF отримано, але надходження коштів та місце ще не підтверджені.',codeReceipt:'Збережіть приватний код для перевірки суми та статусу. Код сам по собі не є квитком.',statusCheck:'Перевірити оплату й участь',statusWaiting:'Перевіряю…',statusPending:'Заявку отримано, банківський платіж ще не перевірено.',statusProof:'PDF отримано, зарахування коштів ще не перевірено.',statusPaid:'Кошти надійшли, місце ще не підтверджено.',statusConfirmed:'Оплату отримано, місце на заході підтверджено.',statusInvalid:'Не вдалося перевірити код або контактні дані.'}
   };
+  // A personal HEMA service is a different purchase from association dues.
+  // Require the participant to opt in before revealing the OSVC bank and QR.
+  const HEMA_PERSONAL={
+    cs:{title:'Platba za osobní lekci HEMA (OSVČ)',intro:'Poskytovatel: Aliaksei Chareshneu (OSVČ), nikoli Družina Moravy, z. s. Ceny: standardní / ověřený Senior, s příplatkem při přihlášení do 48 hodin. Není to platba členství ani klubových poplatků.',ready:'Platba otevřena. Potvrďte osobního poskytovatele, zadejte svůj soukromý kód a zobrazte Raiffeisenbank a QR. Úhrada sama nepotvrzuje místo.',consent:'Souhlasím s touto samostatnou osobní službou Aliakseie Chareshneua (OSVČ) za uvedenou cenu. Rozumím, že nejde o platbu Družina Moravy, z. s., ani o potvrzení rezervace.',missing:'Pro zobrazení účtu potvrďte poskytovatele OSVČ a cenu.'},
+    en:{title:'Payment for personal HEMA lessons (sole trader)',intro:'Provider: Aliaksei Chareshneu (OSVČ), not Družina Moravy, z. s. Standard / verified Senior pricing, with surcharge within 48 hours. This is not an association membership payment.',ready:'Payments open. Accept the personal provider, enter your private code and view the Raiffeisenbank QR. A transfer alone does not confirm your place.',consent:'I accept this separate personal service provided by Aliaksei Chareshneu (OSVČ) at the displayed price. This does not pay Družina Moravy, z. s. dues and does not confirm a booking.',missing:'Accept the OSVČ service provider and the stated price to view payment details.'},
+    ru:{title:'Оплата личного занятия HEMA (OSVČ)',intro:'Продавец: Aliaksei Chareshneu (OSVČ), а не Družina Moravy z. s. Тарифы: стандартный / подтверждённый Senior, с доплатой при записи менее чем за 48 часов. Это не оплата членства в объединении.',ready:'Приём оплаты открыт. Согласитесь с личным поставщиком услуги, введите свой код и получите QR Raiffeisenbank. Перевод сам по себе не подтверждает место.',consent:'Я согласен приобрести отдельную личную услугу у Aliaksei Chareshneu (OSVČ) по указанной цене. Это не оплата членства Družina Moravy z. s. и не подтверждение бронирования.',missing:'Подтвердите личного продавца OSVČ и указанную стоимость, чтобы увидеть реквизиты.'},
+    uk:{title:'Оплата особистого заняття HEMA (OSVČ)',intro:'Постачальник: Aliaksei Chareshneu (OSVČ), не Družina Moravy z. s. Тарифи: звичайний / підтверджений Senior; доплата при записі менш ніж за 48 годин. Це не оплата членства в об’єднанні.',ready:'Оплату відкрито. Погодьте особистого постачальника, введіть свій код і перегляньте QR Raiffeisenbank. Переказ сам по собі не підтверджує участь.',consent:'Я погоджуюся придбати окрему особисту послугу Aliaksei Chareshneu (OSVČ) за вказаною ціною. Це не сплата членства Družina Moravy z. s. і не підтвердження бронювання.',missing:'Погодьте постачальника OSVČ та ціну, щоб переглянути реквізити.'}
+  };
   const STATUS_TEXT={
     cs:{statusCheck:'Ověřit stav platby a účasti',statusWaiting:'Kontroluji…',statusPending:'Přihláška přijata; platba zatím není ověřena.',statusProof:'PDF přijato; banka zatím nepotvrdila připsání.',statusPaid:'Platba ověřena bankou, místo zatím není potvrzeno.',statusConfirmed:'Platba i místo na akci jsou potvrzeny.',statusInvalid:'Kód nebo údaje nebyly ověřeny.'},
     en:{statusCheck:'Check payment and booking status',statusWaiting:'Checking…',statusPending:'Enquiry received; bank credit not yet verified.',statusProof:'PDF received; bank credit not yet verified.',statusPaid:'Funds verified; place not yet confirmed.',statusConfirmed:'Payment and a place are confirmed.',statusInvalid:'Unable to verify code or contact details.'},
@@ -83,6 +91,7 @@
     const box=$('trainingPayment'),proof=$('paymentProof'),plan=$('trainingTier');
     if(!box||!proof||!plan)return;
     const q=event?.trainingPayment,osvc=q?.kind==='OSVC_EVENT';
+    const hemaPersonal=osvc&&event?.category==='HEMA Training';
     box.hidden=!q||mode!=='FORM';
     if(changed){
       clearPrivateQuote(true);
@@ -90,6 +99,10 @@
     }
     if(box.hidden){proof.required=false;proof.value='';$('trainingPaymentPrivate').textContent='';renderApprovedQr(null);return;}
     const t=copy();
+    if(hemaPersonal){
+      const h=HEMA_PERSONAL[lang]||HEMA_PERSONAL.cs;
+      t.heading=h.title;t.intro=h.intro;t.ready=h.ready;t.notReady=h.ready;
+    }
     const paidWalk=osvc&&event?.event_id==='PUB-WALK-20261129';
     if(paidWalk){
       const rate={
@@ -102,8 +115,25 @@
       t.notReady=rate.note;
       t.ready=rate.note;
     }
-    if(osvc)plan.value='STANDARD';
-    if(plan.closest('.field'))plan.closest('.field').hidden=osvc;
+    if(osvc&&!hemaPersonal)plan.value='STANDARD';
+    if(hemaPersonal&&plan.value==='STARTER4')plan.value='STANDARD';
+    if(plan.closest('.field'))plan.closest('.field').hidden=osvc&&!hemaPersonal;
+    for(const option of plan.options)option.hidden=hemaPersonal&&option.value==='STARTER4';
+    let consentWrap=$('osvcHemaConsentWrap');
+    if(!consentWrap){
+      consentWrap=document.createElement('label');consentWrap.id='osvcHemaConsentWrap';
+      consentWrap.className='field';consentWrap.hidden=true;
+      const choice=document.createElement('input');choice.type='checkbox';
+      choice.id='osvcHemaSellerConsent';choice.name='osvcHemaSellerConsent';
+      const wording=document.createElement('span');wording.id='osvcHemaConsentText';
+      consentWrap.append(choice,wording);
+      const after=$('paymentResumeField')||$('paymentQuoteButton');
+      after?.parentNode?.insertBefore(consentWrap,after);
+    }
+    consentWrap.hidden=!hemaPersonal;
+    if(changed&&$('osvcHemaSellerConsent'))$('osvcHemaSellerConsent').checked=false;
+    if(hemaPersonal&&$('osvcHemaConsentText'))
+      $('osvcHemaConsentText').textContent=(HEMA_PERSONAL[lang]||HEMA_PERSONAL.cs).consent;
     $('trainingPaymentHeading').textContent=t.heading;
     $('trainingPlanLabel').textContent=t.choose;
     for(const opt of plan.options)opt.textContent=PRICE_NAMES[opt.value]?.[lang]||opt.value;
@@ -131,7 +161,7 @@
       privateQuote.email===$('email')?.value.trim();
     // Permit document intake for ALREADY completed transfers even before an
     // approved quote. It cannot open payment collection or confirm a seat.
-    const manual=!osvc&&isGoing;
+    const manual=(!osvc||hemaPersonal)&&isGoing;
     $('paymentProofField').hidden=!(good||manual);
     proof.required=good;
     $('paymentPdfLabel').textContent=good?t.pdf:(manual?(MANUAL[lang]||MANUAL.cs).label:t.pdf);
@@ -154,6 +184,7 @@
   function catalogPrice(event,lang){
     const q=event?.trainingPayment;
     if(!q)return null;
+    if(q.kind==='OSVC_EVENT'&&event.category==='HEMA Training')return (q.tiers||[]).map(p=>p.tier+': '+p.totalCzk+' Kč').join(' / ');
     if(q.kind==='OSVC_EVENT')return event.event_id==='PUB-WALK-20261129'?'190 Kč (up to 27 Nov 15:30) / 237,50 Kč (late +25%)':String(q.tiers?.[0]?.totalCzk||event.price_czk)+' Kč';
     const tiers=Array.isArray(q.tiers)?q.tiers:[];
     const values=tiers.map(p=>p.totalCzk).join(' / ');
@@ -174,7 +205,7 @@
     const quote=privateQuote,proof=$('paymentProof')?.files?.[0];
     if(!proof||proof.size<100||proof.size>5242880||!proof.name.toLowerCase().endsWith('.pdf'))throw Error('invalid_pdf');
     if(!quote){
-      if(event?.trainingPayment?.kind==='OSVC_EVENT')throw Error('quote_required');
+      if(event?.trainingPayment?.kind==='OSVC_EVENT'&&event?.category!=='HEMA Training')throw Error('quote_required');
       const manual=new FormData();
       manual.append('payload',JSON.stringify({...body,action:'manual_proof',
         paymentResumeToken:token(),proofRecipient:$('paymentProofRecipient')?.value||'OSVC'}));
@@ -186,13 +217,14 @@
     const data=new FormData();
     data.append('payload',JSON.stringify({...body,action:'submit',paymentResumeToken:token(),
       quotedTier:tier(),quotedTotalCzk:quote.payload.totalCzk,
-      quoteLockedAt:quote.payload.quoteLockedAt}));
+      quoteLockedAt:quote.payload.quoteLockedAt,
+      osvcSellerConsent:!!$('osvcHemaSellerConsent')?.checked}));
     data.append('paymentProof',proof,proof.name);
     return {body:data};
   }
   // Same existing RSVP endpoint and private one-use code; no duplicate signup.
   async function uploadManualProof(event,body,privateCode,file,proofRecipient='OSVC'){
-    if(!event||event.trainingPayment?.kind==='OSVC_EVENT'||event.category!=='HEMA Training')
+    if(!event||(event.trainingPayment?.kind==='OSVC_EVENT'&&event.category!=='HEMA Training')||event.category!=='HEMA Training')
       throw Error('unsupported_event');
     if(!['OSVC','DRUZINA'].includes(proofRecipient))throw Error('invalid_payee');
     if(!/^[A-Za-z0-9_-]{43}$/.test(privateCode||'')||
@@ -237,7 +269,12 @@
     if(document.querySelector('input[name=rsvp]:checked')?.value!=='YES')return;
     const btn=$('paymentQuoteButton');btn.disabled=true;btn.textContent=d.checking;
     clearPrivateQuote();out.textContent=d.checking;
-    const body={action:'quote',eventId:e.event_id,firstName:$('firstName').value,
+    const hemaPersonal=e.trainingPayment?.kind==='OSVC_EVENT'&&e.category==='HEMA Training';
+    if(hemaPersonal&&!$('osvcHemaSellerConsent')?.checked){
+      out.textContent=(HEMA_PERSONAL[latestLang]||HEMA_PERSONAL.cs).missing;
+      return;
+    }
+    const body={action:'quote',osvcSellerConsent:hemaPersonal, eventId:e.event_id,firstName:$('firstName').value,
       lastName:$('lastName').value,email:$('email').value,phone:$('phone').value,
       ageGroup:document.querySelector('input[name=age]:checked')?.value||'adult',
       guardianName:$('guardianName').value,guardianPhone:$('guardianPhone').value,

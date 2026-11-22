@@ -91,3 +91,47 @@ test('approved QR encodes Raiffeisenbank and rejects association/personal bank m
  assert.ok(spd.includes('*AM:190.00'));
  assert.ok(spd.includes('*X-VS:1234567890'));
 });
+
+test('personal HEMA quote uses the published senior tariff, 48-hour rule and only Raiffeisen',()=>{
+ const edge=read('supabase/functions/imperion-register/index.ts');
+ const start=edge.indexOf('function osvcQuote(');
+ const end=edge.indexOf('function generateVariableSymbol()',start);
+ assert.ok(start>0&&end>start);
+ const isolated=edge.slice(start,end)
+ .replace("function osvcQuote(e:any,now=Date.now(),privateBank=false,tier:TrainingTier='STANDARD')",
+          "function osvcQuote(e,now=Date.now(),privateBank=false,tier='STANDARD')")
+ .replace('function publicOsVcQuote(e:any)','function publicOsVcQuote(e)')
+ .replace("(['STANDARD','SENIOR'] as TrainingTier[])","['STANDARD','SENIOR']")
+ .replace("osvcQuote(e,Date.now(),false,t)!","osvcQuote(e,Date.now(),false,t)");
+ const fn=Function("const TRAINING_TIER_PRICE_CZK={STANDARD:240,SENIOR:120,STARTER4:800};const LATE_WINDOW_MS=48*3600000;"+
+   isolated+";return {osvcQuote,publicOsVcQuote};")();
+ const event={event_id:'PUB-HEMA-20261123',community:'Družina Moravy',
+   category:'HEMA Training',data_controller:'Aliaksei Chareshneu (OSVČ)',
+   begins_at:'2026-11-23T17:00:00.000Z',price_czk:240,
+   is_open:true,source_active:true,registration_mode:'FORM',
+   price_verified:true,end_time_verified:true,
+   osvc_payment_open:true,osvc_quote_locked_at:'2026-11-22T00:00:00Z',
+   osvc_operational_go_at:'2026-11-22T00:00:00Z',
+   osvc_payment_recipient:'Aliaksei Chareshneu',
+   osvc_payment_account:RAIF_IBAN};
+ const startTime=Date.parse(event.begins_at);
+ assert.equal(fn.osvcQuote(event,startTime-49*3600000,true,'STANDARD').totalCzk,240);
+ assert.equal(fn.osvcQuote(event,startTime-2*3600000,true,'STANDARD').totalCzk,300);
+ assert.equal(fn.osvcQuote(event,startTime-49*3600000,true,'SENIOR').totalCzk,120);
+ assert.equal(fn.osvcQuote(event,startTime-2*3600000,true,'SENIOR').totalCzk,150);
+ assert.equal(fn.osvcQuote(event,startTime-49*3600000,true,'STARTER4'),null);
+ assert.equal(fn.osvcQuote({...event,data_controller:'Družina Moravy, z. s.'}),null);
+ assert.equal(fn.osvcQuote({...event,osvc_payment_account:'2703598853/2010'}).sessionPaymentOpen,false);
+ assert.deepEqual(fn.publicOsVcQuote({...event,begins_at:'2026-12-30T17:00:00Z'}).tiers.map(t=>t.tier),
+   ['STANDARD','SENIOR']);
+ assert.ok(edge.includes("if(body.osvcSellerConsent!==true)"));
+ assert.ok(edge.includes("osvc_personal_consent_at:new Date().toISOString()"));
+ assert.ok(edge.includes("osvc_previous_controller:lookup.data.data_controller"));
+ assert.ok(edge.includes("payment_bank_check_after:isOsVc?null"));
+ assert.ok(edge.includes("if(!isOsVc && action!=='manual_proof')"));
+ const ui=read('register/training-payment.js');
+ for(const lang of ['cs','en','ru','uk'])assert.match(ui,new RegExp(lang+':\\{title:'));
+ assert.ok(ui.includes('osvcHemaSellerConsent'));
+ assert.ok(ui.includes('osvcSellerConsent:hemaPersonal'));
+ assert.ok(ui.includes('osvcSellerConsent:!!'));
+});

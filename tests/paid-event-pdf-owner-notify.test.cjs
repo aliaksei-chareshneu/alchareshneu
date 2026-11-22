@@ -18,7 +18,7 @@ test('OSVC tour receives a separate quote and evidence workflow, NOT NGO bank co
    "isOsVc?OSVC_PROOF_BUCKET:PROOF_BUCKET",
    "publicTrainingQuote(e)||publicOsVcQuote(e)",
    "paymentEvidenceStatus:'PROOF_RECEIVED',bankVerified:false",
-   "osvc_authorized_at","!isOsVc&&savedTier==='STARTER4'"])
+   "osvc_authorized_at","if(savedTier==='STARTER4')"])
    assert.ok(edge.includes(s),s);
  assert.match(edge,/if\(proof&&\(!resumeToken\|\|!payment\)\)/);
  assert.ok(sql.includes('osvc_payment_open boolean NOT NULL DEFAULT false'));
