@@ -104,7 +104,7 @@ for(const lang of languages){
   expect(body).not.toHaveProperty('quotedTotalCzk');
  });
 }
-test('Only an individually approved private quote enables a PDF; upload cannot verify the bank',async({page})=>{
+test('Approved quote alone reveals bank details; unverified PDF stays manual',async({page})=>{
  const q={status:'AWAITING_PERSONAL_APPROVAL',late48h:true,proofRequired:false,
    sessionPaymentOpen:true,tiers:[
     {tier:'STANDARD',baseCzk:240,surchargeCzk:60,totalCzk:300},
@@ -131,7 +131,9 @@ test('Only an individually approved private quote enables a PDF; upload cannot v
  });
  await page.goto('/register/?lang=en&event='+ID);
  await expect(page.locator('#trainingPaymentAmount')).toContainText('300');
- await expect(page.locator('#paymentProofField')).toBeHidden();
+ await expect(page.locator('#paymentProofField')).toBeVisible();
+ await expect(page.locator('#paymentProof')).not.toHaveAttribute('required','');
+ await expect(page.locator('#paymentQrArea')).toBeHidden();
  await page.locator('#firstName').fill('Test');
  await page.locator('#lastName').fill('Visitor');
  await page.locator('#email').fill('example@example.invalid');
@@ -139,7 +141,8 @@ test('Only an individually approved private quote enables a PDF; upload cannot v
  await page.locator('#safety').check();
  await page.locator('#paymentResumeToken').fill('A'.repeat(43));
  await expect(page.locator('#paymentQuoteButton')).toBeVisible();
- await expect(page.locator('#paymentProofField')).toBeHidden();
+ await expect(page.locator('#paymentProofField')).toBeVisible();
+ await expect(page.locator('#paymentQrArea')).toBeHidden();
  await page.locator('#paymentQuoteButton').click();
  await expect(page.locator('#paymentProofField')).toBeVisible();
  await expect(page.locator('#trainingPaymentPrivate')).toContainText('300');
