@@ -316,6 +316,14 @@ function renderEvents(){
  if(events.length&&typeof calendarInitialized!=='undefined'&&!calendarInitialized){const chosen=events.find(e=>e.event_id===select.value);const next=events.filter(e=>Date.parse(e.begins_at)>=Date.now()).sort((a,b)=>Date.parse(a.begins_at)-Date.parse(b.begins_at))[0];calendarJumpTo(calendarDayKey(chosen||next||{begins_at:new Date().toISOString()}));calendarInitialized=true;}
  closeMatches();showEvent();if(typeof renderCalendar==='function')renderCalendar();
 }
+const BW_PAID_TOUR_ID='PUB-WALK-20261129';
+const BW_PAID_TOUR_COPY={
+ cs:{title:'Placená registrace — žádná neplacená rezervace',before:'Cena 190 Kč/os. jen při připsání celé platby do pátku 27. 11. 2026, 15:30 (48 hodin předem). Pozdější placená registrace pouze při volné kapacitě: 237,50 Kč/os. (+25 %). Odešlete své údaje, vyčkejte na individuální platební a storno podmínky, pak zaplaťte. Místo je potvrzeno až po připsání celé částky a písemném potvrzení pořadatele.',price:'190 Kč při připsání do 27. 11. 15:30 / po termínu 237,50 Kč (+25 %)',receipt:'Záznam obsahuje vaše údaje, ale NEJDE o neplacenou rezervaci ani potvrzené místo. K účasti je nutné nejprve získat schválené platební a storno podmínky, uhradit celou částku (190 Kč do 27. 11. 15:30; poté případně 237,50 Kč) a vyčkat na písemné potvrzení po ověření připsání v bance.',button:'Pokračovat k placené registraci →'},
+ en:{title:'Payment required — no unpaid bookings',before:'190 CZK per person only if full payment reaches the bank by Friday 27 Nov 2026, 15:30 CET (48 hours ahead). Later paid bookings may be accepted if places remain: 237.50 CZK (+25%). Send your details, receive individually approved payment and cancellation terms, then pay. Only full cleared bank funds plus written organiser confirmation secure a place.',price:'190 CZK if credited by 27 Nov 15:30 / 237.50 CZK after (+25%)',receipt:'Your contact details have been received, but this is NOT an unpaid reservation or a confirmed seat. Obtain the authorised payment and cancellation terms, pay the full amount (190 CZK if received by Fri 27 Nov 15:30, otherwise 237.50 CZK if late booking is available) and await written confirmation after the bank credit is verified.',button:'Continue to paid registration →'},
+ ru:{title:'Только оплаченная регистрация',before:'190 Kč с человека при поступлении всей суммы до пятницы 27 ноября 2026 года, 15:30 (за 48 часов). После срока при наличии мест поздняя регистрация стоит 237,50 Kč (+25%). Укажите данные, получите согласованные реквизиты и условия отмены, затем оплатите. Место подтверждается только после полного поступления денег в банк и письменного ответа организатора.',price:'190 Kč при зачислении до 27.11 15:30 / 237,50 Kč позже (+25%)',receipt:'Ваши данные получены, но это НЕ бесплатная бронь и НЕ подтверждённое место. Получите согласованные реквизиты и условия отмены, оплатите полную сумму (190 Kč до 27.11 15:30, затем 237,50 Kč при наличии мест) и дождитесь письменного подтверждения после проверки банковского поступления.',button:'Продолжить платную регистрацию →'},
+ uk:{title:'Лише оплачена реєстрація',before:'190 Kč з особи за умови зарахування повної оплати до п’ятниці 27 листопада 2026, 15:30 (за 48 годин). Пізніша реєстрація лише за наявності місць: 237,50 Kč (+25%). Вкажіть контактні дані, отримайте погоджені реквізити й умови скасування, тоді сплатіть. Місце підтверджується лише після надходження повної суми й письмового підтвердження організатора.',price:'190 Kč при зарахуванні до 27.11 15:30 / пізніше 237,50 Kč (+25%)',receipt:'Ваші дані отримано, але це НЕ безоплатне бронювання і НЕ підтверджене місце. Отримайте погоджені реквізити й умови скасування, оплатіть повну суму (190 Kč до 27.11 15:30; згодом 237,50 Kč за наявності місць) та дочекайтеся письмового підтвердження після перевірки зарахування банком.',button:'Продовжити платну реєстрацію →'}
+};
+function bwPaidTourCopy(){return BW_PAID_TOUR_COPY[lang]||BW_PAID_TOUR_COPY.en}
 function showEvent(){
  const e=events.find(v=>v.event_id===$('eventId').value),info=$('eventInfo'),mode=eventMode(e);
  info.replaceChildren();$('rsvpDetails').hidden=mode!=='FORM';$('submit').disabled=submitting||mode!=='FORM';
@@ -326,6 +334,12 @@ function showEvent(){
  meta.textContent=eventDate(e)+' · '+eventVenue(e)+' · '+(groupPrice||(e.price_verified===false?t('payment'):Number(e.price_czk)===0?t('free'):Number(e.price_czk)+' Kč'));info.append(meta);
  const status=document.createElement('p');status.className='event-state';status.textContent=statusLabel(e);info.append(status);
  const note=document.createElement('p');note.textContent=mode==='FORM'?t('unconfirmed'):ct(mode==='CONTACT'?'manualNote':'planNote');info.append(note);
+ if(e.event_id===BW_PAID_TOUR_ID && mode==='FORM'){
+  const paid=bwPaidTourCopy();note.textContent=paid.before;
+  const heading=document.createElement('p');heading.className='event-state';heading.textContent=paid.title;info.append(heading);
+  $('submit').textContent=paid.button;
+ }else if(!submitting){$('submit').textContent=t('send');}
+
  if((e.event_id==='PUB-HEMA-20261123'||e.event_id==='PUB-HEMA-20261128')&&mode==='FORM'){
   const details=window.ImperionEventI18n?.note(e,lang);
   if(details){const p=document.createElement('p');p.className='catalog-summary';p.textContent=details;info.append(p);}
@@ -445,6 +459,7 @@ function showReceipt(eventData,body,payload){
  const records=[[dict.event,eventData?eventTitle(eventData):body.eventId],[dict.email,body.email]];
  if(eventData){records.splice(1,0,[dict.date,eventDate(eventData)],[dict.place,eventVenue(eventData)||dict.pending],
    [dict.price,payload.quotedTotalCzk!==undefined?String(payload.quotedTotalCzk)+' Kč':(window.ImperionTrainingPayment?.catalogPrice(eventData,lang)||(eventData.price_verified===true?(eventData.price_czk===0?t('free'):String(eventData.price_czk)+' Kč'):t('payment')))]);}
+ if(eventData?.event_id===BW_PAID_TOUR_ID){const p=records.find(row=>row[0]===dict.price);if(p)p[1]=bwPaidTourCopy().price;}
  if(payload.reference)records.unshift([dict.reference,payload.reference]);
  const h=document.createElement('h3');h.textContent=dict.title;el.appendChild(h);
  const details=document.createElement('div');details.className='receipt-summary';
@@ -453,7 +468,7 @@ function showReceipt(eventData,body,payload){
    row.append(key,document.createTextNode(value));details.appendChild(row);
  }
  el.appendChild(details);
- const note=document.createElement('p');note.textContent=dict.pending;el.appendChild(note);
+ const note=document.createElement('p');note.textContent=eventData?.event_id===BW_PAID_TOUR_ID?bwPaidTourCopy().receipt:dict.pending;el.appendChild(note);
  if(payload.paymentEvidenceStatus==='PROOF_RECEIVED'){
    const evidence=document.createElement('p');evidence.className='event-state';
    evidence.textContent=window.ImperionTrainingPayment.receiptMessage(lang);el.appendChild(evidence);
@@ -474,7 +489,7 @@ function showReceipt(eventData,body,payload){
  const link=document.createElement('a');link.href=ruleUrl;link.target='_blank';link.rel='noopener';link.textContent=dict.rules;el.appendChild(link);
  const actions=document.createElement('div');actions.className='receipt-actions';
  const copy=document.createElement('button');copy.type='button';copy.textContent=dict.copy;
- const summary=[dict.title,...records.map(([k,v])=>k+': '+v),dict.pending,dict.rules+': '+ruleUrl].join('\n');
+ const summary=[dict.title,...records.map(([k,v])=>k+': '+v),note.textContent,dict.rules+': '+ruleUrl].join('\n');
  copy.addEventListener('click',()=>{if(navigator.clipboard?.writeText)navigator.clipboard.writeText(summary)
   .then(()=>{copy.textContent=dict.copied;},()=>{copy.textContent=dict.copy;});});
  const again=document.createElement('button');again.type='button';again.textContent=dict.back;
