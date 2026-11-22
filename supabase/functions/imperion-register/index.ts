@@ -442,6 +442,13 @@ Deno.serve(async (req:Request):Promise<Response>=>{
     // This is document intake for human review, NOT checkout or bank settlement.
     if(action==='manual_proof'){
       if(isOsVc||!training||!proof)return reply({error:'payment_not_open'},409,origin);
+      // The public Druzina page states OSVC as the current paid-training
+      // provider. Some older individually agreed transfers may be to the z.s.
+      // Never merge their private PDF evidence or infer the payee from club name.
+      let proofRecipient:'OSVC'|'DRUZINA';
+      try{proofRecipient=safeEnum(body.proofRecipient,['OSVC','DRUZINA']) as 'OSVC'|'DRUZINA';}
+      catch{return reply({error:'proof_recipient_required'},400,origin);}
+      const manualBucket=proofRecipient==='OSVC'?OSVC_PROOF_BUCKET:PROOF_BUCKET;
       let bytes:Uint8Array,hash:string;
       try{const parsed=await pdfInfo(proof);bytes=parsed.bytes;hash=parsed.hash;}
       catch{return reply({error:'invalid_payment_pdf'},400,origin);}
@@ -450,14 +457,14 @@ Deno.serve(async (req:Request):Promise<Response>=>{
       if(reused.error)return reply({error:'temporarily_unavailable'},503,origin);
       if(reused.data?.length)return reply({error:'duplicate_payment_pdf'},409,origin);
       const pdfPath=expiry.toISOString().slice(0,10)+'/'+crypto.randomUUID()+'.pdf';
-      const uploaded=await api.storage.from(PROOF_BUCKET).upload(pdfPath,bytes,{
+      const uploaded=await api.storage.from(manualBucket).upload(pdfPath,bytes,{
         contentType:'application/pdf',upsert:false,cacheControl:'0'});
       if(uploaded.error)return reply({error:'proof_storage_unavailable'},503,origin);
       const saved=await api.from('imperion_rsvp_submissions').update({
         payment_pdf_path:pdfPath,payment_pdf_sha256:hash,
         payment_evidence_status:'PROOF_RECEIVED',
         payment_pdf_review_status:'NEEDS_MANUAL_REVIEW',
-        payment_pdf_review_flags:['NO_APPROVED_PAYMENT_QUOTE'],
+        payment_pdf_review_flags:['NO_APPROVED_PAYMENT_QUOTE','RECIPIENT_SELF_REPORTED_'+proofRecipient],
         payment_evidence_received_at:new Date().toISOString(),
         // Explicitly EXCLUDE from Fio automation; owner must review legal
         // seller, actual recipient, terms and transfer before any bank check.
@@ -467,7 +474,7 @@ Deno.serve(async (req:Request):Promise<Response>=>{
         .eq('payment_evidence_status','NOT_REQUIRED').is('payment_pdf_path',null)
         .select('id').maybeSingle();
       if(saved.error||!saved.data){
-        await api.storage.from(PROOF_BUCKET).remove([pdfPath]);
+        await api.storage.from(manualBucket).remove([pdfPath]);
         return reply({error:saved.error?.code==='23505'?'duplicate_payment_pdf':'proof_storage_unavailable'},
           saved.error?.code==='23505'?409:503,origin);
       }
