@@ -497,17 +497,16 @@ Deno.serve(async (req:Request):Promise<Response>=>{
     verifiedQuote=isOsVc?osvcQuote(event,registrationMs,true):trainingQuote(event,savedTier,registrationMs,true);
     if(!verifiedQuote||!verifiedQuote.sessionPaymentOpen||!verifiedQuote.account)
       return reply({error:'payment_not_open'},409,origin);
-    // Check legal payee against protected Edge Function configuration; never accept a browser-supplied account.
-    // The bank account and legal beneficiary below are from the Fio bank
-    // certificate issued for Družina Moravy, z. s. on 15 September 2026.
-    // Both values must exactly match the approved event; customer input is
-    // never used for bank details. Private operator secrets override these
-    // published NGO facts if present. Do not use this fallback for OSVC.
-    // This is NOT bank reconciliation and never marks a payment settled.
+    // The exact receiving bank and its owner must match this individually
+    // approved event quote; client-supplied bank data is never accepted.
+    // Personal OSVC: Raiffeisenbank certificate dated 21 October 2024.
+    // Druzina z.s.: independent Fio certificate dated 15 September 2026.
+    // Private operator overrides take precedence and mismatches fail closed.
+    // This check NEVER establishes bank settlement or an accepted seat.
     const approvedIban=verifiedBankIban(verifiedQuote.account,verifiedQuote.recipient,
-      isOsVc ? Deno.env.get('OSVC_APPROVED_IBAN') :
+      isOsVc ? (Deno.env.get('OSVC_APPROVED_IBAN') || 'CZ9755000000007804336003') :
         (Deno.env.get('DRUZINA_APPROVED_IBAN') || 'CZ4220100000002703598853'),
-      isOsVc ? Deno.env.get('OSVC_APPROVED_PAYEE') :
+      isOsVc ? (Deno.env.get('OSVC_APPROVED_PAYEE') || 'Aliaksei Chareshneu') :
         (Deno.env.get('DRUZINA_APPROVED_PAYEE') || 'Družina Moravy, z. s.'));
     const spd=approvedIban ? createTrainingSpd(approvedIban,verifiedQuote.totalCzk,lookup.data.id,vs,isOsVc?'BW':'DM') : null;
     if(!spd)return reply({error:'approved_bank_not_configured'},409,origin);
