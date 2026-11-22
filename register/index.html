@@ -492,6 +492,14 @@ function showReceipt(eventData,body,payload){
    const title=document.createElement('label');title.textContent=manual.label;
    const input=document.createElement('input');input.type='file';input.accept='.pdf,application/pdf';
    const help=document.createElement('p');help.className='catalog-summary';help.textContent=manual.help;
+   const payeeLabel=document.createElement('label');payeeLabel.textContent=manual.payee;
+   const payeeSelect=document.createElement('select');
+   for(const [value,name] of [['OSVC','Aliaksei Chareshneu (OSVČ)'],['DRUZINA','Družina Moravy, z. s.']]){
+     const option=document.createElement('option');option.value=value;option.textContent=name;
+     payeeSelect.appendChild(option);
+   }
+   const payeeHelp=document.createElement('p');payeeHelp.className='catalog-summary';
+   payeeHelp.textContent=manual.payeeHelp;
    const button=document.createElement('button');button.type='button';button.className='retry';
    button.textContent=({cs:'Nahrát PDF',en:'Upload PDF',ru:'Загрузить PDF',uk:'Завантажити PDF'})[lang];
    const status=document.createElement('p');status.className='event-state';status.setAttribute('role','status');
@@ -501,14 +509,14 @@ function showReceipt(eventData,body,payload){
      button.disabled=true;status.textContent=({cs:'Nahrávám PDF…',en:'Uploading PDF…',
        ru:'Загружаю PDF…',uk:'Завантажую PDF…'})[lang];
      try{
-       await window.ImperionTrainingPayment.uploadManualProof(eventData,body,payload.resumeToken,file);
+       await window.ImperionTrainingPayment.uploadManualProof(eventData,body,payload.resumeToken,file,payeeSelect.value);
        status.textContent=window.ImperionTrainingPayment.receiptMessage(lang);
        input.disabled=true;button.hidden=true;
      }catch{
        status.textContent=manual.failed;button.disabled=false;
      }
    });
-   section.append(title,input,help,button,status);el.appendChild(section);
+   section.append(title,input,help,payeeLabel,payeeSelect,payeeHelp,button,status);el.appendChild(section);
  }
  if(payload.resumeToken){
    const label=document.createElement('p');label.className='event-state';
@@ -570,7 +578,8 @@ $('rsvpForm').addEventListener('submit',async event=>{event.preventDefault();con
       if(payload.resumeToken){
         try{
           const uploaded=await window.ImperionTrainingPayment.uploadManualProof(
-            currentEvent,body,payload.resumeToken,documentToAttach);
+            currentEvent,body,payload.resumeToken,documentToAttach,
+            $('paymentProofRecipient')?.value||'OSVC');
           if(uploaded.paymentEvidenceStatus==='PROOF_RECEIVED')
             payload.paymentEvidenceStatus='PROOF_RECEIVED';
         }catch{payload.paymentProofUploadFailed=true;}
