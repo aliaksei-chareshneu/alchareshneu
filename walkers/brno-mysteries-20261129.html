@@ -14,17 +14,85 @@
 :root{color-scheme:dark;--ivory:#f9f4e9;--gold:#f6c879;--muted:#d8dce5;--glass:#091829cf}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#071323;color:var(--ivory);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}a{color:inherit}.wrap{width:min(1140px,calc(100% - 40px));margin:auto}
 .hero{min-height:min(900px,100svh);min-height:max(760px,100svh);position:relative;isolation:isolate;background:#071323;overflow:hidden}
-.hero:before{content:"";position:absolute;inset:0;z-index:-2;background-image:linear-gradient(90deg,#071323ed 0%,#071323d1 38%,#07132369 68%,#07132327 100%),url('../images/brno-mysteries-advent-hero.svg'),url('../images/hero-ranger.webp');background-size:cover,cover,cover;background-position:center,center,right 45%;background-repeat:no-repeat}
-.hero:after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(0deg,#071323 0%,transparent 25%),radial-gradient(ellipse at 12% 10%,#0c2c4980,transparent 70%)}
+.hero:before{content:"";position:absolute;inset:0;z-index:-2;background-image:linear-gradient(90deg,#071323ed 0%,#071323d1 38%,#07132369 68%,#07132327 100%);background-size:cover;background-position:center;background-repeat:no-repeat}
+.scene{position:absolute;inset:0;width:100%;height:100%;z-index:-3;display:block;pointer-events:none}.hero:after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(0deg,#071323 0%,transparent 25%),radial-gradient(ellipse at 12% 10%,#0c2c4980,transparent 70%)}
 .top{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:24px 0;position:relative;z-index:2}.brand{font-size:14px;letter-spacing:.12em;text-decoration:none;font-weight:850;color:var(--gold)}.switch{display:flex;gap:5px;padding:5px;border-radius:100px;border:1px solid #ffffff4a;background:#0917288a;backdrop-filter:blur(10px)}.switch button{background:transparent;color:#e7e8ec;border:0;padding:8px 11px;font-weight:800;border-radius:80px;cursor:pointer;min-height:39px}.switch button[aria-pressed=true]{background:var(--gold);color:#071323}.switch button:focus-visible,.cta:focus-visible,details:focus-visible{outline:3px solid white;outline-offset:3px}
 .lead{padding:clamp(78px,12vh,155px) 0 95px;max-width:800px}.eyebrow{font-size:13px;letter-spacing:.12em;font-weight:850;color:var(--gold);text-transform:uppercase}h1{font-family:Georgia,"Times New Roman",serif;font-size:clamp(45px,6.25vw,89px);line-height:1.08;letter-spacing:-.035em;margin:20px 0 24px;max-width:850px;text-wrap:balance;text-shadow:0 3px 24px #000b}.pitch{color:#f2eadd;max-width:580px;font-size:clamp(18px,2vw,23px);margin:0 0 27px}.facts{display:flex;flex-wrap:wrap;gap:9px;margin:0 0 25px}.facts span{padding:9px 14px;border:1px solid #ffffff4a;background:#091829bf;border-radius:13px;font-weight:750;backdrop-filter:blur(8px)}.price{font-size:21px;font-weight:850;color:#ffe0a2;margin:3px 0}.price strong{font-size:clamp(32px,5vw,52px);line-height:1.12}.deadline{font-size:15px;color:#fff3db;max-width:650px;margin:5px 0 23px}.cta{display:inline-block;background:linear-gradient(120deg,#fce5a9,#efbd60);padding:15px 25px;color:#1b1b27;border-radius:12px;text-decoration:none;font-size:18px;font-weight:900;min-height:54px;box-shadow:0 12px 35px #0008}.cta:hover{filter:brightness(1.08)}.smallnote{color:#ced5dc;font-size:13px;max-width:630px;margin:13px 0}
 .lower{background:#081321;padding:44px 0 74px}.lower-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:26px}.panel{padding:25px;border:1px solid #46536a;border-radius:18px;background:#13243a}h2{font-family:Georgia,serif;font-size:clamp(25px,3vw,35px);margin:0 0 18px}.highlights{display:grid;grid-template-columns:1fr 1fr;gap:12px}.highlight{padding:13px 15px;border:1px solid #ffffff20;border-radius:13px;background:#ffffff08}.highlight b{color:var(--gold)}.details p{margin:10px 0;color:#e4e6ea}.details strong{color:#fff}.accord{margin:24px 0 0}.accord summary{cursor:pointer;color:#ffe0a2;font-weight:800;min-height:48px}.accord p{color:#e0e5e9;margin:12px 0}.bottom{margin-top:27px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}.footer{border-top:1px solid #ffffff24;padding:23px 0;font-size:13px;color:#bfcbd8}.footer a{text-decoration:underline}
-@media(max-width:720px){.wrap{width:min(100% - 32px,1140px)}.hero{min-height:780px}.hero:before{background-image:linear-gradient(90deg,#071323f2 0%,#071323ce 75%,#07132385),url('../images/brno-mysteries-advent-hero.svg'),url('../images/hero-ranger.webp');background-position:center,65% center,center}.top{padding:18px 0}.brand{font-size:12px}.switch button{padding:7px 8px;font-size:12px}.lead{padding:65px 0 65px}.facts span{font-size:13px}.lower-grid{grid-template-columns:1fr}.highlights{grid-template-columns:1fr 1fr}.panel{padding:21px}h1{font-size:clamp(40px,11vw,66px)}}
+@media(max-width:720px){.wrap{width:min(100% - 32px,1140px)}.hero{min-height:780px}.hero:before{background-image:linear-gradient(90deg,#071323f2 0%,#071323ce 75%,#07132385);background-position:center}.top{padding:18px 0}.brand{font-size:12px}.switch button{padding:7px 8px;font-size:12px}.lead{padding:65px 0 65px}.facts span{font-size:13px}.lower-grid{grid-template-columns:1fr}.highlights{grid-template-columns:1fr 1fr}.panel{padding:21px}h1{font-size:clamp(40px,11vw,66px)}}
 @media(max-width:360px){.highlights{grid-template-columns:1fr}.brand{font-size:11px}.switch button{padding:6px}}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 </style>
 </head>
 <body>
 <section class="hero">
+<svg class="scene" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+<defs>
+<linearGradient id="sky" x1="0" y1="0" x2="0.85" y2="1"><stop stop-color="#061223"/><stop offset=".55" stop-color="#102944"/><stop offset="1" stop-color="#0c1830"/></linearGradient>
+<linearGradient id="stone" x1="0" x2=".88" y1="0" y2=".8"><stop stop-color="#c9ac86"/><stop offset=".38" stop-color="#846c62"/><stop offset=".75" stop-color="#4b4752"/><stop offset="1" stop-color="#2d2f41"/></linearGradient>
+<linearGradient id="road" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#14273c"/><stop offset=".45" stop-color="#323b43"/><stop offset=".8" stop-color="#926f53"/><stop offset="1" stop-color="#261b28"/></linearGradient>
+<radialGradient id="glow"><stop stop-color="#fff6ba" stop-opacity=".96"/><stop offset=".2" stop-color="#fbc666" stop-opacity=".73"/><stop offset=".55" stop-color="#eb9d43" stop-opacity=".22"/><stop offset="1" stop-color="#da7438" stop-opacity="0"/></radialGradient>
+<radialGradient id="warm"><stop stop-color="#f9c879" stop-opacity=".45"/><stop offset="1" stop-color="#f9c879" stop-opacity="0"/></radialGradient>
+<linearGradient id="arch" x1="0" x2=".8" y1="0" y2="1"><stop stop-color="#111627"/><stop offset=".8" stop-color="#332929"/><stop offset="1" stop-color="#674628"/></linearGradient>
+<linearGradient id="shadow" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#071526"/><stop offset=".44" stop-color="#081426" stop-opacity=".8"/><stop offset=".69" stop-color="#071526" stop-opacity=".15"/><stop offset="1" stop-color="#071526" stop-opacity=".04"/></linearGradient>
+<filter id="blur"><feGaussianBlur stdDeviation="16"/></filter>
+<filter id="soft"><feGaussianBlur stdDeviation="4"/></filter>
+<pattern id="masonry" width="83" height="37" patternUnits="userSpaceOnUse"><path d="M0 0 H83 M33 0 V37 M0 37 H83" fill="none" stroke="#342e36" stroke-opacity=".17" stroke-width="2"/></pattern>
+<pattern id="stones" width="108" height="29" patternUnits="userSpaceOnUse"><path d="M0 29 108 0 M-29 29 79 0" stroke="#ffdda0" stroke-opacity=".07" stroke-width="2"/></pattern>
+<g id="star"><path d="M0-16 3-4 16 0 3 4 0 16-3 4-16 0-3-4Z" fill="#fdf0bb"/></g>
+</defs>
+<rect width="1600" height="900" fill="url(#sky)"/>
+<g opacity=".45"><ellipse cx="1300" cy="435" rx="540" ry="270" fill="url(#warm)"/><ellipse cx="1560" cy="790" rx="340" ry="220" fill="url(#warm)" /></g>
+<path d="M0 710Q200 670 435 700T855 687Q1020 668 1180 712L1600 670V900H0Z" fill="#101f32"/>
+<g fill="#14263a" opacity=".95"><path d="M710 680V548h60v132z M780 680V515h110v165z M911 681V583h83v98z M1014 680V544h98v136z"/><path d="M710 548l30-29 30 29z M780 515l55-55 55 55z M1014 544l49-33 49 33z"/></g>
+<g fill="#c39a64" opacity=".74">
+<path d="M972 442V380h130v62Z M990 380V338h22v42z M1063 380V338h22v42z"/>
+<path d="M985 338L1000 285 1016 338Z M1057 338L1072 285 1088 338Z"/>
+<path d="M981 405h105v37H981Z" fill="#bea07e"/>
+</g>
+<g stroke="#f9d598" opacity=".75" stroke-width="3"><path d="M1001 305v100 M1074 306v100"/><path d="M980 394h108"/></g>
+<ellipse cx="1067" cy="470" rx="260" ry="200" fill="url(#glow)" opacity=".22"/>
+<path d="M450 718 1320 574 1600 758V900H0Z" fill="url(#road)"/>
+<path d="M450 718 1320 574 1600 758V900H0Z" fill="url(#stones)"/>
+<path d="M1110 900 1305 594 1550 900Z" fill="url(#glow)" opacity=".28"/>
+<path d="M1105 610V238L1183 190h323V650h-87V616h-314Z" fill="#232b3a" opacity=".65" transform="translate(10,15)"/>
+<path d="M1075 635V230l83-42h325V644h-82l-1-9h-325Z" fill="url(#stone)"/>
+<path d="M1075 635V230l83-42h325V644h-82l-1-9h-325Z" fill="url(#masonry)"/>
+<path d="M1060 230 1180 126 1495 136 1516 224 1075 230Z" fill="#382d35"/>
+<path d="M1070 219 1185 146 1480 151 1500 218 1070 219Z" fill="#67414a"/>
+<path d="M1098 203 1194 149 1457 151 1481 198Z" fill="#c1c2cc" opacity=".52"/>
+<path d="M1075 243H1484" stroke="#dbbd91" stroke-width="6" opacity=".6"/>
+<path d="M1215 637V545Q1215 455 1290 437Q1368 460 1368 544V637Z" fill="#1c1b27"/>
+<path d="M1232 636V544Q1232 486 1290 466Q1350 480 1350 544V636Z" fill="url(#arch)"/>
+<path d="M1243 637V550Q1243 503 1290 492Q1337 506 1337 550V637Z" fill="#563a2d"/>
+<path d="M1264 628V532l26-18 23 18v95Z" fill="#ad7145" opacity=".55"/>
+<path d="M1305 637V555L1320 538V632Z" fill="#cb8f51" opacity=".55"/>
+<path d="M1208 647H1375" stroke="#251e23" stroke-width="18"/>
+<path d="M1070 633H1216M1370 633H1497" stroke="#d3a36e" stroke-width="11" opacity=".75"/>
+<rect x="1166" y="339" width="44" height="60" rx="5" fill="#262733" stroke="#baa17d" stroke-width="9"/>
+<path d="M1188 343V397M1170 369H1206" stroke="#baa17d" stroke-width="6"/>
+<path d="M1400 309h38v55h-38z" fill="#2d2830" stroke="#b29a79" stroke-width="8"/>
+<path d="M1419 312v52m-19-26h38" stroke="#b29a79" stroke-width="5"/>
+<ellipse cx="1291" cy="395" rx="86" ry="45" fill="url(#warm)"/>
+<path d="M1276 398q-20-19-4-30q18-14 35 5q14 12 0 25q-18 20-31 0" fill="#b59766" opacity=".85"/>
+<path d="M1276 391l29-13" stroke="#5f4b42" stroke-width="4"/>
+<g stroke="#e6bd77" stroke-width="3" fill="none" opacity=".88"><path d="M1190 480q90 36 187 7"/><path d="M1190 494q90 36 187 7"/></g>
+<g fill="#ffd17a"><circle cx="1215" cy="491" r="4"/><circle cx="1245" cy="498" r="4"/><circle cx="1276" cy="504" r="4"/><circle cx="1307" cy="506" r="4"/><circle cx="1337" cy="500" r="4"/><circle cx="1364" cy="492" r="4"/></g>
+<g transform="translate(1290 522)"><circle r="64" fill="url(#glow)" opacity=".6"/><use href="#star" transform="scale(1.4)"/></g>
+<g fill="#d5aa6b" opacity=".72"><rect x="1118" y="508" width="12" height="101"/><path d="M1124 508l-11 15h22Z"/></g>
+<g transform="translate(1125 501)"><circle r="60" fill="url(#glow)" opacity=".7"/><path d="M-10-18h20l7 8-4 24h-26l-4-24z" fill="#f4b65b" stroke="#ffe2a4" stroke-width="3"/><rect x="-11" y="-22" width="22" height="4" fill="#403234"/></g>
+<g transform="translate(1535 285)"><circle r="110" fill="url(#glow)" opacity=".6"/><path d="M-14-29h28l8 12-5 33h-34l-5-33z" fill="#f3b45c" stroke="#ffdd96" stroke-width="4"/><rect x="-14" y="-35" width="28" height="6" fill="#302931"/></g>
+<path d="M1560 0v292" stroke="#221e26" stroke-width="15"/><path d="M1490 80h100" stroke="#25242d" stroke-width="13"/><path d="M1490 80q53 13 53 48" fill="none" stroke="#6f5f48" stroke-width="8"/>
+<path d="M1600 62q-92-19-190-50M1600 58q-115 43-235 33M1560 64q-100 68-220 89" fill="none" stroke="#2d292b" stroke-width="12" stroke-linecap="round"/>
+<g fill="#facf80"><circle cx="1410" cy="20" r="5"/><circle cx="1450" cy="30" r="4"/><circle cx="1505" cy="41" r="4"/><circle cx="1570" cy="53" r="6"/><circle cx="1379" cy="103" r="5"/><circle cx="1440" cy="122" r="4"/><circle cx="1505" cy="137" r="6"/></g>
+<path d="M1427 786q-18-53 8-96l38-24 13-33 24 12 15-14 12 31 25 21-15 18-36-8-13 29 33 45-23 10-28-27-15 54Z" fill="#201f27" stroke="#63503e" stroke-width="5"/>
+<path d="M1472 670l44-65 48 9-35 70Z" fill="#27252f" stroke="#574738" stroke-width="5"/>
+<path d="M1510 652q-18-13-32-13m34 32q-21-8-40-8" fill="none" stroke="#8e654c" stroke-width="3"/>
+<path d="M1398 786h168" stroke="#a18563" stroke-width="10"/>
+<g fill="#fff6cf" opacity=".7">
+<circle cx="111" cy="145" r="2"/><circle cx="320" cy="80" r="2"/><circle cx="495" cy="234" r="2"/><circle cx="660" cy="101" r="2"/><circle cx="811" cy="291" r="2"/><circle cx="922" cy="173" r="3"/><circle cx="1090" cy="51" r="2"/><circle cx="1293" cy="45" r="3"/><circle cx="1436" cy="221" r="2"/><circle cx="290" cy="302" r="2"/><circle cx="535" cy="431" r="2"/><circle cx="970" cy="473" r="2"/>
+</g>
+<rect width="1600" height="900" fill="url(#shadow)"/>
+</svg>
 <div class="wrap">
 <header class="top"><a href="./" class="brand">BRNOWALKERS</a><nav class="switch" aria-label="Language"><button type="button" data-lang="cs">CZ</button><button type="button" data-lang="en">EN</button><button type="button" data-lang="ru">RU</button><button type="button" data-lang="uk">UA</button></nav></header>
 <main class="lead">
