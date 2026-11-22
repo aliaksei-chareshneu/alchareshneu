@@ -65,6 +65,18 @@
     if(changed)clearPrivateQuote();
     if(box.hidden){proof.required=false;proof.value='';$('trainingPaymentPrivate').textContent='';renderApprovedQr(null);return;}
     const t=copy();
+    const paidWalk=osvc&&event?.event_id==='PUB-WALK-20261129';
+    if(paidWalk){
+      const rate={
+       cs:{intro:'Pouze placená registrace. 190 Kč/os. při připsání celé platby do pátku 27. 11. 15:30, jinak při volných místech 237,50 Kč (+25 %).',note:'Přihláška bez platby není rezervace. Organizátor nejprve individuálně sdělí a odsouhlasí platební a storno podmínky. Místo platí až po připsání celé částky a písemném potvrzení.'},
+       en:{intro:'PAID BOOKINGS ONLY. 190 CZK per person if full bank credit arrives by Fri 27 Nov 15:30 CET; later, if space remains, 237.50 CZK (+25%).',note:'An unpaid form is not a booking. The organiser will first approve payment instructions and cancellation terms individually. Only bank-cleared payment plus written confirmation secure a place.'},
+       ru:{intro:'ТОЛЬКО ОПЛАЧЕННАЯ РЕГИСТРАЦИЯ. 190 Kč при зачислении до пятницы 27.11 в 15:30; затем при наличии мест 237,50 Kč (+25%).',note:'Заявка без оплаты не является бронью. Сначала организатор согласует реквизиты и условия отмены. Место закрепляется только после банковского зачисления всей суммы и письменного подтверждения.'},
+       uk:{intro:'ЛИШЕ ОПЛАЧЕНА РЕЄСТРАЦІЯ. 190 Kč до п’ятниці 27.11, 15:30 за умови зарахування банком; пізніше за наявності місць 237,50 Kč (+25%).',note:'Несплачена заявка не є бронюванням. Спершу організатор погодить реквізити й умови скасування. Місце дійсне лише після надходження всієї суми та письмового підтвердження.'}
+      }[lang]||{intro:'Paid bookings only. 190 CZK until 27 Nov 15:30; late 237.50 CZK.',note:'Only cleared full payment and written organiser confirmation secure a place.'};
+      t.intro=rate.intro;
+      t.notReady=rate.note;
+      t.ready=rate.note;
+    }
     if(osvc)plan.value='STANDARD';
     if(plan.closest('.field'))plan.closest('.field').hidden=osvc;
     $('trainingPaymentHeading').textContent=t.heading;
@@ -75,7 +87,7 @@
       const tname=PRICE_NAMES[p.tier]?.[lang]||p.tier;
       return tname+': '+p.baseCzk+' + '+p.surchargeCzk+' = '+p.totalCzk+' Kč';
     });
-    $('trainingPaymentAmount').textContent=osvc?(q.tiers?.[0]?.totalCzk+' Kč'):prices.join(' · ');
+    $('trainingPaymentAmount').textContent=paidWalk?'190 Kč (by 27 Nov 15:30) / 237,50 Kč (late +25%)':osvc?(q.tiers?.[0]?.totalCzk+' Kč'):prices.join(' · ');
     $('trainingPaymentInstructions').textContent=q.sessionPaymentOpen?t.ready:t.notReady;
     $('paymentResumeLabel').textContent=t.codeLabel;
     $('paymentResumeHelp').textContent=t.codeHelp;
@@ -106,7 +118,7 @@
   function catalogPrice(event,lang){
     const q=event?.trainingPayment;
     if(!q)return null;
-    if(q.kind==='OSVC_EVENT')return String(q.tiers?.[0]?.totalCzk||event.price_czk)+' Kč';
+    if(q.kind==='OSVC_EVENT')return event.event_id==='PUB-WALK-20261129'?'190 Kč (up to 27 Nov 15:30) / 237,50 Kč (late +25%)':String(q.tiers?.[0]?.totalCzk||event.price_czk)+' Kč';
     const tiers=Array.isArray(q.tiers)?q.tiers:[];
     const values=tiers.map(p=>p.totalCzk).join(' / ');
     if(!values)return null;
