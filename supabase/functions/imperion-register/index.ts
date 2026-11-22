@@ -126,12 +126,12 @@ const MAX_PDF_BYTES=5*1024*1024;
 const MAX_MULTIPART_BYTES=MAX_PDF_BYTES+15000;
 const LATE_WINDOW_MS=48*60*60*1000;
 type TrainingTier='STANDARD'|'SENIOR'|'STARTER4';
-type TrainingEvent={event_id:string;community:string;category:string;price_czk:number;begins_at:string;ends_at:string;price_verified:boolean;end_time_verified:boolean;source_active:boolean;is_open:boolean;registration_mode:string;training_price_scheme:string;training_quote_locked_at:string|null;training_operational_go_at:string|null;training_payment_open:boolean;training_payment_recipient:string|null;training_payment_account:string|null};
+type TrainingEvent={event_id:string;community:string;category:string;data_controller:string;price_czk:number;begins_at:string;ends_at:string;price_verified:boolean;end_time_verified:boolean;source_active:boolean;is_open:boolean;registration_mode:string;training_price_scheme:string;training_quote_locked_at:string|null;training_operational_go_at:string|null;training_payment_open:boolean;training_payment_recipient:string|null;training_payment_account:string|null};
 const TRAINING_TIER_PRICE_CZK:Record<TrainingTier,number>={STANDARD:240,SENIOR:120,STARTER4:800};
 function trainingQuote(e:TrainingEvent,tier:TrainingTier='STANDARD',now=Date.now(),privateBank=false){
   // 9 Nov 2026 approved owner tariffs. The 7 Nov group-size formula is withdrawn.
   // Free Orel and legacy individual commitments are never repriced.
-  if((e as any).data_controller!=='Družina Moravy, z. s.'||e.community!=='Družina Moravy'||e.category!=='HEMA Training'||
+  if(e.data_controller!=='Družina Moravy, z. s.'||e.community!=='Družina Moravy'||e.category!=='HEMA Training'||
     e.training_price_scheme!=='INDIVIDUAL'||Number(e.price_czk)<=0||
     e.event_id==='PUB-OREL-20261114')return null;
   const ready=!!(e.training_quote_locked_at&&e.training_operational_go_at&&
