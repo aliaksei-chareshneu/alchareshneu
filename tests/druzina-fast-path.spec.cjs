@@ -77,14 +77,16 @@ for(const lang of languages){
   await expect(page.locator('#rsvpForm')).toBeVisible();
   await expect(page.locator('#eventId')).toHaveValue(ID);
   await expect(page.locator('#trainingPayment')).toBeVisible();
-  await expect(page.locator('#paymentProofField')).toBeHidden();
+  await expect(page.locator('#paymentProofField')).toBeVisible();
+  await expect(page.locator('#paymentProof')).not.toHaveAttribute('required','');
   await expect(page.locator('#interestForm')).toHaveCount(0);
  });
  test('Only canonical form accepts new preliminary RSVP; code is not a paid seat: '+lang,async({page})=>{
   const submitted=await mockApi(page);
   await page.goto('/register/?lang='+lang+'&event='+ID);
   await expect(page.locator('#rsvpForm')).toBeVisible();
-  await expect(page.locator('#paymentProofField')).toBeHidden();
+  await expect(page.locator('#paymentProofField')).toBeVisible();
+  await expect(page.locator('#paymentProof')).not.toHaveAttribute('required','');
   await page.locator('#submit').click();
   expect(submitted).toHaveLength(0);
   await page.locator('#firstName').fill('Test');
