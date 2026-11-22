@@ -134,6 +134,7 @@
     ru:{home:'Главная',events:'События',academyNav:'Академия',clubNav:'Дружина',walkersNav:'BrnoWalkers',about:'Обо мне',heroEvents:'Выбрать событие',heroTypes:'Дружина · BrnoWalkers',heroAcademy:'Найти решение своей задачи',academyNote:'Языки · движение · школа · жизнь в Чехии',city:'Город',cityAll:'Все города',cityBrno:'Брно',cityPrague:'Прага',cityOther:'Другие / уточняется',cityEmpty:'В выбранном городе в этом месяце пока нет проверенных опубликованных мероприятий.',moreDates:'ещё',menu:'Навигация'},
     uk:{home:'Головна',events:'Події',academyNav:'Академія',clubNav:'Дружина',walkersNav:'BrnoWalkers',about:'Про мене',heroEvents:'Обрати подію',heroTypes:'Дружина · BrnoWalkers',heroAcademy:'Знайти рішення своєї задачі',academyNote:'Мови · рух · школа · життя в Чехії',city:'Місто',cityAll:'Усі міста',cityBrno:'Брно',cityPrague:'Прага',cityOther:'Інші / уточнюється',cityEmpty:'Для обраного міста й місяця поки немає перевірених опублікованих подій.',moreDates:'ще',menu:'Навігація'}
   };
+  var UI_LABELS={"cs":{"skip":"Přejít na hlavní obsah","brand":"Učení · pohyb · zážitky v Brně","nav":"Hlavní navigace","lang":"Jazyk stránky","hero":"Tři možnosti, jak začít","filters":"Filtry akcí","types":"Druhy aktivit","city":"Město","dates":"Dny s akcemi","nearest":"Nejbližší ověřená veřejná akce","payment":"Kontakty k platbě","footer":"Akademie a odborné služby: Aliaksei Chareshneu (OSVČ). Družina Moravy, z. s. je samostatný spolek. Pořadatel a příjemce platby jsou uvedeni u konkrétní akce."},"en":{"skip":"Skip to main content","brand":"Learning · movement · experiences in Brno","nav":"Main navigation","lang":"Page language","hero":"Three ways to get started","filters":"Event filters","types":"Activity types","city":"City","dates":"Event days","nearest":"Next verified public event","payment":"Payment contacts","footer":"Academy and specialist services: Aliaksei Chareshneu (sole trader). Družina Moravy, z. s. is a separate association. Check the organiser and payment recipient for each activity."},"ru":{"skip":"Перейти к содержимому","brand":"Обучение · движение · впечатления в Брно","nav":"Основная навигация","lang":"Язык страницы","hero":"Три направления на выбор","filters":"Фильтры событий","types":"Виды занятий","city":"Город","dates":"Дни с событиями","nearest":"Ближайшее подтверждённое публичное событие","payment":"Контакты по оплате","footer":"Обучение и профессиональные услуги: Aliaksei Chareshneu (OSVČ). Družina Moravy, z. s. — отдельная организация. Организатор и получатель оплаты указаны для каждого мероприятия."},"uk":{"skip":"Перейти до основного вмісту","brand":"Навчання · рух · пригоди в Брно","nav":"Головна навігація","lang":"Мова сторінки","hero":"Три напрями на вибір","filters":"Фільтри подій","types":"Види занять","city":"Місто","dates":"Дні з подіями","nearest":"Найближча підтверджена публічна подія","payment":"Контакти щодо оплати","footer":"Навчання та професійні послуги: Aliaksei Chareshneu (OSVČ). Družina Moravy, z. s. — окрема організація. Організатор і отримувач платежу вказані для кожної події."}};
   function ft(k){return (FRONT_COPY[lang]||FRONT_COPY.cs)[k]||FRONT_COPY.en[k]||k;}
   var paths = {club:'druzina/',walkers:'walkers/',academy:'academy/'};
   var query = new URLSearchParams(location.search);
@@ -172,16 +173,17 @@
   }
   var html = [
     '<div id="imperion-frontdoor">',
+    '<a class="fd-skip" id="fdSkip" href="#fdMain">Skip to main content</a>',
     '<header class="fd-header"><div class="fd-shell fd-header-inner">',
-      '<a class="fd-logo" href="#imperion-frontdoor"><span class="fd-logo-mark" aria-hidden="true">⚔</span><span class="fd-logo-text"><strong>IMPERION</strong><small>HISTORIE · ZÁŽITKY · ROZVOJ</small></span></a>',
+      '<a class="fd-logo" href="#imperion-frontdoor"><span class="fd-logo-mark" aria-hidden="true">⚔</span><span class="fd-logo-text"><strong>IMPERION</strong><small id="fdBrandSubtitle">HISTORIE · ZÁŽITKY · ROZVOJ</small></span></a>',
       '<nav class="fd-nav" id="fdNav" aria-label="Primary navigation">',
       '<a id="fdNavHome" href="#imperion-frontdoor"></a><a id="fdNavEvents" href="#impr-calendar"></a><a id="fdNavAcademy" href="academy/"></a>',
       '<a id="fdNavClub" href="druzina/"></a><a id="fdNavWalkers" href="walkers/"></a><a id="fdNavAbout" href="about/?lang=cs"></a>',
       '</nav>',
-      '<div class="fd-languages" aria-label="Language">',
+      '<div class="fd-languages" role="group" aria-label="Language">',
       '<button type="button" data-fd-language="cs">CZ</button><button type="button" data-fd-language="en">EN</button><button type="button" data-fd-language="ru">RU</button><button type="button" data-fd-language="uk">UA</button>',
       '</div></div></header>',
-    '<main>',
+    '<main id="fdMain" tabindex="-1">',
       '<section class="fd-hero" aria-label="Welcome">',
         '<div class="fd-mosaic fd-photo-shadows" aria-hidden="true"></div>',
         '<div class="fd-shell fd-hero-inner">',
@@ -261,7 +263,7 @@
       '</section>',
     '</main>',
     '<footer class="fd-footer"><div class="fd-shell fd-footer-inner"><span>© 2026 · Družina Moravy, z. s. · BrnoWalkers · Aliaksei Chareshneu OSVČ</span>',
-    '<div class="fd-footer-links"><a href="calendar/" id="fdFooterCalendar"></a><a href="register/privacy/" id="fdFooterPrivacy"></a><a href="academy/" id="fdFooterInfo"></a></div></div></footer>',
+    '<div class="fd-footer-links"><a href="calendar/" id="fdFooterCalendar"></a><a href="register/privacy/" id="fdFooterPrivacy"></a><a href="academy/" id="fdFooterInfo"></a></div></div><p class="fd-entity-note" id="fdEntityNote"></p></footer>',
     '</div>'
   ].join('');
   document.body.insertAdjacentHTML('afterbegin',html);
@@ -447,6 +449,27 @@
       ru:'IMPERION · События, занятия и приключения в Брно',
       uk:'IMPERION · Події, заняття та пригоди в Брно'
     })[lang]||'IMPERION · Brno';
+
+    var a11y=UI_LABELS[lang]||UI_LABELS.cs;
+    el('fdSkip').textContent=a11y.skip;
+    el('fdBrandSubtitle').textContent=a11y.brand;
+    el('fdEntityNote').textContent=a11y.footer;
+    [
+      [el('fdNav'),'nav'],
+      [parent.querySelector('.fd-languages'),'lang'],
+      [parent.querySelector('.fd-hero'),'hero'],
+      [parent.querySelector('.fd-facet-panel'),'filters'],
+      [parent.querySelector('.fd-filters'),'types'],
+      [parent.querySelector('.fd-city-options'),'city'],
+      [el('fdDays'),'dates'],
+      [el('fdNearestEvent'),'nearest'],
+      [el('fdPaymentContacts'),'payment']
+    ].forEach(function(pair){pair[0].setAttribute('aria-label',a11y[pair[1]]);});
+    parent.querySelectorAll('[data-fd-language]').forEach(function(btn){
+      var code=btn.dataset.fdLanguage;
+      btn.setAttribute('aria-label',({cs:'Čeština',en:'English',ru:'Русский',uk:'Українська'})[code]);
+      btn.setAttribute('lang',code);
+    });
     [['fdEyebrow','eyebrow'],['fdHero1','title'],['fdHero2','title2'],['fdLead','lead'],['fdUnder','under'],['fdDir1','dir1'],['fdDir2','dir2'],['fdDir3','dir3'],['fdCalEyebrow','calendarEyebrow'],['fdCalTitle','calendarTitle'],['fdCalIntro','calendarIntro'],['fdCalNote','calendarNote'],['fdNotice','notice'],['fdFooterCalendar','liveCalendar'],['fdFooterPrivacy','privacy'],['fdFooterInfo','back']].forEach(function(pair){label(pair[0],pair[1]);});
     el('fdValueNow').textContent=VALUE_HOME[lang][0];
     el('fdValueThen').textContent=VALUE_HOME[lang][1];
@@ -608,6 +631,7 @@
   el('fdClose').addEventListener('click',function(){closeEventModal(true);});
   el('fdOverlay').addEventListener('click',function(){closeEventModal(true);});
   document.addEventListener('keydown',function(event){
+    if(!modalShown && event.key==='Escape' && more.open){event.preventDefault();more.open=false;moreSummary.focus();return;}
     if(!modalShown)return;
     if(event.key==='Escape'){event.preventDefault();closeEventModal(true);return;}
     if(event.key!=='Tab')return;
@@ -617,6 +641,7 @@
     if(event.shiftKey && (document.activeElement===first || !el('fdDetails').contains(document.activeElement))){event.preventDefault();last.focus();}
     else if(!event.shiftKey && (document.activeElement===last || !el('fdDetails').contains(document.activeElement))){event.preventDefault();first.focus();}
   });
+  document.addEventListener('pointerdown',function(e){if(more.open&&!more.contains(e.target))more.open=false;});
   parent.querySelectorAll('[data-fd-language]').forEach(function(b){b.addEventListener('click',function(){
     lang=b.dataset.fdLanguage;
     try{localStorage.setItem('dm_lang',lang);}catch(_){}
