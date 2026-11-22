@@ -30,6 +30,14 @@ for(const width of [320,390,768,1440]){
     await expect(page.locator('html')).toHaveAttribute('data-imperion-frontdoor','ready');
     await page.evaluate(()=>document.fonts.ready);
     expect(await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth)).toBeLessThanOrEqual(1);
+    // Calculated text/background color alone misses background-image overlays.
+    await expect(page.locator('.fd-hero .fd-mosaic.fd-photo-shadows')).toBeHidden();
+    const effectiveHero=await page.locator('.fd-hero').evaluate(el=>({
+      backgroundImage:getComputedStyle(el).backgroundImage,
+      beforeImage:getComputedStyle(el,'::before').backgroundImage
+    }));
+    expect(effectiveHero.backgroundImage).toBe('none');
+    expect(effectiveHero.beforeImage).not.toContain('url(');
     await expect(page.locator('#fdVisualGrid .fd-visual-tile')).toHaveCount(3);
     const photos=await page.locator('#fdVisualGrid img').evaluateAll(els=>els.map(el=>({
       src:el.getAttribute('src'),loaded:el.complete&&el.naturalWidth>0
@@ -76,6 +84,13 @@ for(const width of [320,390,768,1440]){
       expect(langSize).toBeGreaterThanOrEqual(12);
     }
 
+    if(width>=768){
+      const widths=await page.locator('.fd-hero-actions > a').evaluateAll(nodes=>
+        nodes.map(el=>Math.round(el.getBoundingClientRect().width)));
+      expect(widths).toHaveLength(2);
+      expect(widths.every(w=>w>150&&w<=420),
+        'Secondary CTA width: '+JSON.stringify(widths)).toBe(true);
+    }
     for(const card of await page.locator('.fd-visual-tile').all()){
       const b=await card.boundingBox();
       expect(b&&b.width).toBeGreaterThan(165);

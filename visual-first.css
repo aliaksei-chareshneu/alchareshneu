@@ -475,3 +475,24 @@ body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-lang a {
     font-size:12px;min-width:28px;min-height:40px;
   }
 }
+
+/* Visual QA finding: legacy .fd-mosaic.fd-photo-shadows is MORE specific than
+   the simple editorial .fd-mosaic rule and painted a dark photo behind dark copy.
+   Ensure the photo is absent from this light hero, not merely covered. */
+#imperion-frontdoor .fd-mosaic.fd-photo-shadows {
+  display:none!important; background-image:none!important;
+}
+/* Secondary shortcuts must not be full-width banners underneath the three cards. */
+#imperion-frontdoor .fd-hero-actions {
+  display:flex;flex-direction:row;flex-wrap:wrap;align-items:stretch;justify-content:flex-start;
+}
+#imperion-frontdoor .fd-hero-cta,
+#imperion-frontdoor .fd-hero-academy {
+  width:auto;max-width:100%;min-width:0;flex:0 1 280px;
+}
+@media(max-width:640px){
+  #imperion-frontdoor .fd-hero-cta,
+  #imperion-frontdoor .fd-hero-academy {
+    width:auto;min-width:0;flex:1 1 142px;
+  }
+}
