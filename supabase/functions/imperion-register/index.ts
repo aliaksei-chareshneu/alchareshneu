@@ -408,16 +408,18 @@ Deno.serve(async (req:Request):Promise<Response>=>{
   }
   const resumeToken=String(body.paymentResumeToken||'').trim();
   const action=String(body.action||'submit');
-  if(!['submit','quote'].includes(action))return reply({error:'invalid_request'},400,origin);
+  if(!['submit','quote','manual_proof'].includes(action))return reply({error:'invalid_request'},400,origin);
   if(resumeToken&&!/^[A-Za-z0-9_-]{43}$/.test(resumeToken))
     return reply({error:'invalid_payment_code'},400,origin);
-  if(action==='quote'&&!resumeToken)return reply({error:'payment_code_required'},400,origin);
+  if((action==='quote'||action==='manual_proof')&&!resumeToken)
+    return reply({error:'payment_code_required'},400,origin);
+  if(action==='manual_proof'&&!proof)return reply({error:'payment_pdf_required'},400,origin);
   if(proof&&(!resumeToken||!payment))return reply({error:'payment_not_open'},400,origin);
   const expiry=new Date(new Date(event.ends_at).getTime()+90*86400000);
   let receiptId:string|null=null,issuedToken:string|null=null;
   let proofReceived=false,verifiedQuote:null|NonNullable<ReturnType<typeof trainingQuote>>|NonNullable<ReturnType<typeof osvcQuote>>=null;
   if(resumeToken){
-    if(!payment||!payment.sessionPaymentOpen||v.rsvp!=='YES')
+    if(!payment||(action!=='manual_proof'&&!payment.sessionPaymentOpen)||v.rsvp!=='YES')
       return reply({error:'payment_not_open'},409,origin);
     const hashed=await tokenHash(resumeToken);
     const lookup=await api.from('imperion_rsvp_submissions')
@@ -434,6 +436,46 @@ Deno.serve(async (req:Request):Promise<Response>=>{
     if(!/^[1-9][0-9]{9}$/.test(vs))return reply({error:'numeric_vs_not_issued'},409,origin);
     const savedTier=lookup.data.training_requested_tier as TrainingTier;
     if(savedTier!==trainingTier)return reply({error:'training_tier_changed'},409,origin);
+    // A customer who ALREADY made a transfer may attach its PDF without an
+    // approved quote. Do not advertise payment instructions or auto-match funds.
+    // Restricted to Druzina HEMA, valid one-use code + exact original identity.
+    // This is document intake for human review, NOT checkout or bank settlement.
+    if(action==='manual_proof'){
+      if(isOsVc||!training||!proof)return reply({error:'payment_not_open'},409,origin);
+      let bytes:Uint8Array,hash:string;
+      try{const parsed=await pdfInfo(proof);bytes=parsed.bytes;hash=parsed.hash;}
+      catch{return reply({error:'invalid_payment_pdf'},400,origin);}
+      const reused=await api.from('imperion_rsvp_submissions').select('id')
+        .eq('payment_pdf_sha256',hash).neq('id',lookup.data.id).limit(1);
+      if(reused.error)return reply({error:'temporarily_unavailable'},503,origin);
+      if(reused.data?.length)return reply({error:'duplicate_payment_pdf'},409,origin);
+      const pdfPath=expiry.toISOString().slice(0,10)+'/'+crypto.randomUUID()+'.pdf';
+      const uploaded=await api.storage.from(PROOF_BUCKET).upload(pdfPath,bytes,{
+        contentType:'application/pdf',upsert:false,cacheControl:'0'});
+      if(uploaded.error)return reply({error:'proof_storage_unavailable'},503,origin);
+      const saved=await api.from('imperion_rsvp_submissions').update({
+        payment_pdf_path:pdfPath,payment_pdf_sha256:hash,
+        payment_evidence_status:'PROOF_RECEIVED',
+        payment_pdf_review_status:'NEEDS_MANUAL_REVIEW',
+        payment_pdf_review_flags:['NO_APPROVED_PAYMENT_QUOTE'],
+        payment_evidence_received_at:new Date().toISOString(),
+        // Explicitly EXCLUDE from Fio automation; owner must review legal
+        // seller, actual recipient, terms and transfer before any bank check.
+        payment_bank_check_after:null,
+        payment_resume_token_hash:null,payment_crm_synced_at:null
+      }).eq('id',lookup.data.id).eq('payment_resume_token_hash',hashed)
+        .eq('payment_evidence_status','NOT_REQUIRED').is('payment_pdf_path',null)
+        .select('id').maybeSingle();
+      if(saved.error||!saved.data){
+        await api.storage.from(PROOF_BUCKET).remove([pdfPath]);
+        return reply({error:saved.error?.code==='23505'?'duplicate_payment_pdf':'proof_storage_unavailable'},
+          saved.error?.code==='23505'?409:503,origin);
+      }
+      return reply({ok:true,status:'RECEIVED',reference:saved.data.id,confirmed:false,
+        paymentEvidenceStatus:'PROOF_RECEIVED',pdfReviewStatus:'NEEDS_MANUAL_REVIEW',
+        paymentNotApproved:true,bankVerified:false,
+        message:'PDF received for manual review only. No bank or seat confirmation.'},200,origin);
+    }
     const approved=isOsVc?!!lookup.data.osvc_authorized_at:
       (!!lookup.data.training_authorized_at &&
        (savedTier==='STANDARD'||lookup.data.training_authorized_tier===savedTier));
