@@ -56,7 +56,10 @@ for(const width of [320,390,1440]){
   await expect(page.locator('#fdAcademyCta')).toHaveAttribute('href','academy/?lang=cs');
   await expect(page.locator('.fd-fighters')).toHaveCount(0);
   await expect(page.locator('.fd-photo-shadows span')).toHaveCount(0);
-  await expect(page.locator('.fd-photo-shadows')).toHaveCSS('background-image',/imperion-hero-cinematic-20261112\.webp/);
+   // Editorial redesign keeps the historic cinematic asset in the repo, but
+   // removes it from the active hero so dark copy stays readable on ivory.
+   await expect(page.locator('.fd-photo-shadows')).toBeHidden();
+   await expect(page.locator('.fd-photo-shadows')).toHaveCSS('background-image','none');
   await expect(page.locator('#fdFacetTitle')).toHaveText('Filtrovat');
   await expect(page.locator('#fdUpcomingTitle')).toHaveText('Akce v tomto měsíci');
   await expect(page.locator('#fdUpcoming .fd-upcoming-event')).toHaveCount(5);
