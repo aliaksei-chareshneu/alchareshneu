@@ -33,16 +33,20 @@
   const MANUAL={
     cs:{label:'Už jste zaplatili? Přiložte PDF potvrzení (nepovinné, max. 5 MB)',
       help:'Jen pokud jste už provedli převod na dříve schválený účet. Tato stránka nevyzývá k nové platbě. PDF přijmeme k ruční kontrole; místo ani připsání peněz tím nepotvrzujeme.',
-      failed:'PDF se nepodařilo nahrát. Přihláška zůstává uložena. Uchovejte si osobní kód a zkuste PDF přiložit znovu.'},
+      failed:'PDF se nepodařilo nahrát. Přihláška zůstává uložena. Uchovejte si osobní kód a zkuste PDF přiložit znovu.',
+      payee:'Komu jste již peníze odeslali?',payeeHelp:'Vyberte příjemce existující platby; nejde o nabídku další platby.'},
     en:{label:'Already transferred? Attach the PDF receipt (optional, max 5 MB)',
       help:'Only if you already transferred to an account approved earlier. Do not initiate a new transfer based on this page. We review the PDF manually; it does not confirm funds or a place.',
-      failed:'PDF upload failed, but your RSVP was saved. Keep your private code to retry the document upload.'},
+      failed:'PDF upload failed, but your RSVP was saved. Keep your private code to retry the document upload.',
+      payee:'Who received your existing transfer?',payeeHelp:'Select the actual recipient of the earlier payment. Do not initiate a new transfer.'},
     ru:{label:'Уже переводили деньги? Приложите PDF квитанции (необязательно, до 5 МБ)',
       help:'Только если перевод уже сделан на ранее согласованный счёт. Не переводите деньги на основании этой страницы. PDF поступит на ручную проверку и не подтверждает оплату или место.',
-      failed:'PDF не удалось загрузить, но заявка сохранена. Сохраните личный код и повторите загрузку документа.'},
+      failed:'PDF не удалось загрузить, но заявка сохранена. Сохраните личный код и повторите загрузку документа.',
+      payee:'Кому вы уже переводили деньги?',payeeHelp:'Укажите фактического получателя предыдущего перевода. Это не приглашение к новой оплате.'},
     uk:{label:'Уже переказували кошти? Додайте PDF квитанції (необов’язково, до 5 МБ)',
       help:'Лише якщо ви вже переказали кошти на раніше погоджений рахунок. Не сплачуйте на підставі цієї сторінки. PDF піде на ручну перевірку та не підтверджує оплату або місце.',
-      failed:'PDF не завантажено, але заявку збережено. Збережіть приватний код і повторіть завантаження документа.'}
+      failed:'PDF не завантажено, але заявку збережено. Збережіть приватний код і повторіть завантаження документа.',
+      payee:'Кому ви вже переказали кошти?',payeeHelp:'Оберіть фактичного одержувача попереднього переказу. Не виконуйте нової оплати.'}
   };
   const $=id=>document.getElementById(id);
   function renderApprovedQr(p){
@@ -80,7 +84,10 @@
     if(!box||!proof||!plan)return;
     const q=event?.trainingPayment,osvc=q?.kind==='OSVC_EVENT';
     box.hidden=!q||mode!=='FORM';
-    if(changed)clearPrivateQuote(true);
+    if(changed){
+      clearPrivateQuote(true);
+      if($('paymentProofRecipient'))$('paymentProofRecipient').value='OSVC';
+    }
     if(box.hidden){proof.required=false;proof.value='';$('trainingPaymentPrivate').textContent='';renderApprovedQr(null);return;}
     const t=copy();
     const paidWalk=osvc&&event?.event_id==='PUB-WALK-20261129';
@@ -130,6 +137,12 @@
     $('paymentPdfLabel').textContent=good?t.pdf:(manual?(MANUAL[lang]||MANUAL.cs).label:t.pdf);
     $('paymentProofHelp').textContent=good?t.pdfHelp:(manual?(MANUAL[lang]||MANUAL.cs).help:t.pdfHelp);
     if(!good&&!manual)proof.value='';
+    const payeeField=$('paymentProofRecipientField');
+    if(payeeField)payeeField.hidden=!(manual&&!good);
+    if(manual&&!good){
+      $('paymentProofRecipientLabel').textContent=(MANUAL[lang]||MANUAL.cs).payee;
+      $('paymentProofRecipientHelp').textContent=(MANUAL[lang]||MANUAL.cs).payeeHelp;
+    }
     renderApprovedQr(good?privateQuote.payload:null);
     if(good){
       const p=privateQuote.payload,tname=PRICE_NAMES[p.tier]?.[lang]||p.tier;
@@ -163,7 +176,8 @@
     if(!quote){
       if(event?.trainingPayment?.kind==='OSVC_EVENT')throw Error('quote_required');
       const manual=new FormData();
-      manual.append('payload',JSON.stringify({...body,action:'manual_proof',paymentResumeToken:token()}));
+      manual.append('payload',JSON.stringify({...body,action:'manual_proof',
+        paymentResumeToken:token(),proofRecipient:$('paymentProofRecipient')?.value||'OSVC'}));
       manual.append('paymentProof',proof,proof.name);
       return {body:manual};
     }
@@ -177,15 +191,17 @@
     return {body:data};
   }
   // Same existing RSVP endpoint and private one-use code; no duplicate signup.
-  async function uploadManualProof(event,body,privateCode,file){
+  async function uploadManualProof(event,body,privateCode,file,proofRecipient='OSVC'){
     if(!event||event.trainingPayment?.kind==='OSVC_EVENT'||event.category!=='HEMA Training')
       throw Error('unsupported_event');
+    if(!['OSVC','DRUZINA'].includes(proofRecipient))throw Error('invalid_payee');
     if(!/^[A-Za-z0-9_-]{43}$/.test(privateCode||'')||
        !file||file.size<100||file.size>5242880||!file.name.toLowerCase().endsWith('.pdf'))
       throw Error('invalid_pdf');
     const data=new FormData();
     data.append('payload',JSON.stringify({...body,action:'manual_proof',
-      paymentResumeToken:privateCode,trainingTier:body.trainingTier||tier()}));
+      paymentResumeToken:privateCode,trainingTier:body.trainingTier||tier(),
+      proofRecipient}));
     data.append('paymentProof',file,file.name);
     try{
       const res=await fetch(API,{method:'POST',body:data,cache:'no-store',
