@@ -17,7 +17,7 @@ const OSVC_APPROVED_IBAN="CZ9755000000007804336003";
 const OSVC_APPROVED_PAYEE="Aliaksei Chareshneu";
 function osvcBankMatches(x:Record<string,unknown>){
  const payee=String(x.quote_recipient||"").trim();
- const account=String(x.quote_account||"").replace(/\\s+/g,"").toUpperCase();
+ const account=String(x.quote_account||"").replace(/\s+/g,"").toUpperCase();
  return payee===OSVC_APPROVED_PAYEE &&
    (account===OSVC_APPROVED_ACCOUNT || account===OSVC_APPROVED_IBAN);
 }
