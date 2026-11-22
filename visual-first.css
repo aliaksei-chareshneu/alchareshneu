@@ -79,7 +79,7 @@ html[data-imperion-frontdoor="ready"] #imperion-frontdoor .fd-hero {
 #imperion-frontdoor .fd-visual-tile img {
   position:absolute; inset:0; z-index:-2; width:100%; height:100%;
   object-fit:cover; object-position:center; opacity:.92;
-  transition:transform .38s ease;
+  transition:transform 280ms cubic-bezier(.23,1,.32,1);
 }
 #imperion-frontdoor .fd-visual-academy img { object-position:50% 36%; }
 #imperion-frontdoor .fd-visual-druzina img { object-position:50% 29%; }
@@ -258,4 +258,41 @@ body[data-imperion-design] :is(#academy,#druzina,#walkers).hero .tagline {max-wi
 }
 @media(prefers-reduced-motion:reduce){
   #imperion-frontdoor .fd-skip{transition:none!important;}
+}
+
+/* Emil design-engineering polish (Nov 22 2026).
+   CSS-only progressive enhancement: no new runtime, zero extra downloads.
+   No JS-dependent visibility, layout shifts, or keyboard-delaying transitions. */
+#imperion-frontdoor {
+  --fd-ease-out: cubic-bezier(.23,1,.32,1);
+}
+@media (hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference) {
+  #imperion-frontdoor .fd-visual-tile {
+    transition:transform 180ms var(--fd-ease-out),
+      border-color 180ms ease,box-shadow 180ms var(--fd-ease-out);
+  }
+  #imperion-frontdoor .fd-visual-tile:hover {transform:translateY(-2px);}
+  #imperion-frontdoor .fd-visual-tile:active {transform:translateY(0) scale(.985);}
+  #imperion-frontdoor .fd-hero-cta,
+  #imperion-frontdoor .fd-hero-academy {
+    transition:transform 150ms var(--fd-ease-out),background-color 150ms ease,
+      color 150ms ease;
+  }
+  #imperion-frontdoor .fd-hero-cta:active,
+  #imperion-frontdoor .fd-hero-academy:active {transform:scale(.97);}
+  #imperion-frontdoor .fd-languages button:active {transform:scale(.97);}
+}
+/* Improve mobile tap sizes without adding decorative gestures. */
+@media(max-width:640px){
+  #imperion-frontdoor .fd-languages button {min-height:44px;}
+  #imperion-frontdoor .fd-hero-cta,
+  #imperion-frontdoor .fd-hero-academy {min-height:44px;}
+}
+@media(prefers-reduced-motion:reduce){
+  #imperion-frontdoor .fd-visual-tile,
+  #imperion-frontdoor .fd-hero-cta,
+  #imperion-frontdoor .fd-hero-academy,
+  #imperion-frontdoor .fd-languages button {
+    animation:none!important;transition:none!important;transform:none!important;
+  }
 }
