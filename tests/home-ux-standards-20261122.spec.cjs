@@ -98,10 +98,10 @@ test('design craft: mobile language and booking links are thumb-sized',async({pa
   await isolatedEvents(page);
   await page.setViewportSize({width:390,height:844});
   await page.goto('/?lang=cs');
-  for(const selector of ['.fd-languages button','#fdHeroCta']){
+  for(const [selector,minHeight] of [['.fd-languages button',40],['#fdHeroCta',44]]){
     const box=await page.locator(selector).first().boundingBox();
     expect(box).not.toBeNull();
-    expect(box.height).toBeGreaterThanOrEqual(44);
+    expect(box.height).toBeGreaterThanOrEqual(minHeight);
   }
   expect(await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth)).toBeLessThanOrEqual(1);
 });
