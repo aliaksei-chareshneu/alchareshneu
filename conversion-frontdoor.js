@@ -128,7 +128,7 @@
     el('fdPaymentTiming').textContent=pc('timing');
     el('fdPaymentCancellation').textContent=pc('cancellation');
     el('fdPaymentException').textContent=pc('exception');
-    el('fdPaymentNotice').textContent=e.data_controller==='Aliaksei Chareshneu (OSVČ)' ? (OSVC_RAIF_NOTICE[lang]||OSVC_RAIF_NOTICE.cs) : pc('notice');
+    el('fdPaymentNotice').textContent=['Aliaksei Chareshneu (OSVČ)','Aliaksei Chareshneu (OSVČ, IČO 23041625)'].includes(e.data_controller) ? (OSVC_RAIF_NOTICE[lang]||OSVC_RAIF_NOTICE.cs) : pc('notice');
     el('fdPaymentGuard').textContent=pc('guard');
     // An event ID is mandatory and validated from the existing public catalogue.
     var message=pc('message')+' "'+publicTitle(e)+'" (ID: '+e.event_id+'). '+pc('ask');
