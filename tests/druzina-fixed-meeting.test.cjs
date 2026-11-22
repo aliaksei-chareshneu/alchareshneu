@@ -15,7 +15,7 @@ test('regular HEMA shows the fixed Dukelska meeting point in all four languages'
         event_id: eventId,
         venue: 'Nová Zbrojovka, Brno (точка не подтверждена)'
       }, lang);
-      assert.match(place, /Dukelská třída 157\\/44/);
+      assert.match(place, /Dukelská třída 157\/44/);
       assert.doesNotMatch(place, /Nová Zbrojovka|unconfirmed|nepotvrzeno|не подтверждена/i);
     }
   }
@@ -29,7 +29,7 @@ test('regular HEMA shows the fixed Dukelska meeting point in all four languages'
 test('landing pages use Dukelska for the meeting point and retain honest payment gate', () => {
   for (const path of ['druzina/index.html', 'druzina/start/index.html']) {
     const html = fs.readFileSync(path, 'utf8');
-    assert.match(html, /Dukelská třída 157\\/44/);
+    assert.match(html, /Dukelská třída 157\/44/);
   }
   for (const lang of ['','en/','ru/','uk/']) {
     const html=fs.readFileSync('register/'+lang+'index.html','utf8');
