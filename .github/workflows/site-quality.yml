@@ -251,6 +251,21 @@ jobs:
             test-results/
           retention-days: 7
 
+  hema-rsvp-proof-smoke:
+    name: HEMA PDF single-RSVP browser smoke
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npx playwright install chromium
+      - name: Test single-registration PDF and private-code continuation
+        run: npx playwright test tests/druzina-fast-path.spec.cjs --grep 'One-screen already-paid|Existing RSVP uses private code' --workers=2
+
   ted-deal-hunter-offline-qa:
     name: TED Deal Hunter — isolated public-only parser QA
     runs-on: ubuntu-latest

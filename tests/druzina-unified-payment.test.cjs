@@ -144,3 +144,24 @@ test('QR Platba instruction is unique, amount-locked, and cannot substitute bank
  const license=fs.readFileSync('register/vendor/LICENSE-qrcodejs.txt','utf8');
  assert.ok(vendor.includes('QRCode')&&license.includes('MIT License'));
 });
+
+test('already-transferred PDF is private, manually reviewed, and excluded from bank automation',()=>{
+ for(const part of ["if(action==='manual_proof'){",
+   "if(isOsVc||!training||!proof)return reply({error:'payment_not_open'}",
+   "payment_pdf_review_status:'NEEDS_MANUAL_REVIEW'",
+   "payment_pdf_review_flags:['NO_APPROVED_PAYMENT_QUOTE','RECIPIENT_SELF_REPORTED_'+proofRecipient]",
+   "payment_bank_check_after:null",
+   "payment_resume_token_hash:null,payment_crm_synced_at:null",
+   "paymentNotApproved:true,bankVerified:false",
+   ".eq('payment_resume_token_hash',hashed)"]) assert.ok(edge.includes(part),part);
+ assert.ok(ui.includes("async function uploadManualProof"));
+ assert.ok(ui.includes("action:'manual_proof'"));
+ assert.ok(edge.includes("const manualBucket=proofRecipient==='OSVC'?OSVC_PROOF_BUCKET:PROOF_BUCKET"));
+ assert.ok(edge.includes("proofRecipient=safeEnum(body.proofRecipient,['OSVC','DRUZINA'])"));
+ assert.ok(ui.includes('proofRecipient:'));
+
+ for(const path of pages){
+  const html=fs.readFileSync(path,'utf8');
+  assert.ok(html.includes('uploadManualProof('),path);
+ }
+});

@@ -146,6 +146,14 @@ a{color:var(--mint)}button,input,select{font:inherit}button{cursor:pointer}.skip
             <input id="paymentProof" name="paymentProof" type="file" accept=".pdf,application/pdf">
             <p id="paymentProofHelp" class="catalog-summary"></p>
           </div>
+          <div id="paymentProofRecipientField" class="field" hidden>
+            <label id="paymentProofRecipientLabel" for="paymentProofRecipient"></label>
+            <select id="paymentProofRecipient" name="paymentProofRecipient">
+              <option value="OSVC">Aliaksei Chareshneu (OSVČ)</option>
+              <option value="DRUZINA">Družina Moravy, z. s.</option>
+            </select>
+            <p id="paymentProofRecipientHelp" class="catalog-summary"></p>
+          </div>
         </section>
         <fieldset class="consent-choices" id="optionalConsents"><legend id="optionalConsentLabel">Dobrovolné volby</legend><p id="optionalConsentNote" class="consent-help"></p><div class="consent-toolbar"><button type="button" id="optInAll" class="consent-select-all" aria-pressed="false" aria-controls="photo future" aria-describedby="optionalConsentNote">Souhlasím s fotografiemi i pozvánkami</button><span id="optionalConsentCount" class="consent-count" role="status" aria-live="polite">0 ze 2 vybráno</span></div><div class="check"><label><input id="photo" type="checkbox"><span><strong data-i18n="photoHead">I optionally allow photos/video of me</strong> <span data-i18n="photoNote">to be published on organizer channels. Declining does not exclude participation. Minors require separate guardian authorization.</span></span></label></div>
         <div class="check"><label><input id="future" type="checkbox"><span><strong data-i18n="updatesHead">I want occasional future event invitations (optional).</strong> <span data-i18n="updatesNote">No spam. Invitations require separate confirmation; withdraw by email at any time.</span></span></label></div>
@@ -185,7 +193,7 @@ a{color:var(--mint)}button,input,select{font:inherit}button{cursor:pointer}.skip
 <script src="../event-calendar.js?v=20261114-l10n1"></script>
 <script src="../calendar-standalone.js"></script>
 <script src="../vendor/qrcode.min.js"></script>
-<script src="../training-payment.js?v=20261120pdf6"></script>
+<script src="../training-payment.js?v=20261122pdf7"></script>
 <script>
 'use strict';
 const ENDPOINT='https://cmrknyhnnehyjpreehcf.supabase.co/functions/v1/imperion-register';
@@ -473,6 +481,43 @@ function showReceipt(eventData,body,payload){
    const evidence=document.createElement('p');evidence.className='event-state';
    evidence.textContent=window.ImperionTrainingPayment.receiptMessage(lang);el.appendChild(evidence);
  }
+ if(payload.paymentProofUploadFailed){
+   const warning=document.createElement('p');warning.className='event-state';
+   warning.textContent=window.ImperionTrainingPayment.manualUi(lang).failed;el.appendChild(warning);
+ }
+ if(payload.resumeToken && eventData?.category==='HEMA Training' &&
+    payload.paymentEvidenceStatus!=='PROOF_RECEIVED'){
+   const manual=window.ImperionTrainingPayment.manualUi(lang);
+   const section=document.createElement('div');section.className='field';
+   const title=document.createElement('label');title.textContent=manual.label;
+   const input=document.createElement('input');input.type='file';input.accept='.pdf,application/pdf';
+   const help=document.createElement('p');help.className='catalog-summary';help.textContent=manual.help;
+   const payeeLabel=document.createElement('label');payeeLabel.textContent=manual.payee;
+   const payeeSelect=document.createElement('select');
+   for(const [value,name] of [['OSVC','Aliaksei Chareshneu (OSVČ)'],['DRUZINA','Družina Moravy, z. s.']]){
+     const option=document.createElement('option');option.value=value;option.textContent=name;
+     payeeSelect.appendChild(option);
+   }
+   const payeeHelp=document.createElement('p');payeeHelp.className='catalog-summary';
+   payeeHelp.textContent=manual.payeeHelp;
+   const button=document.createElement('button');button.type='button';button.className='retry';
+   button.textContent=({cs:'Nahrát PDF',en:'Upload PDF',ru:'Загрузить PDF',uk:'Завантажити PDF'})[lang];
+   const status=document.createElement('p');status.className='event-state';status.setAttribute('role','status');
+   button.addEventListener('click',async()=>{
+     const file=input.files?.[0];
+     if(!file){status.textContent=manual.failed;return;}
+     button.disabled=true;status.textContent=({cs:'Nahrávám PDF…',en:'Uploading PDF…',
+       ru:'Загружаю PDF…',uk:'Завантажую PDF…'})[lang];
+     try{
+       await window.ImperionTrainingPayment.uploadManualProof(eventData,body,payload.resumeToken,file,payeeSelect.value);
+       status.textContent=window.ImperionTrainingPayment.receiptMessage(lang);
+       input.disabled=true;button.hidden=true;
+     }catch{
+       status.textContent=manual.failed;button.disabled=false;
+     }
+   });
+   section.append(title,input,help,payeeLabel,payeeSelect,payeeHelp,button,status);el.appendChild(section);
+ }
  if(payload.resumeToken){
    const label=document.createElement('p');label.className='event-state';
    label.textContent=window.ImperionTrainingPayment.resumeMessage(lang);el.appendChild(label);
@@ -519,11 +564,27 @@ $('rsvpForm').addEventListener('submit',async event=>{event.preventDefault();con
   body.utmMedium=query.get('utm_medium')||'';
   body.utmCampaign=query.get('utm_campaign')||'';
   try {const currentEvent=events.find(e=>e.event_id===body.eventId);
+    const newRsvp=!$('paymentResumeToken')?.value?.trim();
+    const documentToAttach=newRsvp&&currentEvent?.category==='HEMA Training'
+      ?$('paymentProof')?.files?.[0]:null;
     const request=window.ImperionTrainingPayment?.requestOptions(currentEvent,body)
       ||{headers:{'Content-Type':'application/json'},body:JSON.stringify(body)};
     const response=await fetch(ENDPOINT,{method:'POST',...request,cache:'no-store',signal:AbortSignal.timeout(30000)});
     if(response.status===409)throw Error('price_changed');
     if(!response.ok)throw Error('submission_failed');const payload=await response.json();if(!payload.ok)throw Error('submission_rejected');
+    // One-screen flow: first create the RSVP, then attach its optional existing
+    // transfer receipt using the private code just issued. Never double-register.
+    if(documentToAttach){
+      if(payload.resumeToken){
+        try{
+          const uploaded=await window.ImperionTrainingPayment.uploadManualProof(
+            currentEvent,body,payload.resumeToken,documentToAttach,
+            $('paymentProofRecipient')?.value||'OSVC');
+          if(uploaded.paymentEvidenceStatus==='PROOF_RECEIVED')
+            payload.paymentEvidenceStatus='PROOF_RECEIVED';
+        }catch{payload.paymentProofUploadFailed=true;}
+      }else payload.paymentProofUploadFailed=true; // Duplicate RSVP: do not claim PDF saved.
+    }
     result.className='state success';showReceipt(events.find(e=>e.event_id===body.eventId),body,payload);
     form.reset();updateGuardian();form.querySelectorAll('[type=checkbox]').forEach(el=>el.checked=false);renderEvents();form.hidden=true;
    }catch(error){result.className='state error';result.textContent=error?.message==='price_changed'

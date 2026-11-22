@@ -63,7 +63,8 @@ for(const [lang,uri] of [['cs','/register/'],['en','/register/en/'],['ru','/regi
   expect(quotes).toBe(1);
   await page.locator('#paymentResumeToken').fill('B'.repeat(43));
   await expect(page.locator('#paymentQrArea')).toBeHidden();
-  await expect(page.locator('#paymentProofField')).toBeHidden();
+  await expect(page.locator('#paymentProofField')).toBeVisible();
+  await expect(page.locator('#paymentProof')).not.toHaveAttribute('required','');
   await page.evaluate(language=>window.ImperionTrainingPayment.render(null,language,'PLANNED'),lang);
   await expect(page.locator('#paymentQrArea')).toBeHidden();
  });
