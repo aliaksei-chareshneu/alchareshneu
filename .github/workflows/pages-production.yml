@@ -126,7 +126,7 @@ jobs:
           test -s _pages/academy/academy-goals.css
           test -s _pages/images/frontdoor-fighter-shadows.svg
           test -s _pages/images/imperion-hero-cinematic-20261112.webp
-          grep -Fq 'conversion-frontdoor.js?v=20261122-raif1' _pages/index.html
+          grep -Fq 'conversion-frontdoor.js?v=20261122-raif2' _pages/index.html
           grep -Fq 'CZ9755000000007804336003' _pages/conversion-frontdoor.js
           if grep -Fq 'revolut.me/aliaksj5pq' _pages/walkers/index.html; then
             echo "Legacy Revolut payment route present in published BrnoWalkers"
@@ -273,7 +273,7 @@ jobs:
             if curl -fsSL --max-time 20 "$base/?v=$GITHUB_SHA" -o "$page" \
               && curl -fsSL --max-time 20 "$base/conversion-frontdoor.css?v=$GITHUB_SHA" -o "$style" \
               && curl -fsSL --max-time 20 "$base/conversion-frontdoor.js?v=$GITHUB_SHA" -o "$logic" \
-              && grep -Fq 'conversion-frontdoor.js?v=20261122-raif1' "$page" \
+              && grep -Fq 'conversion-frontdoor.js?v=20261122-raif2' "$page" \
               && grep -Fq 'CZ9755000000007804336003' "$logic" \
               && grep -Fq 'imperion-frontdoor' "$style" \
               && grep -Fq "imperion-register" "$logic"; then
