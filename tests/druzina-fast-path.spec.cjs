@@ -188,6 +188,8 @@ test('One-screen already-paid PDF is attached to newly created RSVP, not a secon
  expect(requests[0].headers()['content-type']).toContain('application/json');
  expect(requests[1].headers()['content-type']).toContain('multipart/form-data');
  expect(requests[1].postData()).toContain('manual_proof');
+ expect(requests[1].postData()).toContain('proofRecipient');
+ expect(requests[1].postData()).toContain('OSVC');
  expect(requests[1].postData()).toContain('prior-transfer.pdf');
  await expect(page.locator('#result')).toContainText('PDF');
  await expect(page.locator('#result input[readonly]')).toHaveValue('A'.repeat(43));
@@ -215,6 +217,7 @@ test('Existing RSVP uses private code to upload receipt without duplicate bookin
  expect(posts).toHaveLength(1);
  expect(posts[0].headers()['content-type']).toContain('multipart/form-data');
  expect(posts[0].postData()).toContain('manual_proof');
+ expect(posts[0].postData()).toContain('proofRecipient');
  await expect(page.locator('#result')).toContainText('PDF');
 });
 
