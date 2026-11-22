@@ -225,3 +225,37 @@ body[data-imperion-design] :is(#academy,#druzina,#walkers).hero .tagline {max-wi
 @media(prefers-reduced-motion:reduce){
   #imperion-frontdoor .fd-visual-grid *,#main.intent-home .intent-card * {animation:none!important;transition:none!important;transform:none!important;}
 }
+
+/* IMP UX standards 2026-11-22: accessible active homepage, no new theme layer.
+   The JS home hides the fallback skip link, so the front door owns its own. */
+#imperion-frontdoor .fd-skip {
+  position:absolute;top:8px;left:max(12px,env(safe-area-inset-left));
+  z-index:100;padding:12px 16px;max-width:calc(100vw - 24px);
+  transform:translateY(-160%);border:2px solid #fff2d6;border-radius:10px;
+  background:#f4cf8b;color:#11272a!important;text-decoration:none!important;
+  font:800 15px/1.3 "Source Sans 3",system-ui,sans-serif;
+}
+#imperion-frontdoor .fd-skip:focus-visible {
+  transform:none;outline:3px solid #fff;outline-offset:3px;
+}
+#imperion-frontdoor #fdMain {scroll-margin-top:110px;}
+#imperion-frontdoor #fdMain:focus {outline:none;}
+#imperion-frontdoor .fd-entity-note {
+  width:min(1320px,calc(100% - 48px));margin:14px auto 0;padding:14px 0 0;
+  border-top:1px solid #d5b8794a;color:#c9d8d4;
+  font:500 12px/1.55 "Source Sans 3",system-ui,sans-serif;
+  text-align:left;
+}
+#imperion-frontdoor .fd-visual-tile:focus-visible,
+#imperion-frontdoor .fd-more>summary:focus-visible,
+#imperion-frontdoor .fd-languages button:focus-visible {
+  outline:3px solid #fff1c1;outline-offset:4px;
+}
+@media(max-width:640px){
+  #imperion-frontdoor .fd-entity-note{width:calc(100% - 30px);}
+  #imperion-frontdoor .fd-more>summary{min-height:44px;}
+  #imperion-frontdoor .fd-languages button{min-height:36px;}
+}
+@media(prefers-reduced-motion:reduce){
+  #imperion-frontdoor .fd-skip{transition:none!important;}
+}
