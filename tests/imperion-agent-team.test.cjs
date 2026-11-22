@@ -289,3 +289,89 @@ test('forged paid, sent, provider or impossible counters fail closed',()=>{
     assert.equal(A.closedLoop(bad).paid_checkout_allowed,false);
   }
 });
+
+
+test('Sales4 model guard is wired into EXISTING Agent3 preview and fail-closed by default',async()=>{
+  const out=await A.runAll(sample());
+  assert.equal(out.sales_private_model_gate.state,'LOCAL_PRIVATE_MODEL_NOT_VERIFIED');
+  assert.equal(out.sales_private_model_gate.external_actions,0);
+  assert.equal(out.new_crm_records,0);
+  assert.equal(out.external_messages_sent,0);
+});
+test('independent verified 4B runtime may be previewed but never executes',async()=>{
+  const runtime={pc_online:true,ollama_loopback_healthy:true,
+    inference_backend:'OLLAMA_CPU_ONLY',cpu_inference_verified:true,
+    endpoint:'http://127.0.0.1:11434',local_private_processing_approved:true,
+    selected_model:'imperion-qwen35:4b',installed_models:['imperion-qwen35:4b'],
+    model_fixture_passed:true,model_hallucination_gate_passed:true};
+  const out=await A.runAll(sample(),{agent4ModelRuntime:runtime});
+  assert.equal(out.sales_private_model_gate.state,'LOCAL_MODEL_DRAFT_ELIGIBLE');
+  assert.equal(out.sales_private_model_gate.automatic_sends,false);
+  assert.equal(out.sales_private_model_gate.external_actions,0);
+  assert.equal(out.external_messages_sent,0);
+});
+
+test('chief blocks repeated Job_ID and missing ID instead of delegating ambiguous work',()=>{
+  const x=sample();
+  x.data.IMPERION_Agent_Jobs=[
+    {Job_ID:'DUP-1',Status:'OPEN',Due_At:'2026-10-27T08:30:00+01:00'},
+    {Job_ID:'dup-1',Status:'DONE',Evidence_URI:'https://example.invalid/claimed'},
+    {Job_ID:'SAFE-2',Status:'OPEN',Due_At:'2026-10-27T08:30:00+01:00'},
+    {Job_ID:'',Status:'DONE',Due_At:'2026-10-27T08:30:00+01:00'}
+  ];
+  const out=A.chief(x);
+  assert.equal(out.source_job_rows,4);
+  assert.equal(out.duplicate_job_ids,1);
+  assert.equal(out.duplicate_job_rows,2);
+  assert.equal(out.invalid_job_rows,1);
+  assert.equal(out.source_id_integrity,'BLOCKED_RECONCILE_JOB_IDS');
+  assert.deepEqual(out.priority_tasks.map(t=>t.id),['SAFE-2']);
+  assert.equal(out.claimed_completed_total,0);
+  assert.equal(out.accepted_results,'REQUIRES_RECEIPTS');
+});
+test('Revenue_Actions cannot bypass a STOP recorded in existing Leads',()=>{
+  const x=sample();
+  x.data.Revenue_Actions=[
+    {Lead_ID:'CASE-STOP',Stage:'Warm',Expected_CZK:18000},
+    {Lead_ID:'CASE-OK',Stage:'Warm',Expected_CZK:12000}
+  ];
+  x.data.Leads=[{Lead_ID:'CASE-STOP',Stage:'Do_Not_Contact'}];
+  const out=A.sales(x);
+  assert.equal(out.closed_or_opted_out,1);
+  assert.equal(out.candidates_total,1);
+  assert.equal(out.candidates[0].id,'CASE-OK');
+  assert.equal(out.outbound_sent,0);
+});
+test('blank Opt_Out does not mask Do_Not_Contact, including boolean flags',()=>{
+  const x=sample();
+  x.data.Revenue_Actions=[
+    {Lead_ID:'CASE-STOP-2',Stage:'Warm',Opt_Out:'',Do_Not_Contact:true},
+    {Lead_ID:'CASE-OK-2',Stage:'Warm',Opt_Out:false,Do_Not_Contact:0}
+  ];
+  x.data.Leads=[];
+  const out=A.sales(x);
+  assert.equal(out.closed_or_opted_out,1);
+  assert.deepEqual(out.candidates.map(c=>c.id),['CASE-OK-2']);
+});
+test('Sales never duplicates one Lead_ID after email alias changes',()=>{
+  const x=sample();
+  x.data.Revenue_Actions=[
+    {Lead_ID:'CASE-ALIAS',Stage:'Warm',Email:'a@example.invalid'},
+    {Lead_ID:'CASE-ALIAS',Stage:'Warm',Email:'b@example.invalid'},
+    {Lead_ID:'CASE-ANOTHER',Stage:'Warm',Email:'a@example.invalid'}
+  ];
+  x.data.Leads=[];
+  const out=A.sales(x);
+  assert.equal(out.candidates_total,1);
+  assert.equal(out.duplicates_rejected,2);
+  assert.equal(out.outbound_sent,0);
+});
+test('synthetic STOP in Leads cannot blacklist an actual Revenue_Action',()=>{
+  const x=sample();
+  x.data.Revenue_Actions=[{Lead_ID:'CASE-REAL',Stage:'Warm'}];
+  x.data.Leads=[{Lead_ID:'CASE-REAL',Stage:'Lost',Action_Status:'QA_SYNTHETIC_EXCLUDE'}];
+  const out=A.sales(x);
+  assert.equal(out.closed_or_opted_out,0);
+  assert.equal(out.candidates_total,1);
+  assert.equal(out.candidates[0].id,'CASE-REAL');
+});

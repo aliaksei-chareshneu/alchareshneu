@@ -50,6 +50,12 @@ jobs:
       - name: Build fresh public feed from verified existing catalogue
         run: node scripts/imperion-autopilot.cjs
 
+      - name: Build local Druzina Motion Anime and Recharts bundles
+        run: |
+          npm --prefix site-viz install --no-audit --no-fund
+          npm --prefix site-viz run build
+          npm --prefix site-viz test
+
       - name: Copy only public website assets
         shell: bash
         run: |
@@ -60,7 +66,7 @@ jobs:
               cp -a "$dir" "_pages/$dir"
             fi
           done
-          for file in index.html 404.html robots.txt sitemap.xml styles.css brand-theme.css site-design.css intent-home.css conversion-frontdoor.css imperion-cinematic-site.css conversion-frontdoor.js site-calendar-policy.js site-reviews.js site-clarity-pages.js site-clarity.css site-conversion-v5.css unified-shell.js unified-shell.css imperion-bootstrap.js imperion-bootstrap.css imperion-finish.css site-design.js experience.css experience.js quest-theme.css quest-audio.js site.webmanifest apple-touch-icon.png favicon.ico favicon-16.png favicon-32.png favicon-48.png icon-192.png icon-512.png revolut-payment-qr.png; do
+          for file in index.html 404.html robots.txt sitemap.xml styles.css brand-theme.css site-design.css intent-home.css visual-first.css conversion-frontdoor.css imperion-cinematic-site.css conversion-frontdoor.js site-calendar-policy.js site-reviews.js site-clarity-pages.js site-clarity.css site-conversion-v5.css unified-shell.js unified-shell.css imperion-bootstrap.js imperion-bootstrap.css imperion-finish.css site-design.js experience.css experience.js quest-theme.css quest-audio.js site.webmanifest apple-touch-icon.png favicon.ico favicon-16.png favicon-32.png favicon-48.png icon-192.png icon-512.png revolut-payment-qr.png; do
             if [ -f "$file" ]; then
               cp "$file" "_pages/$file"
             fi
@@ -73,6 +79,10 @@ jobs:
           touch _pages/.nojekyll
           test -s _pages/index.html
           test -s _pages/intent-home.css
+          test -s _pages/visual-first.css
+          test -s _pages/images/icon-academy.svg
+          test -s _pages/images/icon-druzina.svg
+          test -s _pages/images/icon-walkers.svg
           test -s _pages/conversion-frontdoor.css
           test -s _pages/imperion-cinematic-site.css
           grep -Fq 'data-imperion-design' _pages/academy/index.html
@@ -87,6 +97,12 @@ jobs:
           test -s _pages/imperion-finish.css
           test -s _pages/site-calendar-policy.js
           test -s _pages/site-reviews.js
+          test -s _pages/images/reviews/review_ekaterina_en.svg
+          test -s _pages/images/reviews/review_elmusso_en.svg
+          test -s _pages/images/reviews/review_nejc_en.svg
+          test -s _pages/images/reviews/review_olga_en.svg
+          test -s _pages/images/reviews/review_samsung_en.svg
+          test -s _pages/images/reviews/review_viktoria_en.svg
           test -s _pages/site-clarity-pages.js
           test -s _pages/site-clarity.css
           test -s _pages/site-conversion-v5.css
@@ -100,7 +116,8 @@ jobs:
           test -s _pages/academy/academy-choice-v4.js
           test -s _pages/academy/academy-choice-v4.css
           test -s _pages/partners/index.html
-          grep -Fq 'site-reviews.js?v=20261113e' _pages/index.html
+          grep -Fq 'visual-first.css?v=20261116a' _pages/index.html
+          grep -Fq 'site-reviews.js?v=20261116-en1' _pages/index.html
           grep -Fq 'academy-choice-v4.js?v=20261113d' _pages/academy/index.html
           grep -Fq 'site-calendar-policy.js?v=20261113c' _pages/register/index.html
           grep -Fq 'imperion-bootstrap.js?v=20261113b' _pages/index.html
@@ -109,7 +126,12 @@ jobs:
           test -s _pages/academy/academy-goals.css
           test -s _pages/images/frontdoor-fighter-shadows.svg
           test -s _pages/images/imperion-hero-cinematic-20261112.webp
-          grep -Fq 'conversion-frontdoor.js?v=20261113' _pages/index.html
+          grep -Fq 'conversion-frontdoor.js?v=20261122-raif2' _pages/index.html
+          grep -Fq 'CZ9755000000007804336003' _pages/conversion-frontdoor.js
+          if grep -Fq 'revolut.me/aliaksj5pq' _pages/walkers/index.html; then
+            echo "Legacy Revolut payment route present in published BrnoWalkers"
+            exit 1
+          fi
           grep -Fq 'id="goal-paths"' _pages/index.html
           grep -Fq 'id="intentDruzinaCta" href="register/?lang=en"' _pages/index.html
           test -s _pages/sitemap.xml
@@ -123,6 +145,9 @@ jobs:
           grep -q 'MByZEt1c_Jw' _pages/brno-stories/tanec-draku-2026/index.html
           grep -q 'paro.damenavas.cz/project/2755/' _pages/dame-na-vas-2755/index.html
           grep -q 'dame-na-vas-2755/' _pages/sitemap.xml
+          test -s _pages/druzina/viz.css
+          test -s _pages/druzina/viz/effects.js
+          test -s _pages/druzina/viz/ranks.js
           du -sh _pages
 
       - name: Upload exact expected public-only snapshot for post-deploy proof
@@ -248,7 +273,8 @@ jobs:
             if curl -fsSL --max-time 20 "$base/?v=$GITHUB_SHA" -o "$page" \
               && curl -fsSL --max-time 20 "$base/conversion-frontdoor.css?v=$GITHUB_SHA" -o "$style" \
               && curl -fsSL --max-time 20 "$base/conversion-frontdoor.js?v=$GITHUB_SHA" -o "$logic" \
-              && grep -Fq 'conversion-frontdoor.js?v=20261113' "$page" \
+              && grep -Fq 'conversion-frontdoor.js?v=20261122-raif2' "$page" \
+              && grep -Fq 'CZ9755000000007804336003' "$logic" \
               && grep -Fq 'imperion-frontdoor' "$style" \
               && grep -Fq "imperion-register" "$logic"; then
               ok=1; break
@@ -334,6 +360,39 @@ jobs:
           fi
           echo 'VERIFIED LIVE: first paint guard, common static header, A2 dark quiz theme, and Academy catalogue assets are served' >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Verify live English Google review translations over HTTPS
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://aliaksei-chareshneu.github.io/alchareshneu"
+          js="$(mktemp)"; svg="$(mktemp)"
+          trap 'rm -f "$js" "$svg"' EXIT
+          ok=0
+          for attempt in 1 2 3 4 5 6 7 8; do
+            if curl -fsSL --max-time 25 "$base/site-reviews.js?verify=$GITHUB_SHA-$attempt" -o "$js" &&
+               grep -Fq "lang==='en'?'_en.svg':'.png'" "$js"; then
+              ok=1; break
+            fi
+            sleep 4
+          done
+          test "$ok" -eq 1
+          for name in ekaterina elmusso nejc olga samsung viktoria; do
+            ok=0
+            for attempt in 1 2 3 4 5 6 7 8; do
+              if curl -fsSL --max-time 25 "$base/images/reviews/review_${name}_en.svg?verify=$GITHUB_SHA-$attempt" -o "$svg" &&
+                 grep -Fq 'data:image/png;base64,' "$svg" &&
+                 grep -Eq 'English translation|Original review in English' "$svg"; then
+                ok=1; break
+              fi
+              sleep 4
+            done
+            if [ "$ok" -ne 1 ]; then
+              echo "English review asset not live: $name" >&2
+              exit 1
+            fi
+          done
+          echo 'VERIFIED LIVE: six English review graphics and language-aware JavaScript served over HTTPS' >> "$GITHUB_STEP_SUMMARY"
+
       - name: Verify live Academy service picker, calendar policy and reviews on public HTTPS
         shell: bash
         run: |
@@ -348,7 +407,7 @@ jobs:
                curl -fsSL --max-time 25 "$base/partners/?verify=$GITHUB_SHA" -o "$partner" &&
                curl -fsSL --max-time 25 "$base/academy/academy-choice-v4.js?verify=$GITHUB_SHA" -o "$picker" &&
                curl -fsSL --max-time 25 "$base/site-calendar-policy.js?verify=$GITHUB_SHA" -o "$policy" &&
-               grep -Fq 'site-reviews.js?v=20261113e' "$home" &&
+               grep -Fq 'site-reviews.js?v=20261116-en1' "$home" &&
                grep -Fq 'academy-choice-v4.js?v=20261113d' "$academ" &&
                grep -Fq 'Rodičovské vouchery' "$partner" &&
                grep -Fq 'academy-service-picker' "$picker" &&
@@ -411,13 +470,13 @@ jobs:
                  grep -Fq 'Written quote' "$courses" &&
                  grep -Fq 'Specializovaná 60min lekce se oceňuje individuálně' "$a2" &&
                  grep -Fq '"terms":' "$a2script" &&
-                 grep -Fq 'Standard individual online tutoring is 690 Kč / 60 min' "$start" &&
+                 grep -Fq 'Standard individual online tutoring is 1 000 Kč / 60 min' "$start" &&
                  grep -Fq 'Starter 4' "$home" &&
                  grep -Fq 'qualifications' "$home" &&
                  ! grep -Fq 'first tutoring lesson is listed at 300 Kč' "$start" &&
                  ! grep -Fq '300%20CZK' "$start" &&
                  ! grep -Fq '455 Kč' "$home" &&
-                 ! grep -Fq '1 000 Kč' "$a2script" &&
+                 grep -Fq '1 000 Kč' "$a2script" &&
                  ! grep -Fq 'Specialist individual online session (60 min, scope agreed beforehand)' "$academy"; then
                 checked=1
                 break

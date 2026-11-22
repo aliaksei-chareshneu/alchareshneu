@@ -334,3 +334,54 @@ body[data-imperion-design="academy"] #academy-choose .goal-detail{
   body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-links a{transition:none!important}
 }
 @media print{body[data-imperion-design]{background:#fff!important;color:#111!important}}
+
+/* Curated site map: three main destinations, no duplicated seven-link navbar.
+   Secondary routes stay discoverable by keyboard, touch and assistive technology. */
+body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-more{
+  position:relative;z-index:18;flex:0 0 auto;color:#eee6d8;
+}
+body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-more>summary{
+  display:flex;align-items:center;min-height:44px;gap:5px;cursor:pointer;
+  list-style:none;white-space:nowrap;color:#eee6d8;
+  font:650 clamp(12px,1.02vw,15px)/1.25 system-ui,sans-serif;
+}
+body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-more>summary::-webkit-details-marker{display:none}
+body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-more>summary::after{content:"⌄";font-size:17px;line-height:1}
+body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-more[open]>summary{color:#ffe0a0}
+body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-more-list{
+  position:absolute;z-index:25;top:calc(100% + 5px);right:0;
+  display:grid;gap:2px;width:max-content;min-width:205px;max-width:calc(100vw - 24px);
+  padding:8px;background:#102a30;border:1px solid #b99b68;
+  border-radius:12px;box-shadow:0 18px 40px #0009;
+}
+body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-more-list a{
+  display:block!important;width:100%;min-height:40px!important;
+  white-space:normal!important;text-align:left!important;
+  padding:10px 12px!important;border:0!important;border-radius:7px;
+  font-size:14px!important;line-height:1.4!important;
+}
+body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-more-list a:is(:hover,:focus-visible,[aria-current="page"]){
+  background:#24464b;color:#ffe3ac!important;
+}
+@media(max-width:920px){
+  body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-links{
+    overflow:visible!important;flex-wrap:wrap!important;
+    gap:7px clamp(11px,2vw,18px)!important;
+  }
+  body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-more-list{right:auto;left:0}
+}
+@media(max-width:600px){
+  body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-more>summary{
+    min-height:33px;font-size:12px;
+  }
+}
+
+/* Keep secondary subpage routes inside narrow screen boundaries, even when
+   primary links wrap onto multiple rows (CZ/EN/RU/UA). */
+@media(max-width:920px){
+ body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-links{position:relative}
+ body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-more{position:static}
+ body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-more-list{
+   top:calc(100% + 6px);left:0;right:0;width:100%;min-width:0;max-width:100%;
+ }
+}

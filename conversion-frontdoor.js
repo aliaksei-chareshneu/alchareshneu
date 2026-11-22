@@ -20,6 +20,23 @@
         'Оберіть один конкретний наступний крок. Справжні ціни й умови доступні до зобов’язання чи бронювання.']
   };
 
+  // Four-language titles for the image-led category selector.
+  // Kept separate from the event catalogue, controller and pricing data.
+  var VISUAL_COPY = {
+    cs:{label:'Vyberte si směr',academy:['Akademie','Jazyky · zkoušky · věda a IT','Vybrat výuku'],
+      druzina:['Družina Moravy','Historický šerm · HEMA · LARP','Prohlédnout tréninky'],
+      walkers:['BrnoWalkers','Výlety · procházky · hry','Vybrat zážitek']},
+    en:{label:'Choose your direction',academy:['Academy','Languages · exams · science and IT','Explore learning'],
+      druzina:['Družina Moravy','Historical fencing · HEMA · LARP','Explore training'],
+      walkers:['BrnoWalkers','Hikes · city walks · games','Explore activities']},
+    ru:{label:'Выбери направление',academy:['Академия','Языки · экзамены · наука и IT','Выбрать обучение'],
+      druzina:['Družina Moravy','Фехтование · HEMA · LARP','Выбрать тренировку'],
+      walkers:['BrnoWalkers','Походы · экскурсии · игры','Выбрать приключение']},
+    uk:{label:'Обери напрям',academy:['Академія','Мови · іспити · наука та IT','Обрати навчання'],
+      druzina:['Družina Moravy','Фехтування · HEMA · LARP','Обрати тренування'],
+      walkers:['BrnoWalkers','Походи · екскурсії · ігри','Обрати пригоду']}
+  };
+
   var LANGS = ['cs', 'en', 'ru', 'uk'];
   var COPY = {
     cs: {eyebrow:'HISTORIE · ZÁŽITKY · ROZVOJ', title:'Co vám dnes',title2:'chybí?',lead:'Chtěli byste více přátel, pohybu, zážitků nebo nových dovedností? Začněte tím, co chcete změnit — ne seznamem služeb.',button:'Vybrat zážitek',under:'JEDNO MÍSTO. MNOHO MOŽNOSTÍ.',dir1:'⚔️ Příběhy a pohyb',dir2:'🥾 Zážitky a setkání',dir3:'🎓 Učení a výsledky',calendarEyebrow:'KALENDÁŘ AKCÍ',calendarTitle:'Nadcházející akce a tréninky',calendarIntro:'Klikněte na den v kalendáři a otevřete podrobnosti, cenu a přihlášku.',all:'Vše',club:'Šerm a historie',walkers:'Výlety a hry',academy:'Jazyky a příprava',loading:'Načítáme aktuální veřejné akce…',offline:'Aktuální seznam se nepodařilo ověřit. Nespoléhejte na staré termíny.',empty:'Na tento měsíc nejsou zveřejněny dostupné akce v této kategorii.',errorTitle:'Termíny zatím nelze ověřit',emptyTitle:'Najděte další příležitost',noEventTitle:'Vyberte den s akcí',noEventDesc:'Vyberte označený den a otevřete podrobnosti.',learnTitle:'Připravte se na svůj cíl',learnDesc:'Čeština, jazyky, přijímačky, maturita, přírodní vědy a IT. Individuální termíny řešíme podle vašeho cíle a dostupnosti — bez smyšlených položek v kalendáři.',learnCta:'Vybrat přípravu',open:'Online přihláška otevřena',contact:'Před účastí kontaktujte pořadatele',planned:'Zatím bez potvrzené přihlášky',book:'Požádat o místo',ask:'Ověřit účast',follow:'Sledovat další termíny',price:'Cena bude potvrzena',free:'Zdarma',date:'Kdy',place:'Kde',priceLabel:'Cena',details:'Více informací',notice:'Odeslání přihlášky neznamená potvrzené místo ani platbu. Pořadatel potvrdí účast zvlášť.',photo:'Ilustrační fotografie podobné aktivity',calendarNote:'Časy: Europe/Prague. Veřejné akce jsou z katalogu; pravidelné pondělky jsou pouze orientační a vyžadují písemné potvrzení.',back:'Starší informace',privacy:'Soukromí a bezpečnost',controller:'Organizátora a podmínky ověříte u konkrétní akce.',liveCalendar:'Veřejný kalendář',today:'Dnes',prev:'Předchozí měsíc',next:'Další měsíc',close:'Zavřít podrobnosti akce'},
@@ -80,6 +97,15 @@
     }
   };
   function pc(k){return (PAYMENT_COPY[lang]||PAYMENT_COPY.cs)[k];}
+  // Personally held Raiffeisenbank account: commercial OSVC events only.
+  // Never show it for Druzina z.s., subsidies or other legal entities.
+  var OSVC_RAIF_NOTICE={
+    cs:'OSVČ Aliaksei Chareshneu — Raiffeisenbank 7804336003/5500, IBAN CZ9755000000007804336003. Platit až po písemném potvrzení poskytovatele, akce a konečné ceny. Ne pro platby spolku.',
+    en:'OSVČ Aliaksei Chareshneu — Raiffeisenbank 7804336003/5500, IBAN CZ9755000000007804336003. Transfer only after written approval of the provider, event and final price. Not for association payments.',
+    ru:'OSVČ Aliaksei Chareshneu — Raiffeisenbank 7804336003/5500, IBAN CZ9755000000007804336003. Переводите только после письменного согласования продавца, мероприятия и суммы. Не для платежей объединению.',
+    uk:'OSVČ Aliaksei Chareshneu — Raiffeisenbank 7804336003/5500, IBAN CZ9755000000007804336003. Переказуйте лише після письмового погодження продавця, події та суми. Не для платежів громадській організації.'
+  };
+
   function isPaidActivity(e){return e&&Number.isFinite(Number(e.price_czk))&&Number(e.price_czk)>0;}
   function displayEventPrice(e){
     if(e.provisional)return window.ImperionCalendarPolicy.langData(lang).price;
@@ -102,7 +128,7 @@
     el('fdPaymentTiming').textContent=pc('timing');
     el('fdPaymentCancellation').textContent=pc('cancellation');
     el('fdPaymentException').textContent=pc('exception');
-    el('fdPaymentNotice').textContent=pc('notice');
+    el('fdPaymentNotice').textContent=['Aliaksei Chareshneu (OSVČ)','Aliaksei Chareshneu (OSVČ, IČO 23041625)'].includes(e.data_controller) ? (OSVC_RAIF_NOTICE[lang]||OSVC_RAIF_NOTICE.cs) : pc('notice');
     el('fdPaymentGuard').textContent=pc('guard');
     // An event ID is mandatory and validated from the existing public catalogue.
     var message=pc('message')+' "'+publicTitle(e)+'" (ID: '+e.event_id+'). '+pc('ask');
@@ -177,6 +203,23 @@
           '<a class="fd-hero-cta" id="fdHeroCta" href="#impr-calendar"><span aria-hidden="true">▦</span><span class="fd-hero-cta-copy"><strong id="fdHeroLabel"></strong><small id="fdHeroSub"></small></span></a>',
           '<a class="fd-hero-academy" id="fdAcademyCta" href="academy/?lang=cs"><span class="fd-academy-symbol" aria-hidden="true">🎓</span><span class="fd-academy-copy"><strong id="fdAcademyLabel"></strong><small id="fdAcademyNote"></small></span></a>',
           '</div>',
+          '<nav class="fd-visual-grid" id="fdVisualGrid" aria-label="Choose your direction">',
+            '<a class="fd-visual-tile fd-visual-academy" id="fdVisualAcademy" href="academy/?lang=cs">',
+              '<img src="images/hero-scholar.webp" width="540" height="680" alt="" loading="eager" decoding="async">',
+              '<span class="fd-visual-icon" aria-hidden="true"></span>',
+              '<span class="fd-visual-content"><strong id="fdVisualAcademyTitle">Academy</strong><small id="fdVisualAcademySub"></small><em id="fdVisualAcademyAction"></em></span>',
+            '</a>',
+            '<a class="fd-visual-tile fd-visual-druzina" id="fdVisualDruzina" href="druzina/?lang=cs">',
+              '<img src="images/druzina_train.webp" width="480" height="640" alt="" loading="eager" decoding="async">',
+              '<span class="fd-visual-icon" aria-hidden="true"></span>',
+              '<span class="fd-visual-content"><strong id="fdVisualDruzinaTitle">Družina Moravy</strong><small id="fdVisualDruzinaSub"></small><em id="fdVisualDruzinaAction"></em></span>',
+            '</a>',
+            '<a class="fd-visual-tile fd-visual-walkers" id="fdVisualWalkers" href="walkers/?lang=cs">',
+              '<img src="images/walkers_group.webp" width="640" height="480" alt="" loading="eager" decoding="async">',
+              '<span class="fd-visual-icon" aria-hidden="true"></span>',
+              '<span class="fd-visual-content"><strong id="fdVisualWalkersTitle">BrnoWalkers</strong><small id="fdVisualWalkersSub"></small><em id="fdVisualWalkersAction"></em></span>',
+            '</a>',
+          '</nav>',
           '<div class="fd-hero-topics" aria-hidden="true"><span id="fdDir1"></span><span id="fdDir2"></span><span id="fdDir3"></span></div>',
         '</div>',
         '<div class="fd-hero-bottom" id="fdUnder"></div>',
@@ -232,6 +275,17 @@
   ].join('');
   document.body.insertAdjacentHTML('afterbegin',html);
   var parent=el('imperion-frontdoor');
+  // The main navigation has only the three customer journeys. Existing
+  // event/about links and the separate OSVC corporate route remain in "More".
+  var rootNav=el('fdNav');
+  var more=document.createElement('details');more.className='fd-more';
+  var moreSummary=document.createElement('summary');moreSummary.id='fdMoreSummary';
+  var moreLinks=document.createElement('div');moreLinks.className='fd-more-links';
+  more.append(moreSummary,moreLinks);
+  ['fdNavHome','fdNavEvents','fdNavAbout'].forEach(function(id){moreLinks.append(el(id));});
+  var corporate=document.createElement('a');corporate.id='fdNavCorporate';
+  corporate.href='corporate/';moreLinks.append(corporate);
+  rootNav.append(more);
   function label(id,key){el(id).textContent=tr(key);}
   function hrefForEvent(e) {
     return 'register/?lang='+encodeURIComponent(lang)+'&event='+encodeURIComponent(e.event_id)+'&src=frontdoor_calendar';
@@ -250,6 +304,8 @@
     return 'planned';
   }
   function group(e) {
+    // Grant workshops belong to a separate informal youth project, not paid club/walkers categories.
+    if (/^PUB-MVP-CALI-/.test(String(e.event_id||'')) || /^Morava v pohybu/.test(String(e.community||''))) return 'grant';
     var s=[e.community,e.category,e.title].join(' ').toLocaleLowerCase();
     if(/academy|education|language|course|tutor|exam|příprav|priprаv|výuka|vyuka|češtin|cestin|lekce/.test(s))return 'academy';
     if(/družin|druzin|hema|šerm|serm|fenc|larp|historick|archery|lukostřel/.test(s))return 'club';
@@ -259,21 +315,23 @@
     if(e.provisional)return window.ImperionCalendarPolicy.langData(lang).title;
     if(e.event_id==='PUB-OREL-20261114')return ({cs:'Šerm pro začátečníky · bezplatný workshop',en:'Try historical fencing · free workshop',ru:'Попробуй фехтование · бесплатный воркшоп',uk:'Спробуйте фехтування · безплатний воркшоп'})[lang];
     if(e.category==='HEMA Training' && group(e)==='club')return ({cs:'Historický šerm · Družina Moravy',en:'Historical fencing · Družina Moravy',ru:'Историческое фехтование · Družina Moravy',uk:'Історичне фехтування · Družina Moravy'})[lang];
-    return e.title;
+    return window.ImperionEventI18n?.title(e,lang) || e.title;
   }
   function publicDescription(e){
     if(e.provisional)return window.ImperionCalendarPolicy.langData(lang).detail;
     if(e.event_id==='PUB-OREL-20261114')return ({cs:'Úvodní workshop v Orlovně Husovice. Vstup zdarma, účast až po osobním potvrzení organizátorem.',en:'Introductory workshop at Orlovna Husovice. Free entry, attendance only after personal confirmation.',ru:'Вводный воркшоп в Orlovna Husovice. Бесплатно, участие только после личного подтверждения организатора.',uk:'Вступний воркшоп в Orlovna Husovice. Безплатно, участь лише після особистого підтвердження.'})[lang];
     if(e.category==='HEMA Training' && group(e)==='club')return ({cs:'Pohyb, historický šerm a společný trénink. Bezpečné místo a účast vždy potvrdí organizátor.',en:'Movement, historical fencing and group training. The organiser must confirm the safe venue and your place.',ru:'Движение, историческое фехтование и тренировка в группе. Место и участие организатор подтверждает лично.',uk:'Рух, історичне фехтування та групове тренування. Безпечне місце й участь організатор підтверджує особисто.'})[lang];
-    return typeof e.public_note==='string'&&e.public_note.trim()?e.public_note.slice(0,330):tr('controller');
+    var note=window.ImperionEventI18n?.note(e,lang) || e.public_note;
+    return typeof note==='string'&&note.trim()?note.slice(0,330):tr('controller');
   }
   function publicVenue(e){
     if(e.provisional)return 'Brno · '+window.ImperionCalendarPolicy.langData(lang).status;
     if(e.category==='HEMA Training' && group(e)==='club' && e.event_id!=='PUB-OREL-20261114')
       return ({cs:'Brno · přesný sraz až po potvrzení',en:'Brno · exact location after confirmation',ru:'Брно · место сообщим после подтверждения',uk:'Брно · місце після підтвердження'})[lang];
-    return e.venue||tr('controller');
+    return window.ImperionEventI18n?.venue(e,lang) || e.venue || tr('controller');
   }
   function icon(e){
+    if(group(e)==='grant')return '💪';
     var s=[e.category,e.title].join(' ').toLowerCase();
     if(/board|deskov|настол|hry/.test(s))return '🎲';
     if(/archery|luk|стрель|bow/.test(s))return '🏹';
@@ -299,10 +357,9 @@
   function matches(e){return (filter==='all'||group(e)===filter)&&(city==='all'||eventCity(e)===city);}
   function isSuppressed(e){
     var date=String(e.begins_at||'').slice(0,10);
-    // Owner decision: regular Saturday HEMA is suspended from 7 Nov until separately reinstated.
-    // Free Orel 14 Nov is a distinct approved workshop, not a regular Saturday session.
-    var clubSaturday=e.category==='HEMA Training'&&group(e)==='club'&&e.event_id!=='PUB-OREL-20261114'&&new Date(e.begins_at).getUTCDay()===6;
-    return clubSaturday||date==='2026-11-15'||date==='2026-11-17'||e.event_id==='BW-PAID-20261028'||e.event_id==='COM-HIKE-20261028';
+    // Saturday HEMA is governed by each verified server event gate, not an obsolete global weekday ban.
+    // Keep only the owner-cancelled historic days and unrelated cancelled walk exclusions.
+    return date==='2026-11-15'||date==='2026-11-17'||e.event_id==='BW-PAID-20261028'||e.event_id==='COM-HIKE-20261028';
   }
   function displayData(y,m){
     // Fail closed while public catalogue is loading or unavailable; no synthetic events.
@@ -409,8 +466,20 @@
     el('fdFooterInfo').textContent=ft('about');
     // The Academy landing page and catalogue both support CS/EN/RU/UK.
     el('fdAcademyCta').href='academy/?lang='+encodeURIComponent(lang);
+    var vcopy=VISUAL_COPY[lang]||VISUAL_COPY.en;
+    el('fdVisualGrid').setAttribute('aria-label',vcopy.label);
+    [['academy','Academy','academy/'],['druzina','Druzina','druzina/'],['walkers','Walkers','walkers/']].forEach(function(item){
+      var copy=vcopy[item[0]];
+      el('fdVisual'+item[1]+'Title').textContent=copy[0];
+      el('fdVisual'+item[1]+'Sub').textContent=copy[1];
+      el('fdVisual'+item[1]+'Action').textContent=copy[2];
+      el('fdVisual'+item[1]).href=item[2]+'?lang='+encodeURIComponent(lang);
+    });
     [['fdNavAcademy','academy/'],['fdNavClub','druzina/'],['fdNavWalkers','walkers/']].forEach(function(pair){el(pair[0]).href=pair[1]+'?lang='+encodeURIComponent(lang);});
     el('fdNavAbout').href='about/?lang='+encodeURIComponent(lang);
+    el('fdMoreSummary').textContent=({cs:'Další',en:'More',ru:'Ещё',uk:'Ще'})[lang];
+    el('fdNavCorporate').textContent=({cs:'Pro firmy',en:'For business',ru:'Для компаний',uk:'Для компаній'})[lang];
+    el('fdNavCorporate').href='corporate/?lang='+encodeURIComponent(lang);
     [['fdFacetTitle','facet'],['fdUpcomingTitle','upcoming'],['fdUpcomingIntro','upcomingIntro'],['fdAllTitle','allTitle'],['fdAllIntro','allIntro'],['fdReset','reset']].forEach(function(pair){el(pair[0]).textContent=ed(pair[1]);});
     parent.querySelectorAll('[data-fd-city]').forEach(function(btn){btn.textContent=ft('city'+btn.dataset.fdCity.charAt(0).toUpperCase()+btn.dataset.fdCity.slice(1));});
     parent.querySelectorAll('[data-fd-language]').forEach(function(btn){btn.setAttribute('aria-pressed',String(btn.dataset.fdLanguage===lang));});
@@ -457,7 +526,7 @@
     var more=el('fdMore');more.textContent=tr('details');more.href=paths[g];
     var variants=el('fdVariants');variants.replaceChildren();variants.hidden=opts.length<2;
     if(opts.length>1)opts.forEach(function(option){
-      var b=document.createElement('button');b.type='button';b.setAttribute('aria-pressed',String(option.event_id===event.event_id));b.textContent=icon(option)+' '+timeOf(option)+' · '+option.title;
+      var b=document.createElement('button');b.type='button';b.setAttribute('aria-pressed',String(option.event_id===event.event_id));b.textContent=icon(option)+' '+timeOf(option)+' · '+publicTitle(option);
       b.addEventListener('click',function(){selectedId=option.event_id;renderDetail(key);});variants.appendChild(b);
     });
   }
@@ -510,7 +579,7 @@
       var evs=eventsForDay(key);
       if(evs.length&&!firstWithEvents)firstWithEvents=key;
       var item=document.createElement(evs.length?'button':'span');item.className='fd-day'+(key===today?' fd-today':'')+(key<today?' fd-past':'')+(evs.some(function(e){return e.provisional;})?' fd-day-recurring':'');
-      if(evs.length){item.type='button';item.setAttribute('aria-label',key+' · '+evs.map(function(e){return e.title;}).join('; '));item.setAttribute('aria-pressed',String(key===chosenDay));item.addEventListener('click',function(k){return function(){chosenDay=k;selectedId='';sendSignal('calendar_day_select','calendar');render();openEventModal(k);};}(key));}
+      if(evs.length){item.type='button';item.setAttribute('aria-label',key+' · '+evs.map(function(e){return publicTitle(e);}).join('; '));item.setAttribute('aria-pressed',String(key===chosenDay));item.addEventListener('click',function(k){return function(){chosenDay=k;selectedId='';sendSignal('calendar_day_select','calendar');render();openEventModal(k);};}(key));}
       var number=document.createElement('span');number.className='fd-daynum';number.textContent=day;item.appendChild(number);
       if(evs.length){
         var icons=document.createElement('span');icons.className='fd-dayicons';

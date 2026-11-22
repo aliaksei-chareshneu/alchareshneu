@@ -23,10 +23,10 @@ if(require.main===module)(async()=>{let count=0;for(const path of ['index.html',
    assert.ok((d.querySelector('#action').href||'').startsWith(lang==='ru'?'https://t.me/druzinamoravy_news':'https://chat.whatsapp.com/'),'language-appropriate opt-in club updates');
    assert.ok((d.querySelector('#question').href||'').startsWith(lang==='ru'?'https://t.me/Chareshneu':'https://wa.me/420702914842'),'separate human enquiry');
    const safeApplicationCopy={
-    en:['Applications for planned HEMA sessions are open','Paid participation and equipment use are confirmed individually','Do not pay or travel without written confirmation'],
-    cs:['Přihlášky na plánované tréninky HEMA jsou otevřené','Placenou účast potvrzujeme jednotlivě','Bez písemného potvrzení neplať ani necestuj'],
-    ru:['Заявки на плановые тренировки HEMA открыты','Платную запись подтверждаем индивидуально','Не плати и не приезжай без письменного подтверждения'],
-    uk:['Заявки на планові тренування HEMA відкриті','Платну участь підтверджуємо окремо','Не сплачуй та не приїжджай без письмового підтвердження']
+    en:["Registration is open for Monday 23 and Saturday 28 November","Equipment and personal participation are confirmed individually","Do not pay or travel without confirmation"],
+    cs:["Přihlášky na pondělí 23. a sobotu 28. listopadu","Vybavení a osobní účast potvrzujeme jednotlivě","Bez potvrzení neplať ani necestuj"],
+    ru:["Запись на понедельник 23 и субботу 28 ноября","Снаряжение и участие подтверждаем индивидуально","Не платите и не приезжайте без подтверждения"],
+    uk:["Запис на понеділок 23 та суботу 28 листопада","Спорядження й участь підтверджуємо особисто","До підтвердження не сплачуйте та не приїжджайте"]
    };
    const safetyCopy=d.querySelector('[data-k="safety"]')?.textContent||'';
    for(const phrase of safeApplicationCopy[lang])assert.ok(safetyCopy.includes(phrase),'current applications/paid-confirmation safety gate missing '+lang+': '+phrase);
@@ -60,7 +60,8 @@ if(require.main===module)(async()=>{let count=0;for(const path of ['index.html',
    assert.ok(booking.startsWith('../register/?lang='),path+' '+lang+' primary navigation must reach the safeguarded enquiry form');
    assert.equal(new URL(d.querySelector('.dm-hero-register')?.href||'',d.location.href).pathname,'/alchareshneu/register/','hero CTA must lead to first-visit enquiry');
    assert.equal(d.querySelector('.dm-v2-announcements')?.open,false,'long club updates must be collapsed by default');
-   assert.ok(d.querySelector('.dm-v2-status')?.textContent.includes('7'),'cancelled session stays visible');
+   assert.ok(d.querySelector('#dm-visitor-hub [data-hub-lang="'+lang+'"]'),'persistent four-language club hub visible');
+   assert.equal(d.querySelector('#dm-single-registration'),null,'retired second signup prompt removed');
    assert.ok(d.querySelector('.dm-trust-line')?.textContent.length>20,'club participation and trust statement visible');
    const retired=[...d.querySelectorAll('a[href]')].filter(a=>/docs[.]google[.]com[/]forms[/]d[/]e|revolut[.]me[/]/i.test(a.href));
    assert.equal(retired.length,0,'paused HEMA page must not link to retired payment/booking forms');

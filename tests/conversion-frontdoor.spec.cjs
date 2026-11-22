@@ -16,7 +16,7 @@ const fixture=[
   {...base,event_id:'PUB-WALK-TALK-20261118',title:'Brno After Dark',community:'Brnowalkers',category:'City Walk',begins_at:'2026-11-18T17:30:00Z',price_czk:100,data_controller:'Aliaksei Chareshneu (OSVČ, IČO 23041625)'},
   {...base,event_id:'PUB-HEMA-20261121',title:'Saturday training suspended',begins_at:'2026-11-21T17:00:00Z'},
   {...base,event_id:'PUB-HEMA-20261123',title:'Monday 23 November',begins_at:'2026-11-23T17:00:00Z'},
-  {...base,event_id:'PUB-HEMA-20261128',title:'Saturday training suspended',begins_at:'2026-11-28T17:00:00Z'},
+  {...base,event_id:'PUB-HEMA-20261128',title:'Saturday 28 HEMA open for RSVP',begins_at:'2026-11-28T17:00:00Z'},
   {...base,event_id:'PUB-WALK-20261129',title:'Conditional guided walk',community:'Brnowalkers',category:'Guided Walk',begins_at:'2026-11-29T13:00:00Z',price_czk:450,registration_mode:'CONTACT',is_open:false}
 ];
 async function prepare(page,at='2026-11-11T12:00:00+01:00'){
@@ -45,8 +45,11 @@ for(const width of [390,1440]){
     await expect(page.locator('#fdBook')).toContainText('Request a place');
     const dayLabels=await page.locator('#fdDays button').evaluateAll(btns=>btns.map(b=>b.getAttribute('aria-label')));
     expect(dayLabels.some(x=>x.startsWith('2026-11-14'))).toBe(true);
-    for(const hold of ['2026-11-15','2026-11-17','2026-11-21','2026-11-28'])
+    for(const hold of ['2026-11-15','2026-11-17'])
       expect(dayLabels.some(x=>x.startsWith(hold)),hold+' must not be visible').toBe(false);
+    // A real server-available Saturday event is not globally hidden by weekday.
+    expect(dayLabels.some(x=>x.startsWith('2026-11-28'))).toBe(true);
+    expect(dayLabels.some(x=>x.startsWith('2026-11-21'))).toBe(true);
     await page.locator('#fdDays button[aria-label^="2026-11-16"]').click();
     await expect(page.locator('#fdDetails')).toBeVisible();
     await expect(page.locator('#fdOverlay')).toBeVisible();

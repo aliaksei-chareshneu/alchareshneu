@@ -40,8 +40,8 @@ Deno.serve(async (req:Request):Promise<Response>=>{
       const [rsvp,enquiry,b2b]=await Promise.all([
         (proofProtocolV2
           ? api.from("imperion_rsvp_submissions")
-             .select("id,event_id,first_name,last_name,email,phone,age_group,guardian_name,guardian_phone,rsvp_status,safety_acknowledged,safety_version,photo_choice,marketing_requested,data_controller,language,source,status,created_at,retention_until,discovery_source,utm_source,utm_medium,utm_campaign,training_requested_tier,training_authorized_at,quoted_tier,quoted_base_czk,quoted_late_fee_czk,quoted_total_czk,quoted_confirmed_count,quoted_late_48h,payment_evidence_status,payment_evidence_received_at,bank_verified_at")
-             .or("crm_synced_at.is.null,and(payment_evidence_status.eq.PROOF_RECEIVED,payment_crm_synced_at.is.null)")
+             .select("id,event_id,first_name,last_name,email,phone,age_group,guardian_name,guardian_phone,rsvp_status,safety_acknowledged,safety_version,photo_choice,marketing_requested,data_controller,language,source,status,created_at,retention_until,discovery_source,utm_source,utm_medium,utm_campaign,training_requested_tier,training_authorized_at,quoted_tier,quoted_base_czk,quoted_late_fee_czk,quoted_total_czk,quoted_confirmed_count,quoted_late_48h,payment_evidence_status,payment_evidence_received_at,bank_verified_at,payment_variable_symbol,fio_bank_review_code,payment_pdf_review_status")
+             .or("crm_synced_at.is.null,and(payment_evidence_status.in.(PROOF_RECEIVED,BANK_VERIFIED),payment_crm_synced_at.is.null)")
           : api.from("imperion_rsvp_submissions")
              .select("id,event_id,first_name,last_name,email,phone,age_group,guardian_name,guardian_phone,rsvp_status,safety_acknowledged,safety_version,photo_choice,marketing_requested,data_controller,language,source,status,created_at,retention_until,discovery_source,utm_source,utm_medium,utm_campaign")
              .is("crm_synced_at",null))
@@ -87,7 +87,7 @@ Deno.serve(async (req:Request):Promise<Response>=>{
       let q=api.from("imperion_rsvp_submissions").update({
         crm_synced_at:now,...(proofProtocolV2?{payment_crm_synced_at:now}:{})
       }).in("id",rsvps);
-      q=proofProtocolV2?q.or("crm_synced_at.is.null,and(payment_evidence_status.eq.PROOF_RECEIVED,payment_crm_synced_at.is.null)"):
+      q=proofProtocolV2?q.or("crm_synced_at.is.null,and(payment_evidence_status.in.(PROOF_RECEIVED,BANK_VERIFIED),payment_crm_synced_at.is.null)"):
         q.is("crm_synced_at",null);
       const out=await q.select("id");
       if(out.error)throw Error("rsvp ack");

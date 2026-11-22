@@ -9,17 +9,20 @@
   if(!location.pathname.startsWith(root.pathname)||!path||path==='index.html')return;
   var section=path.split('/')[0];
   var active=({academy:'academy',druzina:'club','druzina-moravy':'club',
-    walkers:'walkers',calendar:'events',events:'events',about:'about',partners:'partners'})[section]||'';
+    walkers:'walkers',calendar:'events',events:'events',about:'about',partners:'partners',corporate:'corporate'})[section]||'';
   var copy={
-    cs:{home:'Úvod',events:'Akce',academy:'Akademie',club:'Družina',walkers:'BrnoWalkers',about:'O mně',partners:'Partneři',skip:'Přejít k obsahu',nav:'Hlavní navigace'},
-    en:{home:'Home',events:'Events',academy:'Academy',club:'Družina',walkers:'BrnoWalkers',about:'About',partners:'Partners',skip:'Skip to content',nav:'Main navigation'},
-    ru:{home:'Главная',events:'События',academy:'Академия',club:'Дружина',walkers:'BrnoWalkers',about:'Обо мне',partners:'Партнёры',skip:'К содержанию',nav:'Главная навигация'},
-    uk:{home:'Головна',events:'Події',academy:'Академія',club:'Дружина',walkers:'BrnoWalkers',about:'Про мене',partners:'Партнери',skip:'До вмісту',nav:'Головна навігація'}
+    cs:{home:'Úvod',events:'Akce',academy:'Akademie',club:'Družina',walkers:'BrnoWalkers',about:'O mně',partners:'Partneři',corporate:'Pro firmy',more:'Další',skip:'Přejít k obsahu',nav:'Hlavní navigace'},
+    en:{home:'Home',events:'Events',academy:'Academy',club:'Družina',walkers:'BrnoWalkers',about:'About',partners:'Partners',corporate:'For business',more:'More',skip:'Skip to content',nav:'Main navigation'},
+    ru:{home:'Главная',events:'События',academy:'Академия',club:'Дружина',walkers:'BrnoWalkers',about:'Обо мне',partners:'Партнёры',corporate:'Для компаний',more:'Ещё',skip:'К содержанию',nav:'Главная навигация'},
+    uk:{home:'Головна',events:'Події',academy:'Академія',club:'Дружина',walkers:'BrnoWalkers',about:'Про мене',partners:'Партнери',corporate:'Для компаній',more:'Ще',skip:'До вмісту',nav:'Головна навігація'},
+    be:{home:'Галоўная',events:'Падзеі',academy:'Акадэмія',club:'Дружына',walkers:'BrnoWalkers',about:'Пра мяне',partners:'Партнёры',corporate:'Для кампаній',more:'Яшчэ',skip:'Да зместу',nav:'Галоўная навігацыя'},
+    sk:{home:'Úvod',events:'Podujatia',academy:'Akadémia',club:'Družina',walkers:'BrnoWalkers',about:'O mne',partners:'Partneri',corporate:'Pre firmy',more:'Ďalšie',skip:'Preskočiť na obsah',nav:'Hlavná navigácia'}
   };
+  var taglines={cs:'HISTORIE · ZÁŽITKY · ROZVOJ',en:'HISTORY · EXPERIENCES · GROWTH',ru:'ИСТОРИЯ · ВПЕЧАТЛЕНИЯ · РАЗВИТИЕ',uk:'ІСТОРІЯ · ВРАЖЕННЯ · РОЗВИТОК',be:'ГІСТОРЫЯ · УРАЖАННІ · РАЗВІЦЦЁ',sk:'HISTÓRIA · ZÁŽITKY · ROZVOJ'};
   var supported=Array.from(new Set(
     Array.from(document.querySelectorAll('button[data-lang], a[data-lang], button[data-switch]'))
       .map(function(x){return x.getAttribute('data-lang')||x.getAttribute('data-switch');})
-      .filter(function(x){return ['cs','en','ru','uk'].indexOf(x)>=0;})
+      .filter(function(x){return ['cs','en','ru','uk','be','sk'].indexOf(x)>=0;})
   ));
   var registerIndex=/^register\/(?:(?:en|ru|uk)\/)?(?:index\.html)?$/.test(path);
   if(['about','partners'].includes(section)||registerIndex||path==='druzina/cesty/'||path==='druzina/cesty/index.html')supported=['cs','en','ru','uk'];
@@ -43,18 +46,27 @@
   var shield=document.createElement('span');shield.className='imp-shell-logo-mark';shield.setAttribute('aria-hidden','true');shield.textContent='⚔';
   var brandCopy=document.createElement('span');brandCopy.className='imp-shell-logo-copy';
   var brandTop=document.createElement('strong');brandTop.textContent='IMPERION';
-  var brandSub=document.createElement('small');brandSub.textContent='HISTORIE · ZÁŽITKY · ROZVOJ';
+  var brandSub=document.createElement('small');brandSub.textContent=taglines[lang];
   brandCopy.appendChild(brandTop);brandCopy.appendChild(brandSub);
   brand.appendChild(shield);brand.appendChild(brandCopy);inside.appendChild(brand);
   var nav=document.createElement('nav');nav.className='imp-shell-links';nav.id='imp-shell-links';nav.setAttribute('aria-label',copy[lang].nav);
-  var keys=['home','events','academy','club','walkers','about','partners'],links={};
+  // Three primary visitor routes; utility, B2B and institutional information remain
+  // reachable through a native keyboard-accessible disclosure. One shared nav, not a second bar.
+  var keys=['academy','club','walkers','home','events','corporate','about','partners'],links={};
+  var more=document.createElement('details');more.className='imp-shell-more';
+  var moreTitle=document.createElement('summary');moreTitle.textContent=copy[lang].more;more.appendChild(moreTitle);
+  var moreList=document.createElement('div');moreList.className='imp-shell-more-list';more.appendChild(moreList);
   keys.forEach(function(k){
     var a=document.createElement('a');a.dataset.impLink=k;a.textContent=copy[lang][k];
     if(k===active)a.setAttribute('aria-current','page');
-    nav.appendChild(a);links[k]=a;
-  });inside.appendChild(nav);
+    if(['academy','club','walkers'].includes(k))nav.appendChild(a);
+    else moreList.appendChild(a);
+    links[k]=a;
+  });
+  nav.appendChild(more);inside.appendChild(nav);
   var language=document.createElement('div');language.className='imp-shell-lang';language.setAttribute('role','group');language.setAttribute('aria-label','Language / Jazyk');
-  ['cs','en','ru','uk'].forEach(function(l){
+  var shellLanguages=path==='druzina/ranks.html'?['cs','en','ru','uk','be','sk']:['cs','en','ru','uk'];
+  shellLanguages.forEach(function(l){
     if(supported.length===0||supported.indexOf(l)<0)return;
     var a=document.createElement('a');a.dataset.impLang=l;a.lang=l;a.hreflang=l;a.textContent=l==='cs'?'CZ':l==='uk'?'UA':l.toUpperCase();
     if(lang===l)a.setAttribute('aria-current','true');
@@ -62,7 +74,7 @@
   });
   if(language.children.length>0)inside.appendChild(language);
   header.appendChild(inside);
-  function urlFor(route,code){var u=new URL(route,root);u.searchParams.set('lang',code);return u.href;}
+  function urlFor(route,code){var u=new URL(route,root);u.searchParams.set('lang',['be','sk'].includes(code)?'cs':code);return u.href;}
   function bindTargets(code){
     brand.href=urlFor('',code);
     links.home.href=urlFor('',code);
@@ -72,6 +84,7 @@
     links.walkers.href=urlFor('walkers/',code);
     links.about.href=urlFor('about/',code);
     links.partners.href=urlFor('partners/',code);
+    links.corporate.href=urlFor('corporate/',code);
     Array.from(language.children).forEach(function(a){
       var u=registerIndex?new URL('register/'+(a.dataset.impLang==='cs'?'':a.dataset.impLang+'/'),root):new URL(location.href);
       // Keep a selected event and allowed source when changing registration language.
@@ -83,6 +96,27 @@
     });
   }
   bindTargets(lang);
+  // Localized subpages can change <html lang> after the shared header was created.
+  // Keep navigation, language selection and all links in sync with the visible page.
+  function syncShellLanguage(){
+    var actual=document.documentElement.lang;
+    if(!copy[actual]||(supported.length&&supported.indexOf(actual)<0))return;
+    lang=actual;
+    skip.textContent=copy[lang].skip;
+    brandSub.textContent=taglines[lang];
+    nav.setAttribute('aria-label',copy[lang].nav);
+    moreTitle.textContent=copy[lang].more;
+    keys.forEach(function(k){links[k].textContent=copy[lang][k];});
+    Array.from(language.children).forEach(function(a){
+      if(a.dataset.impLang===lang)a.setAttribute('aria-current','true');
+      else a.removeAttribute('aria-current');
+    });
+    bindTargets(lang);
+  }
+  new MutationObserver(syncShellLanguage).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
+  document.addEventListener('site:language',syncShellLanguage);
+  // Respect an already-initialized saved language when no explicit URL locale exists.
+  if(!copy[request]&&!routeLang)syncShellLanguage();
   if(section==='partners')document.documentElement.lang=lang;
   // Keep the historical global menus in the DOM for script compatibility and no-JS fallback,
   // but retire their *visual* duplication only after the new header is mounted.

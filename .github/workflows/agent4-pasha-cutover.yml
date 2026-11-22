@@ -1,0 +1,31 @@
+name: Agent4 Pasha OCI cutover safety
+on:
+  pull_request:
+    paths:
+      - 'ops/agent4_business_connection.py'
+      - 'ops/agent4-oci-pasha-cutover.sh'
+      - 'tests/test_agent4_chat_automation.py'
+      - '.github/workflows/agent4-pasha-cutover.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile and check shell
+        run: |
+          bash -n ops/agent4-oci-pasha-cutover.sh
+          python -m py_compile ops/agent4_business_connection.py
+          python -m py_compile ops/install-agent4-chat-automation.py
+      - name: Check immutable installer source hashes
+        run: |
+          test "$(git hash-object ops/agent4_business_connection.py)" = "25dc7d14e0b21e536a81b05b88bfa24a22cb423b"
+          test "$(git hash-object ops/install-agent4-chat-automation.py)" = "7e0f3245dbf3764838f60ce61cf6fe9f7a055f72"
+      - name: One listener, per-chat consent and no-send tests
+        run: python -B -m unittest discover -s tests -p 'test_agent4_chat_automation.py' -v

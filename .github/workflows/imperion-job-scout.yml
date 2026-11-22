@@ -1,0 +1,97 @@
+name: IMPERION public job scout — daily MUNI discovery
+
+# Existing GitHub Actions runtime; public MUNI GET only. No CV, login, POST, email or CRM.
+on:
+  pull_request:
+    paths:
+      - 'ops/job-scout/**'
+      - 'tests/imperion-job-scout.test.cjs'
+      - 'tests/imperion-job-scout-form.spec.cjs'
+      - '.github/workflows/imperion-job-scout.yml'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/imperion-job-scout.yml'
+  workflow_dispatch:
+  schedule:
+    # GitHub uses UTC. 08:17 CET / 09:17 CEST, best-effort, no exact-time guarantee.
+    - cron: '17 7 * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: imperion-job-scout-review
+  cancel-in-progress: false
+
+jobs:
+  offline-synthetic-qa:
+    if: github.repository == 'aliaksei-chareshneu/alchareshneu'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Use existing locked dependencies without install scripts
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Test URL allowlist, robots, deadlines, no submissions and synthetic E2E
+        run: node --test tests/imperion-job-scout.test.cjs
+      - name: Explicit scope
+        run: |
+          echo 'Synthetic QA only: no real vacancy submission, no CV, no private CRM, no spending.' >> "$GITHUB_STEP_SUMMARY"
+
+  synthetic-browser-form-qa:
+    if: github.repository == 'aliaksei-chareshneu/alchareshneu' && (github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch')
+    needs: offline-synthetic-qa
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install existing locked Playwright package without scripts
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Install pinned browser in ephemeral free runner
+        run: timeout 240s npx playwright install chromium
+      - name: Fill and submit LOCAL SYNTHETIC form only (no network requests)
+        run: npx playwright test tests/imperion-job-scout-form.spec.cjs --workers=1 --reporter=line
+      - name: State browser proof scope
+        run: echo 'Browser QA is synthetic-only; not a real employer submission.' >> "$GITHUB_STEP_SUMMARY"
+
+  bounded-public-source-smoke:
+    if: github.repository == 'aliaksei-chareshneu/alchareshneu'
+    needs: offline-synthetic-qa
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Use existing locked dependencies without install scripts
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Read only official MUNI public vacancies after robots.txt gate
+        id: public_source
+        # Daily and merge-to-main runs must fail on real source errors; PR QA is separately gated.
+        continue-on-error: ${{ github.event_name == 'pull_request' }}
+        run: |
+          node ops/job-scout/muni-public.cjs --live --pages 3 --details 10 --out "$RUNNER_TEMP/imperion-public-job-scout.json"
+      - name: Report provider readback accurately (no applicant data)
+        if: always()
+        run: |
+          if [ -s "$RUNNER_TEMP/imperion-public-job-scout.json" ]; then
+            node -e 'const fs=require("node:fs");const x=JSON.parse(fs.readFileSync(process.argv[1])); console.log("Public official source checked:",x.index_count,"links;",x.details_checked,"detail pages; submissions:",x.applications_sent);' "$RUNNER_TEMP/imperion-public-job-scout.json"
+            node -e 'const fs=require("node:fs");const x=JSON.parse(fs.readFileSync(process.argv[1]));const safe=s=>String(s??"").replace(/[|\r\n]/g," ").slice(0,140);const rows=["PUBLIC_SOURCE_READBACK: official MUNI source read, zero applications.","Public employer index links: "+x.index_count+"; detailed public pages checked: "+x.details_checked+"; verified deadlines among displayed candidates: "+x.jobs.filter(j=>j.deadline_verified).length+". Source index is NOT proof of actual vacancy availability, HPP or applicant eligibility.","","| Vacancy | Deadline | Part-time | Explicit 0.5 FTE | Qualification gate |","|---|---|---|---|---|"];for(const j of x.jobs.slice(0,10))rows.push("| ["+safe(j.title)+"]("+j.url+") | "+safe(j.deadline||"NOT VERIFIED")+" | "+j.part_time_advertised+" | "+j.half_fte_explicit+" | "+safe(j.qualification_gate||"NOT_ASSESSED")+" |");fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY,rows.join("\n")+"\n");' "$RUNNER_TEMP/imperion-public-job-scout.json"
+          else
+            echo 'PUBLIC_SOURCE_BLOCKED: no source readback; do not claim live job discovery.' >> "$GITHUB_STEP_SUMMARY"
+          fi
+          echo 'Never upload CV, email, cookies or private applicant data into this public workflow.' >> "$GITHUB_STEP_SUMMARY"

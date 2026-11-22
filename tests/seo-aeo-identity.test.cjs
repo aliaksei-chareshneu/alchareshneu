@@ -27,6 +27,12 @@ test('OSVC and association have distinct stable structured-data identities', () 
   assert.equal(druzina.legalName, 'Družina Moravy z.s.');
   assert.ok(!Object.hasOwn(druzina, 'provider'), 'The association cannot be a personal OSVC service');
   assert.notEqual(druzina['@id'], osvc['@id']);
+  const join = graph('druzina/join/index.html').find(item => item['@type'] === 'SportsOrganization');
+  assert.equal(join['@id'], druzina['@id']);
+  assert.equal(join.legalName, druzina.legalName);
+  assert.ok(!Object.hasOwn(join, 'provider'));
+  const leadership = graph('corporate/leadership/index.html').find(item => item['@type'] === 'Service');
+  assert.equal(leadership.provider['@id'], root + '#osvc');
 
   const academy = graph('academy/index.html').find(item => item['@type'] === 'Service');
   const walkers = graph('walkers/index.html').find(item => item['@type'] === 'TouristTrip');
@@ -81,6 +87,7 @@ test('Updated crawlable landing pages stay in sitemap', () => {
     const after = map.slice(at + marker.length);
     const updated = after.match(/^\s*<lastmod>([^<]+)<\/lastmod>/);
     assert.ok(updated, 'Missing lastmod for ' + uri);
-    assert.equal(updated[1], '2026-11-14', 'Review lastmod before merging later');
+    assert.match(updated[1], /^\d{4}-\d{2}-\d{2}$/, 'Invalid sitemap date for ' + uri);
+    assert.ok(updated[1] >= '2026-11-22', 'Stale modified date for ' + uri);
   }
 });

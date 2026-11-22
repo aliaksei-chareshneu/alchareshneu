@@ -1,6 +1,7 @@
 'use strict';
 // Stage 10: LLM suggests DATA-ONLY test vectors; only this trusted module writes
 // a fixed test template into an ephemeral review sandbox. NEVER a release gate.
+const PROVIDER=require('./imperion-dev-provider.cjs');
 const fs=require('node:fs');
 const path=require('node:path');
 const crypto=require('node:crypto');
@@ -142,7 +143,7 @@ function draftPrompt(patchedSource,feedback='') {
   'PATCHED_PUBLIC_SOURCE: '+patchedSource.slice(0,2500)
  ].filter(Boolean).join('\n');
 }
-async function askDraftVectors(patchedSource,fetchImpl=globalThis.fetch) {
+async function askDraftVectors(patchedSource,fetchImpl=PROVIDER.fetchModel) {
  let reason='';
  for(let attempt=0;attempt<2;attempt++){
   const res=await fetchImpl('http://127.0.0.1:11434/api/generate',{
@@ -179,7 +180,7 @@ function checkPreviewProof(proof,source) {
  const patch=W.parseCandidate(JSON.stringify(proof.patch));
  return W.applyCandidate(source,patch);
 }
-async function writePreview(proof,workspace,fetchImpl=globalThis.fetch) {
+async function writePreview(proof,workspace,fetchImpl=PROVIDER.fetchModel) {
  const root=fs.realpathSync(workspace),cwd=fs.realpathSync(process.cwd());
  if(root===cwd||root.startsWith(cwd+path.sep))
    reject('TEST_VECTOR_SANDBOX_REQUIRED');

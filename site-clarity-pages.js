@@ -9,10 +9,10 @@ const hero=document.querySelector(club?'#druzina.hero':'#walkers.hero');
 if(!main||!hero)return;
 const root='../',api='https://cmrknyhnnehyjpreehcf.supabase.co/functions/v1/imperion-register';
 const C={
-cs:{next:'NEJBLIŽŠÍ AKTIVITA',clubTitle:'Vaše cesta do Družiny začíná tady',walkTitle:'Příští společná výprava',calendar:'Všechny akce v kalendáři',register:'Poslat přihlášku',first:'První návštěva',schedule:'Pondělní tréninky',safety:'Bezpečnost',clubAbout:'Co vás čeká a jak přijít',walkAbout:'Co plánujeme a jak se přidat',archive:'Další informace, pravidla a archiv',confirm:'Účast je platná až po osobním potvrzení. Termíny a poplatky ověřte před cestou.',ongoing:'Pravidelný čas · zatím bez potvrzeného místa',free:'Vstup zdarma · 14. listopadu 2026',check:'Ověřit účast',walkNote:'Výlet se koná pouze po potvrzení konkrétního termínu, trasy a podmínek.',visiting:'První návštěva',when:'Kdy',where:'Kde',bring:'Co s sebou',visitBody:'Nejdřív vyberte aktuální akci a pošlete nezávaznou přihlášku. Počkejte na osobní potvrzení.',whenBody:'Pondělí 18:00–19:30 je pravidelně plánovaný slot. Soboty jsou do odvolání pozastaveny; čtvrtky zrušeny.',whereBody:'Přesné místo, výstroj, věk a bezpečnostní podmínky se potvrzují pro konkrétní trénink.'},
-en:{next:'NEXT ACTIVITY',clubTitle:'Your way into the Družina',walkTitle:'Our next shared adventure',calendar:'All dates in one calendar',register:'Send an enquiry',first:'First visit',schedule:'Monday training',safety:'Safety',clubAbout:'What to expect and how to come',walkAbout:'What comes next and how to join',archive:'Extra details, rules and archive',confirm:'Attendance requires direct organiser confirmation. Check time, venue and fees before travelling.',ongoing:'Recurring slot · no confirmed place',free:'Free admission · 14 November 2026',check:'Ask for confirmation',walkNote:'Each walk needs a confirmed date, route and conditions.',visiting:'First visit',when:'When',where:'Where',bring:'What to bring',visitBody:'Choose a real event and send a non-binding request. Wait for the organiser to confirm it.',whenBody:'Monday 18:00–19:30 is the recurring planned slot. Saturdays are suspended; Thursdays discontinued.',whereBody:'Exact venue, equipment, age and safety conditions are checked per session.'},
-ru:{next:'БЛИЖАЙШЕЕ СОБЫТИЕ',clubTitle:'Твой путь в Дружину начинается здесь',walkTitle:'Ближайшее приключение',calendar:'Все мероприятия в одном календаре',register:'Отправить заявку',first:'Первый визит',schedule:'Тренировки по понедельникам',safety:'Безопасность',clubAbout:'Что будет и как присоединиться',walkAbout:'Что дальше и как записаться',archive:'Дополнительно: правила, история и архив',confirm:'Участие только после личного подтверждения организатора. Место, цену и условия уточняйте до поездки.',ongoing:'Регулярный плановый слот · место не подтверждено',free:'Бесплатно · 14 ноября 2026',check:'Уточнить участие',walkNote:'Каждая прогулка требует подтверждения даты, маршрута и условий.',visiting:'Первый визит',when:'Когда',where:'Где',bring:'Что взять',visitBody:'Выберите реальное событие и отправьте заявку без обязательств. Дождитесь личного подтверждения.',whenBody:'Понедельник 18:00–19:30 — регулярный плановый слот. Субботние тренировки приостановлены, четверги отменены.',whereBody:'Точное место, снаряжение, возраст и условия безопасности уточняются для каждого занятия.'},
-uk:{next:'НАЙБЛИЖЧА ПОДІЯ',clubTitle:'Твій шлях до Дружини',walkTitle:'Наступна спільна пригода',calendar:'Усі події в одному календарі',register:'Надіслати заявку',first:'Перший візит',schedule:'Тренування щопонеділка',safety:'Безпека',clubAbout:'Що очікувати і як долучитися',walkAbout:'Що далі і як записатися',archive:'Додатково: правила, історія й архів',confirm:'Участь потребує особистого підтвердження організатора. Уточніть місце, ціну та умови до поїздки.',ongoing:'Регулярний запланований час · місце не підтверджено',free:'Безкоштовно · 14 листопада 2026',check:'Уточнити участь',walkNote:'Кожна прогулянка потребує підтвердження дати, маршруту й умов.',visiting:'Перший візит',when:'Коли',where:'Де',bring:'Що взяти',visitBody:'Оберіть справжню подію та надішліть заявку без зобов’язань. Дочекайтеся особистого підтвердження.',whenBody:'Понеділок 18:00–19:30 — регулярний запланований час. Суботи призупинені, четверги скасовані.',whereBody:'Точне місце, спорядження, вік і безпекові умови уточнюються для кожного заняття.'}
+cs:{next:'NEJBLIŽŠÍ AKTIVITA',clubTitle:'Vaše cesta do Družiny začíná tady',walkTitle:'Příští společná výprava',calendar:'Všechny akce v kalendáři',register:'Poslat přihlášku',first:'První návštěva',schedule:'Pondělní tréninky',safety:'Bezpečnost',clubAbout:'Co vás čeká a jak přijít',walkAbout:'Co plánujeme a jak se přidat',archive:'Další informace, pravidla a archiv',confirm:'Účast je platná až po osobním potvrzení. Termíny a poplatky ověřte před cestou.',ongoing:'Pravidelný čas · zatím bez potvrzeného místa',free:'Vstup zdarma · 14. listopadu 2026',check:'Ověřit účast',walkNote:'Výlet se koná pouze po potvrzení konkrétního termínu, trasy a podmínek.',visiting:'První návštěva',when:'Kdy',where:'Kde',bring:'Co s sebou',visitBody:'Nejdřív vyberte aktuální akci a pošlete nezávaznou přihlášku. Počkejte na osobní potvrzení.',whenBody:'Pravidelně pondělí 18:00–20:00. Tento týden navíc středa 25. 11. 17:00–19:00 (místo čtvrtka). Další termíny 5./10./17./19. 12. beze změny.',whereBody:'Přesné místo, výstroj, věk a bezpečnostní podmínky se potvrzují pro konkrétní trénink.'},
+en:{next:'NEXT ACTIVITY',clubTitle:'Your way into the Družina',walkTitle:'Our next shared adventure',calendar:'All dates in one calendar',register:'Send an enquiry',first:'First visit',schedule:'Monday training',safety:'Safety',clubAbout:'What to expect and how to come',walkAbout:'What comes next and how to join',archive:'Extra details, rules and archive',confirm:'Attendance requires direct organiser confirmation. Check time, venue and fees before travelling.',ongoing:'Recurring slot · no confirmed place',free:'Free admission · 14 November 2026',check:'Ask for confirmation',walkNote:'Each walk needs a confirmed date, route and conditions.',visiting:'First visit',when:'When',where:'Where',bring:'What to bring',visitBody:'Choose a real event and send a non-binding request. Wait for the organiser to confirm it.',whenBody:'Regular Mondays: 18:00–20:00. This week: Wed 25 Nov 17:00–19:00 replaces Thursday. Later dates 5/10/17/19 Dec remain unchanged; attendance requires confirmation.',whereBody:'Exact venue, equipment, age and safety conditions are checked per session.'},
+ru:{next:'БЛИЖАЙШЕЕ СОБЫТИЕ',clubTitle:'Твой путь в Дружину начинается здесь',walkTitle:'Ближайшее приключение',calendar:'Все мероприятия в одном календаре',register:'Отправить заявку',first:'Первый визит',schedule:'Тренировки по понедельникам',safety:'Безопасность',clubAbout:'Что будет и как присоединиться',walkAbout:'Что дальше и как записаться',archive:'Дополнительно: правила, история и архив',confirm:'Участие только после личного подтверждения организатора. Место, цену и условия уточняйте до поездки.',ongoing:'Регулярный плановый слот · место не подтверждено',free:'Бесплатно · 14 ноября 2026',check:'Уточнить участие',walkNote:'Каждая прогулка требует подтверждения даты, маршрута и условий.',visiting:'Первый визит',when:'Когда',where:'Где',bring:'Что взять',visitBody:'Выберите реальное событие и отправьте заявку без обязательств. Дождитесь личного подтверждения.',whenBody:'По понедельникам 18:00–20:00. На этой неделе дополнительно среда 25.11, 17:00–19:00, вместо четверга. Даты 5, 10, 17, 19.12 без изменений.',whereBody:'Точное место, снаряжение, возраст и условия безопасности уточняются для каждого занятия.'},
+uk:{next:'НАЙБЛИЖЧА ПОДІЯ',clubTitle:'Твій шлях до Дружини',walkTitle:'Наступна спільна пригода',calendar:'Усі події в одному календарі',register:'Надіслати заявку',first:'Перший візит',schedule:'Тренування щопонеділка',safety:'Безпека',clubAbout:'Що очікувати і як долучитися',walkAbout:'Що далі і як записатися',archive:'Додатково: правила, історія й архів',confirm:'Участь потребує особистого підтвердження організатора. Уточніть місце, ціну та умови до поїздки.',ongoing:'Регулярний запланований час · місце не підтверджено',free:'Безкоштовно · 14 листопада 2026',check:'Уточнити участь',walkNote:'Кожна прогулянка потребує підтвердження дати, маршруту й умов.',visiting:'Перший візит',when:'Коли',where:'Де',bring:'Що взяти',visitBody:'Оберіть справжню подію та надішліть заявку без зобов’язань. Дочекайтеся особистого підтвердження.',whenBody:'Щопонеділка 18:00–20:00. Цього тижня додатково середа 25.11 17:00–19:00 замість четверга. Дати 5, 10, 17, 19.12 без змін.',whereBody:'Точне місце, спорядження, вік і безпекові умови уточнюються для кожного заняття.'}
 };
 function lang(){return C[document.documentElement.lang]?document.documentElement.lang:'cs'}
 function t(){return C[lang()]}
@@ -27,7 +27,7 @@ function valid(e){
  if(!e||!/^PUB-[A-Z0-9-]{4,90}$/.test(e.event_id||'')||Date.parse(e.begins_at)<=Date.now())return false;
  // Never surface explicitly suspended, withdrawn or owner-HOLD dates as next events.
  if(e.source_active===false||['2026-11-15','2026-11-17'].includes(String(e.begins_at||'').slice(0,10))||['BW-PAID-20261028','COM-HIKE-20261028'].includes(e.event_id))return false;
- if(club&&e.category==='HEMA Training'&&new Date(e.begins_at).getUTCDay()===6&&e.event_id!=='PUB-OREL-20261114')return false;
+ if(club&&e.category==='HEMA Training'&&new Date(e.begins_at).getUTCDay()===6&&e.event_id!=='PUB-OREL-20261114'&&e.event_id!=='PUB-HEMA-20261128'&&e.event_id!=='PUB-HEMA-20261205'&&e.event_id!=='PUB-HEMA-20261219')return false;
  return isRelevant(e);
 }
 const eventsUrlPromise=fetch(api,{method:'GET',cache:'no-store'}).then(r=>r.ok?r.json():null).then(payload=>{
@@ -72,13 +72,28 @@ eventsUrlPromise.then(function(events){
  render();
 });
 if(club){
+ // Keep only the three key choices in the existing permanent hub.
+ // Safety stays visible on demand; no legal or booking content is discarded.
+ const hub=document.getElementById('dm-visitor-hub');
+ const safetyLabels={cs:'Bezpečnost a první návštěva',en:'Safety and first visit',
+   ru:'Безопасность и первый визит',uk:'Безпека та перший візит'};
+ if(hub)hub.querySelectorAll('[data-hub-lang]').forEach(function(panel){
+   const grid=panel.querySelector('.dm-hub-grid');
+   const cards=grid?grid.querySelectorAll(':scope > article.dm-hub-card'):[];
+   if(cards.length!==4)return;
+   const more=document.createElement('details');more.className='imp-hub-safety-more';
+   const summary=document.createElement('summary');
+   summary.textContent=safetyLabels[panel.getAttribute('data-hub-lang')]||safetyLabels.en;
+   more.append(summary,cards[3]);grid.insertAdjacentElement('afterend',more);
+ });
  const original=hero.querySelector('#dm-nov14-fast-rsvp');
  if(original)original.hidden=true;
  const info=document.createElement('section');info.id='imp-club-essentials';info.className='imp-essentials';
- info.innerHTML='<p class="imp-kicker"></p><h2></h2><div class="imp-facts"></div><div class="imp-quick-links"></div>';
+ info.innerHTML='<p class="imp-kicker"></p><details class="imp-first-visit"><summary></summary><div class="imp-facts"></div><div class="imp-quick-links"></div></details>';
  hero.insertAdjacentElement('afterend',info);
  function renderInfo(){
-  const d=t();info.querySelector('.imp-kicker').textContent=d.clubAbout;info.querySelector('h2').textContent=d.visiting;
+  const d=t();info.querySelector('.imp-kicker').textContent=d.clubTitle;
+  info.querySelector('.imp-first-visit > summary').textContent=d.clubAbout;
   info.querySelector('.imp-facts').replaceChildren();
   [[d.first,d.visitBody],[d.when,d.whenBody],[d.where,d.whereBody]].forEach(function(v){
     let card=document.createElement('div'),h=document.createElement('h3'),p=document.createElement('p');h.textContent=v[0];p.textContent=v[1];card.append(h,p);info.querySelector('.imp-facts').append(card);
@@ -98,6 +113,25 @@ if(club){
  function onLang(){render();renderInfo();extras.querySelector('summary').textContent=t().archive}
  new MutationObserver(onLang).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});onLang();
 }else{
+ // Retain the up-to-date event card, but collapse unconfirmed December
+ // proposals to a one-line optional section in the same position.
+ const proposals=document.getElementById('bw-december-proposals');
+ const proposalCopy={cs:'Prosincové výlety · návrhy, nikoliv potvrzené termíny',
+  en:'December hikes · proposals, not confirmed dates',
+  ru:'Декабрьские прогулки · предложения, даты не подтверждены',
+  uk:'Грудневі прогулянки · пропозиції, дати не підтверджено'};
+ let proposalDetails=null;
+ if(proposals&&proposals.tagName==='SECTION'){
+   proposalDetails=document.createElement('details');
+   proposalDetails.id='bw-december-proposals';
+   proposalDetails.className='imp-walkers-proposals';
+   const summary=document.createElement('summary');
+   proposalDetails.append(summary);
+   proposals.removeAttribute('id');
+   proposals.replaceWith(proposalDetails);
+   proposalDetails.append(proposals);
+   summary.textContent=proposalCopy[lang()]||proposalCopy.cs;
+ }
  const essentials=document.createElement('section');essentials.id='imp-walkers-essentials';essentials.className='imp-essentials';
  essentials.innerHTML='<p class="imp-kicker"></p><h2></h2><p></p><div class="imp-quick-links"></div>';
  hero.insertAdjacentElement('afterend',essentials);
@@ -110,7 +144,9 @@ if(club){
     if(item&&!item.contains(hero)&&!item.contains(essentials)&&!item.contains(archives))archive.append(item);
  });
  function onLang(){
-  const d=t();render();essentials.querySelector('.imp-kicker').textContent=d.walkAbout;essentials.querySelector('h2').textContent=d.walkTitle;
+  const d=t();render();
+  if(proposalDetails)proposalDetails.querySelector('summary').textContent=proposalCopy[lang()]||proposalCopy.cs;
+  essentials.querySelector('.imp-kicker').textContent=d.walkAbout;essentials.querySelector('h2').textContent=d.walkTitle;
   essentials.querySelector('p:not(.imp-kicker)').textContent=d.walkNote;
   archives.querySelector('summary').textContent=d.archive;
   const links=essentials.querySelector('.imp-quick-links');links.replaceChildren();

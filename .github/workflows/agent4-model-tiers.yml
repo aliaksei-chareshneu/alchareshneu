@@ -1,0 +1,38 @@
+name: Agent4 stronger model policy (public Groq 120B / private local)
+on:
+  pull_request:
+    paths:
+      - 'ops/imperion-social-sales-routing.cjs'
+      - 'ops/agent4_model_tiers.py'
+      - 'tests/imperion-social-sales-routing.test.cjs'
+      - 'tests/test_agent4_model_tiers.py'
+      - 'ops/install-agent4-model-tiers.py'
+      - '.github/workflows/agent4-model-tiers.yml'
+  push:
+    paths:
+      - 'ops/imperion-social-sales-routing.cjs'
+      - 'ops/agent4_model_tiers.py'
+      - 'tests/imperion-social-sales-routing.test.cjs'
+      - 'tests/test_agent4_model_tiers.py'
+      - 'ops/install-agent4-model-tiers.py'
+      - '.github/workflows/agent4-model-tiers.yml'
+permissions:
+  contents: read
+jobs:
+  fail-closed-routing:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Existing Agent3/4 route blocks private data leaks
+        run: node --test tests/imperion-social-sales-routing.test.cjs
+      - name: Public Groq120B vs private Qwen CPU and invalid input guards
+        run: python -m unittest discover -s tests -p 'test_agent4_model_tiers.py' -q
+      - name: Verify protected owner-PC install script is valid Python
+        run: python -m py_compile ops/install-agent4-model-tiers.py

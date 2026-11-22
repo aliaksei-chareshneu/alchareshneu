@@ -48,6 +48,28 @@ function impDate_(v){
   if(!v)return '';
   var d=new Date(v);return isFinite(d.getTime())?d:'';
 }
+/** Convert Google Sheets getValues() dates without treating sheet serial days as Unix ms.
+ * Numeric serials use the Sheets epoch 1899-12-30. Since a local sheet time has
+ * no timezone, UTC interpretation is conservative for Europe/Prague expiry
+ * (it can purge one/two hours late, never earlier). Unknown inputs fail closed.
+ */
+function impSheetStoredDate_(v){
+  if(v instanceof Date)return isFinite(v.getTime())?v:null;
+  if(typeof v==='number'){
+    if(!isFinite(v)||v<36526||v>73050)return null; // 2000-01-01 ... 2100-01-01
+    var fromSerial=new Date(Date.UTC(1899,11,30)+Math.round(v*86400000));
+    return isFinite(fromSerial.getTime())?fromSerial:null;
+  }
+  if(typeof v==='string'){
+    var s=v.trim();
+    // Only unambiguous ISO timestamps. A locale-formatted or empty value
+    // requires owner review; it must never cause premature erasure.
+    if(!/^\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}(?::\d{2}(?:\.\d{1,3})?)?(?:Z|[+-]\d{2}:\d{2}))?$/.test(s))return null;
+    var parsed=new Date(s);
+    return isFinite(parsed.getTime())?parsed:null;
+  }
+  return null;
+}
 function impExisting_(sheet,col){
   var n=sheet.getLastRow(),seen={};
   if(n>1)sheet.getRange(2,col,n-1,1).getDisplayValues().forEach(function(r){
@@ -109,7 +131,8 @@ function impAppendOrelSource_(ss,r){
 function impEnsureRsvpPaymentCols_(sh){
  var h=impHeader_(sh);
  var required=['Requested_Tier','Quoted_Tier','Personal_Approval_At','Quoted_Base_CZK','Late_Fee_CZK',
-  'Quoted_Total_CZK','Quoted_Group_Size','Late_48h','Payment_Evidence_Status','Payment_Proof_Received_At'];
+  'Quoted_Total_CZK','Quoted_Group_Size','Late_48h','Payment_Evidence_Status','Payment_Proof_Received_At',
+  'Bank_Verified_At','Bank_Review_Code','PDF_Review_Status','Owner_Bank_Check','Proof_Alert_Status','Proof_Alert_Sent_At'];
  var missing=required.filter(function(k){return h.map[k]===undefined;});
  if(missing.length){
   var last=sh.getLastColumn();
@@ -123,7 +146,8 @@ function impEnsureRsvpPaymentCols_(sh){
  * Do not overwrite earlier consents, identities or manually verified bank status.
  */
 function impUpdateExistingRsvpProof_(sh,h,r){
- if(r.payment_evidence_status!=='PROOF_RECEIVED')return;
+ var verified=r.payment_evidence_status==='BANK_VERIFIED'&&!!r.bank_verified_at;
+ if(!verified&&r.payment_evidence_status!=='PROOF_RECEIVED')return;
  var keys={
   Requested_Tier:r.training_requested_tier||'',
   Quoted_Tier:r.quoted_tier||'',
@@ -133,8 +157,13 @@ function impUpdateExistingRsvpProof_(sh,h,r){
   Quoted_Total_CZK:r.quoted_total_czk||'',
   Quoted_Group_Size:r.quoted_confirmed_count||'',
   Late_48h:r.quoted_late_48h===true?'YES':'NO',
-  Payment_Evidence_Status:'PROOF_RECEIVED',
+  Payment_Evidence_Status:verified?'BANK_VERIFIED':'PROOF_RECEIVED',
   Payment_Proof_Received_At:impDate_(r.payment_evidence_received_at),
+  Bank_Review_Code:r.fio_bank_review_code||'',
+  PDF_Review_Status:r.payment_pdf_review_status||'REVIEW_PENDING',
+  Owner_Bank_Check:verified?'BANK_VERIFIED':'CHECK_BANK_CREDIT',
+  ...(r.payment_variable_symbol?{Payment_Reference:r.payment_variable_symbol}:{}),
+  ...(verified?{Bank_Verified_At:impDate_(r.bank_verified_at),Payment_Status:'VERIFIED'}:{})
  };
  var col=h.map.Submission_ID+1,last=sh.getLastRow(),id=String(r.id||'');
  if(last<2)return;
@@ -147,7 +176,10 @@ function impUpdateExistingRsvpProof_(sh,h,r){
    sh.getRange(row,h.map[key]+1).setValue(impText_(keys[key]));
    if(keys[key] instanceof Date)sh.getRange(row,h.map[key]+1).setNumberFormat('dd.mm.yyyy hh:mm');
   });
-  if(sh.getRange(row,h.map.Payment_Evidence_Status+1).getDisplayValue()!=='PROOF_RECEIVED')
+  if(!verified&&h.map.Proof_Alert_Status!==undefined &&
+     !sh.getRange(row,h.map.Proof_Alert_Status+1).getDisplayValue())
+    sh.getRange(row,h.map.Proof_Alert_Status+1).setValue('PENDING');
+  if(sh.getRange(row,h.map.Payment_Evidence_Status+1).getDisplayValue()!==keys.Payment_Evidence_Status)
    throw Error('Payment proof CRM readback failed');
   return;
  }
@@ -157,7 +189,7 @@ function impWriteRsvps_(ss,items,events){
   var sh=ss.getSheetByName('Registrations');if(!sh)throw Error('Missing Registrations');
   var h=(items||[]).some(function(r){return r&&Object.prototype.hasOwnProperty.call(r,'discovery_source');})?
    impEnsureRsvpAttribution_(sh):impHeader_(sh);
-  if((items||[]).some(function(r){return r && (r.payment_evidence_status==='PROOF_RECEIVED' ||
+  if((items||[]).some(function(r){return r && (['PROOF_RECEIVED','BANK_VERIFIED'].includes(r.payment_evidence_status) ||
     /^PUB-HEMA-/.test(String(r.event_id||'')));}))
    h=impEnsureRsvpPaymentCols_(sh);
   if(h.map.Submission_ID===undefined)throw Error('Missing Submission_ID');
@@ -171,7 +203,8 @@ function impWriteRsvps_(ss,items,events){
       if(!Object.prototype.hasOwnProperty.call(states,intent))throw Error('Invalid public RSVP intent');
       var event=events&&events[String(r.event_id||'')];
       var isFree=!!(event&&event.price_verified===true&&Number(event.price_czk)===0);
-      var paymentStatus=(intent==='NO'||isFree)?'NOT_REQUIRED':'PENDING';
+      var bankVerified=r.payment_evidence_status==='BANK_VERIFIED'&&!!r.bank_verified_at;
+      var paymentStatus=(intent==='NO'||isFree)?'NOT_REQUIRED':(bankVerified?'VERIFIED':'PENDING');
       impAppend_(sh,h,{
         Reg_ID:'WEB-'+id,Event_ID:r.event_id||'',Timestamp:impDate_(r.created_at),
         Full_Name:[r.first_name,r.last_name].filter(Boolean).join(' '),
@@ -184,6 +217,7 @@ function impWriteRsvps_(ss,items,events){
         Retention_Until:impDate_(r.retention_until),Submission_ID:id,
         RSVP_Status:states[intent],RSVP_Status_At:impDate_(r.created_at),
         Payment_Status:paymentStatus,
+        Payment_Reference:r.payment_variable_symbol||'',
         Reply_Contact:r.email||r.phone||'',
         Source_Channel:'WEBSITE_RSVP_SUPABASE_UNCONFIRMED',
         Email:r.email||'',First_Name:r.first_name||'',Last_Name:r.last_name||'',
@@ -203,11 +237,16 @@ function impWriteRsvps_(ss,items,events){
         Late_48h:r.quoted_late_48h===true?'YES':'NO',
         Payment_Evidence_Status:r.payment_evidence_status||'NOT_REQUIRED',
         Payment_Proof_Received_At:impDate_(r.payment_evidence_received_at),
+        Bank_Verified_At:impDate_(r.bank_verified_at),
+        Bank_Review_Code:r.fio_bank_review_code||'',
+        PDF_Review_Status:r.payment_pdf_review_status||'',
+        Owner_Bank_Check:r.payment_evidence_status==='PROOF_RECEIVED'?'CHECK_BANK_CREDIT':'',
+        Proof_Alert_Status:r.payment_evidence_status==='PROOF_RECEIVED'?'PENDING':'',
         Receipt_Status:'PENDING',Receipt_Attempts:0,Receipt_Locale:r.language||'cs'
       });
       existing[id]=true;added++;
       try{impAppendOrelSource_(ss,r);}catch(e){console.error('Orel source mirror unavailable');}
-    }else if(r.payment_evidence_status==='PROOF_RECEIVED'){
+    }else if(['PROOF_RECEIVED','BANK_VERIFIED'].includes(r.payment_evidence_status)){
       impUpdateExistingRsvpProof_(sh,h,r);
     }
     ids.push(id);
@@ -529,12 +568,32 @@ function impReceiptMessage_(kind,row,m,events){
     if(isFinite(d.getTime()))parts.push(w[4]+': '+Utilities.formatDate(d,'Europe/Prague','dd.MM.yyyy HH:mm'));
    }
   }
-  if(e&&e.venue)parts.push(w[5]+': '+String(e.venue).slice(0,200));
+  // The regular Druzina meeting point is fixed; never reproduce an outdated
+  // "(place unverified)" catalog hint in transactional HEMA receipts.
+  var knownTraining=/^PUB-HEMA-\d{8}$/.test(v('Event_ID'));
+  if(knownTraining){
+    var meeting={
+     cs:'Sraz: Dukelská třída 157/44, Brno; trénink: Nová Zbrojovka, Brno.',
+     en:'Meeting: Dukelská třída 157/44, Brno; training: Nová Zbrojovka, Brno.',
+     ru:'Сбор: Dukelská třída 157/44, Brno; тренировка: Nová Zbrojovka, Brno.',
+     uk:'Збір: Dukelská třída 157/44, Brno; тренування: Nová Zbrojovka, Brno.'
+    };
+    parts.push(meeting[lang]||meeting.cs);
+    if(v('Requested_Tier')==='STARTER4'){
+      var pack={
+       cs:'Požadovaný balíček: Starter4, 4 návštěvy; 240 Kč za jednu návštěvu není cenou balíčku.',
+       en:'Requested package: Starter4, four visits; 240 Kč for a single visit is not the package price.',
+       ru:'Выбран Starter4, четыре посещения; 240 Kč за разовое посещение — не цена пакета.',
+       uk:'Обрано Starter4, чотири відвідування; 240 Kč за один візит — не ціна пакета.'
+      };
+      parts.push(pack[lang]||pack.cs);
+    }
+  }else if(e&&e.venue)parts.push(w[5]+': '+String(e.venue).slice(0,200));
   var paidQuote=Number(v('Quoted_Total_CZK'));
   if(v('Payment_Evidence_Status')==='PROOF_RECEIVED'&&paidQuote>0)
     parts.push(w[6]+': '+paidQuote+' Kč (PDF received for review; bank not verified)');
   else if(e&&e.price_verified===true&&Number.isInteger(e.price_czk)&&
-       !e.trainingPayment)parts.push(w[6]+': '+e.price_czk+' Kč');
+       !e.trainingPayment && !(knownTraining&&v('Requested_Tier')==='STARTER4'))parts.push(w[6]+': '+e.price_czk+' Kč');
   var rulesUrl=e&&String(e.rules_url||'')||'';
   if(!/^https:\/\/aliaksei-chareshneu\.github\.io\/alchareshneu\//.test(rulesUrl))
    rulesUrl='https://aliaksei-chareshneu.github.io/alchareshneu/register/safety/';
@@ -579,7 +638,15 @@ function impReceiptMessage_(kind,row,m,events){
     }
   }
   sender=v('Data_Controller').includes('Aliaksei Chareshneu')?'Aliaksei Chareshneu (OSVČ)':'Družina Moravy';
-  parts.push(w[8]);
+  if(knownTraining){
+    var note={
+     cs:'Vaše registrace je zaznamenána. Nepotřebujete druhou registraci; individuální stav účasti a platby se řídí již dohodnutými podmínkami.',
+     en:'Your registration is recorded. No second registration is needed; your individual attendance and payment follow the terms already agreed.',
+     ru:'Ваша заявка зарегистрирована. Повторная заявка не нужна; участие и оплата — по уже согласованным условиям.',
+     uk:'Вашу заявку зареєстровано. Повторна заявка не потрібна; участь та оплата — за погодженими умовами.'
+    };
+    parts.push(note[lang]||note.cs);
+  }else parts.push(w[8]);
  }else if(kind==='TRAINING'){
   id=v('Request_ID');if(!/^ENQ-[0-9a-f-]{36}$/i.test(id))return null;
   label='Družina Moravy HEMA';
@@ -955,12 +1022,102 @@ function impFlushOwnerDigest_(cfg,ss,events){
   }
 }
 
+/** Exactly-once-attempt owner alert for each new payment PDF. Bank status remains
+ * PENDING until the owner independently checks the correct seller account.
+ * No PDF, account number, payer details or public evidence link is emailed.
+ * A crash after MailApp accepts an email is not retried blindly.
+ */
+function impSendProofReviewAlerts_(ss,cfg){
+ var sh=ss.getSheetByName('Registrations');if(!sh)
+   return {sent:0,uncertain:0,blocked:0};
+ var h=impEnsureRsvpPaymentCols_(sh),m=h.map;
+ if(sh.getLastRow()<2)return {sent:0,uncertain:0,blocked:0};
+ var required=['Submission_ID','Event_ID','Payment_Evidence_Status','PDF_Review_Status',
+   'Owner_Bank_Check','Proof_Alert_Status','Proof_Alert_Sent_At','Payment_Status'];
+ if(required.some(function(k){return m[k]===undefined;}))
+   throw Error('Missing proof-review columns; do not silently lose alerts');
+ var n=sh.getLastRow()-1,rows=sh.getRange(2,1,n,sh.getLastColumn()).getDisplayValues();
+ var quota=Math.max(0,MailApp.getRemainingDailyQuota()-1),limit=Math.min(15,quota);
+ var sent=0,uncertain=0,blocked=0;
+ for(var i=0;i<rows.length;i++){
+  var row=rows[i],value=function(k){return String(row[m[k]]||'').trim();};
+  if(value('Payment_Evidence_Status')!=='PROOF_RECEIVED'||
+     value('Owner_Bank_Check')!=='CHECK_BANK_CREDIT')continue;
+  if(value('Proof_Alert_Status')==='DISPATCH_STARTED'){
+    sh.getRange(i+2,m.Proof_Alert_Status+1).setValue('DELIVERY_UNCERTAIN');
+    uncertain++;continue;
+  }
+  if(value('Proof_Alert_Status')!=='PENDING')continue;
+  if(sent>=limit){blocked++;continue;}
+  var id=value('Submission_ID');
+  if(!/^[a-f0-9-]{36}$/i.test(id)){blocked++;continue;}
+  var eventId=value('Event_ID').replace(/[^A-Za-z0-9-]/g,'').slice(0,75);
+  var review=value('PDF_Review_Status');
+  var plausible=review==='MATCHED_UNVERIFIED';
+  var title=plausible?'PDF выглядит правдоподобно':'PDF требует проверки реквизитов';
+  var mailTitle='[Imperion PDF] '+title+' — '+eventId;
+  var body=[
+    'Поступил банковский PDF для заявки на мероприятие '+eventId+'.',
+    'Техническая проверка документа: '+(review||'REVIEW_PENDING')+'.',
+    plausible?'Поля в PDF предварительно совпали с заявкой. Это НЕ доказательство подлинности и оплаты.':
+      'В PDF не все поля удалось подтвердить. Документ и банковский счёт надо проверить вручную.',
+    'Действие: открыть банковский счёт правильного продавца, подтвердить фактическое зачисление и идентификатор.',
+    'В CRM пока остаётся Payment_Status=PENDING и Owner_Bank_Check=CHECK_BANK_CREDIT.',
+    'Исходный PDF хранится в закрытом хранилище сайта, не в этом письме.',
+    'Заявка (приватная таблица): '+impOwnerDigestRowUrl_(cfg,ss,'Registrations',i+2),
+    'Submission_ID: '+id
+  ].join('\n');
+  // Persist attempt marker before sending: never generate duplicate owner mail
+  // if the script crashes immediately after the provider accepts the email.
+  sh.getRange(i+2,m.Proof_Alert_Status+1).setValue('DISPATCH_STARTED');
+  SpreadsheetApp.flush();
+  try{
+    MailApp.sendEmail({to:cfg.email,subject:mailTitle,body:body});
+    sh.getRange(i+2,m.Proof_Alert_Sent_At+1).setValue(new Date());
+    sh.getRange(i+2,m.Proof_Alert_Status+1).setValue('SENT_TO_PROVIDER');
+    sent++;
+  }catch(e){
+    sh.getRange(i+2,m.Proof_Alert_Status+1).setValue('DELIVERY_UNCERTAIN');
+    uncertain++;
+    console.error('PDF owner notification not verified; review the same CRM row');
+  }
+ }
+ return {sent:sent,uncertain:uncertain,blocked:blocked};
+}
+
+/** Limited retries for Google backend faults in READ-ONLY startup calls.
+ * No retries for imports, CRM writes, outbound mail, ACKs, or side effects.
+ * The existing five-minute owner trigger remains the outer recovery path.
+ */
+function impStartupReadWithRetry_(operation){
+  var delays=[0,500,1500];
+  for(var attempt=0;attempt<delays.length;attempt++){
+    if(attempt)Utilities.sleep(delays[attempt]);
+    try{return operation();}
+    catch(e){
+      var message=String(e&&e.message||e||'');
+      var temporary=/Service Spreadsheets (?:failed|timed out) while accessing document|server error occurred|server not available|Error code INTERNAL/i.test(message);
+      if(!temporary||attempt===delays.length-1)throw e;
+      console.warn('IMPERION intake startup: transient Google backend failure, retry '+(attempt+1)+'/'+(delays.length-1));
+    }
+  }
+}
+
 /** Run manually once first, then enable owner-created time triggers. */
 function imperionSyncPrivateIntake(){
   var lock=LockService.getScriptLock();
   if(!lock.tryLock(12000))throw Error('Another intake run is already in progress');
   try{
-    var cfg=impPrivateConfig_(),ss=SpreadsheetApp.openById(cfg.sheetId);
+    var cfg=impStartupReadWithRetry_(function(){return impPrivateConfig_();}),
+        ss=impStartupReadWithRetry_(function(){return SpreadsheetApp.openById(cfg.sheetId);});
+    // Reuse this lock and timer. Optional private modules are never installed here.
+    // Agent4 transport failure must not prevent website/Academy intake.
+    var agent4={status:'NOT_INSTALLED',imported:0,acked:0,held:0};
+    if(typeof impAgent4CrmPull_==='function'){
+      try{agent4=impAgent4CrmPull_(cfg,ss);}
+      catch(_){agent4={status:'HELD',imported:0,acked:0,held:1};
+        console.warn('Agent4 metadata pull held; existing website intake continues');}
+    }
     ['Registrations','Druzina_Requests','Leads'].forEach(function(n){impEnsureReceiptCols_(ss.getSheetByName(n));});
     var addedR=0,addedE=0,addedB=0,addedA=0,processed=0;
     // One safe public price lookup; never infer paid status from a blank/unknown fee.
@@ -986,12 +1143,13 @@ function imperionSyncPrivateIntake(){
     }
     // Retry a previously failed digest even if this run has no new rows.
     impFlushOwnerDigest_(cfg,ss,events);
+    var proofAlerts=impSendProofReviewAlerts_(ss,cfg);
     var receipts=impSendReceiptQueue_(ss,cfg,events);
     var followups=impSendAttendedFollowups_(ss,cfg);
     var chatInvites=impSendApprovedChatInvites_(ss,cfg);
     console.log('Private intake receipts: dispatched='+receipts.sent+', errors='+receipts.failed);
     console.log('Private intake: new RSVP='+addedR+', enquiries='+addedE+', corporate OSVC='+addedB+', Academy OSVC='+addedA+', acked='+processed);
-    return {newRsvps:addedR,newEnquiries:addedE,newB2B:addedB,newAcademy:addedA,acked:processed,receipts:receipts,followups:followups,chatInvites:chatInvites};
+    return {agent4:agent4,newRsvps:addedR,newEnquiries:addedE,newB2B:addedB,newAcademy:addedA,acked:processed,proofAlerts:proofAlerts,receipts:receipts,followups:followups,chatInvites:chatInvites};
   }finally{lock.releaseLock();}
 }
 
@@ -1095,8 +1253,8 @@ function imperionCleanupPrivateIntake(){
     rows.forEach(function(x,i){
       var source=String(x[m.Source_Channel]||'');
       if(!/^WEBSITE_RSVP_SUPABASE_/.test(source)||source.endsWith('_PURGED'))return;
-      var date=x[m.Retention_Until] instanceof Date?x[m.Retention_Until]:new Date(x[m.Retention_Until]);
-      if(!isFinite(date.getTime())||date>now)return;
+      var date=impSheetStoredDate_(x[m.Retention_Until]);
+      if(!date||date>now)return;
       privateCols.forEach(function(n){if(m[n]!==undefined)r.getRange(i+2,m[n]+1).clearContent()});
       r.getRange(i+2,m.Source_Channel+1).setValue('WEBSITE_RSVP_SUPABASE_PURGED');
       cleared++;
@@ -1110,8 +1268,8 @@ function imperionCleanupPrivateIntake(){
     lines.forEach(function(x,i){
       if(!String(x[em.Request_ID]||'').startsWith('ENQ-')||
          String(x[em.Processing_Status])==='EXPIRED_ANONYMIZED')return;
-      var date=x[em.Timestamp] instanceof Date?x[em.Timestamp]:new Date(x[em.Timestamp]);
-      if(!isFinite(date.getTime())||date.getTime()+90*86400000>now.getTime())return;
+      var date=impSheetStoredDate_(x[em.Timestamp]);
+      if(!date||date.getTime()+90*86400000>now.getTime())return;
       cols.forEach(function(n){if(em[n]!==undefined)e.getRange(i+2,em[n]+1).clearContent()});
       e.getRange(i+2,em.Processing_Status+1).setValue('EXPIRED_ANONYMIZED');
       cleared++;
@@ -1133,8 +1291,8 @@ function imperionCleanupPrivateIntake(){
       if(String(x[lm.Action_Status])===purgeStatus)return;
       // A paid or legally meaningful contract must be reviewed, not auto-deleted.
       if(['New','Lost'].indexOf(String(x[lm.Stage]))<0)return;
-      var date=x[lm.Retention_Until] instanceof Date?x[lm.Retention_Until]:new Date(x[lm.Retention_Until]);
-      if(!isFinite(date.getTime())||date>now)return;
+      var date=impSheetStoredDate_(x[lm.Retention_Until]);
+      if(!date||date>now)return;
       ['Full_Name','Email','Phone_Number','Subject_Goal','Notes'].forEach(function(name){
         if(lm[name]!==undefined)leads.getRange(i+2,lm[name]+1).clearContent();
       });
@@ -1165,3 +1323,36 @@ function imperionInstallPrivateIntake(){
     ScriptApp.newTrigger('imperionCleanupPrivateIntake').timeBased().everyDays(1).atHour(4).create();
   return {installed:true,importerCreated:importers.length===0,retentionCreated:cleanups.length===0};
 }
+
+/** Read-only diagnostic retained from the active 15 Nov Community Hub project.
+ * Never ack, delete, send, or alter contacts during readiness inspection.
+ */
+function imperionPrivateIntakeReadiness(){
+ var result={sheetMatchesCanonical:false,paymentHeadersReady:false,bridgeKeyConfigured:false,notifyEmailConfigured:false,triggerCheckAvailable:false,importerTriggersVisible:null,cleanupTriggersVisible:null,bridgeReadOnlyOk:false,pendingCounts:null};
+ var p=PropertiesService.getScriptProperties();
+ var sheetId=p.getProperty('IMPERION_CRM_SHEET_ID')||(typeof SPREADSHEET_ID!=='undefined'?SPREADSHEET_ID:'');
+ result.sheetMatchesCanonical=sheetId==='1igxEHQ7wFFCoCA9lg4kzT2OoMrVLgbBogfqTxGeUftY';
+ result.bridgeKeyConfigured=/^[a-f0-9]{64}$/i.test(p.getProperty('IMPERION_INTAKE_BRIDGE_KEY')||'');
+ result.notifyEmailConfigured=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(p.getProperty('IMPERION_NOTIFY_EMAIL')||'');
+ try{
+  var sh=SpreadsheetApp.openById(sheetId).getSheetByName('Registrations');
+  if(sh){var m=impHeader_(sh).map; result.paymentHeadersReady=['Requested_Tier','Quoted_Tier','Personal_Approval_At','Quoted_Base_CZK','Late_Fee_CZK','Quoted_Total_CZK','Quoted_Group_Size','Late_48h','Payment_Evidence_Status','Payment_Proof_Received_At'].every(function(k){return m[k]!==undefined});}
+ }catch(e){}
+ try{
+  var triggers=ScriptApp.getProjectTriggers();
+  result.triggerCheckAvailable=true;
+  result.importerTriggersVisible=triggers.filter(function(t){return t.getHandlerFunction()==='imperionSyncPrivateIntake'}).length;
+  result.cleanupTriggersVisible=triggers.filter(function(t){return t.getHandlerFunction()==='imperionCleanupPrivateIntake'}).length;
+ }catch(e){}
+ if(result.bridgeKeyConfigured&&result.notifyEmailConfigured&&result.sheetMatchesCanonical){
+  try{
+   var batch=impPrivateFetch_(impPrivateConfig_(),null);
+   result.bridgeReadOnlyOk=batch.ok===true&&batch.protocol==='imperion-intake-bridge-v1';
+   if(result.bridgeReadOnlyOk)result.pendingCounts={rsvps:batch.rsvps.length,enquiries:batch.enquiries.length,b2b:batch.b2b.length};
+  }catch(e){}
+ }
+ console.log('IMPERION_INTAKE_READINESS '+JSON.stringify(result));
+ return result;
+}
+
+// IMPERION 2026-11-13: canonical intake module; duplicate FioDruzinaConsole archived offline.

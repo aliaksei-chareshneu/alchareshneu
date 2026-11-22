@@ -13,6 +13,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Build and test isolated Druzina visual upgrades
+        run: |
+          npm --prefix site-viz install --no-audit --no-fund
+          npm --prefix site-viz run build
+          npm --prefix site-viz test
+
+      - name: Verify PDF-only owner review and four-language upload flow
+        run: |
+          node --check register/training-payment.js
+          node --check tests/paid-event-pdf-owner-notify.test.cjs
+          node --test tests/paid-event-pdf-owner-notify.test.cjs
+          node --test tests/druzina-unified-payment.test.cjs
+          node --test tests/osvc-raiffeisen-bank.test.cjs
+
       - name: Verify required public pages
         shell: bash
         run: |
@@ -38,7 +52,7 @@ jobs:
           test -f register/uk/index.html
           test -f supabase/functions/imperion-register/index.ts
 
-      - name: Verify SEO/AEO entity split and buyer-answer content
+      - name: Verify SEO/AEO legal-entity split and buyer answers
         run: node --test tests/seo-aeo-identity.test.cjs
 
       - name: Verify price audit source and script syntax before unrelated CI gates
@@ -102,14 +116,17 @@ jobs:
           node --test tests/imperion-registration-window.test.cjs
 
       - name: Verify individual Druzina prices, private quote, 48h surcharge and PDF receipts
-        run: node --test tests/druzina-unified-payment.test.cjs
+        run: node --test tests/druzina-unified-payment.test.cjs tests/druzina-pdf-proof-review.test.mjs tests/druzina-fio-automation.test.mjs
+
+      - name: Smoke-test deployed Druzina registration API without writes
+        run: node --test tests/imperion-register-live-smoke.test.mjs
 
       - name: Verify compliant Welcome Engine and safe Telegram webhook attach
         run: node --test tests/imperion-welcome-engine.test.mjs tests/imperion-welcome-telegram-attach.test.mjs
 
       - name: Verify CRM-only transactional receipt queue and retries
         run: |
-          node --test tests/imperion-intake-bridge-source.test.cjs
+          node --test tests/imperion-intake-bridge-source.test.cjs tests/imperion-intake-transient-retry.test.cjs tests/imperion-gas-intake-safe-deploy.test.cjs
           node --test tests/imperion-receipt-mailer.test.cjs
           node --test tests/imperion-academy-crm-bridge.test.cjs
 
@@ -128,6 +145,11 @@ jobs:
       - name: Verify private five-agent safety and proof logic
         run: |
           node --test tests/imperion-agent-snapshot.test.cjs tests/imperion-agent-team.test.cjs tests/imperion-growth-policy.test.cjs tests/imperion-closed-loop-audit.test.cjs tests/imperion-proof-auditor.test.cjs tests/imperion-agent-runtime.test.cjs
+      - name: Verify Social & Sales model switching, lawful CRM routing and receipts (NO provider calls)
+        run: node --test tests/imperion-social-sales-routing.test.cjs
+      - name: Verify read-only retention owner queue, no contact or bank reads
+        run: node --test tests/imperion-client-care.test.cjs
+
       - name: Verify scoped SocialPublisher and ShortFactory adapters (NO provider calls)
         run: node --test tests/social-publisher.test.cjs tests/social-community.test.cjs
 
@@ -191,6 +213,12 @@ jobs:
         run: timeout 240s npx playwright install chromium
       - run: npm run test:security
       - run: npm run test:dom
+      - name: Build isolated visual assets for Chromium QA
+        run: |
+          npm --prefix site-viz install --no-audit --no-fund
+          npm --prefix site-viz run build
+      - name: Run Druzina Motion Anime and Recharts browser regression
+        run: npx playwright test tests/druzina-viz.spec.cjs --workers=2
       - name: Verify site clarity v4 recurring calendar, reviews, Academy picker and partners
         run: npx playwright test tests/site-clarity-v4.spec.cjs --workers=2
       - name: Verify native Academy order, 55 reviews, About and 30-day calendar
@@ -199,6 +227,10 @@ jobs:
         run: npx playwright test tests/conversion-frontdoor.spec.cjs --workers=2
       - name: Test homepage v4 navigation, dual actions and city-aware timed event badges
         run: npx playwright test tests/frontdoor-v4-nav-calendar.spec.cjs --workers=2
+      - name: Verify visual-first landing cards, SVG icons, localized routes and no scroll overflow
+        run: npx playwright test tests/visual-first-20261116.spec.cjs --workers=2
+      - name: Verify 3 visitor paths, accessible More, and collapsed dated content (4 locales)
+        run: npx playwright test tests/site-three-paths-20261121.spec.cjs --workers=2
       - name: Check cinematic Czech-default homepage, event rail and payment disclosure
         run: npx playwright test tests/frontdoor-v5-cinematic-czech.spec.cjs --workers=2
       - name: Check sitewide cinematic rollout, accessible gold CTA and desktop vs mobile dialogs
@@ -209,7 +241,11 @@ jobs:
         run: npx playwright test tests/unified-shell.spec.cjs --workers=2
       - name: Verify no old-page flash, anchored header and four-language A2 quiz theme
         run: npx playwright test tests/imperion-finish-first-paint.spec.cjs --workers=2
-      - run: npm test
+      # The nine independent site suites above already run with scoped reports.
+      # A second full `npm test` repeated them and hit the job timeout; run
+      # the specific four-language QR/private-bank regression instead.
+      - name: Verify gated QR transfer in all four languages (synthetic only)
+        run: npx playwright test tests/druzina-approved-bank-qr.spec.cjs --workers=2
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -218,3 +254,41 @@ jobs:
             playwright-report/
             test-results/
           retention-days: 7
+
+  hema-rsvp-proof-smoke:
+    name: HEMA PDF single-RSVP browser smoke
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npx playwright install chromium
+      - name: Test single-registration PDF and private-code continuation
+        run: npx playwright test tests/druzina-fast-path.spec.cjs --grep 'One-screen already-paid|Existing RSVP uses private code' --workers=2
+
+  live-hema-form-browser:
+    name: Live HEMA RSVP + existing-transfer PDF read-only smoke
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npx playwright install chromium
+      - name: Read actual public HEMA date, meeting point and PDF selector (no submits)
+        run: npx playwright test tests/druzina-live-registration.spec.cjs --workers=1
+
+  ted-deal-hunter-offline-qa:
+    name: TED Deal Hunter — isolated public-only parser QA
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test lot-level deadline parsing and safe null-only backfill
+        run: node --test tests/imperion-deal-hunter.test.mjs

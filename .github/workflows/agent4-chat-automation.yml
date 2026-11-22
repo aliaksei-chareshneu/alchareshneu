@@ -1,0 +1,26 @@
+name: Agent4 Chat Automation - no-send checks
+on:
+  pull_request:
+    paths:
+      - 'ops/agent4_business_connection.py'
+      - 'ops/install-agent4-chat-automation.py'
+      - 'tests/test_agent4_chat_automation.py'
+      - '.github/workflows/agent4-chat-automation.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  safety:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile
+        run: |
+          python -m py_compile ops/agent4_business_connection.py
+          python -m py_compile ops/install-agent4-chat-automation.py
+      - name: Fail-closed, idempotency, no-send and receipt tests
+        run: python -B -m unittest discover -s tests -p 'test_agent4_chat_automation.py' -v

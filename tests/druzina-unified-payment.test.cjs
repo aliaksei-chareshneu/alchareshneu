@@ -21,6 +21,7 @@ function loadPrices(){
 const {trainingQuote,publicTrainingQuote}=loadPrices();
 const event={
  event_id:'PUB-HEMA-20261116',community:'Družina Moravy',category:'HEMA Training',
+ data_controller:'Družina Moravy, z. s.',
  price_czk:240,begins_at:'2026-11-16T17:00:00Z',is_open:true,source_active:true,
  price_verified:true,end_time_verified:true,registration_mode:'FORM',
  training_price_scheme:'INDIVIDUAL',training_payment_open:true,
@@ -54,6 +55,8 @@ test('public catalogue cannot expose banking details or present approved seat',(
  assert.deepEqual(q.tiers.map(x=>x.baseCzk),[240,120,800]);
  assert.equal(q.requiresPersonalConfirmation,true);
  assert.equal(q.proofRequired,false);
+ assert.equal(q.sessionPaymentOpen,false);
+ assert.equal(q.status,'AWAITING_ORGANIZER_GO');
  assert.ok(!JSON.stringify(q).includes('verified-bank-placeholder'));
  assert.equal(trainingQuote(event,'SENIOR',t0-72*3600000,false).account,null);
  assert.equal(trainingQuote(event,'SENIOR',t0-72*3600000,true).account,'verified-bank-placeholder');
@@ -66,8 +69,8 @@ test('the resume code enforces server-side tier approval and no duplicate intake
   ".eq('payment_evidence_status','NOT_REQUIRED').is('payment_pdf_path',null)",
   "payment_resume_token_hash:null","payment_crm_synced_at:null",
   "paymentEvidenceStatus:'PROOF_RECEIVED',bankVerified:false",
-  "verifiedQuote=trainingQuote(event,savedTier,registrationMs,true)",
-  ".select('id,created_at,training_requested_tier",
+  "verifiedQuote=isOsVc?osvcQuote(event,registrationMs,true,savedTier):trainingQuote(event,savedTier,registrationMs,true)",
+  ".select('id,created_at,data_controller,training_requested_tier",
   "Date.now()>=Date.parse(event.begins_at)"]){
   assert.ok(edge.includes(needle),needle);
  }
@@ -108,4 +111,63 @@ test('private receipt cleanup is controlled, not public file listing',()=>{
  assert.ok(source.includes('.storage.from(item.name).list(')&&source.includes('imperion-training-payment-proofs'));
  assert.ok(source.includes('.storage.from(item.name).remove(')&&source.includes('imperion-academy-payment-proofs'));
  assert.ok(!source.includes('getPublicUrl('));
+});
+
+test('Starter4 cannot be charged through a one-event RSVP without a package ledger',()=>{
+ assert.ok(edge.includes("if(savedTier==='STARTER4')return reply({error:'package_checkout_requires_plan_authorization'}"));
+});
+test('QR Platba instruction is unique, amount-locked, and cannot substitute bank readback',async()=>{
+ const path=require('node:path'),{pathToFileURL}=require('node:url');
+ const qr=await import(pathToFileURL(path.resolve('supabase/functions/imperion-register/training-qr.mjs')).href);
+ const domestic='19-2000145399/0800',iban='CZ6508000000192000145399';
+ assert.equal(qr.domesticIban(domestic),iban);
+ assert.equal(qr.domesticIban(iban),iban);
+ assert.equal(qr.domesticIban('CZ0008000000192000145399'),null);
+ assert.equal(qr.verifiedBankIban(domestic,'Fixture Association',iban,'Fixture Association'),iban);
+ assert.equal(qr.verifiedBankIban(domestic,'Wrong Merchant',iban,'Fixture Association'),null);
+ assert.equal(qr.verifiedBankIban(domestic,'Fixture Association',null,'Fixture Association'),null);
+ assert.equal(qr.verifiedBankIban(domestic,'Fixture Association',iban,null),null);
+ const one='11111111-1111-4111-8111-111111111111';
+ const two='22222222-2222-4222-8222-222222222222';
+ const spd=qr.createTrainingSpd(iban,240,one);
+ assert.match(spd,/^SPD\*1\.0\*ACC:CZ6508000000192000145399\*AM:240\.00\*CC:CZK\*MSG:DM /);
+ assert.ok(spd.includes(one.replace(/-/g,'').toUpperCase()));
+ assert.notEqual(spd,qr.createTrainingSpd(iban,240,two));
+ assert.equal(qr.createTrainingSpd(iban,0,one),null);
+ assert.equal(qr.createTrainingSpd(iban,240,'not-a-uuid'),null);
+ for(const check of ["Deno.env.get('OSVC_APPROVED_IBAN')",
+  "Deno.env.get('OSVC_APPROVED_PAYEE')",
+  "nonprofit_checkout_disabled",
+  "if(!spd)return reply({error:'approved_bank_not_configured'}","paymentReference:lookup.data.id,variableSymbol:vs,spd"])assert.ok(edge.includes(check),check);
+ assert.ok(!edge.includes('DRUZINA_APPROVED_IBAN'),'association account cannot be used for client-visible payments');
+ assert.ok(edge.includes('nonprofit_checkout_disabled'),'server refuses nonprofit bank instructions regardless of row state');
+ for(const page of pages){
+  const html=fs.readFileSync(page,'utf8');
+  assert.ok(html.includes('id="paymentQrArea"')&&html.includes('vendor/qrcode.min.js'),page);
+ }
+ assert.ok(ui.includes('renderApprovedQr')&&ui.includes('window.QRCode'));
+ const vendor=fs.readFileSync('register/vendor/qrcode.min.js','utf8');
+ const license=fs.readFileSync('register/vendor/LICENSE-qrcodejs.txt','utf8');
+ assert.ok(vendor.includes('QRCode')&&license.includes('MIT License'));
+});
+
+test('already-transferred PDF is private, manually reviewed, and excluded from bank automation',()=>{
+ for(const part of ["if(action==='manual_proof'){",
+   "if((isOsVc&&!isOsVcHema)||(!training&&!isOsVcHema)||!proof ||",
+   "payment_pdf_review_status:'NEEDS_MANUAL_REVIEW'",
+   "payment_pdf_review_flags:['NO_APPROVED_PAYMENT_QUOTE','RECIPIENT_SELF_REPORTED_'+proofRecipient]",
+   "payment_bank_check_after:null",
+   "payment_resume_token_hash:null,payment_crm_synced_at:null",
+   "paymentNotApproved:true,bankVerified:false",
+   ".eq('payment_resume_token_hash',hashed)"]) assert.ok(edge.includes(part),part);
+ assert.ok(ui.includes("async function uploadManualProof"));
+ assert.ok(ui.includes("action:'manual_proof'"));
+ assert.ok(edge.includes("const manualBucket=proofRecipient==='OSVC'?OSVC_PROOF_BUCKET:PROOF_BUCKET"));
+ assert.ok(edge.includes("proofRecipient=safeEnum(body.proofRecipient,['OSVC','DRUZINA'])"));
+ assert.ok(ui.includes('proofRecipient:'));
+
+ for(const path of pages){
+  const html=fs.readFileSync(path,'utf8');
+  assert.ok(html.includes('uploadManualProof('),path);
+ }
 });

@@ -58,7 +58,7 @@ for(const lang of ['cs','en','ru','uk']){
   await expect(page).toHaveURL(new RegExp('/academy/order/\\?lang='+lang));
   await expect(page.locator('#aoService')).toHaveValue('chemistry');
   await expect(page.locator('#aoVariant')).toHaveValue('v1');
-  await expect(page.locator('#aoPrice')).toContainText('690 Kč');
+  await expect(page.locator('#aoPrice')).toContainText('1 000 Kč');
   await expect(page.locator('#aoQuote')).toBeHidden();
   await expect(page.locator('#aoService option')).toHaveCount(17);
   await expect(page.locator('html')).toHaveAttribute('lang',lang);

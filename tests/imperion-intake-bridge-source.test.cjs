@@ -212,3 +212,50 @@ test('owner digest persists counts even without optional CRM details',()=>{
  assert.doesNotMatch(mails[0][2],/DRUŽINA MORAVY — zájem/);
  assert.doesNotMatch(mails[0][2],/REGISTRACE NA AKCE — nové/);
 });
+
+test('cleanup fails closed on raw Google Sheets date serials and preserves unexpired RSVP contacts',()=>{
+ const {impSheetStoredDate_}=new Function(gs+';return {impSheetStoredDate_};')();
+ const future=impSheetStoredDate_(46430.60416666667); // 12 Feb 2027 14:30 sheet-local
+ const now=new Date('2026-11-15T07:52:00+01:00');
+ assert.equal(future.toISOString().slice(0,16),'2027-02-12T14:30');
+ assert.ok(future>now,'unexpired registration cannot be anonymized in November');
+ assert.ok(future<new Date('2027-02-13T00:00:00Z'),'expiry is not infinite');
+ assert.equal(impSheetStoredDate_(new Date('2027-02-12T13:30:00Z')).toISOString(),
+   '2027-02-12T13:30:00.000Z');
+ assert.equal(impSheetStoredDate_('2027-02-12T13:30:00+00:00').toISOString(),
+   '2027-02-12T13:30:00.000Z');
+ for(const invalid of [null,'','12.02.2027 14:30',NaN,-1,0,90000,'nonsense'])
+   assert.equal(impSheetStoredDate_(invalid),null,'unknown expiry must not purge');
+ for(const id of ['m.Retention_Until','em.Timestamp','lm.Retention_Until'])
+   assert.ok(gs.includes('impSheetStoredDate_(x['+id+'])'),
+    'every cleanup branch must use strict sheet date parsing: '+id);
+ assert.doesNotMatch(gs,/new Date\(x\[(?:m\.Retention_Until|em\.Timestamp|lm\.Retention_Until)\]\)/,
+   'never mistake a Google Sheets serial day for Unix milliseconds');
+});
+
+
+test('HEMA receipts use fixed meeting point and never misprice Starter4 or order repeat RSVP',()=>{
+ const {impReceiptMessage_}=new Function(gs+';return {impReceiptMessage_};')();
+ const columns=['Email','Receipt_Locale','Submission_ID','Source_Channel','Event_ID','Requested_Tier','Age','RSVP_Status','Data_Controller'];
+ const m=Object.fromEntries(columns.map((k,i)=>[k,i]));
+ const row=['sample@example.org','cs','b6fcc114-d5b1-47f8-943d-faf46fbd0a0b','WEBSITE_RSVP_SUPABASE_UNCONFIRMED','PUB-HEMA-20261116','STARTER4','adult','REGISTERED','Družina Moravy'];
+ const events={'PUB-HEMA-20261116':{event_id:'PUB-HEMA-20261116',title:'HEMA training',category:'HEMA',community:'Družina Moravy',venue:'Nová Zbrojovka (точка не подтверждена)',price_verified:true,price_czk:240,trainingPayment:false}};
+ const msg=impReceiptMessage_('RSVP',row,m,events);
+ assert.ok(msg,'known training RSVP produces transactional receipt');
+ assert.match(msg.body,/Dukelská třída 157\/44/);
+ assert.match(msg.body,/Nová Zbrojovka/);
+ assert.doesNotMatch(msg.body,/точка не подтверждена/);
+ assert.doesNotMatch(msg.body,/Do té doby nejezděte a neplaťte/);
+ assert.match(msg.body,/Starter4/);
+ assert.doesNotMatch(msg.body,/Uvedená cena: 240 Kč/);
+ assert.match(msg.body,/Nemusíte vyplňovat formulář znovu/);
+});
+
+test('active Community Hub readiness diagnostic retained and integrations gated',()=>{
+ assert.match(gs,/function imperionPrivateIntakeReadiness\(\)/);
+ assert.match(gs,/getProjectTriggers\(\)/);
+ assert.match(gs,/bridgeReadOnlyOk/);
+ assert.match(gs,/'x-imperion-intake-academy':'v1'/);
+ assert.match(gs,/IMPERION_CHAT_INVITES_LIVE/);
+ assert.match(gs,/function impSendApprovedChatInvites_/);
+});
