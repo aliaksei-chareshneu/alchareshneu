@@ -28,9 +28,16 @@ function mockFree(){
  return {...mockEvent(null),event_id:'PUB-OREL-20301114',title:'FREE workshop',
   price_czk:0,trainingPayment:null};
 }
-async function mockApi(page,eventData=mockEvent(),onPost=()=>({
- ok:true,status:'RECEIVED',confirmed:false,resumeToken:'A'.repeat(43)
-})){
+async function mockApi(page,eventData=mockEvent(),onPost=request=>{
+ const body=JSON.parse(request.postData()||'{}');
+ if(body.action==='cart_submit')return {
+  ok:true,status:'RECEIVED_UNCONFIRMED',confirmed:false,bankVerified:false,
+  cartId:'12345678-1234-4234-8234-123456789abc',cartToken:'A'.repeat(43),
+  controller:'Družina Moravy, z. s.',references:[],
+  secrets:[{eventId:ID,resumeToken:'A'.repeat(43)}]
+ };
+ return {ok:true,status:'RECEIVED',confirmed:false,resumeToken:'A'.repeat(43)};
+}){
  let sent=[];
  await page.route('**/functions/v1/imperion-register',async route=>{
   const request=route.request();
@@ -79,6 +86,7 @@ for(const lang of languages){
   await expect(page.locator('html')).toHaveAttribute('lang',lang);
   await expect(page.locator('#rsvpForm')).toBeVisible();
   await expect(page.locator('#eventId')).toHaveValue(ID);
+  await page.locator('#checkoutPaymentDetails>summary').click();
   await expect(page.locator('#trainingPayment')).toBeVisible();
   await expect(page.locator('#paymentProofField')).toBeVisible();
   await expect(page.locator('#paymentProof')).not.toHaveAttribute('required','');
@@ -89,8 +97,8 @@ for(const lang of languages){
   await page.goto('/register/?lang='+lang+'&event='+ID);
  await openLegacyPayment(page);
   await expect(page.locator('#rsvpForm')).toBeVisible();
-  await expect(page.locator('#paymentProofField')).toBeVisible();
-  await expect(page.locator('#paymentProof')).not.toHaveAttribute('required','');
+  await expect(page.locator('#imperionMultiCart')).toBeVisible();
+
   await page.locator('#submit').click();
   expect(submitted).toHaveLength(0);
   await page.locator('#firstName').fill('Test');
@@ -101,10 +109,10 @@ for(const lang of languages){
   await page.locator('#submit').click();
   await expect(page.locator('#result')).toBeVisible();
   await expect(page.locator('#rsvpForm')).toBeHidden();
-  await expect(page.locator('#result input[readonly]')).toHaveValue('A'.repeat(43));
+  await expect(page.locator('#result .cart-codes')).toBeVisible();
   expect(submitted).toHaveLength(1);
   const body=JSON.parse(submitted[0].postData());
-  expect(body).toMatchObject({eventId:ID,firstName:'Test',lastName:'Visitor',
+  expect(body).toMatchObject({action:'cart_submit',eventIds:[ID],firstName:'Test',lastName:'Visitor',
     email:'example@example.invalid',rsvp:'YES',ageGroup:'adult',safety:true,language:lang});
   expect(body).not.toHaveProperty('payment');
   expect(body).not.toHaveProperty('quotedTotalCzk');
@@ -141,6 +149,7 @@ test('Approved quote alone reveals bank details; unverified PDF stays manual',as
  await expect(page.locator('#paymentProofField')).toBeVisible();
  await expect(page.locator('#paymentProof')).not.toHaveAttribute('required','');
  await expect(page.locator('#paymentQrArea')).toBeHidden();
+ await page.locator('#checkoutPaymentDetails>summary').click();
  await page.locator('#firstName').fill('Test');
  await page.locator('#lastName').fill('Visitor');
  await page.locator('#email').fill('example@example.invalid');
@@ -180,6 +189,7 @@ test('One-screen already-paid PDF is attached to newly created RSVP, not a secon
  });
  await page.goto('/register/?lang=en&event='+ID);
  await openLegacyPayment(page);
+ await page.locator('#checkoutPaymentDetails>summary').click();
  await page.locator('#firstName').fill('Test');
  await page.locator('#lastName').fill('Visitor');
  await page.locator('#email').fill('example@example.invalid');
@@ -200,7 +210,7 @@ test('One-screen already-paid PDF is attached to newly created RSVP, not a secon
  expect(requests[1].postData()).toContain('OSVC');
  expect(requests[1].postData()).toContain('prior-transfer.pdf');
  await expect(page.locator('#result')).toContainText('PDF');
- await expect(page.locator('#result input[readonly]')).toHaveValue('A'.repeat(43));
+ await expect(page.locator('#result')).toContainText('PDF');
  await expect(page.locator('#result')).not.toContainText('bank verified');
 });
 
@@ -213,6 +223,7 @@ test('Existing RSVP uses private code to upload receipt without duplicate bookin
  });
  await page.goto('/register/?lang=en&event='+ID);
  await openLegacyPayment(page);
+ await page.locator('#checkoutPaymentDetails>summary').click();
  await page.locator('#firstName').fill('Test');
  await page.locator('#lastName').fill('Visitor');
  await page.locator('#email').fill('example@example.invalid');
