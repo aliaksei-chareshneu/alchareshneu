@@ -164,9 +164,10 @@ function render(){
  }
  if(typeof refreshOptIns==='function')refreshOptIns();
  const detail=byId('rsvpDetails');if(detail&&multi)detail.hidden=false;
- if(multi&&byId('paymentProof'))byId('paymentProof').required=false;
+ if(all.some(isHEMA)&&byId('paymentProof'))byId('paymentProof').required=false;
  const pay=byId('trainingPayment');if(pay&&multi&&all.some(isHEMA))pay.hidden=true;
- const submit=byId('submit');if(submit&&multi&&all.some(isHEMA)){submit.disabled=false;submit.textContent=c.submit.replace('{n}',String(all.length));}
+ else if(pay&&all.length===1&&isHEMA(all[0])&&all[0].trainingPayment)pay.hidden=false;
+ const submit=byId('submit');if(submit&&all.some(isHEMA)){submit.disabled=false;submit.textContent=c.submit.replace('{n}',String(all.length));}
  else if(submit&&typeof t==='function'){submit.textContent=t('send');}
  updateCartDayHighlights();
 }
@@ -252,7 +253,7 @@ async function getQuote(parent){const where=parent||receiptArea();
  }catch(e){where.append(elt('p','event-state',C().quotePending+' ('+String(e.message||'')+')'));}
 }
 form.addEventListener('submit',async event=>{
- const all=currentEvents();if(all.length<2)return;
+ const all=currentEvents();if(!all.some(isHEMA))return;
  // Existing transfer receipts and one-time legacy continuation tokens
  // must UPDATE the original RSVP rather than creating a duplicate cart.
  const legacyProof=byId('paymentProof')?.files?.length>0;
