@@ -25,7 +25,8 @@ test('multi-event request is one atomic RPC, no bank status',async()=>{
  assert.equal(out.body.bankVerified,false);assert.equal(out.body.secrets.length,2);
  assert.equal(writes.length,1);assert.equal(writes[0][0],'imperion_rsvp_cart_create');
  assert.deepEqual(writes[0][1].p_items.map(x=>x.eventId),base.eventIds);
- assert.equal(writes[0][1].p_cart.futureUpdates,undefined);
+ assert.equal(writes[0][1].p_cart.futureUpdates,false);
+ assert.equal(writes[0][1].p_cart.photo,'NO');
 });
 test('rejects duplicates, overlong carts, missing safety, all without writes',async()=>{
  for(const b of [
@@ -78,4 +79,20 @@ test('late new four-session starter quote is 1000 CZK, not BANK VERIFIED',()=>{
  for(const row of rows)row.created_at=new Date(first-20*3600000).toISOString();
  const x=quoteStarter4(rows,catalog);assert.equal(x.packCount,1);
  assert.equal([...x.prices.values()].reduce((a,p)=>a+p.totalCzk,0),1000);
+});
+test('adult explicit photo/update opt-ins are carried only as private cart input',async()=>{
+ const {d,writes}=deps();
+ const out=await handleCart({...base,photo:'YES',futureUpdates:true},null,req,d);
+ assert.equal(out.status,200);
+ assert.equal(writes[0][1].p_cart.photo,'YES');
+ assert.equal(writes[0][1].p_cart.futureUpdates,true);
+ assert.equal(out.body.bankVerified,false);
+});
+test('minor photo/update opt-ins are suppressed even when requested',async()=>{
+ const {d,writes}=deps();
+ const out=await handleCart({...base,ageGroup:'under18',
+  guardianName:'Parent Guardian',guardianPhone:'+420123456789',photo:'YES',futureUpdates:true},null,req,d);
+ assert.equal(out.status,200);
+ assert.equal(writes[0][1].p_cart.photo,'NO');
+ assert.equal(writes[0][1].p_cart.futureUpdates,false);
 });
