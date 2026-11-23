@@ -32,6 +32,8 @@ export async function handleCart(body, proof, req, d) {
         guardianName:age==='under18'?safeName(body.guardianName):'',
         guardianPhone:age==='under18'?safePhone(body.guardianPhone):'',
         rsvp:safeEnum(body.rsvp,['YES','MAYBE','NO']),
+        photo:age==='adult'?safeEnum(body.photo||'NO',['YES','NO']):'NO',
+        futureUpdates:age==='adult'&&body.futureUpdates===true,
         language:safeEnum(body.language||'cs',['cs','en','ru','uk']),
         discoverySource:discoveryCode(body.discoverySource)||'',
         utmSource:campaignCode(body.utmSource,48)||'',
