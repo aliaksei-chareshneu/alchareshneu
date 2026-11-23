@@ -162,8 +162,12 @@ a{color:var(--mint)}button,input,select{font:inherit}button{cursor:pointer}.skip
         <div class="cols"><div class="field"><label class="required" for="email" data-i18n="email">E-mail</label><input id="email" type="email" name="email" autocomplete="email" maxlength="254" required></div><div class="field"><label class="required" for="phone" data-i18n="phone">Telefon</label><input id="phone" type="tel" name="tel" autocomplete="tel" maxlength="35" pattern="[+0-9() .-]{7,35}" placeholder="+420 777 123 456" required></div></div>
         <fieldset class="field"><legend class="required" data-i18n="age">Věk účastníka</legend><div class="choices"><label><input type="radio" name="age" value="adult" required checked><span data-i18n="adult">18 a více</span></label><label><input type="radio" name="age" value="under18"><span data-i18n="minor">Méně než 18</span></label></div></fieldset>
         <div id="guardian" class="cols" hidden><div class="field"><label class="required" for="guardianName" data-i18n="guardianName">Jméno zákonného zástupce</label><input id="guardianName" maxlength="80" autocomplete="off"></div><div class="field"><label class="required" for="guardianPhone" data-i18n="guardianPhone">Telefon zákonného zástupce</label><input id="guardianPhone" type="tel" maxlength="35" autocomplete="off"></div></div>
-        <fieldset class="field"><legend class="required" data-i18n="attendance">Přijdete?</legend><div class="choices"><label><input type="radio" name="rsvp" value="YES" required checked><span data-i18n="yes">Ano</span></label><label><input type="radio" name="rsvp" value="MAYBE"><span data-i18n="maybe">Možná</span></label><label><input type="radio" name="rsvp" value="NO"><span data-i18n="no">Ne</span></label></div></fieldset>
-        <div class="field"><label for="discoverySource" data-i18n="attributionQuestion">Kde jste se o akci dozvěděli? (volitelné)</label><select id="discoverySource" name="discovery-source">
+        <fieldset class="field" id="attendanceField"><legend class="required" data-i18n="attendance">Přijdete?</legend><div class="choices"><label><input type="radio" name="rsvp" value="YES" required checked><span data-i18n="yes">Ano</span></label><label><input type="radio" name="rsvp" value="MAYBE"><span data-i18n="maybe">Možná</span></label><label><input type="radio" name="rsvp" value="NO"><span data-i18n="no">Ne</span></label></div></fieldset>
+        
+        <div class="check"><label><input id="safety" type="checkbox" required><span><strong data-i18n="safetyHead">Souhlasím s pravidly bezpečnosti (povinné).</strong> <span data-i18n="safetyNote">Bezpečnostní pokyny najdete v odkazu vedle.</span> <a id="rulesLink" href="./safety/" target="_blank" rel="noopener" data-i18n="readRules">Číst pravidla ↗</a></span></label></div>
+        <details class="optional-disclosures" id="optionalDisclosure"><summary id="checkoutOptionalTitle">Optional photos and updates</summary><fieldset class="consent-choices" id="optionalConsents"><legend id="optionalConsentLabel">Dobrovolné volby</legend><p id="optionalConsentNote" class="consent-help"></p><div class="consent-toolbar"><button type="button" id="optInAll" class="consent-select-all" aria-pressed="false" aria-controls="photo future" aria-describedby="optionalConsentNote">Souhlasím s fotografiemi i pozvánkami</button><span id="optionalConsentCount" class="consent-count" role="status" aria-live="polite">0 ze 2 vybráno</span></div><div class="check"><label><input id="photo" type="checkbox"><span><strong data-i18n="photoHead">Volitelně povoluji své fotografie/video</strong> <span data-i18n="photoNote">pro zveřejnění na kanálech pořadatele. Bez souhlasu se můžete zúčastnit také. U nezletilých je potřebné zvláštní potvrzení rodiče.</span></span></label></div>
+        <div class="check"><label><input id="future" type="checkbox"><span><strong data-i18n="updatesHead">Chci občasné pozvánky na další akce (volitelné).</strong> <span data-i18n="updatesNote">Nejde o spam. Pozvánky vyžadují samostatné potvrzení; odhlášení kdykoli.</span></span></label></div>
+        </fieldset><div class="field"><label for="discoverySource" data-i18n="attributionQuestion">Kde jste se o akci dozvěděli? (volitelné)</label><select id="discoverySource" name="discovery-source">
 <option value="" data-i18n="sourceEmpty">Nevyplňovat</option>
 <option value="IS_MUNI" data-i18n="sourceIS">Informační systém MUNI</option>
 <option value="SPOLEK_MUNI" data-i18n="sourceSpolek">Spolek přírodovědců MUNI</option>
@@ -175,11 +179,7 @@ a{color:var(--mint)}button,input,select{font:inherit}button{cursor:pointer}.skip
 <option value="FRIEND" data-i18n="sourceFriends">Od známých</option>
 <option value="OTHER_SITE" data-i18n="sourceWebsite">Jiný web</option>
 <option value="OTHER" data-i18n="sourceOther">Jinde</option>
-</select><p class="muted" data-i18n="attributionNote">Pouze pro vyhodnocení, odkud lidé přišli. Neznamená souhlas s reklamou.</p></div>
-        <div class="check"><label><input id="safety" type="checkbox" required><span><strong data-i18n="safetyHead">Souhlasím s pravidly bezpečnosti (povinné).</strong> <span data-i18n="safetyNote">Bezpečnostní pokyny najdete v odkazu vedle.</span> <a id="rulesLink" href="./safety/" target="_blank" rel="noopener" data-i18n="readRules">Číst pravidla ↗</a></span></label></div>
-        <details class="optional-disclosures" id="optionalDisclosure"><summary id="checkoutOptionalTitle">Optional photos and updates</summary><fieldset class="consent-choices" id="optionalConsents"><legend id="optionalConsentLabel">Dobrovolné volby</legend><p id="optionalConsentNote" class="consent-help"></p><div class="consent-toolbar"><button type="button" id="optInAll" class="consent-select-all" aria-pressed="false" aria-controls="photo future" aria-describedby="optionalConsentNote">Souhlasím s fotografiemi i pozvánkami</button><span id="optionalConsentCount" class="consent-count" role="status" aria-live="polite">0 ze 2 vybráno</span></div><div class="check"><label><input id="photo" type="checkbox"><span><strong data-i18n="photoHead">Volitelně povoluji své fotografie/video</strong> <span data-i18n="photoNote">pro zveřejnění na kanálech pořadatele. Bez souhlasu se můžete zúčastnit také. U nezletilých je potřebné zvláštní potvrzení rodiče.</span></span></label></div>
-        <div class="check"><label><input id="future" type="checkbox"><span><strong data-i18n="updatesHead">Chci občasné pozvánky na další akce (volitelné).</strong> <span data-i18n="updatesNote">Nejde o spam. Pozvánky vyžadují samostatné potvrzení; odhlášení kdykoli.</span></span></label></div>
-        </fieldset></details>
+</select><p class="muted" data-i18n="attributionNote">Pouze pro vyhodnocení, odkud lidé přišli. Neznamená souhlas s reklamou.</p></div></details>
         <div class="screenreader" aria-hidden="true"><label for="website">Website</label><input id="website" tabindex="-1" autocomplete="off"></div>
         <p class="muted" style="font-size:13px" data-i18n="privacy">Údaje se ukládají zabezpečeně v EU a využívají jen k organizaci vaší účasti. <a href="./privacy/">Soukromí</a></p>
         <button id="submit" class="button" type="submit" data-i18n="send">Odeslat přihlášku →</button></div>
@@ -193,7 +193,7 @@ a{color:var(--mint)}button,input,select{font:inherit}button{cursor:pointer}.skip
 </div>
 <script src="../site-calendar-policy.js?v=20261113c"></script>
 <script src="./event-i18n.js?v=20261114-l10n1"></script>
-<script src="./event-calendar.js?v=20261114-l10n1"></script>
+<script src="./event-calendar.js?v=20261123ux2"></script>
 <script src="./calendar-standalone.js"></script>
 <script src="./vendor/qrcode.min.js"></script>
 <script src="./training-payment.js?v=20261122pdf7"></script>
@@ -614,6 +614,6 @@ $('retry').addEventListener('click',loadEvents);
 setLang(lang);updateGuardian();loadEvents();
 </script>
 <script>if(Date.now()>Date.parse('2026-11-04T00:00:00+01:00')){const e=document.getElementById('bw-cancel-20261028');if(e)e.remove();}</script>
-<script src="./multi-cart.js?v=20261123c1"></script>
+<script src="./multi-cart.js?v=20261123ux2"></script>
 </body>
 </html>
