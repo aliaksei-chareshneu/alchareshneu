@@ -155,6 +155,13 @@ function render(){
  explain.textContent=qt.pdf+(distinct.length>1?' '+qt.split:'');
  const consentNeeded=all.some(e=>e.category==='HEMA Training'&&e.data_controller==='Aliaksei Chareshneu (OSVČ)');
  accepted.style.display=(consentNeeded||resume.open)?'flex':'none';
+ // Media/marketing opt-ins are never silently shared between legal controllers.
+ const mixedControllers=distinct.length>1;
+ for(const id of ['photo','future']){
+   const cb=byId(id);if(!cb)continue;
+   if(mixedControllers&&cb.checked)cb.checked=false;
+   cb.disabled=mixedControllers;
+ }
  if(typeof refreshOptIns==='function')refreshOptIns();
  const detail=byId('rsvpDetails');if(detail&&multi)detail.hidden=false;
  if(multi&&byId('paymentProof'))byId('paymentProof').required=false;
@@ -191,7 +198,7 @@ const values=()=>({firstName:byId('firstName').value,lastName:byId('lastName').v
  ageGroup:document.querySelector('input[name=age]:checked')?.value,
  guardianName:byId('guardianName').value,guardianPhone:byId('guardianPhone').value,
  rsvp:document.querySelector('input[name=rsvp]:checked')?.value,
- safety:byId('safety').checked,photo:false,futureUpdates:false,language:lang(),website:byId('website').value,
+ safety:byId('safety').checked,photo:byId('photo')?.checked?'YES':'NO',futureUpdates:!!byId('future')?.checked,language:lang(),website:byId('website').value,
  discoverySource:byId('discoverySource').value,
  utmSource:new URLSearchParams(location.search).get('utm_source')||'',
  utmMedium:new URLSearchParams(location.search).get('utm_medium')||'',
