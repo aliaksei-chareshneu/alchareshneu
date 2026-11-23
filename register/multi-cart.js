@@ -4,7 +4,7 @@
 'use strict';
 const byId=id=>document.getElementById(id);
 const selected=new Set(),tiers=new Map();
-let cartReceipt=null,cartQuote=null;
+let cartReceipt=null,cartQuote=null,cartTier='STANDARD',cartPlan='AUTO';
 const MAX=8;
 const copy={
  cs:{title:'Vybrané akce',hint:'Kliknutím na další termín v kalendáři jej přidáte. Nejvýše 8 akcí.',empty:'Vyberte termín v kalendáři.',remove:'Odebrat',std:'Standard',senior:'Senior (jen po ověření)',total:'Orientační součet',perSeller:'Organizátor',tentative:'Konečná cena a platba až po schválení. Přihláška není místo.',payees:'Různí příjemci = samostatné platby.',single:'Jedna platba je možná jen u stejného schváleného příjemce.',submit:'Odeslat {n} přihlášky →',pending:'Zatím nezaplaceno, místa nejsou potvrzena.',ok:'Přijali jsme {n} žádosti. Není to rezervace ani zaplacená účast.',save:'Uložte si soukromé kódy; po opuštění stránky je znovu nezobrazíme.',id:'Číslo společné žádosti',token:'Soukromý kód košíku',individual:'Kód k jednotlivé akci',copy:'Kopírovat všechny kódy',copied:'Zkopírováno',resume:'Obnovit platbu za košík',check:'Zkontrolovat schválenou souhrnnou platbu',quotePending:'Souhrnnou platbu zatím nelze vystavit. Počkejte na písemné schválení; nic neposílejte.',accept:'Souhlasím s osobní službou Aliakseie Chareshneua (OSVČ), nikoli s platbou členských příspěvků Družiny Moravy.',bank:'Potvrzené údaje pro JEDNU platbu',proof:'Přiložit PDF doklad o převodu (max. 5 MB)',sendProof:'Odeslat doklad na kontrolu',proofSaved:'PDF přijat. Připsání v bance a místo nejsou potvrzeny.',status:'Ověřit stav (ručně)',error:'Nepodařilo se potvrdit přijetí. Neposílejte znovu naslepo; kontaktujte pořadatele.',noMultiple:'Platba za různé právní subjekty nesmí být sloučena.',priceChanged:'Cena nebo stav termínu se změnily; požádejte o nové potvrzení.',free:'Zdarma',unknown:'Cena k ověření'},
@@ -14,6 +14,14 @@ const copy={
 };
 const lang=()=>['cs','en','ru','uk'].includes(document.documentElement.lang)?document.documentElement.lang:'cs';
 const C=()=>copy[lang()];
+const QUICK={
+cs:{title:'Vyberte tréninky',hint:'Vyberte jeden nebo více termínů v kalendáři.',rate:'Cena za trénink',standard:'Standard',senior:'Senior · 120 Kč po ověření',rule:'Senior: alespoň 4 skutečně absolvované tréninky za kalendářní měsíc; nárok ověřujeme.',rules:'Pravidla a ceny',plan:'Způsob platby',automatic:'Nejvýhodnější dostupná varianta',single:'Každý trénink zvlášť',pack:'Starter 4',price:'Celkem',split:'Platba se případně rozdělí podle právního poskytovatele.',pdf:'Dokončení platby vyžaduje PDF potvrzení převodu; skutečné připsání ověříme v bance.',noPack:'Pro tento výběr zatím není možné použít Starter 4 (4 tréninky u stejného poskytovatele do 30 dnů).',details:'Uložené přihlášky · soukromé údaje',advanced:'Pokračovat v dřívější platbě',optional:'Dobrovolně: fotografie a pozvánky',search:'Hledat událost podle názvu',proof:'Máte už platbu? Přiložte PDF',booking:'Vybrané termíny',alert:'Balíček lze uhradit pouze po potvrzení poskytovatele a podmínek.'},
+en:{title:'Choose your sessions',hint:'Select one or more dates in the calendar.',rate:'Price per session',standard:'Standard',senior:'Senior · 120 CZK after verification',rule:'Senior: at least 4 actually attended training sessions per calendar month; eligibility is verified.',rules:'Prices and rules',plan:'Payment option',automatic:'Best available price',single:'Pay separately per session',pack:'Starter 4',price:'Total',split:'Separate legal providers require separate payments.',pdf:'A bank-transfer PDF is required to complete payment; cleared funds are checked independently.',noPack:'Starter 4 is not applicable to these dates (four sessions with the same provider within 30 days).',details:'Saved request details · private',advanced:'Continue a previous payment',optional:'Optional: photos and invitations',search:'Find an event by name',proof:'Already transferred? Attach PDF',booking:'Selected sessions',alert:'Pass payment is available only after seller and terms are approved.'},
+ru:{title:'Выберите тренировки',hint:'Отметьте одну или несколько дат в календаре.',rate:'Тариф за занятие',standard:'Обычный',senior:'Senior · 120 Kč после проверки',rule:'Senior: минимум 4 действительно посещённые тренировки за календарный месяц. Право на тариф проверяется.',rules:'Цены и правила',plan:'Вариант оплаты',automatic:'Наиболее выгодный из доступных',single:'Каждое занятие отдельно',pack:'Starter 4',price:'Итого',split:'У разных юридических поставщиков платежи разделяются.',pdf:'Для завершения оплаты обязателен PDF перевода. Поступление денег проверяется в банке.',noPack:'На эти даты Starter 4 пока не применяется: нужны четыре занятия одного поставщика за 30 дней.',details:'Данные заявки · приватно',advanced:'Продолжить ранее начатую оплату',optional:'Необязательно: фото и приглашения',search:'Найти мероприятие по названию',proof:'Уже оплатили? Прикрепите PDF',booking:'Выбранные занятия',alert:'Оплата абонемента доступна после подтверждения поставщика и условий.'},
+uk:{title:'Оберіть тренування',hint:'Виберіть одну чи кілька дат у календарі.',rate:'Тариф за заняття',standard:'Звичайний',senior:'Senior · 120 Kč після перевірки',rule:'Senior: щонайменше 4 фактично відвідані тренування за календарний місяць. Право на тариф перевіряється.',rules:'Ціни й правила',plan:'Варіант оплати',automatic:'Найвигідніший доступний',single:'Кожне тренування окремо',pack:'Starter 4',price:'Разом',split:'Різні юридичні надавачі потребують окремих платежів.',pdf:'Для завершення оплати потрібен PDF переказу; зарахування перевіряється в банку.',noPack:'Для цих дат Starter 4 не підходить: потрібні 4 тренування того самого надавача за 30 днів.',details:'Дані заявки · приватно',advanced:'Продовжити попередню оплату',optional:'Необов’язково: фото й запрошення',search:'Знайти подію за назвою',proof:'Уже переказали? Додайте PDF',booking:'Обрані тренування',alert:'Оплата абонемента можлива після підтвердження надавача й умов.'}
+};
+const Q=()=>QUICK[lang()]||QUICK.cs;
+
 const money=n=>new Intl.NumberFormat(lang()==='cs'?'cs-CZ':'en-GB',{maximumFractionDigits:2}).format(n)+' Kč';
 const eventById=id=>typeof events!=='undefined'?events.find(e=>e.event_id===id):null;
 const bookable=e=>e&&typeof eventMode==='function'&&eventMode(e)==='FORM';
@@ -21,11 +29,58 @@ const price=e=>{if(!e?.price_verified)return null;let t=tiers.get(e.event_id)||'
  const q=e.trainingPayment?.tiers?.find(x=>x.tier===t);
  if(e.event_id==='PUB-WALK-20261129'&&Date.now()>Date.parse('2026-11-27T15:30:00+01:00'))return 237.5;
  return Number.isFinite(Number(q?.totalCzk))?Number(q.totalCzk):Number.isFinite(Number(e.price_czk))?Number(e.price_czk):null;};
+
+const PACK_SIZE=4,PACK_PRICE=800,PACK_DAYS=30;
+function isHEMA(e){return e?.category==='HEMA Training'&&e?.community==='Družina Moravy'&&Number(e?.price_czk)>0;}
+function cartEstimate(all){
+ const bySeller=new Map();
+ for(const e of all){const key=e.data_controller||e.community||'?';if(!bySeller.has(key))bySeller.set(key,[]);bySeller.get(key).push(e);}
+ const summary=[];let total=0,packCount=0,packageEvents=new Set();
+ for(const [seller,group] of bySeller){
+   const dates=[...group].sort((a,b)=>Date.parse(a.begins_at)-Date.parse(b.begins_at));
+   const n=dates.length;const single=dates.map(e=>price(e));
+   if(single.some(x=>x===null)){summary.push({seller,known:false});continue;}
+   const dp=Array.from({length:n+1},()=>({total:Infinity,packs:0,events:[]}));
+   dp[0]={total:0,packs:0,events:[]};
+   for(let i=1;i<=n;i++){
+     dp[i]={total:dp[i-1].total+single[i-1],packs:dp[i-1].packs,events:dp[i-1].events};
+     const chunk=dates.slice(i-PACK_SIZE,i);
+     const span=chunk.length===PACK_SIZE&&(Date.parse(chunk[PACK_SIZE-1].begins_at)-Date.parse(chunk[0].begins_at)<=PACK_DAYS*86400000);
+     const valid=cartTier==='STANDARD'&&cartPlan==='AUTO'&&span&&chunk.every(isHEMA);
+     if(valid){
+       const late=Date.parse(chunk[0].begins_at)-Date.now()<48*3600000;
+       const cost=PACK_PRICE*(late?1.25:1);
+       if(dp[i-PACK_SIZE].total+cost<dp[i].total){
+         dp[i]={total:dp[i-PACK_SIZE].total+cost,packs:dp[i-PACK_SIZE].packs+1,events:[...dp[i-PACK_SIZE].events,...chunk.map(e=>e.event_id)]};
+       }
+     }
+   }
+   total+=dp[n].total;packCount+=dp[n].packs;
+   dp[n].events.forEach(id=>packageEvents.add(id));
+   summary.push({seller,known:true,total:dp[n].total,packs:dp[n].packs});
+ }
+ return {summary,total,packCount,packageEvents,allKnown:summary.every(x=>x.known)};
+}
+
 const elt=(tag,className,text)=>{const e=document.createElement(tag);if(className)e.className=className;if(text!==undefined)e.textContent=text;return e;};
 const btn=(name,click)=>{const e=elt('button','retry',name);e.type='button';e.addEventListener('click',click);return e;};
 const box=elt('section','imperion-cart');box.id='imperionMultiCart';
 const heading=elt('h3','',C().title),help=elt('p','catalog-summary',C().hint);
 const list=elt('div','cart-items'),totals=elt('div','cart-totals'),explain=elt('p','catalog-summary');
+
+const rate=elt('div','cart-rate');
+const rateLabel=elt('label','',Q().rate),rateSelect=elt('select');
+rateSelect.id='cartTierChoice';
+for(const [tier,name] of [['STANDARD',Q().standard],['SENIOR',Q().senior]]){const op=elt('option','',name);op.value=tier;rateSelect.append(op);}
+rateLabel.htmlFor=rateSelect.id;rate.append(rateLabel,rateSelect);
+const rateRule=elt('p','cart-rate-rule');
+const rulesLink=elt('a','',Q().rules);rulesLink.href='https://aliaksei-chareshneu.github.io/alchareshneu/druzina/permanentky/#senior-eligibility';rulesLink.target='_blank';rulesLink.rel='noopener';rateRule.append(elt('span','',Q().rule+' '),rulesLink);
+const plan=elt('div','cart-plan'),planLabel=elt('label','',Q().plan),planSelect=elt('select');
+planSelect.id='cartPlanChoice';planLabel.htmlFor=planSelect.id;
+for(const [value,name] of [['AUTO',Q().automatic],['SINGLE',Q().single]]){const op=elt('option','',name);op.value=value;planSelect.append(op);}
+plan.append(planLabel,planSelect);
+const planNote=elt('p','cart-plan-note');
+
 const resume=elt('details','cart-resume'),resTitle=elt('summary','',C().resume);
 const resumeId=elt('input');resumeId.type='text';resumeId.placeholder=C().id;resumeId.autocomplete='off';
 const resumeToken=elt('input');resumeToken.type='text';resumeToken.placeholder=C().token;resumeToken.autocomplete='off';
@@ -34,7 +89,7 @@ const acceptText=elt('span','',C().accept);accepted.append(approved,acceptText);
 const controls=elt('div','cart-controls');controls.append(resumeId,resumeToken);
 const check=btn(C().check,()=>getQuote());controls.append(check);
 resume.append(resTitle,controls);
-box.append(heading,help,list,totals,explain,accepted,resume);
+box.append(heading,help,rate,rateRule,plan,list,planNote,totals,explain,accepted,resume);
 const style=elt('style');style.textContent=`
 .imperion-cart{margin:18px 0;padding:16px;border:1px solid #5d7d7b;border-radius:16px;background:#101f2af2;color:#f2f5ee}
 .imperion-cart h3{margin:0 0 8px;font-size:1.2rem}.imperion-cart .cart-items{display:grid;gap:8px;margin:12px 0}
@@ -56,21 +111,18 @@ if(!layout)return;
 layout.after(box);
 function currentEvents(){return [...selected].map(eventById).filter(bookable);}
 function render(){
- const c=C();heading.textContent=c.title;help.textContent=c.hint;resTitle.textContent=c.resume;
+ const c=C();heading.textContent=Q().title;help.textContent=Q().hint;resTitle.textContent=Q().advanced;
+ byId('checkoutOptionalTitle')&&(byId('checkoutOptionalTitle').textContent=Q().optional);
+ byId('checkoutPaymentTitle')&&(byId('checkoutPaymentTitle').textContent=Q().proof);
+ byId('eventSearchSummary')&&(byId('eventSearchSummary').textContent=Q().search);
+ document.body.classList.toggle('hema-quick',currentEvents().some(isHEMA));
  resumeId.placeholder=c.id;resumeToken.placeholder=c.token;check.textContent=c.check;acceptText.textContent=c.accept;
  const all=currentEvents();list.replaceChildren();totals.replaceChildren();
+ for(const e of all)if(isHEMA(e))tiers.set(e.event_id,cartTier);
  for(const e of all){
    const line=elt('div','cart-item'),name=elt('span','cart-name',eventDate(e)+' · '+eventTitle(e));
    line.append(name);
-   if(e.category==='HEMA Training'&&Number(e.price_czk)>0){
-     const select=elt('select');select.setAttribute('aria-label',eventTitle(e)+' price tier');
-     for(const [tier,title] of [['STANDARD',c.std],['SENIOR',c.senior]]){
-       const op=elt('option','',title);op.value=tier;select.append(op);
-     }
-     select.value=tiers.get(e.event_id)||'STANDARD';
-     select.addEventListener('change',()=>{tiers.set(e.event_id,select.value);render();});
-     line.append(select);
-   }
+   // A single global tariff applies; per-date selectors were redundant.
    const amt=price(e);line.append(elt('span','cart-price',amt===0?c.free:amt===null?c.unknown:money(amt)));
    line.append(btn(c.remove,()=>{
      selected.delete(e.event_id);tiers.delete(e.event_id);
@@ -90,23 +142,42 @@ function render(){
    }
  }
  if(!all.length)list.append(elt('p','catalog-summary',c.empty));
- const amounts=new Map();for(const e of all){const k=e.data_controller||e.community||'?';
-   const v=amounts.get(k)||{sum:0,known:true};const p=price(e);if(p===null)v.known=false;else v.sum+=p;amounts.set(k,v);}
- for(const [seller,v] of amounts)totals.append(elt('p','',c.perSeller+': '+seller+' — '+(v.known?money(v.sum):c.unknown)));
+ const h=all.some(isHEMA),qt=Q();
+ rate.hidden=!h;rateRule.hidden=!h;plan.hidden=!h;planNote.hidden=!h;
+ rateLabel.textContent=qt.rate;rateSelect.options[0].textContent=qt.standard;rateSelect.options[1].textContent=qt.senior;rateSelect.value=cartTier;
+ rateRule.firstChild.textContent=qt.rule+' ';rulesLink.textContent=qt.rules;
+ planLabel.textContent=qt.plan;planSelect.options[0].textContent=qt.automatic;planSelect.options[1].textContent=qt.single;planSelect.value=cartPlan;
+ const estimate=cartEstimate(all);
+ const amounts=estimate.summary;
+ for(const row of amounts)totals.append(elt('p','',qt.price+' · '+row.seller+': '+(row.known?money(row.total):c.unknown)));
  const multi=all.length>1;
- const distinct=[...amounts.keys()];
- explain.textContent=c.tentative+' '+(distinct.length>1?c.payees:c.single);
+ const distinct=amounts.map(x=>x.seller);
+ const packInfo=estimate.packCount ? (estimate.packCount+' × '+qt.pack+' ('+money(PACK_PRICE)+' / '+PACK_SIZE+')') : qt.noPack;
+ planNote.textContent=cartPlan==='AUTO'?packInfo:'';
+ explain.textContent=qt.pdf+(distinct.length>1?' '+qt.split:'');
  const consentNeeded=all.some(e=>e.category==='HEMA Training'&&e.data_controller==='Aliaksei Chareshneu (OSVČ)');
  accepted.style.display=((multi&&consentNeeded)||resume.open)?'flex':'none';
  if(!multi&&!resume.open)approved.checked=false;
- if(multi){for(const id of ['photo','future']){const cb=byId(id);if(cb){cb.checked=false;cb.disabled=true;}}}
- else if(typeof refreshOptIns==='function')refreshOptIns();
+ if(typeof refreshOptIns==='function')refreshOptIns();
  const detail=byId('rsvpDetails');if(detail&&multi)detail.hidden=false;
  if(multi&&byId('paymentProof'))byId('paymentProof').required=false;
  const pay=byId('trainingPayment');if(pay&&multi)pay.hidden=true;
  const submit=byId('submit');if(submit&&multi){submit.disabled=false;submit.textContent=c.submit.replace('{n}',String(all.length));}
  else if(submit&&typeof t==='function'){submit.textContent=t('send');}
+ updateCartDayHighlights();
 }
+
+rateSelect.addEventListener('change',()=>{cartTier=rateSelect.value;cartPlan='AUTO';for(const e of currentEvents())if(isHEMA(e))tiers.set(e.event_id,cartTier);render();});
+planSelect.addEventListener('change',()=>{cartPlan=planSelect.value;render();});
+function updateCartDayHighlights(){
+ const cal=byId('calendarGrid');if(!cal)return;
+ const keys=new Set(currentEvents().map(e=>typeof calendarDayKey==='function'?calendarDayKey(e):String(e.begins_at||'').slice(0,10)));
+ for(const cell of cal.querySelectorAll('.calendar-day[data-day-key]')){
+  const chosen=keys.has(cell.dataset.dayKey);cell.classList.toggle('is-cart-selected',chosen);
+  if(chosen)cell.setAttribute('aria-pressed','true');
+ }
+}
+
 const originalChoose=window.chooseEvent;
 if(typeof originalChoose==='function')window.chooseEvent=function(id){originalChoose(id);const e=eventById(id);
  if(bookable(e)&&!selected.has(id)&&selected.size<MAX)selected.add(id);render();};
@@ -138,11 +209,12 @@ function showError(where,e){where.append(elt('p','event-state',e.message==='quot
 function auth(){const v=values();return {firstName:v.firstName,lastName:v.lastName,email:v.email,cartId:resumeId.value.trim(),cartToken:resumeToken.value.trim()};}
 function showReceipt(payload,requested){cartReceipt=payload;
  const c=C(),result=receiptArea();result.append(elt('h3','',c.ok.replace('{n}',String(requested.length))),elt('p','',c.save),elt('p','',c.pending));
+ const codes=elt('details','cart-codes');codes.append(elt('summary','',Q().details));result.append(codes);
  const records=[[c.id,payload.cartId],[c.token,payload.cartToken]];
  for(const s of payload.secrets||[])records.push([c.individual+' · '+(eventTitle(eventById(s.eventId))||s.eventId),s.resumeToken]);
- for(const [k,v] of records){const row=elt('p');row.append(elt('strong','',k+': '),elt('code','',v));result.append(row);}
- result.append(btn(c.copy,async()=>{try{await navigator.clipboard.writeText(records.map(r=>r[0]+': '+r[1]).join('\n'));result.append(elt('p','',c.copied));}catch{}}));
- result.append(elt('p','',c.tentative));
+ for(const [k,v] of records){const row=elt('p');row.append(elt('strong','',k+': '),elt('code','',v));codes.append(row);}
+ codes.append(btn(c.copy,async()=>{try{await navigator.clipboard.writeText(records.map(r=>r[0]+': '+r[1]).join('\n'));codes.append(elt('p','',c.copied));}catch{}}));
+ result.append(elt('p','',Q().pdf));
  resumeId.value=payload.cartId;resumeToken.value=payload.cartToken;
  if(payload.controller==='Aliaksei Chareshneu (OSVČ)'&&values().rsvp==='YES'){
    result.append(btn(c.check,()=>getQuote(result)));
