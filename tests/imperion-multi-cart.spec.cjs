@@ -21,7 +21,7 @@ function stub(page,posted,catalog=fixtures){return page.route(API,route=>{
  posted.push(JSON.parse(route.request().postData()));
  return route.fulfill({status:200,contentType:'application/json',headers:cors,body:JSON.stringify({ok:true,cartId:'12345678-1234-4234-8234-123456789abc',cartToken:'A'.repeat(43),controller:'MIXED',references:[],secrets:[],confirmed:false,bankVerified:false})});
 });}
-async function pick(page,name){const detail=page.locator('.event-search-collapse');if(!(await detail.getAttribute('open')))await detail.locator('summary').click();await page.locator('#eventSearch').fill(name);await expect(page.locator('#eventMatches')).toBeVisible();await page.locator('#eventMatches .match-option').filter({hasText:name}).first().click();}
+async function pick(page,name){const detail=page.locator('.event-search-collapse');if((await detail.getAttribute('open'))===null)await detail.locator('summary').click();await page.locator('#eventSearch').fill(name);await expect(page.locator('#eventMatches')).toBeVisible();await page.locator('#eventMatches .match-option').filter({hasText:name}).first().click();}
 for(const lang of ['cs','en','ru','uk']){
  const path='/register/'+(lang==='cs'?'':lang+'/');
  test(lang+' participant selects two dates, corrects choice and one form request',async({page})=>{
