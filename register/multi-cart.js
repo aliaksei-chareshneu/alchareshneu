@@ -119,11 +119,13 @@ function render(){
  resumeId.placeholder=c.id;resumeToken.placeholder=c.token;check.textContent=c.check;acceptText.textContent=c.accept;
  const all=currentEvents();list.replaceChildren();totals.replaceChildren();
  for(const e of all)if(isHEMA(e))tiers.set(e.event_id,cartTier);
+ const estimate=cartEstimate(all);
  for(const e of all){
    const line=elt('div','cart-item'),name=elt('span','cart-name',eventDate(e)+' · '+eventTitle(e));
    line.append(name);
    // A single global tariff applies; per-date selectors were redundant.
-   const amt=price(e);line.append(elt('span','cart-price',amt===0?c.free:amt===null?c.unknown:money(amt)));
+   const amt=price(e),included=estimate.packageEvents.has(e.event_id);
+ line.append(elt('span','cart-price',included?Q().pack:amt===0?c.free:amt===null?c.unknown:money(amt)));
    line.append(btn(c.remove,()=>{
      selected.delete(e.event_id);tiers.delete(e.event_id);
      const next=currentEvents()[0];
@@ -136,10 +138,6 @@ function render(){
      render();
    }));
    list.append(line);
-   const rules=e.rules_url;if(typeof rules==='string'&&rules.startsWith('https://aliaksei-chareshneu.github.io/alchareshneu/')){
-     const a=elt('a','catalog-summary','↳ '+(lang()==='ru'?'Правила':lang()==='uk'?'Правила':lang()==='en'?'Rules':'Pravidla'));
-     a.href=rules;a.target='_blank';a.rel='noopener';list.append(a);
-   }
  }
  if(!all.length)list.append(elt('p','catalog-summary',c.empty));
  const h=all.some(isHEMA),qt=Q();
@@ -147,7 +145,6 @@ function render(){
  rateLabel.textContent=qt.rate;rateSelect.options[0].textContent=qt.standard;rateSelect.options[1].textContent=qt.senior;rateSelect.value=cartTier;
  rateRule.firstChild.textContent=qt.rule+' ';rulesLink.textContent=qt.rules;
  planLabel.textContent=qt.plan;planSelect.options[0].textContent=qt.automatic;planSelect.options[1].textContent=qt.single;planSelect.value=cartPlan;
- const estimate=cartEstimate(all);
  const amounts=estimate.summary;
  for(const row of amounts)totals.append(elt('p','',qt.price+' · '+row.seller+': '+(row.known?money(row.total):c.unknown)));
  const multi=all.length>1;
@@ -156,13 +153,12 @@ function render(){
  planNote.textContent=cartPlan==='AUTO'?packInfo:'';
  explain.textContent=qt.pdf+(distinct.length>1?' '+qt.split:'');
  const consentNeeded=all.some(e=>e.category==='HEMA Training'&&e.data_controller==='Aliaksei Chareshneu (OSVČ)');
- accepted.style.display=((multi&&consentNeeded)||resume.open)?'flex':'none';
- if(!multi&&!resume.open)approved.checked=false;
+ accepted.style.display=(consentNeeded||resume.open)?'flex':'none';
  if(typeof refreshOptIns==='function')refreshOptIns();
  const detail=byId('rsvpDetails');if(detail&&multi)detail.hidden=false;
- if(multi&&byId('paymentProof'))byId('paymentProof').required=false;
- const pay=byId('trainingPayment');if(pay&&multi)pay.hidden=true;
- const submit=byId('submit');if(submit&&multi){submit.disabled=false;submit.textContent=c.submit.replace('{n}',String(all.length));}
+ if(byId('paymentProof'))byId('paymentProof').required=false;
+ const pay=byId('trainingPayment');if(pay&&all.some(isHEMA))pay.hidden=true;
+ const submit=byId('submit');if(submit&&all.some(isHEMA)){submit.disabled=false;submit.textContent=c.submit.replace('{n}',String(all.length));}
  else if(submit&&typeof t==='function'){submit.textContent=t('send');}
  updateCartDayHighlights();
 }
@@ -242,13 +238,13 @@ function showPayment(where,payload){cartQuote=payload.cartPayment;const c=C();co
 }
 async function getQuote(parent){const where=parent||receiptArea();
  if(!resumeId.value.trim()||!resumeToken.value.trim()){where.append(elt('p','',C().save));return;}
- if(selected.size>1&&currentEvents().some(e=>e.category==='HEMA Training'&&e.data_controller==='Aliaksei Chareshneu (OSVČ)')&&!approved.checked){where.append(elt('p','',C().accept));return;}
+ if(currentEvents().some(e=>e.category==='HEMA Training'&&e.data_controller==='Aliaksei Chareshneu (OSVČ)')&&!approved.checked){where.append(elt('p','',C().accept));return;}
  try{const response=await post({...auth(),action:'cart_quote',osvcSellerConsent:approved.checked});
    showPayment(where,response);
  }catch(e){where.append(elt('p','event-state',C().quotePending+' ('+String(e.message||'')+')'));}
 }
 form.addEventListener('submit',async event=>{
- const all=currentEvents();if(all.length<2)return;
+ const all=currentEvents();if(!all.some(isHEMA))return;
  event.preventDefault();event.stopImmediatePropagation();
  if(!form.checkValidity()){form.reportValidity();return;}
  if(all.some(e=>e.category==='HEMA Training'&&e.data_controller==='Aliaksei Chareshneu (OSVČ)')&&!approved.checked){accepted.scrollIntoView({block:'center'});return;}
