@@ -1,0 +1,42 @@
+name: Multi-event cart QA
+on:
+  pull_request:
+    paths:
+      - 'register/**'
+      - 'supabase/functions/imperion-register/**'
+      - 'supabase/migrations/20261123_imperion_multi_event_cart.sql'
+      - 'tests/imperion-cart.test.mjs'
+      - 'tests/imperion-multi-cart.spec.cjs'
+      - '.github/workflows/multi-cart-qa.yml'
+  push:
+    branches: ['feat/imperion-multi-event-cart-20261123']
+permissions:
+  contents: read
+jobs:
+  cart-security:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate JS and atomic RSVP source without live bank writes
+        run: |
+          node --check register/multi-cart.js
+          node --check supabase/functions/imperion-register/cart.mjs
+          node --check tests/imperion-multi-cart.spec.cjs
+          node --test tests/imperion-cart.test.mjs tests/druzina-unified-payment.test.cjs
+  cart-browser:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npx playwright install chromium
+      - name: Test 4 languages, multi-date selection, removal, single RSVP and payee split
+        run: npx playwright test tests/imperion-multi-cart.spec.cjs --workers=2

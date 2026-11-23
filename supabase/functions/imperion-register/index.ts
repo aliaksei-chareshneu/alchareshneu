@@ -6,6 +6,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.112.3';
 import { verifiedBankIban, createTrainingSpd } from './training-qr.mjs';
 import { inspectPaymentPdf } from './payment-pdf-review.mjs';
+import { handleCart } from './cart.mjs';
 
 const ALLOWED_ORIGIN = 'https://aliaksei-chareshneu.github.io';
 const SERVICE_URL = Deno.env.get('SUPABASE_URL') || '';
@@ -281,6 +282,14 @@ Deno.serve(async (req:Request):Promise<Response>=>{
     if(!body||typeof body!=='object'||Array.isArray(body))throw new Error('type');
   }catch{return reply({error:'invalid_request'},400,origin);}
   if (body.website) return reply({ok:true,status:'RECEIVED'},200,origin); // anti-bot honeypot
+  // Multi-event carts reuse the same private RSVP endpoint and service-role security envelope.
+  if (['cart_submit','cart_quote','cart_proof','cart_status'].includes(String(body.action||''))) {
+    return await handleCart(body,proof,req,{api,reply,safeName,safeEmail,safePhone,
+      safeEnum,text,campaignCode,discoveryCode,allow,tokenHash,
+      generateResumeToken,generateVariableSymbol,osvcQuote,
+      verifiedBankIban,createTrainingSpd,pdfInfo,inspectPaymentPdf,
+      OSVC_PROOF_BUCKET,EVENT_COLS});
+  }
   // Reusable read-only status credential. Distinct from the one-use upload code.
   // Never return names, account details, proof content or bank movements.
   if(body.action==='status'){
