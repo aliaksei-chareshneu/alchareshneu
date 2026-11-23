@@ -92,7 +92,7 @@ test('one HEMA date submits via the same simple cart path',async({page})=>{
  await page.locator('#firstName').fill('Test');await page.locator('#lastName').fill('Buyer');
  await page.locator('#email').fill('buyer@example.invalid');await page.locator('#phone').fill('+420 777 123 456');
  await page.locator('#safety').check();
- await page.locator('#imperionMultiCart .cart-consent input').check();
+ await expect(page.locator('#imperionMultiCart .cart-consent input')).toBeHidden();
  await page.locator('#submit').click();
  await expect(page.locator('#result')).toBeVisible();
  expect(posted).toHaveLength(1);
