@@ -2,7 +2,13 @@
    Only presentation changes; server remains authoritative for tariffs and payments. */
 body[data-imperion-scope="register"]>.wrap{max-width:1260px;width:100%;padding:14px clamp(12px,2.8vw,30px) 48px}
 body[data-imperion-scope="register"] .layout{display:block;max-width:none;margin:12px 0 0}
-body[data-imperion-scope="register"] .layout>.pitch{display:none}
+body[data-imperion-scope="register"] .layout>.pitch{display:block;max-width:none;padding:0 2px 7px;margin:0}
+body[data-imperion-scope="register"] .layout>.pitch .steps,
+body[data-imperion-scope="register"] .layout>.pitch .lede,
+body[data-imperion-scope="register"] .layout>.pitch .mobile-jump,
+body[data-imperion-scope="register"] .layout>.pitch .muted{display:none}
+body[data-imperion-scope="register"] .pitch h1{font-size:clamp(24px,3vw,34px);margin:0 0 10px;line-height:1.15}
+body[data-imperion-scope="register"] .pitch .kicker{display:none}
 body[data-imperion-scope="register"] .layout>.panel{max-width:none;width:100%;min-width:0;padding:clamp(14px,2.4vw,28px);border-radius:16px}
 body[data-imperion-scope="register"] .panel h2{font-size:clamp(1.35rem,2.3vw,1.85rem)}
 body[data-imperion-scope="register"] .panel .sub{margin:4px 0 16px;max-width:75ch}
