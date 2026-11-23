@@ -1,6 +1,7 @@
 import test from 'node:test';
+import {readFileSync} from 'node:fs';
 import assert from 'node:assert/strict';
-import {QUERY_GROUPS, tedRequest, parseTedResponse, normalizeNotice, moneyGate,pragueSlot,deadlineBackfillCandidates} from '../supabase/functions/imperion-deal-hunter/core.mjs';
+import {QUERY_GROUPS, tedRequest, parseTedResponse, normalizeNotice, moneyGate,pragueSlot,deadlineBackfillCandidates,resolveDealHunterMode} from '../supabase/functions/imperion-deal-hunter/core.mjs';
 const example={'publication-number':'760875-2026','notice-title':{ces:['Česko – Vývoj programového vybavení na zakázku – ZAJIŠTĚNÍ SERVISU A ROZVOJE MMS 2026']},'buyer-name':{ces:['ČEPS, a.s.']},'publication-date':'2026-11-03+01:00','classification-cpv':['72230000','72230000'],'notice-type':'cn-standard'};
 test('3 stable official Czech tender queries; no key required',()=>{assert.equal(QUERY_GROUPS.length,3);for(const group of QUERY_GROUPS) {const q=tedRequest(group.cpv);assert.match(q.query,/buyer-country=CZE/);assert.equal(q.scope,'ACTIVE');assert.ok(!JSON.stringify(q).includes('api_key'));} assert.throws(()=>tedRequest('99999999'));});
 test('parse original-type TED eForms multilingual payload; no invented budget/closing date',()=>{const p=parseTedResponse({notices:[example,example]},'IT',new Date('2026-11-03T15:00:00Z'));assert.equal(p.received,2);assert.equal(p.items.length,1);const n=p.items[0];assert.equal(n.buyer,'ČEPS, a.s.');assert.match(n.source_url,/760875-2026$/);assert.equal(n.deadline_on,null);assert.equal(n.status,'REVIEW_UNCOSTED');assert.equal(n.notice_value_raw,null);});
@@ -54,4 +55,20 @@ test('backfill selector is idempotent and never overwrites owner-confirmed dates
     ['TED:00000001-2026']);
   assert.deepEqual(deadlineBackfillCandidates(items,[{source_key:'TED:00000001-2026',deadline_on:'2026-12-20'}]),[]);
   assert.throws(()=>deadlineBackfillCandidates({},prior),/INVALID_BACKFILL_INPUT/);
+});
+
+// Regression from 2026-11-23: pg_cron sends {mode:"cron"} explicitly.
+test('Deal Hunter accepts the installed cron payload and rejects unknown modes',()=>{
+  assert.equal(resolveDealHunterMode('cron'),'cron');
+  assert.equal(resolveDealHunterMode(undefined),'cron');
+  assert.equal(resolveDealHunterMode('manual'),'manual');
+  for(const bad of [null,'','CRON','manual ','automatic',true,false,0,{},[]]){
+    assert.equal(resolveDealHunterMode(bad),null);
+  }
+});
+
+test('Edge handler actually uses the tested scheduler mode resolver',()=>{
+  const source=readFileSync(new URL('../supabase/functions/imperion-deal-hunter/index.ts',import.meta.url),'utf8');
+  assert.match(source,/const mode=resolveDealHunterMode\(request\?\.mode\)/);
+  assert.match(source,/mode==='cron'&&!slot\.allowed/);
 });
