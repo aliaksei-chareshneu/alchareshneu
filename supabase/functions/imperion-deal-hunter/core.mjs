@@ -4,6 +4,13 @@ export const QUERY_GROUPS = Object.freeze([
   {id:'RESEARCH', cpv:'73000000'},
   {id:'TRAINING', cpv:'80000000'}
 ]);
+/** Match the installed pg_cron payload {mode:"cron"}; reject all unknown modes. */
+export function resolveDealHunterMode(value) {
+  if(value===undefined || value==='cron')return 'cron';
+  if(value==='manual')return 'manual';
+  return null;
+}
+
 export function tedQuery(cpv) {
   if (!QUERY_GROUPS.some(x => x.cpv === cpv)) throw Error('UNAPPROVED_CPV');
   return 'buyer-country=CZE AND notice-type IN (cn-standard cn-social cn-desg) AND classification-cpv='+cpv+' SORT BY publication-date DESC';
