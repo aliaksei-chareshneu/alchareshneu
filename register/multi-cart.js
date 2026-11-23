@@ -245,6 +245,11 @@ async function getQuote(parent){const where=parent||receiptArea();
 }
 form.addEventListener('submit',async event=>{
  const all=currentEvents();if(!all.some(isHEMA))return;
+ // Existing transfer receipts and one-time legacy continuation tokens
+ // must UPDATE the original RSVP rather than creating a duplicate cart.
+ const legacyProof=byId('paymentProof')?.files?.length>0;
+ const legacyCode=!!byId('paymentResumeToken')?.value.trim();
+ if(byId('checkoutPaymentDetails')?.open&&(legacyProof||legacyCode))return;
  event.preventDefault();event.stopImmediatePropagation();
  if(!form.checkValidity()){form.reportValidity();return;}
  if(all.some(e=>e.category==='HEMA Training'&&e.data_controller==='Aliaksei Chareshneu (OSVČ)')&&!approved.checked){accepted.scrollIntoView({block:'center'});return;}
