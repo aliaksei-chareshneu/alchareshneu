@@ -97,7 +97,7 @@ function render(){
  const distinct=[...amounts.keys()];
  explain.textContent=c.tentative+' '+(distinct.length>1?c.payees:c.single);
  const consentNeeded=all.some(e=>e.category==='HEMA Training'&&e.data_controller==='Aliaksei Chareshneu (OSVČ)');
- accepted.style.display=(consentNeeded||resume.open)?'flex':'none';
+ accepted.style.display=((multi&&consentNeeded)||resume.open)?'flex':'none';
  if(!multi&&!resume.open)approved.checked=false;
  if(multi){for(const id of ['photo','future']){const cb=byId(id);if(cb){cb.checked=false;cb.disabled=true;}}}
  else if(typeof refreshOptIns==='function')refreshOptIns();
