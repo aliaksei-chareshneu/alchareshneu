@@ -225,6 +225,32 @@ function showReceipt(payload,requested){cartReceipt=payload;
    result.append(btn(c.check,()=>getQuote(result)));
  }else result.append(elt('p','',c.noMultiple));
 }
+function showSplitReceipts(received,failed){
+ const c=C(),root=receiptArea();
+ root.append(elt('h3','',Q().split));
+ root.append(elt('p','',Q().pdf));
+ if(failed)root.append(elt('p','event-state',c.error+' ('+String(failed.message||'request_failed')+')'));
+ for(const {seller,result,events:items} of received){
+  const card=elt('section','cart-bank');
+  card.append(elt('h3','',seller+' · '+items.length+' '+Q().booking));
+  const codes=elt('details','cart-codes');
+  codes.append(elt('summary','',Q().details));
+  const records=[[c.id,result.cartId],[c.token,result.cartToken]];
+  for(const row of result.secrets||[])records.push([c.individual+' · '+row.eventId,row.resumeToken]);
+  for(const [label,value] of records){
+   const p=elt('p');p.append(elt('strong','',label+': '),elt('code','',value));codes.append(p);
+  }
+  codes.append(btn(c.copy,()=>navigator.clipboard?.writeText(records.map(r=>r[0]+': '+r[1]).join('\n'))));
+  card.append(codes);
+  if(seller==='Aliaksei Chareshneu (OSVČ)'&&values().rsvp==='YES'){
+   card.append(btn(c.check,()=>{
+     resumeId.value=result.cartId;resumeToken.value=result.cartToken;
+     getQuote(card);
+   }));
+  }else card.append(elt('p','cart-footer-note',c.pending));
+  root.append(card);
+ }
+}
 function showPayment(where,payload){cartQuote=payload.cartPayment;const c=C();const p=payload.cartPayment;
  const panel=elt('div','cart-bank');panel.append(elt('h3','',c.bank),
    elt('p','',p.recipient+' · '+money(p.totalCzk)),
@@ -267,7 +293,28 @@ form.addEventListener('submit',async event=>{
  const selectedTiers=Object.fromEntries(all.map(e=>[e.event_id,
    estimate.packageEvents.has(e.event_id)?'STARTER4':isHEMA(e)?cartTier:'STANDARD']));
  const body={...values(),action:'cart_submit',eventIds:all.map(e=>e.event_id),tiers:selectedTiers,osvcSellerConsent:approved.checked};
- try{const result=await post(body);form.hidden=true;showReceipt(result,all);}
+ try{
+   const groups=new Map();
+   for(const e of all){const seller=e.data_controller||e.community||'?';
+     if(!groups.has(seller))groups.set(seller,[]);
+     groups.get(seller).push(e);}
+   if(groups.size===1){
+     const result=await post(body);form.hidden=true;showReceipt(result,all);
+   }else{
+     // Multiple sellers are submitted as independent carts, never one transfer.
+     // Preserve partial-success receipts; never re-submit a successful cart.
+     const received=[];let failed=null;
+     for(const [seller,group] of groups){
+       const ids=new Set(group.map(e=>e.event_id));
+       const request={...body,eventIds:group.map(e=>e.event_id),
+         tiers:Object.fromEntries(Object.entries(selectedTiers).filter(([id])=>ids.has(id)))};
+       try{const result=await post(request);received.push({seller,result,events:group});}
+       catch(e){failed=e;break;}
+     }
+     if(received.length){form.hidden=true;showSplitReceipts(received,failed);}
+     else throw(failed||Error('request_failed'));
+   }
+ }
  catch(e){const result=byId('result');result.hidden=false;result.className='state error';result.textContent=C().error+' ('+String(e.message||'')+')';result.focus({preventScroll:true});}
  finally{submit.disabled=false;}
 },true);
