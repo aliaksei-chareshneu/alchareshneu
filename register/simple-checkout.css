@@ -1,0 +1,97 @@
+/* Compact registration layout: one column, calendar first, full-width checkout.
+   Only presentation changes; server remains authoritative for tariffs and payments. */
+body>.wrap{max-width:1260px;width:100%;padding:14px clamp(12px,2.8vw,30px) 48px}
+.layout{display:block!important;max-width:none;margin:12px 0 0}
+.layout>.pitch{display:block;max-width:none;padding:0 2px 2px;margin:0}
+.layout>.pitch .steps,
+.layout>.pitch .lede,
+.layout>.pitch .mobile-jump,
+.layout>.pitch .muted{display:none}
+.pitch h1{font-size:clamp(24px,3vw,34px);margin:0 0 10px;line-height:1.15}
+.pitch .kicker{display:none}
+.layout>.panel{max-width:none!important;width:100%!important;min-width:0;padding:clamp(14px,2.4vw,28px);border-radius:16px}
+.panel h2{font-size:clamp(1.35rem,2.3vw,1.85rem)}
+.panel .sub{margin:4px 0 16px;max-width:75ch}
+.event-selection-layout{display:block;margin:10px 0}
+.event-calendar{width:100%;max-width:none;padding:clamp(10px,2vw,18px)}
+.calendar-grid{width:100%}
+.calendar-day{min-width:0}
+.calendar-day.is-cart-selected{outline:2px solid #f3d69c;outline-offset:-3px;background:#244a43}
+.calendar-day.is-cart-selected span:first-child{font-weight:900}
+.event-search-collapse{margin:9px 0 0;border:0;padding:0}
+.event-search-collapse>summary{font-size:.85rem;cursor:pointer;color:var(--muted);padding:5px 2px}
+.event-search-collapse>.event-picker{margin:5px 0 0}
+.imperion-cart{margin:10px 0 16px;border:1px solid #74a392;background:#102e34;padding:clamp(12px,2vw,20px)}
+.imperion-cart h3{font-size:1.15rem}
+.imperion-cart .cart-items{grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px}
+.imperion-cart .cart-item{background:#17363c;min-width:0}
+.imperion-cart .cart-totals{font-weight:850;font-size:clamp(1rem,1.7vw,1.2rem)}
+.cart-rate{display:flex;flex-wrap:wrap;align-items:center;gap:9px 16px;padding:9px 0}
+.cart-rate label{font-weight:700}
+.cart-rate select{min-width:170px;max-width:260px;padding:9px;font-weight:700}
+.cart-rate-rule{margin:0 0 7px;font-size:.85rem;color:#cbdfd9}
+.cart-plan{padding:9px 12px;margin:9px 0;border:1px solid #517870;border-radius:10px;display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
+.cart-plan label{font-weight:700}
+.cart-plan select{max-width:100%;min-width:235px;min-height:42px}
+.cart-plan-note{font-size:.82rem;color:var(--muted);margin:0 0 9px}
+.cart-footer-note{font-size:.8rem;color:#c8dbd6}
+#eventInfo{margin:8px 0;font-size:.9rem}
+#eventInfo p{margin:5px 0}
+body.hema-quick #eventInfo{display:none}
+#rsvpDetails{width:100%}
+#rsvpDetails .field{margin:10px 0}
+#rsvpDetails .cols{gap:clamp(8px,2vw,18px)}
+.optional-disclosures{margin:10px 0;border:1px solid #3b625e;border-radius:10px;padding:8px 12px}
+.optional-disclosures>summary{cursor:pointer;color:#b5ded0;font-weight:700}
+.optional-disclosures .consent-choices{margin:9px 0;padding:8px 12px}
+.archive-payment{border:1px solid #355e59;border-radius:10px;margin:10px 0;padding:9px 12px}
+.archive-payment summary{cursor:pointer;color:#b8dbcd;font-weight:700}
+.archive-payment #trainingPayment{margin:8px 0}
+.cart-receipt .cart-codes{margin-top:10px;border:1px solid #3a6462;border-radius:10px;padding:10px}
+.cart-codes summary{cursor:pointer;font-weight:750}
+.cart-codes code{font-size:.8rem}
+.event-selection-layout+.imperion-cart{clear:both}
+#submit{margin-top:10px}
+.imperion-cart .cart-resume{margin:3px 0 0}
+.imperion-cart .cart-resume summary{font-size:.8rem;color:#abcfc1;font-weight:500}
+@media(max-width:620px){
+ .cols{grid-template-columns:1fr;gap:0}
+ .imperion-cart .cart-items{grid-template-columns:1fr}
+ .cart-plan select{min-width:0;width:100%}
+ .cart-rate select{max-width:100%;min-width:0;width:100%}
+ .panel{padding:12px}
+}
+
+body.hema-quick #attendanceField{display:none}
+.optional-disclosures>.field{margin:10px 0}
+.cart-item .cart-price{font-weight:750}
+.imperion-cart .cart-consent{margin:8px 0}
+
+/* IMPERION HEMA compact checkout visual pass, 23 Nov 2026 */
+body[data-imperion-design="register"]{background:radial-gradient(ellipse at 3% 0%,#195b50 0%,#102f33 32%,#0a1d27 72%)}
+body[data-imperion-design="register"] .top{margin-bottom:4px}
+body[data-imperion-design="register"] .layout>.panel{background:#102d34 linear-gradient(160deg,#14353b,#112b35 67%,#102933);border:1px solid #4e8078;box-shadow:0 14px 36px #001e2585}
+body[data-imperion-design="register"] .panel h2{color:#f3f9f5}
+body[data-imperion-design="register"] .event-calendar{background:#0b2832;border:1px solid #477e74;border-radius:13px}
+body[data-imperion-design="register"] .calendar-day.has-open{border:1px solid #3a776c;background:#153d42}
+body[data-imperion-design="register"] .calendar-day.has-open:hover{background:#1e6358;color:#fff}
+body[data-imperion-design="register"] .calendar-day.is-cart-selected{background:#235b52;border:1px solid #f1d69b;box-shadow:0 0 0 1px #f1d69b inset;color:#fff}
+body[data-imperion-design="register"] .imperion-cart{background:linear-gradient(135deg,#153f3e,#0f343a);border:1px solid #679d85;border-radius:14px;padding:clamp(14px,2.4vw,22px);box-shadow:0 8px 22px #021e264d}
+body[data-imperion-design="register"] .imperion-cart h3{color:#f0f9ee;font-size:1.18rem}
+body[data-imperion-design="register"] .cart-item{background:#194149!important;border:1px solid #466a65!important;border-radius:9px!important}
+body[data-imperion-design="register"] .cart-price{color:#ffe1a1;font-weight:850}
+body[data-imperion-design="register"] .cart-grand-total{margin:12px 0 2px!important;padding:12px 14px;border-radius:10px;background:#204b46;border:1px solid #58957d;color:#f8ecbf;font-size:clamp(1.12rem,2vw,1.4rem);font-weight:900}
+body[data-imperion-design="register"] #submit{background:#a8efce;color:#0f332c;border:1px solid #bcecd4;font-weight:900;border-radius:10px;min-height:54px;box-shadow:0 4px 12px #031c2270}
+body[data-imperion-design="register"] #submit:hover{background:#d8ffec;transform:translateY(-1px)}
+body[data-imperion-design="register"] .cart-smallprint{padding:5px 0;font-size:.86rem;color:#b8d8d1;border:0}
+body[data-imperion-design="register"] .cart-smallprint>summary{cursor:pointer;font-size:.86rem;list-style:revert;color:#b7e9d2;padding:4px 1px}
+body[data-imperion-design="register"] .cart-smallprint p{margin:7px 0 9px;max-width:88ch;line-height:1.55;color:#d2e3db}
+body[data-imperion-design="register"] .cart-rate-rule{padding:0 0 5px;margin:5px 0}
+body[data-imperion-design="register"] .cart-plan-note{font-size:.85rem;color:#e5d19a;padding:3px 0}
+body[data-imperion-design="register"] .cart-rate label,body[data-imperion-design="register"] .cart-plan label{color:#eaf8ee}
+body[data-imperion-design="register"] .cart-rate select,body[data-imperion-design="register"] .cart-plan select{border-color:#678f87;min-height:44px;background:#102a35;color:#f2fff9}
+body[data-imperion-design="register"] .cart-footer-note{margin:6px 0;color:#b8d8d1;font-size:.85rem}
+body[data-imperion-design="register"] .panel .check:has(#safety){background:#193b40;border:1px solid #476f65;border-radius:10px;padding:11px}
+body[data-imperion-design="register"] .optional-disclosures,body[data-imperion-design="register"] .archive-payment{background:#112f38}
+body[data-imperion-design="register"] .panel .sub{max-width:100ch}
+@media(max-width:620px){body[data-imperion-design="register"] .imperion-cart{padding:12px}body[data-imperion-design="register"] .cart-grand-total{font-size:1.1rem}}

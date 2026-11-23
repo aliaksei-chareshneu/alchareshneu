@@ -25,6 +25,8 @@ for(const [lang,uri] of [['cs','/register/'],['en','/register/en/'],['ru','/regi
     headers:{'access-control-allow-origin':'*'},body:JSON.stringify({events:[event]})});
   });
   await page.goto(uri,{waitUntil:'domcontentloaded'});
+  // Advanced payment controls are deliberately collapsed on the new checkout.
+  await page.locator('#checkoutPaymentDetails > summary').click();
   await expect(page.locator('#rsvpForm')).toBeVisible({timeout:12000});
   await page.evaluate(()=>{
    const $=id=>document.getElementById(id),f=$('rsvpForm');

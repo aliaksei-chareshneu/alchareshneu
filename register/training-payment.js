@@ -95,7 +95,7 @@
     box.hidden=!q||mode!=='FORM';
     if(changed){
       clearPrivateQuote(true);
-      if($('paymentProofRecipient'))$('paymentProofRecipient').value='OSVC';
+      if($('paymentProofRecipient'))$('paymentProofRecipient').value=event?.data_controller==='Družina Moravy, z. s.'?'DRUZINA':'OSVC';
     }
     if(box.hidden){proof.required=false;proof.value='';$('trainingPaymentPrivate').textContent='';renderApprovedQr(null);return;}
     const t=copy();

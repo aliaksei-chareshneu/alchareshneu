@@ -1,3 +1,4 @@
+import { quoteStarter4 } from './cart-packages.mjs';
 /* Multi-event RSVP / same-legal-seller bank quote for the existing register endpoint.
  * Private token + service-role-only DB; one transfer is NEVER offered across controllers.
  * Bank proof is not bank settlement or a seat reservation. */
@@ -19,7 +20,7 @@ export async function handleCart(body, proof, req, d) {
   if (action === 'cart_submit') {
     let buyer, entries;
     try {
-      if (!Array.isArray(body.eventIds) || body.eventIds.length<2 || body.eventIds.length>8 ||
+      if (!Array.isArray(body.eventIds) || body.eventIds.length<1 || body.eventIds.length>8 ||
           new Set(body.eventIds).size!==body.eventIds.length || body.safety!==true)
         throw Error('invalid_cart');
       if (!body.eventIds.every(id=>typeof id==='string'&&/^[A-Za-z0-9-]{2,100}$/.test(id)))
@@ -31,6 +32,8 @@ export async function handleCart(body, proof, req, d) {
         guardianName:age==='under18'?safeName(body.guardianName):'',
         guardianPhone:age==='under18'?safePhone(body.guardianPhone):'',
         rsvp:safeEnum(body.rsvp,['YES','MAYBE','NO']),
+        photo:age==='adult'?safeEnum(body.photo||'NO',['YES','NO']):'NO',
+        futureUpdates:age==='adult'&&body.futureUpdates===true,
         language:safeEnum(body.language||'cs',['cs','en','ru','uk']),
         discoverySource:discoveryCode(body.discoverySource)||'',
         utmSource:campaignCode(body.utmSource,48)||'',
@@ -96,7 +99,7 @@ export async function handleCart(body, proof, req, d) {
     const members=await api.from('imperion_rsvp_submissions')
       .select('id,event_id,created_at,training_requested_tier,osvc_authorized_at,training_authorized_at,training_authorized_tier,rsvp_status,payment_evidence_status')
       .eq('cart_id',cartId).order('event_id');
-    if(members.error||!Array.isArray(members.data)||members.data.length<2||members.data.length>8)
+    if(members.error||!Array.isArray(members.data)||members.data.length<1||members.data.length>8)
       return answer({error:'temporarily_unavailable'},503);
     const eventIds=members.data.map(row=>row.event_id);
     const catalog=await api.from('imperion_rsvp_events').select(d.EVENT_COLS)
@@ -104,6 +107,8 @@ export async function handleCart(body, proof, req, d) {
     if(catalog.error||catalog.data?.length!==eventIds.length)
       return answer({error:'temporarily_unavailable'},503);
     const byId=new Map(catalog.data.map(e=>[e.event_id,e]));
+    const packages=quoteStarter4(members.data,byId);
+    if(packages.error)return answer({error:packages.error},409);
     const lines=[];let sum=0;let payee=null, iban=null;
     for(const row of members.data){
       const e=byId.get(row.event_id);
@@ -118,11 +123,14 @@ export async function handleCart(body, proof, req, d) {
       if(hema && body.osvcSellerConsent!==true)
         return answer({error:'personal_seller_consent_required'},409);
       const tier=row.training_requested_tier||'STANDARD';
-      if(hema&&tier==='STARTER4')
-        return answer({error:'package_checkout_requires_plan_authorization'},409);
-      if(tier==='SENIOR'&&!(row.osvc_authorized_at ||
-        (row.training_authorized_at&&row.training_authorized_tier==='SENIOR')))
+      // A selected price tier is never its own authorization.
+      const approvedTier=!!row.training_authorized_at&&row.training_authorized_tier===tier;
+      if(tier==='STARTER4'&&!approvedTier)
+        return answer({error:'package_requires_individual_authorization'},409);
+      if(tier==='SENIOR'&&!approvedTier)
         return answer({error:'senior_status_not_verified'},409);
+      if(tier==='STANDARD'&&!(row.osvc_authorized_at||approvedTier))
+        return answer({error:'personal_confirmation_pending'},409);
       if(!hema&&!row.osvc_authorized_at)
         return answer({error:'personal_confirmation_pending'},409);
       // Do not accidentally apply the earlier 190 Kč tour price after its hard deadline.
@@ -131,7 +139,7 @@ export async function handleCart(body, proof, req, d) {
       const original=Date.parse(row.created_at);
       if(!Number.isFinite(original)||original>Date.now())
         return answer({error:'invalid_registration_timestamp'},409);
-      const q=osvcQuote(e,original,true,tier);
+      const q=osvcQuote(e,original,true,tier==='STARTER4'?'STANDARD':tier);
       if(!q?.sessionPaymentOpen||!q.account||!q.recipient||!q.quoteLockedAt)
         return answer({error:'personal_confirmation_pending'},409);
       const verified=verifiedBankIban(q.account,q.recipient,
@@ -140,10 +148,12 @@ export async function handleCart(body, proof, req, d) {
       if(!verified || (iban&&iban!==verified) || (payee&&payee!==q.recipient))
         return answer({error:'approved_bank_not_configured'},409);
       iban=verified;payee=q.recipient;
-      sum+=q.totalCzk;
+      const pack=packages.prices.get(e.event_id);
+      const amount=pack||q;
+      sum+=amount.totalCzk;
       lines.push({reference:row.id,eventId:e.event_id,tier,
-        baseCzk:q.baseCzk,surchargeCzk:q.surchargeCzk,totalCzk:q.totalCzk,
-        late48h:q.late48h,quoteLockedAt:q.quoteLockedAt});
+        baseCzk:amount.baseCzk,surchargeCzk:amount.surchargeCzk,totalCzk:amount.totalCzk,
+        late48h:amount.late48h,quoteLockedAt:q.quoteLockedAt});
     }
     if(!lines.length||!Number.isSafeInteger(sum)||sum>9999999)
       return answer({error:'no_combined_paid_items'},409);
