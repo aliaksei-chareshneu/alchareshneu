@@ -76,6 +76,7 @@ a{color:var(--mint)}button,input,select{font:inherit}button{cursor:pointer}.skip
 <link rel="stylesheet" href="../../unified-shell.css?v=20261113b">
 <link rel="stylesheet" href="../../imperion-finish.css?v=20261113b">
 <script src="../../unified-shell.js?v=20261113b" defer></script>
+<link rel="stylesheet" href="../simple-checkout.css?v=20261123ux1">
 </head>
 <body data-imperion-scope="register" data-imperion-design="register">
 <a class="skip" href="#form" data-i18n="skip">К форме регистрации</a>
@@ -108,10 +109,11 @@ a{color:var(--mint)}button,input,select{font:inherit}button{cursor:pointer}.skip
             <div id="calendarDayEvents" class="calendar-day-events" hidden></div>
             <p id="calendarHint" class="calendar-hint"></p>
           </section>
-          <div class="field event-picker" id="eventPicker"><label class="required" for="eventSearch" data-i18n="event">Мероприятие</label><input type="search" id="eventSearch" class="event-search" role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="eventMatches" autocomplete="off"><div id="eventMatches" class="event-matches" role="listbox" hidden></div><select id="eventId" required class="screenreader" aria-label="Selected event"><option value="">Vyberte akci…</option></select><p id="catalogSummary" class="catalog-summary" role="status" aria-live="polite"></p></div>
+          <details class="event-search-collapse"><summary id="eventSearchSummary">Search events by name</summary><div class="field event-picker" id="eventPicker"><label class="required" for="eventSearch" data-i18n="event">Мероприятие</label><input type="search" id="eventSearch" class="event-search" role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="eventMatches" autocomplete="off"><div id="eventMatches" class="event-matches" role="listbox" hidden></div><select id="eventId" required class="screenreader" aria-label="Selected event"><option value="">Vyberte akci…</option></select><p id="catalogSummary" class="catalog-summary" role="status" aria-live="polite"></p></div></details>
         </div>
         <div id="eventInfo" class="info" aria-live="polite" hidden></div><div id="rsvpDetails" hidden>
-        <section id="trainingPayment" class="info" aria-live="polite" hidden>
+        <details class="archive-payment" id="checkoutPaymentDetails"><summary id="checkoutPaymentTitle">Already paid? Upload the transfer PDF</summary>
+<section id="trainingPayment" class="info" aria-live="polite" hidden>
           <h3 id="trainingPaymentHeading"></h3>
           <p id="trainingPaymentNote"></p>
           <div class="field">
@@ -154,10 +156,8 @@ a{color:var(--mint)}button,input,select{font:inherit}button{cursor:pointer}.skip
             </select>
             <p id="paymentProofRecipientHelp" class="catalog-summary"></p>
           </div>
-        </section>
-        <fieldset class="consent-choices" id="optionalConsents"><legend id="optionalConsentLabel">Dobrovolné volby</legend><p id="optionalConsentNote" class="consent-help"></p><div class="consent-toolbar"><button type="button" id="optInAll" class="consent-select-all" aria-pressed="false" aria-controls="photo future" aria-describedby="optionalConsentNote">Souhlasím s fotografiemi i pozvánkami</button><span id="optionalConsentCount" class="consent-count" role="status" aria-live="polite">0 ze 2 vybráno</span></div><div class="check"><label><input id="photo" type="checkbox"><span><strong data-i18n="photoHead">По желанию разрешаю фото и видео со мной</strong> <span data-i18n="photoNote">для публикации на каналах организатора. Отказ не мешает участию. Для несовершеннолетних нужно отдельное разрешение опекуна.</span></span></label></div>
-        <div class="check"><label><input id="future" type="checkbox"><span><strong data-i18n="updatesHead">Хочу иногда получать приглашения на мероприятия (по желанию).</strong> <span data-i18n="updatesNote">Без спама. Для приглашений требуется дополнительное подтверждение; отказаться можно по email.</span></span></label></div>
-        </fieldset>
+        </section></details>
+        
         <div class="cols"><div class="field"><label class="required" for="firstName" data-i18n="first">Имя</label><input id="firstName" type="text" name="given-name" autocomplete="given-name" minlength="2" maxlength="80" required></div><div class="field"><label class="required" for="lastName" data-i18n="last">Фамилия</label><input id="lastName" type="text" name="family-name" autocomplete="family-name" minlength="2" maxlength="80" required></div></div>
         <div class="cols"><div class="field"><label class="required" for="email" data-i18n="email">Электронная почта</label><input id="email" type="email" name="email" autocomplete="email" maxlength="254" required></div><div class="field"><label class="required" for="phone" data-i18n="phone">Телефон</label><input id="phone" type="tel" name="tel" autocomplete="tel" maxlength="35" pattern="[+0-9() .-]{7,35}" placeholder="+420 777 123 456" required></div></div>
         <fieldset class="field"><legend class="required" data-i18n="age">Возраст участника</legend><div class="choices"><label><input type="radio" name="age" value="adult" required checked><span data-i18n="adult">18 лет и старше</span></label><label><input type="radio" name="age" value="under18"><span data-i18n="minor">Младше 18 лет</span></label></div></fieldset>
@@ -177,6 +177,9 @@ a{color:var(--mint)}button,input,select{font:inherit}button{cursor:pointer}.skip
 <option value="OTHER" data-i18n="sourceOther">Jinde</option>
 </select><p class="muted" data-i18n="attributionNote">Pouze pro vyhodnocení, odkud lidé přišli. Neznamená souhlas s reklamou.</p></div>
         <div class="check"><label><input id="safety" type="checkbox" required><span><strong data-i18n="safetyHead">С правилами безопасности согласен(на) (обязательно).</strong> <span data-i18n="safetyNote">Правила безопасности — по ссылке рядом.</span> <a id="rulesLink" href="../safety/" target="_blank" rel="noopener" data-i18n="readRules">Прочитать правила ↗</a></span></label></div>
+        <details class="optional-disclosures" id="optionalDisclosure"><summary id="checkoutOptionalTitle">Optional photos and updates</summary><fieldset class="consent-choices" id="optionalConsents"><legend id="optionalConsentLabel">Dobrovolné volby</legend><p id="optionalConsentNote" class="consent-help"></p><div class="consent-toolbar"><button type="button" id="optInAll" class="consent-select-all" aria-pressed="false" aria-controls="photo future" aria-describedby="optionalConsentNote">Souhlasím s fotografiemi i pozvánkami</button><span id="optionalConsentCount" class="consent-count" role="status" aria-live="polite">0 ze 2 vybráno</span></div><div class="check"><label><input id="photo" type="checkbox"><span><strong data-i18n="photoHead">По желанию разрешаю фото и видео со мной</strong> <span data-i18n="photoNote">для публикации на каналах организатора. Отказ не мешает участию. Для несовершеннолетних нужно отдельное разрешение опекуна.</span></span></label></div>
+        <div class="check"><label><input id="future" type="checkbox"><span><strong data-i18n="updatesHead">Хочу иногда получать приглашения на мероприятия (по желанию).</strong> <span data-i18n="updatesNote">Без спама. Для приглашений требуется дополнительное подтверждение; отказаться можно по email.</span></span></label></div>
+        </fieldset></details>
         <div class="screenreader" aria-hidden="true"><label for="website">Website</label><input id="website" tabindex="-1" autocomplete="off"></div>
         <p class="muted" style="font-size:13px" data-i18n="privacy">Контакты надёжно хранятся в ЕС и используются для организации участия. <a href="../privacy/">Конфиденциальность</a></p>
         <button id="submit" class="button" type="submit" data-i18n="send">Отправить заявку →</button></div>
