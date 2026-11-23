@@ -45,3 +45,18 @@ Only the first 7 records were manually written to the existing Google Sheet by a
 - Keep entity `OSVC` separate from `DRUZINA_MORAVY_ZS`, grants and personal funds.
 - Use the existing `Leads` only for qualified buyers after checking actual contact history; staged notices stay in `IMPERION_B2B_Open_Requests`.
 - If TED is unavailable, record partial/failure status, never assert a successful search and never retry paid providers.
+
+## 23 Nov 2026 — scheduled-run contract regression (release blocker)
+
+Authenticated read-only check of the EXISTING Supabase project and job 9 on 23 Nov:
+
+- Installed `pg_cron` sends `{"mode":"cron"}` in its HTTP body. Its SQL job has `active=true` and the database log says `succeeded`, but that only confirms the queued `net.http_post` SQL statement.
+- Actual `pg_net` HTTP responses for 11:20 and 12:20 UTC were `400 {"ok":false,"error":"invalid_mode"}`.
+- The last `imperion_deal_hunter_runs` receipt is dated **19 Nov 17:33 UTC**; therefore **scheduled search on 23 Nov was NOT successful**.
+- Private candidate status at audit: 128 TED notices, 28 with sourced deadline, 27 future-dated, zero costed, 7 marked CRM-synced; no buyers, quotes, contracts or bank cash proven.
+
+**Minimal compatibility fix, staged:** the pure `resolveDealHunterMode` helper accepts explicit `cron`, omitted mode, and `manual`, rejecting anything else. Tests cover the installed payload and assert that the Edge handler actually uses this resolver. **The Edge handler update was blocked by the connected GitHub write safety check**; a passing pure-unit test is NOT a production fix. The draft PR is intentionally NOT ready to merge while its integration test detects the remaining old handler.
+
+**Next gate (no automatic sends/deploy):** authorized maintainer must wire `resolveDealHunterMode(request?.mode)` into the existing authenticated Edge handler while preserving token verification, unknown-field rejection, Prague slot check, idempotent `run_slot`, and exact TED/DB readback. Run Node isolated QA + full CI, deploy only with authorized GO and rollback version available, then verify both an accepted authorized manual invocation and the NEXT scheduled run via **HTTP 200 + new `imperion_deal_hunter_runs` SOURCE_OK + persisted count**. Keep the previous Edge function version for rollback.
+
+Do not label a green `cron.job_run_details` row, 128 research notices, or 7 CRM referrals as confirmed paid clients.
