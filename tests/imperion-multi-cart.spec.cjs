@@ -21,7 +21,7 @@ function stub(page,posted){return page.route(API,route=>{
  posted.push(JSON.parse(route.request().postData()));
  return route.fulfill({status:200,contentType:'application/json',headers:cors,body:JSON.stringify({ok:true,cartId:'12345678-1234-4234-8234-123456789abc',cartToken:'A'.repeat(43),controller:'MIXED',references:[],secrets:[],confirmed:false,bankVerified:false})});
 });}
-async function pick(page,name){await page.locator('#eventSearch').fill(name);await expect(page.locator('#eventMatches')).toBeVisible();await page.locator('#eventMatches .match-option').filter({hasText:name}).first().click();}
+async function pick(page,name){const detail=page.locator('.event-search-collapse');if(!(await detail.getAttribute('open')))await detail.locator('summary').click();await page.locator('#eventSearch').fill(name);await expect(page.locator('#eventMatches')).toBeVisible();await page.locator('#eventMatches .match-option').filter({hasText:name}).first().click();}
 for(const lang of ['cs','en','ru','uk']){
  const path='/register/'+(lang==='cs'?'':lang+'/');
  test(lang+' participant selects two dates, corrects choice and one form request',async({page})=>{
@@ -54,7 +54,7 @@ test('mixed legal sellers remain visibly split into two amounts, no combined ban
  await page.goto('/register/en/?event=PUB-HEMA-MULTI-A');
  await pick(page,'Mock NGO Training');
  await expect(page.locator('#imperionMultiCart .cart-totals p')).toHaveCount(2);
- await expect(page.locator('#imperionMultiCart')).toContainText('Different legal payees require separate payments.');
+ await expect(page.locator('#imperionMultiCart')).toContainText('Separate legal providers require separate payments.');
  await page.locator('#firstName').fill('Test');await page.locator('#lastName').fill('Example');
  await page.locator('#email').fill('cart-test@example.invalid');await page.locator('#phone').fill('+420 777 123 456');
  await page.locator('#safety').check();await page.locator('#imperionMultiCart .cart-consent input').check();
