@@ -1,68 +1,68 @@
 /* Compact registration layout: one column, calendar first, full-width checkout.
    Only presentation changes; server remains authoritative for tariffs and payments. */
-body[data-imperion-scope="register"]>.wrap{max-width:1260px;width:100%;padding:14px clamp(12px,2.8vw,30px) 48px}
-body[data-imperion-scope="register"] .layout{display:block;max-width:none;margin:12px 0 0}
-body[data-imperion-scope="register"] .layout>.pitch{display:block;max-width:none;padding:0 2px 7px;margin:0}
-body[data-imperion-scope="register"] .layout>.pitch .steps,
-body[data-imperion-scope="register"] .layout>.pitch .lede,
-body[data-imperion-scope="register"] .layout>.pitch .mobile-jump,
-body[data-imperion-scope="register"] .layout>.pitch .muted{display:none}
-body[data-imperion-scope="register"] .pitch h1{font-size:clamp(24px,3vw,34px);margin:0 0 10px;line-height:1.15}
-body[data-imperion-scope="register"] .pitch .kicker{display:none}
-body[data-imperion-scope="register"] .layout>.panel{max-width:none;width:100%;min-width:0;padding:clamp(14px,2.4vw,28px);border-radius:16px}
-body[data-imperion-scope="register"] .panel h2{font-size:clamp(1.35rem,2.3vw,1.85rem)}
-body[data-imperion-scope="register"] .panel .sub{margin:4px 0 16px;max-width:75ch}
-body[data-imperion-scope="register"] .event-selection-layout{display:block;margin:10px 0}
-body[data-imperion-scope="register"] .event-calendar{width:100%;max-width:none;padding:clamp(10px,2vw,18px)}
-body[data-imperion-scope="register"] .calendar-grid{width:100%}
-body[data-imperion-scope="register"] .calendar-day{min-width:0}
-body[data-imperion-scope="register"] .calendar-day.is-cart-selected{outline:2px solid #f3d69c;outline-offset:-3px;background:#244a43}
-body[data-imperion-scope="register"] .calendar-day.is-cart-selected span:first-child{font-weight:900}
-body[data-imperion-scope="register"] .event-search-collapse{margin:9px 0 0;border:0;padding:0}
-body[data-imperion-scope="register"] .event-search-collapse>summary{font-size:.85rem;cursor:pointer;color:var(--muted);padding:5px 2px}
-body[data-imperion-scope="register"] .event-search-collapse>.event-picker{margin:5px 0 0}
-body[data-imperion-scope="register"] .imperion-cart{margin:10px 0 16px;border:1px solid #74a392;background:#102e34;padding:clamp(12px,2vw,20px)}
-body[data-imperion-scope="register"] .imperion-cart h3{font-size:1.15rem}
-body[data-imperion-scope="register"] .imperion-cart .cart-items{grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px}
-body[data-imperion-scope="register"] .imperion-cart .cart-item{background:#17363c;min-width:0}
-body[data-imperion-scope="register"] .imperion-cart .cart-totals{font-weight:850;font-size:clamp(1rem,1.7vw,1.2rem)}
-body[data-imperion-scope="register"] .cart-rate{display:flex;flex-wrap:wrap;align-items:center;gap:9px 16px;padding:9px 0}
-body[data-imperion-scope="register"] .cart-rate label{font-weight:700}
-body[data-imperion-scope="register"] .cart-rate select{min-width:170px;max-width:260px;padding:9px;font-weight:700}
-body[data-imperion-scope="register"] .cart-rate-rule{margin:0 0 7px;font-size:.85rem;color:#cbdfd9}
-body[data-imperion-scope="register"] .cart-plan{padding:9px 12px;margin:9px 0;border:1px solid #517870;border-radius:10px;display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
-body[data-imperion-scope="register"] .cart-plan label{font-weight:700}
-body[data-imperion-scope="register"] .cart-plan select{max-width:100%;min-width:235px;min-height:42px}
-body[data-imperion-scope="register"] .cart-plan-note{font-size:.82rem;color:var(--muted);margin:0 0 9px}
-body[data-imperion-scope="register"] .cart-footer-note{font-size:.8rem;color:#c8dbd6}
-body[data-imperion-scope="register"] #eventInfo{margin:8px 0;font-size:.9rem}
-body[data-imperion-scope="register"] #eventInfo p{margin:5px 0}
-body[data-imperion-scope="register"].hema-quick #eventInfo{display:none}
-body[data-imperion-scope="register"] #rsvpDetails{width:100%}
-body[data-imperion-scope="register"] #rsvpDetails .field{margin:10px 0}
-body[data-imperion-scope="register"] #rsvpDetails .cols{gap:clamp(8px,2vw,18px)}
-body[data-imperion-scope="register"] .optional-disclosures{margin:10px 0;border:1px solid #3b625e;border-radius:10px;padding:8px 12px}
-body[data-imperion-scope="register"] .optional-disclosures>summary{cursor:pointer;color:#b5ded0;font-weight:700}
-body[data-imperion-scope="register"] .optional-disclosures .consent-choices{margin:9px 0;padding:8px 12px}
-body[data-imperion-scope="register"] .archive-payment{border:1px solid #355e59;border-radius:10px;margin:10px 0;padding:9px 12px}
-body[data-imperion-scope="register"] .archive-payment summary{cursor:pointer;color:#b8dbcd;font-weight:700}
-body[data-imperion-scope="register"] .archive-payment #trainingPayment{margin:8px 0}
-body[data-imperion-scope="register"] .cart-receipt .cart-codes{margin-top:10px;border:1px solid #3a6462;border-radius:10px;padding:10px}
-body[data-imperion-scope="register"] .cart-codes summary{cursor:pointer;font-weight:750}
-body[data-imperion-scope="register"] .cart-codes code{font-size:.8rem}
-body[data-imperion-scope="register"] .event-selection-layout+.imperion-cart{clear:both}
-body[data-imperion-scope="register"] #submit{margin-top:10px}
-body[data-imperion-scope="register"] .imperion-cart .cart-resume{margin:3px 0 0}
-body[data-imperion-scope="register"] .imperion-cart .cart-resume summary{font-size:.8rem;color:#abcfc1;font-weight:500}
+body>.wrap{max-width:1260px;width:100%;padding:14px clamp(12px,2.8vw,30px) 48px}
+.layout{display:block!important;max-width:none;margin:12px 0 0}
+.layout>.pitch{display:block;max-width:none;padding:0 2px 7px;margin:0}
+.layout>.pitch .steps,
+.layout>.pitch .lede,
+.layout>.pitch .mobile-jump,
+.layout>.pitch .muted{display:none}
+.pitch h1{font-size:clamp(24px,3vw,34px);margin:0 0 10px;line-height:1.15}
+.pitch .kicker{display:none}
+.layout>.panel{max-width:none!important;width:100%!important;min-width:0;padding:clamp(14px,2.4vw,28px);border-radius:16px}
+.panel h2{font-size:clamp(1.35rem,2.3vw,1.85rem)}
+.panel .sub{margin:4px 0 16px;max-width:75ch}
+.event-selection-layout{display:block;margin:10px 0}
+.event-calendar{width:100%;max-width:none;padding:clamp(10px,2vw,18px)}
+.calendar-grid{width:100%}
+.calendar-day{min-width:0}
+.calendar-day.is-cart-selected{outline:2px solid #f3d69c;outline-offset:-3px;background:#244a43}
+.calendar-day.is-cart-selected span:first-child{font-weight:900}
+.event-search-collapse{margin:9px 0 0;border:0;padding:0}
+.event-search-collapse>summary{font-size:.85rem;cursor:pointer;color:var(--muted);padding:5px 2px}
+.event-search-collapse>.event-picker{margin:5px 0 0}
+.imperion-cart{margin:10px 0 16px;border:1px solid #74a392;background:#102e34;padding:clamp(12px,2vw,20px)}
+.imperion-cart h3{font-size:1.15rem}
+.imperion-cart .cart-items{grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px}
+.imperion-cart .cart-item{background:#17363c;min-width:0}
+.imperion-cart .cart-totals{font-weight:850;font-size:clamp(1rem,1.7vw,1.2rem)}
+.cart-rate{display:flex;flex-wrap:wrap;align-items:center;gap:9px 16px;padding:9px 0}
+.cart-rate label{font-weight:700}
+.cart-rate select{min-width:170px;max-width:260px;padding:9px;font-weight:700}
+.cart-rate-rule{margin:0 0 7px;font-size:.85rem;color:#cbdfd9}
+.cart-plan{padding:9px 12px;margin:9px 0;border:1px solid #517870;border-radius:10px;display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
+.cart-plan label{font-weight:700}
+.cart-plan select{max-width:100%;min-width:235px;min-height:42px}
+.cart-plan-note{font-size:.82rem;color:var(--muted);margin:0 0 9px}
+.cart-footer-note{font-size:.8rem;color:#c8dbd6}
+#eventInfo{margin:8px 0;font-size:.9rem}
+#eventInfo p{margin:5px 0}
+body.hema-quick #eventInfo{display:none}
+#rsvpDetails{width:100%}
+#rsvpDetails .field{margin:10px 0}
+#rsvpDetails .cols{gap:clamp(8px,2vw,18px)}
+.optional-disclosures{margin:10px 0;border:1px solid #3b625e;border-radius:10px;padding:8px 12px}
+.optional-disclosures>summary{cursor:pointer;color:#b5ded0;font-weight:700}
+.optional-disclosures .consent-choices{margin:9px 0;padding:8px 12px}
+.archive-payment{border:1px solid #355e59;border-radius:10px;margin:10px 0;padding:9px 12px}
+.archive-payment summary{cursor:pointer;color:#b8dbcd;font-weight:700}
+.archive-payment #trainingPayment{margin:8px 0}
+.cart-receipt .cart-codes{margin-top:10px;border:1px solid #3a6462;border-radius:10px;padding:10px}
+.cart-codes summary{cursor:pointer;font-weight:750}
+.cart-codes code{font-size:.8rem}
+.event-selection-layout+.imperion-cart{clear:both}
+#submit{margin-top:10px}
+.imperion-cart .cart-resume{margin:3px 0 0}
+.imperion-cart .cart-resume summary{font-size:.8rem;color:#abcfc1;font-weight:500}
 @media(max-width:620px){
- body[data-imperion-scope="register"] .cols{grid-template-columns:1fr;gap:0}
- body[data-imperion-scope="register"] .imperion-cart .cart-items{grid-template-columns:1fr}
- body[data-imperion-scope="register"] .cart-plan select{min-width:0;width:100%}
- body[data-imperion-scope="register"] .cart-rate select{max-width:100%;min-width:0;width:100%}
- body[data-imperion-scope="register"] .panel{padding:12px}
+ .cols{grid-template-columns:1fr;gap:0}
+ .imperion-cart .cart-items{grid-template-columns:1fr}
+ .cart-plan select{min-width:0;width:100%}
+ .cart-rate select{max-width:100%;min-width:0;width:100%}
+ .panel{padding:12px}
 }
 
-body[data-imperion-scope="register"].hema-quick #attendanceField{display:none}
-body[data-imperion-scope="register"] .optional-disclosures>.field{margin:10px 0}
-body[data-imperion-scope="register"] .cart-item .cart-price{font-weight:750}
-body[data-imperion-scope="register"] .imperion-cart .cart-consent{margin:8px 0}
+body.hema-quick #attendanceField{display:none}
+.optional-disclosures>.field{margin:10px 0}
+.cart-item .cart-price{font-weight:750}
+.imperion-cart .cart-consent{margin:8px 0}
