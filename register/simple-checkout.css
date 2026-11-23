@@ -2,7 +2,7 @@
    Only presentation changes; server remains authoritative for tariffs and payments. */
 body>.wrap{max-width:1260px;width:100%;padding:14px clamp(12px,2.8vw,30px) 48px}
 .layout{display:block!important;max-width:none;margin:12px 0 0}
-.layout>.pitch{display:block;max-width:none;padding:0 2px 7px;margin:0}
+.layout>.pitch{display:block;max-width:none;padding:0 2px 2px;margin:0}
 .layout>.pitch .steps,
 .layout>.pitch .lede,
 .layout>.pitch .mobile-jump,
