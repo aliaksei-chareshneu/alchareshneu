@@ -253,7 +253,10 @@ form.addEventListener('submit',async event=>{
  if(!form.checkValidity()){form.reportValidity();return;}
  if(all.some(e=>e.category==='HEMA Training'&&e.data_controller==='Aliaksei Chareshneu (OSVČ)')&&!approved.checked){accepted.scrollIntoView({block:'center'});return;}
  const submit=byId('submit');submit.disabled=true;
- const body={...values(),action:'cart_submit',eventIds:all.map(e=>e.event_id),tiers:Object.fromEntries(tiers),osvcSellerConsent:approved.checked};
+ const estimate=cartEstimate(all);
+ const selectedTiers=Object.fromEntries(all.map(e=>[e.event_id,
+   estimate.packageEvents.has(e.event_id)?'STARTER4':isHEMA(e)?cartTier:'STANDARD']));
+ const body={...values(),action:'cart_submit',eventIds:all.map(e=>e.event_id),tiers:selectedTiers,osvcSellerConsent:approved.checked};
  try{const result=await post(body);form.hidden=true;showReceipt(result,all);}
  catch(e){const result=byId('result');result.hidden=false;result.className='state error';result.textContent=C().error+' ('+String(e.message||'')+')';result.focus({preventScroll:true});}
  finally{submit.disabled=false;}
