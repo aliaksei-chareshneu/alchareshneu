@@ -27,7 +27,7 @@ export function createTrainingSpd(iban,amountCzk,reference,vs=null,prefix='DM') 
      amountCzk<1||amountCzk>9999999||typeof reference!=='string'||
      !/^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/i.test(reference)||
      (vs!==null&&!/^[1-9][0-9]{9}$/.test(String(vs)))||
-     !['DM','BW'].includes(prefix))return null;
+     !['DM','BW','IM'].includes(prefix))return null;
   return 'SPD*1.0*ACC:'+iban+'*AM:'+amountCzk.toFixed(2)+
     '*CC:CZK*MSG:'+prefix+' '+reference.replace(/-/g,'').toUpperCase()+
     (vs===null?'':'*X-VS:'+String(vs));
