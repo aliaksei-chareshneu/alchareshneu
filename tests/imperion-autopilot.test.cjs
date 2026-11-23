@@ -65,6 +65,8 @@ test('publication queue is review-only without public links or private CRM data'
   assert.equal(output.feed.events.length,1);
   assert.equal(output.drafts.drafts.length,1);
   assert.equal(output.drafts.drafts[0].status,'HOLD_FOR_MANUAL_APPROVAL');
+  assert.equal(output.drafts.drafts[0].outcome_storytelling_review,'REQUIRED_BEFORE_PUBLICATION');
+  assert.equal(output.drafts.drafts[0].outcome_claim_source,'VERIFIED_PUBLIC_EVENT_METADATA_ONLY');
   assert.equal(output.drafts.drafts[0].posted,false);
   assert.equal(output.drafts.drafts[0].published_url,null);
   assert.equal(output.drafts.drafts[0].direct_public_links,false);

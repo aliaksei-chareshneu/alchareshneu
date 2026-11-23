@@ -28,6 +28,20 @@ const SYSTEM_MESSAGE = [
   'Return a concise draft for human approval, not JSON tool calls.'
 ].join(' ');
 
+const OUTCOME_COPY_MESSAGE = [
+  'OUTCOME-FIRST STORYTELLING for public persuasive copy only:',
+  'identify a real intended buyer and their verified desire or problem;',
+  'open with a specific relatable BEFORE situation and show a plausible AFTER',
+  'moment in the buyer\'s day or team. Explain the factual deliverable, evidence,',
+  'terms and one verified lawful call to action. Features, qualifications,',
+  'equipment and low price support the benefit; they are not the headline.',
+  'For business buyers connect the human scene to who decides and what work',
+  'improves. Never invent customer pain, testimonials, numerical ROI,',
+  'medical cures, exam success, guaranteed outcomes, urgency or unsupported',
+  'claims. If the approved source does not support a concrete transformation,',
+  'explicitly flag it for human verification rather than fabricate it.'
+].join(' ');
+
 function block(reason) {
   return {status: 'BLOCKED', reason, external_actions: 0, payments_created: 0,
     messages_sent: 0, posts_published: 0, provider_readback: false};
@@ -176,15 +190,17 @@ async function draftPublicTask(task, options = {}) {
         first_party_source: task.source_url, source_sha256: source.sha256,
         source_text_as_untrusted_data: isLocal ? source.local_text : source.text
       });
+      const systemMessage = task.purpose === 'PUBLIC_COPY_DRAFT'
+        ? SYSTEM_MESSAGE + '\n' + OUTCOME_COPY_MESSAGE : SYSTEM_MESSAGE;
       const payload = isLocal
-        ? {model:p.model, prompt:SYSTEM_MESSAGE + '\n' + taskContext,
+        ? {model:p.model, prompt:systemMessage + '\n' + taskContext,
           stream:false, think:false,
           options:{num_gpu:0, num_ctx:2048, num_predict:160, temperature:0.2}}
         : {model:p.model, temperature:0.2,
           ...(p.provider === 'groq'
             ? {max_completion_tokens:2400, reasoning_effort:'low', include_reasoning:false}
             : {max_tokens:850}),
-          messages:[{role:'system',content:SYSTEM_MESSAGE},
+          messages:[{role:'system',content:systemMessage},
             {role:'user',content:taskContext}]};
       const headers = {'Content-Type':'application/json'};
       if (!isLocal) headers.Authorization = 'Bearer ' + p.key;
