@@ -24,7 +24,8 @@ DECLARE
   v_age text := p_cart->>'age';
   v_guardian text := nullif(p_cart->>'guardianName','');
   v_guardian_phone text := nullif(p_cart->>'guardianPhone','');
-  v_photo text := 'NO'; -- no ambiguous cross-controller media licence
+  v_photo text := CASE WHEN p_cart->>'photo'='YES' AND p_cart->>'age'='adult' THEN 'YES' ELSE 'NO' END;
+  v_updates boolean := p_cart->>'futureUpdates'='true' AND p_cart->>'age'='adult';
   v_lang text := p_cart->>'language';
   v_rsvp text := p_cart->>'rsvp';
 BEGIN
@@ -89,7 +90,8 @@ BEGIN
        payment_status_token_hash,payment_resume_token_issued_at)
     VALUES
       (v_id,ev.event_id,v_first,v_last,v_email,p_cart->>'phone',v_age,v_guardian,v_guardian_phone,
-       v_rsvp,true,'2026-10-25-v1',v_photo,false,
+       v_rsvp,true,'2026-10-25-v1',CASE WHEN v_controller='MIXED' THEN 'NO' ELSE v_photo END,
+       CASE WHEN v_controller='MIXED' THEN false ELSE v_updates END,
        ev.data_controller,v_lang,ev.ends_at + interval '90 days',
        nullif(p_cart->>'discoverySource',''),nullif(p_cart->>'utmSource',''),
        nullif(p_cart->>'utmMedium',''),nullif(p_cart->>'utmCampaign',''),
