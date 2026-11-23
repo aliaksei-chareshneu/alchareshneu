@@ -25,8 +25,8 @@ for(const width of [390,768,1440]){
   await page.goto('/?lang=cs');
   const button=page.locator('#fdHeroCta'),heading=button.locator('strong');
   await expect(button).toBeVisible();
-  await expect(heading).toHaveCSS('color','rgb(21, 32, 30)');
-  await expect(button).toHaveCSS('color','rgb(21, 32, 30)');
+  await expect(heading).toHaveCSS('color','rgb(16, 42, 45)');
+  await expect(button).toHaveCSS('color','rgb(16, 42, 45)');
   await expect(page.locator('#fdDays button[aria-label^="2026-11-16"]')).toBeVisible();
   await page.locator('#fdDays button[aria-label^="2026-11-16"]').click();
   const dialog=page.locator('#fdDetails');

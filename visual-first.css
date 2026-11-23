@@ -4,7 +4,7 @@
 
 /* The JS-mounted homepage is what visitors normally see. */
 html[data-imperion-frontdoor="ready"] #imperion-frontdoor .fd-hero {
-  height:auto; min-height:0; background:#10242a;
+  height:auto; min-height:0; background:#f5f0e7;
 }
 #imperion-frontdoor .fd-hero-inner {
   padding:clamp(30px,4vw,56px) 0 clamp(32px,4vw,56px);
@@ -79,7 +79,7 @@ html[data-imperion-frontdoor="ready"] #imperion-frontdoor .fd-hero {
 #imperion-frontdoor .fd-visual-tile img {
   position:absolute; inset:0; z-index:-2; width:100%; height:100%;
   object-fit:cover; object-position:center; opacity:.92;
-  transition:transform .38s ease;
+  transition:transform 280ms cubic-bezier(.23,1,.32,1);
 }
 #imperion-frontdoor .fd-visual-academy img { object-position:50% 36%; }
 #imperion-frontdoor .fd-visual-druzina img { object-position:50% 29%; }
@@ -224,4 +224,287 @@ body[data-imperion-design] :is(#academy,#druzina,#walkers).hero .tagline {max-wi
 }
 @media(prefers-reduced-motion:reduce){
   #imperion-frontdoor .fd-visual-grid *,#main.intent-home .intent-card * {animation:none!important;transition:none!important;transform:none!important;}
+}
+
+/* IMP UX standards 2026-11-22: accessible active homepage, no new theme layer.
+   The JS home hides the fallback skip link, so the front door owns its own. */
+#imperion-frontdoor .fd-skip {
+  position:absolute;top:8px;left:max(12px,env(safe-area-inset-left));
+  z-index:100;padding:12px 16px;max-width:calc(100vw - 24px);
+  transform:translateY(-160%);border:2px solid #fff2d6;border-radius:10px;
+  background:#f4cf8b;color:#11272a!important;text-decoration:none!important;
+  font:800 15px/1.3 "Source Sans 3",system-ui,sans-serif;
+}
+#imperion-frontdoor .fd-skip:focus-visible {
+  transform:none;outline:3px solid #fff;outline-offset:3px;
+}
+#imperion-frontdoor #fdMain {scroll-margin-top:110px;}
+#imperion-frontdoor #fdMain:focus {outline:none;}
+#imperion-frontdoor .fd-entity-note {
+  width:min(1320px,calc(100% - 48px));margin:14px auto 0;padding:14px 0 0;
+  border-top:1px solid #d5b8794a;color:#c9d8d4;
+  font:500 12px/1.55 "Source Sans 3",system-ui,sans-serif;
+  text-align:left;
+}
+#imperion-frontdoor .fd-visual-tile:focus-visible,
+#imperion-frontdoor .fd-more>summary:focus-visible,
+#imperion-frontdoor .fd-languages button:focus-visible {
+  outline:3px solid #fff1c1;outline-offset:4px;
+}
+@media(max-width:640px){
+  #imperion-frontdoor .fd-entity-note{width:calc(100% - 30px);}
+  #imperion-frontdoor .fd-more>summary{min-height:44px;}
+  #imperion-frontdoor .fd-languages button{min-height:36px;}
+}
+@media(prefers-reduced-motion:reduce){
+  #imperion-frontdoor .fd-skip{transition:none!important;}
+}
+
+/* Emil design-engineering polish (Nov 22 2026).
+   CSS-only progressive enhancement: no new runtime, zero extra downloads.
+   No JS-dependent visibility, layout shifts, or keyboard-delaying transitions. */
+#imperion-frontdoor {
+  --fd-ease-out: cubic-bezier(.23,1,.32,1);
+}
+@media (hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference) {
+  #imperion-frontdoor .fd-visual-tile {
+    transition:transform 180ms var(--fd-ease-out),
+      border-color 180ms ease,box-shadow 180ms var(--fd-ease-out);
+  }
+  #imperion-frontdoor .fd-visual-tile:hover {transform:translateY(-2px);}
+  #imperion-frontdoor .fd-visual-tile:active {transform:translateY(0) scale(.985);}
+  #imperion-frontdoor .fd-hero-cta,
+  #imperion-frontdoor .fd-hero-academy {
+    transition:transform 150ms var(--fd-ease-out),background-color 150ms ease,
+      color 150ms ease;
+  }
+  #imperion-frontdoor .fd-hero-cta:active,
+  #imperion-frontdoor .fd-hero-academy:active {transform:scale(.97);}
+  #imperion-frontdoor .fd-languages button:active {transform:scale(.97);}
+}
+/* Improve mobile tap sizes without adding decorative gestures. */
+@media(max-width:640px){
+  #imperion-frontdoor .fd-languages button {min-height:40px;}
+  #imperion-frontdoor .fd-hero-cta,
+  #imperion-frontdoor .fd-hero-academy {min-height:44px;}
+}
+@media(prefers-reduced-motion:reduce){
+  #imperion-frontdoor .fd-visual-tile,
+  #imperion-frontdoor .fd-hero-cta,
+  #imperion-frontdoor .fd-hero-academy,
+  #imperion-frontdoor .fd-languages button {
+    animation:none!important;transition:none!important;transform:none!important;
+  }
+}
+
+/* 2026-11-22 · Taste/Emil editorial revision. Existing photography and real destinations.
+   Design must stay readable with JS motion disabled and without third-party styles. */
+#imperion-frontdoor{
+  --fd-paper:#f5f0e7;--fd-petrol:#102a2d;--fd-copy:#305159;
+  --fd-terracotta:#8e4d25;--fd-focus:#ffe8a3;
+}
+#imperion-frontdoor .fd-hero{
+  color:var(--fd-petrol);background:var(--fd-paper);min-height:0;height:auto;
+}
+#imperion-frontdoor .fd-mosaic{display:none;}
+#imperion-frontdoor .fd-hero::before{
+  background:radial-gradient(ellipse at 92% 5%,rgba(185,147,95,.11),transparent 44%),
+    radial-gradient(ellipse at 6% 84%,rgba(49,102,91,.065),transparent 45%);
+}
+#imperion-frontdoor .fd-hero::after{display:none;}
+#imperion-frontdoor .fd-hero-inner{
+  width:min(1240px,calc(100% - 56px));flex:0 1 auto;margin:0 auto;
+  align-items:flex-start;justify-content:flex-start;
+  padding:clamp(36px,4vw,64px) 0 clamp(52px,5vw,76px);text-align:left;
+}
+#imperion-frontdoor .fd-hero .fd-eyebrow{
+  color:#16624d;font:800 13px/1.35 "Source Sans 3",system-ui,sans-serif;letter-spacing:.155em;
+}
+#imperion-frontdoor .fd-hero h1{
+  color:var(--fd-petrol);font:600 clamp(50px,5.25vw,82px)/.99 "Spectral",Georgia,serif;
+  letter-spacing:-.046em;max-width:880px;margin:14px 0 20px;text-shadow:none;text-wrap:balance;
+}
+#imperion-frontdoor .fd-hero h1 span:first-child{color:var(--fd-petrol);}
+#imperion-frontdoor .fd-hero h1 span:last-child{color:var(--fd-terracotta);}
+#imperion-frontdoor .fd-hero .fd-lede{
+  color:var(--fd-copy);text-shadow:none;
+  font:500 clamp(17px,1.4vw,20px)/1.55 "Source Sans 3",system-ui,sans-serif;
+  max-width:725px;margin:0 0 5px;text-wrap:pretty;
+}
+#imperion-frontdoor .fd-visual-grid{
+  grid-template-columns:1.12fr 1fr 1fr;width:100%;
+  gap:clamp(13px,1.7vw,24px);margin:26px 0 0;text-align:left;
+}
+#imperion-frontdoor .fd-visual-tile{
+  min-height:clamp(316px,26vw,388px);border-radius:14px;
+  padding:clamp(19px,2vw,26px);background:#122e36;border:1px solid #4a6466;
+  box-shadow:0 14px 25px #142a291f;gap:18px;
+}
+#imperion-frontdoor .fd-visual-tile img{opacity:1;object-fit:cover;filter:saturate(.83);}
+#imperion-frontdoor .fd-visual-tile::before{
+  background:linear-gradient(180deg,rgba(5,20,26,.52) 0%,rgba(5,20,26,.12) 34%,
+    rgba(5,20,26,.82) 59%,rgba(5,20,26,.985) 100%);
+}
+#imperion-frontdoor .fd-visual-tile::after{
+  position:absolute;top:24px;right:24px;color:#fff5e7;
+  font:800 12px/1.2 "Source Sans 3",system-ui,sans-serif;
+  letter-spacing:.16em;text-shadow:0 1px 8px #031118;
+}
+#imperion-frontdoor .fd-visual-academy::after{content:'01 / 03';}
+#imperion-frontdoor .fd-visual-druzina::after{content:'02 / 03';}
+#imperion-frontdoor .fd-visual-walkers::after{content:'03 / 03';}
+#imperion-frontdoor .fd-visual-icon{
+  width:60px;height:60px;border:1px solid #f3e0b8;border-radius:12px;
+  background-color:#102a31e8;background-size:47px;box-shadow:0 5px 16px #08151978;
+}
+#imperion-frontdoor .fd-visual-content{gap:8px;}
+#imperion-frontdoor .fd-visual-content strong{
+  color:#fff5e8;font:750 clamp(26px,2.55vw,34px)/1.08 "Source Sans 3",system-ui,sans-serif;
+  letter-spacing:-.03em;text-shadow:0 2px 9px #06171c;
+}
+#imperion-frontdoor .fd-visual-content small{
+  color:#f2e9da;font:600 clamp(15px,1.2vw,16px)/1.45 "Source Sans 3",system-ui,sans-serif;
+  text-shadow:0 2px 5px #071d22;max-width:30ch;
+}
+#imperion-frontdoor .fd-visual-content em{
+  color:#173037;background:#f6dfaf;border-radius:7px;
+  font:800 14px/1.3 "Source Sans 3",system-ui,sans-serif;
+  padding:11px 16px;margin-top:7px;min-height:42px;
+  display:inline-flex;align-items:center;text-shadow:none;
+}
+#imperion-frontdoor .fd-visual-druzina .fd-visual-content em{background:#f9d9c4;}
+#imperion-frontdoor .fd-visual-walkers .fd-visual-content em{background:#d6ebd8;}
+#imperion-frontdoor .fd-visual-tile:is(:hover,:focus-visible){
+  border-color:#8c642f;box-shadow:0 16px 35px #102b293b;
+}
+#imperion-frontdoor .fd-hero-actions{
+  width:100%;max-width:none;justify-content:flex-start;
+  gap:10px;margin:22px 0 0;
+}
+#imperion-frontdoor .fd-hero-cta,#imperion-frontdoor .fd-hero-academy{
+  color:var(--fd-petrol);background:#fffdf8;border:1px solid #607c79;
+  min-height:50px;padding:10px 16px;border-radius:8px;
+  box-shadow:none;text-decoration:none;
+}
+#imperion-frontdoor .fd-hero-cta:hover,#imperion-frontdoor .fd-hero-academy:hover{
+  background:#e9efe8;color:var(--fd-petrol);
+}
+#imperion-frontdoor .fd-hero-cta-copy strong,#imperion-frontdoor .fd-academy-copy strong{
+  font-size:16px;color:inherit;
+}
+#imperion-frontdoor .fd-hero-cta-copy small,#imperion-frontdoor .fd-academy-copy small{
+  color:#305159;font:600 13px/1.3 "Source Sans 3",system-ui,sans-serif;
+}
+/* High-contrast calendar: the second deliberate chapter after the bright choices. */
+#imperion-frontdoor .fd-section{background:#0e2328;padding:clamp(52px,6vw,86px) 0 70px;}
+#imperion-frontdoor .fd-topline h2{color:#fff4e1;font-family:"Spectral",Georgia,serif;}
+#imperion-frontdoor .fd-topline p{color:#e9e4d8;font-size:16px;line-height:1.55;}
+#imperion-frontdoor .fd-section .fd-eyebrow{color:#ffdc9b;font-size:13px;}
+#imperion-frontdoor .fd-filters button{font-size:14px;color:#f1f5eb;border-color:#7a9a99;}
+#imperion-frontdoor .fd-weekdays{color:#e2ebdf;font-size:12px;letter-spacing:.075em;}
+#imperion-frontdoor .fd-cal-note{color:#e9e4d8;font-size:14px;line-height:1.55;}
+#imperion-frontdoor .fd-entity-note{color:#e9e4d8;font-size:13px;line-height:1.65;}
+#imperion-frontdoor .fd-visual-tile:focus-visible{outline:3px solid #95572a;outline-offset:4px;}
+@media(max-width:900px) and (min-width:641px){
+  #imperion-frontdoor .fd-visual-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+  #imperion-frontdoor .fd-visual-walkers{grid-column:1/-1;min-height:255px;}
+}
+@media(max-width:640px){
+  #imperion-frontdoor .fd-hero-inner{
+    width:calc(100% - 32px);padding:32px 0 46px;align-items:stretch;text-align:left;
+  }
+  #imperion-frontdoor .fd-hero .fd-eyebrow{font-size:12px;letter-spacing:.1em;}
+  #imperion-frontdoor .fd-hero h1{
+    font-size:clamp(37px,10vw,49px);line-height:1.04;
+    letter-spacing:-.038em;margin:12px 0 15px;
+  }
+  #imperion-frontdoor .fd-hero .fd-lede{font-size:16px;line-height:1.5;max-width:44ch;}
+  #imperion-frontdoor .fd-visual-grid{grid-template-columns:1fr;gap:14px;margin-top:22px;}
+  #imperion-frontdoor .fd-visual-tile{
+    min-height:194px;flex-direction:row;align-items:flex-start;
+    gap:16px;padding:17px;border-radius:12px;
+  }
+  #imperion-frontdoor .fd-visual-icon{
+    width:50px;height:50px;background-size:38px;border-radius:9px;
+  }
+  #imperion-frontdoor .fd-visual-tile::after{top:18px;right:16px;font-size:11px;}
+  #imperion-frontdoor .fd-visual-content{gap:6px;align-self:flex-end;min-width:0;}
+  #imperion-frontdoor .fd-visual-content strong{font-size:24px;}
+  #imperion-frontdoor .fd-visual-content small{font-size:14px;line-height:1.4;}
+  #imperion-frontdoor .fd-visual-content em{
+    font-size:13.5px;min-height:42px;padding:10px 13px;
+  }
+  #imperion-frontdoor .fd-hero-actions{margin-top:19px;gap:8px;justify-content:flex-start;}
+  #imperion-frontdoor .fd-hero-cta,#imperion-frontdoor .fd-hero-academy{
+    min-height:48px;padding:10px 13px;flex:1 1 140px;
+  }
+  #imperion-frontdoor .fd-hero-cta-copy strong,#imperion-frontdoor .fd-academy-copy strong{font-size:14px;}
+  #imperion-frontdoor .fd-hero-cta-copy small,#imperion-frontdoor .fd-academy-copy small{font-size:12.5px;}
+  #imperion-frontdoor .fd-section{padding:50px 0 58px;}
+  #imperion-frontdoor .fd-topline h2{font-size:clamp(35px,9vw,45px);}
+  #imperion-frontdoor .fd-topline p{font-size:15px;}
+}
+@media(max-width:350px){
+  #imperion-frontdoor .fd-visual-tile{padding:14px;gap:12px;min-height:188px;}
+  #imperion-frontdoor .fd-visual-content strong{font-size:22px;}
+  #imperion-frontdoor .fd-hero h1{font-size:36px;}
+}
+@media(prefers-reduced-motion:reduce){
+  #imperion-frontdoor .fd-visual-tile,#imperion-frontdoor .fd-visual-tile img,
+  #imperion-frontdoor .fd-hero-cta,#imperion-frontdoor .fd-hero-academy{
+    transition:none!important;transform:none!important;
+  }
+}
+
+/* Shared header legibility. Prior mobile subtitle used 7px and locale 10px.
+   Keep both public shells the same size; hide only redundant mobile subheading. */
+#imperion-frontdoor .fd-logo-text small,
+body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-logo-copy small {
+  font-size:12px;line-height:1.25;letter-spacing:.035em;
+}
+#imperion-frontdoor .fd-languages button,
+body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-lang a {
+  font-size:12px;min-width:32px;min-height:40px;
+}
+@media(max-width:600px) {
+  #imperion-frontdoor .fd-logo-text small,
+  body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-logo-copy small {
+    display:none!important;
+  }
+  #imperion-frontdoor .fd-languages button,
+  body[data-imp-nav-ready="yes"] #imp-shell-top .imp-shell-lang a {
+    font-size:12px;min-width:28px;min-height:40px;
+  }
+}
+
+/* Visual QA finding: legacy .fd-mosaic.fd-photo-shadows is MORE specific than
+   the simple editorial .fd-mosaic rule and painted a dark photo behind dark copy.
+   Ensure the photo is absent from this light hero, not merely covered. */
+#imperion-frontdoor .fd-mosaic.fd-photo-shadows {
+  display:none!important; background-image:none!important;
+}
+/* Secondary shortcuts must not be full-width banners underneath the three cards. */
+#imperion-frontdoor .fd-hero-actions {
+  display:flex;flex-direction:row;flex-wrap:wrap;align-items:stretch;justify-content:flex-start;
+}
+#imperion-frontdoor .fd-hero-cta,
+#imperion-frontdoor .fd-hero-academy {
+  width:auto;max-width:100%;min-width:0;flex:0 1 280px;
+}
+@media(max-width:640px){
+  #imperion-frontdoor .fd-hero-cta,
+  #imperion-frontdoor .fd-hero-academy {
+    width:auto;min-width:0;flex:1 1 142px;
+  }
+}
+
+/* Fix 160px mobile CTA flex basis inherited from experience.css.
+   On small screens flex-direction:column changes flex-basis into HEIGHT;
+   actionable buttons became giant empty rectangles on Academy/BrnoWalkers. */
+@media(max-width:480px){
+  body[data-imperion-scope="shared"] #academy .hero-ctas > a.btn,
+  body[data-imperion-scope="shared"] #walkers .hero-ctas > a.btn{
+    flex:0 0 auto;min-height:54px;height:auto;max-height:none;
+    width:100%;padding:13px 18px;line-height:1.35;font-size:16px;
+  }
 }

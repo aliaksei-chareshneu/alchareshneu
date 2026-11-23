@@ -43,7 +43,10 @@ for(const width of [320,390,1440]){
   await expect(page.locator('#fdNavAbout')).toHaveAttribute('href','about/?lang=ru');
   await expect(page.locator('.fd-fighters')).toHaveCount(0);
   await expect(page.locator('.fd-photo-shadows span')).toHaveCount(0);
-  await expect(page.locator('.fd-photo-shadows')).toHaveCSS('background-image',/imperion-hero-cinematic-20261112\.webp/);
+   // Editorial hero intentionally removes the legacy background photograph: otherwise
+   // dark headline text was nearly invisible despite a passing CSS color-only check.
+   await expect(page.locator('.fd-photo-shadows')).toBeHidden();
+   await expect(page.locator('.fd-photo-shadows')).toHaveCSS('background-image','none');
   expect(await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth)).toBeLessThanOrEqual(1);
   if(width<=390){
    // The three primary destination cards now appear before the older shortcuts.
