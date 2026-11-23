@@ -70,7 +70,7 @@ body.hema-quick #attendanceField{display:none}
 /* IMPERION HEMA compact checkout visual pass, 23 Nov 2026 */
 body[data-imperion-design="register"]{background:radial-gradient(ellipse at 3% 0%,#195b50 0%,#102f33 32%,#0a1d27 72%)}
 body[data-imperion-design="register"] .top{margin-bottom:4px}
-body[data-imperion-design="register"] .layout>.panel{background:linear-gradient(160deg,#14353b,#112b35 67%,#102933);border:1px solid #4e8078;box-shadow:0 14px 36px #001e2585}
+body[data-imperion-design="register"] .layout>.panel{background:#102d34 linear-gradient(160deg,#14353b,#112b35 67%,#102933);border:1px solid #4e8078;box-shadow:0 14px 36px #001e2585}
 body[data-imperion-design="register"] .panel h2{color:#f3f9f5}
 body[data-imperion-design="register"] .event-calendar{background:#0b2832;border:1px solid #477e74;border-radius:13px}
 body[data-imperion-design="register"] .calendar-day.has-open{border:1px solid #3a776c;background:#153d42}
