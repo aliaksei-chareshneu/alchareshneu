@@ -31,7 +31,8 @@ jobs:
                 intent:'DRUZINA_ENQUIRY',visitType:'FIRST',preferredDay:'NEXT',
                 firstName:'Synthetic',lastName:'SmokeTest',
                 contact:'qa-druzina-20261025@example.invalid',
-                adultConfirmed:true,safety:true,language:'en',website:''
+                adultConfirmed:true,safety:true,propertyCare:true,
+                propertyRulesVersion:'2026-11-15-property-v1',language:'en',website:''
               })
             });
             const data=await response.json().catch(()=>({}));
