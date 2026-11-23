@@ -17,6 +17,8 @@ on:
       - 'tests/test_youtube_trend_intake.py'
       - 'tests/test_shortfactory_social_stage.py'
       - 'tests/test_owned_video_shorts.py'
+      - 'tools/auto-video-pipeline/creative_bridge.py'
+      - 'tools/auto-video-pipeline/tests/test_creative_bridge.py'
       - '.github/workflows/media-integration-tests.yml'
   pull_request:
     paths:
@@ -34,6 +36,8 @@ on:
       - 'tests/test_youtube_trend_intake.py'
       - 'tests/test_shortfactory_social_stage.py'
       - 'tests/test_owned_video_shorts.py'
+      - 'tools/auto-video-pipeline/creative_bridge.py'
+      - 'tools/auto-video-pipeline/tests/test_creative_bridge.py'
       - '.github/workflows/media-integration-tests.yml'
 
 permissions:
@@ -67,6 +71,8 @@ jobs:
         run: python -m unittest discover -s tests -p 'test_original_reel_builder.py' -v
       - name: Real rights-cleared footage timecode-to-Shorts / SRT smoke test
         run: python -m unittest discover -s tests -p 'test_owned_video_shorts.py' -v
+      - name: E09 script-to-ShortFactory handoff safety checks
+        run: python -m unittest discover -s tools/auto-video-pipeline/tests -p 'test_creative_bridge.py' -v
       - name: Compile all integration modules
         run: python -m py_compile youtube_trend_intake.py shortfactory_social_stage.py trend_refresh_runner.py original_reel_builder.py owned_video_shorts.py shortfactory_idea_worker.py
       - name: Original media preview does not publish
