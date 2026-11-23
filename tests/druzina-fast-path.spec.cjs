@@ -206,9 +206,8 @@ test('One-screen already-paid PDF is attached to newly created RSVP, not a secon
  expect(requests[1].headers()['content-type']).toContain('multipart/form-data');
  expect(requests[1].postData()).toContain('manual_proof');
  expect(requests[1].postData()).toContain('proofRecipient');
- expect(requests[1].postData()).toContain('OSVC');
+ expect(requests[1].postData()).toContain('DRUZINA');
  expect(requests[1].postData()).toContain('prior-transfer.pdf');
- await expect(page.locator('#result')).toContainText('PDF');
  await expect(page.locator('#result')).toContainText('PDF');
  await expect(page.locator('#result')).not.toContainText('bank verified');
 });
