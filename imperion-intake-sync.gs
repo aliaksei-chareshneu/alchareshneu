@@ -867,15 +867,45 @@ function impDigestNewRows_(ss,rsvps,enquiries,b2b,academy){
       }else if(spec.kind==='B2B'){
         if(!/^OSVC-B2B-[0-9a-f-]{36}$/i.test(v(row,'Submission_ID')))return;
         var budget=/;\s*Budget:\s*([A-Za-z0-9+_-]{1,24})\s*CZK(?:;|$)/.exec(v(row,'Notes'));
-        samples.push({kind:'B2B',row:n,service:v(row,'Service').slice(0,45),
+        samples.push({kind:'B2B',row:n,submissionId:v(row,'Submission_ID'),service:v(row,'Service').slice(0,45),
           priority:v(row,'Priority').slice(0,6),budget:budget?budget[1]:''});
       }else if(spec.kind==='ACADEMY'){
         if(!/^OSVC-ACADEMY-[0-9a-f-]{36}$/i.test(v(row,'Submission_ID')))return;
-        samples.push({kind:'ACADEMY',row:n,service:v(row,'Product_ID').slice(0,25)});
+        samples.push({kind:'ACADEMY',row:n,submissionId:v(row,'Submission_ID'),service:v(row,'Product_ID').slice(0,25)});
       }
     });
   });
   return samples;
+}
+/** Owner digest snapshots must resolve B2B/Academy by stable private form IDs.
+ * A row pointer may change after other CRM workflows append or restructure rows.
+ * Missing/duplicate identifiers fail closed; outbound job applications are not website enquiries.
+ */
+function impVerifiedDigestPointers_(ss,items){
+  items=Array.isArray(items)?items:[];
+  var isLead=function(item){return item&&(item.kind==='B2B'||item.kind==='ACADEMY');};
+  if(!items.some(isLead))return items.slice();
+  var sh=ss&&ss.getSheetByName('Leads');
+  var fallback=items.filter(function(x){return !isLead(x);});
+  if(!sh||sh.getLastRow()<2)return fallback;
+  var m=impHeader_(sh).map;
+  if(m.Submission_ID===undefined)return fallback;
+  var ids=sh.getRange(2,m.Submission_ID+1,sh.getLastRow()-1,1).getDisplayValues();
+  var byId={};
+  ids.forEach(function(r,i){
+    var id=String(r[0]||'').trim();
+    if(!/^OSVC-(?:B2B|ACADEMY)-[0-9a-f-]{36}$/i.test(id))return;
+    byId[id]=Object.prototype.hasOwnProperty.call(byId,id)?0:i+2;
+  });
+  return items.reduce(function(out,item){
+    if(!isLead(item)){out.push(item);return out;}
+    var id=String(item.submissionId||'').trim();
+    var prefix=item.kind==='B2B'?'OSVC-B2B-':'OSVC-ACADEMY-';
+    if(id.indexOf(prefix)!==0||!/^OSVC-(?:B2B|ACADEMY)-[0-9a-f-]{36}$/i.test(id))return out;
+    var row=byId[id];
+    if(row)out.push(Object.assign({},item,{row:row}));
+    return out;
+  },[]);
 }
 function impQueueOwnerDigest_(rsvps,enquiries,b2b,ss,academy){
   b2b=b2b||0;academy=academy||0;
@@ -937,7 +967,7 @@ function impFlushOwnerDigest_(cfg,ss,events){
   var titleById={};
   try{titleById=impOwnerDigestEvents_(ss,events);}
   catch(e){console.error('Owner digest event titles unavailable; using IDs');}
-  var list=Array.isArray(pending.items)?pending.items:[],lines=[
+  var list=impVerifiedDigestPointers_(ss,Array.isArray(pending.items)?pending.items:[]),lines=[
     'Nové požadavky z webových formulářů: '+n,
     'Počty se vztahují k novým záznamům, ne k potvrzené účasti ani platbám.'
   ];
@@ -980,14 +1010,14 @@ function impFlushOwnerDigest_(cfg,ss,events){
     lines.push('Zájem o trénink není potvrzená rezervace.');
   }
   if(pending.b2b){
-    lines.push('','FIREMNÍ OSVČ POPTÁVKY — nové obchodní poptávky: '+pending.b2b);
+    lines.push('','FIREMNÍ OSVČ POPTÁVKY — prokazatelné aktuální řádky: '+b2b.length+' | události importu: '+pending.b2b);
     b2b.forEach(function(item){
       lines.push('• '+(item.service||'Firemní služba')+
         (item.budget?' | rozpočet (deklarovaný): '+item.budget+' Kč':'')+
         (item.priority?' | priorita: '+item.priority:''));
       lines.push('  Otevřít lead: '+impOwnerDigestRowUrl_(cfg,ss,'Leads',item.row));
     });
-    if(!b2b.length)lines.push('Podrobnosti jsou v listu Leads.');
+    if(!b2b.length)lines.push('NEOVĚŘENO: ve stávajícím Leads není potvrzený zdrojový identifikátor pro tuto dávku. Nepovažujte oznámení za novou poptávku; nejprve prověřte synchronizaci.');
     lines.push('Poptávka není objednávka, smlouva, faktura ani příjem.');
   }
   if(pending.academy){
@@ -1003,7 +1033,9 @@ function impFlushOwnerDigest_(cfg,ss,events){
   lines.push('','DALŠÍ KROK: zkontrolovat uvedené záznamy v CRM, ověřit dostupnost a odpovědět individuálně.',
     'CRM: https://docs.google.com/spreadsheets/d/'+cfg.sheetId+'/edit');
   var subject='[Imperion] Nové žádosti: '+n;
-  if(n===1&&pending.rsvps===1){
+  if(pending.b2b&&!b2b.length){
+    subject='[Imperion] B2B import bez ověřeného leadu — kontrola CRM';
+  }else if(n===1&&pending.rsvps===1){
     var item=rsvp[0],event=item&&titleById[item.eventId];
     subject='[Imperion] Nová registrace — '+String(event&&event.title||'akce').slice(0,64);
   }else if(n===1&&pending.enquiries===1)
