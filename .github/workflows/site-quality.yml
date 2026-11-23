@@ -126,6 +126,7 @@ jobs:
           node --test tests/imperion-intake-bridge-source.test.cjs tests/imperion-intake-transient-retry.test.cjs tests/imperion-gas-intake-safe-deploy.test.cjs
           node --test tests/imperion-receipt-mailer.test.cjs
           node --test tests/imperion-academy-crm-bridge.test.cjs
+          node --test tests/imperion-intake-digest-stable-id.test.cjs
 
 
       - name: Check four-language information channels and gated chats
