@@ -97,6 +97,7 @@ function renderCalendar(){
  for(let day=1;day<=days;day++){
    const key=prefix+String(day).padStart(2,'0'),entries=grouped.get(key)||[];
    const cell=document.createElement(entries.length?'button':'span');
+   if(entries.length)cell.dataset.dayKey=key;
    cell.className='calendar-day'+(entries.length?' has-events':'')+(entries.some(e=>e.provisional)?' has-recurring-preview':'')+(entries.some(e=>!e.provisional&&eventMode(e)==='FORM')?' has-open':'')+(key===selectedKey?' is-selected':'')+(key===todayKey?' is-today':'');
    if(entries.length){
      cell.type='button';
