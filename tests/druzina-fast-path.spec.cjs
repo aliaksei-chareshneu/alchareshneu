@@ -86,7 +86,7 @@ for(const lang of languages){
   await expect(page.locator('html')).toHaveAttribute('lang',lang);
   await expect(page.locator('#rsvpForm')).toBeVisible();
   await expect(page.locator('#eventId')).toHaveValue(ID);
-  await page.locator('#checkoutPaymentDetails>summary').click();
+  await openLegacyPayment(page);
   await expect(page.locator('#trainingPayment')).toBeVisible();
   await expect(page.locator('#paymentProofField')).toBeVisible();
   await expect(page.locator('#paymentProof')).not.toHaveAttribute('required','');
@@ -149,7 +149,7 @@ test('Approved quote alone reveals bank details; unverified PDF stays manual',as
  await expect(page.locator('#paymentProofField')).toBeVisible();
  await expect(page.locator('#paymentProof')).not.toHaveAttribute('required','');
  await expect(page.locator('#paymentQrArea')).toBeHidden();
- await page.locator('#checkoutPaymentDetails>summary').click();
+ await openLegacyPayment(page);
  await page.locator('#firstName').fill('Test');
  await page.locator('#lastName').fill('Visitor');
  await page.locator('#email').fill('example@example.invalid');
@@ -189,7 +189,6 @@ test('One-screen already-paid PDF is attached to newly created RSVP, not a secon
  });
  await page.goto('/register/?lang=en&event='+ID);
  await openLegacyPayment(page);
- await page.locator('#checkoutPaymentDetails>summary').click();
  await page.locator('#firstName').fill('Test');
  await page.locator('#lastName').fill('Visitor');
  await page.locator('#email').fill('example@example.invalid');
@@ -223,7 +222,6 @@ test('Existing RSVP uses private code to upload receipt without duplicate bookin
  });
  await page.goto('/register/?lang=en&event='+ID);
  await openLegacyPayment(page);
- await page.locator('#checkoutPaymentDetails>summary').click();
  await page.locator('#firstName').fill('Test');
  await page.locator('#lastName').fill('Visitor');
  await page.locator('#email').fill('example@example.invalid');
