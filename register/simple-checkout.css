@@ -31,7 +31,6 @@ body[data-imperion-scope="register"] .cart-plan-note{font-size:.82rem;color:var(
 body[data-imperion-scope="register"] .cart-footer-note{font-size:.8rem;color:#c8dbd6}
 body[data-imperion-scope="register"] #eventInfo{margin:8px 0;font-size:.9rem}
 body[data-imperion-scope="register"] #eventInfo p{margin:5px 0}
-body[data-imperion-scope="register"] body.hema-quick #eventInfo{display:none}
 body[data-imperion-scope="register"].hema-quick #eventInfo{display:none}
 body[data-imperion-scope="register"] #rsvpDetails{width:100%}
 body[data-imperion-scope="register"] #rsvpDetails .field{margin:10px 0}
@@ -56,3 +55,8 @@ body[data-imperion-scope="register"] .imperion-cart .cart-resume summary{font-si
  body[data-imperion-scope="register"] .cart-rate select{max-width:100%;min-width:0;width:100%}
  body[data-imperion-scope="register"] .panel{padding:12px}
 }
+
+body[data-imperion-scope="register"].hema-quick #attendanceField{display:none}
+body[data-imperion-scope="register"] .optional-disclosures>.field{margin:10px 0}
+body[data-imperion-scope="register"] .cart-item .cart-price{font-weight:750}
+body[data-imperion-scope="register"] .imperion-cart .cart-consent{margin:8px 0}
