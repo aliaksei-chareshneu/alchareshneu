@@ -15,12 +15,20 @@ const copy={
 const lang=()=>['cs','en','ru','uk'].includes(document.documentElement.lang)?document.documentElement.lang:'cs';
 const C=()=>copy[lang()];
 const QUICK={
-cs:{title:'Vyberte tréninky',hint:'Vyberte jeden nebo více termínů v kalendáři.',rate:'Cena za trénink',standard:'Standard',senior:'Senior · 120 Kč po ověření',rule:'Senior: alespoň 4 skutečně absolvované tréninky za kalendářní měsíc; nárok ověřujeme.',rules:'Pravidla a ceny',plan:'Způsob platby',automatic:'Nejvýhodnější dostupná varianta',single:'Každý trénink zvlášť',pack:'Starter 4',price:'Celkem',split:'Platba se případně rozdělí podle právního poskytovatele.',pdf:'Dokončení platby vyžaduje PDF potvrzení převodu; skutečné připsání ověříme v bance.',noPack:'Pro tento výběr zatím není možné použít Starter 4 (4 tréninky u stejného poskytovatele do 30 dnů).',details:'Uložené přihlášky · soukromé údaje',advanced:'Pokračovat v dřívější platbě',optional:'Dobrovolně: fotografie a pozvánky',search:'Hledat událost podle názvu',proof:'Máte už platbu? Přiložte PDF',booking:'Vybrané termíny',alert:'Balíček lze uhradit pouze po potvrzení poskytovatele a podmínek.'},
-en:{title:'Choose your sessions',hint:'Select one or more dates in the calendar.',rate:'Price per session',standard:'Standard',senior:'Senior · 120 CZK after verification',rule:'Senior: at least 4 actually attended training sessions per calendar month; eligibility is verified.',rules:'Prices and rules',plan:'Payment option',automatic:'Best available price',single:'Pay separately per session',pack:'Starter 4',price:'Total',split:'Separate legal providers require separate payments.',pdf:'A bank-transfer PDF is required to complete payment; cleared funds are checked independently.',noPack:'Starter 4 is not applicable to these dates (four sessions with the same provider within 30 days).',details:'Saved request details · private',advanced:'Continue a previous payment',optional:'Optional: photos and invitations',search:'Find an event by name',proof:'Already transferred? Attach PDF',booking:'Selected sessions',alert:'Pass payment is available only after seller and terms are approved.'},
-ru:{title:'Выберите тренировки',hint:'Отметьте одну или несколько дат в календаре.',rate:'Тариф за занятие',standard:'Обычный',senior:'Senior · 120 Kč после проверки',rule:'Senior: минимум 4 действительно посещённые тренировки за календарный месяц. Право на тариф проверяется.',rules:'Цены и правила',plan:'Вариант оплаты',automatic:'Наиболее выгодный из доступных',single:'Каждое занятие отдельно',pack:'Starter 4',price:'Итого',split:'У разных юридических поставщиков платежи разделяются.',pdf:'Для завершения оплаты обязателен PDF перевода. Поступление денег проверяется в банке.',noPack:'На эти даты Starter 4 пока не применяется: нужны четыре занятия одного поставщика за 30 дней.',details:'Данные заявки · приватно',advanced:'Продолжить ранее начатую оплату',optional:'Необязательно: фото и приглашения',search:'Найти мероприятие по названию',proof:'Уже оплатили? Прикрепите PDF',booking:'Выбранные занятия',alert:'Оплата абонемента доступна после подтверждения поставщика и условий.'},
-uk:{title:'Оберіть тренування',hint:'Виберіть одну чи кілька дат у календарі.',rate:'Тариф за заняття',standard:'Звичайний',senior:'Senior · 120 Kč після перевірки',rule:'Senior: щонайменше 4 фактично відвідані тренування за календарний місяць. Право на тариф перевіряється.',rules:'Ціни й правила',plan:'Варіант оплати',automatic:'Найвигідніший доступний',single:'Кожне тренування окремо',pack:'Starter 4',price:'Разом',split:'Різні юридичні надавачі потребують окремих платежів.',pdf:'Для завершення оплати потрібен PDF переказу; зарахування перевіряється в банку.',noPack:'Для цих дат Starter 4 не підходить: потрібні 4 тренування того самого надавача за 30 днів.',details:'Дані заявки · приватно',advanced:'Продовжити попередню оплату',optional:'Необов’язково: фото й запрошення',search:'Знайти подію за назвою',proof:'Уже переказали? Додайте PDF',booking:'Обрані тренування',alert:'Оплата абонемента можлива після підтвердження надавача й умов.'}
+cs:{title:'Vyberte tréninky',hint:'Vyberte jeden nebo více termínů v kalendáři.',rate:'Cena za trénink',standard:'Standard',senior:'Senior · 120 Kč po ověření',rule:'Senior: 4 skutečně odchozené tréninky v měsíci; tarif ověřujeme od dalšího měsíce.',rules:'Pravidla a ceny',plan:'Způsob platby',automatic:'Nejvýhodnější dostupná varianta',single:'Každý trénink zvlášť',pack:'Starter 4',price:'Celkem',split:'Platba se případně rozdělí podle právního poskytovatele.',pdf:'Dokončení platby vyžaduje PDF potvrzení převodu; skutečné připsání ověříme v bance.',noPack:'Pro tento výběr zatím není možné použít Starter 4 (4 tréninky u stejného poskytovatele do 30 dnů).',details:'Uložené přihlášky · soukromé údaje',advanced:'Pokračovat v dřívější platbě',optional:'Dobrovolně: fotografie a pozvánky',search:'Hledat událost podle názvu',proof:'Máte už platbu? Přiložte PDF',booking:'Vybrané termíny',alert:'Balíček lze uhradit pouze po potvrzení poskytovatele a podmínek.'},
+en:{title:'Choose your sessions',hint:'Select one or more dates in the calendar.',rate:'Price per session',standard:'Standard',senior:'Senior · 120 CZK after verification',rule:'Senior: 4 attended trainings in one calendar month, with the rate verified for the following month.',rules:'Prices and rules',plan:'Payment option',automatic:'Best available price',single:'Pay separately per session',pack:'Starter 4',price:'Total',split:'Separate legal providers require separate payments.',pdf:'A bank-transfer PDF is required to complete payment; cleared funds are checked independently.',noPack:'Starter 4 is not applicable to these dates (four sessions with the same provider within 30 days).',details:'Saved request details · private',advanced:'Continue a previous payment',optional:'Optional: photos and invitations',search:'Find an event by name',proof:'Already transferred? Attach PDF',booking:'Selected sessions',alert:'Pass payment is available only after seller and terms are approved.'},
+ru:{title:'Выберите тренировки',hint:'Отметьте одну или несколько дат в календаре.',rate:'Тариф за занятие',standard:'Обычный',senior:'Senior · 120 Kč после проверки',rule:'Senior: 4 фактически посещённые тренировки за месяц → тариф со следующего месяца после проверки.',rules:'Цены и правила',plan:'Вариант оплаты',automatic:'Наиболее выгодный из доступных',single:'Каждое занятие отдельно',pack:'Starter 4',price:'Итого',split:'У разных юридических поставщиков платежи разделяются.',pdf:'Для завершения оплаты обязателен PDF перевода. Поступление денег проверяется в банке.',noPack:'На эти даты Starter 4 пока не применяется: нужны четыре занятия одного поставщика за 30 дней.',details:'Данные заявки · приватно',advanced:'Продолжить ранее начатую оплату',optional:'Необязательно: фото и приглашения',search:'Найти мероприятие по названию',proof:'Уже оплатили? Прикрепите PDF',booking:'Выбранные занятия',alert:'Оплата абонемента доступна после подтверждения поставщика и условий.'},
+uk:{title:'Оберіть тренування',hint:'Виберіть одну чи кілька дат у календарі.',rate:'Тариф за заняття',standard:'Звичайний',senior:'Senior · 120 Kč після перевірки',rule:'Senior: 4 фактично відвідані тренування за місяць; тариф перевіряємо з наступного місяця.',rules:'Ціни й правила',plan:'Варіант оплати',automatic:'Найвигідніший доступний',single:'Кожне тренування окремо',pack:'Starter 4',price:'Разом',split:'Різні юридичні надавачі потребують окремих платежів.',pdf:'Для завершення оплати потрібен PDF переказу; зарахування перевіряється в банку.',noPack:'Для цих дат Starter 4 не підходить: потрібні 4 тренування того самого надавача за 30 днів.',details:'Дані заявки · приватно',advanced:'Продовжити попередню оплату',optional:'Необов’язково: фото й запрошення',search:'Знайти подію за назвою',proof:'Уже переказали? Додайте PDF',booking:'Обрані тренування',alert:'Оплата абонемента можлива після підтвердження надавача й умов.'}
 };
 const Q=()=>QUICK[lang()]||QUICK.cs;
+const SHORT={
+cs:{title:'Vybrané tréninky',session:'Trénink HEMA',seniorWhy:'Jak získat Senior?',planWhy:'Permanentka Starter 4 · 800 Kč',terms:'Platba a další informace',after:'Registrace bez platby. Platební údaje až po potvrzení.',noPack:'Permanentka nyní nejde použít na tuto kombinaci termínů. Individuální podmínky zůstávají platné.',price:'Celkem',submit:'Pokračovat v registraci →',status:'Žádost přijata. O podmínkách platby vás informujeme.'},
+en:{title:'Your training dates',session:'HEMA training',seniorWhy:'How to qualify for Senior',planWhy:'Starter 4 pass · 800 CZK',terms:'Payment and details',after:'Register first; payment details follow approval.',noPack:'The pass cannot currently be applied to these dates. Existing individual terms remain valid.',price:'Total',submit:'Continue registration →',status:'Request received. Payment details follow confirmation.'},
+ru:{title:'Выбранные тренировки',session:'Тренировка HEMA',seniorWhy:'Как получить Senior?',planWhy:'Абонемент Starter 4 · 800 Kč',terms:'Об оплате и условиях',after:'Запись без оплаты. Реквизиты после подтверждения.',noPack:'На эти даты абонемент пока не применяется. Ранее согласованные условия сохраняются.',price:'Итого',submit:'Продолжить оформление →',status:'Заявка получена. Условия оплаты сообщим после подтверждения.'},
+uk:{title:'Обрані тренування',session:'Тренування HEMA',seniorWhy:'Як отримати Senior?',planWhy:'Абонемент Starter 4 · 800 Kč',terms:'Про оплату та умови',after:'Запис без оплати. Реквізити після підтвердження.',noPack:'Для цих дат абонемент наразі не застосовується. Раніше погоджені умови збережено.',price:'Разом',submit:'Продовжити оформлення →',status:'Заявку отримано. Умови оплати повідомимо після підтвердження.'}
+};
+const U=()=>SHORT[lang()]||SHORT.cs;
+
 
 const money=n=>new Intl.NumberFormat(lang()==='cs'?'cs-CZ':'en-GB',{maximumFractionDigits:2}).format(n)+' Kč';
 const eventById=id=>typeof events!=='undefined'?events.find(e=>e.event_id===id):null;
@@ -74,12 +82,18 @@ rateSelect.id='cartTierChoice';
 for(const [tier,name] of [['STANDARD',Q().standard],['SENIOR',Q().senior]]){const op=elt('option','',name);op.value=tier;rateSelect.append(op);}
 rateLabel.htmlFor=rateSelect.id;rate.append(rateLabel,rateSelect);
 const rateRule=elt('p','cart-rate-rule');
+const seniorDisclosure=elt('details','cart-smallprint');
+const seniorHead=elt('summary','',U().seniorWhy);seniorDisclosure.append(seniorHead,rateRule);
 const rulesLink=elt('a','',Q().rules);rulesLink.href='https://aliaksei-chareshneu.github.io/alchareshneu/druzina/permanentky/#senior-eligibility';rulesLink.target='_blank';rulesLink.rel='noopener';rateRule.append(elt('span','',Q().rule+' '),rulesLink);
 const plan=elt('div','cart-plan'),planLabel=elt('label','',Q().plan),planSelect=elt('select');
 planSelect.id='cartPlanChoice';planLabel.htmlFor=planSelect.id;
 for(const [value,name] of [['AUTO',Q().automatic],['SINGLE',Q().single]]){const op=elt('option','',name);op.value=value;planSelect.append(op);}
 plan.append(planLabel,planSelect);
 const planNote=elt('p','cart-plan-note');
+const planDisclosure=elt('details','cart-smallprint');
+const planHead=elt('summary','',U().planWhy);planDisclosure.append(planHead,planNote);
+const infoDisclosure=elt('details','cart-smallprint'),infoHead=elt('summary','',U().terms),infoBody=elt('p','cart-footer-note');
+infoDisclosure.append(infoHead,infoBody);
 
 const resume=elt('details','cart-resume'),resTitle=elt('summary','',C().resume);
 const resumeId=elt('input');resumeId.type='text';resumeId.placeholder=C().id;resumeId.autocomplete='off';
@@ -88,8 +102,8 @@ const accepted=elt('label','cart-consent');const approved=elt('input');approved.
 const acceptText=elt('span','',C().accept);accepted.append(approved,acceptText);
 const controls=elt('div','cart-controls');controls.append(resumeId,resumeToken);
 const check=btn(C().check,()=>getQuote());controls.append(check);
-resume.append(resTitle,controls);
-box.append(heading,help,rate,rateRule,plan,list,planNote,totals,explain,accepted,resume);
+resume.append(resTitle,accepted,controls);
+box.append(heading,help,rate,seniorDisclosure,plan,list,planDisclosure,totals,explain,infoDisclosure,resume);
 const style=elt('style');style.textContent=`
 .imperion-cart{margin:18px 0;padding:16px;border:1px solid #5d7d7b;border-radius:16px;background:#101f2af2;color:#f2f5ee}
 .imperion-cart h3{margin:0 0 8px;font-size:1.2rem}.imperion-cart .cart-items{display:grid;gap:8px;margin:12px 0}
@@ -111,7 +125,8 @@ if(!layout)return;
 layout.after(box);
 function currentEvents(){return [...selected].map(eventById).filter(bookable);}
 function render(){
- const c=C();heading.textContent=Q().title;help.textContent=Q().hint;resTitle.textContent=Q().advanced;
+ const c=C();heading.textContent=U().title;help.textContent=Q().hint;resTitle.textContent=Q().advanced;
+ seniorHead.textContent=U().seniorWhy;planHead.textContent=U().planWhy;infoHead.textContent=U().terms;
  byId('checkoutOptionalTitle')&&(byId('checkoutOptionalTitle').textContent=Q().optional);
  byId('checkoutPaymentTitle')&&(byId('checkoutPaymentTitle').textContent=Q().proof);
  byId('eventSearchSummary')&&(byId('eventSearchSummary').textContent=Q().search);
@@ -122,7 +137,7 @@ function render(){
  if(all.some(isHEMA)&&byId('trainingTier'))byId('trainingTier').value=cartTier;
  const estimate=cartEstimate(all);
  for(const e of all){
-   const line=elt('div','cart-item'),name=elt('span','cart-name',eventDate(e)+' · '+eventTitle(e));
+   const line=elt('div','cart-item'),name=elt('span','cart-name',eventDate(e)+' · '+(isHEMA(e)?U().session:eventTitle(e)));
    line.append(name);
    // A single global tariff applies; per-date selectors were redundant.
    const amt=price(e),included=estimate.packageEvents.has(e.event_id);
@@ -142,19 +157,20 @@ function render(){
  }
  if(!all.length)list.append(elt('p','catalog-summary',c.empty));
  const h=all.some(isHEMA),qt=Q();
- rate.hidden=!h;rateRule.hidden=!h;plan.hidden=!h;planNote.hidden=!h;
+ rate.hidden=!h;seniorDisclosure.hidden=!h;plan.hidden=!h;planDisclosure.hidden=!h;
  rateLabel.textContent=qt.rate;rateSelect.options[0].textContent=qt.standard;rateSelect.options[1].textContent=qt.senior;rateSelect.value=cartTier;
  rateRule.firstChild.textContent=qt.rule+' ';rulesLink.textContent=qt.rules;
  planLabel.textContent=qt.plan;planSelect.options[0].textContent=qt.automatic;planSelect.options[1].textContent=qt.single;planSelect.value=cartPlan;
  const amounts=estimate.summary;
- for(const row of amounts)totals.append(elt('p','',qt.price+' · '+row.seller+': '+(row.known?money(row.total):c.unknown)));
+ totals.append(elt('p','cart-grand-total',U().price+': '+(estimate.allKnown?money(estimate.total):c.unknown)));
  const multi=all.length>1;
  const distinct=amounts.map(x=>x.seller);
- const packInfo=estimate.packCount ? (estimate.packCount+' × '+qt.pack+' ('+money(PACK_PRICE)+' / '+PACK_SIZE+')') : qt.noPack;
- planNote.textContent=cartPlan==='AUTO'?packInfo:'';
- explain.textContent=qt.pdf+(distinct.length>1?' '+qt.split:'');
+ const packInfo=estimate.packCount ? (estimate.packCount+' × '+qt.pack+' = '+money(estimate.packCount*PACK_PRICE)) : U().noPack;
+ planNote.textContent=cartPlan==='AUTO'?packInfo:qt.single;
+ explain.textContent=U().after;
+ infoBody.textContent=qt.pdf+(distinct.length>1?' '+qt.split:'');
  const consentNeeded=all.some(e=>e.category==='HEMA Training'&&e.data_controller==='Aliaksei Chareshneu (OSVČ)');
- accepted.style.display=(consentNeeded||resume.open)?'flex':'none';
+ accepted.style.display=consentNeeded?'flex':'none';
  // Media/marketing opt-ins are never silently shared between legal controllers.
  const mixedControllers=distinct.length>1;
  for(const id of ['photo','future']){
@@ -167,7 +183,7 @@ function render(){
  if(all.some(isHEMA)&&byId('paymentProof'))byId('paymentProof').required=false;
  const pay=byId('trainingPayment');if(pay&&multi&&all.some(isHEMA))pay.hidden=true;
  else if(pay&&all.length===1&&isHEMA(all[0])&&all[0].trainingPayment)pay.hidden=false;
- const submit=byId('submit');if(submit&&all.some(isHEMA)){submit.disabled=false;submit.textContent=c.submit.replace('{n}',String(all.length));}
+ const submit=byId('submit');if(submit&&all.some(isHEMA)){submit.disabled=false;submit.textContent=U().submit;}
  else if(submit&&typeof t==='function'){submit.textContent=t('send');}
  updateCartDayHighlights();
 }
@@ -213,7 +229,7 @@ function receiptArea(){const result=byId('result');result.hidden=false;result.re
 function showError(where,e){where.append(elt('p','event-state',e.message==='quote_changed'?C().priceChanged:C().error+' ('+String(e.message||'error')+')'));}
 function auth(){const v=values();return {firstName:v.firstName,lastName:v.lastName,email:v.email,cartId:resumeId.value.trim(),cartToken:resumeToken.value.trim()};}
 function showReceipt(payload,requested){cartReceipt=payload;
- const c=C(),result=receiptArea();result.append(elt('h3','',c.ok.replace('{n}',String(requested.length))),elt('p','',c.save),elt('p','',c.pending));
+ const c=C(),result=receiptArea();result.append(elt('h3','',U().status),elt('p','cart-footer-note',c.save));
  const codes=elt('details','cart-codes');codes.append(elt('summary','',Q().details));result.append(codes);
  const records=[[c.id,payload.cartId],[c.token,payload.cartToken]];
  for(const s of payload.secrets||[])records.push([c.individual+' · '+(eventTitle(eventById(s.eventId))||s.eventId),s.resumeToken]);
@@ -223,33 +239,7 @@ function showReceipt(payload,requested){cartReceipt=payload;
  resumeId.value=payload.cartId;resumeToken.value=payload.cartToken;
  if(payload.controller==='Aliaksei Chareshneu (OSVČ)'&&values().rsvp==='YES'){
    result.append(btn(c.check,()=>getQuote(result)));
- }else result.append(elt('p','',c.noMultiple));
-}
-function showSplitReceipts(received,failed){
- const c=C(),root=receiptArea();
- root.append(elt('h3','',Q().split));
- root.append(elt('p','',Q().pdf));
- if(failed)root.append(elt('p','event-state',c.error+' ('+String(failed.message||'request_failed')+')'));
- for(const {seller,result,events:items} of received){
-  const card=elt('section','cart-bank');
-  card.append(elt('h3','',seller+' · '+items.length+' '+Q().booking));
-  const codes=elt('details','cart-codes');
-  codes.append(elt('summary','',Q().details));
-  const records=[[c.id,result.cartId],[c.token,result.cartToken]];
-  for(const row of result.secrets||[])records.push([c.individual+' · '+row.eventId,row.resumeToken]);
-  for(const [label,value] of records){
-   const p=elt('p');p.append(elt('strong','',label+': '),elt('code','',value));codes.append(p);
-  }
-  codes.append(btn(c.copy,()=>navigator.clipboard?.writeText(records.map(r=>r[0]+': '+r[1]).join('\n'))));
-  card.append(codes);
-  if(seller==='Aliaksei Chareshneu (OSVČ)'&&values().rsvp==='YES'){
-   card.append(btn(c.check,()=>{
-     resumeId.value=result.cartId;resumeToken.value=result.cartToken;
-     getQuote(card);
-   }));
-  }else card.append(elt('p','cart-footer-note',c.pending));
-  root.append(card);
- }
+ }else result.append(elt('p','cart-footer-note',U().after));
 }
 function showPayment(where,payload){cartQuote=payload.cartPayment;const c=C();const p=payload.cartPayment;
  const panel=elt('div','cart-bank');panel.append(elt('h3','',c.bank),
@@ -273,7 +263,7 @@ function showPayment(where,payload){cartQuote=payload.cartPayment;const c=C();co
 }
 async function getQuote(parent){const where=parent||receiptArea();
  if(!resumeId.value.trim()||!resumeToken.value.trim()){where.append(elt('p','',C().save));return;}
- if(currentEvents().some(e=>e.category==='HEMA Training'&&e.data_controller==='Aliaksei Chareshneu (OSVČ)')&&!approved.checked){where.append(elt('p','',C().accept));return;}
+ if(currentEvents().some(e=>e.category==='HEMA Training'&&e.data_controller==='Aliaksei Chareshneu (OSVČ)')&&!approved.checked){resume.open=true;where.append(elt('p','',C().accept));return;}
  try{const response=await post({...auth(),action:'cart_quote',osvcSellerConsent:approved.checked});
    showPayment(where,response);
  }catch(e){where.append(elt('p','event-state',C().quotePending+' ('+String(e.message||'')+')'));}
@@ -287,34 +277,12 @@ form.addEventListener('submit',async event=>{
  if(byId('checkoutPaymentDetails')?.open&&(legacyProof||legacyCode))return;
  event.preventDefault();event.stopImmediatePropagation();
  if(!form.checkValidity()){form.reportValidity();return;}
- if(all.some(e=>e.category==='HEMA Training'&&e.data_controller==='Aliaksei Chareshneu (OSVČ)')&&!approved.checked){accepted.scrollIntoView({block:'center'});return;}
  const submit=byId('submit');submit.disabled=true;
  const estimate=cartEstimate(all);
  const selectedTiers=Object.fromEntries(all.map(e=>[e.event_id,
    estimate.packageEvents.has(e.event_id)?'STARTER4':isHEMA(e)?cartTier:'STANDARD']));
  const body={...values(),action:'cart_submit',eventIds:all.map(e=>e.event_id),tiers:selectedTiers,osvcSellerConsent:approved.checked};
- try{
-   const groups=new Map();
-   for(const e of all){const seller=e.data_controller||e.community||'?';
-     if(!groups.has(seller))groups.set(seller,[]);
-     groups.get(seller).push(e);}
-   if(groups.size===1){
-     const result=await post(body);form.hidden=true;showReceipt(result,all);
-   }else{
-     // Multiple sellers are submitted as independent carts, never one transfer.
-     // Preserve partial-success receipts; never re-submit a successful cart.
-     const received=[];let failed=null;
-     for(const [seller,group] of groups){
-       const ids=new Set(group.map(e=>e.event_id));
-       const request={...body,eventIds:group.map(e=>e.event_id),
-         tiers:Object.fromEntries(Object.entries(selectedTiers).filter(([id])=>ids.has(id)))};
-       try{const result=await post(request);received.push({seller,result,events:group});}
-       catch(e){failed=e;break;}
-     }
-     if(received.length){form.hidden=true;showSplitReceipts(received,failed);}
-     else throw(failed||Error('request_failed'));
-   }
- }
+ try{const result=await post(body);form.hidden=true;showReceipt(result,all);}
  catch(e){const result=byId('result');result.hidden=false;result.className='state error';result.textContent=C().error+' ('+String(e.message||'')+')';result.focus({preventScroll:true});}
  finally{submit.disabled=false;}
 },true);

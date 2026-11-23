@@ -40,30 +40,31 @@ for(const lang of ['cs','en','ru','uk']){
    await page.locator('#firstName').fill('Test');await page.locator('#lastName').fill('Example');
    await page.locator('#email').fill('cart-test@example.invalid');await page.locator('#phone').fill('+420 777 123 456');
    await page.locator('#safety').check();
-   await page.locator('#imperionMultiCart .cart-consent input').check();
+   
    await page.locator('#submit').click();
    await expect(page.locator('#result')).toBeVisible();
    expect(posted).toHaveLength(1);
-   expect(posted[0]).toMatchObject({action:'cart_submit',safety:true,photo:'NO',futureUpdates:false,osvcSellerConsent:true});
+   expect(posted[0]).toMatchObject({action:'cart_submit',safety:true,photo:'NO',futureUpdates:false,osvcSellerConsent:false});
    expect(posted[0].eventIds).toHaveLength(2);
    expect(new Set(posted[0].eventIds).size).toBe(2);
  });
 }
-test('mixed legal sellers remain visibly split into two amounts, no combined bank quote',async({page})=>{
+test('mixed internal controllers have one clean total and one intake; no payment payee displayed yet',async({page})=>{
  const posted=[];await stub(page,posted);
  await page.goto('/register/en/?event=PUB-HEMA-MULTI-A');
  await pick(page,'Mock NGO Training');
- await expect(page.locator('#imperionMultiCart .cart-totals p')).toHaveCount(2);
- await expect(page.locator('#imperionMultiCart')).toContainText('Separate legal providers require separate payments.');
+ await expect(page.locator('#imperionMultiCart .cart-totals p')).toHaveCount(1);
+ await expect(page.locator('#imperionMultiCart .cart-totals')).toContainText('480');
+ await expect(page.locator('#imperionMultiCart .cart-totals')).not.toContainText('OSVČ');
+ await expect(page.locator('#imperionMultiCart .cart-totals')).not.toContainText('z. s.');
  await page.locator('#firstName').fill('Test');await page.locator('#lastName').fill('Example');
  await page.locator('#email').fill('cart-test@example.invalid');await page.locator('#phone').fill('+420 777 123 456');
- await page.locator('#safety').check();await page.locator('#imperionMultiCart .cart-consent input').check();
+ await page.locator('#safety').check();
  await page.locator('#submit').click();
- await expect(page.locator('#result')).toContainText('Separate legal providers require separate payments.');
- expect(posted).toHaveLength(2);
- expect(posted.map(x=>x.eventIds)).toEqual([['PUB-HEMA-MULTI-A'],['PUB-HEMA-MULTI-C']]);
- expect(posted.every(x=>x.action==='cart_submit')).toBe(true);
- expect(posted.every(x=>x.eventIds.length===1)).toBe(true);
+ await expect(page.locator('#result')).toBeVisible();
+ expect(posted).toHaveLength(1);
+ expect(posted[0].action).toBe('cart_submit');
+ expect(posted[0].eventIds).toEqual(['PUB-HEMA-MULTI-A','PUB-HEMA-MULTI-C']);
 });
 const eightDates=Array.from({length:8},(_,i)=>{
  const start=new Date(Date.now()+(6+i*3)*86400000).toISOString();
