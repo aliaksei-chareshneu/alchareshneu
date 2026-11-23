@@ -7,6 +7,8 @@ const labels={
  uk:{headline:'Шукаєш пригод і друзів у Брно?',value:'Пригоди, рух, друзі, історія та костюми',cta:'Запитати про перше тренування'}
 };
 const ID='PUB-HEMA-20300101';
+async function openLegacyPayment(page){const panel=page.locator('#checkoutPaymentDetails');if(await panel.count()){if(!(await panel.getAttribute('open')))await panel.locator('summary').click();}}
+
 function mockEvent(payment=null){
  return {event_id:ID,title:'Družina test training',community:'Družina Moravy',
   category:'HEMA Training',begins_at:'2030-01-01T17:00:00Z',
@@ -72,6 +74,7 @@ for(const lang of languages){
  test('Legacy URL redirects into canonical form without retaining a second form: '+lang,async({page})=>{
   await mockApi(page);
   await page.goto('/druzina/prihlaska/?lang='+lang+'&event='+ID);
+ await openLegacyPayment(page);
   await expect(page).toHaveURL(new RegExp('/register/(?:'+(lang==='cs'?'':lang+'/')+')?\\?'));
   await expect(page.locator('html')).toHaveAttribute('lang',lang);
   await expect(page.locator('#rsvpForm')).toBeVisible();
@@ -84,6 +87,7 @@ for(const lang of languages){
  test('Only canonical form accepts new preliminary RSVP; code is not a paid seat: '+lang,async({page})=>{
   const submitted=await mockApi(page);
   await page.goto('/register/?lang='+lang+'&event='+ID);
+ await openLegacyPayment(page);
   await expect(page.locator('#rsvpForm')).toBeVisible();
   await expect(page.locator('#paymentProofField')).toBeVisible();
   await expect(page.locator('#paymentProof')).not.toHaveAttribute('required','');
@@ -132,6 +136,7 @@ test('Approved quote alone reveals bank details; unverified PDF stays manual',as
     bankVerified:false,quotedTotalCzk:300,quotedTier:'STANDARD'};
  });
  await page.goto('/register/?lang=en&event='+ID);
+ await openLegacyPayment(page);
  await expect(page.locator('#trainingPaymentAmount')).toContainText('300');
  await expect(page.locator('#paymentProofField')).toBeVisible();
  await expect(page.locator('#paymentProof')).not.toHaveAttribute('required','');
@@ -174,6 +179,7 @@ test('One-screen already-paid PDF is attached to newly created RSVP, not a secon
    reference:'11111111-1111-4111-8111-111111111111',resumeToken:'A'.repeat(43)};
  });
  await page.goto('/register/?lang=en&event='+ID);
+ await openLegacyPayment(page);
  await page.locator('#firstName').fill('Test');
  await page.locator('#lastName').fill('Visitor');
  await page.locator('#email').fill('example@example.invalid');
@@ -206,6 +212,7 @@ test('Existing RSVP uses private code to upload receipt without duplicate bookin
    paymentEvidenceStatus:'PROOF_RECEIVED',bankVerified:false,pdfReviewStatus:'NEEDS_MANUAL_REVIEW'};
  });
  await page.goto('/register/?lang=en&event='+ID);
+ await openLegacyPayment(page);
  await page.locator('#firstName').fill('Test');
  await page.locator('#lastName').fill('Visitor');
  await page.locator('#email').fill('example@example.invalid');
