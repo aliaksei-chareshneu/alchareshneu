@@ -143,3 +143,24 @@ test('two ordinary events create one cart with both IDs and no payment confirmat
   tiers:{'PUB-ORDINARY-CART-0':'STANDARD','PUB-ORDINARY-CART-1':'STANDARD'}});
  await expect(page.locator('#result')).not.toContainText('BANK VERIFIED');
 });
+
+test('mobile cart shows count and estimate, then moves focus to contact details without submitting',async({page})=>{
+ const sent=[];await stub(page,sent);
+ await page.setViewportSize({width:360,height:780});
+ await page.goto('/register/en/?event=PUB-HEMA-MULTI-A');
+ await expect(page.locator('#imperionMultiCart .cart-count')).toHaveText('Selected: 1 of 8');
+ await pick(page,'Mock Second Training');
+ await expect(page.locator('#imperionMultiCart .cart-count')).toHaveText('Selected: 2 of 8');
+ await expect(page.locator('#imperionMultiCart .cart-total-label')).toHaveText('Estimated total');
+ await expect(page.locator('#imperionMultiCart .cart-total-value')).toContainText('480');
+ await expect(page.locator('#imperionMultiCart .cart-no-payment')).toContainText('No payment now');
+ await expect(page.locator('.cart-item time')).toHaveCount(2);
+ const overflows=await page.locator('#imperionMultiCart').evaluate(el=>el.scrollWidth>el.clientWidth+1);
+ expect(overflows).toBe(false);
+ await page.locator('.cart-remove').first().click();
+ await expect(page.locator('#imperionMultiCart .cart-count')).toHaveText('Selected: 1 of 8');
+ await expect(page.locator('.cart-remove')).toBeFocused();
+ await page.getByRole('button',{name:'Enter contact details',exact:true}).click();
+ await expect(page.locator('#firstName')).toBeFocused();
+ expect(sent).toEqual([]);
+});
