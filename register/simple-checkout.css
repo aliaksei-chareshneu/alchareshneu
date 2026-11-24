@@ -95,3 +95,33 @@ body[data-imperion-design="register"] .panel .check:has(#safety){background:#193
 body[data-imperion-design="register"] .optional-disclosures,body[data-imperion-design="register"] .archive-payment{background:#112f38}
 body[data-imperion-design="register"] .panel .sub{max-width:100ch}
 @media(max-width:620px){body[data-imperion-design="register"] .imperion-cart{padding:12px}body[data-imperion-design="register"] .cart-grand-total{font-size:1.1rem}}
+
+/* Registration flow: selection, estimated cost, then contact details. */
+body[data-imperion-design="register"] .cart-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+body[data-imperion-design="register"] .cart-head h3{margin:0;font-size:clamp(1.15rem,3vw,1.5rem)}
+.imperion-cart .cart-count{font-size:.82rem;line-height:1.35;font-weight:800;border:1px solid #709a8a;color:#e9fff1;background:#183e37;border-radius:999px;padding:5px 10px;white-space:nowrap}
+.imperion-cart .cart-help{color:#cfe6dd;font-size:.92rem;line-height:1.5;margin:8px 0 0}
+body[data-imperion-design="register"] .cart-items{grid-template-columns:repeat(auto-fit,minmax(min(100%,290px),1fr))}
+body[data-imperion-design="register"] .cart-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 12px;padding:11px 12px}
+.imperion-cart .cart-name{display:grid;gap:2px;min-width:0;grid-row:span 2}
+.imperion-cart .cart-date{font-size:.81rem;font-weight:800;color:#d0e9dc}
+.imperion-cart .cart-event-name{font-size:1rem;font-weight:700;overflow-wrap:anywhere}
+.imperion-cart .cart-price{align-self:end;text-align:right;overflow-wrap:anywhere}
+.imperion-cart .cart-remove{justify-self:end;min-height:44px;padding:5px 10px;margin:0;font-size:.84rem;border:1px solid #729487;color:#eefcf5;background:#15363b;border-radius:8px}
+.imperion-cart .cart-remove:hover{background:#2c5453}
+.imperion-cart .cart-next-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 18px;align-items:center;background:#153a39;border:1px solid #77ae9a;border-radius:12px;padding:13px;margin-top:14px}
+.imperion-cart .cart-next-row[hidden]{display:none}
+body[data-imperion-design="register"] .cart-summary .cart-grand-total{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px;margin:0!important;padding:0;background:none;border:0}
+.imperion-cart .cart-total-label{font-size:.91rem;color:#d4ede3}
+.imperion-cart .cart-total-value{font-size:clamp(1.2rem,4vw,1.6rem);color:#fff0c6}
+.imperion-cart .cart-no-payment{font-size:.84rem;line-height:1.4;margin:4px 0 0;color:#d4ede3}
+.imperion-cart .cart-next{padding:10px 16px;min-height:48px;background:#a8efce;color:#0f332c;font-weight:850;border:1px solid #c7f5dd;border-radius:9px;margin:0;text-align:center;white-space:normal}
+.imperion-cart .cart-next:hover{background:#d8ffec}
+#imperionMultiCart :is(button,select,input,summary,a):focus-visible,#rsvpDetails :is(input,button):focus-visible{outline:3px solid #ffe0a0;outline-offset:3px}
+#firstName{scroll-margin-top:96px}
+@media(max-width:620px){
+ body[data-imperion-design="register"] .cart-items{grid-template-columns:1fr}
+ .imperion-cart .cart-next-row{grid-template-columns:minmax(0,1fr)}
+ .imperion-cart .cart-next{width:100%}
+}
+@media(prefers-reduced-motion:reduce){body[data-imperion-design="register"] #submit:hover{transform:none}}
