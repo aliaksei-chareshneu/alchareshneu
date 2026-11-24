@@ -117,3 +117,29 @@ test('package preview: 4=800, 5=1040, 8=1600; Senior does not receive unearned p
  await page.locator('#cartPlanChoice').selectOption('SINGLE');
  await expect(page.locator('#imperionMultiCart .cart-totals')).toContainText('1,920');
 });
+
+
+test('two ordinary events create one cart with both IDs and no payment confirmation',async({page})=>{
+ const posted=[];
+ const ordinary=fixtures.slice(0,2).map(({trainingPayment,...e},i)=>({...e,
+  event_id:'PUB-ORDINARY-CART-'+i,title:'Ordinary Event '+(i?'Second':'First'),
+  community:'BrnoWalkers',category:'Hiking',contact_activity:false
+ }));
+ await stub(page,posted,ordinary);
+ await page.goto('/register/en/?event=PUB-ORDINARY-CART-0');
+ await expect(page.locator('#imperionMultiCart .cart-item')).toHaveCount(1);
+ await pick(page,'Ordinary Event Second');
+ await expect(page.locator('#imperionMultiCart .cart-item')).toHaveCount(2);
+ await expect(page.locator('#submit')).toContainText('Submit 2 event requests');
+ await page.locator('#firstName').fill('Test');await page.locator('#lastName').fill('Visitor');
+ await page.locator('#email').fill('ordinary-cart@example.invalid');
+ await page.locator('#phone').fill('+420 777 123 456');
+ await page.locator('#safety').check();
+ await page.locator('#submit').click();
+ await expect(page.locator('#result')).toBeVisible();
+ expect(posted).toHaveLength(1);
+ expect(posted[0]).toMatchObject({action:'cart_submit',
+  eventIds:['PUB-ORDINARY-CART-0','PUB-ORDINARY-CART-1'],
+  tiers:{'PUB-ORDINARY-CART-0':'STANDARD','PUB-ORDINARY-CART-1':'STANDARD'}});
+ await expect(page.locator('#result')).not.toContainText('BANK VERIFIED');
+});
