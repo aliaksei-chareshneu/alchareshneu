@@ -28,6 +28,13 @@ ru:{title:'Выбранные тренировки',session:'Тренировк�
 uk:{title:'Обрані тренування',session:'Тренування HEMA',seniorWhy:'Як отримати Senior?',planWhy:'Абонемент Starter 4 · 800 Kč',terms:'Про оплату та умови',after:'Запис без оплати. Реквізити після підтвердження.',noPack:'Для цих дат абонемент наразі не застосовується. Раніше погоджені умови збережено.',price:'Разом',submit:'Продовжити оформлення →',status:'Заявку отримано. Умови оплати повідомимо після підтвердження.'}
 };
 const U=()=>SHORT[lang()]||SHORT.cs;
+const FLOW={
+ cs:{heading:'Váš výběr',count:'Vybráno: {n} z 8',empty:'Vyberte termín v kalendáři. Další akci přidáte kliknutím na její datum.',selected:'Přidejte další termíny, nebo pokračujte ke kontaktům.',limit:'Vybrali jste 8 akcí. Před přidáním další jednu odeberte.',next:'Vyplnit kontakty',estimated:'Předběžná cena',none:'Zatím neplatíte. Pokyny pošleme až po schválení.',remove:'Odebrat: {item}'},
+ en:{heading:'Your selection',count:'Selected: {n} of 8',empty:'Choose a date on the calendar. Select another date to add an event.',selected:'Add another date or continue to your contact details.',limit:'You’ve selected 8 events. Remove one before adding another.',next:'Enter contact details',estimated:'Estimated total',none:'No payment now. We’ll send instructions after approval.',remove:'Remove: {item}'},
+ ru:{heading:'Ваш выбор',count:'Выбрано: {n} из 8',empty:'Выберите дату в календаре. Чтобы добавить событие, нажмите на другую дату.',selected:'Добавьте ещё даты или перейдите к контактным данным.',limit:'Выбрано 8 событий. Удалите одно, чтобы добавить другое.',next:'Указать контакты',estimated:'Предварительная сумма',none:'Сейчас платить не нужно. Реквизиты придут после подтверждения.',remove:'Убрать: {item}'},
+ uk:{heading:'Ваш вибір',count:'Обрано: {n} із 8',empty:'Оберіть дату в календарі. Щоб додати подію, натисніть іншу дату.',selected:'Додайте ще дати або перейдіть до контактних даних.',limit:'Обрано 8 подій. Видаліть одну, щоб додати іншу.',next:'Вказати контакти',estimated:'Попередня сума',none:'Зараз платити не потрібно. Реквізити надійдуть після підтвердження.',remove:'Вилучити: {item}'}
+};
+const flow=()=>FLOW[lang()]||FLOW.cs;
 
 
 const money=n=>new Intl.NumberFormat(lang()==='cs'?'cs-CZ':'en-GB',{maximumFractionDigits:2}).format(n)+' Kč';
@@ -73,8 +80,15 @@ function cartEstimate(all){
 const elt=(tag,className,text)=>{const e=document.createElement(tag);if(className)e.className=className;if(text!==undefined)e.textContent=text;return e;};
 const btn=(name,click)=>{const e=elt('button','retry',name);e.type='button';e.addEventListener('click',click);return e;};
 const box=elt('section','imperion-cart');box.id='imperionMultiCart';
-const heading=elt('h3','',C().title),help=elt('p','catalog-summary',C().hint);
-const list=elt('div','cart-items'),totals=elt('div','cart-totals'),explain=elt('p','catalog-summary');
+const heading=elt('h3','',flow().heading),help=elt('p','cart-help');
+heading.id='cartSelectionHeading';box.setAttribute('aria-labelledby',heading.id);
+const count=elt('span','cart-count');count.setAttribute('role','status');count.setAttribute('aria-atomic','true');
+const cartHead=elt('div','cart-head');cartHead.append(heading,count);
+const continueToContact=btn(flow().next,()=>byId('firstName')?.focus());continueToContact.classList.add('cart-next');
+const cartNextRow=elt('div','cart-next-row');
+const list=elt('div','cart-items'),totals=elt('div','cart-totals'),explain=elt('p','cart-no-payment');list.setAttribute('role','list');list.setAttribute('aria-labelledby',heading.id);
+totals.setAttribute('aria-live','polite');totals.setAttribute('aria-atomic','true');
+const cartSummary=elt('div','cart-summary');cartSummary.append(totals,explain);cartNextRow.append(cartSummary,continueToContact);
 
 const rate=elt('div','cart-rate');
 const rateLabel=elt('label','',Q().rate),rateSelect=elt('select');
@@ -103,7 +117,7 @@ const acceptText=elt('span','',C().accept);accepted.append(approved,acceptText);
 const controls=elt('div','cart-controls');controls.append(resumeId,resumeToken);
 const check=btn(C().check,()=>getQuote());controls.append(check);
 resume.append(resTitle,accepted,controls);
-box.append(heading,help,rate,seniorDisclosure,plan,list,planDisclosure,totals,explain,infoDisclosure,resume);
+box.append(cartHead,help,list,rate,seniorDisclosure,plan,planDisclosure,cartNextRow,infoDisclosure,resume);
 const style=elt('style');style.textContent=`
 .imperion-cart{margin:18px 0;padding:16px;border:1px solid #5d7d7b;border-radius:16px;background:#101f2af2;color:#f2f5ee}
 .imperion-cart h3{margin:0 0 8px;font-size:1.2rem}.imperion-cart .cart-items{display:grid;gap:8px;margin:12px 0}
@@ -125,7 +139,8 @@ if(!layout)return;
 layout.after(box);
 function currentEvents(){return [...selected].map(eventById).filter(bookable);}
 function render(){
- const c=C();heading.textContent=U().title;help.textContent=Q().hint;resTitle.textContent=Q().advanced;
+ const c=C(), f=flow();heading.textContent=f.heading;resTitle.textContent=Q().advanced;
+ continueToContact.textContent=f.next;explain.textContent=f.none;
  seniorHead.textContent=U().seniorWhy;planHead.textContent=U().planWhy;infoHead.textContent=U().terms;
  byId('checkoutOptionalTitle')&&(byId('checkoutOptionalTitle').textContent=Q().optional);
  byId('checkoutPaymentTitle')&&(byId('checkoutPaymentTitle').textContent=Q().proof);
@@ -133,16 +148,22 @@ function render(){
  document.body.classList.toggle('hema-quick',currentEvents().some(isHEMA));
  resumeId.placeholder=c.id;resumeToken.placeholder=c.token;check.textContent=c.check;acceptText.textContent=c.accept;
  const all=currentEvents();list.replaceChildren();totals.replaceChildren();
+ const countText=f.count.replace('{n}',String(all.length));if(count.textContent!==countText)count.textContent=countText;
+ help.textContent=all.length===MAX?f.limit:all.length?f.selected:f.empty;
+ cartNextRow.hidden=!all.length;infoDisclosure.hidden=!all.length;
  for(const e of all)if(isHEMA(e))tiers.set(e.event_id,cartTier);
  if(all.some(isHEMA)&&byId('trainingTier'))byId('trainingTier').value=cartTier;
  const estimate=cartEstimate(all);
- for(const e of all){
-   const line=elt('div','cart-item'),name=elt('span','cart-name',eventDate(e)+' · '+(isHEMA(e)?U().session:eventTitle(e)));
-   line.append(name);
+ for(const [index,e] of all.entries()){
+   const label=isHEMA(e)?U().session:eventTitle(e),date=eventDate(e);
+   const line=elt('div','cart-item'),name=elt('span','cart-name');
+   line.setAttribute('role','listitem');
+   const when=elt('time','cart-date',date);when.dateTime=e.begins_at;
+   name.append(when,elt('span','cart-event-name',label));line.append(name);
    // A single global tariff applies; per-date selectors were redundant.
    const amt=price(e),included=estimate.packageEvents.has(e.event_id);
  line.append(elt('span','cart-price',included?Q().pack:amt===0?c.free:amt===null?c.unknown:money(amt)));
-   line.append(btn(c.remove,()=>{
+   const remove=btn(c.remove,()=>{
      selected.delete(e.event_id);tiers.delete(e.event_id);
      const next=currentEvents()[0];
      if(next && next.event_id!==byId('eventId')?.value && typeof window.chooseEvent==='function') {
@@ -152,22 +173,24 @@ function render(){
        if(typeof showEvent==='function')showEvent();
      }
      render();
-   }));
+     const buttons=list.querySelectorAll('.cart-remove');
+     if(buttons.length)buttons[Math.min(index,buttons.length-1)].focus();
+     else byId('calendarGrid')?.querySelector('.has-open')?.focus();
+   });
+   remove.classList.add('cart-remove');remove.setAttribute('aria-label',f.remove.replace('{item}',label+' · '+date));line.append(remove);
    list.append(line);
  }
- if(!all.length)list.append(elt('p','catalog-summary',c.empty));
  const h=all.some(isHEMA),qt=Q();
  rate.hidden=!h;seniorDisclosure.hidden=!h;plan.hidden=!h;planDisclosure.hidden=!h;
  rateLabel.textContent=qt.rate;rateSelect.options[0].textContent=qt.standard;rateSelect.options[1].textContent=qt.senior;rateSelect.value=cartTier;
  rateRule.firstChild.textContent=qt.rule+' ';rulesLink.textContent=qt.rules;
  planLabel.textContent=qt.plan;planSelect.options[0].textContent=qt.automatic;planSelect.options[1].textContent=qt.single;planSelect.value=cartPlan;
  const amounts=estimate.summary;
- totals.append(elt('p','cart-grand-total',U().price+': '+(estimate.allKnown?money(estimate.total):c.unknown)));
+ const total=elt('p','cart-grand-total');total.append(elt('span','cart-total-label',f.estimated),elt('strong','cart-total-value',estimate.allKnown?money(estimate.total):c.unknown));totals.append(total);
  const multi=all.length>1;
  const distinct=amounts.map(x=>x.seller);
  const packInfo=estimate.packCount ? (estimate.packCount+' × '+qt.pack+' = '+money(estimate.packCount*PACK_PRICE)) : U().noPack;
  planNote.textContent=cartPlan==='AUTO'?packInfo:qt.single;
- explain.textContent=U().after;
  infoBody.textContent=qt.pdf+(distinct.length>1?' '+qt.split:'');
  const consentNeeded=all.some(e=>e.category==='HEMA Training'&&e.data_controller==='Aliaksei Chareshneu (OSVČ)');
  accepted.style.display=consentNeeded?'flex':'none';
@@ -196,7 +219,7 @@ function updateCartDayHighlights(){
  const keys=new Set(currentEvents().map(e=>typeof calendarDayKey==='function'?calendarDayKey(e):String(e.begins_at||'').slice(0,10)));
  for(const cell of cal.querySelectorAll('.calendar-day[data-day-key]')){
   const chosen=keys.has(cell.dataset.dayKey);cell.classList.toggle('is-cart-selected',chosen);
-  if(chosen)cell.setAttribute('aria-pressed','true');
+  if(cell.hasAttribute('aria-pressed'))cell.setAttribute('aria-pressed',String(chosen||cell.classList.contains('is-selected')));
  }
 }
 
