@@ -184,6 +184,7 @@ function render(){
  const pay=byId('trainingPayment');if(pay&&multi&&all.some(isHEMA))pay.hidden=true;
  else if(pay&&all.length===1&&isHEMA(all[0])&&all[0].trainingPayment)pay.hidden=false;
  const submit=byId('submit');if(submit&&all.some(isHEMA)){submit.disabled=false;submit.textContent=U().submit;}
+ else if(submit&&multi){submit.textContent=c.submit.replace('{n}',String(all.length));}
  else if(submit&&typeof t==='function'){submit.textContent=t('send');}
  updateCartDayHighlights();
 }
@@ -269,7 +270,10 @@ async function getQuote(parent){const where=parent||receiptArea();
  }catch(e){where.append(elt('p','event-state',C().quotePending+' ('+String(e.message||'')+')'));}
 }
 form.addEventListener('submit',async event=>{
- const all=currentEvents();if(!all.some(isHEMA))return;
+ const all=currentEvents();
+ // A single ordinary event keeps the existing RSVP flow; multiple events
+ // must all be sent together even when there are no HEMA sessions.
+ if(!all.length||(all.length===1&&!isHEMA(all[0])))return;
  // Existing transfer receipts and one-time legacy continuation tokens
  // must UPDATE the original RSVP rather than creating a duplicate cart.
  const legacyProof=byId('paymentProof')?.files?.length>0;
