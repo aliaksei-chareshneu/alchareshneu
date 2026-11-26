@@ -227,7 +227,7 @@
       '<section class="fd-section" id="impr-calendar" tabindex="-1">',
         '<div class="fd-shell">',
           '<div class="fd-topline"><div><div class="fd-eyebrow" id="fdCalEyebrow"></div><h2 id="fdCalTitle"></h2></div><p id="fdCalIntro"></p></div>',
-          '<aside class="fd-nearest-event" id="fdNearestEvent" aria-live="polite" aria-label="Next verified public event"><div class="fd-nearest-copy"><span id="fdNearestEyebrow"></span><strong id="fdNearestTitle"></strong><span id="fdNearestWhen"></span></div><div class="fd-nearest-actions"><a id="fdNearestBook" href="#impr-calendar"></a><button type="button" id="fdNearestMore"></button></div></aside>',
+          '<aside class="fd-nearest-event" id="fdNearestEvent" aria-live="polite" aria-labelledby="fdNearestEyebrow"><div class="fd-nearest-copy"><span id="fdNearestEyebrow"></span><strong id="fdNearestTitle"></strong><span id="fdNearestWhen"></span></div><div class="fd-nearest-actions"><a id="fdNearestBook" href="#impr-calendar"></a><button type="button" id="fdNearestMore"></button></div></aside>',
           '<div class="fd-stage">',
           '<aside class="fd-facet-panel" aria-label="Event filters">',
           '<div class="fd-facet-head"><span aria-hidden="true">⚑</span><strong id="fdFacetTitle"></strong></div>',
@@ -319,6 +319,7 @@
   }
   function publicDescription(e){
     if(e.provisional)return window.ImperionCalendarPolicy.langData(lang).detail;
+    if(e.event_id==='PUB-HEMA-20261126' && e.registration_mode==='CONTACT')return ({cs:'Trénink zůstává v plánu. Účast si ověřte přímo; online přihláška a platba jsou do ověření příjemce pozastavené. Pokud jste už zaplatili, neplaťte znovu.',en:'Training remains scheduled. Contact us to check your place. Online registration and payments are paused while we verify the payee. Do not pay twice.',ru:'Тренировка остаётся в расписании. Уточните участие напрямую. Онлайн-запись и оплата приостановлены до сверки получателя. Повторно не платите.',uk:'Тренування залишається в розкладі. Уточніть участь напряму. Онлайн-запис та оплату призупинено до перевірки одержувача. Не сплачуйте повторно.'})[lang];
     if(e.event_id==='PUB-OREL-20261114')return ({cs:'Úvodní workshop v Orlovně Husovice. Vstup zdarma, účast až po osobním potvrzení organizátorem.',en:'Introductory workshop at Orlovna Husovice. Free entry, attendance only after personal confirmation.',ru:'Вводный воркшоп в Orlovna Husovice. Бесплатно, участие только после личного подтверждения организатора.',uk:'Вступний воркшоп в Orlovna Husovice. Безплатно, участь лише після особистого підтвердження.'})[lang];
     if(e.category==='HEMA Training' && group(e)==='club')return ({cs:'Pohyb, historický šerm a společný trénink. Bezpečné místo a účast vždy potvrdí organizátor.',en:'Movement, historical fencing and group training. The organiser must confirm the safe venue and your place.',ru:'Движение, историческое фехтование и тренировка в группе. Место и участие организатор подтверждает лично.',uk:'Рух, історичне фехтування та групове тренування. Безпечне місце й участь організатор підтверджує особисто.'})[lang];
     var note=window.ImperionEventI18n?.note(e,lang) || e.public_note;
@@ -512,7 +513,7 @@
     el('fdEventTitle').textContent=publicTitle(event);
     el('fdEventDesc').textContent=publicDescription(event);
     var facts=el('fdFacts');facts.replaceChildren();
-    [[tr('date'),timeOf(event)],[tr('place'),publicVenue(event)],[({cs:'Pořadatel',en:'Organiser',ru:'Организатор',uk:'Організатор'})[lang],event.data_controller||tr('controller')],[tr('priceLabel'),displayEventPrice(event)]].forEach(function(x){
+    [[tr('date'),timeOf(event)],[tr('place'),publicVenue(event)],[({cs:'Pořadatel',en:'Organiser',ru:'Организатор',uk:'Організатор'})[lang],(event.event_id==='PUB-HEMA-20261126'&&event.registration_mode==='CONTACT'?({cs:'upřesníme před platbou',en:'to be confirmed before payment',ru:'уточним до оплаты',uk:'уточнимо до оплати'})[lang]:event.data_controller)||tr('controller')],[tr('priceLabel'),displayEventPrice(event)]].forEach(function(x){
       var line=document.createElement('span'),b=document.createElement('strong');b.textContent=x[0]+': ';line.appendChild(b);line.appendChild(document.createTextNode(x[1]));facts.appendChild(line);
     });
     var st=el('fdStatus');st.hidden=false;st.className='fd-status '+(m==='open'?'open':'');st.textContent=event.provisional?window.ImperionCalendarPolicy.langData(lang).status:tr(m);
@@ -531,10 +532,10 @@
     });
   }
   var NEAREST_COPY={
-    cs:{label:'NEJBLIŽŠÍ OVĚŘENÁ AKCE',book:'Požádat o místo →',ask:'Ověřit účast →',details:'Podrobnosti',empty:'Zatím žádná ověřená akce v nabídce',when:'Vyberte datum nebo změňte filtr',planned:'Termín vyžaduje potvrzení',error:'Nelze ověřit dostupné akce'},
-    en:{label:'NEXT VERIFIED EVENT',book:'Request a place →',ask:'Check availability →',details:'Details',empty:'No verified event with this filter',when:'Choose a date or change filters',planned:'Attendance requires confirmation',error:'Event availability could not be checked'},
-    ru:{label:'БЛИЖАЙШЕЕ ПОДТВЕРЖДЁННОЕ СОБЫТИЕ',book:'Запросить место →',ask:'Уточнить участие →',details:'Подробнее',empty:'Нет проверенного мероприятия по фильтру',when:'Выберите дату или измените фильтр',planned:'Место требует подтверждения',error:'Не удалось проверить мероприятия'},
-    uk:{label:'НАЙБЛИЖЧА ПЕРЕВІРЕНА ПОДІЯ',book:'Запитати місце →',ask:'Уточнити участь →',details:'Детальніше',empty:'Немає перевіреної події за фільтром',when:'Оберіть дату чи змініть фільтр',planned:'Участь потребує підтвердження',error:'Не вдалося перевірити події'}
+    cs:{label:'NEJBLIŽŠÍ TERMÍN V KALENDÁŘI',book:'Požádat o místo →',ask:'Ověřit účast →',details:'Podrobnosti',empty:'Zatím žádná ověřená akce v nabídce',when:'Vyberte datum nebo změňte filtr',planned:'Termín vyžaduje potvrzení',error:'Nelze ověřit dostupné akce'},
+    en:{label:'NEXT ON THE CALENDAR',book:'Request a place →',ask:'Check availability →',details:'Details',empty:'No verified event with this filter',when:'Choose a date or change filters',planned:'Attendance requires confirmation',error:'Event availability could not be checked'},
+    ru:{label:'БЛИЖАЙШАЯ ДАТА В КАЛЕНДАРЕ',book:'Запросить место →',ask:'Уточнить участие →',details:'Подробнее',empty:'Нет проверенного мероприятия по фильтру',when:'Выберите дату или измените фильтр',planned:'Место требует подтверждения',error:'Не удалось проверить мероприятия'},
+    uk:{label:'НАЙБЛИЖЧА ДАТА В КАЛЕНДАРІ',book:'Запитати місце →',ask:'Уточнити участь →',details:'Детальніше',empty:'Немає перевіреної події за фільтром',when:'Оберіть дату чи змініть фільтр',planned:'Участь потребує підтвердження',error:'Не вдалося перевірити події'}
   };
   var nearestEvent=null;
   function renderNearestEvent(){
