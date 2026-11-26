@@ -673,13 +673,13 @@ function impSendReceiptQueue_(ss,cfg,events){
  if(max<=0)return {sent:0,failed:0,quotaBlocked:true};
  events=impReceiptAttachEventGroups_(ss,events||impReceiptCatalog_(ss));
  tabs.forEach(function(pair){
-  if(sent>=max)return;
+  if(sent+failed>=max||(cfg.mailDeadlineMs&&Date.now()>=cfg.mailDeadlineMs))return;
   var sh=ss.getSheetByName(pair[0]);if(!sh||sh.getLastRow()<2)return;
   var h=impHeader_(sh),m=h.map;
   IMP_RC_COLS.forEach(function(k){if(m[k]===undefined)throw Error('Receipt column missing: '+k);});
   var rows=sh.getRange(2,1,sh.getLastRow()-1,sh.getLastColumn()).getDisplayValues();
   rows.forEach(function(row,i){
-   if(sent>=max)return;
+   if(sent+failed>=max||(cfg.mailDeadlineMs&&Date.now()>=cfg.mailDeadlineMs))return;
    var state=String(row[m.Receipt_Status]||'');
    if(state!=='PENDING'&&state!=='RETRY')return;
    var count=Number(row[m.Receipt_Attempts]||0);
@@ -783,7 +783,7 @@ function impSendAttendedFollowups_(ss,cfg){
  if(!max||sh.getLastRow()<2)return {sent:0,failed:0,quotaBlocked:!max};
  var rows=sh.getRange(2,1,sh.getLastRow()-1,sh.getLastColumn()).getDisplayValues();
  rows.forEach(function(row,i){
-  if(sent>=max)return;
+  if(sent+failed>=max||(cfg.mailDeadlineMs&&Date.now()>=cfg.mailDeadlineMs))return;
   var source=String(row[m.Source_Channel]||''),event=byId[String(row[m.Event_ID]||'')];
   if(source!=='WEBSITE_RSVP_SUPABASE_UNCONFIRMED'||!event
    ||!event.controller||event.controller!==String(row[m.Data_Controller]||'').trim()
@@ -1072,6 +1072,7 @@ function impSendProofReviewAlerts_(ss,cfg){
  var quota=Math.max(0,MailApp.getRemainingDailyQuota()-1),limit=Math.min(15,quota);
  var sent=0,uncertain=0,blocked=0;
  for(var i=0;i<rows.length;i++){
+  if(cfg.mailDeadlineMs&&Date.now()>=cfg.mailDeadlineMs)break;
   var row=rows[i],value=function(k){return String(row[m[k]]||'').trim();};
   if(value('Payment_Evidence_Status')!=='PROOF_RECEIVED'||
      value('Owner_Bank_Check')!=='CHECK_BANK_CREDIT')continue;
@@ -1137,11 +1138,20 @@ function impStartupReadWithRetry_(operation){
 
 /** Run manually once first, then enable owner-created time triggers. */
 function imperionSyncPrivateIntake(){
+  var started=Date.now();
   var lock=LockService.getScriptLock();
   if(!lock.tryLock(12000))throw Error('Another intake run is already in progress');
   try{
     var cfg=impStartupReadWithRetry_(function(){return impPrivateConfig_();}),
         ss=impStartupReadWithRetry_(function(){return SpreadsheetApp.openById(cfg.sheetId);});
+    // Leave headroom below the 6-minute Apps Script ceiling for durable ACK/readback.
+    cfg.workDeadlineMs=started+180000;
+    cfg.mailDeadlineMs=started+240000;
+    function hasWorkTime(){return Date.now()<cfg.workDeadlineMs;}
+    function stage(name,fn){
+      if(Date.now()>=cfg.mailDeadlineMs){console.warn('Intake budget deferred '+name);return {sent:0,failed:0,deferred:true};}
+      var at=Date.now();try{return fn();}finally{console.log('Intake phase '+name+' ms='+(Date.now()-at));}
+    }
     // Reuse this lock and timer. Optional private modules are never installed here.
     // Agent4 transport failure must not prevent website/Academy intake.
     var agent4={status:'NOT_INSTALLED',imported:0,acked:0,held:0};
@@ -1154,16 +1164,18 @@ function imperionSyncPrivateIntake(){
     var addedR=0,addedE=0,addedB=0,addedA=0,processed=0;
     // One safe public price lookup; never infer paid status from a blank/unknown fee.
     var events=impReceiptCatalog_();
-    for(var i=0;i<4;i++){
+    for(var i=0;i<4&&hasWorkTime();i++){
       var batch=impPrivateFetch_(cfg,null);
       if(batch.protocol!=='imperion-intake-bridge-v1'||
          !Array.isArray(batch.rsvps)||!Array.isArray(batch.enquiries)||!Array.isArray(batch.b2b)||!Array.isArray(batch.academy))
         throw Error('Private intake response schema changed');
       if(!batch.rsvps.length&&!batch.enquiries.length&&!batch.b2b.length&&!batch.academy.length)break;
-      var a=impWriteRsvps_(ss,batch.rsvps,events);
-      var b=impWriteEnquiries_(ss,batch.enquiries);
-      var c=impWriteB2B_(ss,batch.b2b);
-      var d=impWriteAcademy_(ss,batch.academy);
+      // Bound the number of rows in a single execution; unprocessed source IDs are not acknowledged.
+      // Preserve write/readback -> durable owner digest -> ACK ordering.
+      var a=impWriteRsvps_(ss,batch.rsvps.slice(0,8),events);
+      var b=impWriteEnquiries_(ss,batch.enquiries.slice(0,8));
+      var c=impWriteB2B_(ss,batch.b2b.slice(0,8));
+      var d=impWriteAcademy_(ss,batch.academy.slice(0,8));
       // Persist the owner-notification receipt BEFORE acknowledging the source;
       // a mail outage or later crash must not silently discard new leads.
       impQueueOwnerDigest_(a.added,b.added,c.added,ss,d.added);
@@ -1171,14 +1183,15 @@ function imperionSyncPrivateIntake(){
       impPrivateFetch_(cfg,{action:'ack',rsvps:a.ids,enquiries:b.ids,b2b:c.ids,academy:d.ids});
       addedR+=a.added;addedE+=b.added;addedB+=c.added;addedA+=d.added;
       processed+=a.ids.length+b.ids.length+c.ids.length+d.ids.length;
-      if(a.ids.length<40&&b.ids.length<40&&c.ids.length<40&&d.ids.length<40)break;
+      // Next existing 5-minute trigger will fetch the remaining unacknowledged records.
+      break;
     }
     // Retry a previously failed digest even if this run has no new rows.
-    impFlushOwnerDigest_(cfg,ss,events);
-    var proofAlerts=impSendProofReviewAlerts_(ss,cfg);
-    var receipts=impSendReceiptQueue_(ss,cfg,events);
-    var followups=impSendAttendedFollowups_(ss,cfg);
-    var chatInvites=impSendApprovedChatInvites_(ss,cfg);
+    stage('owner_digest',function(){return impFlushOwnerDigest_(cfg,ss,events);});
+    var proofAlerts=stage('proof_alerts',function(){return impSendProofReviewAlerts_(ss,cfg);});
+    var receipts=stage('receipts',function(){return impSendReceiptQueue_(ss,cfg,events);});
+    var followups=stage('attended_followups',function(){return impSendAttendedFollowups_(ss,cfg);});
+    var chatInvites=stage('chat_invites',function(){return impSendApprovedChatInvites_(ss,cfg);});
     console.log('Private intake receipts: dispatched='+receipts.sent+', errors='+receipts.failed);
     console.log('Private intake: new RSVP='+addedR+', enquiries='+addedE+', corporate OSVC='+addedB+', Academy OSVC='+addedA+', acked='+processed);
     return {agent4:agent4,newRsvps:addedR,newEnquiries:addedE,newB2B:addedB,newAcademy:addedA,acked:processed,proofAlerts:proofAlerts,receipts:receipts,followups:followups,chatInvites:chatInvites};
@@ -1228,7 +1241,7 @@ function impSendApprovedChatInvites_(ss,cfg){
  if(!max||regs.getLastRow()<2)return {sent:0,failed:0,quotaBlocked:!max};
  var rows=regs.getRange(2,1,regs.getLastRow()-1,regs.getLastColumn()).getDisplayValues();
  rows.forEach(function(row,i){
-  if(sent>=max)return;
+  if(sent+failed>=max||(cfg.mailDeadlineMs&&Date.now()>=cfg.mailDeadlineMs))return;
   var v=function(k){return String(row[m[k]]||'').trim();};
   var ev=byId[v('Event_ID')];
   if(!ev||!ev.controller||ev.controller!==v('Data_Controller')||
