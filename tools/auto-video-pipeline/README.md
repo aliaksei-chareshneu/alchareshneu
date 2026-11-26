@@ -64,7 +64,7 @@ The Codex plugin is **optional**: open **ChatGPT desktop app → Plugins → Rem
 2. **GitHub Actions cloud runner:** `.github/workflows/auto-video-pipeline.yml` installs Node/Remotion on a temporary Ubuntu runner, tests Python/TypeScript, generates a synthetic source MP4, runs the Python edit-plan adapter and renders another MP4 with Remotion, then provides a downloadable artifact. The user's computer does not participate. **Verified 26 Oct 2026:** [GitHub Actions run 40320208323](https://github.com/aliaksei-chareshneu/alchareshneu/actions/runs/40320208323) succeeded, along with Site quality.
 3. **Private production inputs not yet wired:** This PR does not accept arbitrary uploads or upload user footage to GitHub; GitHub CI uses only synthetic footage. A private, permissioned upload/storage adapter and security/rights review are necessary before an always-on cloud editor can accept real videos.
 
-The cloud workflow currently lives on a **draft PR branch**, not production. Its `workflow_dispatch` manual entry becomes generally available only after the workflow is merged into the default branch with approval. No live publishing is enabled.
+The video pipeline code and workflow were **merged in PR #138 on 2026-11-11**, but this alone does not establish a running private-media ingestion service or live publishing. Manual `workflow_dispatch` availability and actual results must be verified on GitHub Actions. No live publishing is enabled by this editor.
 
 Remotion: https://www.remotion.dev/docs/ai/codex-plugin | https://www.remotion.dev/docs/videos/ | https://www.remotion.dev/docs/render
 
@@ -74,3 +74,15 @@ Remotion: https://www.remotion.dev/docs/ai/codex-plugin | https://www.remotion.d
 - Auto narration identification, stock discovery, audio dubbing and multichannel publishing are **not implemented**. Licensed external asset search requires separate connected sources and rights validation.
 - Don't use third-party tutorial footage or personal information as a public demo without explicit rights.
 - The FFmpeg fallback has no face tracking, smart reframing, or creative transitions.
+
+## Agent #3 / E09 iterative editor (review-only; 2026-11-22)
+
+This existing pipeline now has a bounded editing interface at [editor_agent.py](editor_agent.py) and a [canonical toolchain inventory](EDITOR-AGENT-TOOLCHAIN.md), based on the owner's tutorial and previous free-tool research. **It does not replace** the main ShortFactory, Growth Agent #3 or SocialPublishing.
+
+- `python3 editor_agent.py doctor --project /private/project`: inspect installed FFmpeg, ffprobe, Remotion, Whisper and yt-dlp without installing anything.
+- `python3 editor_agent.py init --project /private/project`: make local `public/` and `out/` and preserve an existing `style.md`.
+- `plan`: call existing video_factory.make_plan for authorized footage inside the local `public/` folder.
+- `revise`: turn keep/change/remove feedback into a **new** bounded cut plan; do not overwrite original, and clear subtitle offsets after timing changes.
+- `render`: route through the existing source-SHA and rights/consent gate; return review-only MP4, **never publish**.
+
+HyperFrames license/identity are not verified, and Piratex MCP is for public trend data, not rendering. No paid services, new subscriptions, new queues, automatic external downloads or public posting are enabled.

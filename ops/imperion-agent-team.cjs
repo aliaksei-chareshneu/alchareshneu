@@ -288,6 +288,13 @@ function video(snapshot, root=ROOT) {
     /^[a-f0-9]{64}$/i.test(str(field(r,'source_sha256','Source_SHA256'))));
   return {state:'EXISTING_WORKER_READY_FOR_REVIEW',source:'EXISTING_ShortFactory/media_index.sqlite',
     worker_present:fs.existsSync(path.join(root,'shortfactory_autopilot.py')),
+    editor_agent_entrypoint:'tools/auto-video-pipeline/editor_agent.py',
+    editor_agent_script_present:fs.existsSync(path.join(root,'tools/auto-video-pipeline/editor_agent.py')),
+    editor_toolchain_reference:'tools/auto-video-pipeline/EDITOR-AGENT-TOOLCHAIN.md',
+    editor_toolchain_doc_present:fs.existsSync(path.join(root,'tools/auto-video-pipeline/EDITOR-AGENT-TOOLCHAIN.md')),
+    declared_tool_stack:['ffmpeg','ffprobe','remotion','whisper','yt-dlp'],
+    optional_tools_not_verified:['hyperframes','piratex-mcp'],
+    tool_installation_checked:false,
     eligible_in_supplied_snapshot:eligible.length,
     renderer_executed:false, actual_source_hashes_checked:false,
     clips_rendered:0, uploaded:0, published:0,

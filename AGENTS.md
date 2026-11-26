@@ -127,6 +127,11 @@ Existing implementation locations:
 - Watchdog: scripts/imperion-watchdog.cjs
 - Watchdog workflow: .github/workflows/imperion-watchdog.yml
 - Source verification: ops/imperion-daily-event-source-verify.sql
+- Existing Agent #3 / E09 video editor: tools/auto-video-pipeline/editor_agent.py
+- Canonical video toolchain (FFmpeg/Remotion/Whisper/yt-dlp, safety and license caveats): tools/auto-video-pipeline/EDITOR-AGENT-TOOLCHAIN.md
+- Existing E09 editing and rights-gated rendering: tools/auto-video-pipeline/video_factory.py and pipeline.py
+
+For video-editing requests, **reuse Agent #3 + E09 + existing ShortFactory/SocialPublishing**. First inspect the canonical video toolchain and read-only doctor. Do not assume HyperFrames or Piratex installed, paid tools free, rights granted, or real publication/live receipts. Never create a duplicate media agent, publishing queue or CRM.
 
 These paths are the existing baseline from AGENTS.md. Verify their current content and operational state before making claims.
 
