@@ -164,3 +164,54 @@ test('mobile cart shows count and estimate, then moves focus to contact details 
  await expect(page.locator('#firstName')).toBeFocused();
  expect(sent).toEqual([]);
 });
+
+const nov27Catalog=[
+ {...basics,event_id:'PUB-HEMA-20261126',title:'Synthetic Thursday contact only',begins_at:'2026-11-26T17:00:00Z',ends_at:'2026-11-26T19:00:00Z',registration_mode:'CONTACT'},
+ {...basics,event_id:'PUB-HEMA-20261128',title:'Synthetic Saturday HEMA',begins_at:'2026-11-28T17:00:00Z',ends_at:'2026-11-28T19:00:00Z'}
+];
+async function fillIncidentFixture(page){
+ await page.locator('#firstName').fill('Synthetic');await page.locator('#lastName').fill('QA');
+ await page.locator('#email').fill('incident-qa@example.invalid');await page.locator('#phone').fill('000000000');
+ await page.locator('#safety').check();
+}
+test('incident regression: Thursday CONTACT cannot submit; Saturday FORM submits once on mobile',async({page})=>{
+ const posted=[];await stub(page,posted,nov27Catalog);
+ await page.setViewportSize({width:360,height:780});
+ await page.clock.setFixedTime(new Date('2026-11-26T09:00:00Z'));
+ await page.goto('/register/en/?event=PUB-HEMA-20261126');
+ await expect(page.locator('#rsvpForm')).toBeVisible();
+ await expect(page.locator('#eventId')).toHaveValue('PUB-HEMA-20261126');
+ await expect(page.locator('#rsvpDetails')).toBeHidden();
+ await expect(page.locator('#submit')).toBeDisabled();
+ expect(posted).toEqual([]);
+ await page.clock.setFixedTime(new Date('2026-11-27T09:00:00Z'));
+ await page.goto('/register/en/?event=PUB-HEMA-20261128');
+ await expect(page.locator('#rsvpDetails')).toBeVisible();
+ await expect(page.locator('#imperionMultiCart .cart-count')).toHaveText('Selected: 1 of 8');
+ await fillIncidentFixture(page);await page.locator('#submit').click();
+ await expect(page.locator('#result')).toBeVisible();
+ expect(posted).toHaveLength(1);
+ expect(posted[0]).toMatchObject({action:'cart_submit',eventIds:['PUB-HEMA-20261128']});
+ await expect(page.locator('#result')).not.toContainText('BANK VERIFIED');
+});
+test('incident regression: HTTP 503 does not claim registration or automatically resend',async({page})=>{
+ const posted=[];
+ await page.route(API,route=>{
+  const method=route.request().method();
+  if(method==='OPTIONS')return route.fulfill({status:204,headers:cors});
+  if(method==='GET')return route.fulfill({status:200,contentType:'application/json',headers:cors,body:JSON.stringify({events:nov27Catalog})});
+  posted.push(JSON.parse(route.request().postData()));
+  return route.fulfill({status:503,contentType:'application/json',headers:cors,body:JSON.stringify({error:'cart_unavailable'})});
+ });
+ await page.setViewportSize({width:360,height:780});
+ await page.clock.setFixedTime(new Date('2026-11-27T09:00:00Z'));
+ await page.goto('/register/en/?event=PUB-HEMA-20261128');
+ await expect(page.locator('#rsvpDetails')).toBeVisible();
+ await fillIncidentFixture(page);await page.locator('#submit').click();
+ await expect(page.locator('#result')).toHaveClass(/error/);
+ await expect(page.locator('#result')).toContainText('contact the organiser');
+ await expect(page.locator('#result')).not.toContainText('BANK VERIFIED');
+ await expect(page.locator('#rsvpForm')).toBeVisible();
+ await expect(page.locator('#submit')).toBeEnabled();
+ expect(posted).toHaveLength(1);
+});
