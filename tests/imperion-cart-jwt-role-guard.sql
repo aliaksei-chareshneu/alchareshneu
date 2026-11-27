@@ -5,6 +5,11 @@ DECLARE
   oid_target oid;
   guard_role text;
   should_pass boolean;
+  create_error text;
+  proof_error text;
+  credit_error text;
+  proof_result boolean;
+  credit_result boolean;
 BEGIN
   FOR target IN SELECT * FROM (VALUES
     ('public.imperion_rsvp_cart_create(jsonb,jsonb)'),
@@ -26,26 +31,34 @@ BEGIN
   FOREACH guard_role IN ARRAY ARRAY['anon','authenticated','','service_role'] LOOP
     should_pass := guard_role='service_role';
     PERFORM set_config('request.jwt.claims',CASE WHEN guard_role='' THEN '{}' ELSE jsonb_build_object('role',guard_role)::text END,true);
+    create_error := NULL;
+    proof_error := NULL;
+    credit_error := NULL;
+    proof_result := NULL;
+    credit_result := NULL;
     BEGIN
       PERFORM public.imperion_rsvp_cart_create('{}'::jsonb,'[]'::jsonb);
-      RAISE EXCEPTION 'QA unexpected create result';
     EXCEPTION WHEN raise_exception THEN
-      IF SQLERRM <> CASE WHEN should_pass THEN 'invalid_cart_size' ELSE 'not_authorized' END THEN RAISE; END IF;
+      create_error := SQLERRM;
     END;
+    IF create_error IS DISTINCT FROM (CASE WHEN should_pass THEN 'invalid_cart_size' ELSE 'not_authorized' END)
+    THEN RAISE EXCEPTION 'QA unexpected create result: % / %', guard_role, create_error; END IF;
     BEGIN
-      IF public.imperion_rsvp_cart_record_proof(NULL::uuid,NULL::text,NULL::text,NULL::text,NULL::text[]) IS DISTINCT FROM false OR NOT should_pass THEN
-        RAISE EXCEPTION 'QA unexpected proof result';
-      END IF;
+      proof_result := public.imperion_rsvp_cart_record_proof(NULL::uuid,NULL::text,NULL::text,NULL::text,NULL::text[]);
     EXCEPTION WHEN raise_exception THEN
-      IF should_pass OR SQLERRM <> 'not_authorized' THEN RAISE; END IF;
+      proof_error := SQLERRM;
     END;
+    IF (should_pass AND (proof_result IS DISTINCT FROM false OR proof_error IS NOT NULL))
+      OR (NOT should_pass AND proof_error IS DISTINCT FROM 'not_authorized')
+    THEN RAISE EXCEPTION 'QA unexpected proof result: % / % / %', guard_role, proof_result, proof_error; END IF;
     BEGIN
-      IF public.imperion_rsvp_cart_verify_credit(NULL::uuid,NULL::integer,NULL::text) IS DISTINCT FROM false OR NOT should_pass THEN
-        RAISE EXCEPTION 'QA unexpected credit result';
-      END IF;
+      credit_result := public.imperion_rsvp_cart_verify_credit(NULL::uuid,NULL::integer,NULL::text);
     EXCEPTION WHEN raise_exception THEN
-      IF should_pass OR SQLERRM <> 'not_authorized' THEN RAISE; END IF;
+      credit_error := SQLERRM;
     END;
+    IF (should_pass AND (credit_result IS DISTINCT FROM false OR credit_error IS NOT NULL))
+      OR (NOT should_pass AND credit_error IS DISTINCT FROM 'not_authorized')
+    THEN RAISE EXCEPTION 'QA unexpected credit result: % / % / %', guard_role, credit_result, credit_error; END IF;
   END LOOP;
 END;
 $qa$;
