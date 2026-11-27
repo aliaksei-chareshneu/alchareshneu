@@ -39,7 +39,7 @@ test('same-row CRM receives review type and owner check without rewriting bank a
    "Proof_Alert_Status","Proof_Alert_Sent_At",
    "Payment_Evidence_Status:verified?'BANK_VERIFIED':'PROOF_RECEIVED'"])
    assert.ok((bridge+crm).includes(s),s);
- assert.ok(crm.includes("var proofAlerts=impSendProofReviewAlerts_(ss,cfg)"));
+ assert.ok(crm.includes("var proofAlerts=phase('PROOF_ALERTS',function(){return impSendProofReviewAlerts_(ss,cfg,deadline);});"));
  assert.ok(crm.includes("MailApp.sendEmail({to:cfg.email"));
  assert.ok(crm.includes("sh.getRange(i+2,m.Proof_Alert_Status+1).setValue('DISPATCH_STARTED')"));
  assert.ok(crm.includes("'DELIVERY_UNCERTAIN'"));

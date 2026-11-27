@@ -667,21 +667,22 @@ function impReceiptMessage_(kind,row,m,events){
  parts.push('',w[10]);
  return {to:email,subject:(receiptCopy?receiptCopy.subject:w[0])+' · '+id.slice(0,8),body:parts.join('\n'),sender:sender};
 }
-function impSendReceiptQueue_(ss,cfg,events){
+function impSendReceiptQueue_(ss,cfg,events,deadline){
  var tabs=[['Registrations','RSVP'],['Druzina_Requests','TRAINING'],['Leads','B2B']];
- var quota=MailApp.getRemainingDailyQuota(),max=Math.min(30,Math.max(0,quota-1)),sent=0,failed=0;
+ var quota=MailApp.getRemainingDailyQuota(),max=Math.min(30,Math.max(0,quota-1)),sent=0,failed=0,attempted=0;
  if(max<=0)return {sent:0,failed:0,quotaBlocked:true};
  events=impReceiptAttachEventGroups_(ss,events||impReceiptCatalog_(ss));
  tabs.forEach(function(pair){
-  if(sent>=max)return;
+  if(attempted>=max||!impIntakeBudgetOpen_(deadline))return;
   var sh=ss.getSheetByName(pair[0]);if(!sh||sh.getLastRow()<2)return;
   var h=impHeader_(sh),m=h.map;
   IMP_RC_COLS.forEach(function(k){if(m[k]===undefined)throw Error('Receipt column missing: '+k);});
   var rows=sh.getRange(2,1,sh.getLastRow()-1,sh.getLastColumn()).getDisplayValues();
   rows.forEach(function(row,i){
-   if(sent>=max)return;
+   if(attempted>=max||!impIntakeBudgetOpen_(deadline))return;
    var state=String(row[m.Receipt_Status]||'');
    if(state!=='PENDING'&&state!=='RETRY')return;
+   attempted++;
    var count=Number(row[m.Receipt_Attempts]||0);
    if(count>=5){sh.getRange(i+2,m.Receipt_Status+1).setValue('FAILED_REVIEW');return;}
    var msg=impReceiptMessage_(pair[1],row,m,events);
@@ -752,7 +753,7 @@ function impAttendeeThankYou_(row,m,event,props){
  return {subject:w[0]+' · '+String(event.title||'').slice(0,110),body:body.join('\n'),
   sender:isDruzina?'Družina Moravy':isWalk?'BrnoWalkers':'Community events'};
 }
-function impSendAttendedFollowups_(ss,cfg){
+function impSendAttendedFollowups_(ss,cfg,deadline){
  var p=PropertiesService.getScriptProperties();
  if(p.getProperty('IMPERION_ATTENDEE_FOLLOWUP_LIVE')!=='true')
   return {sent:0,failed:0,disabled:true};
@@ -779,11 +780,11 @@ function impSendAttendedFollowups_(ss,cfg){
    category:String(r[em.Category]||''),community:String(r[em.Community]||''),
    controller:String(r[em.Data_Controller]||'').trim()};
  });
- var quota=Math.max(0,MailApp.getRemainingDailyQuota()-3),max=Math.min(12,quota),sent=0,failed=0;
+ var quota=Math.max(0,MailApp.getRemainingDailyQuota()-3),max=Math.min(12,quota),sent=0,failed=0,attempted=0;
  if(!max||sh.getLastRow()<2)return {sent:0,failed:0,quotaBlocked:!max};
  var rows=sh.getRange(2,1,sh.getLastRow()-1,sh.getLastColumn()).getDisplayValues();
  rows.forEach(function(row,i){
-  if(sent>=max)return;
+  if(attempted>=max||!impIntakeBudgetOpen_(deadline))return;
   var source=String(row[m.Source_Channel]||''),event=byId[String(row[m.Event_ID]||'')];
   if(source!=='WEBSITE_RSVP_SUPABASE_UNCONFIRMED'||!event
    ||!event.controller||event.controller!==String(row[m.Data_Controller]||'').trim()
@@ -794,6 +795,7 @@ function impSendAttendedFollowups_(ss,cfg){
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email))return;
   var state=String(row[m.Event_Followup_Status]||'').trim();
   if(state&&state!=='RETRY')return; // exactly one follow-up per canonical row
+  attempted++;
   var attempts=Number(row[m.Event_Followup_Attempts]||0);
   if(attempts>=3){sh.getRange(i+2,m.Event_Followup_Status+1).setValue('FAILED_REVIEW');return;}
   var msg=impAttendeeThankYou_(row,m,event,p);
@@ -1059,7 +1061,7 @@ function impFlushOwnerDigest_(cfg,ss,events){
  * No PDF, account number, payer details or public evidence link is emailed.
  * A crash after MailApp accepts an email is not retried blindly.
  */
-function impSendProofReviewAlerts_(ss,cfg){
+function impSendProofReviewAlerts_(ss,cfg,deadline){
  var sh=ss.getSheetByName('Registrations');if(!sh)
    return {sent:0,uncertain:0,blocked:0};
  var h=impEnsureRsvpPaymentCols_(sh),m=h.map;
@@ -1070,8 +1072,9 @@ function impSendProofReviewAlerts_(ss,cfg){
    throw Error('Missing proof-review columns; do not silently lose alerts');
  var n=sh.getLastRow()-1,rows=sh.getRange(2,1,n,sh.getLastColumn()).getDisplayValues();
  var quota=Math.max(0,MailApp.getRemainingDailyQuota()-1),limit=Math.min(15,quota);
- var sent=0,uncertain=0,blocked=0;
+ var sent=0,uncertain=0,blocked=0,attempted=0;
  for(var i=0;i<rows.length;i++){
+  if(!impIntakeBudgetOpen_(deadline))break;
   var row=rows[i],value=function(k){return String(row[m[k]]||'').trim();};
   if(value('Payment_Evidence_Status')!=='PROOF_RECEIVED'||
      value('Owner_Bank_Check')!=='CHECK_BANK_CREDIT')continue;
@@ -1080,7 +1083,8 @@ function impSendProofReviewAlerts_(ss,cfg){
     uncertain++;continue;
   }
   if(value('Proof_Alert_Status')!=='PENDING')continue;
-  if(sent>=limit){blocked++;continue;}
+  if(attempted>=limit){blocked++;continue;}
+  attempted++;
   var id=value('Submission_ID');
   if(!/^[a-f0-9-]{36}$/i.test(id)){blocked++;continue;}
   var eventId=value('Event_ID').replace(/[^A-Za-z0-9-]/g,'').slice(0,75);
@@ -1136,52 +1140,67 @@ function impStartupReadWithRetry_(operation){
 }
 
 /** Run manually once first, then enable owner-created time triggers. */
+var IMP_INTAKE_SOFT_BUDGET_MS=210000;
+var IMP_INTAKE_MAX_PER_TYPE=5;
+function impIntakeBudgetOpen_(deadline){
+  return !deadline||Date.now()<deadline;
+}
 function imperionSyncPrivateIntake(){
+  var deadline=Date.now()+IMP_INTAKE_SOFT_BUDGET_MS;
   var lock=LockService.getScriptLock();
-  if(!lock.tryLock(12000))throw Error('Another intake run is already in progress');
+  if(!lock.tryLock(1000)){
+    console.log('Private intake deferred: existing run holds lock');
+    return {status:'LOCK_BUSY_DEFERRED',acked:0};
+  }
   try{
     var cfg=impStartupReadWithRetry_(function(){return impPrivateConfig_();}),
         ss=impStartupReadWithRetry_(function(){return SpreadsheetApp.openById(cfg.sheetId);});
-    // Reuse this lock and timer. Optional private modules are never installed here.
-    // Agent4 transport failure must not prevent website/Academy intake.
     var agent4={status:'NOT_INSTALLED',imported:0,acked:0,held:0};
-    if(typeof impAgent4CrmPull_==='function'){
+    if(typeof impAgent4CrmPull_==='function'&&impIntakeBudgetOpen_(deadline)){
       try{agent4=impAgent4CrmPull_(cfg,ss);}
       catch(_){agent4={status:'HELD',imported:0,acked:0,held:1};
         console.warn('Agent4 metadata pull held; existing website intake continues');}
     }
-    ['Registrations','Druzina_Requests','Leads'].forEach(function(n){impEnsureReceiptCols_(ss.getSheetByName(n));});
-    var addedR=0,addedE=0,addedB=0,addedA=0,processed=0;
-    // One safe public price lookup; never infer paid status from a blank/unknown fee.
-    var events=impReceiptCatalog_();
-    for(var i=0;i<4;i++){
+    var addedR=0,addedE=0,addedB=0,addedA=0,processed=0,events={},deferred=[];
+    if(impIntakeBudgetOpen_(deadline)){
+      ['Registrations','Druzina_Requests','Leads'].forEach(function(n){impEnsureReceiptCols_(ss.getSheetByName(n));});
+      events=impReceiptCatalog_();
+    }
+    if(impIntakeBudgetOpen_(deadline)){
       var batch=impPrivateFetch_(cfg,null);
       if(batch.protocol!=='imperion-intake-bridge-v1'||
          !Array.isArray(batch.rsvps)||!Array.isArray(batch.enquiries)||!Array.isArray(batch.b2b)||!Array.isArray(batch.academy))
         throw Error('Private intake response schema changed');
-      if(!batch.rsvps.length&&!batch.enquiries.length&&!batch.b2b.length&&!batch.academy.length)break;
-      var a=impWriteRsvps_(ss,batch.rsvps,events);
-      var b=impWriteEnquiries_(ss,batch.enquiries);
-      var c=impWriteB2B_(ss,batch.b2b);
-      var d=impWriteAcademy_(ss,batch.academy);
-      // Persist the owner-notification receipt BEFORE acknowledging the source;
-      // a mail outage or later crash must not silently discard new leads.
-      impQueueOwnerDigest_(a.added,b.added,c.added,ss,d.added);
-      // Acknowledge only AFTER CRM writes/readback and notification queuing succeed.
-      impPrivateFetch_(cfg,{action:'ack',rsvps:a.ids,enquiries:b.ids,b2b:c.ids,academy:d.ids});
-      addedR+=a.added;addedE+=b.added;addedB+=c.added;addedA+=d.added;
-      processed+=a.ids.length+b.ids.length+c.ids.length+d.ids.length;
-      if(a.ids.length<40&&b.ids.length<40&&c.ids.length<40&&d.ids.length<40)break;
+      // At most 5 records per type. The rest stay pending at the source.
+      // Never cut off a started write/digest/ACK transaction mid-phase.
+      if(impIntakeBudgetOpen_(deadline)&&(batch.rsvps.length||batch.enquiries.length||batch.b2b.length||batch.academy.length)){
+        var a=impWriteRsvps_(ss,batch.rsvps.slice(0,IMP_INTAKE_MAX_PER_TYPE),events);
+        var b=impWriteEnquiries_(ss,batch.enquiries.slice(0,IMP_INTAKE_MAX_PER_TYPE));
+        var c=impWriteB2B_(ss,batch.b2b.slice(0,IMP_INTAKE_MAX_PER_TYPE));
+        var d=impWriteAcademy_(ss,batch.academy.slice(0,IMP_INTAKE_MAX_PER_TYPE));
+        // Acknowledge only AFTER CRM writes/readback and notification queuing succeed.
+        impQueueOwnerDigest_(a.added,b.added,c.added,ss,d.added);
+        impPrivateFetch_(cfg,{action:'ack',rsvps:a.ids,enquiries:b.ids,b2b:c.ids,academy:d.ids});
+        addedR=a.added;addedE=b.added;addedB=c.added;addedA=d.added;
+        processed=a.ids.length+b.ids.length+c.ids.length+d.ids.length;
+        if(batch.rsvps.length+batch.enquiries.length+batch.b2b.length+batch.academy.length>processed)
+          deferred.push('SOURCE_BACKLOG');
+      }else if(!impIntakeBudgetOpen_(deadline))deferred.push('SOURCE_PULL');
+    }else deferred.push('SOURCE_PULL');
+    // Preserve pending state; the existing five-minute trigger resumes it.
+    function phase(name,operation){
+      if(!impIntakeBudgetOpen_(deadline)){deferred.push(name);return {status:'DEFERRED',sent:0,failed:0};}
+      return operation();
     }
-    // Retry a previously failed digest even if this run has no new rows.
-    impFlushOwnerDigest_(cfg,ss,events);
-    var proofAlerts=impSendProofReviewAlerts_(ss,cfg);
-    var receipts=impSendReceiptQueue_(ss,cfg,events);
-    var followups=impSendAttendedFollowups_(ss,cfg);
-    var chatInvites=impSendApprovedChatInvites_(ss,cfg);
+    phase('OWNER_DIGEST',function(){return impFlushOwnerDigest_(cfg,ss,events);});
+    var proofAlerts=phase('PROOF_ALERTS',function(){return impSendProofReviewAlerts_(ss,cfg,deadline);});
+    var receipts=phase('RECEIPTS',function(){return impSendReceiptQueue_(ss,cfg,events,deadline);});
+    var followups=phase('ATTENDEE_FOLLOWUPS',function(){return impSendAttendedFollowups_(ss,cfg,deadline);});
+    var chatInvites=phase('CHAT_INVITES',function(){return impSendApprovedChatInvites_(ss,cfg,deadline);});
+    if(!impIntakeBudgetOpen_(deadline))deferred.push('RUNTIME_BUDGET');
     console.log('Private intake receipts: dispatched='+receipts.sent+', errors='+receipts.failed);
-    console.log('Private intake: new RSVP='+addedR+', enquiries='+addedE+', corporate OSVC='+addedB+', Academy OSVC='+addedA+', acked='+processed);
-    return {agent4:agent4,newRsvps:addedR,newEnquiries:addedE,newB2B:addedB,newAcademy:addedA,acked:processed,proofAlerts:proofAlerts,receipts:receipts,followups:followups,chatInvites:chatInvites};
+    console.log('Private intake: new RSVP='+addedR+', enquiries='+addedE+', corporate OSVC='+addedB+', Academy OSVC='+addedA+', acked='+processed+', deferred='+deferred.join(','));
+    return {status:deferred.length?'PARTIAL_DEFERRED':'OK',deferred:deferred,agent4:agent4,newRsvps:addedR,newEnquiries:addedE,newB2B:addedB,newAcademy:addedA,acked:processed,proofAlerts:proofAlerts,receipts:receipts,followups:followups,chatInvites:chatInvites};
   }finally{lock.releaseLock();}
 }
 
@@ -1201,7 +1220,7 @@ function impEnsureChatCols_(sheet){
   sheet.getRange(1,col).setValue(name);h.map[name]=col-1;
  });
 }
-function impSendApprovedChatInvites_(ss,cfg){
+function impSendApprovedChatInvites_(ss,cfg,deadline){
  if(PropertiesService.getScriptProperties().getProperty('IMPERION_CHAT_INVITES_LIVE')!=='true')
   return {sent:0,failed:0,disabled:true};
  var regs=ss.getSheetByName('Registrations'),eventSheet=ss.getSheetByName('Events');
@@ -1224,11 +1243,11 @@ function impSendApprovedChatInvites_(ss,cfg){
   }
  });
  var quota=Math.max(0,MailApp.getRemainingDailyQuota()-3),
-     max=Math.min(10,quota),sent=0,failed=0;
+     max=Math.min(10,quota),sent=0,failed=0,attempted=0;
  if(!max||regs.getLastRow()<2)return {sent:0,failed:0,quotaBlocked:!max};
  var rows=regs.getRange(2,1,regs.getLastRow()-1,regs.getLastColumn()).getDisplayValues();
  rows.forEach(function(row,i){
-  if(sent>=max)return;
+  if(attempted>=max||!impIntakeBudgetOpen_(deadline))return;
   var v=function(k){return String(row[m[k]]||'').trim();};
   var ev=byId[v('Event_ID')];
   if(!ev||!ev.controller||ev.controller!==v('Data_Controller')||
@@ -1243,6 +1262,7 @@ function impSendApprovedChatInvites_(ss,cfg){
   var email=v('Email'),state=v('Chat_Invite_Status'),
       attempts=Number(v('Chat_Invite_Attempts')||0);
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)||state&&state!=='RETRY')return;
+  attempted++;
   if(attempts>=3){regs.getRange(i+2,m.Chat_Invite_Status+1).setValue('FAILED_REVIEW');return;}
   // Only private Script Properties carry gated chat invitations. No URLs in GitHub.
   var chatUrl=String(PropertiesService.getScriptProperties().getProperty(route.chatProperty)||'').trim();
