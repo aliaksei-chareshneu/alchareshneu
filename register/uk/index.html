@@ -351,6 +351,13 @@ function showEvent(){
   $('submit').textContent=paid.button;
  }else if(!submitting){$('submit').textContent=t('send');}
 
+ 
+ if(mode==='FORM' && e.category==='HEMA Training' && (e.trainingPayment || Number(e.price_czk)>0)){
+  const steps=document.createElement('ol');steps.className='catalog-summary';
+  const guide={"cs":["1. Vyberte termín a odešlete žádost.","2. Plaťte až po obdržení individuálních pokynů.","3. V tomto formuláři nahrajte bankovní PDF. Přijetí PDF není potvrzení platby ani místa. Vyčkejte na písemné potvrzení."],"en":["1. Choose a date and submit a request.","2. Pay only after getting your personal payment instructions.","3. Upload your bank transfer PDF in this form. A PDF receipt is not payment or booking confirmation. Wait for written confirmation."],"ru":["1. Выберите дату и отправьте заявку.","2. Оплатите только после получения индивидуальных инструкций.","3. Загрузите банковский PDF в этой форме. Полученный PDF ещё не подтверждает оплату или место. Дождитесь письменного подтверждения."],"uk":["1. Оберіть дату й надішліть заявку.","2. Сплачуйте лише після отримання індивідуальних інструкцій.","3. Завантажте банківський PDF у цій формі. Отриманий PDF ще не підтверджує оплату чи місце. Дочекайтеся письмового підтвердження."]};
+  (guide[lang]||guide.cs).forEach(line=>{const item=document.createElement('li');item.textContent=line.replace(/^\d\. /,'');steps.append(item)});
+  info.append(steps);
+ }
  if((e.event_id==='PUB-HEMA-20261123'||e.event_id==='PUB-HEMA-20261128')&&mode==='FORM'){
   const details=window.ImperionEventI18n?.note(e,lang);
   if(details){const p=document.createElement('p');p.className='catalog-summary';p.textContent=details;info.append(p);}
